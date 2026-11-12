@@ -46,7 +46,7 @@ async function preview(page,label){
     art:window.CrewTreeV5.assetStatus(),geometry:window.__TREE_QA__.state().geometry,
     doc:document.documentElement.scrollWidth,width:window.innerWidth
    }));
-   assert.equal(state.art.version,4);
+   assert.equal(state.art.version,5);
    assert.equal(state.art.loaded.length,4);
    assert.ok(state.doc<=state.width+2,'no horizontal overflow');
    assert.equal(state.geometry.modelVersion,5);
@@ -60,6 +60,16 @@ async function preview(page,label){
   await wall.waitForFunction(()=>window.__TREE_ART_QA__?.status()?.allLoaded,{timeout:20000});
   assert.equal(await wall.locator('#reviewGallery .specimen').count(),24,'4 families x 2 seeds x 3 stages');
   assert.equal(await wall.locator('#matureCompare .specimen').count(),4,'four mature forms in parallel');
+  const previewCompare=await wall.evaluate(()=>{
+   const canvases=[...document.querySelectorAll('#matureCompare canvas')];
+   const out=document.createElement('canvas');out.width=4*240;out.height=325;
+   const ctx=out.getContext('2d');ctx.fillStyle='#f0f0dd';ctx.fillRect(0,0,out.width,out.height);
+   canvases.forEach((src,i)=>{ctx.drawImage(src,i*240+3,0,234,300);
+    ctx.fillStyle='#283b32';ctx.font='bold 16px system-ui';ctx.textAlign='center';
+    ctx.fillText(['Round','Tall','Weeping','Twin'][i],i*240+120,318);});
+   return out.toDataURL('image/jpeg',.76).split(',')[1];
+  });
+  console.log('V5_COMPARE='+previewCompare);
   const metrics=await wall.evaluate(()=>Object.fromEntries(window.__TREE_ART_QA__.families.map(f=>[f,window.__TREE_ART_QA__.metrics(f)])));
   assert.equal(metrics.twin.primaryTrunks,2);
   assert.ok(metrics.weeping.downwardBranches>=16);

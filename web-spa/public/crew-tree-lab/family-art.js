@@ -186,14 +186,14 @@ function sprig(c,b,seed,family,palette,variant,progress,back=false){
  const r=rng(seed^Math.imul(b.i+1,0x9e3779b1)),s=clamp(progress,0,1);
  const tip={x:lerp(b.start.x,b.end.x,s),y:lerp(b.start.y,b.end.y,s)};
  if(b.generation===1&&family==='weeping')return;
- const count=family==='tall'?4:family==='weeping'?5:family==='round'?7:6;
+ const count=family==='tall'?8:family==='weeping'?9:family==='round'?11:10;
  c.save();c.globalAlpha=back?.68:.98;
  for(let k=0;k<count;k++){
   const theta=k*2.39996+r()*.38;
-  const radius=family==='tall'?12:family==='weeping'?16:family==='round'?21:17;
+  const radius=family==='tall'?18:family==='weeping'?23:family==='round'?27:24;
   const x=tip.x+Math.cos(theta)*(radius*(.36+r()*.65));
   const y=tip.y+Math.sin(theta)*(radius*(.35+r()*.65));
-  const size=(family==='tall'?5.7:family==='weeping'?6.1:7.6)*(0.8+r()*.4);
+  const size=(family==='tall'?8.6:family==='weeping'?8.0:family==='round'?9.6:9.1)*(0.76+r()*.42);
   // Filament visibly joins the leaf to its source twig, including rear leaves.
   c.strokeStyle='#68826c';c.lineWidth=.75;c.beginPath();c.moveTo(tip.x,tip.y);
   c.quadraticCurveTo(lerp(tip.x,x,.55),lerp(tip.y,y,.43)-5,x,y);c.stroke();
@@ -267,9 +267,9 @@ function paint(c,tree,geo,ox,oy,scale,clock,opts={}){
  if(img?.complete&&img.naturalWidth>0)for(const b of geo.branches){
   if(b.generation!==1)continue;
   const p=b.i<from?1:progress;if(p<=0)continue;
-  const width=f==='tall'?49:f==='round'?79:f==='weeping'?68:63;
+  const width=f==='tall'?72:f==='round'?108:f==='weeping'?94:92;
   const ht=width*(f==='tall'?1.45:1.22);
-  c.save();c.globalAlpha=.50*p;c.drawImage(img,b.end.x-width*.52,b.end.y-ht*.68,width,ht);c.restore();
+  c.save();c.globalAlpha=.66*p;c.drawImage(img,b.end.x-width*.52,b.end.y-ht*.68,width,ht);c.restore();
  }
  paintWood(c,geo,tree.seed);
  for(const b of geo.branches){const p=b.i<from?1:progress;branch(c,b,p);}
