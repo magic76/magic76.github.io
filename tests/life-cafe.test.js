@@ -9,7 +9,7 @@ const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 function engine(){
  const ts=stripTypeScriptTypes(read("web-spa/src/timeline/lifeCafeEngine.ts")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
  const ctx={};
- vm.runInNewContext(ts+"\nglobalThis.game={newCafeWorld,cafeWorldValid,CAFE_PROPS,CAFE_ACTORS,cafeFirstResponder,useCafeProp,continueCafeWorld,catchUpCafeWorld,cafeBond};",ctx);
+ vm.runInNewContext(ts+"\nglobalThis.game={newCafeWorld,cafeWorldValid,CAFE_PROPS,CAFE_ACTORS,cafeFirstResponder,useCafeProp,continueCafeWorld,catchUpCafeWorld,cafeBond,cafeFinale,cafeLength};",ctx);
  return ctx.game;
 }
 function experiment(seed,item,target,guess=null){
@@ -45,19 +45,47 @@ test("camera can correct a letter misreading and repair the relationship",()=>{
  assert.ok(w.revealed.includes("mira-photo"));
  assert.ok(w.flags.includes("photo-cleared"));
 });
-test("the five events run without paid AI, reveal secrets and finish",()=>{
+test("a new mystery has three acts, must open with the letter and ends with an explicit answer",()=>{
  const g=engine();let w=g.newCafeWorld(88,1000000);
- for(const [item,target] of [["letter","hana"],["ticket","ethan"],["camera","mira"],["rain","hana"],["coffee","mira"]]){
+ assert.equal(w.version,2);
+ assert.equal(g.cafeLength(w),3);
+ assert.throws(()=>g.useCafeProp(w,"ticket","mira",null,1000001),/anonymous letter/);
+ for(const [item,target] of [["letter","hana"],["ticket","ethan"],["camera","mira"]]){
   w=g.useCafeProp(w,item,target,null,w.lastSeenAt+1);
   assert.ok(g.cafeWorldValid(w));
   w=g.continueCafeWorld(w,w.lastSeenAt+1);
  }
- assert.equal(w.phase,"finished");assert.equal(w.used.length,5);
- assert.equal(w.moves.length,5);
+ assert.equal(w.phase,"finished");assert.equal(w.used.length,3);
+ assert.equal(w.moves.length,3);
  assert.equal(w.revealed.length,3);
+ assert.match(g.cafeFinale(w).title.zh,/再見/);
+ assert.match(g.cafeFinale(w).detail.zh,/Hana/);
  assert.ok(g.cafeWorldValid(w));
  assert.throws(()=>g.useCafeProp(w,"rain","mira",null,w.lastSeenAt+1),/Invalid experiment/);
  assert.throws(()=>g.continueCafeWorld(w,w.lastSeenAt+1),/Nothing to advance/);
+});
+test("ending is a real consequence: unresolved false letter produces a missed goodbye",()=>{
+ const g=engine();let w=g.newCafeWorld(55,1000000);
+ for(const [item,target] of [["letter","mira"],["ticket","hana"],["coffee","mira"]]){
+  w=g.useCafeProp(w,item,target,null,w.lastSeenAt+1);
+  w=g.continueCafeWorld(w,w.lastSeenAt+1);
+ }
+ assert.equal(w.phase,"finished");
+ assert.match(g.cafeFinale(w).title.zh,/錯過/);
+ assert.match(g.cafeFinale(w).detail.zh,/Ethan/);
+ assert.notEqual(g.cafeFinale(w).title.zh,"在離開之前，他們終於說了再見");
+});
+test("historical five-object local saves remain playable without silent truncation",()=>{
+ const g=engine(),fresh=g.newCafeWorld(19,1000000);
+ let w={...fresh,version:1,episodeLength:undefined};
+ assert.equal(g.cafeLength(w),5);
+ for(const [item,target] of [["ticket","ethan"],["coffee","hana"],["letter","mira"],["rain","mira"],["camera","ethan"]]){
+  w=g.useCafeProp(w,item,target,null,w.lastSeenAt+1);
+  assert.ok(g.cafeWorldValid(w));
+  w=g.continueCafeWorld(w,w.lastSeenAt+1);
+ }
+ assert.equal(w.phase,"finished");assert.equal(w.moves.length,5);
+ assert.match(g.cafeFinale(w).detail.zh,/Hana/);
 });
 test("prediction measures actual first reaction and skip does not count",()=>{
  const g=engine();let w=g.newCafeWorld(884,1000000);
