@@ -98,7 +98,7 @@ export function LifeCafePage(){
   setWarning(!saveCafeWorld(next));
  };
  const reset=(sameSeed:boolean)=>{
-  if(world.moves.length>0&&!window.confirm(l("重新開始這場實驗？現在的事件會被覆蓋。","Restart? The current experiment history will be replaced.")))return;
+  if(world.phase!=="finished"&&world.moves.length>0&&!window.confirm(l("重新開始這場實驗？現在的事件會被覆蓋。","Restart? The current experiment history will be replaced.")))return;
   const next=newCafeWorld(sameSeed?world.seed:freshSeed());
   if(!clearCafeWorld())setWarning(true);
   update(next);
