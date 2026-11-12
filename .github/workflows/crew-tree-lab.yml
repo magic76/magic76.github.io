@@ -1,0 +1,31 @@
+name: Crew Tree Lab game
+
+on:
+  pull_request:
+    paths:
+      - 'web-spa/public/crew-tree-lab/**'
+      - 'tests/crew-tree-lab.test.js'
+      - '.github/workflows/crew-tree-lab.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'web-spa/public/crew-tree-lab/**'
+      - 'tests/crew-tree-lab.test.js'
+      - '.github/workflows/crew-tree-lab.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  tree:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run procedural-tree and privacy regressions
+        run: node --test tests/crew-tree-lab.test.js
