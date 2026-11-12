@@ -38,9 +38,13 @@ async function portraits(page){
   && Array.from(document.querySelectorAll(".lc-character .lc-portrait img")).every(el=>el.complete&&el.naturalWidth>0),null,{timeout:20000});
 }
 async function prop(page,id,target,guess=null){
- await page.locator(".lc-item").filter({has:page.locator(".lc-item-icon")}).nth(["letter","ticket","rain","camera","coffee"].indexOf(id)).click();
+ if(await page.locator(".lc-item").count())await page.locator(".lc-item").nth(["letter","ticket","rain","camera","coffee"].indexOf(id)).click();
+ else assert.equal(id,"letter","The first scene is always the unsigned letter");
  await page.locator(".lc-character-"+target).click();
- if(guess)await page.locator(".lc-guess-pills button").filter({hasText:guess==="mira"?"Mira":guess==="ethan"?"Ethan":"Hana"}).click();
+ if(guess){
+  await page.locator(".lc-guess-toggle").click();
+  await page.locator(".lc-guess-pills button").filter({hasText:guess==="mira"?"Mira":guess==="ethan"?"Ethan":"Hana"}).click();
+ }
  await page.locator(".lc-submit .lc-primary").click();
  await page.locator(".lc-reaction h2").waitFor({state:"visible"});
 }
@@ -52,11 +56,15 @@ try{
   const ctx=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:"reduce",locale:"zh-TW"});
   const page=await ctx.newPage();page.on("pageerror",e=>errors.push(width+": "+e.message));
   await page.goto(base+"/timeline/observe",{waitUntil:"domcontentloaded",timeout:45000});
-  await page.locator(".lc-item").first().waitFor({state:"visible",timeout:25000});
+  await page.locator(".lc-story-hook").waitFor({state:"visible",timeout:25000});
+  assert.match(await page.locator(".lc-story-hook").innerText(),/我可能要離開了/);
+  assert.match(await page.locator(".lc-story-hook").innerText(),/Mira.*Ethan.*Hana/s);
   await portraits(page);
   if(width<=390)assert.equal(await page.locator(".crew-mobile-dock").evaluate(el=>getComputedStyle(el).display),"none","Immersive game must not overlap prop controls with mobile site dock");
   assert.equal(await page.locator(".lc-character").count(),3);
-  assert.equal(await page.locator(".lc-item").count(),5);
+  assert.equal(await page.locator(".lc-item").count(),0,"A new player first sees the letter, not five unexplained props");
+  assert.equal(await page.locator(".lc-opening-letter").count(),1);
+  assert.equal(await page.locator(".lc-guess-pills").count(),0,"Guessing is optional and collapsed");
   await layout(page,width+" opening");
   await screenshot(page,width+"-cafe-start");
   await prop(page,"letter","mira","hana");
@@ -76,6 +84,7 @@ try{
   await screenshot(page,width+"-while-away");
   await page.locator(".lc-away button").click();
   await next(page);
+  assert.equal(await page.locator(".lc-item").count(),5,"Other props unlock only after opening");
   await prop(page,"camera","ethan");
   assert.match(await page.locator(".lc-reaction h2").innerText(),/照片裡藏著另一個答案/);
   await page.locator(".lc-discoveries .lc-fold-button").click();
@@ -85,18 +94,18 @@ try{
   await prop(page,"ticket","ethan");
   assert.match(await page.locator(".lc-reaction h2").innerText(),/原來有人偷偷寫歌/);
   await next(page);
-  await prop(page,"rain","hana");
-  await next(page);
-  await prop(page,"coffee","hana");
-  await next(page);
   await page.locator(".lc-finished").waitFor({state:"visible"});
   assert.equal(await page.locator(".lc-finished-stats").count(),1);
+  assert.match(await page.locator(".lc-finale-answer").innerText(),/匿名信是 Hana 寫的/);
+  assert.match(await page.locator(".lc-finished h2").innerText(),/錯過/);
+  assert.equal(await page.locator(".lc-episode-recap li").count(),3,"Three actions lead to a complete ending");
   await layout(page,width+" ending");
   await screenshot(page,width+"-experiment-end");
   await page.reload();await page.locator(".lc-finished").waitFor({state:"visible"});
-  assert.match(await page.locator(".lc-counter").innerText(),/5/);
+  assert.match(await page.locator(".lc-counter").innerText(),/3/);
   await page.locator(".lc-finished-actions .lc-primary").click();
-  await page.locator(".lc-item").first().waitFor({state:"visible"});
+  await page.locator(".lc-opening-letter").waitFor({state:"visible"});
+  assert.equal(await page.locator(".lc-item").count(),0);
   assert.match(await page.locator(".lc-counter").innerText(),/0/);
   await page.goto(base+"/timeline/observe/classic",{waitUntil:"domcontentloaded"});
   await page.locator(".lo-page").waitFor({state:"visible"}); // Previous game is available for reference.
