@@ -195,6 +195,9 @@ function aiTarget(){
  if(G.command==='help')return P.x+(P.x<Z.x?32:-32);
  let target=G.command==='lead'?Math.min(EXIT_X-37,P.x+210):P.x+72;
  for(const pit of room.pits){
+  // Once Zoe commits to a jump, do not decelerate toward a target *inside* the pit.
+  // Keep a safe landing point beyond the opposite edge until her feet are on ground.
+  if(!Z.onGround&&Z.x>=pit[0]-70&&Z.x<=pit[1]+35&&P.x<pit[0])target=Math.max(target,pit[1]+110);
   if(P.x<pit[0]-10&&Z.x>pit[1]+10)target=Math.max(target,pit[1]+45);
   else if(P.x>pit[1]+10&&Z.x<pit[0]-10)target=Math.max(target,pit[1]+55);
   else if(Z.x<pit[0]&&target>pit[0]&&target<pit[1]+60)target=pit[1]+70;
