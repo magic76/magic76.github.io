@@ -197,7 +197,13 @@
     "restartHint": "A free session was not established. Starting again may require a new security check.",
     "backendNext": "Several attempts received no reply. Try again later or use your own Gemini key.",
     "useKey": "Use my Gemini key",
-    "verifyAgain": "Verify again"
+    "verifyAgain": "Verify again",
+    "checkingHuman": "Checking you are human…",
+    "interactionHint": "Please complete the verification below. Your message will be sent automatically.",
+    "connecting": "Connecting your free chat…",
+    "sending": "Sending your message…",
+    "challengeTimeout": "Verification timed out. Press Send to try again.",
+    "challengeUnavailable": "Security verification could not load or complete. Press Send to try again."
   }
 
 }

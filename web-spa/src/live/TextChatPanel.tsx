@@ -2,6 +2,7 @@ import {LiveTextConversation} from "./liveTextChat";
 import {buildShortsTextSystems} from "./shortsTextContext";
 import {createTypingReveal} from "./typingReveal";
 import {sendGuestTextWithRenewal} from "./guestTextFlow";
+import {useGuestTextChallenge} from "./guestTextChallenge";
 import {classifyGuestTextFailure,guestTextWorkerError,markGuestTextStartError,isGuestTextStartError} from "./guestTextError";
 import {readSessionTranscript,writeSessionTranscript,saveFriendResume,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
@@ -20,8 +21,6 @@ import "./TextChatPanel.css";
 type Message={role:"user"|"assistant";text:string;sources?:GroundingSource[];searchSuggestions?:string};
 type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;shortsContext?:string;onExchange?:()=>void};
 type GuestPhase="checking"|"ready"|"starting"|"active"|"unavailable"|"error"|"exhausted"|"paused";
-type TurnstileApi={render:(el:HTMLElement,options:{sitekey:string;action:string;callback:(token:string)=>void;"expired-callback":()=>void;"error-callback":()=>void})=>string;remove:(id:string)=>void};
-const turnstile=()=> (window as Window&{turnstile?:TurnstileApi}).turnstile;
 const GUEST_TEXT_ENDPOINT="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/text";
 const SESSION_STORAGE_KEY="crew_guest_text_session_v1";
 function getSavedGuestSession(){
@@ -56,21 +55,18 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const [guestPhase,setGuestPhase]=useState<GuestPhase>("checking");
  const [guestToken,setGuestToken]=useState(getSavedGuestSession);
  const [siteKey,setSiteKey]=useState("");
- const [challenge,setChallenge]=useState("");
- const challengeWaiter=useRef<{resolve:(value:string)=>void;reject:(reason:Error)=>void}|null>(null);
  const [guestStatus,setGuestStatus]=useState("");
  const [remaining,setRemaining]=useState<number|null>(null);
  const mounted=useRef(true);
  const history=useRef<HTMLDivElement>(null);
  const guestBox=useRef<HTMLDivElement>(null);
  const bottom=useRef<HTMLDivElement>(null);
- const host=useRef<HTMLDivElement|null>(null);
- const widget=useRef<string|null>(null);
  const hasKey=Boolean(geminiKey());
  const guestMode=useGuest||!hasKey;
+ const {host,requested:challengeRequested,waitForChallenge}=useGuestTextChallenge(guestMode,guestPhase,siteKey);
+ const phaseRef=useRef(guestPhase);phaseRef.current=guestPhase;
  useEffect(()=>{mounted.current=true;return()=>{
   mounted.current=false;
-  challengeWaiter.current?.reject(Error("UNMOUNTED"));challengeWaiter.current=null;
  }},[]);
  // Restore only after mount: the server and first client render match.
  useEffect(()=>{
@@ -132,56 +128,16 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    }).catch(()=>{if(mounted.current&&!controller.signal.aborted)setGuestPhase("unavailable")});
   return()=>controller.abort();
  },[guestMode]);
- useEffect(()=>{
-  if(!guestMode||guestPhase!=="ready"||!siteKey)return;
-  let cancelled=false;
-  const render=()=>{
-   if(cancelled||!host.current||widget.current!==null||!turnstile())return;
-   widget.current=turnstile()!.render(host.current,{
-    sitekey:siteKey,action:"crew-guest-trial",
-    callback:token=>{
-     if(cancelled)return;
-     const waiting=challengeWaiter.current;
-     if(waiting){challengeWaiter.current=null;setChallenge("");waiting.resolve(token)}
-     else setChallenge(token);
-    },
-    "expired-callback":()=>{if(!cancelled)setChallenge("")},
-    "error-callback":()=>{if(!cancelled){setChallenge("");setGuestPhase("error")}}
-   });
-  };
-  let script=document.getElementById("crew-guest-turnstile");
-  if(!script){
-   const el=document.createElement("script");el.id="crew-guest-turnstile";
-   el.src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-   el.async=true;el.defer=true;document.head.appendChild(el);script=el;
-  }
-  const scriptError=()=>{if(!cancelled)setGuestPhase("error")};
-  if(turnstile())render();else script.addEventListener("load",render);
-  script.addEventListener("error",scriptError);
-  return()=>{
-   cancelled=true;script?.removeEventListener("load",render);script?.removeEventListener("error",scriptError);
-   if(widget.current!==null){try{turnstile()?.remove(widget.current)}catch{}widget.current=null}
-  };
- },[guestMode,guestPhase,siteKey]);
- useEffect(()=>{
-  if(guestPhase==="unavailable"||guestPhase==="error"||guestPhase==="exhausted"){
-   challengeWaiter.current?.reject(Error(guestPhase.toUpperCase()));challengeWaiter.current=null;
-  }
- },[guestPhase]);
- function waitForChallenge():Promise<string>{
-  if(challenge){setChallenge("");return Promise.resolve(challenge)}
-  return new Promise((resolve,reject)=>{challengeWaiter.current={resolve,reject}});
- }
  function invalidateGuestGrant(){
   try{sessionStorage.removeItem(SESSION_STORAGE_KEY)}catch{}
-  setGuestToken("");setChallenge("");setGuestPhase("ready");setRequestSent(false);
+  setGuestToken("");setGuestPhase("ready");setRequestSent(false);
  }
  async function startGuestText():Promise<string>{
-  setGuestStatus(english?"Complete the security check to send…":"完成安全驗證後會自動送出…");
-  const challengeToken=await waitForChallenge();
-  setGuestPhase("starting");
-  setGuestStatus(english?"Connecting free chat…":"正在建立免費連線…");
+  setGuestStatus(t("guestText.checkingHuman"));
   try{
+   const challengeToken=await waitForChallenge();
+   setGuestPhase("starting");
+   setGuestStatus(t("guestText.connecting"));
    const response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
     headers:{"content-type":"application/json"},
     body:JSON.stringify({action:"start",challengeToken})});
@@ -198,8 +154,8 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    return data.sessionToken;
   }catch(reason){
    const failure=classifyGuestTextFailure(reason);
-   if(mounted.current&&failure.kind!=="dailyLimit"){
-    setChallenge("");setGuestPhase(failure.reverify?"error":"paused");
+   if(mounted.current&&failure.kind!=="dailyLimit"&&!(["unavailable","exhausted"].includes(phaseRef.current))){
+    setGuestPhase(failure.reverify?"error":"paused");
    }
    throw markGuestTextStartError(reason);
   }
@@ -260,7 +216,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
      },
      send:async token=>{
       markDispatched();setRequestSent(true);
-      setGuestStatus(english?"Sending message…":"正在傳送訊息…");
+      setGuestStatus(t("guestText.sending"));
       const response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
        headers:{"content-type":"application/json"},
        body:JSON.stringify({action:"send",sessionToken:token,system:guestSystem,
@@ -340,15 +296,14 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   </div>}
   {!guestMode&&<small role="status" className="crew-text-chat-live-status">{liveStatus||(english?"Gemini Live keyboard chat · no microphone":"Gemini Live 鍵盤對話・不需麥克風")}</small>}
   {guestMode&&<div ref={guestBox} className="crew-text-guest" role="region" aria-label={english?"Free text practice":"免費文字練習"}>
-   <strong>{english?"Free text practice — no API key needed":"免費文字練習・不需要 API Key"}</strong>
-   <p>{english?`Up to ${GUEST_TEXT_DAILY_TURNS} messages a day, shared across teacher and friend chats. No microphone required.`:`每天最多 ${GUEST_TEXT_DAILY_TURNS} 則訊息，老師與 AI 朋友共用，不需要開啟麥克風。`}</p>
+   <strong>{english?`Free text practice · ${GUEST_TEXT_DAILY_TURNS} messages/day · no API key`:`免費文字練習・每天 ${GUEST_TEXT_DAILY_TURNS} 則・不需 API Key`}</strong>
    {guestPhase==="checking"&&<small role="status">{english?"Checking availability…":"正在確認免費額度…"}</small>}
-   {guestPhase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
-    <small>{english?"Verify once, then send your message below.":"通過驗證後，直接按下方送出即可。"}</small></>}
-   {guestPhase==="starting"&&<small role="status">{english?"Starting…":"正在開啟免費練習…"}</small>}
+   {challengeRequested&&guestPhase==="ready"&&<><div ref={host} className="crew-text-challenge-host" aria-label="Turnstile verification"/>
+    <small role="status">{t("guestText.interactionHint")}</small></>}
+   {guestPhase==="starting"&&<small role="status">{t("guestText.connecting")}</small>}
    {guestPhase==="active"&&remaining!==null&&<small role="status">{english?remaining+" free messages remaining":"今日剩餘 "+remaining+" 則免費訊息"}</small>}
-   {guestPhase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.verifyAgain")}</button>}
-   {guestPhase==="paused"&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.restart")}</button>}
+   {guestPhase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.verifyAgain")}</button>}
+   {guestPhase==="paused"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.restart")}</button>}
    {guestPhase==="unavailable"&&<small role="status">{english?"Free text chat is temporarily unavailable.":"免費文字聊天暫時無法使用。"}</small>}
    {guestPhase==="exhausted"&&<small role="status">{english?"Today's free messages have been used.":"今天的免費文字訊息已用完。"}</small>}
    {(guestPhase==="unavailable"||guestPhase==="exhausted")&&

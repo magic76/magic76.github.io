@@ -29,6 +29,11 @@ export function classifyGuestTextFailure(reason:unknown):GuestTextFailure{
   kind,messageKey,reverify:kind==="verification",retry
  });
  switch(code){
+  case "TURNSTILE_TIMEOUT":return failure("verification","guestText.challengeTimeout",false);
+  case "TURNSTILE_ERROR":
+  case "TURNSTILE_EXPIRED":
+  case "TURNSTILE_LOAD_FAILED":
+  case "CHALLENGE_CANCELLED":return failure("verification","guestText.challengeUnavailable",false);
   case "VERIFY_REQUIRED":return failure("verification","guestText.verifyRequired",false);
   case "VERIFY_FAILED":return failure("verification","guestText.verifyFailed",false);
   case "SESSION_EXPIRED":return failure("verification","guestText.sessionExpired",false);
