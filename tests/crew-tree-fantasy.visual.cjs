@@ -13,7 +13,7 @@ fs.mkdirSync(OUT,{recursive:true});
    page.on('pageerror',error=>failures.push(error.message));
    page.on('response',res=>{if(res.status()>=400)failures.push('HTTP '+res.status()+': '+res.url());});
    await page.goto(URL+'?qa=1',{waitUntil:'networkidle',timeout:40000});
-   await page.waitForFunction(()=>window.__CREW_STUDIES_QA__?.assetStatus()?.loaded?.length===9,{timeout:20000});
+   await page.waitForFunction(()=>window.__CREW_STUDIES_QA__?.assetStatus()?.loaded?.length===10,{timeout:20000});
    assert.equal(await page.locator('[data-preview]').count(),3);
    assert.equal(await page.locator('[data-scene]').count(),2);
    assert.equal(await page.locator('#silhouetteBtn').count(),1);
@@ -34,6 +34,13 @@ fs.mkdirSync(OUT,{recursive:true});
       assert.equal(m.lifeStage,stage===3?'hatchling':stage===8?'juvenile':'mature');
      }
      await page.locator('#heroCanvas').screenshot({path:path.join(OUT,label+'-'+scene+'-'+stage+'.png')});
+     if(stage===8)await page.locator('#heroCanvas').screenshot({
+      path:path.join(OUT,'V4-YOUTH-'+label+'-'+scene+'-8-turns.png')
+     });
+     if(stage===3){
+      assert.equal(await page.locator('#futureHint').isVisible(),true,'newborn future-world invitation');
+      await page.locator('#heroCanvas').screenshot({path:path.join(OUT,'V4-NEWBORN-'+label+'-'+scene+'.png')});
+     }else assert.equal(await page.locator('#futureHint').isVisible(),false);
      if(stage===16){
       await page.locator('#silhouetteBtn').click();
       assert.equal(await page.locator('#silhouetteBtn').getAttribute('aria-pressed'),'true');
@@ -66,6 +73,7 @@ fs.mkdirSync(OUT,{recursive:true});
      return out.toDataURL('image/jpeg',.68).split(',')[1];
     });
     if(label==='desktop')console.log('FANTASY_'+scene.toUpperCase()+'_CONTACT='+sheet);
+    if(label==='desktop')console.log('FANTASY_V4_'+scene.toUpperCase()+'_AGES='+sheet);
     if(label==='desktop'){
      await page.locator('#silhouetteBtn').click();
      const black=await page.evaluate(()=>{
@@ -124,7 +132,7 @@ fs.mkdirSync(OUT,{recursive:true});
       }
       return canvas.toDataURL('image/jpeg',.72).split(',')[1];
      },portraits);
-     console.log('FANTASY_V3_'+scene.toUpperCase()+'_TOPICS='+contact);
+     console.log('FANTASY_V4_'+scene.toUpperCase()+'_TOPICS='+contact);
     }
    }
    await page.locator('[data-scene="island"]').click();
@@ -139,7 +147,7 @@ fs.mkdirSync(OUT,{recursive:true});
    assert.ok(width.doc<=width.viewport+2,'No horizontal scrolling at '+label+': '+JSON.stringify(width));
    assert.equal(failures.length,0,JSON.stringify(failures));
    await page.screenshot({path:path.join(OUT,label+'-whole-art-study.png'),fullPage:true});
-   console.log('FANTASY_BROWSER_OK '+label+' 2 scenes x 3 stages; original SVG=9; overflow=0');
+   console.log('FANTASY_BROWSER_OK '+label+' 2 scenes x 3 stages; original SVG=10; overflow=0');
    await ctx.close();
   }
   // External authoring tools are separately reported: a CDN outage must not

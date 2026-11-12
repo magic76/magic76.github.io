@@ -5,6 +5,7 @@ const ROOT=path.join(__dirname,'../web-spa/public/crew-tree-lab/art-studies');
 const source=fs.readFileSync(path.join(ROOT,'study.js'),'utf8');
 const painter=fs.readFileSync(path.join(ROOT,'character-paint.js'),'utf8');
 const v3=fs.readFileSync(path.join(ROOT,'v3-art.js'),'utf8');
+const v4=fs.readFileSync(path.join(ROOT,'v4-art.js'),'utf8');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 function boot(){
  const nodes=new Map(),gradient=()=>({addColorStop(){}}),draw={paths:0};
@@ -26,14 +27,15 @@ function boot(){
  const win={matchMedia:()=>({matches:true,addEventListener(){}}),Image:MockImage,addEventListener(){}};
  const scope={window:win,document:doc,location:{search:'?qa=1'},Math,URLSearchParams,Number,Map,
   requestAnimationFrame(){throw Error('Reduced-motion page should be still');}};
- vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
+ vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
  return {qa:win.__CREW_STUDIES_QA__,draw};
 }
 test('isolated art studies never touch current V5 storage or chat',()=>{
  assert.match(html,/data-scene="island"/);assert.match(html,/data-scene="jelly"/);
  assert.match(html,/data-stage="16"/);assert.match(html,/V5 收藏/);
- assert.match(html,/character-paint\.js\?v=3-20261113/);
- assert.match(html,/v3-art\.js\?v=3-20261113/);
+ assert.match(html,/character-paint\.js\?v=4-20261113/);
+ assert.match(html,/v3-art\.js\?v=4-20261113/);
+ assert.match(html,/v4-art\.js\?v=4-20261113/);
  assert.match(html,/silhouetteBtn/);
  assert.doesNotMatch(source,/\blocalStorage\b|\bfetch\s*\(|\bWebSocket\b/);
 });
@@ -75,7 +77,7 @@ test('topic branches represent distinct attached structures',()=>{
 });
 test('all four original plates and explicitly named authoring tools are present',()=>{
  for(const name of ['floating-island.svg','island-crown.svg','jelly-canopy.svg','lantern-bud.svg',
- 'crown-spiral.svg','crown-willow.svg','crown-lantern.svg','crown-moon.svg','jelly-inner-membrane.svg']){
+ 'crown-spiral.svg','crown-willow.svg','crown-lantern.svg','crown-moon.svg','jelly-inner-membrane.svg','spiral-leaf-tiers.svg']){
   const svg=fs.readFileSync(path.join(ROOT,'assets',name),'utf8');
   assert.match(svg,/<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
   assert.match(svg,/<title>/);assert.doesNotMatch(svg,/<script|<foreignObject/);
@@ -106,7 +108,7 @@ test('art has explicit stage-specific species, magic glow, waterfalls and wildli
  assert.match(painter,/fish\(/);
  assert.match(painter,/firefly\(/);
  const {qa}=boot();
- assert.equal(qa.assetStatus().loaded.length,9);
+ assert.equal(qa.assetStatus().loaded.length,10);
  assert.equal(qa.state().silhouette,false);
 });
 
@@ -128,4 +130,27 @@ test('V3 real hatchlings, collectible character details and palettes',()=>{
  const bubble=fs.readFileSync(path.join(ROOT,'assets/crown-spiral.svg'),'utf8');
  assert.doesNotMatch(bubble,/M93 213Q60.*opacity="\.46"/);
  for(const topic of ['cosmos','warmth','music','travel'])assert.match(v3,new RegExp(topic));
+});
+
+test('V4 staged composition, botanical spiral and exploratory travel art are active',()=>{
+ const {qa}=boot();
+ assert.equal(qa.previews(),3);
+ assert.match(v4,/function islandSeedling\(/);
+ assert.match(v4,/function jellyHatchling\(/);
+ assert.match(v4,/function travelSky\(/);
+ assert.match(v4,/function travelCliff\(/);
+ assert.match(v4,/function refract\(/);
+ assert.match(v4,/function fishHero\(/);
+ assert.match(painter,/spiral-leaf-tiers\.svg/);
+ assert.match(html,/futureHint/);
+ assert.match(html,/剩下的世界|還有好多故事/);
+ const leaf=fs.readFileSync(path.join(ROOT,'assets/spiral-leaf-tiers.svg'),'utf8');
+ assert.ok((leaf.match(/<g transform=/g)||[]).length>=35,'layered leaves must be individually shaped');
+ const m8=qa.sceneModel('island',8,103,'travel');
+ assert.equal(m8.lifeStage,'sapling');
+ assert.equal(m8.units.length,2);
+ for(const scene of ['island','jelly'])for(const age of [3,8,16]){
+  const a=qa.sceneModel(scene,age,103,'travel');
+  assert.equal(JSON.stringify(a),JSON.stringify(qa.sceneModel(scene,age,103,'travel')));
+ }
 });

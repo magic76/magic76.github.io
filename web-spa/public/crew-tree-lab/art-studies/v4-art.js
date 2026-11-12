@@ -48,10 +48,6 @@ function openWorld(c,scene,seed,time,still,art){
    c.beginPath();c.moveTo(x,y);c.bezierCurveTo(x-7,y+32,x+12,y+52,x+8,y+70);c.stroke();
   }
  }
- for(let i=0;i<18;i++){
-  const r=seeded(seed^0xACDC)(/* seeded repeat deterministic */);
-  void r;break;
- }
  c.restore();void time;void still;
 }
 function islandSeedling(c,u,m,time,still,art){
@@ -86,10 +82,6 @@ function jellyHatchling(c,m,time,still,art){
  for(const rx of [166,218,265]){
   c.beginPath();c.ellipse(401,605+bob,rx,16+(rx-166)*.08,0,Math.PI*.08,Math.PI*.95);c.stroke();
  }
-}
-function thinStroke(c,path,light,dark){
- c.strokeStyle=dark;c.lineWidth=7;c.beginPath();path(c);c.stroke();
- c.strokeStyle=light;c.lineWidth=2.2;c.beginPath();path(c);c.stroke();
 }
 function travelBalloon(c,x,y,scale,seed,time,still){
  const swing=still?0:Math.sin(time*.00055+seed*.1)*5;
