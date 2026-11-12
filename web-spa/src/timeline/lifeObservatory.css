@@ -259,7 +259,7 @@
  .lo-budget{flex:0 0 84px;padding:10px 7px}
  .lo-budget span{font-size:10px}
  .lo-budget strong{font-size:33px}
- .lo-action-dock{bottom:84px;padding:12px;gap:11px;flex-direction:column;align-items:stretch}
+ .lo-action-dock{position:static;bottom:auto;padding:12px;gap:11px;flex-direction:column;align-items:stretch;margin:16px 0 22px}
  .lo-action-dock .lo-primary{width:100%;min-width:0}
  .lo-action-dock strong{font-size:12px}
  .lo-action-dock>div>span{font-size:10px}
