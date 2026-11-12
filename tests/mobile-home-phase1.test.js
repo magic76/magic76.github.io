@@ -34,28 +34,53 @@ test("mobile hero uses real device-local completed friend resume and never inven
 });
 
 test("eight one-tap app destinations, one Shorts strip and one daily recommendation",()=>{
- const page=read("web-spa/src/pages/MobileHomePage.tsx"),css=read("web-spa/src/pages/mobileHome.css");
- for(const route of ["/teacher/roles?mode=friends","/learn","/games","/story","/fortune","/teacher/shorts","/timeline","/teacher/course"])
-  assert.ok(page.includes('to:"'+route+'"'),"missing shortcut "+route);
- assert.match(page,/className="cmh-app-grid">\{APPS\.map/);
+ const page=read("web-spa/src/pages/MobileHomePage.tsx");
+ const css=read("web-spa/src/pages/mobileHome.css");
+ for(const route of ["/teacher/roles?mode=friends","/learn","/games","/story","/fortune","/teacher/shorts","/timeline","/teacher/course"]){
+  assert.ok(page.includes('to:"'+route+'"'),"missing direct app "+route);
+ }
+ assert.match(page,/className="cmh-app-grid"\>\{APPS\.map/);
+ assert.ok(page.includes('id:"timeline",zh:"時光機",en:"Timeline",icon:"history",to:"/timeline",event:"timeline"'));
+ assert.ok(page.includes('id:"scenarios",zh:"情境課程",en:"Scenarios",icon:"scene",to:"/teacher/course",event:"learn"'));
+ const shortcuts=page.slice(page.indexOf("const APPS:"),page.indexOf("/** Mobile-only"));
+ assert.equal((shortcuts.match(/\{id:"/g)||[]).length,8,"exactly eight shortcuts");
+ assert.ok(!shortcuts.includes('to:"/magic"'),"Magic must not be added");
  assert.match(page,/HomeShortsPreview maxPosts=\{8\} sharedFeed=\{shortsFeed\}/);
- assert.match(page,/className="cmh-seo"/);assert.match(page,/<GuideHub\/>/);
- assert.match(page,/const gameId=deepLink\.tab==="play"&&deepLink\.game\?deepLink\.game:featured/);
+ assert.match(page,/className="cmh-slide cmh-slide-game"/);
+ assert.doesNotMatch(page,/className="cmh-featured"/);
+ assert.match(page,/className="cmh-seo"/);
+ assert.match(page,/<GuideHub\/>/);
+ assert.match(page,/className="cmh-seo"[\s\S]*?to="\/learn"/);
  assert.match(css,/\.cmh-shorts \.crew-home-short-card/);
-
 });
 
 test("the phone hero is four real one-tap slides with a stationary Zoe first slot",()=>{
- const page=read("web-spa/src/pages/MobileHomePage.tsx"),rail=read("web-spa/src/pages/HomeModeRail.tsx"),css=read("web-spa/src/pages/homeLayout2.css");
- assert.doesNotMatch(page,/SLIDES=|CAROUSEL_INTERVAL_MS|setInterval|cmh-carousel/);
- assert.match(page,/useState<HomeMode>\("chat"\)/);
- assert.match(page,/<HomeModeRail prefix="cmh-mode" mode=\{mode\}/);
- assert.match(rail,/aria-orientation="vertical"/);
- for(const mode of ["chat","learn","fortune","play"])assert.ok(rail.includes('id:"'+mode+'"'));
- for(const key of ["ArrowUp","ArrowDown","Home","End"])assert.ok(rail.includes('"'+key+'"'));
- assert.match(css,/min-height:44px/);
+ const page=read("web-spa/src/pages/MobileHomePage.tsx");
+ const css=read("web-spa/src/pages/mobileHome.css");
+ assert.match(page,/SLIDES=\["zoe","friends","game","learn"\]/);
+ assert.match(page,/CAROUSEL_INTERVAL_MS=11000/);
+ assert.match(page,/cmh-carousel-track/);
+ for(const className of ["cmh-slide cmh-zoe","cmh-slide cmh-slide-friends","cmh-slide cmh-slide-game","cmh-slide cmh-slide-learn"]){
+  assert.ok(page.includes(className),"missing carousel slide "+className);
+ }
+ assert.match(page,/className="cmh-carousel-dots"/);
+ assert.match(page,/onTouchStart=\{touchBegin\} onTouchEnd=\{touchFinish\}/);
+ assert.match(page,/setCarouselPaused\(true\)/);
+ assert.match(page,/document.visibilityState==="visible"/);
+ assert.match(page,/prefers-reduced-motion: reduce/);
+ assert.match(page,/Math.abs\(dx\)>45/);
+ assert.match(page,/onClickCapture=\{event=>/);
+ assert.match(page,/tabIndex=\{activeSlide===0\?0:-1\}/);
+ for(const route of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher"]){
+  assert.ok(page.includes(route),"slide action missing: "+route);
+ }
+ assert.match(css,/\.cmh-carousel-track\{display:flex/);
+ assert.match(css,/@keyframes cmh-glow-drift/);
+ assert.match(css,/@keyframes cmh-spark-float/);
+ assert.match(css,/@keyframes cmh-avatar-breathe/);
+ assert.match(css,/@keyframes cmh-content-enter/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
-
+ assert.doesNotMatch(css,/\.cmh-featured\{/);
 });
 
 test("every ordinary mobile route uses one shared five-tab dock and desktop retains five",()=>{

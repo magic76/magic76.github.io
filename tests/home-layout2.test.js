@@ -8,24 +8,24 @@ const home=read("web-spa/src/pages/HomePage.tsx");
 const rail=read("web-spa/src/pages/HomeModeRail.tsx");
 const css=read("web-spa/src/pages/homeLayout2.css");
 
-test("Layout 2 uses one stable Zoe invitation and no mobile auto-rotation",()=>{
- for(const old of ["SLIDES","CAROUSEL_INTERVAL_MS","setInterval","cmh-carousel","cmh-carousel-dots","onTouchStart={touchBegin}"])
-  assert.doesNotMatch(mobile,new RegExp(old));
- assert.equal((mobile.match(/className="cmh-layout2-primary"/g)||[]).length,1);
+test("Desktop Layout 2 stays fixed while mobile restores the four-slide carousel",()=>{
+ assert.match(mobile,/const SLIDES=\["zoe","friends","game","learn"\]/);
+ assert.match(mobile,/const CAROUSEL_INTERVAL_MS=11000/);
+ assert.match(mobile,/className="cmh-carousel"/);
+ assert.match(mobile,/className="cmh-carousel-dots"/);
+ assert.doesNotMatch(mobile,/cmh-layout2-hero|cmh-layout2-other|cmh-layout2-primary/);
  assert.equal((desktop.match(/className="crew-portal-cta"/g)||[]).length,1);
  assert.match(mobile,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=home&chat=text"/);
  assert.match(desktop,/const HOME_ZOE=ZOE\+"&from=home&chat=text"/);
- assert.match(mobile,/const destination=exhausted\?"\/account#settings-gemini"/);
  assert.match(desktop,/const destination=exhausted\?"\/account#settings-gemini"/);
  assert.match(desktop,/const target=destination/);
  assert.match(desktop,/onPointerDown=\{warmFriendStart\}/);
  assert.match(desktop,/window.setTimeout\(\(\)=>navigate\(target\),120\)/);
 });
 
-test("Both layouts import one rail with four stable, accessible tab choices",()=>{
- assert.match(mobile,/import \{HomeModeRail,type HomeMode\} from "\.\/HomeModeRail"/);
+test("Desktop keeps its keyboard-accessible mode rail; mobile no longer renders one",()=>{
+ assert.doesNotMatch(mobile,/import \{HomeModeRail|<HomeModeRail/);
  assert.match(desktop,/import \{HomeModeRail,type HomeMode\} from "\.\/HomeModeRail"/);
- assert.match(mobile,/<HomeModeRail prefix="cmh-mode"/);
  assert.match(desktop,/<HomeModeRail prefix="crew-portal-mode"/);
  assert.match(rail,/role="tablist" aria-orientation="vertical"/);
  assert.match(rail,/role="tab"/);assert.match(rail,/role="tabpanel"/);
@@ -36,27 +36,27 @@ test("Both layouts import one rail with four stable, accessible tab choices",()=
  assert.doesNotMatch(rail,/setInterval|setTimeout/);
 });
 
-test("Mode selection changes only secondary panel; labels and actual routes remain available",()=>{
+test("Desktop modes and deep links stay intact; mobile slide actions use original destinations",()=>{
  assert.match(desktop,/<h1>\{canResume\?t\("layout2.resumeTitle"\):t\("layout2.title"/);
- assert.match(mobile,/<h1>\{headline\}<\/h1>/);
  assert.match(rail,/const title=mode==="chat"/);
  assert.match(rail,/const description=mode==="chat"/);
  for(const route of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])
   assert.ok(rail.includes('to:"'+route+'"'));
- assert.match(mobile,/play:"\/games\/"\+gameId/);
  assert.match(desktop,/play:"\/games\/"\+gameId/);
- assert.match(mobile,/const link=readHomeDeepLink\(window.location.search\)/);
  assert.match(desktop,/const link=readHomeDeepLink\(window.location.search\)/);
- for(const name of ["shortsPhotoQuestions","shortsChatUrl","HOME_FRIEND_NAMES","shorts_hook_click","shorts_chat_click"]){
-  assert.ok(mobile.includes(name)&&desktop.includes(name),name);
- }
+ for(const name of ["shortsPhotoQuestions","shortsChatUrl","HOME_FRIEND_NAMES","shorts_hook_click","shorts_chat_click"])
+  assert.ok(desktop.includes(name),name);
+ for(const path of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher"])
+  assert.ok(mobile.includes(path),path);
+ assert.match(mobile,/onTouchStart=\{touchBegin\} onTouchEnd=\{touchFinish\}/);
+ assert.match(mobile,/onKeyDown=\{event=>/);
 });
 
-test("Guest quota follows primary action, BYOK has no slot, voice stays secondary",()=>{
- const m=mobile.indexOf('className="cmh-layout2-primary"');
+test("Mobile quota follows carousel, hides for BYOK and preserves voice secondary action",()=>{
+ const a=mobile.indexOf('className="cmh-zoe-primary"');
+ const dots=mobile.indexOf('className="cmh-carousel-dots"');
  const q=mobile.indexOf('className="cmh-allowance-slot"');
- const r=mobile.indexOf('<HomeModeRail prefix=');
- assert.ok(m>=0&&q>m&&r>q);
+ assert.ok(a>=0&&dots>a&&q>dots);
  assert.match(mobile,/!hasKey&&<div className="cmh-allowance-slot">/);
  assert.match(desktop,/!hasKey&&<div className="crew-portal-status-slot">/);
  assert.match(mobile,/trial.seconds\/60/);
@@ -65,7 +65,10 @@ test("Guest quota follows primary action, BYOK has no slot, voice stays secondar
   assert.ok(mobile.includes("world.freeAllowance."+key));
   assert.ok(desktop.includes("world.freeAllowance."+key));
  }
- assert.match(mobile,/className="cmh-layout2-voice"/);
+ assert.match(mobile,/className="cmh-zoe-secondary"/);
+ assert.match(mobile,/className="cmh-zoe-primary"/);
+ assert.match(mobile,/繼續文字聊天/);
+ assert.match(mobile,/文字聊天/);
  assert.match(desktop,/className="crew-portal-layout2-voice"/);
 });
 
@@ -106,9 +109,13 @@ test("Desktop heading and CTA have a fixed layout across every rail mode",()=>{
 
 test("Accessible compact styling, reduced motion and translations across 11 locales",()=>{
  assert.match(css,/min-height:44px/);
- assert.match(css,/@media\(max-width:375px\)/);
+ assert.doesNotMatch(css,/cmh-layout2-hero|cmh-layout2-other|cmh-layout2-primary/);
+ assert.match(read("web-spa/src/pages/mobileHomeHeroV3.css"),/@media\(max-width:380px\)/);
  assert.match(css,/@media\(min-width:768px\)/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(mobile,/threshold:0\.35/);
+ assert.match(mobile,/document.visibilityState==="visible"/);
+ assert.match(mobile,/prefers-reduced-motion: reduce/);
  for(const [,size] of css.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g))assert.ok(Number(size)>=12,'under 12px font '+size);
  const keys=["title","action","description","voice","more","resumeTitle","resumeAction","chatTitle","chatDescription","previewHidden","showPreview","hidePreview"];
  for(const lang of locales){
