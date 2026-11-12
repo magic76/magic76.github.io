@@ -168,3 +168,51 @@ test('five-room finish records a joint story and next run keeps local memories',
  assert.equal(q.state().roomIndex,0);
  assert.equal(q.state().phase,'playing');
 });
+
+test('real player movement and one timed jump can cross the 135px gap',()=>{
+ const {q}=boot();q.start();
+ q.controls(false,true,false);
+ for(let i=0;i<51;i++)q.step(.016); // ~300 px, before the first pit
+ const before=q.state().player.x;
+ assert.ok(before>=287&&before<365,'player should reach the runway before the pit');
+ q.controls(false,true,true);
+ let landed=false;
+ for(let i=0;i<100;i++){
+  q.step(.016);
+  const p=q.state().player;
+  if(p.x>510&&p.onGround){landed=true;break}
+ }
+ assert.ok(landed,'the player must be able to leap the first pit with regular controls');
+ assert.equal(q.state().room,'gap');
+});
+
+test('Zoe reaches and holds her actual switch through autonomous pathing',()=>{
+ const {q}=boot();q.start();q.room('switches');
+ q.place('player',302);q.updatePuzzle();
+ assert.equal(q.state().gateOpen,false);
+ let opened=false;
+ for(let i=0;i<210;i++){
+  q.step(.016);
+  if(q.state().gateOpen){opened=true;break}
+ }
+ assert.ok(opened,'local AI should solve its switch without teleporting');
+ assert.ok(Math.abs(q.state().zoe.x-632)<43);
+ assert.ok(q.state().events.some(x=>x.includes('同時踩住')));
+});
+
+test('the bridge puzzle is playable by moving, not only by changing test flags',()=>{
+ const {q}=boot();q.start();q.room('relay');
+ q.place('player',185);
+ q.controls(false,true,false);
+ let bridgeWasUp=false,completedBridge=false;
+ for(let i=0;i<220;i++){
+  q.step(.016);
+  bridgeWasUp ||= q.state().bridgeActive;
+  completedBridge ||= q.state().flags.bridged;
+  if(completedBridge)break;
+ }
+ assert.ok(bridgeWasUp,'Zoe must stand on the left pressure plate in real time');
+ assert.ok(completedBridge,'the player should cross the supported bridge and lock it');
+ assert.ok(q.state().player.x>=624,'player should reach the far-side control');
+ assert.equal(q.state().gateOpen,true);
+});
