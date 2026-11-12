@@ -1,0 +1,22 @@
+{
+  "schema": 2,
+  "kind": "crew-short-page",
+  "source": "daily",
+  "generatedAt": "2026-11-12T00:00:00+08:00",
+  "posts": [
+    {
+      "id": "zoe-day1",
+      "friendId": "zoe",
+      "friendName": "Zoe",
+      "caption": "£7 for a coffee. I hope it comes with financial advice.",
+      "translationZh": "一杯咖啡要 7 英鎊。希望還附贈理財建議。",
+      "image": "/features/teacher/shorts/media/9fff6f180851072ede67db09.webp",
+      "imageAlt": "Zoe reacting to the price of takeaway coffee in a cozy London café beside a rainy window and card terminal.",
+      "publishedAt": "2026-10-16T08:00:00+08:00",
+      "language": "en",
+      "storyId": "coffee-budget",
+      "storyContext": ""
+    }
+  ],
+  "nextPage": null
+}
