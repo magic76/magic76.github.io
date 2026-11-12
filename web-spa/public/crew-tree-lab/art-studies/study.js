@@ -269,7 +269,7 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
  if(silhouette){c.save();c.filter='brightness(0)';}
  const sceneLayer=(m,opacity=1,grow=null)=>{
   c.save();c.globalAlpha*=opacity;
-  if(grow&&scene==='jelly')window.CrewFantasyV5.jellyGrowth(c,grow.from,stage,grow.p);
+  if(grow&&scene==='jelly')window.CrewFantasyV5.jellyGrowth(c,grow.from,stage,grow.progress);
   if(scene==='island')floatScene(c,m,time,staticMode);
   else jellyScene(c,m,time,staticMode);
   c.restore();
