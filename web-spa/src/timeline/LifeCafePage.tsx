@@ -174,33 +174,42 @@ export function LifeCafePage(){
    </section>
    {world.phase==="ready"&&<section className="lc-console">
     <div className="lc-section-top">
-     <div><span className="lc-step">01 / {l("放入變數","ADD A TWIST")}</span><h2>{l("丟一個東西進這個世界","Put something on the table")}</h2></div>
-     <span className="lc-remaining">{l("還有","Left")} {CAFE_MAX_MOVES-world.used.length} {l("次","turns")}</span>
+     <div><span className="lc-step">{opening?l("第一幕 · 匿名信","ACT 1 · THE LETTER"):l("下一幕 · 製造轉機","NEXT ACT · A NEW TWIST")}</span>
+      <h2>{opening?l("這封信，要先交給誰？","Who should read the letter first?"):l("接下來，怎麼打破沉默？","What might break the silence?")}</h2></div>
+     <span className="lc-remaining">{l("剩下","Left")} {total-world.used.length} {l("幕","acts")}</span>
     </div>
-    <div className="lc-item-grid" role="group" aria-label={l("選擇物件","Choose an item")}>
-     {CAFE_PROPS.map(id=><button type="button" key={id}
-      aria-pressed={activeItem===id&&!world.used.includes(id)} disabled={world.used.includes(id)}
-      className={"lc-item"+(activeItem===id&&!world.used.includes(id)?" is-selected":"")}
-      onClick={()=>setItem(id)}>
-      <span className="lc-item-icon" aria-hidden="true">{cafePropCopy[id].icon}</span>
-      <strong>{cafePropCopy[id].title[language]}</strong>
-      <small>{world.used.includes(id)?l("已使用","Used"):cafePropCopy[id].hint[language]}</small>
-     </button>)}
-    </div>
+    {opening?<div className="lc-opening-letter">
+      <span aria-hidden="true">✉️</span>
+      <div><strong>{l("沒有署名的信","An unsigned letter")}</strong><p>{l("上面只有一句：「我可能要離開了。」","Just one line: 'I might be leaving.'")}</p></div>
+     </div>:<div className="lc-item-grid" role="group" aria-label={l("選擇下一個物件","Choose another object")}>
+      {CAFE_PROPS.map(id=><button type="button" key={id}
+       aria-pressed={activeItem===id&&!world.used.includes(id)} disabled={world.used.includes(id)}
+       className={"lc-item"+(activeItem===id&&!world.used.includes(id)?" is-selected":"")}
+       onClick={()=>setItem(id)}>
+       <span className="lc-item-icon" aria-hidden="true">{cafePropCopy[id].icon}</span>
+       <strong>{cafePropCopy[id].title[language]}</strong>
+       <small>{world.used.includes(id)?l("已使用","Used"):cafePropCopy[id].hint[language]}</small>
+      </button>)}
+     </div>}
     <div className="lc-recipient">
-     <span className="lc-step">02 / {l("要放到誰面前？","WHO FINDS IT?")}</span>
+     <span className="lc-step">{opening?l("選一個收信的人","CHOOSE WHO RECEIVES THE LETTER"):l("物件要放在誰面前？","WHO FINDS THE OBJECT?")}</span>
      <div className="lc-recipient-pills" role="group" aria-label={l("物件放置目標","Choose who finds it")}>
       {CAFE_ACTORS.map(id=><button type="button" key={id} aria-pressed={target===id} className={target===id?"is-selected":""} onClick={()=>setTarget(id)}>{cafeNames[id]}</button>)}
      </div>
-     <small>{l("也可以直接點上面場景裡的人物。","Or tap a person directly in the scene above.")}</small>
+     <small>{l("也可以直接點上面場景裡的人物。","Or tap a person in the café scene.")}</small>
     </div>
     <div className="lc-guess">
-     <div className="lc-guess-intro"><span className="lc-step">03 / {l("猜猜看（可跳過）","OPTIONAL PREDICTION")}</span>
-      <span>{l("誰會第一個有反應？","Who reacts first?")}</span></div>
-     <div className="lc-guess-pills" role="group" aria-label={l("猜先反應的人","Predict first reaction")}>
-      <button type="button" aria-pressed={guess===null} className={guess===null?"is-selected":""} onClick={()=>setGuess(null)}>{l("不猜","Skip")}</button>
-      {CAFE_ACTORS.map(id=><button type="button" key={id} aria-pressed={guess===id} className={guess===id?"is-selected":""} onClick={()=>setGuess(id)}>{cafeNames[id]}</button>)}
-     </div>
+     <button type="button" className="lc-guess-toggle" aria-expanded={showGuess} onClick={()=>setShowGuess(v=>!v)}>
+      <span>{l("想多玩一點？猜誰會第一個有反應（可略過）","Extra challenge: who reacts first? (optional)")}</span>
+      <span aria-hidden="true">{showGuess?"−":"+"}</span>
+     </button>
+     {showGuess&&<div className="lc-guess-content">
+      <span className="lc-step">{l("猜人心","PREDICT THE FIRST REACTION")}</span>
+      <div className="lc-guess-pills" role="group" aria-label={l("猜先反應的人","Predict first reaction")}>
+       <button type="button" aria-pressed={guess===null} className={guess===null?"is-selected":""} onClick={()=>setGuess(null)}>{l("不猜","Skip")}</button>
+       {CAFE_ACTORS.map(id=><button type="button" key={id} aria-pressed={guess===id} className={guess===id?"is-selected":""} onClick={()=>setGuess(id)}>{cafeNames[id]}</button>)}
+      </div>
+     </div>}
     </div>
     <div className="lc-submit">
      <button type="button" className="lc-primary" onClick={apply}>
@@ -208,7 +217,8 @@ export function LifeCafePage(){
       {zh?"放到 "+cafeNames[target]+" 面前":" in front of "+cafeNames[target]}
       <span aria-hidden="true">→</span>
      </button>
-     <p>{l("角色會自己反應，不能直接控制他們說什麼。","People respond on their own. You can't choose what they say.")}</p>
+     <p>{opening?l("你只決定誰先看到信；他們會自己做出反應。","You decide who sees it first; they react on their own."):
+      l("不同物件和對象，可能讓真相更近，也可能造成新的誤會。","Different objects and recipients can uncover the truth or cause another misunderstanding.")}</p>
     </div>
    </section>}
    {reacting&&<div id="lc-reaction"><LastReaction world={world} zh={zh} onContinue={continueWorld} onReset={()=>reset(true)}/></div>}
