@@ -50,7 +50,7 @@ test("BYOK hides allowance slots entirely; guests keep the preexisting reserved 
  assert.match(desktop,/\{!hasKey&&<div className="crew-portal-status-slot">/,"BYOK has no empty desktop slot");
  // On the SSG first render hasKey is false: preserve the guest layout and quota status.
  assert.match(mobile,/\{ready&&!hasKey&&<p className="cmh-free-allowance" role="status">/);
- assert.match(desktop,/mode==="chat"&&ready&&!hasKey&&trial\.resolved&&trial\.enabled/);
+ assert.match(desktop,/ready&&!hasKey&&trial\.resolved&&trial\.enabled/);
  assert.match(mobileCss,/\.cmh-allowance-slot\{min-height:36px/);
  assert.match(desktopCss,/\.crew-portal-invitation-meta \.crew-portal-status-slot\{order:-1;min-height:38px/);
  assert.match(layoutCss,/\.crew-home-legacy \.crew-portal-status-slot\{min-height:19px/);

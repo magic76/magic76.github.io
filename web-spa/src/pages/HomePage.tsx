@@ -23,6 +23,7 @@ import "./home.css";
 import "./homePortal.css";
 import "./homeWorld.css";
 import "./homeDesktopLayout.css";
+import "./homeLayout2.css";
 
 type Kind="teacher"|"story"|"fortune"|"play"|"friend";
 type Recent={key:string;kind:Kind;title:string;description:string;to:string;timestamp:number;cover?:string};

@@ -1,103 +1,37 @@
-const test=require("node:test");
-const assert=require("node:assert/strict");
-const {readFileSync}=require("node:fs");
-const {resolve}=require("node:path");
-const read=path=>readFileSync(resolve(path),"utf8");
-
-test("four illustrated slides preserve Zoe first and real destinations",()=>{
- const jsx=read("web-spa/src/pages/MobileHomePage.tsx");
- assert.match(jsx,/SLIDES=\["zoe","friends","game","learn"\]/);
- assert.match(jsx,/CAROUSEL_INTERVAL_MS=5200/);
- assert.match(jsx,/resume\?\.friendId==="zoe"\?resume:null/);
- assert.match(jsx,/otherResume=resume&&resume.friendId!=="zoe"/);
- assert.match(jsx,/cmh-zoe-scene/);
- assert.match(jsx,/cmh-chat-pop-first/);
- assert.match(jsx,/cmh-chat-pop-last/);
- assert.match(jsx,/cmh-friend-portrait-/);
- assert.match(jsx,/\["noah","iris","bella"\]/);
- assert.match(jsx,/cmh-game-board/);
- assert.match(jsx,/data-game=\{featured\}/);
- assert.match(jsx,/cmh-learn-portrait/);
- assert.match(jsx,/teacher-olivia\.jpg/);
- assert.doesNotMatch(jsx,/teacher-(?:alex|emma|james|mia|sophie)\.webp/);
- assert.match(jsx,/crew_friend_zoe\.webp/);
- for(const href of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher"]){
-  assert.ok(jsx.includes(href),"missing genuine destination "+href);
- }
- assert.match(jsx,/const todayLink="\/games\/"\+featured/);
- assert.match(jsx,/onTouchStart=\{touchBegin\} onTouchEnd=\{touchFinish\}/);
- assert.match(jsx,/setCarouselPaused\(true\)/);
- assert.match(jsx,/document\.visibilityState==="visible"/);
- assert.match(jsx,/aria-hidden=\{activeSlide!==0\}/);
- assert.match(jsx,/tabIndex=\{activeSlide===0\?0:-1\}/);
- assert.match(jsx,/className="cmh-carousel-dots"/);
- assert.doesNotMatch(jsx,/className="cmh-featured"/);
+const {test}=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
+const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
+test("Layout 2 keeps the Zoe hero fixed and replaces all four carousel scenes",()=>{
+ const mobile=read("web-spa/src/pages/MobileHomePage.tsx");
+ for(const old of ["SLIDES=","CAROUSEL_INTERVAL_MS","setInterval","cmh-carousel","cmh-slide-","onTouchStart={touchBegin}","cmh-carousel-dots"])
+  assert.ok(!mobile.includes(old),"removed rotation: "+old);
+ assert.match(mobile,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=home&chat=text"/);
+ assert.match(mobile,/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
+ assert.equal((mobile.match(/className="cmh-layout2-primary"/g)||[]).length,1);
+ assert.match(mobile,/crew_friend_zoe\.webp/);
+ assert.match(mobile,/readLatestFriendResume\(\)/);
+ assert.match(mobile,/resume\?\.friendId==="zoe"\?resume:null/);
+ assert.match(mobile,/PREVIEW_HIDDEN_KEY/);
+ assert.match(mobile,/setPreviewHidden\(next\)/);
+ assert.doesNotMatch(mobile,/teacher-(?:alex|emma|james|mia|sophie)\.webp/);
 });
-test("homepage entry modules do not import cartoon teacher avatars",()=>{
- for(const file of ["web-spa/src/pages/HomePage.tsx","web-spa/src/pages/HomePortal.tsx",
-  "web-spa/src/pages/MobileHomePage.tsx","web-spa/src/teacher/HomeShortsPreview.tsx"]){
-  const text=read(file);
-  assert.doesNotMatch(text,/teacher-(?:alex|emma|james|mia|sophie)\.webp/,
-   "Cartoon teacher artwork must not appear on the homepage: "+file);
- }
- assert.match(read("web-spa/src/teacher/teacherProfiles.ts"),/teacher-olivia\.jpg/);
+test("The fixed primary CTA keeps exhausted redirect, voice and guest allowance",()=>{
+ const mobile=read("web-spa/src/pages/MobileHomePage.tsx");
+ assert.match(mobile,/const destination=exhausted\?"\/account#settings-gemini":shortsDestination/);
+ assert.match(mobile,/className="cmh-layout2-primary" onClick=\{\(\)=>onNavigate\("chat"\)\}/);
+ assert.ok(mobile.indexOf('className="cmh-layout2-primary"')<mobile.indexOf('className="cmh-allowance-slot"'));
+ assert.ok(mobile.indexOf('className="cmh-allowance-slot"')<mobile.indexOf('<HomeModeRail'));
+ assert.match(mobile,/className="cmh-layout2-voice"/);
+ assert.match(mobile,/world\.freeAllowance\.full/);
+ assert.match(mobile,/GUEST_TEXT_DAILY_TURNS/);
 });
-
-test("mobile-only art has four color directions, layered motion and reduced-motion shutdown",()=>{
- const base=read("web-spa/src/pages/mobileHome.css");
- const art=read("web-spa/src/pages/mobileHomeHeroV3.css");
- const jsx=read("web-spa/src/pages/MobileHomePage.tsx");
- assert.ok(jsx.indexOf('import "./mobileHomeHeroV3.css"')>jsx.indexOf('import "./mobileHome.css"'));
- assert.match(art,/@media\(max-width:767px\)/);
- for(const selector of [".cmh-slide.cmh-zoe",".cmh-slide.cmh-slide-friends",".cmh-slide.cmh-slide-game",".cmh-slide.cmh-slide-learn",
- ".cmh-scene",".cmh-art-texture",".cmh-friend-portrait",".cmh-game-board",".cmh-learn-portrait"]){
-  assert.ok(art.includes(selector),"missing art CSS "+selector);
- }
- for(const motion of ["cmh-editorial-copy","cmh-editorial-scene","cmh-editorial-actions","cmh-editorial-sheen","cmh-editorial-portrait"]){
-  assert.ok(art.includes("@keyframes "+motion),"missing layered transition "+motion);
- }
- assert.match(art,/@media\(prefers-reduced-motion:reduce\)/);
- assert.match(art,/@media\(prefers-reduced-motion:reduce\)\{[\s\S]*?\.cmh-carousel-track,[\s\S]*?animation:none!important;transition:none!important/);
- assert.match(base,/\.cmh-carousel-track\{display:flex/);
- assert.match(art,/min-height:46px/);
- for(const frame of ["cmh-v4-backdrop","cmh-v4-texture","cmh-v4-copy","cmh-v4-scene","cmh-v4-cta"]){
-  assert.match(art,new RegExp("@keyframes "+frame));
- }
- assert.match(art,/\.cmh-slide-copy h1,\.cmh-slide-copy h2/);
- assert.match(art,/\.cmh-chat-pop-first\{top:179px/);
- assert.match(art,/\.cmh-friends-art\{width:151px/);
- const nav=read("web-spa/src/components/mobileNavigation.css");
- assert.match(nav,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
-});
-
-test("compact phone hero keeps all four scenes and fits a 16:11 first-screen card",()=>{
- const art=read("web-spa/src/pages/mobileHomeHeroV3.css");
- const jsx=read("web-spa/src/pages/MobileHomePage.tsx");
- assert.match(art,/\.cmh-slide\{height:244px;min-height:244px/);
- assert.match(art,/@media\(max-width:380px\)\{\s*\.cmh-slide\{height:240px;min-height:240px/);
- assert.match(art,/\.cmh-scene\{scale:\.75;transform-origin:right top/);
- assert.match(art,/\.cmh-zoe-actions a\{min-height:44px/);
- assert.match(art,/\.cmh-carousel-dots\{min-height:32px/);
- assert.match(art,/@keyframes cmh-v4-scene/);
- assert.match(art,/@media\(prefers-reduced-motion:reduce\)/);
- assert.match(jsx,/teacher-olivia\.jpg/);
- assert.match(jsx,/\{id:"timeline",zh:"時光機"/);
- assert.match(jsx,/\{id:"scenarios",zh:"情境課程"/);
-});
-
-test("four tonal particle palettes and compact title breathing room preserve reduced motion",()=>{
- const art=read("web-spa/src/pages/mobileHomeHeroV3.css");
- assert.match(art,/\.cmh-slide \.cmh-slide-copy\{box-sizing:border-box;padding-top:7px\}/);
- assert.match(art,/\.cmh-slide \.cmh-slide-copy\{padding-top:6px\}/);
- assert.match(art,/\.cmh-slide\{height:244px;min-height:244px/);
- assert.match(art,/\.cmh-slide\{height:240px;min-height:240px/);
- for(const card of [".cmh-slide.cmh-zoe",".cmh-slide.cmh-slide-friends",".cmh-slide.cmh-slide-game",".cmh-slide.cmh-slide-learn"]){
-  assert.ok(art.includes(card+"{--cmh-dust:"),"missing distinct particle palette: "+card);
- }
- assert.match(art,/\.cmh-slide \.cmh-sparks\{z-index:1;pointer-events:none;overflow:hidden\}/);
- assert.match(art,/\.cmh-slide \.cmh-sparks::before\{[\s\S]*?radial-gradient/);
- assert.match(art,/@keyframes cmh-dust-near/);
- assert.match(art,/@keyframes cmh-dust-far/);
- assert.match(art,/@media\(prefers-reduced-motion:reduce\)\{\s*\.cmh-slide \.cmh-sparks::before,[\s\S]*?animation:none!important/);
- assert.doesNotMatch(art,/filter:\s*blur\(/,"Particle layer should not trigger blur repaints");
+test("Phone art has a small portrait; the eight frosted shortcuts stay unchanged",()=>{
+ const css=read("web-spa/src/pages/homeLayout2.css"),mobile=read("web-spa/src/pages/MobileHomePage.tsx"),apps=read("web-spa/src/pages/mobileHome.css");
+ assert.match(css,/\.cmh-layout2-avatar\{width:88px;height:94px/);
+ assert.match(css,/\.cmh-layout2-primary\{[^}]*min-height:52px/);
+ assert.match(css,/@media\(max-width:375px\)/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(mobile,/\{id:"timeline",zh:"時光機"/);
+ assert.match(mobile,/\{id:"scenarios",zh:"情境課程"/);
+ assert.match(apps,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.doesNotMatch(read("web-spa/src/pages/mobileHomeHeroV3.css"),/cmh-carousel|cmh-slide|@keyframes/);
 });

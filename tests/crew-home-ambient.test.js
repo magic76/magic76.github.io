@@ -9,9 +9,9 @@ test("Particle field is decorative while the invitation remains semantic HTML",(
  const css=read("web-spa/src/pages/homePortal.css");
  assert.match(portal,/<h1>/);
  assert.match(portal,/<Link className="crew-portal-cta" to=\{target\}/);
- assert.match(portal,/mode==="chat"\?destination:mode==="learn"\?teacherDestination:/);
- assert.match(portal,/role="tabpanel"/);
- assert.match(portal,/role="tablist"/);
+ assert.match(portal,/const target=destination/);
+ assert.match(read("web-spa/src/pages/HomeModeRail.tsx"),/role="tabpanel"/);
+ assert.match(read("web-spa/src/pages/HomeModeRail.tsx"),/role="tablist"/);
  assert.match(field,/aria-hidden="true"/);
  assert.match(field,/className="crew-portal-fallback"/);
  assert.match(field,/<svg/);

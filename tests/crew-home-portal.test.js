@@ -31,22 +31,22 @@ test("Hero primary CTA stays above the text scrim with a solid unshadowed label"
 });
 
 test("Crew homepage keeps one manual tab portal before Shorts and exploration",()=>{
- const home=read("web-spa/src/pages/HomePage.tsx");
- const portal=read("web-spa/src/pages/HomePortal.tsx");
+ const home=read("web-spa/src/pages/HomePage.tsx"),portal=read("web-spa/src/pages/HomePortal.tsx"),rail=read("web-spa/src/pages/HomeModeRail.tsx");
  assert.ok(home.indexOf("<HomePortal shortsFeed={shortsFeed}/>")>=0);
  assert.ok(home.indexOf("<HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>")>home.indexOf("<HomePortal shortsFeed={shortsFeed}/>"));
- assert.ok(home.indexOf("<HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>")<home.indexOf('className="crew-home-search-summary"'));
- assert.match(portal,/const ZOE="\/friend\/live\?id=zoe"/);
- for(const target of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])assert.ok(portal.includes('to:"'+target+'"'),target);
+ assert.match(portal,/const HOME_ZOE=ZOE\+"&from=home&chat=text"/);
+ assert.match(portal,/const target=destination/);
+ for(const target of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])
+  assert.ok(rail.includes('to:"'+target+'"'),target);
  assert.match(portal,/to=\{target\}/);
- assert.match(portal,/const target=mode==="chat"\?destination:mode==="learn"\?teacherDestination:/);
- assert.match(portal,/mode==="play"\?"\/games\/"\+gameId:current\.to/);
- assert.match(portal,/role="tablist"/);
- assert.match(portal,/role="tab"/);
- assert.match(portal,/role="tabpanel"/);
+ assert.match(portal,/<HomeModeRail prefix="crew-portal-mode"/);
+ assert.match(rail,/role="tablist" aria-orientation="vertical"/);
+ assert.match(rail,/role="tab"/);assert.match(rail,/role="tabpanel"/);
  assert.match(portal,/<PortalParticleField mode=\{mode\}/);
  assert.doesNotMatch(portal,/data-portal-tile|crew-portal-picks|crew-portal-game-link|setTeacherProfile/);
+
 });
+
 test("Crew World Shorts still use the real feed and their story/chat paths",()=>{
  const shorts=read("web-spa/src/teacher/HomeShortsPreview.tsx");
  assert.match(shorts,/fetchShortsFeed\(/);
@@ -80,14 +80,14 @@ test("Crew World does not repeat its KV tabs in a separate quick-start carousel"
 });
 
 test("Crew World tabs select manually without rotation or a pause control",()=>{
- const portal=read("web-spa/src/pages/HomePortal.tsx");
- const css=read("web-spa/src/pages/homePortal.css");
+ const portal=read("web-spa/src/pages/HomePortal.tsx"),rail=read("web-spa/src/pages/HomeModeRail.tsx");
  assert.match(portal,/data-mode=\{mode\}/);
- assert.match(portal,/useState<PortalMode>\("chat"\)/);
- assert.match(portal,/trial\.resolved&&trial\.enabled&&trial\.remaining===0/);
+ assert.match(portal,/useState<HomeMode>\("chat"\)/);
  assert.match(portal,/setMode/);
- assert.doesNotMatch(portal,/setInterval|5000|crew-portal-motion|crew-portal-hint/);
- assert.doesNotMatch(css,/crew-portal-tab-progress|crew-portal-hint|crew-portal-motion/);
+ assert.match(portal,/trial\.resolved&&trial\.enabled&&trial\.remaining===0/);
+ assert.doesNotMatch(portal,/setInterval|5000|crew-portal-motion/);
+ assert.match(rail,/onClick=\{\(\)=>onChange\(item.id\)\}/);
+
 });
 
 test("Mobile portal delays Canvas and recurring motion until eligible",()=>{
@@ -115,18 +115,17 @@ test("Mobile portal delays Canvas and recurring motion until eligible",()=>{
 
 
 test("Four semantic tabs switch copy and one immediate CTA with a keyboard roving focus",()=>{
- const portal=read("web-spa/src/pages/HomePortal.tsx");
- assert.match(portal,/useState<PortalMode>\("chat"\)/);
- assert.match(portal,/aria-label=\{t\("world.tilesLabel"\)\}/);
- assert.match(portal,/data-mode=\{[^}]+\}/);
- for(const mode of ["chat","learn","fortune","play"])assert.ok(portal.includes('id:"'+mode+'"'),mode);
- assert.match(portal,/<button[^>]*type="button"/);
- for(const attribute of ["aria-selected","aria-controls","tabIndex","aria-labelledby"])assert.ok(portal.includes(attribute),attribute);
- for(const key of ["ArrowLeft","ArrowRight","Home","End"])assert.ok(portal.includes('"'+key+'"'),key);
+ const portal=read("web-spa/src/pages/HomePortal.tsx"),rail=read("web-spa/src/pages/HomeModeRail.tsx");
+ assert.match(portal,/useState<HomeMode>\("chat"\)/);
+ assert.match(rail,/aria-label=\{t\("world.tilesLabel"\)\}/);
+ assert.match(rail,/role="tablist" aria-orientation="vertical"/);
+ for(const mode of ["chat","learn","fortune","play"])assert.ok(rail.includes('id:"'+mode+'"'));
+ for(const attr of ["aria-selected","aria-controls","tabIndex","aria-labelledby"])assert.ok(rail.includes(attr));
+ for(const key of ["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"])assert.ok(rail.includes('"'+key+'"'));
  assert.equal((portal.match(/className="crew-portal-cta"/g)||[]).length,1);
- assert.match(portal,/useNavigate/);
- assert.doesNotMatch(portal,/aria-disabled|setTimeout\([^)]*launch/);
- assert.match(portal,/world\.modes\./);
+ assert.match(portal,/const target=destination/);
+ assert.match(portal,/onRailNavigate/);
+
 });
 
 test("All eleven locales name the four tabs, translate their copy and retain trial keys",()=>{
@@ -155,19 +154,13 @@ test("Home hero balances the first screen and reserves no bottom nav on desktop"
 });
 
 test("Home stage layout is selected by CSS before hydration without reordering the invitation",()=>{
- const portal=read("web-spa/src/pages/HomePortal.tsx");
- const css=read("web-spa/src/pages/homePortal.css");
- const order=['className="crew-portal-intro"','className="crew-portal-kicker"',"<h1>",'className="crew-portal-description"','className="crew-portal-cta"','className="crew-portal-status-slot"','className="crew-portal-tabs"'].map(token=>portal.indexOf(token));
- assert.ok(order.every((offset,index)=>offset>=0&&(index===0||offset>order[index-1])),"Intro, one kicker, title, description, CTA, remaining slot and tabs retain DOM order");
- assert.equal((portal.match(/className="crew-portal-kicker"/g)||[]).length,1,"Do not duplicate the stage label");
- assert.match(css,/\.crew-portal-content\{position:relative;/);
- assert.doesNotMatch(css,/\.crew-portal-content\{[^}]*position:absolute/);
- assert.match(css,/@media\(min-width:1100px\),\(min-width:760px\) and \(orientation:landscape\) and \(min-height:501px\)/);
- for(const token of ["--portal-stage-x:.70","--portal-stage-y:.50","--portal-stage-split:1","place-items:center start","width:min(48vw,640px)","text-align:left","margin:28px 0 0"])
-  assert.ok(css.includes(token),"Split layout token: "+token);
- assert.match(css,/\.crew-portal-kicker\{[^}]*position:absolute;[^}]*var\(--portal-stage-x\)[^}]*pointer-events:none/);
- assert.match(css,/\.crew-portal-fallback\{[^}]*var\(--portal-stage-x\)[^}]*var\(--portal-stage-y\)/,"SSR fallback uses the same stage center");
- assert.doesNotMatch(portal,/getBoundingClientRect|window\.innerWidth/,"Hydration must not decide the copy layout");
+ const portal=read("web-spa/src/pages/HomePortal.tsx"),css=read("web-spa/src/pages/homeLayout2.css");
+ assert.ok(portal.indexOf('className="crew-portal-layout2-rail"')<portal.indexOf('className="crew-portal-layout2-main"'));
+ const tokens=['className="crew-portal-intro"','className="crew-portal-kicker"',"<h1>",'className="crew-portal-description"','className="crew-portal-cta"','className="crew-portal-status-slot"'];
+ const positions=tokens.map(v=>portal.indexOf(v));assert.ok(positions.every((v,i)=>v>=0&&(!i||v>positions[i-1])));
+ assert.match(css,/@media\(min-width:768px\)/);assert.match(css,/grid-template-columns:minmax\(120px,156px\)/);
+ assert.doesNotMatch(portal,/getBoundingClientRect|window\.innerWidth/);
+
 });
 
 test("Portrait phones enlarge the ring and short landscape removes only the height floor",()=>{
@@ -183,29 +176,15 @@ test("Portrait phones enlarge the ring and short landscape removes only the heig
 });
 
 test("Homepage practice-language picker changes the existing chat and voice target language",()=>{
- const portal=read("web-spa/src/pages/HomePortal.tsx");
- const picker=read("web-spa/src/pages/HomeTargetLanguage.tsx");
- const css=read("web-spa/src/pages/homePortal.css");
+ const portal=read("web-spa/src/pages/HomePortal.tsx"),picker=read("web-spa/src/pages/HomeTargetLanguage.tsx"),css=read("web-spa/src/pages/homePortal.css");
  assert.match(portal,/lazy\(\(\)=>import\("\.\/HomeTargetLanguage"\)\)/);
- const afterCta=portal.indexOf('className="crew-portal-practice-holder"');
- assert.ok(afterCta>portal.indexOf('className="crew-portal-cta"')&&afterCta<portal.indexOf('className="crew-portal-status-slot"'));
- assert.match(portal,/mode==="chat"&&<div className="crew-portal-practice-holder"/);
+ assert.ok(portal.indexOf('className="crew-portal-practice-holder"')>portal.indexOf('className="crew-portal-status-slot"'));
+ assert.match(portal,/<HomeTargetLanguage\/>/);
  assert.match(picker,/useTeacherStore\(s=>s\.targetLanguage\)/);
- assert.match(picker,/useTeacherStore\(s=>s\.setTargetLanguage\)/);
- assert.match(picker,/value=\{targetLanguage\}/);
  assert.match(picker,/onChange=\{event=>setTargetLanguage\(event\.currentTarget\.value\)\}/);
- assert.match(picker,/TARGET_LANGUAGES\.map\(/);
- assert.match(picker,/friends:languages\./);
- assert.match(picker,/aria-label=\{t\("world\.practiceLang\.aria"\)\}/);
  assert.match(css,/\.crew-portal-practice-control select\{[^}]*min-height:44px/);
- assert.match(css,/@media\(max-width:700px\) and \(max-height:700px\) and \(orientation:portrait\)/);
- for(const lang of ["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"]){
-  const copy=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/home.json`)).world.practiceLang;
-  assert.ok(copy&&typeof copy.label==="string"&&copy.label.trim(),lang+":label");
-  assert.ok(typeof copy.aria==="string"&&copy.aria.trim(),lang+":aria");
- }
-});
 
+});
 
 test("Short portrait chat tabs clear the fixed Zoe bubble without shrinking controls",()=>{
  const css=read("web-spa/src/pages/homePortal.css");

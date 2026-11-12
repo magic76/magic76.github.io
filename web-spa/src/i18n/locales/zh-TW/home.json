@@ -76,6 +76,7 @@
     "explore": "看看還能做什麼",
     "tap": "點擊進入"
   },
+  "layout2": {"title": "跟 {{name}} 說第一句。","action": "跟 {{name}} 說第一句","description": "不用準備話題，打個招呼就開始。","voice": "改用語音聊天","more": "還想做些別的？","resumeTitle": "繼續和 Zoe 聊","resumeAction": "繼續文字聊天","chatTitle": "先說聲嗨","chatDescription": "和 AI 朋友聊聊，看會聊出什麼。","previewHidden": "上一則訊息已隱藏","showPreview": "顯示上一句","hidePreview": "隱藏上一句"},
   "world": {
     "freeAllowance": {"full": "免註冊・文字每天 {{count}} 則、語音 {{minutes}} 分鐘，明天再來又有", "textOnly": "免註冊・文字每天 {{count}} 則，明天再來又有", "voiceUsed": "今天語音額度已用完・文字每天 {{count}} 則，明天再來又有"},
     "practiceLang": {"label": "我想練：", "aria": "選擇聊天與語音的練習語言"},

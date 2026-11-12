@@ -12,12 +12,13 @@ test("Home tabs retain one SSR-safe, honest chat CTA and trial gates",()=>{
  assert.match(portal,/const trialAvailable=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==0/);
  assert.match(portal,/const cta=hasKey\?"world.chatWithFriend":exhausted\?"world.chatExhausted":trialAvailable\?"world.chatTrialWith":"world.chatNeutralWith"/);
  assert.match(portal,/to=\{target\}/);
- for(const target of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])assert.ok(portal.includes('to:"'+target+'"'));
+ const rail=read("web-spa/src/pages/HomeModeRail.tsx");
+ for(const target of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])assert.ok(rail.includes('to:"'+target+'"'));
  assert.doesNotMatch(portal,/setTeacherProfile|teacherStore|crew-portal-picks|crew-portal-game-link/);
  assert.match(portal,/<PortalParticleField mode=\{mode\}/);
  assert.doesNotMatch(portal,/crew-portal-trial-chip|guest_trial_start_click|crew-portal-motion/);
- assert.match(portal,/role="tablist"/);
- assert.match(portal,/mode==="chat"&&ready&&!hasKey/);
+ assert.match(rail,/role="tablist"/);
+ assert.match(portal,/ready&&!hasKey/);
  assert.match(portal,/className="crew-portal-remaining" role="status"/);
  assert.doesNotMatch(css,/crew-portal-trial-chip|crew-portal-motion/);
  assert.match(css,/\.crew-portal-remaining\{font-size:12px/);

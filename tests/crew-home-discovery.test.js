@@ -8,12 +8,14 @@ test("Home discovery keeps one manual primary CTA and SSR-readable first sentenc
  const portal=read("web-spa/src/pages/HomePortal.tsx");
  const copy=read("web-spa/src/pages/HomeDiscoveryLine.tsx");
  assert.match(portal,/<HomeDiscoveryLine animate=\{canAnimate&&!manuallySelected\}\/>/);
- assert.match(portal,/\{\(mode!=="chat"\|\|selectedPost\)\&\&<p className="crew-portal-description"/);
- assert.match(portal,/\{mode==="chat"&&!selectedPost&&<div className="crew-portal-discovery-slot">/);
+ assert.match(portal,/className="crew-portal-description"/);
+ assert.match(portal,/<div className="crew-portal-discovery-slot">\{mode==="chat"&&!selectedPost&&<HomeDiscoveryLine/);
+ const layout=read("web-spa/src/pages/homeLayout2.css");
+ assert.match(layout,/\.crew-home-legacy \.crew-portal-layout2 \.crew-portal-discovery-slot\{[^}]*height:74px;min-height:74px/);
  assert.ok(portal.indexOf('className="crew-portal-cta"')<portal.indexOf('className="crew-portal-discovery-slot"'));
- assert.ok(portal.indexOf('className="crew-portal-discovery-slot"')<portal.indexOf('className="crew-portal-tabs"'));
+ assert.ok(portal.includes('<HomeModeRail prefix="crew-portal-mode"'));
  assert.equal((portal.match(/className="crew-portal-cta"/g)||[]).length,1);
- assert.match(portal,/onClick=\{\(\)=>\{setMode\(item.id\);setManuallySelected\(true\)\}\}/);
+ assert.match(portal,/onChange=\{onModeChange\}/);
  assert.match(copy,/useState<number\|null>\(null\)/);
  assert.match(copy,/const visible=!animate\|\|count===null\?phrase/);
  assert.match(copy,/aria-label=\{phrase\}/);

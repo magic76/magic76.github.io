@@ -1,11 +1,12 @@
-import {lazy,Suspense,useEffect,useRef,useState,type KeyboardEvent,type MouseEvent} from "react";
+import {lazy,Suspense,useEffect,useRef,useState,type MouseEvent} from "react";
 import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
-import {Icon,type IconName} from "../components/Icon";
+import {HomeModeRail,type HomeMode} from "./HomeModeRail";
+import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscript";
 import {PortalParticleField} from "./PortalParticleField";
 import {HomeDiscoveryLine} from "./HomeDiscoveryLine";
-import type {PortalMode} from "./portalField.mjs";
+
 import {readHomeDeepLink,HOME_FRIEND_NAMES} from "./homeDeepLink.mjs";
 import {shortsChatUrl,shortsPhotoQuestions} from "../teacher/shortsSocial";
 import type {ShortFeed} from "../teacher/shortsFeed";
@@ -28,12 +29,7 @@ function warmFriendStart(){
  if(!friendRouteWarmup)friendRouteWarmup=import("../friends/FriendLivePage").catch(()=>{friendRouteWarmup=null});
 }
 
-const MODES:readonly {id:PortalMode;icon:IconName;to:string;label:string;name:string;entry:"friend"|"learn"|"fortune"|"play"}[]=[
- {id:"chat",icon:"chat",to:HOME_ZOE,label:"chat",name:"THE CONNECTION / CHAT",entry:"friend"},
- {id:"learn",icon:"teacher",to:"/teacher/live?lesson=daily_u1_l1",label:"teacher",name:"THE RESONANCE / LEARN",entry:"learn"},
- {id:"fortune",icon:"fortune",to:"/fortune/reading?mode=tarot",label:"fortune",name:"THE STARS / FORTUNE",entry:"fortune"},
- {id:"play",icon:"play",to:"/games/1a2b",label:"play",name:"THE PLAYGROUND / PLAY",entry:"play"}
-];
+const PREVIEW_HIDDEN_KEY="crew_home_hide_message_preview_v1";
 
 /** Only a selected tab changes the invitation. Links retain immediate navigation. */
 export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
@@ -67,12 +63,25 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
  const heroRef=useRef<HTMLElement|null>(null);
  const fieldEligible=idleReady&&inViewport&&foreground;
  const canAnimate=fieldEligible&&!paused;
- const [mode,setMode]=useState<PortalMode>("chat");
+ const [mode,setMode]=useState<HomeMode>("chat");
+ const [resume,setResume]=useState<FriendResume|null>(null);
+ const [previewHidden,setPreviewHidden]=useState(false);
  const [manuallySelected,setManuallySelected]=useState(false);
- const buttons=useRef<(HTMLButtonElement|null)[]>([]);
- const current=MODES.find(item=>item.id===mode)||MODES[0];
- const target=mode==="chat"?destination:mode==="learn"?teacherDestination:
-  mode==="play"?"/games/"+gameId:current.to;
+ const target=destination;
+ const canResume=Boolean(resume?.friendId==="zoe"&&friendId==="zoe"&&!selectedPost);
+ const destinations={chat:destination,learn:teacherDestination,
+  fortune:"/fortune/reading?mode=tarot",play:"/games/"+gameId};
+ const onModeChange=(next:HomeMode)=>{setMode(next);setManuallySelected(true)};
+ const onRailNavigate=(next:HomeMode)=>{
+  trackUsageEvent("home_entry_click",exhausted&&(next==="chat"||next==="learn")?"settings":next==="chat"?"friend":next);
+  if(next==="chat"&&selectedPost&&!exhausted){
+   trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home");
+  }
+ };
+ const togglePreview=()=>{
+  const next=!previewHidden;setPreviewHidden(next);
+  try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0")}catch{/* Optional privacy choice. */}
+ };
  const handleLaunch=(event:MouseEvent<HTMLAnchorElement>)=>{
   if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
   event.preventDefault();
@@ -80,26 +89,19 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
   setPreparing(true);
   const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if(!reduced)setLaunching(true);
-  trackUsageEvent("home_entry_click",exhausted&&(mode==="chat"||mode==="learn")?"settings":current.entry);
+  trackUsageEvent("home_entry_click",exhausted?"settings":"friend");
   if(mode==="chat"&&selectedPost&&!exhausted){
    trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home");
   }
   navigationTimer.current=window.setTimeout(()=>navigate(target),120);
- };
- const keyMode=(event:KeyboardEvent<HTMLButtonElement>,at:number)=>{
-  let next=at;
-  if(event.key==="ArrowRight")next=(at+1)%MODES.length;
-  else if(event.key==="ArrowLeft")next=(at+MODES.length-1)%MODES.length;
-  else if(event.key==="Home")next=0;
-  else if(event.key==="End")next=MODES.length-1;
-  else return;
-  event.preventDefault();setMode(MODES[next].id);setManuallySelected(true);buttons.current[next]?.focus();
  };
  // A query never participates in SSR or the initial hydration render.
  useEffect(()=>{
   const link=readHomeDeepLink(window.location.search);
   setDeepLink(link);
   if(link.tab)setMode(link.tab);
+  setResume(readLatestFriendResume());
+  try{setPreviewHidden(localStorage.getItem(PREVIEW_HIDDEN_KEY)==="1")}catch{/* Optional privacy choice. */}
  },[]);
  // SSR and the first client render both use static frames with chat focused.
  useEffect(()=>{
@@ -140,40 +142,39 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
  useEffect(()=>()=>{if(navigationTimer.current!==null)window.clearTimeout(navigationTimer.current)},[]);
  return <header ref={heroRef} lang={i18n.language} className="crew-home-portal" data-mode={mode} data-paused={paused}>
   <PortalParticleField mode={mode} paused={!canAnimate} launching={launching} enabled={fieldEverEnabled||fieldEligible}/>
-  <div className="crew-portal-content">
-   <p className="crew-portal-intro">{t("world.intro")}</p>
-   <span className="crew-portal-kicker" aria-hidden="true">{current.name}</span>
-   <div id="crew-portal-panel" role="tabpanel" aria-labelledby={"crew-portal-tab-"+mode}>
+  <div className="crew-portal-content crew-portal-layout2">
+   <aside className="crew-portal-layout2-rail">
+    <h2>{t("layout2.more")}</h2>
+    <HomeModeRail prefix="crew-portal-mode" mode={mode} onChange={onModeChange} destinations={destinations}
+     onNavigate={onRailNavigate} chatName={friendName}
+     chatAction={selectedPost?(questions[0]?.label||t("world.shortsFallback")):undefined}/>
+   </aside>
+   <div className="crew-portal-layout2-main">
+    <p className="crew-portal-intro">{t("world.intro")}</p>
+    <span className="crew-portal-kicker" aria-hidden="true">ZOE · AI FRIEND</span>
     <div className="crew-portal-copy">
-     <h1><span className="crew-portal-title-line crew-portal-title-first">{t("world.modes."+mode+".lead")}</span><br/><span className="crew-portal-title-line crew-portal-title-second">{t("world.modes."+mode+".before")} <em className="crew-portal-title-accent">{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</span></h1>
-     {(mode!=="chat"||selectedPost)&&<p className="crew-portal-description">{t("world.modes."+mode+".description")}</p>}
+     <h1>{canResume?t("layout2.resumeTitle"):t("layout2.title",{name:friendName})}</h1>
+     <p className="crew-portal-description">{canResume?(previewHidden?t("layout2.previewHidden"):resume?.preview.slice(0,84)):t("layout2.description")}</p>
     </div>
     <Link className="crew-portal-cta" to={target} data-preparing={preparing} aria-busy={preparing}
-     onPointerDown={mode==="chat"?warmFriendStart:undefined} onTouchStart={mode==="chat"?warmFriendStart:undefined}
-     onFocus={mode==="chat"?warmFriendStart:undefined} onMouseEnter={mode==="chat"?warmFriendStart:undefined}
-     onClick={handleLaunch}>
-     {mode==="chat"&&!exhausted?<img className="crew-portal-cta-avatar" src={"/assets/friends/crew_friend_"+(selectedPost?.friendId||friendId)+".webp"} alt="" width="32" height="32"/>:null}
-     <span className="crew-portal-cta-label">{preparing?t("world.preparing"):mode==="chat"&&!exhausted&&selectedPost?(questions[0]?.label||t("world.shortsFallback")):mode==="chat"?t(cta,{name:friendName}):mode==="learn"?(exhausted?t("world.chatExhausted"):trialAvailable?t("world.teacherTrial"):t("world.modes.learn.cta")):mode==="play"?t("world.game"+(gameId==="1a2b"?"1a2b":gameId==="connect4"?"Connect4":"Reversi")):t("world.modes."+mode+".cta")}</span><span className="crew-portal-cta-arrow" aria-hidden="true">↗</span>
+     onPointerDown={warmFriendStart} onTouchStart={warmFriendStart} onFocus={warmFriendStart} onMouseEnter={warmFriendStart} onClick={handleLaunch}>
+     {!exhausted?<img className="crew-portal-cta-avatar" src={"/assets/friends/crew_friend_"+(selectedPost?.friendId||friendId)+".webp"} alt="" width="32" height="32"/>:null}
+     <span className="crew-portal-cta-label">{preparing?t("world.preparing"):exhausted?t("world.chatExhausted"):selectedPost?(questions[0]?.label||t("world.shortsFallback")):canResume?t("layout2.resumeAction"):hasKey?t(cta,{name:friendName}):t("layout2.action",{name:friendName})}</span><span className="crew-portal-cta-arrow" aria-hidden="true">↗</span>
     </Link>
     <div className="crew-portal-invitation-meta">
-    {mode==="chat"&&<div className="crew-portal-practice-holder">
-     {ready?<Suspense fallback={<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}><HomeTargetLanguage/></Suspense>
-      :<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}
-    </div>}
-    {!hasKey&&<div className="crew-portal-status-slot">
-     {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})}</p>}
-     {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
-     {mode==="chat"&&ready&&!hasKey&&(!trial.resolved||!trial.enabled||trial.remaining===null||(trial.remaining>0&&trial.seconds===null))&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
-    </div>}
+     {!hasKey&&<div className="crew-portal-status-slot">
+      {ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})}</p>}
+      {ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
+      {ready&&!hasKey&&(!trial.resolved||!trial.enabled||trial.remaining===null||(trial.remaining>0&&trial.seconds===null))&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
+     </div>}
+     <div className="crew-portal-practice-holder">
+      {ready?<Suspense fallback={<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}><HomeTargetLanguage/></Suspense>
+       :<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}
+     </div>
     </div>
-    {mode==="chat"&&!selectedPost&&<div className="crew-portal-discovery-slot"><HomeDiscoveryLine animate={canAnimate&&!manuallySelected}/></div>}
-   </div>
-   <div className="crew-portal-tabs" role="tablist" aria-label={t("world.tilesLabel")}>
-    {MODES.map((item,i)=><button className="crew-portal-tab" key={item.id} id={"crew-portal-tab-"+item.id} data-mode={item.id} type="button" role="tab"
-     aria-controls="crew-portal-panel" aria-selected={mode===item.id} tabIndex={mode===item.id?0:-1}
-     ref={el=>{buttons.current[i]=el}} onClick={()=>{setMode(item.id);setManuallySelected(true)}} onKeyDown={event=>keyMode(event,i)}>
-     <Icon name={item.icon}/><span>{t("world.tiles."+item.label+".name")}</span>
-    </button>)}
+    <Link className="crew-portal-layout2-voice" to="/friend/live?id=zoe&from=home&entry=bubble" onClick={()=>trackUsageEvent("home_entry_click","voice")}>{t("layout2.voice")} ↗</Link>
+    {canResume&&<button type="button" className="crew-portal-layout2-hide" onClick={togglePreview}>{previewHidden?t("layout2.showPreview"):t("layout2.hidePreview")}</button>}
+    <div className="crew-portal-discovery-slot">{mode==="chat"&&!selectedPost&&<HomeDiscoveryLine animate={canAnimate&&!manuallySelected}/>}</div>
    </div>
   </div>
  </header>;
