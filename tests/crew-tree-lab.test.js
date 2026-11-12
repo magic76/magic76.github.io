@@ -7,7 +7,7 @@ const botany=fs.readFileSync(path.join(dir,'botany.js'),'utf8');
 const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
 const css=fs.readFileSync(path.join(dir,'tree.css'),'utf8');
 function boot(options={}){
- const nodes=new Map(),memory=new Map(),paint={paths:0,ellipses:0,lines:0,frames:0,downloads:0};
+ const nodes=new Map(),memory=new Map(),paint={paths:0,ellipses:0,lines:0,frames:0,downloads:0,foliageGradients:0};
  if(options.storage)for(const [k,v] of Object.entries(options.storage))memory.set(k,v);
  const gradient=()=>({addColorStop(){}});
  const context2D=new Proxy({
@@ -16,7 +16,9 @@ function boot(options={}){
   fillText(){paint.frames++},
   setTransform(){},clearRect(){}
  },{
-  get:(o,k)=>o[k]||(['createRadialGradient','createLinearGradient'].includes(String(k))?gradient:()=>{}),
+  get:(o,k)=>o[k]||(
+    k==='createRadialGradient'?()=>{paint.foliageGradients++;return gradient()}:
+    k==='createLinearGradient'?gradient:()=>{}),
   set:(o,k,v)=>{o[k]=v;return true}
  });
  function element(tag='div'){
@@ -215,7 +217,7 @@ test('botanical renderer is loaded before chat and keeps an independent geometry
  const a=html.indexOf('src="./botany.js"'),b=html.indexOf('src="./tree.js"');
  assert.ok(a>=0&&b>a,'botany must be available before the tree controller');
  const {qa}=boot();
- assert.equal(qa.getRendererVersion(),2);
+ assert.equal(qa.getRendererVersion(),3);
  assert.match(botany,/attractor-guided/i);
  assert.match(botany,/function taperBranch\(/);
  assert.match(botany,/function targetAt\(/);
@@ -270,4 +272,32 @@ test('silhouette variants genuinely affect tree crown geometry and all fit in bo
    geo.branches[15].end.x.toFixed(2)].join(':'));
  }
  assert.ok(new Set(samples).size>=10,'different silhouettes must result in different geometry');
+});
+
+test('v3 is unmistakable: gradient-filled crown masses, not isolated emoji confetti',()=>{
+ const {qa,paint}=boot();
+ const before=paint.foliageGradients;
+ for(let i=0;i<10;i++)qa.post(i%2?'喝咖啡、吃蛋糕':'我想去宇宙旅行');
+ qa.draw();
+ assert.ok(paint.foliageGradients-before>=60,
+  'a mature tree must render broad gradient foliage lobes attached to branches');
+ assert.ok(paint.paths>120,'tree trunk and botanical crown are visibly drawn');
+ assert.match(html,/全新樹冠 3\.0/,'deployed page must clearly show the new art version');
+ assert.match(html,/botany\.js\?v=3-20261112/,'renderer is cache-busted');
+ assert.match(botany,/function canopyLobe\(/,'canopy is not purely tiny leaf dots');
+ assert.match(botany,/function drawWood\(/,'trunk has a separate shaded-bark renderer');
+ assert.match(botany,/Math\.min\(70,30\+n\*1\.8\)/,'tree receives a substantial ground shadow');
+});
+test('v3 keeps actual 12 plant genetics, old saved-tree compatibility and shareability',()=>{
+ const {qa,memory}=boot();
+ for(let i=0;i<9;i++)qa.post(i%2?'今天很開心喜歡你':'我想寫 AI 程式機器人');
+ const before=qa.treeSignature(qa.state().current);
+ const geo=qa.state().geometry;
+ assert.ok(geo.bounds.minX<geo.bounds.maxX);
+ assert.ok(geo.bounds.minY<geo.bounds.maxY);
+ assert.ok(geo.branches.some(b=>b.parentIndex>=0),'crown keeps real hierarchy');
+ assert.equal(qa.save(),true);
+ const revived=boot({storage:Object.fromEntries(memory)});
+ assert.equal(revived.qa.treeSignature(revived.qa.state().current),before);
+ assert.equal(revived.qa.exportImage(),true);
 });
