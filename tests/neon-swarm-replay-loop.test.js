@@ -111,7 +111,7 @@ test("3-star replay result and score record are local-only",()=>{
  assert.equal(q.state().record.stars,1);
  assert.equal(JSON.parse(store.get("crew-neon-lab-record-v1")).stars,1);
  assert.match(html,/runStars\(won\)/);
- assert.match(html,/kills>=18/);
+ assert.match(html,/kills>=70/);
  assert.match(html,/pickupsCollected>=2/);
  assert.match(html,/id="missionBest"/);
 });
