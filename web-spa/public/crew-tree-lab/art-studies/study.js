@@ -149,7 +149,7 @@ function floatScene(c,m,time,staticMode){
   const anchor=units[units.length-1];
   const x=m.topic==='cosmos'?660:m.topic==='travel'?665:m.topic==='music'?580:350;
   const y=m.topic==='cosmos'?190:m.topic==='travel'?185:m.topic==='music'?190:247;
-  c.save();c.globalAlpha=.9;
+  c.save();c.globalAlpha*=.9;
   charm(c,x,y,m.topic,m.stage>=16?1.05:.83);
   if(m.topic==='warmth'&&units.length>1){
    c.strokeStyle='#cb9e99';c.lineWidth=4;c.beginPath();
@@ -234,7 +234,7 @@ function jellyScene(c,m,time,staticMode){
  else window.CrewFantasyV3.fishResident(c,cap,time,staticMode,m.seed,m.stage);
  c.restore();
  if(m.stage>=16){
-  c.save();c.globalAlpha=.78;
+  c.save();c.globalAlpha*=.78;
   art(c,'jelly-canopy.svg',480,406,133,89);
   art(c,'jelly-inner-membrane.svg',489,420,114,75);c.restore();
   for(let i=0;i<4;i++){

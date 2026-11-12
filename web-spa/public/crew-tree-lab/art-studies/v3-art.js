@@ -110,7 +110,7 @@ function islandHollow(c,x,ground,w,time,still,stage,seed){
 }
 function juvenileMedusa(c,model,time,still,art){
  const x=401,ground=711,sway=still?0:Math.sin(time*.001+model.phase)*2.4;
- c.save();c.translate(0,sway);
+ c.save();c.translate(0,sway);const inheritedAlpha=c.globalAlpha;
  // Shallow seawater/sand cradle establishes the creature's newborn scale.
  const tide=c.createRadialGradient(x,ground+3,4,x,ground+3,135);
  tide.addColorStop(0,'#94c8c3b0');tide.addColorStop(.7,'#aad6c65a');tide.addColorStop(1,'#f1ddcb00');
@@ -120,9 +120,9 @@ function juvenileMedusa(c,model,time,still,art){
  c.beginPath();c.moveTo(x,ground);c.quadraticCurveTo(x+3,ground-29,x,ground-49);c.stroke();
  const w=136,h=87,top=ground-138;
  glow(c,x,top+65,100,'#e4d5e794');
- c.globalAlpha=.80;art(c,'jelly-canopy.svg',x-w/2,top,w,h);
- c.globalAlpha=.54;art(c,'jelly-inner-membrane.svg',x-w*.46,top+8,w*.92,h*.79);
- c.globalAlpha=1;
+ c.globalAlpha=inheritedAlpha*.80;art(c,'jelly-canopy.svg',x-w/2,top,w,h);
+ c.globalAlpha=inheritedAlpha*.54;art(c,'jelly-inner-membrane.svg',x-w*.46,top+8,w*.92,h*.79);
+ c.globalAlpha=inheritedAlpha;
  for(let i=0;i<4;i++){
   const dx=(i-1.5)*20;
   c.strokeStyle=i%2?'#79afb1a8':'#b7c3aba8';c.lineWidth=1.5;
