@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const dir=path.join(__dirname,'../web-spa/public/crew-tree-lab');
 const script=fs.readFileSync(path.join(dir,'tree.js'),'utf8');
+const botany=fs.readFileSync(path.join(dir,'botany.js'),'utf8');
 const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
 const css=fs.readFileSync(path.join(dir,'tree.css'),'utf8');
 function boot(options={}){
@@ -41,7 +42,7 @@ function boot(options={}){
  const c={document,window,location:{search:'?qa=1'},URLSearchParams,localStorage:{
   getItem:key=>memory.get(key)||null,setItem:(key,v)=>memory.set(key,v)
  },setTimeout(){return 1},clearTimeout(){},Date,Math,console,Number,String,Array,Set,Map};
- vm.createContext(c);vm.runInContext(script,c,{timeout:10000});
+ vm.createContext(c);vm.runInContext(botany,c,{timeout:10000});vm.runInContext(script,c,{timeout:10000});
  const qa=window.__TREE_QA__;
  assert.ok(qa,'QA interface is exposed only behind ?qa=1');
  return {qa,memory,get,paint,document};
@@ -208,4 +209,65 @@ test('gallery renders real mini tree canvases and recreates the exact seed after
  assert.equal(restored.qa.treeSignature(restored.qa.state().current),originalSignature);
  assert.equal(restored.qa.state().forest.length,1);
  assert.equal(restored.get('gallery').children.length,1);
+});
+
+test('botanical renderer is loaded before chat and keeps an independent geometry contract',()=>{
+ const a=html.indexOf('src="./botany.js"'),b=html.indexOf('src="./tree.js"');
+ assert.ok(a>=0&&b>a,'botany must be available before the tree controller');
+ const {qa}=boot();
+ assert.equal(qa.getRendererVersion(),2);
+ assert.match(botany,/attractor-guided/i);
+ assert.match(botany,/function taperBranch\(/);
+ assert.match(botany,/function targetAt\(/);
+});
+test('mature tree grows a genuinely connected hierarchical canopy, not branches stuck on a pole',()=>{
+ const {qa}=boot();
+ for(let i=0;i<14;i++)qa.post(i%2?'宇宙星球':'咖啡蛋糕');
+ const g=qa.state().geometry;
+ assert.equal(g.modelVersion,2);
+ assert.ok(g.branches.length>=40);
+ assert.ok(g.canopy.length>=150,'leaves form foliage clusters');
+ const children=g.branches.filter(b=>b.parentIndex>=0);
+ assert.ok(children.length>=8,'branches should attach to earlier branch tips');
+ for(const child of children){
+  const parent=g.branches[child.parentIndex];
+  assert.ok(parent.i<child.i);
+  assert.equal(child.start.x,parent.end.x);
+  assert.equal(child.start.y,parent.end.y);
+  assert.ok(child.width<parent.width,'woody parent tapers into thinner daughter branches');
+ }
+ const bounds=g.bounds;
+ for(const point of [...g.trunk,...g.canopy]){
+  assert.ok(Number.isFinite(point.x)&&Number.isFinite(point.y),'geometry must remain finite');
+  assert.ok(point.x>=bounds.minX-2&&point.x<=bounds.maxX+2);
+  assert.ok(point.y>=bounds.minY-2&&point.y<=bounds.maxY+2);
+ }
+ assert.ok(bounds.maxX-bounds.minX>110);
+});
+test('sixteen conversations produce a stable printable tree after restore with no geometry changes',()=>{
+ const {qa,memory}=boot();
+ for(let i=0;i<16;i++)qa.post(i%3===0?'科技 AI 程式':i%3===1?'我今天很開心喜歡你':'月亮做夢');
+ const base=JSON.stringify(qa.buildGeometry(qa.state().current));
+ qa.save();
+ const fresh=boot({storage:Object.fromEntries(memory)});
+ assert.equal(JSON.stringify(fresh.qa.buildGeometry(fresh.qa.state().current)),base);
+ assert.doesNotThrow(()=>fresh.qa.draw());
+ assert.equal(fresh.qa.exportImage(),true);
+});
+test('silhouette variants genuinely affect tree crown geometry and all fit in bounded 2D scenes',()=>{
+ const {qa}=boot();
+ const samples=[];
+ for(let i=0;i<12;i++){
+  const tree=qa.makeTree(45001);
+  tree.genome.silhouette=i;
+  tree.growth=Array.from({length:15},(_,n)=>({topic:n%2?'food':'cosmos',mood:0,energy:.5}));
+  const geo=qa.buildGeometry(tree);
+  assert.equal(geo.branches.length,45);
+  assert.ok(geo.bounds.minY<geo.bounds.maxY);
+  assert.ok(geo.bounds.maxX-geo.bounds.minX<1000);
+  assert.ok(geo.branches.every(b=>Number.isFinite(b.end.x)&&Number.isFinite(b.end.y)));
+  samples.push([Math.round(geo.height),Math.round(geo.bounds.maxX-geo.bounds.minX),
+   geo.branches[15].end.x.toFixed(2)].join(':'));
+ }
+ assert.ok(new Set(samples).size>=10,'different silhouettes must result in different geometry');
 });

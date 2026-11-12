@@ -29,7 +29,7 @@ const PALETTES=[
 const TOPICS={
  food:{label:'食物',icon:'☕',ornament:'☕',color:'#ffcd9f',
   words:['咖啡','甜點','麵包','吃','餓','美食','蛋糕','火鍋','pizza','coffee','food','巧克力','奶茶','珍珠','糖果'],
-  replies:['你說甜點，我好像聞到樹上飄出咖啡香了 ☕','等一下，這根枝條是不是準備長出點心？','如果它結出蛋糕，我要先偷吃一口！']},
+  replies:['你說甜點，我好像聞到樹上飄出咖啡香了 ☕','等一下，這根枝條是不是準備長出點心？','如果這棵樹結出蛋糕，我要先偷吃一口！']},
  cosmos:{label:'宇宙',icon:'🪐',ornament:'🪐',color:'#ddc2ff',
   words:['宇宙','星球','星星','銀河','太空','月亮','火星','外星','星際','galaxy','space','planet','星空','太陽系'],
   replies:['宇宙嗎？我想讓這根枝條直接繞著星星打轉！','好啦，這棵樹已經開始研究星際旅行了。','我們是不是不小心種出一顆小宇宙？']},
@@ -76,7 +76,7 @@ const MUTATIONS=[
 ];
 const MUT_BY_TOPIC={cosmos:'starlight',food:'sugar',tech:'circuit',love:'heartvine',weather:'raincloud',stress:'thorns',dream:'moon',animals:'cats',music:'song',play:'jelly',travel:'bubbles',nature:'fireflies'};
 let current=null,forest=[],geom=null,renderTime=0,lastFrame=0,scale=1,dpr=1,w=420,h=440;
-let bubbles=[],toastTimer=0,reduceMotion=false,sessionMessages=0;
+let bubbles=[],toastTimer=0,reduceMotion=false,sessionMessages=0,growthMotion=null;
 function rng32(seed){let a=seed>>>0;return ()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
 function randomSeed(){return ((Math.floor(Math.random()*4294967296) ^ Date.now())>>>0)||1;}
 function makeTree(seed=randomSeed()){
@@ -162,57 +162,13 @@ function evolve(message){
  geom=buildGeometry(current);writeStorage();
  return {signal,mutation};
 }
-function treePoint(t,height,profile,g){
- const variant=g.silhouette;
- let x=(Math.sin(t*4.1+g.twist*2)-Math.sin(g.twist*2))*profile.wiggle*57*t
-  +g.lean*31*t+profile.lean*48*t;
- if(variant===7)x+=Math.round(t*6)*9*(Math.sin(t*15)>0?1:-1)*t;
- if(variant===1)x+=Math.sin(t*TAU*1.5)*19*t;
- if(variant===11)x+=Math.sin(t*Math.PI)*34;
- return {x,y:-t*height};
-}
-function buildGeometry(tree){
- const count=tree.growth.length,g=tree.genome,profile=SILHOUETTES[g.silhouette];
- const height=(48+Math.min(count,20)*13)*profile.height;
- const rand=rng32(tree.seed^0xa591bb61);
- const trunk=[],segments=Math.max(7,Math.ceil(height/17));
- for(let i=0;i<=segments;i++)trunk.push(treePoint(i/segments,height,profile,g));
- const branches=[],ornaments=[];
- const n=Math.min(73,Math.max(2,count*3));
- for(let i=0;i<n;i++){
-  const turn=tree.growth.length?tree.growth[Math.floor(i/3)%tree.growth.length]:{topic:'daily',mood:0,energy:.5};
-  const topic=turn.topic;const v=rand();
-  const t=.25+((i*.6180339+v*.13)%1)*.70;
-  const start=treePoint(t,height,profile,g);
-  let direction=(i%2?1:-1);
-  if(g.silhouette===9)direction=i%3===0?-1:1;
-  const topicWide=topic==='food'?1.22:topic==='travel'?1.13:topic==='tech'?.80:topic==='stress'?.75:1;
-  const moodFactor=clamp(1+turn.mood*.34,.66,1.34);
-  const energyFactor=clamp(.78+turn.energy*.43,.78,1.21);
-  const len=(21+rand()*43+Math.min(count,12)*1.7)*profile.spread*topicWide*energyFactor;
-  const droop=profile.droop+(topic==='weather'?.25:topic==='dream'?.18:topic==='cosmos'?-.12:0)-turn.mood*.22;
-  const rise=(18+rand()*42)*(1-droop*.68)*moodFactor;
-  const p1={x:start.x+direction*len*.49,y:start.y-rise*.72};
-  const end={x:start.x+direction*len,y:start.y-rise+droop*len*.52};
-  if(tree.mutations.includes('heartvine')&&topic==='love')end.x+=direction*17;
-  if(tree.mutations.includes('thorns')&&topic==='stress')end.y-=15;
-  if(tree.mutations.includes('raincloud')&&topic==='weather')end.y+=14;
-  if(tree.mutations.includes('circuit')&&topic==='tech')p1.y=start.y-2;
-  if(g.silhouette===4&&i%5===0){end.y-=15;end.x+=direction*19}
-  if(g.silhouette===5||topic==='tech'){p1.x+=direction*9;p1.y-=8}
-  branches.push({start,p1,end,t,width:Math.max(1.5,(5.5-t*2.9)*(1+i/50*-0.5)),topic,i});
-  if(count&&i%3===0){
-   ornaments.push({x:end.x,y:end.y-10,topic,icon:TOPICS[topic].ornament,
-    float:rand()*TAU,scale:.84+rand()*.36});
-  }
- }
- return {height,trunk,branches,ornaments,palette:PALETTES[g.palette],profile};
-}
+function buildGeometry(tree){return window.CrewBotany.generate(tree,SILHOUETTES,PALETTES);}
 function treeSignature(tree){
  const geo=buildGeometry(tree);
  return [tree.genome.silhouette,tree.genome.leaf,tree.genome.palette,
   geo.height.toFixed(1),geo.branches.length,
-  geo.branches.slice(0,5).map(b=>b.end.x.toFixed(1)+','+b.end.y.toFixed(1)).join(';'),
+  geo.branches.slice(0,5).map(b=>b.end.x.toFixed(1)+','+b.end.y.toFixed(1)+
+  ','+b.p1.x.toFixed(1)+','+b.p1.y.toFixed(1)+','+b.topic).join(';'),
   tree.mutations.join('|'),topTopic(tree)].join(':');
 }
 function sayZoe(signal,turn){
@@ -266,8 +222,10 @@ function postMessage(raw){
  if(!text)return false;
  if(text.length>240)return false;
  const turn=current.growth.length+1;
+ const previouslyVisible=Math.min(73,Math.max(2,current.growth.length*3));
  appendMessage('me',text);
  const {signal,mutation}=evolve(text);
+ growthMotion={from:Math.max(0,previouslyVisible-(current.growth.length>=25?3:0)),start:Date.now()};
  const reply=sayZoe(signal,turn);
  appendMessage('zoe',reply);
  sessionMessages++;
@@ -288,7 +246,7 @@ function saveTree(silent=false){
 }
 function createNewTree(){
  if(current.growth.length>0)saveTree(true);
- current=makeTree();geom=buildGeometry(current);writeStorage();
+ current=makeTree();geom=buildGeometry(current);growthMotion=null;writeStorage();
  resetChat('Zoe','新的一顆樹苗來啦！這次要把它聊成什麼怪樣子？🌱');
  updateTreeUI();popToast('新的小樹苗準備好了！');
 }
@@ -301,7 +259,7 @@ function openSaved(seed){
  if(!selected)return false;
  if(current.growth.length>0&&current.seed!==selected.seed)saveTree(true);
  current=validateTree(JSON.parse(JSON.stringify(selected)));
- geom=buildGeometry(current);writeStorage();
+ geom=buildGeometry(current);growthMotion=null;writeStorage();
  resetChat('Zoe','啊，這是我們之前的「'+current.name+'」！繼續聊天，它還能長出新東西喔。');
  updateTreeUI();popToast('🌿 找到這棵歪樹了！');
  window.scrollTo?.({top:0,behavior:'smooth'});
@@ -317,10 +275,7 @@ function renderGallery(){
   const icon=document.createElement('canvas');icon.className='tree-thumb';
   icon.width=88;icon.height=106;
   const thumbnail=icon.getContext('2d');
-  if(thumbnail){
-   drawSky(thumbnail,88,106,tree,0);
-   drawTree(thumbnail,tree,buildGeometry(tree),44,97,.33,0);
-  }
+  if(thumbnail)scene(thumbnail,88,106,tree,buildGeometry(tree),0);
   const desc=document.createElement('span');
   const name=document.createElement('strong');name.textContent=tree.name;
   const meta=document.createElement('small');meta.textContent=tree.growth.length+' 句 · '+SILHOUETTES[tree.genome.silhouette].name;
@@ -350,99 +305,24 @@ function drawSky(c,width,height,tree,clock){
   c.fillStyle=i%3?'#5e866a':'#b4d99f';c.fillRect(x,y,9+i%3*5,2);
  }
 }
-function leafShape(c,x,y,r,type,color,angle){
- c.save();c.translate(x,y);c.rotate(angle);c.fillStyle=color;
- c.beginPath();
- switch(type){
-  case 0:c.ellipse(0,0,r,r*.68,0,0,TAU);break;
-  case 1:
-   c.moveTo(0,r);c.bezierCurveTo(-r*1.5,-r*.15,-r*1.2,-r,0,-r*.35);
-   c.bezierCurveTo(r*1.2,-r,r*1.5,-r*.15,0,r);break;
-  case 2:c.moveTo(0,-r*1.5);c.lineTo(r*.35,r);c.lineTo(-r*.35,r);break;
-  case 3:
-   for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,z=i%2?r*.46:r*1.2;
-    i?c.lineTo(Math.cos(a)*z,Math.sin(a)*z):c.moveTo(Math.cos(a)*z,Math.sin(a)*z)}break;
-  case 4:c.moveTo(0,-r);c.lineTo(r*.75,0);c.lineTo(0,r);c.lineTo(-r*.75,0);break;
-  case 5:c.ellipse(0,0,r*.57,r*1.3,.1,0,TAU);break;
-  case 6:
-   c.ellipse(-r*.45,0,r*.65,r*.7,0,Math.PI*.6,Math.PI*1.6);
-   c.ellipse(r*.33,0,r*.65,r*.7,0,Math.PI*1.3,Math.PI*.6);break;
-  default:c.moveTo(0,-r);c.lineTo(r*.85,-r*.15);c.lineTo(r*.53,r*.83);
-   c.lineTo(-r*.52,r*.83);c.lineTo(-r*.85,-r*.15);
- }
- c.closePath();c.fill();
- c.globalAlpha=.35;c.fillStyle='#ffffff';c.beginPath();c.ellipse(-r*.2,-r*.28,Math.max(.7,r*.16),Math.max(.7,r*.32),-.3,0,TAU);c.fill();c.restore();
-}
 function drawTree(c,tree,geometry,ox,oy,factor,clock){
- const n=tree.growth.length,g=tree.genome,pal=geometry.palette;
- c.save();c.translate(ox,oy);c.scale(factor,factor);
- c.lineCap='round';c.lineJoin='round';
- const wood=c.createLinearGradient(-24,0,55,-240);
- wood.addColorStop(0,'#62453e');wood.addColorStop(.5,'#95695c');wood.addColorStop(1,'#c19577');
- c.lineWidth=16+Math.min(n,11)*.6;c.strokeStyle=wood;c.beginPath();
- geometry.trunk.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();
- c.strokeStyle='#e8bba048';c.lineWidth=2;c.stroke();
- if(g.silhouette===4&&n>=3){
-  const fork=treePoint(.49,geometry.height,geometry.profile,g);
-  c.lineWidth=9;c.strokeStyle=wood;c.beginPath();c.moveTo(fork.x,fork.y);
-  c.quadraticCurveTo(fork.x-43,fork.y-48,fork.x-65,fork.y-82);c.stroke();
+ let revealFrom=geometry.branches.length,progress=1;
+ if(tree===current&&c===ctx&&growthMotion&&!reduceMotion){
+  progress=clamp((Date.now()-growthMotion.start)/850,0,1);
+  revealFrom=growthMotion.from;
+  if(progress>=1)growthMotion=null;
  }
- const visible=geometry.branches.slice(0,Math.max(2,n*3));
- for(const b of visible){
-  c.strokeStyle=wood;c.lineWidth=b.width;c.beginPath();c.moveTo(b.start.x,b.start.y);
-  c.quadraticCurveTo(b.p1.x,b.p1.y,b.end.x,b.end.y);c.stroke();
-  if(g.silhouette===5||b.topic==='tech'){
-   c.lineWidth=Math.max(1,b.width*.42);c.strokeStyle='#b8f6db';
-   c.beginPath();c.moveTo(b.start.x,b.start.y);c.lineTo(b.p1.x,b.p1.y);c.stroke();
-  }
- }
- for(const b of visible){
-  const r=rng32(tree.seed^(b.i*32452843));
-  const count=b.i<2&&n===0?3:3+(n>=5?2:0)+(n>=9?1:0);
-  for(let k=0;k<count;k++){
-   const spread=8+n*.38,px=b.end.x+(r()-.5)*spread*2;
-   const py=b.end.y+(r()-.5)*spread*1.5;
-   const leafType=b.topic==='tech'&&k%3===0?4:b.topic==='cosmos'&&k%3===0?3:g.leaf;
-   const fill=b.topic==='daily'?pal[k%3]:
-    k%3===0?TOPICS[b.topic].color:pal[(k+Math.floor(r()*2))%3];
-   leafShape(c,px,py,4.8+r()*4.7+(n>=7?1.4:0),leafType,fill,r()*TAU);
-  }
- }
- if(n){
-  for(const a of geometry.ornaments){
-   c.save();c.translate(a.x,a.y);
-   if(!reduceMotion)c.translate(0,Math.sin(clock*.0014+a.float)*2.5);
-   c.font=Math.round(14*a.scale)+'px system-ui, sans-serif';c.textAlign='center';c.textBaseline='middle';
-   c.shadowColor='#ffffff';c.shadowBlur=3;c.fillText(a.icon,0,0);c.restore();
-  }
- }
- if(tree.mutations.length){
-  // A mutation is a visible trait, not just an invisible rarity label.
-  // Each unique unlock makes its own colored charm grow among the branches.
-  tree.mutations.forEach((key,index)=>{
-   const trait=MUTATIONS.find(m=>m.key===key),branch=visible[(index*11+5)%visible.length];
-   if(!trait||!branch)return;
-   const pos=branch.end;
-   c.save();c.translate(pos.x,pos.y-22);c.fillStyle='#fff9d799';
-   c.beginPath();c.arc(0,0,14,0,TAU);c.fill();
-   c.font='19px system-ui, sans-serif';c.textAlign='center';c.textBaseline='middle';
-   c.fillStyle='#ffffff';c.fillText(trait.icon,0,0);c.restore();
-  });
-  const count=Math.min(15,tree.mutations.length*4);
-  for(let i=0;i<count;i++){
-   const a=(i*2.4+tree.seed%13),radius=30+((i*31)%118),yc=-geometry.height*.56+Math.sin(i*3)*geometry.height*.26;
-   c.save();c.globalAlpha=.58+Math.sin(clock*.002+i)*.16;
-   c.fillStyle=i%2?'#fff5c3':'#f7ddff';
-   c.beginPath();c.arc(Math.cos(a)*radius,yc+Math.sin(a)*13,1.5+(i%3),0,TAU);c.fill();c.restore();
-  }
- }
- c.restore();
+ return window.CrewBotany.paint(c,tree,geometry,ox,oy,factor,clock,{
+  revealFrom,progress,reducedMotion:reduceMotion,topics:TOPICS,mutations:MUTATIONS
+ });
 }
 function scene(c,width,height,tree,geometry,clock,card=false){
  drawSky(c,width,height,tree,clock);
- const base=Math.min(width/435,height/470);
- const factor=base*(tree.growth.length<3?1.04:1.07);
- drawTree(c,tree,geometry,width*.5,height*.83,factor,clock);
+ const bounds=geometry.bounds;
+ const bw=Math.max(1,bounds.maxX-bounds.minX),bh=Math.max(1,bounds.maxY-bounds.minY);
+ const factor=Math.min(width*.83/bw,height*(card?.66:.73)/bh,Math.min(width/435,height/470)*1.47);
+ const ox=width*.5-(bounds.minX+bounds.maxX)*.5*factor;
+ drawTree(c,tree,geometry,ox,height*.83,factor,clock);
  if(card){
   c.fillStyle='#164236a8';c.fillRect(0,0,width,104);
   c.fillStyle='#f0ffe9';c.font='bold 39px system-ui';c.textAlign='center';c.fillText(tree.name,width/2,66);
@@ -457,7 +337,9 @@ function resize(){
  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
 }
 function render(now=0){
- const dt=clamp((now-lastFrame)/1000||.016,0,.05);lastFrame=now;renderTime=now;
+ const dt=clamp((now-lastFrame)/1000||.016,0,.05);
+ if(lastFrame&&now-lastFrame<30){window.requestAnimationFrame?.(render);return;}
+ lastFrame=now;renderTime=now;
  if(!ctx||!current||!geom)return;
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
  scene(ctx,w,h,current,geom,now);
@@ -502,6 +384,7 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
  Object.defineProperty(window,'__TREE_QA__',{value:{
   classify,makeTree,validateTree,buildGeometry,treeSignature,post:postMessage,save:saveTree,newTree:createNewTree,
   open:openSaved,exportImage,allTopics:Object.keys(TOPICS),mutations:MUTATIONS.map(m=>m.key),
+  getRendererVersion:()=>window.CrewBotany.modelVersion,
   shapes:SILHOUETTES.map(p=>p.name),leaves:LEAVES.slice(),
   state:()=>({current:JSON.parse(JSON.stringify(current)),forest:JSON.parse(JSON.stringify(forest)),
    geometry:geom,sessionMessages,renderTime}),
