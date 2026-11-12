@@ -66,7 +66,7 @@ function generate(tree,profiles,palettes){
   if(i>=3&&i%5!==0){
    for(let j=0;j<branches.length;j++){
     const p=branches[j],candidate=p.end;
-    if(p.generation>=3||candidate.y<target.y+35)continue;
+    if(p.generation>=3||candidate.y<target.y-14)continue;
     const d=hypot(candidate,target)*(p.generation===1?.75:.88);
     if(d<best){best=d;start=candidate;parentIndex=j;parentGen=p.generation;}
    }
