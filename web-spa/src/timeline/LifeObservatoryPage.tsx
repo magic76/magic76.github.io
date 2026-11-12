@@ -199,8 +199,19 @@ export function LifeObservatoryPage(){
        <h2>{l("這一年，他們各自遇到了什麼？","Three lives, three unfolding moments")}</h2>
        <p>{l("你可以選擇介入，但沒有誰的故事一定需要你來拯救。","You may intervene, but none of these lives is waiting to be rescued.")}</p></div>
       <div className="lo-budget" aria-live="polite"><span>{l("尚可介入","Interventions left")}</span><strong>{OBSERVER_BUDGET-applied}<small> / {OBSERVER_BUDGET}</small></strong></div></div>
-     <div className="lo-scene-list">{observerScenes(run).map((scene,i)=>{
-      const selected=run.interventions[scene.actor];
+     <div className="lo-scene-focus" id="lo-scene-stage">
+      <div className="lo-scene-tabs" role="group" aria-label={l("選擇要觀察的角色","Choose a character to watch")}>
+       {OBSERVER_ACTORS.map(id=><button type="button" key={id} data-actor={id}
+        className={"lo-scene-tab"+(id===focusedActor?" is-active":"")} aria-pressed={id===focusedActor}
+        onClick={()=>setFocusedActor(id)}>
+        <span>{names[id]}</span>
+        <small>{run.interventions[id]!==undefined?l("✓ 已介入","✓ Intervened"):l("自主決定","Their choice")}</small>
+       </button>)}
+      </div>
+      <div className="lo-scene-list">
+       {observerScenes(run).filter(scene=>scene.actor===focusedActor).map(scene=>{
+       const i=OBSERVER_ACTORS.indexOf(scene.actor);
+       const selected=run.interventions[scene.actor];
       return <article className={"lo-scene lo-scene-"+scene.actor} key={scene.id}>
        <div className="lo-scene-index">{String(i+1).padStart(2,"0")}<span className="lo-scene-dot"/></div>
        <div className="lo-scene-content"><div className="lo-scene-heading"><span>{names[scene.actor]} · {age} {l("歲","years")}</span>
@@ -218,28 +229,39 @@ export function LifeObservatoryPage(){
          <small className="lo-selected-caption">{l("再次點同一選項可取消；時間推進前都能更改。","Tap again to remove this intervention before time advances.")}</small>}
        </div>
       </article>;
-     })}</div>
+
+       })}
+      </div>
+      <div className="lo-focus-next">
+       <div><strong>{applied===0?l("不插手，也是一種觀察。","Watching without intervening is a choice."):
+        l("已記錄你的介入。","Your intervention is recorded.")}</strong>
+        <small>{l("點人物或角色分頁，可隨時修改決定。","Use portraits or character tabs to change your mind.")}</small>
+       </div>
+       {focusedActor!=="hana"?
+        <button type="button" className="lo-primary" onClick={()=>setFocusedActor(OBSERVER_ACTORS[OBSERVER_ACTORS.indexOf(focusedActor)+1])}>
+         {run.interventions[focusedActor]===undefined?l("不介入，看看下一位","Leave it to them · Next"):l("看看下一位","See the next person")} <span aria-hidden="true">→</span>
+        </button>:
+        <button type="button" className="lo-primary" onClick={settle}>
+         {l("讓時間繼續，看看會發生什麼","Let time move on")} <span aria-hidden="true">→</span>
+        </button>}
+      </div>
+     </div>
     </section>
-    <div className="lo-action-dock"><div><strong>{applied===0?l("這次你什麼都沒做，也沒關係。","You haven't intervened. That's okay."):
-     l("有些事被你改變了，其他事還在繼續。","You changed some moments. Others unfold on their own.")}</strong>
-     <span>{l("按下後，三個人會自行走完這個階段。","Advance to see all three lives unfold.")}</span></div>
-     <button type="button" className="lo-primary" onClick={settle}>{l("讓時間繼續","Let time move on")} <span aria-hidden="true">→</span></button>
-    </div>
    </>:run.phase==="recap"&&history?<>
     <section className="lo-recap" id="lo-recap">
      <div className="lo-recap-head"><span className="lo-eyebrow">CHAPTER {run.step+1} · COMPLETE</span>
       <h2>{l("時間走過了。他們做出了自己的決定。","Time passed. They made their choices.")}</h2>
       <p>{l("有些選擇因為你而發生，有些則完全不是你預料的。","Some choices came from you. Others did not.")}</p></div>
-     <div className="lo-outcomes">{history.decisions.map(decision=><article key={decision.id} className={"lo-outcome lo-outcome-"+decision.id}>
-      <div><span>{names[decision.id]}</span><small>{decision.source==="player"?l("你的介入","Your intervention"):l("他自己決定","Their own choice")}</small></div>
-      <h3>{decision.decision[language]}</h3><p>{decision.outcome[language]}</p>
-     </article>)}</div>
      <div className="lo-ripple" role="status"><div className="lo-ripple-symbol" aria-hidden="true">✳</div>
       <div><span>{l("命運的連鎖反應","THE RIPPLE EFFECT")}</span>
        <h3>{history.ripple.title[language]}</h3><p>{history.ripple.body[language]}</p>
        {history.ripple.fromAge&&<small>{l("這次變化，與","This echoes choices from")} {history.ripple.fromAge} {l("歲時的經歷有關","years old")}</small>}
       </div>
      </div>
+     <div className="lo-outcomes">{history.decisions.map(decision=><article key={decision.id} className={"lo-outcome lo-outcome-"+decision.id}>
+      <div><span>{names[decision.id]}</span><small>{decision.source==="player"?l("你的介入","Your intervention"):l("他自己決定","Their own choice")}</small></div>
+      <h3>{decision.decision[language]}</h3><p>{decision.outcome[language]}</p>
+     </article>)}</div>
      <div className="lo-recap-footer"><button type="button" className="lo-primary" onClick={advance}>
       {run.step===2?l("看看三人的結局","See how their lives turned out"):l("快轉到下一段人生","Skip forward to the next chapter")} <span aria-hidden="true">→</span>
      </button></div>
