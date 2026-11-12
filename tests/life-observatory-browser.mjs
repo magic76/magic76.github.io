@@ -53,11 +53,14 @@ async function waitForPortraits(page,label){
  assert.equal(await page.locator(".lo-person .lo-portrait img").count(),3,label+" verified photos missing");
 }
 async function intervene(page,actor,index){
+ await page.locator('.lo-scene-tab[data-actor="'+actor+'"]').click();
  await page.locator(".lo-scene-"+actor+" .lo-option-list button").nth(index).click();
 }
 async function watch(page){
- await page.locator(".lo-action-dock .lo-primary").click();
+ await page.locator('.lo-scene-tab[data-actor="hana"]').click();
+ await page.locator(".lo-focus-next .lo-primary").click();
  await page.locator(".lo-ripple").waitFor({state:"visible"});
+ await page.waitForFunction(()=>{const el=document.querySelector("#lo-recap");return !!el&&el.getBoundingClientRect().top<150;});
  assert.equal(await page.locator(".lo-outcome").count(),3);
 }
 async function next(page){await page.locator(".lo-recap-footer .lo-primary").click();}
@@ -74,7 +77,14 @@ try{
   await page.locator(".lo-intro .lo-primary").click();
   await page.locator(".lo-scene").first().waitFor({state:"visible"});
   assert.ok(await page.evaluate(()=>window.scrollY)<5,"Starting V3 must show the new chapter from the top");
-  assert.equal(await page.locator(".lo-scene").count(),3);
+  assert.equal(await page.locator(".lo-scene").count(),1,"One focused decision at a time");
+  assert.equal(await page.locator(".lo-scene-tab").count(),3);
+  await page.locator(".lo-person-ethan .lo-person-focus").click();
+  assert.equal(await page.locator(".lo-scene-ethan").count(),1,"Portrait opens correct story");
+  await page.locator('.lo-scene-tab[data-actor="mira"]').click();
+  await page.locator(".lo-focus-next .lo-primary").click();
+  assert.equal(await page.locator(".lo-scene-ethan").count(),1,"Clear next-person action");
+  await page.locator('.lo-scene-tab[data-actor="mira"]').click();
   await waitForPortraits(page,width+" watch");
   await checkTapTargets(page,width+" observe");
   await overflow(page,width+" observe");
@@ -82,9 +92,11 @@ try{
   await intervene(page,"ethan",0);
   await intervene(page,"hana",1);
   assert.equal(await page.locator(".lo-budget strong").innerText().then(s=>s.trim().split(" ")[0]),"0");
+  await page.locator('.lo-scene-tab[data-actor="mira"]').click();
   assert.ok(await page.locator(".lo-scene-mira .lo-option-list button").first().isDisabled(),"Intervention budget must prevent a third choice");
+  assert.ok(await page.locator('.lo-scene-tab[data-actor="mira"]').isEnabled(),"Character tabs stay usable at full budget");
   await watch(page);
-  assert.ok(await page.evaluate(()=>window.scrollY)<5,"Recap must begin from the top");
+  assert.equal(await page.locator(".lo-ripple").count(),1,"Ripple should lead the result view");
   assert.match(await page.locator(".lo-ripple h3").innerText(),/沒有人去的車站/);
   await snapshot(page,width+"-recap-16");
   await page.reload();
@@ -94,6 +106,7 @@ try{
   await page.locator(".lo-scene").first().waitFor({state:"visible"});
   assert.match(await page.locator(".lo-chapter-now").innerText(),/25/);
   // Age 25 must contain a causal event from the 16-year decisions.
+  await page.locator('.lo-scene-tab[data-actor="ethan"]').click();
   assert.match(await page.locator(".lo-scene-ethan h3").innerText(),/錄音室的邀約/);
   await watch(page);
   await next(page);
@@ -126,6 +139,10 @@ try{
   await page.locator(".lo-compare-toggle button").waitFor({state:"visible"});
   await page.locator(".lo-compare-toggle button").click();
   assert.equal(await page.locator(".lo-compare-side").count(),2,"Second world must survive reload");
+  await page.goto(address+"/timeline/simulate",{waitUntil:"domcontentloaded"});
+  await page.waitForURL(/\/timeline\/observe/);
+  await page.locator(".lo-ending").waitFor({state:"visible",timeout:15000});
+  assert.equal(await page.locator(".lo-ending").count(),1,"Retired V2 bookmark opens V3 after lazy load");
   await context.close();
  }
  assert.deepEqual(problems,[],"No uncaught runtime exceptions");

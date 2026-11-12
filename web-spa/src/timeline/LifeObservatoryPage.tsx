@@ -7,7 +7,7 @@ import {
  advanceObserverRun,chooseObserverIntervention,createObserverRun,
  observerAge,observerBondLabel,observerEnding,observerInterventionCount,
  observerScenes,settleObserverChapter,
- type ObserverAge,type ObserverChapter,type ObserverId,type ObserverLanguage,type ObserverPair,
+ type ObserverChapter,type ObserverId,type ObserverLanguage,type ObserverPair,
  type ObserverRun
 } from "./lifeObservatory";
 import {loadObserverSave,removeObserverSave,writeObserverSave,type ObserverSave} from "./lifeObservatoryStorage";
@@ -49,7 +49,7 @@ function BondRow({run,language,before}:{run:ObserverRun;language:ObserverLanguag
   })}</div>
  </div>;
 }
-function SceneWorld({run,language}:{run:ObserverRun;language:ObserverLanguage}){
+function SceneWorld({run,language,onFocus,focused}:{run:ObserverRun;language:ObserverLanguage;onFocus?:(id:ObserverId)=>void;focused?:ObserverId}){
  const age=observerAge(run);
  const era=age===16?language==="zh"?"那年夏天":"The summer":age===25?language==="zh"?"走向遠方":"Growing apart":language==="zh"?"重返街角":"A familiar street";
  return <section className="lo-world" data-age={age} aria-label={language==="zh"?"三人共同生活的世界":"A shared world"}>
@@ -60,7 +60,7 @@ function SceneWorld({run,language}:{run:ObserverRun;language:ObserverLanguage}){
    <div className="lo-world-era">{era}<b>{age} <small>{language==="zh"?"歲":"years"}</small></b></div>
   </div>
   <div className="lo-cast">
-   {OBSERVER_ACTORS.map(id=><article className={"lo-person lo-person-"+id} key={id}>
+   {OBSERVER_ACTORS.map(id=><article className={"lo-person lo-person-"+id+(focused===id?" lo-person-focused":"")} key={id}>
     <span className="lo-person-arc" aria-hidden="true">{props[id].symbol}</span>
     <TimelinePortrait characterId={id} age={age} className="lo-portrait" priority alt={names[id]}/>
     <strong>{names[id]}</strong>
@@ -68,6 +68,9 @@ function SceneWorld({run,language}:{run:ObserverRun;language:ObserverLanguage}){
     <div className="lo-person-meters" aria-label={(language==="zh"?"期待與壓力":"Hope and stress")+": "+run.actors[id].hope+"/"+run.actors[id].stress}>
      <span style={{width:run.actors[id].hope+"%"}}/>
     </div>
+    {onFocus&&<button type="button" className="lo-person-focus" aria-pressed={focused===id}
+     aria-label={(language==="zh"?"查看 ":"View ")+names[id]+(language==="zh"?" 的事件":" scene")}
+     onClick={()=>onFocus(id)}/>}
    </article>)}
   </div>
   <div className="lo-connecting" aria-hidden="true">
@@ -76,7 +79,7 @@ function SceneWorld({run,language}:{run:ObserverRun;language:ObserverLanguage}){
     <path d="M160 28 Q214 4 268 28" strokeWidth={2+run.bonds["ethan-hana"]/18} className={run.bonds["ethan-hana"]<48?"lo-weak":""}/>
     <path d="M52 29 Q160 80 268 29" strokeWidth={2+run.bonds["mira-hana"]/24} className={run.bonds["mira-hana"]<48?"lo-weak":""}/>
    </svg>
-   <span>{language==="zh"?"他們的關係正在改變":"Their lives are intertwined"}</span>
+   <span>{onFocus?(language==="zh"?"點人物，查看他們的故事":"Tap a portrait to open their story"):(language==="zh"?"他們的關係正在改變":"Their lives are intertwined")}</span>
   </div>
   <div className="lo-world-horizon" aria-hidden="true"/>
  </section>;
@@ -121,6 +124,13 @@ export function LifeObservatoryPage(){
  const [storageWarning,setStorageWarning]=useState(false);
  const [showCompare,setShowCompare]=useState(false);
  const [showDetails,setShowDetails]=useState(false);
+ const [focusedActor,setFocusedActor]=useState<ObserverId>("mira");
+ const focusFromPortrait=(id:ObserverId)=>{
+  setFocusedActor(id);
+  document.getElementById("lo-scene-stage")?.scrollIntoView({
+   behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"
+  });
+ };
  const run=saved?.current??null;
  const history=run?.history.at(-1);
  const age=run?observerAge(run):16;
@@ -133,6 +143,7 @@ export function LifeObservatoryPage(){
   persist({version:1,current:createObserverRun(seed),previous});
   setShowCompare(false);
   setShowDetails(false);
+  setFocusedActor("mira");
   window.scrollTo({top:0,left:0,behavior:"instant"});
  };
  const intervene=(id:ObserverId,choice:0|1)=>{
@@ -144,50 +155,62 @@ export function LifeObservatoryPage(){
   if(!saved||saved.current.phase!=="watch")return;
   persist({...saved,current:settleObserverChapter(saved.current)});
   setShowDetails(false);
-  window.scrollTo({top:0,left:0,behavior:"instant"});
+  window.requestAnimationFrame(()=>document.getElementById("lo-recap")?.scrollIntoView({block:"start",behavior:"instant"}));
  };
  const advance=()=>{
   if(!saved||saved.current.phase!=="recap")return;
   persist({...saved,current:advanceObserverRun(saved.current)});
   setShowDetails(false);
-  if(typeof window!=="undefined")window.scrollTo({top:0,behavior:"instant"});
+  setFocusedActor("mira");
+  if(saved.current.step===2){
+   window.requestAnimationFrame(()=>document.getElementById("lo-ending")?.scrollIntoView({block:"start",behavior:"instant"}));
+  }else window.scrollTo({top:0,behavior:"instant"});
  };
  const reset=()=>{
-  if(!window.confirm(l("確定刪除這段觀察與平行人生？原本 Timeline 和人生實驗室不受影響。","Delete this observation and parallel life? Your existing Timeline and Life Lab will remain.")))return;
+  if(!window.confirm(l("確定刪除這段觀察與平行人生？原本 Timeline 的聊天與回憶不受影響。","Delete this observation and parallel life? Original Timeline chats and memories remain.")))return;
   if(removeObserverSave()){setSaved(null);setStorageWarning(false);setShowCompare(false);}
   else setStorageWarning(true);
  };
  return <main className="lo-page">
-  <header className="lo-header">
-   <div className="lo-header-links"><Link to="/timeline/simulate">← {l("返回人生實驗室","Back to Life Lab")}</Link><span>EXPERIMENT 03 / 2026</span></div>
+  <header className={"lo-header"+(run?" lo-header-playing":"")}>
+   <div className="lo-header-links"><Link to="/games">← {l("返回小遊戲","Back to Games")}</Link><span>CREW · LIFE OBSERVATORY</span></div>
    <div className="lo-title-area"><div>
     <span className="lo-eyebrow"><i/> CREW · THE LIFE OBSERVATORY</span>
-    <h1>{l("如果你不在，他們會過著怎樣的人生？","What happens to them when you're gone?")}</h1>
+    <h1>{run?l("三人命運觀察室","The Life Observatory"):l("如果你不在，他們會過著怎樣的人生？","What happens to them when you're gone?")}</h1>
     <p>{l("三個人，一個世界。你可以影響他們，卻無法替他們決定一切。","Three people, one world. Influence their lives, but you cannot decide everything for them.")}</p>
    </div><div className="lo-side-stamp" aria-hidden="true"><span>03</span><small>PARALLEL<br/>LIVES</small></div></div>
   </header>
   {storageWarning&&<div className="lo-warning" role="status">{l("目前無法保存到這台裝置。重新整理後可能會失去進度。","Saving is unavailable on this device. Progress may be lost on reload.")}</div>}
   {!run?<section className="lo-intro">
    <div className="lo-intro-tag">{l("一個小小的社會實驗","A SMALL SOCIAL EXPERIMENT")}</div>
-   <SceneWorld run={createObserverRun(1729)} language={language}/>
    <div className="lo-intro-copy"><h2>{l("先看著他們生活。","Watch them make their own choices.")}</h2>
     <p>{l("從 16 歲開始，經過 25 歲與 40 歲。每個階段三人都有自己的心事；你最多介入兩次，也可以完全不出手。","Begin at 16, then follow them at 25 and 40. Every chapter has three lives unfolding, with at most two chances to intervene.")}</p>
-    <div className="lo-intro-points"><span>◌ {l("3 個主角同場","Three connected lives")}</span><span>✦ {l("不介入也會發生事","Events happen on their own")}</span><span>⌁ {l("能回頭改變結局","Replay and compare")}</span></div>
     <button type="button" className="lo-primary" onClick={()=>start()}>{l("開始觀察他們的人生","Start watching their lives")} <span aria-hidden="true">↗</span></button>
-    <small>{l("免費遊玩 · 不需要 Gemini Key · 不會在背景執行","Free offline play · No Gemini Key · No background agent")}</small>
+    <small>{l("免費遊玩 · 不需要 AI Key · 不會在背景執行","Free to play · No AI key · No background process")}</small>
    </div>
+   <SceneWorld run={createObserverRun(1729)} language={language}/>
   </section>:<>
    <ChapterBar run={run} language={language}/>
-   <SceneWorld run={run} language={language}/>
-   <BondRow run={run} language={language} before={run.phase!=="watch"?history?.before:undefined}/>
+   <SceneWorld run={run} language={language} focused={run.phase==="watch"?focusedActor:undefined} onFocus={run.phase==="watch"?focusFromPortrait:undefined}/>
    {run.phase==="watch"?<>
     <section className="lo-feed">
      <div className="lo-feed-top"><div><span className="lo-eyebrow">CURRENT SCENES · {age}</span>
        <h2>{l("這一年，他們各自遇到了什麼？","Three lives, three unfolding moments")}</h2>
        <p>{l("你可以選擇介入，但沒有誰的故事一定需要你來拯救。","You may intervene, but none of these lives is waiting to be rescued.")}</p></div>
       <div className="lo-budget" aria-live="polite"><span>{l("尚可介入","Interventions left")}</span><strong>{OBSERVER_BUDGET-applied}<small> / {OBSERVER_BUDGET}</small></strong></div></div>
-     <div className="lo-scene-list">{observerScenes(run).map((scene,i)=>{
-      const selected=run.interventions[scene.actor];
+     <div className="lo-scene-focus" id="lo-scene-stage">
+      <div className="lo-scene-tabs" role="group" aria-label={l("選擇要觀察的角色","Choose a character to watch")}>
+       {OBSERVER_ACTORS.map(id=><button type="button" key={id} data-actor={id}
+        className={"lo-scene-tab"+(id===focusedActor?" is-active":"")} aria-pressed={id===focusedActor}
+        onClick={()=>setFocusedActor(id)}>
+        <span>{names[id]}</span>
+        <small>{run.interventions[id]!==undefined?l("✓ 已介入","✓ Intervened"):l("自主決定","Their choice")}</small>
+       </button>)}
+      </div>
+      <div className="lo-scene-list">
+       {observerScenes(run).filter(scene=>scene.actor===focusedActor).map(scene=>{
+       const i=OBSERVER_ACTORS.indexOf(scene.actor);
+       const selected=run.interventions[scene.actor];
       return <article className={"lo-scene lo-scene-"+scene.actor} key={scene.id}>
        <div className="lo-scene-index">{String(i+1).padStart(2,"0")}<span className="lo-scene-dot"/></div>
        <div className="lo-scene-content"><div className="lo-scene-heading"><span>{names[scene.actor]} · {age} {l("歲","years")}</span>
@@ -205,37 +228,50 @@ export function LifeObservatoryPage(){
          <small className="lo-selected-caption">{l("再次點同一選項可取消；時間推進前都能更改。","Tap again to remove this intervention before time advances.")}</small>}
        </div>
       </article>;
-     })}</div>
+
+       })}
+      </div>
+      <div className="lo-focus-next">
+       <div><strong>{applied===0?l("不插手，也是一種觀察。","Watching without intervening is a choice."):
+        l("已記錄你的介入。","Your intervention is recorded.")}</strong>
+        <small>{l("點人物或角色分頁，可隨時修改決定。","Use portraits or character tabs to change your mind.")}</small>
+       </div>
+       {focusedActor!=="hana"?
+        <button type="button" className="lo-primary" onClick={()=>setFocusedActor(OBSERVER_ACTORS[OBSERVER_ACTORS.indexOf(focusedActor)+1])}>
+         {run.interventions[focusedActor]===undefined?l("不介入，看看下一位","Leave it to them · Next"):l("看看下一位","See the next person")} <span aria-hidden="true">→</span>
+        </button>:
+        <button type="button" className="lo-primary" onClick={settle}>
+         {l("讓時間繼續，看看會發生什麼","Let time move on")} <span aria-hidden="true">→</span>
+        </button>}
+      </div>
+     </div>
     </section>
-    <div className="lo-action-dock"><div><strong>{applied===0?l("這次你什麼都沒做，也沒關係。","You haven't intervened. That's okay."):
-     l("有些事被你改變了，其他事還在繼續。","You changed some moments. Others unfold on their own.")}</strong>
-     <span>{l("按下後，三個人會自行走完這個階段。","Advance to see all three lives unfold.")}</span></div>
-     <button type="button" className="lo-primary" onClick={settle}>{l("讓時間繼續","Let time move on")} <span aria-hidden="true">→</span></button>
-    </div>
    </>:run.phase==="recap"&&history?<>
-    <section className="lo-recap">
+    <section className="lo-recap" id="lo-recap">
      <div className="lo-recap-head"><span className="lo-eyebrow">CHAPTER {run.step+1} · COMPLETE</span>
       <h2>{l("時間走過了。他們做出了自己的決定。","Time passed. They made their choices.")}</h2>
       <p>{l("有些選擇因為你而發生，有些則完全不是你預料的。","Some choices came from you. Others did not.")}</p></div>
-     <div className="lo-outcomes">{history.decisions.map(decision=><article key={decision.id} className={"lo-outcome lo-outcome-"+decision.id}>
-      <div><span>{names[decision.id]}</span><small>{decision.source==="player"?l("你的介入","Your intervention"):l("他自己決定","Their own choice")}</small></div>
-      <h3>{decision.decision[language]}</h3><p>{decision.outcome[language]}</p>
-     </article>)}</div>
      <div className="lo-ripple" role="status"><div className="lo-ripple-symbol" aria-hidden="true">✳</div>
       <div><span>{l("命運的連鎖反應","THE RIPPLE EFFECT")}</span>
        <h3>{history.ripple.title[language]}</h3><p>{history.ripple.body[language]}</p>
        {history.ripple.fromAge&&<small>{l("這次變化，與","This echoes choices from")} {history.ripple.fromAge} {l("歲時的經歷有關","years old")}</small>}
       </div>
      </div>
+     <BondRow run={run} language={language} before={history.before}/>
+     <div className="lo-outcomes">{history.decisions.map(decision=><article key={decision.id} className={"lo-outcome lo-outcome-"+decision.id}>
+      <div><span>{names[decision.id]}</span><small>{decision.source==="player"?l("你的介入","Your intervention"):l("他自己決定","Their own choice")}</small></div>
+      <h3>{decision.decision[language]}</h3><p>{decision.outcome[language]}</p>
+     </article>)}</div>
      <div className="lo-recap-footer"><button type="button" className="lo-primary" onClick={advance}>
       {run.step===2?l("看看三人的結局","See how their lives turned out"):l("快轉到下一段人生","Skip forward to the next chapter")} <span aria-hidden="true">→</span>
      </button></div>
     </section>
    </>:run.phase==="end"?<>
-    <section className="lo-ending">
+    <section className="lo-ending" id="lo-ending">
      <span className="lo-eyebrow">THE YEARS BETWEEN · ENDING</span>
      <h2>{l("他們都長大了。","They grew up.")}</h2>
      <p className="lo-ending-lead">{observerEnding(run)[language]}</p>
+     <BondRow run={run} language={language}/>
      <div className="lo-ending-story">{run.history.map(ch=><article key={ch.age}><span>{ch.age} {l("歲","years")}</span><div><h3>{ch.ripple.title[language]}</h3><p>{ch.ripple.body[language]}</p></div></article>)}</div>
      <div className="lo-ending-actions"><button type="button" className="lo-primary" onClick={()=>start(run.seed,run)}>
       {l("從同一起點再玩一次","Replay the same starting point")} <span aria-hidden="true">↗</span></button>
@@ -250,8 +286,8 @@ export function LifeObservatoryPage(){
     <button type="button" onClick={()=>setShowDetails(v=>!v)} aria-expanded={showDetails}>
      {showDetails?l("收起觀察紀錄","Hide world log"):l("查看這段世界的紀錄","View the world log")}</button>
     {showDetails&&<ol>{run.history.map(ch=><li key={ch.age}><b>{ch.age} {l("歲","years")}：</b>{ch.ripple.title[language]}</li>)}</ol>}
-    <button type="button" className="lo-delete" onClick={reset}>{l("刪除此原型進度","Delete prototype progress")}</button>
-    <p>{l("這是獨立的 V3 試玩原型，原本 12 階段人生實驗室及聊天紀錄不受影響。角色決定由固定規則運作，不會呼叫 AI。","This standalone V3 prototype does not alter the original 12-stage Life Lab or chats. Characters decide via deterministic rules, not AI.")}</p>
+    <button type="button" className="lo-delete" onClick={reset}>{l("刪除這段人生紀錄","Delete this world history")}</button>
+    <p>{l("三位角色的決定由遊戲規則推進，不會自動呼叫 AI，也不會動到原本 Timeline 的記憶。","Three lives follow game rules, without background AI requests or changes to Timeline memories.")}</p>
    </footer>
   </>}
  </main>;

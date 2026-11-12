@@ -93,7 +93,7 @@ test("different interventions from identical seed cause clearly different joint 
  assert.notEqual(JSON.stringify(a.bonds),JSON.stringify(b.bonds));
  assert.notEqual(a.history[2].ripple.id,b.history[2].ripple.id);
 });
-test("saved world is fail-closed, old V2 save and AI chat remain untouched",()=>{
+test("saved world is fail-closed and original Timeline memories remain isolated",()=>{
  const g=engine();const r=complete(321);
  assert.equal(g.observerValidRun(r),true);
  assert.equal(g.observerValidRun({...r,step:9}),false);
@@ -110,4 +110,21 @@ test("saved world is fail-closed, old V2 save and AI chat remain untouched",()=>
  const page=read("web-spa/src/timeline/LifeObservatoryPage.tsx");
  assert.match(page,/SceneWorld/);assert.match(page,/CompareWorlds/);
  assert.doesNotMatch(page,/TextChatPanel|LiveTextConversation|useLiveSession/);
+ assert.match(page,/lo-scene-tabs/);
+ assert.match(page,/lo-person-focus/);
+ assert.match(page,/id="lo-recap"/);
+ assert.ok(page.indexOf('className="lo-ripple"')<page.indexOf('className="lo-outcomes"'),"Reveal ripple before detailed outcomes");
+ assert.match(app,/path="\/timeline\/simulate" element=\{<Navigate to="\/timeline\/observe" replace\/>\}/);
+ assert.doesNotMatch(app,/LifeSimulationPage/,"Remove obsolete V2 bundle");
+ assert.doesNotMatch(hub,/to="\/timeline\/simulate"/,"One life game catalog entry");
+ const gone=[
+  "web-spa/src/timeline/LifeSimulationPage.tsx","web-spa/src/timeline/lifeSimulation.ts",
+  "web-spa/src/timeline/lifeSimulationStorage.ts","web-spa/src/timeline/lifeSimulation.css",
+  "web-spa/src/timeline/lifeEvents.ts","web-spa/src/timeline/lifeArcs.ts",
+  "web-spa/src/timeline/lifeConsequences.ts","web-spa/src/timeline/lifeArcConsequences.ts",
+  "web-spa/src/timeline/lifeNarrative.ts","web-spa/src/timeline/lifeDialogue.ts",
+  "tests/life-simulator.test.js","tests/life-lab-browser.mjs",".github/workflows/life-simulator.yml"
+ ];
+ for(const file of gone)assert.equal(fs.existsSync(path.join(root,file)),false,"Retired V2 source remains: "+file);
+
 });
