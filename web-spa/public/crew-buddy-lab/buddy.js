@@ -163,6 +163,174 @@ function burst(x,y,color,n=9){
   particles.push({x,y,vx:Math.cos(a)*r,vy:Math.sin(a)*r-28,life:.45+Math.random()*.25,max:.7,color,size:1.8+Math.random()*3});
  }
 }
+function resetCombat(){
+ combat.shots.length=0;combat.enemyShots.length=0;combat.enemies.length=0;combat.flashes.length=0;
+ combat.triggered=false;combat.wave=0;combat.roomKills=0;combat.shake=0;combat.spawns=0;
+ combat.cover=[{x:568,y:FLOOR-53,w:50,h:53},{x:752,y:FLOOR-43,w:42,h:43}];
+ if(room.id==='gap')combat.cover[0].x=660;
+ P.hp=P.maxHp;Z.hp=Z.maxHp;
+ P.down=Z.down=false;P.inv=Z.inv=0;P.gunCD=Z.gunCD=0;
+ input.fire=false;updateHud();
+}
+function coverBlocks(shot){
+ if(!shot.hostile)return false;
+ return combat.cover.some(c=>shot.x>c.x-3&&shot.x<c.x+c.w+3&&shot.y>c.y&&shot.y<FLOOR+4);
+}
+function spawnHostiles(){
+ if(combat.enemies.length>0||combat.wave>=2||G.phase!=='playing')return false;
+ combat.wave++;
+ const amount=(combat.wave===1?3:2)+Math.min(3,G.roomIndex);
+ const options=combat.wave===1?['grunt','grunt','turret','drone']:['grunt','drone','turret','grunt'];
+ for(let i=0;i<amount;i++){
+  const kind=room.id==='relay'&&combat.wave===2&&i===amount-1?'mech':options[(i+G.roomIndex+combat.wave)%options.length];
+  let x=clamp(330+i*(465/Math.max(1,amount-1))+(combat.wave===2?24:0),250,823);
+  for(const pit of room.pits)if(x>pit[0]-10&&x<pit[1]+10)x=pit[1]+24+(i%2)*16;
+  const y=kind==='drone'?FLOOR-105-(i%2)*23:FLOOR-22;
+  const hp=kind==='mech'?12:kind==='turret'?4:kind==='drone'?2:3;
+  combat.enemies.push({kind,x,y,baseY:y,hp,maxHp:hp,r:kind==='mech'?34:kind==='drone'?18:21,
+   vx:0,fire:.6+i*.29,hit:0,phase:i*.8,walk:0,bulletCount:0});
+ }
+ combat.spawns+=amount;combat.triggered=true;
+ $('coStatus').textContent='機械敵潮 '+combat.wave+' / 2';
+ if(combat.wave===1){
+  announce(G.roomIndex===0?'前面有機械兵！我幫你掩護，你負責往前！':'敵人又來了！我會掩護你！',true);
+ }else announce('第二波來了！我們一起把他們清掉！',true);
+ return true;
+}
+function targetEnemy(e,limit=520){
+ let nearest=null,best=limit;
+ for(const enemy of combat.enemies){
+  const dx=enemy.x-e.x,dy=enemy.y-(e.y-43);
+  if(e===P&&Math.sign(dx)!==e.face&&Math.abs(dx)>30)continue;
+  const d=Math.hypot(dx,dy);
+  if(d<best){best=d;nearest=enemy}
+ }
+ return nearest;
+}
+function fireGun(e,forced=false){
+ if(!e||e.trapped||e.down||G.phase!=='playing'||e.gunCD>0)return false;
+ const target=targetEnemy(e,e===P?520:600);
+ if(!forced&&e===P&&!input.fire)return false;
+ if(e===Z&&!target)return false;
+ if(e===Z&&target)e.face=target.x>=e.x?1:-1;
+ const muzzleX=e.x+e.face*34,muzzleY=e.y-47;
+ const dx=target?target.x-muzzleX:e.face*450;
+ const dy=target?target.y-muzzleY:0;
+ const aim=target?clamp(Math.atan2(dy,Math.max(30,Math.abs(dx))),-.42,.42):0;
+ const vx=e.face*Math.cos(aim)*760,vy=Math.sin(aim)*760;
+ combat.shots.push({x:muzzleX,y:muzzleY,vx,vy,life:.93,damage:1,owner:e===Z?'zoe':'player',
+  trailX:muzzleX,trailY:muzzleY,hostile:false});
+ if(combat.shots.length>65)combat.shots.splice(0,combat.shots.length-65);
+ combat.flashes.push({x:muzzleX,y:muzzleY,life:.08,max:.08});
+ e.shooting=.17;e.gunCD=e===Z?(G.command==='help'?.21:.33):.16;
+ if(e===P){combat.shotsFired++;soundCombat('shot')}
+ else {combat.zoeShots++;if(combat.zoeShots%3===0)soundCombat('shot')}
+ return true;
+}
+function hitEnemy(enemy,shot){
+ enemy.hp-=shot.damage;enemy.hit=.15;combat.shake=Math.max(combat.shake,1.1);
+ burst(shot.x,shot.y,'#ffedbd',5);soundCombat('hit');
+ if(enemy.hp>0)return;
+ const idx=combat.enemies.indexOf(enemy);
+ if(idx<0)return;
+ combat.enemies.splice(idx,1);combat.kills++;combat.roomKills++;
+ G.stats.killsTotal++;
+ burst(enemy.x,enemy.y,enemy.kind==='mech'?'#ffc0ec':'#ffbf86',enemy.kind==='mech'?25:15);
+ combat.shake=Math.max(combat.shake,enemy.kind==='mech'?8:3.5);
+ if(combat.kills%4===0){
+  P.hp=Math.min(P.maxHp,P.hp+1);Z.hp=Math.min(Z.maxHp,Z.hp+1);
+  if(G.time>5)announce(sample(['漂亮！四連擊，補給收下！','我們越打越有默契了！','這波配合得不錯耶！']),true);
+ }
+ if(enemy.kind==='mech'){note('你和 Zoe 合力擊破了重裝機甲');announce('我們真的打贏大機甲了！',true)}
+ else if(combat.roomKills===3)note('你們一起清掉了機械敵群');
+ soundCombat('kill');updateHud();
+}
+function hitAvatar(e,damage=1){
+ if(e.inv>0||e.down||e.trapped)return false;
+ e.hp=Math.max(0,e.hp-damage);e.inv=.95;combat.shake=Math.max(combat.shake,5);
+ burst(e.x,e.y-49,'#ff9cbb',14);soundCombat('hurt');
+ if(e.hp===0){
+  e.down=true;e.vx=0;
+  if(e===P){G.command='help';announce('等等！你受傷了，我馬上過去救你！',true)}
+  else announce('我暫時動不了了！你可以來救我嗎？',true);
+  note(e===P?'你倒下時，Zoe 趕來救援':'Zoe 受傷倒下，你必須回頭救援');
+ }
+ updateHud();return true;
+}
+function reviveAvatar(e,helper){
+ if(!e.down||!helper||helper.down||Math.abs(e.x-helper.x)>82)return false;
+ e.down=false;e.hp=3;e.inv=1.3;e.y=FLOOR;e.vy=0;e.onGround=true;
+ combat.shake=Math.max(combat.shake,3);
+ burst(e.x,e.y-55,'#b5ffe0',22);soundCombat('kill');
+ if(e===P){G.stats.savedByZoe++;announce('抓到你了！我們一起繼續！',true);note('Zoe 把你扶起來，繼續並肩作戰')}
+ else{G.stats.savedZoe++;announce('你回來救我了！這次我掩護你！',true);note('你回頭救起倒下的 Zoe')}
+ G.rescueFx=1.1;storeMemory();updateHud();return true;
+}
+function combatCleared(){return !combat.triggered||(combat.wave>=2&&combat.enemies.length===0)}
+function combatStep(dt){
+ if(G.phase!=='playing')return;
+ P.inv=Math.max(0,P.inv-dt);Z.inv=Math.max(0,Z.inv-dt);
+ P.gunCD=Math.max(0,P.gunCD-dt);Z.gunCD=Math.max(0,Z.gunCD-dt);
+ P.shooting=Math.max(0,P.shooting-dt);Z.shooting=Math.max(0,Z.shooting-dt);
+ combat.shake=Math.max(0,combat.shake-dt*18);
+ if(!combat.triggered&&(P.x>218||G.roomTime>8))spawnHostiles();
+ if(combat.triggered&&combat.enemies.length===0&&combat.wave<2)spawnHostiles();
+ if(input.fire)fireGun(P);
+ if(!Z.down&&!Z.trapped)fireGun(Z);
+ for(let i=combat.enemies.length-1;i>=0;i--){
+  const enemy=combat.enemies[i];if(!enemy)continue;
+  enemy.fire-=dt;enemy.hit=Math.max(0,enemy.hit-dt);
+  const target=(!P.down&&Math.abs(P.x-enemy.x)<Math.abs(Z.x-enemy.x)+70)?P:Z;
+  if(enemy.kind==='grunt'&&Math.abs(enemy.x-target.x)>125){
+   const direction=target.x>enemy.x?1:-1;
+   const next=enemy.x+direction*dt*50;
+   if(!isGap(next)&&next>80&&next<835)enemy.x=next;
+   enemy.walk+=dt*8;
+  }
+  if(enemy.kind==='drone')enemy.y=enemy.baseY+Math.sin(G.time*2.7+enemy.phase)*13;
+  if(enemy.fire<=0&&target&&!target.down&&!target.trapped){
+   const mx=enemy.x+(target.x>enemy.x?20:-20),my=enemy.y-5;
+   const theta=Math.atan2(target.y-45-my,target.x-mx);
+   const speed=enemy.kind==='mech'?250:enemy.kind==='turret'?215:175;
+   combat.enemyShots.push({x:mx,y:my,vx:Math.cos(theta)*speed,vy:Math.sin(theta)*speed,
+    life:2.8,r:enemy.kind==='mech'?8:5,hostile:true});
+   enemy.fire=enemy.kind==='mech'?.95:enemy.kind==='turret'?1.3:1.8+Math.random()*.55;
+  }
+ }
+ for(let i=combat.shots.length-1;i>=0;i--){
+  const shot=combat.shots[i];shot.trailX=shot.x;shot.trailY=shot.y;
+  shot.x+=shot.vx*dt;shot.y+=shot.vy*dt;shot.life-=dt;
+  let hit=false;
+  for(const enemy of combat.enemies){
+   if(Math.hypot(shot.x-enemy.x,shot.y-enemy.y)<enemy.r+9){
+    hitEnemy(enemy,shot);hit=true;break;
+   }
+  }
+  if(hit||shot.life<=0||shot.x>WORLD+60||shot.x<0)combat.shots.splice(i,1);
+ }
+ for(let i=combat.enemyShots.length-1;i>=0;i--){
+  const shot=combat.enemyShots[i];shot.x+=shot.vx*dt;shot.y+=shot.vy*dt;shot.life-=dt;
+  let gone=coverBlocks(shot);
+  if(!gone){
+   for(const hero of [P,Z]){
+    if(hero.trapped||hero.down)continue;
+    if(Math.abs(shot.x-hero.x)<hero.w/2+shot.r&&Math.abs(shot.y-(hero.y-49))<38+shot.r){
+     hitAvatar(hero);gone=true;break;
+    }
+   }
+  }
+  if(gone||shot.life<=0||shot.x<0||shot.x>WORLD)combat.enemyShots.splice(i,1);
+ }
+ for(let i=combat.flashes.length-1;i>=0;i--){
+  combat.flashes[i].life-=dt;if(combat.flashes[i].life<=0)combat.flashes.splice(i,1);
+ }
+ if(P.down&&Z.down){if(!combat.doubleDownAt)combat.doubleDownAt=G.time;
+  if(G.time-combat.doubleDownAt>1.4){announce('沒關係，這關再來一次！',true);resetRoom()}
+ }else{
+  combat.doubleDownAt=0;
+  reviveAvatar(P,Z);reviveAvatar(Z,P);
+ }
+}
 function movePerson(e,dir,dt){
  if(e.trapped||e.down)return;
  e.vx=dir*e.speed;
