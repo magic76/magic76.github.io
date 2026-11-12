@@ -11,7 +11,7 @@ function glow(c,x,y,r,color){
  c.fillStyle=gr;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();
 }
 function sproutGhost(c,x,y,w,seed,art,scene){
- c.save();c.globalAlpha=.19;c.filter='saturate(.62)';
+ c.save();c.globalAlpha*=.19;c.filter='saturate(.62)';
  if(scene==='island'){
   art(c,'floating-island.svg',x-w*.5,y-w*.26,w,w*.62);
   c.strokeStyle='#dceacdb9';c.lineWidth=4;c.lineCap='round';

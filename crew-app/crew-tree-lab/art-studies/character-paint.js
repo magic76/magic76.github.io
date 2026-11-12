@@ -22,11 +22,11 @@ function rockPath(c,x,sy,w){
  void p;
 }
 function watercolor(c,x,y,r,color,seed,amount=22){
- const rr=rand(seed);c.save();
+ const rr=rand(seed);c.save();const inheritedAlpha=c.globalAlpha;
  for(let i=0;i<amount;i++){
   const a=rr()*TAU,t=.14+Math.sqrt(rr())*.89,px=x+Math.cos(a)*r*t,py=y+Math.sin(a)*r*.65*t;
   const width=r*(.05+rr()*.16),height=width*(.28+rr()*.42);
-  c.globalAlpha=.025+rr()*.055;c.fillStyle=color;c.beginPath();
+  c.globalAlpha=inheritedAlpha*(.025+rr()*.055);c.fillStyle=color;c.beginPath();
   c.ellipse(px,py,width,height,rr()*TAU,0,TAU);c.fill();
  }
  c.restore();
@@ -89,17 +89,17 @@ function cascade(c,x,sy,w,index,time,staticMode,stage){
 }
 function stones(c,x,sy,w,seed,index,time,staticMode,stage){
  if(stage<8)return;
- const r=rand(seed^Math.imul(index+1,9127)),n=stage>=16?5:3;
+ const r=rand(seed^Math.imul(index+1,9127)),n=stage>=16?5:3,inheritedAlpha=c.globalAlpha;
  for(let i=0;i<n;i++){
   let xx=x+(r()-.5)*w*.76,yy=sy+w*(.39+r()*.38);
   const motion=staticMode?0:Math.sin(time*.0006+i+index)*2.5;
   const s=w*(.006+r()*.021);
-  c.globalAlpha=.35+r()*.45;
+  c.globalAlpha=inheritedAlpha*(.35+r()*.45);
   const gr=c.createLinearGradient(xx-s,yy-s,xx+s,yy+s);
   gr.addColorStop(0,'#f5d6b7');gr.addColorStop(1,'#62647b');
   path(c,[[xx-s,yy],[xx-s*.45,yy-s],[xx+s*.7,yy-s*.65],[xx+s,yy+motion+s*.5],[xx,yy+s+motion]],gr,'#65677a95',.7);
  }
- c.globalAlpha=1;
+ c.globalAlpha=inheritedAlpha;
 }
 function floatUnit(c,u,index,m,time,staticMode,art){
  const r=rand(m.seed^Math.imul(index+1,21919));
@@ -128,7 +128,7 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  const cw=w*(index===0?.97:.95)*crownFactor;
  const ch=w*(index===0?.94:index===1?1.07:index===2?.97:.87)*crownFactor;
  const top=ground-ch*.95+w*.070;
- if(index===0&&m.stage>=8)root.CrewFantasyV5.spiralStair(c,x-cw*.50,top,cw,ch,m.stage,
+ if(index===0&&m.stage>=8)root.CrewFantasyV6.rootedSpiral(c,x-cw*.50,top,cw,ch,ground,m.stage,
    m.growthProgress===undefined?1:m.growthProgress,time,staticMode);
  else art(c,name,x-cw*.50,top,cw,ch);
  if(index===0)root.CrewFantasyV3.islandHollow(c,x,ground,w,time,staticMode,m.stage,m.seed);
@@ -322,7 +322,7 @@ function canopy(c,art,stage,time,still,seed){
  c.fillStyle=halo;c.beginPath();c.ellipse(400,spec.y+spec.h*.55,spec.w*.52,spec.h*.55,0,0,TAU);c.fill();
  art(c,'jelly-canopy.svg',x,spec.y,spec.w,spec.h);
  if(stage>=8){
-  c.save();c.globalAlpha=stage>=16?.64:.41;
+  c.save();c.globalAlpha*=stage>=16?.64:.41;
   art(c,'jelly-inner-membrane.svg',x+spec.w*.034,spec.y+spec.h*.01,spec.w*.93,spec.h*.91);
   c.restore();
   if(stage>=16)root.CrewFantasyV4.refract(c,spec,time,still,seed);
@@ -345,7 +345,7 @@ function lanternLight(c,art,x,y,size,index,time,still,stage){
  const wave=still?(index%3===0?.95:index%3===1?.57:.35):(.52+.48*Math.sin(time*.0021-index*.70-offset*.00037));
  const power=stage<=8?.5:wave;
  earthGlow(c,x+size*.5,y+size*.77,size*(.9+power*.3),'#ffe6bcb5');
- c.save();c.globalAlpha=.68+power*.32;art(c,'lantern-bud.svg',x,y,size,size*1.35);c.restore();
+ c.save();c.globalAlpha*=.68+power*.32;art(c,'lantern-bud.svg',x,y,size,size*1.35);c.restore();
  earthGlow(c,x+size*.51,y+size*.75,size*.44,'#ffe6aeec');
  c.fillStyle='rgba(255,240,188,'+(.55+power*.35)+')';c.beginPath();c.ellipse(x+size*.5,y+size*.76,size*.095,size*.20,0,0,TAU);c.fill();
 }
