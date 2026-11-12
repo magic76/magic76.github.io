@@ -10,7 +10,7 @@ const SILHOUETTES=[
  {name:'垂頭楊柳',height:.98,spread:1.23,wiggle:.14,lean:-.04,droop:.72},
  {name:'分岔雙生',height:1.07,spread:1.25,wiggle:.2,lean:.03,droop:.03},
  {name:'珊瑚亂枝',height:.89,spread:1.47,wiggle:.28,lean:-.01,droop:-.26},
- {name:'大傘樹冠',height:.93,spread:1.68,wiggle:.08,lean:0,droop:.13},
+ {name:'繪本魔法樹',height:1.24,spread:1.12,wiggle:.21,lean:0,droop:.09},
  {name:'折線舞步',height:1.05,spread:.91,wiggle:.30,lean:.03,droop:.02},
  {name:'孔雀開屏',height:.84,spread:1.85,wiggle:.12,lean:0,droop:-.07},
  {name:'側身探險',height:1.02,spread:1.04,wiggle:.2,lean:.45,droop:.04},
