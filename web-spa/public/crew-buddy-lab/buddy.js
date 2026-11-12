@@ -18,18 +18,49 @@ const TEXT={
  relay:['我幫你守住橋！','快過去按右邊的按鈕！','換我過來找你啦！']
 };
 let P=null,Z=null,room=null,last=0,raf=0,width=390,height=450,dpr=1,scale=1,viewW=700,viewH=700,camX=0,camY=0;
-let input={left:false,right:false,jump:false},pressedJump=false;
+let input={left:false,right:false,jump:false,fire:false},pressedJump=false;
 let bubble={text:'',until:0},particles=[],skyStars=[];
+const combat={shots:[],enemyShots:[],enemies:[],cover:[],flashes:[],wave:0,triggered:false,spawns:0,kills:0,roomKills:0,shotsFired:0,zoeShots:0,shake:0};
+const crewSpriteImages={};
+function loadCrewSprites(){
+ const bank=window.CREW_NEON_SPRITES;
+ if(!bank||typeof Image==='undefined')return;
+ for(const [key,spec] of Object.entries(bank)){
+  if(!spec||!spec.src||!spec.w||!spec.h)continue;
+  const image=new Image();
+  image.src=spec.src;
+  crewSpriteImages[key]={image,spec};
+ }
+}
+function soundCombat(kind){
+ const Audio=window.AudioContext||window.webkitAudioContext;
+ if(!Audio)return;
+ try{
+  if(!soundCombat.ctx)soundCombat.ctx=new Audio();
+  const a=soundCombat.ctx,t=a.currentTime,last=soundCombat.last||{},min=kind==='shot'?.095:.16;
+  if(t-(last[kind]??-99)<min)return;
+  last[kind]=t;soundCombat.last=last;
+  const osc=a.createOscillator(),gain=a.createGain();
+  osc.type=kind==='kill'?'triangle':'sawtooth';
+  const f=kind==='shot'?460:kind==='hit'?840:kind==='kill'?370:190;
+  osc.frequency.setValueAtTime(f,t);
+  osc.frequency.exponentialRampToValueAtTime(kind==='kill'?690:100,t+.12);
+  gain.gain.setValueAtTime(.035,t);
+  gain.gain.exponentialRampToValueAtTime(.0001,t+.13);
+  osc.connect(gain);gain.connect(a.destination);osc.start(t);osc.stop(t+.14);
+ }catch{/* Audio is optional. */}
+}
+
 const G={
  phase:'ready',roomIndex:0,sequence:[0,1,2,3,4],time:0,roomTime:0,transitionTime:0,
  command:'lead',commandAnchor:0,roomFlags:{},events:[],rescueFx:0,
- stats:{runs:0,savedByZoe:0,savedZoe:0},lastSaved:'',completed:0,roomFails:0,softHint:false
+ stats:{runs:0,savedByZoe:0,savedZoe:0,killsTotal:0},lastSaved:'',completed:0,roomFails:0,softHint:false
 };
 function readMemory(){
  try{
   const data=JSON.parse(localStorage.getItem('crew-buddy-lab-v1')||'{}');
   const num=(x)=>Number.isFinite(x)?clamp(Math.floor(x),0,99999):0;
-  G.stats={runs:num(data.runs),savedByZoe:num(data.savedByZoe),savedZoe:num(data.savedZoe)};
+  G.stats={runs:num(data.runs),savedByZoe:num(data.savedByZoe),savedZoe:num(data.savedZoe),killsTotal:num(data.killsTotal)};
   G.lastSaved=typeof data.lastSaved==='string'?data.lastSaved.slice(0,240):'';
  }catch{}
  updateMemory();
@@ -48,7 +79,7 @@ function sample(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function orderRooms(){let rest=[1,2,3,4];for(let i=rest.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]]}return [0,...rest];}
 function makeEntity(x,isBuddy=false){
  return {x,y:FLOOR,vx:0,vy:0,onGround:true,speed:isBuddy?245:264,
-  w:25,h:52,face:1,walk:0,helped:0,trapped:false,isBuddy,checkpoint:85};
+  w:25,h:52,face:1,walk:0,helped:0,trapped:false,isBuddy,checkpoint:85,hp:5,maxHp:5,inv:0,down:false,gunCD:0,shooting:0};
 }
 function announce(message,force=false){
  if(!force&&G.time<bubble.until-.8)return;
@@ -82,7 +113,7 @@ function resetRoom(){
  G.roomFlags={gate:false,left:false,right:false,bridged:false,starP:false,starZ:false,released:false};
  G.roomTime=0;G.roomFails=0;G.softHint=false;G.rescueFx=0;
  input.left=false;input.right=false;input.jump=false;pressedJump=false;
- particles.length=0;
+ particles.length=0;resetCombat();
  const role=(room.id==='switches'||room.id==='stars'||room.id==='relay'||room.id==='gap')?'lead':'follow';
  setCommand(role,true);
  $('roomIndex').textContent=String(G.roomIndex+1).padStart(2,'0');
@@ -96,7 +127,7 @@ function resetRoom(){
  camX=0;updateHud();
 }
 function startRun(){
- G.phase='playing';G.time=0;G.roomIndex=0;G.completed=0;G.events=[];
+ G.phase='playing';G.time=0;G.roomIndex=0;G.completed=0;G.events=[];combat.kills=0;combat.shotsFired=0;combat.zoeShots=0;
  G.sequence=G.stats.runs>0?orderRooms():[0,1,2,3,4];
  G.stats.runs++;storeMemory();
  $('gameOverlay').hidden=true;
@@ -104,6 +135,9 @@ function startRun(){
 }
 function updateHud(){
  $('timer').textContent=String(Math.floor(G.time/60)).padStart(2,'0')+':'+String(Math.floor(G.time%60)).padStart(2,'0');
+ $('killCount').textContent=String(combat.kills);
+ $('playerHearts').textContent='♥ '.repeat(Math.max(0,P?.hp||0)).trim()+'♡ '.repeat(Math.max(0,5-(P?.hp||0))).trim();
+ $('zoeHearts').textContent='♥ '.repeat(Math.max(0,Z?.hp||0)).trim()+'♡ '.repeat(Math.max(0,5-(Z?.hp||0))).trim();
 }
 function isGap(x){
  for(const pit of room.pits){
@@ -119,7 +153,7 @@ function gateOpen(){
  room.id==='relay'?G.roomFlags.bridged:true;
 }
 function tryJump(e){
- if(!e||!e.onGround||e.trapped)return false;
+ if(!e||!e.onGround||e.trapped||e.down)return false;
  e.vy=-JUMP;e.onGround=false;burst(e.x,e.y-3,'#dbeeff',6);
  return true;
 }
@@ -130,7 +164,7 @@ function burst(x,y,color,n=9){
  }
 }
 function movePerson(e,dir,dt){
- if(e.trapped)return;
+ if(e.trapped||e.down)return;
  e.vx=dir*e.speed;
  if(Math.abs(dir)>.01)e.face=Math.sign(dir);
  e.x=clamp(e.x+e.vx*dt,23,WORLD-20);
@@ -205,7 +239,7 @@ function aiTarget(){
  return clamp(target,60,EXIT_X-15);
 }
 function aiStep(dt){
- if(Z.trapped)return;
+ if(Z.trapped||Z.down)return;
  const target=aiTarget(),delta=target-Z.x;
  let dir=Math.abs(delta)<9?0:clamp(delta/55,-1,1);
  if(room.id==='relay'&&!G.roomFlags.bridged&&Math.abs(Z.x-284)<17)dir=0;
@@ -534,7 +568,7 @@ function parseCommand(str){
  const t=str.trim().toLowerCase();
  if(!t)return null;
  if(/等|停一下|別動|停住|wait/.test(t))return 'wait';
- if(/幫|救|過來|help/.test(t))return 'help';
+ if(/幫|救|過來|掩護|cover|help/.test(t))return 'help';
  if(/先走|探路|去前面|lead|先去/.test(t))return 'lead';
  if(/跟|一起走|follow|回來/.test(t))return 'follow';
  return null;
