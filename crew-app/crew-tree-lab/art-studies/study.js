@@ -9,7 +9,7 @@ const W=800,H=820,$=id=>document.getElementById(id),TAU=Math.PI*2;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 function rng(seed){let a=seed>>>0;return ()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
 const FILES=['floating-island.svg','island-crown.svg','jelly-canopy.svg','lantern-bud.svg',
- 'crown-spiral.svg','crown-willow.svg','crown-lantern.svg','crown-moon.svg','jelly-inner-membrane.svg'],images=new Map();
+ 'crown-spiral.svg','crown-willow.svg','crown-lantern.svg','crown-moon.svg','jelly-inner-membrane.svg','spiral-leaf-tiers.svg'],images=new Map();
 const state={scene:'island',stage:16,topic:'cosmos',seed:103,paused:false,silhouette:false,reduced:!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches};
 let last=0,visible=true;
 function load(){
@@ -188,7 +188,7 @@ function jellyScene(c,m,time,staticMode){
  const bob=staticMode?0:Math.sin(time*.00072+m.phase)*5;
  c.save();c.translate(0,bob);
  // Newborns have a separate construction: no adult dome or trunk can appear.
- if(m.stage<=3){window.CrewFantasyV3.juvenileMedusa(c,m,time,staticMode,art);c.restore();return;}
+ if(m.stage<=3){window.CrewFantasyV4.jellyHatchling(c,m,time,staticMode,art);c.restore();return;}
  for(const [i,arm] of m.arms.entries()){
   if(i%2!==0)continue;
   const end=bonePath(c,arm,time,staticMode,m.topic,m.stage);
@@ -199,7 +199,8 @@ function jellyScene(c,m,time,staticMode){
  }
  window.CrewFantasyPaint.twistedTrunk(c,m.stage,m.seed,time,staticMode);
  const cap=window.CrewFantasyPaint.canopy(c,art,m.stage,time,staticMode,m.seed);
- window.CrewFantasyV3.fishResident(c,cap,time,staticMode,m.seed,m.stage);
+ if(m.stage>=16)window.CrewFantasyV4.fishHero(c,cap,time,staticMode,m.seed);
+ else window.CrewFantasyV3.fishResident(c,cap,time,staticMode,m.seed,m.stage);
  for(const [i,arm] of m.arms.entries()){
   if(i%2===0)continue;
   const end=bonePath(c,arm,time,staticMode,m.topic,m.stage);
@@ -247,15 +248,20 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
  const scale=Math.min(width/W,height/H),ox=(width-W*scale)/2,oy=(height-H*scale)/2;
  c.fillStyle=scene==='island'?'#e0e9dc':'#c7dcda';c.fillRect(0,0,width,height);
  c.translate(ox,oy);c.scale(scale,scale);
- if(silhouette){c.fillStyle='#faf5e7';c.fillRect(0,0,W,H);}
- else{window.CrewFantasyV3.themeBackdrop(c,topic,seed,scene);window.CrewFantasyPaint.forest(c,seed,scene);}
  const model=sceneModel(scene,stage,seed,topic);
+ if(silhouette){c.fillStyle='#faf5e7';c.fillRect(0,0,W,H);}
+ else{
+  window.CrewFantasyV3.themeBackdrop(c,topic,seed,scene);
+  window.CrewFantasyPaint.forest(c,seed,scene);
+  if(topic==='travel')window.CrewFantasyV4.travelSky(c,seed,stage,time,staticMode);
+ }
  if(silhouette){c.save();c.filter='brightness(0)';}
  if(scene==='island')floatScene(c,model,time,staticMode);
  else jellyScene(c,model,time,staticMode);
  if(silhouette){c.restore();}
  else{
   window.CrewFantasyV3.topicAccessories(c,model,time,staticMode);
+  if(topic==='travel'&&scene==='island')window.CrewFantasyV4.travelStamp(c,model);
   window.CrewFantasyPaint.life(c,model,time,staticMode);
   window.CrewFantasyPaint.frame(c,scene,seed);
  }
@@ -271,12 +277,14 @@ function refreshStatic(){
 }
 function updateStatus(){
  const loaded=FILES.filter(ready).length;
- $('statusText').textContent=loaded===FILES.length?'9 / 9 原創素材已載入':'原創素材 '+loaded+' / 9（缺少時使用備用繪製）';
+ $('statusText').textContent=loaded===FILES.length?'10 / 10 原創素材已載入':'原創素材 '+loaded+' / 10（缺少時使用備用繪製）';
 }
 function changeUI(){
  $('artName').textContent=state.scene==='island'?'漂流群島':'水母燈籠樹';
  $('artSub').textContent=state.scene==='island'?'FAMILY 01 / FLOATING ISLES':'FAMILY 02 / JELLY LANTERN';
- $('artDetail').textContent=state.scene==='island'?'新聊天會長出獨立浮島、藤橋與植物。':'根莖不動，傘冠與新觸鬚沿骨架生長。';
+ $('artDetail').textContent=state.stage===3?'剩下的世界還在等你 · 再聊幾句，看看它會長成什麼樣子。':
+  state.scene==='island'?'新聊天會長出獨立浮島、藤橋與植物。':'根莖不動，傘冠與新觸鬚沿骨架生長。';
+ $('futureHint').hidden=state.stage!==3;
  $('stageText').textContent=state.stage+' 句 · '+(state.stage===16?'成熟':state.stage===8?'成長':'萌芽');
  $('unitCount').textContent=String(sceneModel().unitCount).padStart(2,'0');
  $('renderTech').textContent='Canvas 2D';

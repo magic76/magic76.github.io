@@ -105,7 +105,7 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  const r=rand(m.seed^Math.imul(index+1,21919));
  const yDrift=staticMode?0:Math.sin(time*.00062+m.phase+index*1.46)*6;
  const xDrift=staticMode?0:Math.sin(time*.00029+index)*3.5;
- if(m.stage<=3&&index===0){root.CrewFantasyV3.islandBud(c,u,m,time,staticMode,art);return;}
+ if(m.stage<=3&&index===0){root.CrewFantasyV4.islandSeedling(c,u,m,time,staticMode,art);return;}
  const maturity=m.stage<=3?.44:m.stage<=8?.82:1;
  const w=u.w*(index===0?maturity:1);
  const x=u.x+xDrift,y=u.y+yDrift,sy=y-w*.29;
@@ -120,6 +120,7 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  hangingRoots(c,x,ground,w,m.seed,m.stage,index,time,staticMode);
  art(c,'floating-island.svg',x-w*.5,sy,w,w*.62);
  islandWash(c,x,ground,w,index,m.seed);
+ if(m.topic==='travel')root.CrewFantasyV4.travelCliff(c,x,ground,w,m.seed,index);
  cascade(c,x,ground,w,index,time,staticMode,m.stage);
  stones(c,x,ground,w,m.seed,index,time,staticMode,m.stage);
  const name=index===0?families[0]:index===1?families[1]:index===2?families[2]:families[3];
@@ -128,6 +129,7 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  const ch=w*(index===0?.94:index===1?1.07:index===2?.97:.87)*crownFactor;
  const top=ground-ch*.95+w*.070;
  art(c,name,x-cw*.50,top,cw,ch);
+ if(index===0&&m.stage>=8)art(c,'spiral-leaf-tiers.svg',x-cw*.50,top,cw,ch);
  if(index===0)root.CrewFantasyV3.islandHollow(c,x,ground,w,time,staticMode,m.stage,m.seed);
  // Small grounded details, not emoji pasted over crown.
  if(m.stage>=8&&index===0){
@@ -322,6 +324,7 @@ function canopy(c,art,stage,time,still,seed){
   c.save();c.globalAlpha=stage>=16?.64:.41;
   art(c,'jelly-inner-membrane.svg',x+spec.w*.034,spec.y+spec.h*.01,spec.w*.93,spec.h*.91);
   c.restore();
+  if(stage>=16)root.CrewFantasyV4.refract(c,spec,time,still,seed);
   const n=stage>=16?11:7;
   for(let i=0;i<n;i++){
    const t=(i+1)/(n+1),px=x+t*spec.w,yy=spec.y+spec.h*(.49+.17*Math.abs(t-.5));
