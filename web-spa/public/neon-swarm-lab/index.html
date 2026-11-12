@@ -76,7 +76,7 @@ const WAVE_DEFS=[
  {at:58,end:72,target:52,burst:8,interval:.92,name:'最終蟲潮',mix:['swarm','swarm','swarm','drone','charger','sniper'],pattern:'corners'}
 ];
 const MAX_LIVE_MOBS=54,MAX_FX_PARTICLES=200;
-let directorWave=0,spawnBatch=0,elapsedSinceWave=0,perfFps=60,fxQuality=1,viewBaseZoom=.82;
+let directorWave=0,spawnBatch=0,elapsedSinceWave=0,perfFps=60,fxQuality=1,viewBaseZoom=.82,evolutionStage=0,upgradeOrder=[];
 
 let upgradeStage=0,localRecord=loadRunRecord();
 function loadRunRecord(){
@@ -90,7 +90,7 @@ function saveRunRecord(stars){
  try{localStorage.setItem('crew-neon-lab-record-v1',JSON.stringify(next))}catch{}
 }
 function runStars(won){return won?1+(kills>=70?1:0)+(pickupsCollected>=2?1:0):0}
-const level={w:1680,h:1260,decor:[],gates:[],lights:[]};const mobs=[],shots=[],enemyShots=[],particles=[],numbers=[],turrets=[],rings=[],pickups=[],arcBeams=[],impacts=[];let pickupsCollected=0,eliteWave=0;const keys=new Set();let stick={x:0,y:0,active:false,id:null};const R=(a,b)=>Math.random()*(b-a)+a,C=(n,a,b)=>Math.max(a,Math.min(b,n)),D=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),angle=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
+const level={w:1680,h:1260,decor:[],gates:[],lights:[]};const mobs=[],shots=[],enemyShots=[],particles=[],numbers=[],turrets=[],rings=[],pickups=[],arcBeams=[],impacts=[],shockwaves=[];let pickupsCollected=0,eliteWave=0;const keys=new Set();let stick={x:0,y:0,active:false,id:null};const R=(a,b)=>Math.random()*(b-a)+a,C=(n,a,b)=>Math.max(a,Math.min(b,n)),D=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),angle=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
 function resize(){const r=canvas.getBoundingClientRect();vw=Math.max(250,r.width);vh=Math.max(350,r.height);viewBaseZoom=vw<500?.82:.92;zoom=viewBaseZoom;dpr=Math.min(vw<500?1.5:2,devicePixelRatio||1);canvas.width=Math.round(vw*dpr);canvas.height=Math.round(vh*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
 new ResizeObserver(resize).observe($('stage'));resize();
 function event(code,description){try{if(window.parent!==window)window.parent.postMessage({type:'crew-neon-event',code,description:String(description||'').slice(0,150)},location.origin)}catch{}}
@@ -185,8 +185,8 @@ function line(x1,y1,x2,y2,color,w=1){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineT
 function glow(x,y,r,color,opacity=1){ctx.save();ctx.globalAlpha=opacity;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);ctx.restore()}
 function hex(x,y,r,fill,stroke,w=2,rot=Math.PI/6){const pts=[];for(let i=0;i<6;i++){const a=rot+i*TAU/6;pts.push([x+Math.cos(a)*r,y+Math.sin(a)*r])}poly(pts,fill,stroke,w)}
 function caption(x,y,label,color='#fff',size=16){ctx.font=`900 ${size}px Inter,system-ui,sans-serif`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='#111326';ctx.strokeText(label,x,y);ctx.fillStyle=color;ctx.fillText(label,x,y);ctx.textAlign='left'}
-function clearEffects(){mobs.length=shots.length=enemyShots.length=particles.length=numbers.length=turrets.length=rings.length=pickups.length=arcBeams.length=impacts.length=0}
-function reset(){gameTime=0;directorWave=0;spawnBatch=0;elapsedSinceWave=0;perfFps=60;fxQuality=1;zoom=viewBaseZoom;spawnT=.8;shootT=.04;secT=0;pickupsCollected=0;eliteWave=0;upgradeStage=0;kills=0;score=0;wave=1;combo=0;comboT=0;helpUsed=false;helpType='';boss=null;shake=0;flash=0;hitstop=0;clearEffects();player={x:840,y:640,hp:120,maxHp:120,shield:0,inv:0,dash:0,dashCD:0,ax:1,ay:0,r:16,fireBoost:0,overdrive:0,firePower:1,upgrades:{arc:false,pierce:false,coolant:false},aimLock:0,dashX:1,dashY:0,moveBlend:0,gait:0,recoil:0,muzzle:0,hitPose:0,dashPose:0,deathPose:0,victoryPose:0,footfall:0};cam={x:player.x-vw/(2*zoom),y:player.y-vh/(2*zoom)};phase='ready';$('overlay').hidden=false;$('choice').hidden=true;$('upgrade').hidden=true;$('start').textContent='▶ 開始突圍';$('overlayDescription').textContent='六波敵潮將逐漸包圍街區！移動、連擊、撿補給，強化武器清空整片蟲群，最後挑戰三階段巨型機甲。';$('skills').innerHTML='<div class="skill-badge" title="自動武器">⚡</div>';$('missionAbility').textContent='待解鎖';$('missionAbility').classList.add('muted');$('missionBoss').textContent='尚未出現';$('missionSupplies').textContent='0 已收集';$('missionUpgrade').textContent='0 / 2';$('missionStars').textContent='☆ ☆ ☆';$('voiceState').textContent='DEMO 劇情台詞 · 尚未連線 AI';$('voiceState').classList.remove('live');say('別緊張，我守著雷達。你負責移動和開火！');updateHUD()}
+function clearEffects(){mobs.length=shots.length=enemyShots.length=particles.length=numbers.length=turrets.length=rings.length=pickups.length=arcBeams.length=impacts.length=shockwaves.length=0}
+function reset(){gameTime=0;directorWave=0;spawnBatch=0;elapsedSinceWave=0;evolutionStage=0;upgradeOrder=[];perfFps=60;fxQuality=1;zoom=viewBaseZoom;spawnT=.8;shootT=.04;secT=0;pickupsCollected=0;eliteWave=0;upgradeStage=0;kills=0;score=0;wave=1;combo=0;comboT=0;helpUsed=false;helpType='';boss=null;shake=0;flash=0;hitstop=0;clearEffects();player={x:840,y:640,hp:120,maxHp:120,shield:0,inv:0,dash:0,dashCD:0,ax:1,ay:0,r:16,fireBoost:0,overdrive:0,firePower:1,upgrades:{arc:false,pierce:false,coolant:false},evolved:{arc:false,pierce:false,coolant:false},evolvedCount:0,aimLock:0,dashX:1,dashY:0,moveBlend:0,gait:0,recoil:0,muzzle:0,hitPose:0,dashPose:0,deathPose:0,victoryPose:0,footfall:0};cam={x:player.x-vw/(2*zoom),y:player.y-vh/(2*zoom)};phase='ready';$('overlay').hidden=false;$('choice').hidden=true;$('upgrade').hidden=true;$('start').textContent='▶ 開始突圍';$('overlayDescription').textContent='六波敵潮將逐漸包圍街區！移動、連擊、撿補給，強化武器清空整片蟲群，最後挑戰三階段巨型機甲。';$('skills').innerHTML='<div class="skill-badge" title="自動武器">⚡</div>';$('missionAbility').textContent='待解鎖';$('missionAbility').classList.add('muted');$('missionBoss').textContent='尚未出現';$('missionSupplies').textContent='0 已收集';$('missionUpgrade').textContent='0 / 2';$('missionStars').textContent='☆ ☆ ☆';$('voiceState').textContent='DEMO 劇情台詞 · 尚未連線 AI';$('voiceState').classList.remove('live');say('別緊張，我守著雷達。你負責移動和開火！');updateHUD()}
 function begin(){if(phase==='pause'){phase='run';$('overlay').hidden=true;event('resume','resume');return}reset();phase='run';$('overlay').hidden=true;spawnWave(5);say('警告！六波機械蟲潮正在靠近。先清掉第一群，逐漸強化武器！','game_start');toast('SECTOR A–3','INCOMING HOSTILES');sound(4)}
 function end(won){if(phase!=='run')return;phase=won?'win':'lose';if(won)player.victoryPose=.001;else player.deathPose=.001;$('overlay').hidden=true;setTimeout(()=>{if(phase===(won?'win':'lose'))$('overlay').hidden=false},850);$('overlay').querySelector('.start-symbol').textContent=won?'🏆':'☠️';$('overlay').querySelector('h1').innerHTML=won?'MISSION <span>CLEAR</span>':'SYSTEM <span>DOWN</span>';const stars=runStars(won);saveRunRecord(stars);
  $('overlayDescription').textContent=won?
@@ -503,7 +503,7 @@ function offerUpgrade(){
 }
 function chooseUpgrade(key){
  if(phase!=='upgrade'||!UPGRADE_KEYS.includes(key)||player.upgrades[key])return;
- player.upgrades[key]=true;upgradeStage++;
+ player.upgrades[key]=true;upgradeStage++;upgradeOrder.push(key);
  phase='run';$('upgrade').hidden=true;
  const names={arc:'連鎖電弧',pierce:'穿甲彈芯',coolant:'冷卻反應爐'};
  const icons={arc:'⚡',pierce:'🎯',coolant:'💨'};
@@ -521,7 +521,7 @@ function chainArc(origin){
  spark(nearest.x,nearest.y,'#70eeff',6,.5);
  if(nearest.hp<=0){const idx=mobs.indexOf(nearest);if(idx>=0)kill(nearest,idx)}
 }
-function playDash(){if(phase!=='run'||player.dashCD>0)return;const dashDir=moveVector();player.dashX=dashDir[0]||player.ax||1;player.dashY=dashDir[1]||player.ay||0;player.dash=.23;player.dashPose=.23;player.inv=Math.max(player.inv,.28);player.dashCD=player.upgrades.coolant?2.1:3.5;shake=Math.max(shake,3);sound('dash');spark(player.x,player.y,'#77fcff',12,1.3);event('dash','Player dashed');}
+function playDash(){if(phase!=='run'||player.dashCD>0)return;const dashDir=moveVector();player.dashX=dashDir[0]||player.ax||1;player.dashY=dashDir[1]||player.ay||0;player.dash=.23;player.dashPose=.23;player.inv=Math.max(player.inv,.28);player.dashCD=player.evolved.coolant?1.5:player.upgrades.coolant?2.1:3.5;if(player.evolved.coolant)burstClear(170,65);shake=Math.max(shake,3);sound('dash');spark(player.x,player.y,'#77fcff',12,1.3);event('dash','Player dashed');}
 function moveVector(){let dx=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0),dy=(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0);if(stick.active){dx=stick.x;dy=stick.y}let k=Math.hypot(dx,dy);return k>0?[dx/Math.max(k,1),dy/Math.max(k,1)]:[0,0]}
 function harm(value){if(player.inv>0||phase!=='run')return;let leftover=value*(gameTime<7?.38:gameTime<14?.62:1);if(player.shield>0){const absorbed=Math.min(player.shield,leftover);player.shield-=absorbed;leftover-=absorbed}player.hp=Math.max(0,player.hp-leftover);player.inv=.82;player.hitPose=.48;shake=Math.max(shake,9);flash=.3;floatText(player.x,player.y-28,'-'+Math.ceil(value),'#ff9ab7',19);spark(player.x,player.y,'#ff618d',19);impact(player.x,player.y,'hurt',1.15);sound('hurt');haptic([16,18,26]);say('小心！別站在紅色警示區，保持移動！','hit');if(player.hp<=0)end(false)}
 function shoot(){
@@ -537,10 +537,11 @@ function shoot(){
  const muzzle=heroMuzzlePoint(player);
  const muzzleAngle=Math.atan2(target.y-muzzle.y,target.x-muzzle.x);
  const speed=725,boosted=player.fireBoost>0,overdrive=player.overdrive>0;
+ const improvedDamage=Math.max(0,wave-2)*3+player.evolvedCount*4;
  for(const off of (boosted?[-.16,0,.16]:[0])){
   const q=muzzleAngle+off;
   shots.push({x:muzzle.x,y:muzzle.y,vx:Math.cos(q)*speed,vy:Math.sin(q)*speed,
-   life:.9,r:boosted?5:4,damage:boosted?23:overdrive?24:19,trail:[],pierce:player.upgrades.pierce?1:0,hitRefs:[]});
+   life:.9,r:boosted?5:4,damage:(boosted?23:overdrive?24:19)+improvedDamage,trail:[],pierce:player.evolved.pierce?3:player.upgrades.pierce?1:0,hitRefs:[]});
  }
  spark(muzzle.x,muzzle.y,'#fff4be',5,.65);sound('shot');
 }
@@ -678,16 +679,17 @@ function drawMobTelegraph(e){
  }
 }
 function step(dt){if(phase!=='run')return;if(hitstop>0){hitstop-=dt;return}dt=Math.min(dt,.034)*fast;gameTime+=dt;secT+=dt;shootT-=dt;spawnT-=dt;comboT-=dt;shake=Math.max(0,shake-dt*15);flash=Math.max(0,flash-dt*2);player.inv=Math.max(0,player.inv-dt);player.dashCD=Math.max(0,player.dashCD-dt);player.dash=Math.max(0,player.dash-dt);player.fireBoost=Math.max(0,player.fireBoost-dt);player.overdrive=Math.max(0,player.overdrive-dt);player.aimLock=Math.max(0,player.aimLock-dt);
- let [dx,dy]=moveVector();if(player.dash>0){dx=player.dashX;dy=player.dashY}let speed=player.dash>0?850:player.upgrades.coolant?270:235;player.x=C(player.x+dx*speed*dt,43,level.w-43);player.y=C(player.y+dy*speed*dt,45,level.h-43);if(dx||dy){if(player.dash<=0&&player.aimLock<=0){player.ax=dx;player.ay=dy}if(player.dash>0&&Math.random()<.75){particles.push({x:player.x-dx*14,y:player.y-dy*14,vx:-dx*45+R(-40,40),vy:-dy*45+R(-40,40),life:.26,max:.26,r:7,color:'#55fff3',drag:.9})}}
+ let [dx,dy]=moveVector();if(player.dash>0){dx=player.dashX;dy=player.dashY}let speed=player.dash>0?850:player.evolved.coolant?310:player.upgrades.coolant?270:235;player.x=C(player.x+dx*speed*dt,43,level.w-43);player.y=C(player.y+dy*speed*dt,45,level.h-43);if(dx||dy){if(player.dash<=0&&player.aimLock<=0){player.ax=dx;player.ay=dy}if(player.dash>0&&Math.random()<.75){particles.push({x:player.x-dx*14,y:player.y-dy*14,vx:-dx*45+R(-40,40),vy:-dy*45+R(-40,40),life:.26,max:.26,r:7,color:'#55fff3',drag:.9})}}
  zoom+=(Math.max(viewBaseZoom-.09,viewBaseZoom-Math.min(.09,mobs.length/54*.09))-zoom)*Math.min(1,3.6*dt);
  cam.x+=(C(player.x-vw/(2*zoom),0,level.w-vw/zoom)-cam.x)*Math.min(1,8*dt);cam.y+=(C(player.y-vh/(2*zoom),0,level.h-vh/zoom)-cam.y)*Math.min(1,8*dt);
  if(upgradeStage<UPGRADE_TIMES.length&&gameTime>=UPGRADE_TIMES[upgradeStage]){offerUpgrade();return}
+ if(evolutionStage<2&&gameTime>=(evolutionStage===0?42:60))evolveArsenal();
  directEnemyWaves();
  if(gameTime>14&&!helpUsed&&phase==='run'){askZoe();return}
  if(eliteWave===0&&gameTime>31){eliteWave=1;spawnMob('elite');toast('ELITE WARNING','裝甲守衛進場')}
  if(eliteWave===1&&gameTime>55){eliteWave=2;spawnMob('elite');toast('ELITE WARNING','第二台裝甲守衛進場')}
  if(gameTime>=duration&&!boss)spawnBoss()
- if(shootT<=0){shootT=player.fireBoost>0?.075:player.overdrive>0?.105:.16;shoot()}
+ if(shootT<=0){shootT=player.fireBoost>0?.075:player.overdrive>0?.105:Math.max(.095,.16-Math.max(0,wave-1)*.011);shoot()}
  for(const e of mobs){
   e.hit=Math.max(0,e.hit-dt);
   const d=D(e,player),a=angle(e,player);
