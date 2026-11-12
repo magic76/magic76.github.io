@@ -11,7 +11,7 @@ function glow(c,x,y,r,color){
  c.fillStyle=gr;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();
 }
 function sproutGhost(c,x,y,w,seed,art,scene){
- c.save();c.globalAlpha=.11;c.filter='saturate(.58)';
+ c.save();c.globalAlpha=.19;c.filter='saturate(.62)';
  if(scene==='island'){
   art(c,'floating-island.svg',x-w*.5,y-w*.26,w,w*.62);
   c.strokeStyle='#dceacdb9';c.lineWidth=4;c.lineCap='round';
@@ -55,8 +55,8 @@ function islandSeedling(c,u,m,time,still,art){
  openWorld(c,'island',m.seed,time,still,art);
  c.save();
  const pivotY=u.y+116;
- c.translate(0,-142);c.translate(u.x,pivotY);
- c.scale(2.00,2.00);c.translate(-u.x,-pivotY);
+ c.translate(0,-180);c.translate(u.x,pivotY);
+ c.scale(2.40,2.40);c.translate(-u.x,-pivotY);
  root.CrewFantasyV3.islandBud(c,u,m,time,still,art);
  c.restore();
  glow(c,u.x,436,70,'#f6e5bd6e');
@@ -72,8 +72,8 @@ function islandSeedling(c,u,m,time,still,art){
 function jellyHatchling(c,m,time,still,art){
  openWorld(c,'jelly',m.seed,time,still,art);
  c.save();const pivotY=711;
- c.translate(0,-171);c.translate(401,pivotY);
- c.scale(2.18,2.18);c.translate(-401,-pivotY);
+ c.translate(0,-145);c.translate(401,pivotY);
+ c.scale(2.43,2.43);c.translate(-401,-pivotY);
  root.CrewFantasyV3.juvenileMedusa(c,m,time,still,art);
  c.restore();
  // A few living ripples frame the newborn rather than an empty upper sky.
