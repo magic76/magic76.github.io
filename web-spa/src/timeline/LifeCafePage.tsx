@@ -44,7 +44,7 @@ function Secrets({world,zh}:{world:CafeWorld;zh:boolean}){
  const uncovered=world.revealed.length+(world.phase==="finished"&&!world.revealed.includes("hana-moving")?1:0);
  return <section className="lc-secrets">
   <div className="lc-panel-heading"><h2>{zh?"他們沒說出口的事":"Things left unsaid"}</h2><span>{uncovered} / {CAFE_SECRETS.length}</span></div>
-  <div className="lc-secret-list">{CAFE_SECRETS.map((id:CafeSecret)=>{const known=known||(world.phase==="finished"&&id==="hana-moving");return <div key={id} className={"lc-secret"+(known?" is-revealed":"")}>
+  <div className="lc-secret-list">{CAFE_SECRETS.map((id:CafeSecret)=>{const known=world.revealed.includes(id)||(world.phase==="finished"&&id==="hana-moving");return <div key={id} className={"lc-secret"+(known?" is-revealed":"")}>
    <span aria-hidden="true">{known?"✦":"?"}</span>
    <div><strong>{known?cafeSecretCopy[id].title[zh?"zh":"en"]:zh?"還沒被發現":"Not discovered"}</strong>
     {known&&<p>{cafeSecretCopy[id].detail[zh?"zh":"en"]}</p>}
