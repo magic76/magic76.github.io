@@ -161,7 +161,7 @@
 .lo-selected-caption{color:#e3bd96}
 .lo-action-dock{display:flex;justify-content:space-between;align-items:center;gap:20px;
  padding:14px 19px;background:#302b42f5;border:1px solid #887080;border-radius:17px;
- position:sticky;bottom:16px;z-index:15;box-shadow:0 18px 40px #090918b3;backdrop-filter:blur(14px)}
+ position:relative;bottom:auto;z-index:1;margin-top:16px;box-shadow:0 18px 40px #09091860}
 .lo-action-dock>div{display:grid;gap:6px}
 .lo-action-dock strong{font-size:14px;line-height:1.45}
 .lo-action-dock>div>span{font-size:11px;color:#c2b7c5;line-height:1.5}
