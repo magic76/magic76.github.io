@@ -513,13 +513,43 @@ function chooseUpgrade(key){
 }
 function chainArc(origin){
  if(!player.upgrades.arc)return;
- let nearest=null,best=138;
- for(const enemy of mobs){if(enemy===origin)continue;const d=D(origin,enemy);if(d<best){best=d;nearest=enemy}}
- if(!nearest)return;
- nearest.hp-=14;nearest.hit=.12;
- arcBeams.push({x1:origin.x,y1:origin.y,x2:nearest.x,y2:nearest.y,life:.15,max:.15});
- spark(nearest.x,nearest.y,'#70eeff',6,.5);
- if(nearest.hp<=0){const idx=mobs.indexOf(nearest);if(idx>=0)kill(nearest,idx)}
+ const evolved=player.evolved.arc,reach=evolved?170:138,count=evolved?4:1;
+ const neighbors=mobs.filter(e=>e!==origin&&D(origin,e)<reach)
+  .sort((a,b)=>D(origin,a)-D(origin,b)).slice(0,count);
+ let point=origin;
+ for(const enemy of neighbors){
+  enemy.hp-=evolved?27:14;enemy.hit=.12;
+  arcBeams.push({x1:point.x,y1:point.y,x2:enemy.x,y2:enemy.y,life:.15,max:.15});
+  spark(enemy.x,enemy.y,'#70eeff',evolved?5:6,.5);
+  if(enemy.hp<=0){const idx=mobs.indexOf(enemy);if(idx>=0)kill(enemy,idx)}
+  point=enemy;
+ }
+}
+function burstClear(radius=260,damage=85){
+ shockwaves.push({x:player.x,y:player.y,r:10,maxRadius:radius,life:.48,max:.48});
+ if(shockwaves.length>4)shockwaves.shift();
+ let cleared=0,damaged=0;
+ for(let i=mobs.length-1;i>=0;i--){
+  const enemy=mobs[i],distance=D(player,enemy);
+  if(distance>radius)continue;
+  damaged++;enemy.hp-=damage*(1-distance/(radius*1.7));enemy.hit=.25;
+  if(enemy.hp<=0){kill(enemy,i,true);cleared++}
+ }
+ if(cleared)floatText(player.x,player.y-72,'⚡ 清場 ×'+cleared,'#a4fff4',22);
+ spark(player.x,player.y,'#9afcff',28,1.35);
+ sound('bossBlast');shake=Math.max(shake,7);
+ return {cleared,damaged};
+}
+function evolveArsenal(){
+ if(evolutionStage>=2||phase!=='run')return;
+ const key=upgradeOrder[evolutionStage];if(!key)return;
+ evolutionStage++;player.evolved[key]=true;player.evolvedCount=evolutionStage;
+ const names={arc:'四重連鎖電弧',pierce:'四層穿甲',coolant:'衝刺電爆'};
+ $('skills').insertAdjacentHTML('beforeend','<div class="skill-badge" title="進化：'+names[key]+'">✦</div>');
+ toast('EVOLUTION '+evolutionStage+' / 2',names[key]);
+ say('武器進化完成！把周圍那群敵人一次清掉！','ability');
+ burstClear(evolutionStage===1?245:290,evolutionStage===1?95:140);
+ spawnT=Math.max(spawnT,1.5);updateHUD();
 }
 function playDash(){if(phase!=='run'||player.dashCD>0)return;const dashDir=moveVector();player.dashX=dashDir[0]||player.ax||1;player.dashY=dashDir[1]||player.ay||0;player.dash=.23;player.dashPose=.23;player.inv=Math.max(player.inv,.28);player.dashCD=player.evolved.coolant?1.5:player.upgrades.coolant?2.1:3.5;if(player.evolved.coolant)burstClear(170,65);shake=Math.max(shake,3);sound('dash');spark(player.x,player.y,'#77fcff',12,1.3);event('dash','Player dashed');}
 function moveVector(){let dx=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0),dy=(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0);if(stick.active){dx=stick.x;dy=stick.y}let k=Math.hypot(dx,dy);return k>0?[dx/Math.max(k,1),dy/Math.max(k,1)]:[0,0]}
@@ -560,7 +590,23 @@ function collectSupply(item){
  sound('pickup');updateHUD();
 }
 
-function kill(m,index){kills++;score+=100+combo*25;combo++;bestCombo=Math.max(bestCombo,combo);comboT=3.5;shake=Math.max(shake,3.5);spark(m.x,m.y,m.kind==='charger'?'#ff7da4':'#c5a1ff',25,1.25);impact(m.x,m.y,'kill',m.kind==='elite'?1.7:1);rings.push({x:m.x,y:m.y,r:4,life:.35,max:.35,color:'#ff9bfb'});floatText(m.x,m.y-15,'+100','#9ffff3',14);mobs.splice(index,1);sound('kill');if(combo%6===0){sound('combo');haptic(9);toast('CHAIN ATTACK',combo+' COMBO!');if(combo%12===0)say('太厲害了！連擊還在繼續！','combo')}dropSupply(m);if(kills%6===0){player.hp=Math.min(120,player.hp+8);floatText(player.x,player.y-38,'+8 ♥','#8fffa8',13)}event('kill',`kills:${kills}, combo:${combo}`)}
+function kill(m,index,quiet=false){
+ kills++;score+=100+combo*25;combo++;bestCombo=Math.max(bestCombo,combo);comboT=3.5;
+ if(!quiet){
+  shake=Math.max(shake,3.5);spark(m.x,m.y,m.kind==='charger'?'#ff7da4':'#c5a1ff',25,1.25);
+  impact(m.x,m.y,'kill',m.kind==='elite'?1.7:1);
+  rings.push({x:m.x,y:m.y,r:4,life:.35,max:.35,color:'#ff9bfb'});
+  floatText(m.x,m.y-15,'+100','#9ffff3',14);sound('kill');
+ }else if(kills%4===0){spark(m.x,m.y,'#88ffe1',4,.6)}
+ mobs.splice(index,1);
+ if(combo%6===0&&!quiet){
+  sound('combo');haptic(9);toast('CHAIN ATTACK',combo+' COMBO!');
+  if(combo%12===0)say('太厲害了！連擊還在繼續！','combo');
+ }
+ dropSupply(m);
+ if(kills%6===0){player.hp=Math.min(120,player.hp+(quiet?4:8));if(!quiet)floatText(player.x,player.y-38,'+8 ♥','#8fffa8',13)}
+ if(!quiet||kills%8===0)event('kill',`kills:${kills}, combo:${combo}`);
+}
 function choose(v){if(phase!=='choice'||helpUsed)return;helpUsed=true;helpType=v;phase='run';$('choice').hidden=true;if(v==='fire'){player.fireBoost=22;turrets.push({x:player.x-40,y:player.y-30,shootT:0});$('skills').insertAdjacentHTML('beforeend','<div class="skill-badge fire" title="Zoe 火力支援">🔥</div>');$('missionAbility').textContent='🔥 20 秒火力'}else{player.shield=Math.min(80,player.shield+60);player.hp=Math.min(120,player.hp+20);$('skills').insertAdjacentHTML('beforeend','<div class="skill-badge shield" title="Zoe 量子護盾">🛡️</div>');$('missionAbility').textContent='🛡️ 60 護盾'}$('missionAbility').classList.remove('muted');sound(4);toast('ZOE SUPPORT',v==='fire'?'FIRESTORM!':'QUANTUM SHIELD!');say(v==='fire'?'火力支援啟動！我們把它們通通打回去！':'護盾已開！放心往前，我幫你擋著！','ability');event('choice',v);updateHUD()}
 function askZoe(){if(helpUsed||phase!=='run')return;phase='choice';$('choice').hidden=false;say('你要火力支援，還是量子護盾？選一個，我立刻執行！','offer');event('choice_offer','fire or shield');sound(4)}
 function bossPhase(b){return b.hp>BOSS_HP*2/3?1:b.hp>BOSS_HP/3?2:3}
