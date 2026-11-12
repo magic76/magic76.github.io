@@ -75,8 +75,7 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  const selectedOption=charts.find(chart=>chart.hash===personal?.hash);
  const title=isPersonal?t("dailyQuote.personalTitle"):t("dailyQuote.title");
  const fortuneHref=isPersonal?"/fortune?daily=1&chart="+personal!.hash+"&kind="+personal!.kind:"/fortune";
- const chatHref=isPersonal?"/friend/live?id=zoe&from=home&chat=text&quote=daily&chart="+personal!.hash
-  :readyQuote?"/friend/live?id=zoe&from=home&chat=text&quote="+quote!.id:"";
+ const chatHref=isPersonal?"/friend/live?id=zoe&from=home&chat=text&quote=daily&chart="+personal!.hash:"";
  const selectChart=(value:string)=>{
   if(value==="__self__"&&personal){
    void import("../fortune/dailyProfileSelection").then(({saveDailyProfileChoice})=>{saveDailyProfileChoice(personal.hash,true);setChartHash(personal.hash);setRevision(x=>x+1)});
@@ -96,11 +95,13 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
      </select>:null}
     </div>
     {text?<p className="daily-quote-text">{text}</p>:<span className="daily-quote-placeholder" aria-hidden="true"/>}
+    {!isPersonal?<p className="daily-quote-benefit">{t("dailyQuote.setupHint")}</p>:null}
    </div>
-   <div className="daily-quote-actions">
-    <Link className="daily-quote-action daily-quote-action--fortune" to={fortuneHref} onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t(isPersonal?"dailyQuote.fortuneFull":"dailyQuote.fortune")}</Link>
-    {text?<Link className="daily-quote-action daily-quote-action--chat" to={chatHref} onClick={()=>trackUsageEvent("home_entry_click","friend")}>{t("dailyQuote.chat")}</Link>
-     :<span className="daily-quote-action daily-quote-action--chat daily-quote-action--pending" aria-hidden="true">{t("dailyQuote.chat")}</span>}
+   <div className={"daily-quote-actions"+(isPersonal?"":" daily-quote-actions--setup")}>
+    {isPersonal?<>
+     <Link className="daily-quote-action daily-quote-action--fortune" to={fortuneHref} onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.fortuneFull")}</Link>
+     <Link className="daily-quote-action daily-quote-action--chat" to={chatHref} onClick={()=>trackUsageEvent("home_entry_click","friend")}>{t("dailyQuote.chatRead")}</Link>
+    </>:<Link className="daily-quote-action daily-quote-action--chat" to="/fortune" onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.setupChart")}</Link>}
    </div>
   </div>
  </section>;

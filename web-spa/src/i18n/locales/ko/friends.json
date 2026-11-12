@@ -129,5 +129,6 @@
     }
   }
 ,
-  "dailyQuoteStarter": "오늘의 한마디: “{{quote}}” 이 말에 대해 이야기하고 싶어."
+  "dailyQuoteStarter": "오늘의 한마디: “{{quote}}” 이 말에 대해 이야기하고 싶어.",
+  "dailyFortuneStarter": "오늘의 운세를 풀이해 줘"
 }

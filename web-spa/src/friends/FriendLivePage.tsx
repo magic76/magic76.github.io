@@ -75,17 +75,23 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const selectedQuote=!shortsPost&&friend.id==="zoe"?getDailyQuote(params.get("quote")):undefined;
  // A special allowlisted token is resolved from a hash that must exist on this device.
  // No birth details or generated fortune text ever travel in the URL.
- const personalChartHash=!shortsPost&&friend.id==="zoe"&&params.get("quote")==="daily"?params.get("chart"):null;
- const [dailyPersonal,setDailyPersonal]=useState<{hash:string;language:string;text:string}|null>(null);
+ const personalChartHash=!shortsPost&&friend.id==="zoe"&&textMode&&params.get("quote")==="daily"?params.get("chart"):null;
+ const validDailyHash=Boolean(personalChartHash&&/^[a-f0-9]{64}$/.test(personalChartHash));
+ const dailyLookupKey=validDailyHash?locale.language+":"+personalChartHash:"";
+ const [dailyLookup,setDailyLookup]=useState<{key:string;context:string;hash:string}|null>(null);
  useEffect(()=>{
-  let active=true;setDailyPersonal(null);
-  if(personalChartHash&&/^[a-f0-9]{64}$/.test(personalChartHash)){
-   void import("../pages/personalDailyLine").then(({personalDailyLine})=>personalDailyLine(locale.language,undefined,personalChartHash))
-    .then(line=>{if(active&&line)setDailyPersonal({hash:line.hash,language:locale.language,text:line.text});})
-    .catch(()=>{/* Invalid/absent charts fall back to ordinary starters. */});
-  }
+  if(!dailyLookupKey)return;
+  let active=true;
+  setDailyLookup(null);
+  void Promise.all([import("../pages/personalDailyLine"),import("../pages/dailyFortuneReader")])
+   .then(async ([{personalDailyLine},{buildDailyFortuneContext}])=>{
+    const line=await personalDailyLine(locale.language,undefined,personalChartHash);
+    if(active)setDailyLookup({key:dailyLookupKey,hash:line?.hash||"",context:line?buildDailyFortuneContext(line.card):""});
+   }).catch(()=>{if(active)setDailyLookup({key:dailyLookupKey,hash:"",context:""})});
   return()=>{active=false};
- },[personalChartHash,locale.language]);
+ },[dailyLookupKey,personalChartHash,locale.language]);
+ const dailyFortune=dailyLookup?.key===dailyLookupKey&&dailyLookup.hash===personalChartHash&&dailyLookup.context?dailyLookup:null;
+ const dailyLookupPending=Boolean(dailyLookupKey&&dailyLookup?.key!==dailyLookupKey);
  const [quoteText,setQuoteText]=useState<{id:string;language:string;text:string}|null>(null);
  useEffect(()=>{
   let active=true;
@@ -98,8 +104,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  },[selectedQuote?.id,locale.language]);
  const dailyQuoteStarter=selectedQuote&&quoteText?.id===selectedQuote.id&&quoteText.language===locale.language
   ?t("dailyQuoteStarter",{quote:quoteText.text}):undefined;
- const personalQuoteStarter=personalChartHash&&dailyPersonal?.hash===personalChartHash&&dailyPersonal.language===locale.language
-  ?t("dailyQuoteStarter",{quote:dailyPersonal.text}):undefined;
+ const dailyFortuneStarter=dailyFortune?t("dailyFortuneStarter"):undefined;
  const shortsReturnTo=shortsPost?"/teacher/shorts?post="+encodeURIComponent(shortsPost.id):null;
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
@@ -237,10 +242,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
-    {textMode?<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:"")} searchEnabled={!shortsPost} system={system+"\n"+languageDirective} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
-     firstStarter={selectedQuestion||(shortsHook?shortsHookLabel(shortsHook,english):undefined)||personalQuoteStarter||dailyQuoteStarter||dailyTopicStarter}
-     showStarterWithHistory={Boolean(personalQuoteStarter||dailyQuoteStarter)}
-     onExchange={shortsPost?()=>{if(usageSentRef.current)return;usageSentRef.current=true;trackUsageEvent("friend_conversation");trackUsageEvent("shorts_conversation");rememberShortsConversation(shortsPost)}:undefined}/>:<>
+    {textMode?(dailyLookupPending?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:dailyFortune?":daily:"+dailyFortune.hash:"")} searchEnabled={!shortsPost} system={system+(dailyFortune?"\n"+dailyFortune.context:"")+"\n"+languageDirective} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
+     firstStarter={selectedQuestion||(shortsHook?shortsHookLabel(shortsHook,english):undefined)||dailyFortuneStarter||dailyQuoteStarter||dailyTopicStarter}
+     showStarterWithHistory={Boolean(dailyFortuneStarter||dailyQuoteStarter)}
+     onExchange={shortsPost?()=>{if(usageSentRef.current)return;usageSentRef.current=true;trackUsageEvent("friend_conversation");trackUsageEvent("shorts_conversation");rememberShortsConversation(shortsPost)}:undefined}/>):<>
     {!shortsPost&&!homeFirstAction?voiceStart:null}
     {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
     {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?

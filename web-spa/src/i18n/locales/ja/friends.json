@@ -129,5 +129,6 @@
     }
   }
 ,
-  "dailyQuoteStarter": "今日のひとこと「{{quote}}」について話してみたいな。"
+  "dailyQuoteStarter": "今日のひとこと「{{quote}}」について話してみたいな。",
+  "dailyFortuneStarter": "今日の運勢を読み解いて"
 }

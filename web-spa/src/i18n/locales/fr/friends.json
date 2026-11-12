@@ -129,5 +129,6 @@
     }
   }
 ,
-  "dailyQuoteStarter": "La pensée du jour : « {{quote}} » J’aimerais en parler."
+  "dailyQuoteStarter": "La pensée du jour : « {{quote}} » J’aimerais en parler.",
+  "dailyFortuneStarter": "Aide-moi à comprendre ma fortune du jour"
 }

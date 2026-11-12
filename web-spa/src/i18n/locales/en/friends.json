@@ -129,5 +129,6 @@
     }
   }
 ,
-  "dailyQuoteStarter": "Today’s thought: “{{quote}}” I’d love to talk about it."
+  "dailyQuoteStarter": "Today’s thought: “{{quote}}” I’d love to talk about it.",
+  "dailyFortuneStarter": "Help me understand today’s fortune"
 }

@@ -129,5 +129,6 @@
     }
   }
 ,
-  "dailyQuoteStarter": "Mein Gedanke für heute: „{{quote}}“ Darüber würde ich gern reden."
+  "dailyQuoteStarter": "Mein Gedanke für heute: „{{quote}}“ Darüber würde ich gern reden.",
+  "dailyFortuneStarter": "Hilf mir, mein heutiges Horoskop zu deuten"
 }
