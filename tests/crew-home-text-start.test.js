@@ -12,9 +12,9 @@ test("chat destinations use text mode but retain exhausted quota redirect",()=>{
  assert.match(portal,/const destination=exhausted\?"\/account#settings-gemini":shortsDestination\|\|/);
  assert.match(portal,/const teacherDestination=exhausted\?"\/account#settings-gemini"/);
  assert.match(portal,/const cta=hasKey\?"world.chatWithFriend":exhausted\?"world.chatExhausted":trialAvailable\?"world.chatTrialWith":"world.chatNeutralWith"/);
- assert.match(portal,/mode==="chat"&&!exhausted\?<img className="crew-portal-cta-avatar"/);
- assert.match(portal,/mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0/);
- assert.match(portal,/trackUsageEvent\("home_entry_click",exhausted&&\(mode==="chat"\|\|mode==="learn"\)\?"settings":current.entry\)/);
+ assert.match(portal,/!exhausted\?<img className="crew-portal-cta-avatar"/);
+ assert.match(portal,/ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0/);
+ assert.match(portal,/trackUsageEvent\("home_entry_click",exhausted\?"settings":"friend"\)/);
  assert.match(bubble,/const ZOE_LIVE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
  assert.match(bubble,/<Icon name=\{needsSetup\?"settings":"mic"\}\/>/);
  assert.match(bubble,/trial\.remaining===0/);

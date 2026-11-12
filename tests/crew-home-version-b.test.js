@@ -4,29 +4,28 @@ const read=pathName=>readFileSync(path.join(__dirname,"..",pathName),"utf8");
 const locales=["zh-TW","en","de","es","fr","id","ja","ko","pt-BR","th","vi"];
 
 test("B: the one CTA has a Zoe portrait, honest per-role text and direct destinations",()=>{
- const src=read("web-spa/src/pages/HomePortal.tsx");
+ const src=read("web-spa/src/pages/HomePortal.tsx"),rail=read("web-spa/src/pages/HomeModeRail.tsx");
  assert.equal((src.match(/className="crew-portal-cta"/g)||[]).length,1);
- assert.match(src,/const ZOE="\/friend\/live\?id=zoe"/);
  assert.match(src,/const HOME_ZOE=ZOE\+"&from=home&chat=text"/);
- assert.match(src,/const destination=exhausted\?"\/account#settings-gemini":shortsDestination\|\|/);
- assert.match(src,/friendId==="zoe"\?HOME_ZOE:"\/friend\/live\?id="\+friendId\+"&from=home&chat=text"/);
- assert.match(src,/const teacherDestination=exhausted\?"\/account#settings-gemini":"\/teacher\/live\?lesson=daily_u1_l1"/);
- assert.match(src,/to:"\/fortune\/reading\?mode=tarot"/);
- assert.match(src,/to:"\/games\/1a2b"/);
- assert.match(src,/trialAvailable=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==0/);
- assert.match(src,/world.chatTrialWith/);assert.match(src,/world.teacherTrial/);
+ assert.match(src,/const destination=exhausted\?"\/account#settings-gemini":shortsDestination/);
+ assert.match(src,/friendId==="zoe"\?HOME_ZOE/);
+ assert.match(src,/const teacherDestination=exhausted\?"\/account#settings-gemini"/);
+ for(const target of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])
+  assert.ok(rail.includes('to:"'+target+'"'));
  assert.match(src,/src=\{"\/assets\/friends\/crew_friend_"\+\(selectedPost\?\.friendId\|\|friendId\)\+"\.webp"\} alt=""/);
- assert.match(src,/trackUsageEvent\("home_entry_click",exhausted&&\(mode==="chat"\|\|mode==="learn"\)\?"settings":current.entry\)/);
- assert.doesNotMatch(src,/guest_trial_start_click|navigator.mediaDevices|GUEST_TOKEN_ENDPOINT/);
+ assert.match(src,/const target=destination/);
+ assert.match(src,/layout2\.resumeAction/);
+ assert.match(src,/!hasKey&&<div className="crew-portal-status-slot"/);
+
 });
 
 test("B: intent warming and feedback are only UI/network hint, not privilege escalation",()=>{
  const src=read("web-spa/src/pages/HomePortal.tsx");
  const field=read("web-spa/src/pages/PortalParticleField.tsx");
- assert.match(src,/onPointerDown=\{mode==="chat"\?warmFriendStart:undefined\}/);
- assert.match(src,/onTouchStart=\{mode==="chat"\?warmFriendStart:undefined\}/);
- assert.match(src,/onFocus=\{mode==="chat"\?warmFriendStart:undefined\}/);
- assert.match(src,/onMouseEnter=\{mode==="chat"\?warmFriendStart:undefined\}/);
+ assert.match(src,/onPointerDown=\{warmFriendStart\}/);
+ assert.match(src,/onTouchStart=\{warmFriendStart\}/);
+ assert.match(src,/onFocus=\{warmFriendStart\}/);
+ assert.match(src,/onMouseEnter=\{warmFriendStart\}/);
  assert.match(src,/import\("\.\.\/friends\/FriendLivePage"\)/);
  assert.match(src,/link.rel="preconnect";link.href="https:\/\/challenges.cloudflare.com"/);
  assert.match(src,/setPreparing\(true\)/);

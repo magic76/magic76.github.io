@@ -5,7 +5,7 @@ test("homepage keeps one title while ambient effects respect motion preferences"
  const css=read("web-spa/src/pages/homePortal.css");
  assert.match(hero,/data-paused=\{paused\}/);
  assert.equal((hero.match(/<h1>/g)||[]).length,1);
- assert.match(hero,/world\.modes\./);
+ assert.match(hero,/layout2\.title/);
  assert.match(hero,/prefers-reduced-motion: reduce/);
  assert.match(hero,/saveData/);
  assert.doesNotMatch(hero,/crew-portal-tab-progress|setInterval|5000|crew-portal-motion/);

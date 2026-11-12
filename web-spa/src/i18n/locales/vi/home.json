@@ -76,6 +76,7 @@
     "explore": "Xem thêm hoạt động",
     "tap": "Chạm để mở"
   },
+  "layout2": {"title": "Nói lời chào đầu tiên với {{name}}.","action": "Chào {{name}}","description": "Không cần chuẩn bị chủ đề. Cứ chào trước nhé.","voice": "Chuyển sang trò chuyện bằng giọng nói","more": "Muốn thử điều khác không?","resumeTitle": "Tiếp tục trò chuyện với Zoe","resumeAction": "Tiếp tục nhắn tin","chatTitle": "Bắt đầu bằng lời chào","chatDescription": "Trò chuyện cùng bạn AI và xem câu chuyện sẽ đi đến đâu.","previewHidden": "Đã ẩn tin nhắn gần nhất","showPreview": "Hiện tin nhắn gần nhất","hidePreview": "Ẩn tin nhắn gần nhất"},
   "world": {
     "freeAllowance": {"full": "Không cần đăng ký · {{count}} tin nhắn + {{minutes}} phút thoại mỗi ngày. Mai lại có", "textOnly": "Không cần đăng ký · {{count}} tin nhắn miễn phí mỗi ngày. Mai lại có", "voiceUsed": "Hết lượt thoại hôm nay · {{count}} tin nhắn/ngày. Mai lại có"},
     "practiceLang": {"label": "Tôi muốn luyện:", "aria": "Chọn ngôn ngữ luyện tập khi chat và trò chuyện bằng giọng nói"},

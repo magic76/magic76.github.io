@@ -42,7 +42,7 @@ test("homepage friend display names mirror authorized profile IDs without import
 
 test("SSR renders chat, and only mount effect applies sanitized URL hints",()=>{
  const portal=read("web-spa/src/pages/HomePortal.tsx"),home=read("web-spa/src/pages/HomePage.tsx");
- assert.match(portal,/useState<PortalMode>\("chat"\)/);
+ assert.match(portal,/useState<HomeMode>\("chat"\)/);
  assert.match(portal,/useEffect\(\(\)=>\{\s*const link=readHomeDeepLink\(window.location.search\)/);
  assert.match(portal,/if\(link.tab\)setMode\(link.tab\)/);
  assert.match(portal,/const selectedPost=deepLink.short\?shortsFeed\?\.posts.find\(post=>post.id===deepLink.short\)/);
@@ -51,7 +51,7 @@ test("SSR renders chat, and only mount effect applies sanitized URL hints",()=>{
  assert.match(portal,/shorts_hook_click","shorts_home"/);
  assert.match(portal,/shorts_chat_click","shorts_home"/);
  assert.match(portal,/friendId==="zoe"\?HOME_ZOE/);
- assert.match(portal,/mode==="play"\?"\/games\/"\+gameId/);
+ assert.match(portal,/play:"\/games\/"\+gameId/);
  assert.match(portal,/const destination=exhausted\?"\/account#settings-gemini":shortsDestination\|\|/);
  assert.match(portal,/&from=home&chat=text/);
  assert.doesNotMatch(portal,/pushState|replaceState|setInterval|location.search.*(prompt|system)/);

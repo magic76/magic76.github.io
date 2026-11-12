@@ -578,7 +578,12 @@ test("Crew home prioritizes chat and preserves free play with conditional Gemini
  assert.equal(readUiLocale("home").headline,"和 Crew 朋友聊聊吧");
  const portal=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePortal.tsx"),"utf8");
  assert.match(home,/<HomePortal\b/);
- assert.ok(portal.includes('world.modes.')&&/\bt\(cta[,)]/.test(portal),"Manual tab headlines retain the honest chat CTA");
+ const modeRail=fs.readFileSync(path.join(root,"web-spa/src/pages/HomeModeRail.tsx"),"utf8");
+ assert.ok(modeRail.includes('world.modes.'),"Secondary rail changes descriptions, not the Zoe headline");
+ assert.match(portal,/const cta=hasKey\?"world\.chatWithFriend":exhausted\?"world\.chatExhausted":trialAvailable\?"world\.chatTrialWith":"world\.chatNeutralWith"/);
+ assert.match(portal,/exhausted\?t\("world\.chatExhausted"\)/,"Exhausted CTA truthfully explains the quota limit");
+ assert.match(portal,/hasKey\?t\(cta,\{name:friendName\}\)/,"BYOK CTA uses the key-appropriate wording");
+ assert.match(portal,/t\("layout2\.action",\{name:friendName\}\)/,"Guest CTA invites a first message");
  assert.ok(portal.includes('className="crew-portal-cta"'),"World Portal must keep a real CTA");
  assert.ok(home.includes('t("continue")'));
  assert.equal(readUiLocale("home").continue,"繼續上次");

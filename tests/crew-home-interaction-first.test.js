@@ -10,7 +10,8 @@ test("Home World prioritizes first-run access before Shorts and daily games",()=
  const shorts=home.indexOf("<HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>"),games=home.indexOf('className="crew-home-game-pick"');
  assert.ok(hero>=0&&hero<start&&start<shorts&&shorts<games);
  assert.match(portal,/const ZOE="\/friend\/live\?id=zoe"/);
- for(const path of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])assert.ok(portal.includes('to:"'+path+'"'),path);
+ const rail=read("web-spa/src/pages/HomeModeRail.tsx");
+ for(const path of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])assert.ok(rail.includes('to:"'+path+'"'),path);
  assert.match(home,/to=\{"\/games\/"\+featuredGame\}/);
  assert.match(home,/DAILY_GAMES=\["1a2b","connect4","reversi"\]/);
  assert.match(home,/taipeiDay%DAILY_GAMES\.length/);

@@ -16,69 +16,7 @@
  .crew-mobile-home *{box-sizing:border-box}
  .crew-mobile-home a{text-decoration:none}
  .crew-mobile-home :is(a,button):focus-visible{outline:3px solid #6267c4;outline-offset:3px}
- /* Lightweight motion: one composited track, moving radial glow, 4 small sparkle layers. */
- .cmh-carousel{position:relative;min-width:0}
- .cmh-carousel-viewport{overflow:hidden;border-radius:25px;touch-action:pan-y;overscroll-behavior-x:contain}
- .cmh-carousel-track{display:flex;min-width:0;transform:translate3d(0,0,0);transition:transform 580ms cubic-bezier(.22,1,.36,1);will-change:transform}
- .cmh-slide{position:relative;isolation:isolate;overflow:hidden;flex:0 0 100%;min-width:0;min-height:216px;padding:17px 15px 14px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;
-  border-radius:25px;color:#fff;background:linear-gradient(130deg,#ec9781 0%,#d288a2 60%,#a68aca 100%);box-shadow:inset 0 1px 0 #ffffff45}
- .cmh-slide-friends{background:linear-gradient(127deg,#77b5c7 0%,#8c99ca 55%,#a38ac2 100%)}
- .cmh-slide-game{background:linear-gradient(125deg,#efa66f 0%,#dd8c7f 54%,#bb789a 100%)}
- .cmh-slide-learn{background:linear-gradient(126deg,#719ccc 0%,#848dcc 59%,#ad91ca 100%)}
- .cmh-slide-glow{pointer-events:none;position:absolute;z-index:0;left:-65px;top:-107px;width:280px;height:280px;border-radius:50%;
-  background:radial-gradient(circle,#ffffff75 0%,#fff7 22%,transparent 70%);opacity:.45;transform:translate3d(0,0,0)}
- .cmh-slide:after{content:"";position:absolute;pointer-events:none;z-index:0;right:-47px;top:-72px;width:180px;height:180px;border:1px solid #ffffff64;border-radius:50%}
- .cmh-sparks{pointer-events:none;position:absolute;z-index:1;inset:0}
- .cmh-sparks i{position:absolute;width:5px;height:5px;background:#fff;opacity:.7;border-radius:50%;box-shadow:0 0 9px #ffffff80}
- .cmh-sparks i:nth-child(1){top:17%;left:57%}
- .cmh-sparks i:nth-child(2){top:30%;left:89%;width:4px;height:4px}
- .cmh-sparks i:nth-child(3){top:62%;left:71%;width:3px;height:3px}
- .cmh-sparks i:nth-child(4){top:13%;left:78%;width:3px;height:3px}
- .cmh-slide-copy{position:relative;z-index:2;width:calc(100% - 96px);min-height:99px}
- .cmh-zoe-eyebrow{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:850;letter-spacing:.08em;color:#fff5f6}
- .cmh-zoe-eyebrow i{display:block;width:7px;height:7px;border-radius:50%;background:#bdf4cf;box-shadow:0 0 0 3px #ffffff1e}
- .cmh-slide h1,.cmh-slide h2{font-size:clamp(20px,5.8vw,25px);line-height:1.2;letter-spacing:-.035em;color:white;margin:13px 0 7px;font-weight:850}
- .cmh-slide p{font-size:12px;line-height:1.5;color:#fff9fb;margin:0;max-width:234px;overflow-wrap:anywhere}
- .cmh-zoe-preview{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
- .cmh-zoe-photo{position:absolute;z-index:2;right:15px;top:29px;width:88px;height:100px;object-fit:cover;object-position:center 25%;
-  border:3px solid #fff0f3;border-radius:45% 45% 40% 40%;transform:rotate(4deg) scale(1);box-shadow:0 8px 15px #7049612d}
- .cmh-friends-art{position:absolute;right:9px;top:33px;z-index:2;width:107px;height:97px}
- .cmh-friends-art img{position:absolute;top:7px;left:1px;width:67px;height:79px;object-fit:cover;object-position:center 22%;border-radius:45% 45% 38% 38%;
-  border:3px solid #eafaff;box-shadow:0 7px 15px #48506c55;transform:rotate(-9deg)}
- .cmh-friends-art img:nth-child(2){top:16px;left:40px;transform:rotate(9deg);border-color:#fff0fb}
- .cmh-slide-glyph{position:absolute;z-index:1;right:17px;top:36px;width:87px;height:87px;display:grid;place-items:center;
-  border:1px solid #ffffff8a;border-radius:30px;background:#ffffff29;transform:rotate(9deg);box-shadow:0 8px 22px #493c5630}
- .cmh-slide-glyph svg{width:45px;height:45px;stroke:currentColor;fill:none;stroke-width:1.55}
- .cmh-learn-glyph{transform:rotate(-8deg)}
- .cmh-zoe-actions{position:relative;z-index:3;display:flex;gap:8px;align-items:center}
- .cmh-zoe-actions a{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:9px 10px;border-radius:13px;
-  font-size:12px;font-weight:850;text-align:center;white-space:nowrap;min-width:0}
- .cmh-zoe-actions a svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
- .cmh-zoe-primary{background:#fff;color:#9c5169!important;flex:1.2}
- .cmh-zoe-secondary{background:#ffffff30;border:1px solid #ffffff8f;color:#fff!important;flex:.8}
- .cmh-preview-toggle{position:relative;z-index:3;display:block;align-self:flex-start;min-height:22px;border:0;background:transparent;color:#fff9fb;
-  padding:2px 0;font-size:11px;text-decoration:underline;cursor:pointer}
- .cmh-carousel-dots{display:flex;align-items:center;justify-content:center;gap:5px;padding:2px 0 0;min-height:34px}
- .cmh-carousel-dots button{display:grid;place-items:center;min-width:38px;min-height:32px;border:0;padding:0;cursor:pointer;background:transparent;color:#bc8695}
- .cmh-carousel-dots button span{display:block;width:7px;height:7px;border-radius:99px;background:#d7cbd1;transition:width 220ms ease,background-color 220ms ease}
- .cmh-carousel-dots button.is-active span{width:24px;background:#cb8190}
- @media(prefers-reduced-motion:no-preference){
-  .cmh-slide[data-active="true"] .cmh-slide-glow{animation:cmh-glow-drift 13s ease-in-out infinite alternate}
-  .cmh-slide[data-active="true"] .cmh-sparks i{animation:cmh-spark-float 6.5s ease-in-out infinite alternate}
-  .cmh-slide[data-active="true"] .cmh-sparks i:nth-child(2){animation-delay:-1.8s;animation-duration:7.8s}
-  .cmh-slide[data-active="true"] .cmh-sparks i:nth-child(3){animation-delay:-3.1s;animation-duration:5.2s}
-  .cmh-slide[data-active="true"] .cmh-sparks i:nth-child(4){animation-delay:-2.4s;animation-duration:8.5s}
-  .cmh-slide[data-active="true"] .cmh-zoe-photo{animation:cmh-avatar-breathe 4.8s ease-in-out infinite}
-  .cmh-slide[data-active="true"] .cmh-slide-copy{animation:cmh-content-enter 430ms ease-out both}
- }
- @keyframes cmh-glow-drift{from{transform:translate3d(-25px,-14px,0) scale(.93)}to{transform:translate3d(95px,44px,0) scale(1.17)}}
- @keyframes cmh-spark-float{from{transform:translate3d(0,7px,0);opacity:.32}to{transform:translate3d(13px,-15px,0);opacity:.85}}
- @keyframes cmh-avatar-breathe{0%,100%{transform:rotate(4deg) scale(1)}50%{transform:rotate(2deg) scale(1.035)}}
- @keyframes cmh-content-enter{from{opacity:.38;transform:translate3d(0,9px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
- @media(prefers-reduced-motion:reduce){
-  .cmh-carousel-track,.cmh-carousel-dots button span{transition:none}
-  .cmh-slide-glow,.cmh-sparks i,.cmh-zoe-photo,.cmh-slide-copy{animation:none!important}
- }
+ /* Carousel removed in Layout 2; the Zoe invitation never auto-rotates. */
  .cmh-other-resume{display:flex;align-items:center;gap:10px;background:#f2eaf7;border:1px solid #e9dfed;border-radius:17px;margin:12px 0 0;padding:9px 11px}
  .cmh-other-resume>img{flex:none;width:40px;height:40px;border-radius:50%;object-fit:cover}
  .cmh-other-resume-link{flex:1;min-width:0;display:grid;gap:4px;color:#594f68}
