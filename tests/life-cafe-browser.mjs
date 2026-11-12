@@ -97,7 +97,7 @@ try{
   await page.locator(".lc-finished").waitFor({state:"visible"});
   assert.equal(await page.locator(".lc-finished-stats").count(),1);
   assert.match(await page.locator(".lc-finale-answer").innerText(),/匿名信是 Hana 寫的/);
-  assert.match(await page.locator(".lc-finished h2").innerText(),/錯過/);
+  assert.match(await page.locator(".lc-finished h2").innerText(),/直到隔天/);
   assert.equal(await page.locator(".lc-episode-recap li").count(),3,"Three actions lead to a complete ending");
   await layout(page,width+" ending");
   await screenshot(page,width+"-experiment-end");
