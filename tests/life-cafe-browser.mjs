@@ -97,6 +97,8 @@ try{
   await page.locator(".lc-finished").waitFor({state:"visible"});
   assert.equal(await page.locator(".lc-finished-stats").count(),1);
   assert.match(await page.locator(".lc-finale-answer").innerText(),/匿名信是 Hana 寫的/);
+  assert.match(await page.locator(".lc-secrets").innerText(),/Hana 打算搬家/,"Ending answer must be reflected in the secrets board");
+  assert.match(await page.locator(".lc-discoveries .lc-fold-button").innerText(),/3\/3/);
   assert.match(await page.locator(".lc-finished h2").innerText(),/直到隔天/);
   assert.equal(await page.locator(".lc-episode-recap li").count(),3,"Three actions lead to a complete ending");
   await layout(page,width+" ending");
