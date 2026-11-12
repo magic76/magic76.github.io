@@ -187,11 +187,17 @@ function buildGeometry(tree){
   let direction=(i%2?1:-1);
   if(g.silhouette===9)direction=i%3===0?-1:1;
   const topicWide=topic==='food'?1.22:topic==='travel'?1.13:topic==='tech'?.80:topic==='stress'?.75:1;
-  const len=(21+rand()*43+Math.min(count,12)*1.7)*profile.spread*topicWide;
-  const droop=profile.droop+(topic==='weather'?.25:topic==='dream'?.18:topic==='cosmos'?-.12:0);
-  const rise=(18+rand()*42)*(1-droop*.68);
+  const moodFactor=clamp(1+turn.mood*.34,.66,1.34);
+  const energyFactor=clamp(.78+turn.energy*.43,.78,1.21);
+  const len=(21+rand()*43+Math.min(count,12)*1.7)*profile.spread*topicWide*energyFactor;
+  const droop=profile.droop+(topic==='weather'?.25:topic==='dream'?.18:topic==='cosmos'?-.12:0)-turn.mood*.22;
+  const rise=(18+rand()*42)*(1-droop*.68)*moodFactor;
   const p1={x:start.x+direction*len*.49,y:start.y-rise*.72};
   const end={x:start.x+direction*len,y:start.y-rise+droop*len*.52};
+  if(tree.mutations.includes('heartvine')&&topic==='love')end.x+=direction*17;
+  if(tree.mutations.includes('thorns')&&topic==='stress')end.y-=15;
+  if(tree.mutations.includes('raincloud')&&topic==='weather')end.y+=14;
+  if(tree.mutations.includes('circuit')&&topic==='tech')p1.y=start.y-2;
   if(g.silhouette===4&&i%5===0){end.y-=15;end.x+=direction*19}
   if(g.silhouette===5||topic==='tech'){p1.x+=direction*9;p1.y-=8}
   branches.push({start,p1,end,t,width:Math.max(1.5,(5.5-t*2.9)*(1+i/50*-0.5)),topic,i});
@@ -308,9 +314,13 @@ function renderGallery(){
   p.textContent='等你們一起養出第一棵樹，森林就從這裡開始。';gallery.appendChild(p);return}
  for(const tree of forest){
   const b=document.createElement('button');b.type='button';b.className='tree-card';
-  const icon=document.createElement('span');icon.className='tree-icon';
-  icon.textContent=TOPICS[topTopic(tree)].icon;
-  icon.style.background='linear-gradient(160deg,'+PALETTES[tree.genome.palette][0]+'38,'+PALETTES[tree.genome.palette][2]+'70)';
+  const icon=document.createElement('canvas');icon.className='tree-thumb';
+  icon.width=88;icon.height=106;
+  const thumbnail=icon.getContext('2d');
+  if(thumbnail){
+   drawSky(thumbnail,88,106,tree,0);
+   drawTree(thumbnail,tree,buildGeometry(tree),44,97,.33,0);
+  }
   const desc=document.createElement('span');
   const name=document.createElement('strong');name.textContent=tree.name;
   const meta=document.createElement('small');meta.textContent=tree.growth.length+' 句 · '+SILHOUETTES[tree.genome.silhouette].name;
@@ -407,6 +417,17 @@ function drawTree(c,tree,geometry,ox,oy,factor,clock){
   }
  }
  if(tree.mutations.length){
+  // A mutation is a visible trait, not just an invisible rarity label.
+  // Each unique unlock makes its own colored charm grow among the branches.
+  tree.mutations.forEach((key,index)=>{
+   const trait=MUTATIONS.find(m=>m.key===key),branch=visible[(index*11+5)%visible.length];
+   if(!trait||!branch)return;
+   const pos=branch.end;
+   c.save();c.translate(pos.x,pos.y-22);c.fillStyle='#fff9d799';
+   c.beginPath();c.arc(0,0,14,0,TAU);c.fill();
+   c.font='19px system-ui, sans-serif';c.textAlign='center';c.textBaseline='middle';
+   c.fillStyle='#ffffff';c.fillText(trait.icon,0,0);c.restore();
+  });
   const count=Math.min(15,tree.mutations.length*4);
   for(let i=0;i<count;i++){
    const a=(i*2.4+tree.seed%13),radius=30+((i*31)%118),yc=-geometry.height*.56+Math.sin(i*3)*geometry.height*.26;
