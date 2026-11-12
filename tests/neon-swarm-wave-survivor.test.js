@@ -37,7 +37,7 @@ function boot(){
  const init="prepareFloor();reset();last=performance.now();raf=requestAnimationFrame(frame);";
  assert.ok(script?.includes(init),"QA hook must match actual game boot");
  const api="window.__WAVE_QA__={"+
-  "start:begin,step,chooseUpgrade,chooseZoe:choose,spawn:spawnMob,spawnBoss,waveAt,"+
+  "start:begin,step,chooseUpgrade,chooseZoe:choose,spawn:spawnMob,spawnBoss,waveAt,shoot,chain:chainArc,"+
   "evolve:evolveArsenal,burst:burstClear,direct:directEnemyWaves,"+
   "state:()=>({phase,gameTime,wave,upgradeStage,evolutionStage,mobs,kills,score,boss,"+
   "hero:player,zoom,viewBaseZoom,dpr,fxQuality,perfFps,shots,shockwaves,particlePool,particles}),"+
@@ -105,9 +105,15 @@ test("evolved chain damages several targets; evolved armor piercing traverses fo
  const first=q.spawn("drone",player.x+100,player.y);
  const second=q.spawn("drone",player.x+120,player.y+10);
  const third=q.spawn("drone",player.x+150,player.y+20);
- first.hp=150;second.hp=100;third.hp=100;
- q.burst(1,0);
+ const fourth=q.spawn("drone",player.x+180,player.y+25);
+ const fifth=q.spawn("drone",player.x+195,player.y+35);
+ first.hp=150;second.hp=100;third.hp=100;fourth.hp=100;fifth.hp=100;
  assert.equal(q.state().hero.evolved.arc,true);
+ q.chain(first);
+ assert.equal(second.hp,73);
+ assert.equal(third.hp,73);
+ assert.equal(fourth.hp,73);
+ assert.equal(fifth.hp,73);
  assert.match(html,/count=evolved\?4:1/);
  assert.match(html,/pierce:player\.evolved\.pierce\?3/);
 });
@@ -137,4 +143,32 @@ test("late-wave density falls gracefully on low FPS and low HP",()=>{
  assert.ok(q.state().mobs.length<=30,"health and FPS pressure limits combine");
  assert.match(html,/function recycleParticle\(i\)/);
  assert.match(html,/particlePool\.pop\(\)/);
+});
+
+test("a full deterministic 72-second run reaches all waves and never exceeds resource caps",()=>{
+ const {q}=boot();q.start();
+ // This is a stress test of the actual step() loop, without drawing fake screenshots.
+ q.state().hero.inv=999;
+ const waves=new Set(),limit=12000;
+ let ticks=0;
+ while(q.state().gameTime<72.1&&ticks++<limit){
+  if(q.state().phase==="upgrade"){
+   q.chooseUpgrade(q.state().upgradeStage===0?"arc":"coolant");
+  }else if(q.state().phase==="choice"){
+   q.chooseZoe("shield");
+  }else if(q.state().phase==="run"){
+   q.step(.033);
+  }else{
+   assert.fail("unexpected phase "+q.state().phase);
+  }
+  if(q.state().wave<=6)waves.add(q.state().wave);
+  assert.ok(q.state().mobs.length<=54,"mob cap at "+q.state().gameTime);
+  assert.ok(q.state().particles.length<=200,"particle cap");
+ }
+ assert.ok(ticks<limit,"game must eventually reach the boss without a softlock");
+ for(let w=1;w<=6;w++)assert.ok(waves.has(w),"missing playable wave "+w);
+ assert.ok(q.state().boss,"boss must spawn after all six waves");
+ assert.equal(q.state().mobs.length,0,"boss transition clears crowd");
+ assert.equal(q.state().evolutionStage,2,"the two chosen upgrades both evolve");
+ assert.ok(q.state().kills>30,"the survivor mode must generate meaningful enemy volume");
 });
