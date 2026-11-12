@@ -575,22 +575,5 @@
     "withZoe": "和 Zoe 聊聊",
     "setup": "設定 Key"
   },
-  "dailyTopics": {
-    "title": "今日話題",
-    "note": "每天換新 · 點一下就聊",
-    "items": {
-      "photo-story": {"title": "照片聊聊", "hook": "一張照片的故事"},
-      "photo-moment": {"title": "今日一瞬", "hook": "分享一個畫面"},
-      "question-smalljoy": {"title": "小小開心", "hook": "今天笑了嗎？"},
-      "question-weekend": {"title": "週末計畫", "hook": "一起想個行程"},
-      "role-cafe": {"title": "咖啡館", "hook": "來角色扮演"},
-      "role-travel": {"title": "城市迷路", "hook": "一起找方向"},
-      "mood-heavy": {"title": "有點心累", "hook": "想說就說"},
-      "mood-grateful": {"title": "今天謝謝誰", "hook": "想起一件好事"},
-      "play-rematch": {"title": "再玩一局", "hook": "玩完來聊聊"},
-      "play-wildcard": {"title": "遊戲神展開", "hook": "聊聊反轉結局"},
-      "fortune-lucky": {"title": "今日幸運", "hook": "聊聊幸運線索"},
-      "fortune-change": {"title": "下一章", "hook": "未來會怎樣？"}
-    }
-  }
+  "dailyQuote": {"title": "今日小語", "fortune": "看今天運勢", "chat": "跟 Zoe 聊這句"}
 }

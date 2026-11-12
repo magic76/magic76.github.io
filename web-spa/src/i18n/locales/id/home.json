@@ -575,22 +575,5 @@
     "withZoe": "Ngobrol dengan Zoe",
     "setup": "Atur Key"
   },
-  "dailyTopics": {
-    "title": "Topik hari ini",
-    "note": "Tiga ide baru tiap hari",
-    "items": {
-      "photo-story": {"title": "Cerita foto", "hook": "Ada cerita apa?"},
-      "photo-moment": {"title": "Foto hari ini", "hook": "Bagikan satu momen"},
-      "question-smalljoy": {"title": "Bahagia kecil", "hook": "Apa yang bikin senyum?"},
-      "question-weekend": {"title": "Rencana akhir pekan", "hook": "Ayo susun acara"},
-      "role-cafe": {"title": "Di kafe", "hook": "Ayo main peran"},
-      "role-travel": {"title": "Tersesat di kota", "hook": "Cari jalan bersama"},
-      "mood-heavy": {"title": "Hari yang berat", "hook": "Cerita saja"},
-      "mood-grateful": {"title": "Terima kasih hari ini", "hook": "Satu hal yang baik"},
-      "play-rematch": {"title": "Main lagi", "hook": "Ngobrol usai main"},
-      "play-wildcard": {"title": "Kejutan game", "hook": "Plot twist!"},
-      "fortune-lucky": {"title": "Merasa beruntung", "hook": "Apa tanda hoki?"},
-      "fortune-change": {"title": "Bab berikutnya", "hook": "Apa yang berubah?"}
-    }
-  }
+  "dailyQuote": {"title": "Renungan kecil hari ini", "fortune": "Lihat peruntungan hari ini", "chat": "Bahas ini dengan Zoe"}
 }

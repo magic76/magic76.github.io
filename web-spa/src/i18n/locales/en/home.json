@@ -575,22 +575,5 @@
     "withZoe": "Chat with Zoe",
     "setup": "Set up Key"
   },
-  "dailyTopics": {
-    "title": "Today’s topics",
-    "note": "Three fresh ways to start",
-    "items": {
-      "photo-story": {"title": "Photo chat", "hook": "Tell me the story"},
-      "photo-moment": {"title": "A photo today", "hook": "One moment to share"},
-      "question-smalljoy": {"title": "Tiny happiness", "hook": "What made you smile?"},
-      "question-weekend": {"title": "Weekend plan", "hook": "Dream up a day"},
-      "role-cafe": {"title": "At a café", "hook": "Let’s role-play"},
-      "role-travel": {"title": "Lost in a city", "hook": "Find our way"},
-      "mood-heavy": {"title": "A hard day", "hook": "You can say it"},
-      "mood-grateful": {"title": "Thank you today", "hook": "Name one good thing"},
-      "play-rematch": {"title": "One more round", "hook": "Talk after playing"},
-      "play-wildcard": {"title": "Game surprise", "hook": "What a twist!"},
-      "fortune-lucky": {"title": "Lucky feeling", "hook": "What’s my lucky sign?"},
-      "fortune-change": {"title": "Next chapter", "hook": "What could change?"}
-    }
-  }
+  "dailyQuote": {"title": "Today’s little thought", "fortune": "See today’s fortune", "chat": "Talk to Zoe about this"}
 }

@@ -575,22 +575,5 @@
     "withZoe": "Mit Zoe chatten",
     "setup": "Key einrichten"
   },
-  "dailyTopics": {
-    "title": "Themen des Tages",
-    "note": "Drei neue Gesprächsideen",
-    "items": {
-      "photo-story": {"title": "Fotogeschichte", "hook": "Was steckt dahinter?"},
-      "photo-moment": {"title": "Foto des Tages", "hook": "Ein Moment für uns"},
-      "question-smalljoy": {"title": "Kleine Freude", "hook": "Was brachte dich zum Lachen?"},
-      "question-weekend": {"title": "Wochenendplan", "hook": "Planen wir etwas"},
-      "role-cafe": {"title": "Im Café", "hook": "Spielen wir eine Szene"},
-      "role-travel": {"title": "In der Stadt", "hook": "Finden wir den Weg"},
-      "mood-heavy": {"title": "Schwerer Tag", "hook": "Erzähl, wenn du magst"},
-      "mood-grateful": {"title": "Heute dankbar", "hook": "Ein schöner Moment"},
-      "play-rematch": {"title": "Noch eine Runde", "hook": "Danach plaudern"},
-      "play-wildcard": {"title": "Spielüberraschung", "hook": "Was für eine Wende!"},
-      "fortune-lucky": {"title": "Glücksgefühl", "hook": "Was bringt Glück?"},
-      "fortune-change": {"title": "Neues Kapitel", "hook": "Was könnte sich ändern?"}
-    }
-  }
+  "dailyQuote": {"title": "Ein Gedanke für heute", "fortune": "Heutiges Horoskop ansehen", "chat": "Mit Zoe darüber reden"}
 }

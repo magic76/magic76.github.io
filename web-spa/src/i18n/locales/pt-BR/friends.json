@@ -128,4 +128,6 @@
       "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?"
     }
   }
+,
+  "dailyQuoteStarter": "A frase de hoje: “{{quote}}” Queria conversar sobre isso."
 }
