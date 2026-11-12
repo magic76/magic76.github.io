@@ -105,7 +105,8 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  const r=rand(m.seed^Math.imul(index+1,21919));
  const yDrift=staticMode?0:Math.sin(time*.00062+m.phase+index*1.46)*6;
  const xDrift=staticMode?0:Math.sin(time*.00029+index)*3.5;
- const maturity=m.stage<=3?.70:m.stage<=8?.87:1;
+ if(m.stage<=3&&index===0){root.CrewFantasyV3.islandBud(c,u,m,time,staticMode,art);return;}
+ const maturity=m.stage<=3?.44:m.stage<=8?.82:1;
  const w=u.w*(index===0?maturity:1);
  const x=u.x+xDrift,y=u.y+yDrift,sy=y-w*.29;
  // SVG plate grass sits around 17% down from its top. Paint everything from
@@ -122,11 +123,12 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  cascade(c,x,ground,w,index,time,staticMode,m.stage);
  stones(c,x,ground,w,m.seed,index,time,staticMode,m.stage);
  const name=index===0?families[0]:index===1?families[1]:index===2?families[2]:families[3];
- const crownFactor=index===0?(m.stage<=3?.64:m.stage<=8?.84:1):index===1?.96:index===2?.94:.84;
+ const crownFactor=index===0?(m.stage<=3?0:m.stage<=8?.72:1):index===1?.96:index===2?.94:.84;
  const cw=w*(index===0?.97:.95)*crownFactor;
  const ch=w*(index===0?.94:index===1?1.07:index===2?.97:.87)*crownFactor;
  const top=ground-ch*.95+w*.070;
  art(c,name,x-cw*.50,top,cw,ch);
+ if(index===0)root.CrewFantasyV3.islandHollow(c,x,ground,w,time,staticMode,m.stage,m.seed);
  // Small grounded details, not emoji pasted over crown.
  if(m.stage>=8&&index===0){
   c.save();c.fillStyle='#eedcb4';c.strokeStyle='#8d7775';c.lineWidth=2;
@@ -236,7 +238,7 @@ function twistedTrunk(c,stage,seed,time,still){
  const thick=stage<=3?20:stage<=8?34:52, strands=stage<=3?3:stage<=8?4:6;
  c.save();
  // The spiralling stalk has an actual wide body; not several straight lines.
- const center=401,base=764,top=stage<=3?435:stage<=8?412:386;
+ const center=401,base=764,top=stage<=3?670:stage<=8?460:386;
  const r=rand(seed^0xc681);
  c.beginPath();c.moveTo(center-thick,base);
  c.bezierCurveTo(center-thick*1.2,688,center+thick*1.5,569,center-thick*.72,top);
@@ -307,7 +309,7 @@ function twistedTrunk(c,stage,seed,time,still){
  c.restore();
 }
 function canopy(c,art,stage,time,still,seed){
- const spec=stage<=3?{w:367,h:251,y:260}:stage<=8?{w:465,h:305,y:199}:{w:555,h:352,y:121};
+ const spec=stage<=3?{w:136,h:87,y:590}:stage<=8?{w:365,h:248,y:278}:{w:555,h:352,y:121};
  const x=400-spec.w*.50,phase=still?0:Math.sin(time*.00143+seed*.03);
  const sx=1+(stage>=8?phase*.022:phase*.009),sy=1+(stage>=8?phase*.047:phase*.022);
  c.save();c.translate(400,spec.y+spec.h*.65);c.scale(sx,sy);c.translate(-400,-spec.y-spec.h*.65);
