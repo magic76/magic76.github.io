@@ -1,7 +1,7 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const canvas=$('gameCanvas'),ctx=canvas.getContext('2d');
-const WORLD=1000,FLOOR=415,GRAVITY=1700,JUMP=715,EXIT_X=917,EXIT_GATE=850,TAU=Math.PI*2;
+const WORLD=1000,FLOOR=415,GRAVITY=1700,JUMP=770,EXIT_X=917,EXIT_GATE=850,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const ROOM_DEFS=[
  {id:'gap',name:'小小斷橋',objective:'一起跳過斷橋',hint:'空白鍵或「跳！」跨過缺口。Zoe 會先過去接你。',pits:[[365,500]],platforms:[{x:406,y:327,w:43,h:12}]},
@@ -47,7 +47,7 @@ function updateMemory(){
 function sample(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function orderRooms(){let rest=[1,2,3,4];for(let i=rest.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]]}return [0,...rest];}
 function makeEntity(x,isBuddy=false){
- return {x,y:FLOOR,vx:0,vy:0,onGround:true,speed:isBuddy?235:264,
+ return {x,y:FLOOR,vx:0,vy:0,onGround:true,speed:isBuddy?245:264,
   w:25,h:52,face:1,walk:0,helped:0,trapped:false,isBuddy,checkpoint:85};
 }
 function announce(message,force=false){
