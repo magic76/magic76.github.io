@@ -1,0 +1,479 @@
+{
+  "skeleton": {
+    "spine": "3.8.99",
+    "width": 800,
+    "height": 820,
+    "fps": 30,
+    "hash": "crew-tree-lantern-authoring-poc"
+  },
+  "bones": [
+    {
+      "name": "root"
+    },
+    {
+      "name": "trunk",
+      "parent": "root",
+      "length": 255,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "name": "cap",
+      "parent": "trunk",
+      "y": 255,
+      "length": 60
+    },
+    {
+      "name": "tendril0",
+      "parent": "cap",
+      "x": -160,
+      "y": 32,
+      "length": 100,
+      "rotation": -98
+    },
+    {
+      "name": "tendril1",
+      "parent": "cap",
+      "x": -120,
+      "y": 32,
+      "length": 100,
+      "rotation": -96
+    },
+    {
+      "name": "tendril2",
+      "parent": "cap",
+      "x": -80,
+      "y": 32,
+      "length": 100,
+      "rotation": -94
+    },
+    {
+      "name": "tendril3",
+      "parent": "cap",
+      "x": -40,
+      "y": 32,
+      "length": 100,
+      "rotation": -92
+    },
+    {
+      "name": "tendril4",
+      "parent": "cap",
+      "x": 0,
+      "y": 32,
+      "length": 100,
+      "rotation": -90
+    },
+    {
+      "name": "tendril5",
+      "parent": "cap",
+      "x": 40,
+      "y": 32,
+      "length": 100,
+      "rotation": -88
+    },
+    {
+      "name": "tendril6",
+      "parent": "cap",
+      "x": 80,
+      "y": 32,
+      "length": 100,
+      "rotation": -86
+    },
+    {
+      "name": "tendril7",
+      "parent": "cap",
+      "x": 120,
+      "y": 32,
+      "length": 100,
+      "rotation": -84
+    },
+    {
+      "name": "tendril8",
+      "parent": "cap",
+      "x": 160,
+      "y": 32,
+      "length": 100,
+      "rotation": -82
+    },
+    {
+      "name": "tip0",
+      "parent": "tendril0",
+      "y": 100,
+      "length": 68,
+      "rotation": -12
+    },
+    {
+      "name": "tip1",
+      "parent": "tendril1",
+      "y": 100,
+      "length": 68,
+      "rotation": 0
+    },
+    {
+      "name": "tip2",
+      "parent": "tendril2",
+      "y": 100,
+      "length": 68,
+      "rotation": 12
+    },
+    {
+      "name": "tip3",
+      "parent": "tendril3",
+      "y": 100,
+      "length": 68,
+      "rotation": -12
+    },
+    {
+      "name": "tip4",
+      "parent": "tendril4",
+      "y": 100,
+      "length": 68,
+      "rotation": 0
+    },
+    {
+      "name": "tip5",
+      "parent": "tendril5",
+      "y": 100,
+      "length": 68,
+      "rotation": 12
+    },
+    {
+      "name": "tip6",
+      "parent": "tendril6",
+      "y": 100,
+      "length": 68,
+      "rotation": -12
+    },
+    {
+      "name": "tip7",
+      "parent": "tendril7",
+      "y": 100,
+      "length": 68,
+      "rotation": 0
+    },
+    {
+      "name": "tip8",
+      "parent": "tendril8",
+      "y": 100,
+      "length": 68,
+      "rotation": 12
+    }
+  ],
+  "slots": [],
+  "skins": [
+    {
+      "name": "default",
+      "attachments": {}
+    }
+  ],
+  "animations": {
+    "sway": {
+      "bones": {
+        "trunk": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": -2
+            },
+            {
+              "time": 1,
+              "angle": 2
+            },
+            {
+              "time": 2,
+              "angle": -2
+            }
+          ]
+        },
+        "tendril0": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": -5
+            },
+            {
+              "time": 1,
+              "angle": 6
+            },
+            {
+              "time": 2,
+              "angle": -5
+            }
+          ]
+        },
+        "tendril1": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": -6
+            },
+            {
+              "time": 1,
+              "angle": 7
+            },
+            {
+              "time": 2,
+              "angle": -6
+            }
+          ]
+        },
+        "tendril2": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": -7
+            },
+            {
+              "time": 1,
+              "angle": 8
+            },
+            {
+              "time": 2,
+              "angle": -7
+            }
+          ]
+        },
+        "tendril3": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": -5
+            },
+            {
+              "time": 1,
+              "angle": 9
+            },
+            {
+              "time": 2,
+              "angle": -5
+            }
+          ]
+        },
+        "tendril4": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": -6
+            },
+            {
+              "time": 1,
+              "angle": 6
+            },
+            {
+              "time": 2,
+              "angle": -6
+            }
+          ]
+        },
+        "tendril5": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": -7
+            },
+            {
+              "time": 1,
+              "angle": 7
+            },
+            {
+              "time": 2,
+              "angle": -7
+            }
+          ]
+        },
+        "tendril6": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": -5
+            },
+            {
+              "time": 1,
+              "angle": 8
+            },
+            {
+              "time": 2,
+              "angle": -5
+            }
+          ]
+        },
+        "tendril7": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": -6
+            },
+            {
+              "time": 1,
+              "angle": 9
+            },
+            {
+              "time": 2,
+              "angle": -6
+            }
+          ]
+        },
+        "tendril8": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": -7
+            },
+            {
+              "time": 1,
+              "angle": 6
+            },
+            {
+              "time": 2,
+              "angle": -7
+            }
+          ]
+        },
+        "tip0": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": 4
+            },
+            {
+              "time": 1,
+              "angle": -5
+            },
+            {
+              "time": 2,
+              "angle": 4
+            }
+          ]
+        },
+        "tip1": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": 5
+            },
+            {
+              "time": 1,
+              "angle": -6
+            },
+            {
+              "time": 2,
+              "angle": 5
+            }
+          ]
+        },
+        "tip2": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": 6
+            },
+            {
+              "time": 1,
+              "angle": -7
+            },
+            {
+              "time": 2,
+              "angle": 6
+            }
+          ]
+        },
+        "tip3": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": 7
+            },
+            {
+              "time": 1,
+              "angle": -5
+            },
+            {
+              "time": 2,
+              "angle": 7
+            }
+          ]
+        },
+        "tip4": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": 4
+            },
+            {
+              "time": 1,
+              "angle": -6
+            },
+            {
+              "time": 2,
+              "angle": 4
+            }
+          ]
+        },
+        "tip5": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": 5
+            },
+            {
+              "time": 1,
+              "angle": -7
+            },
+            {
+              "time": 2,
+              "angle": 5
+            }
+          ]
+        },
+        "tip6": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": 6
+            },
+            {
+              "time": 1,
+              "angle": -5
+            },
+            {
+              "time": 2,
+              "angle": 6
+            }
+          ]
+        },
+        "tip7": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": 7
+            },
+            {
+              "time": 1,
+              "angle": -6
+            },
+            {
+              "time": 2,
+              "angle": 7
+            }
+          ]
+        },
+        "tip8": {
+          "rotate": [
+            {
+              "time": 0,
+              "angle": 4
+            },
+            {
+              "time": 1,
+              "angle": -7
+            },
+            {
+              "time": 2,
+              "angle": 4
+            }
+          ]
+        }
+      }
+    }
+  }
+}
