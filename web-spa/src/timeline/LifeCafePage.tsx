@@ -144,7 +144,20 @@ export function LifeCafePage(){
     {world.awayReports.map((report,i)=><p key={i}><b>{report.title[language]}</b> — {report.detail[language]}</p>)}
     <small>{l("根據離開時間補算，沒有背景 AI 持續執行。","Reconstructed from elapsed time, without a running background AI.")}</small>
    </section>}
-   <section className={"lc-stage"+(reacting?" lc-stage-reacting":"")} aria-label={l("咖啡店裡的三個人","Three people in a café")}>
+   {opening&&<section className="lc-story-hook" aria-label={l("故事開場","Story opening")}>
+ <span className="lc-step">{l("星期五下午 · 故事開始","FRIDAY AFTERNOON · THE STORY BEGINS")}</span>
+ <p>{l("Mira 喜歡拍照，Ethan 總帶著吉他，Hana 今天卻一直望著窗外。他們三個從小就認識。","Mira takes pictures, Ethan plays guitar, and Hana keeps looking out the window. They've been friends since childhood.")}</p>
+ <blockquote>{l("「我可能要離開了。」","“I might be leaving.”")}</blockquote>
+ <p>{l("桌上突然出現一封沒有署名的信。到底是誰寫的？為什麼不敢親口說？","An unsigned letter appears on the table. Who wrote it, and why couldn't they say it aloud?")}</p>
+ <strong>{l("先把這封信交給一個人，看看接下來會發生什麼。","Give the letter to one of them and watch what happens.")}</strong>
+</section>}
+{!opening&&world.phase==="ready"&&<div className="lc-story-progress">
+ <span aria-hidden="true">✉️</span>
+ <p>{world.revealed.includes("hana-moving")?
+  l("寫信的人已經被發現。接下來，他們能好好道別嗎？","You know who wrote it. Can they say goodbye properly?"):
+  l("有人看到了信，但真相還沒揭曉。再製造一個機會，看看誰會開口。","Someone saw the letter, but its author remains unknown. What could make them speak?")}</p>
+</div>}
+<section className={"lc-stage"+(reacting?" lc-stage-reacting":"")} aria-label={l("咖啡店裡的三個人","Three people in a café")}>
     <div className="lc-stage-window" aria-hidden="true"><div className="lc-window-glow"/><div className="lc-window-bars"/><div className="lc-window-city"/></div>
     <div className="lc-stage-light" aria-hidden="true"/>
     <div className="lc-stage-sign" aria-hidden="true"><span>OPEN</span><b>THE LITTLE CAFÉ</b></div>
@@ -156,7 +169,7 @@ export function LifeCafePage(){
     <div className="lc-stage-furniture" aria-hidden="true"><div className="lc-cafe-table"><span>☕</span></div></div>
     <div className="lc-stage-bottom">
      <span>{reacting&&last?cafePropCopy[last.item].icon:activeItem?cafePropCopy[activeItem].icon:"✦"}</span>
-     <p>{reacting&&last?last.news.title[language]:finished?l("這場實驗暫時告一段落","The experiment is complete"):l("三個人都有沒說出口的心事","Each of them is keeping something to themselves")}</p>
+     <p>{reacting&&last?last.news.title[language]:finished?l("今晚的故事有了結局","Tonight's story has an ending"):opening?l("「我可能要離開了。」誰寫了這封信？","Who wrote 'I might be leaving'?"):l("信交出去了，故事還沒有結束","The letter is out, but the story is not over.")}</p>
     </div>
    </section>
    {world.phase==="ready"&&<section className="lc-console">
