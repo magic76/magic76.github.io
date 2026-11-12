@@ -1,6 +1,8 @@
 // Optional offline-authoring experiments. Never part of the Crew Tree runtime.
 const $=id=>document.getElementById(id);
-const coreUrl='https://cdn.jsdelivr.net/gh/jaisurya-dev-art/rigby2d@b5d85082228acb31642c2df07543e3540574f3d9/src/core/index.js';
+const coreUrl='./vendor/rigby2d/src/core/interop.js';
+const poseUrl='./vendor/rigby2d/src/core/pose.js';
+const stateUrl='./vendor/rigby2d/src/core/state.js';
 let generated=null;
 function fail(id,error){$(id).textContent='驗證失敗（未生成）：'+String(error?.message||error);}
 $('bakeBtn').addEventListener('click',async()=>{
@@ -48,7 +50,7 @@ $('saveBake').addEventListener('click',()=>{
 $('checkRig').addEventListener('click',async()=>{
  $('rigReport').textContent='載入 Rigby2D 官方 Runtime…';
  try{
-  const {readSkeletonJson,Pose,AnimationState}=await import(coreUrl);
+  const [{readSkeletonJson},{Pose},{AnimationState}]=await Promise.all([import(coreUrl),import(poseUrl),import(stateUrl)]);
   const response=await fetch('./rig/jelly-tree.skeleton.json');
   if(!response.ok)throw Error('骨架 JSON HTTP '+response.status);
   const fixture=await response.json();
