@@ -133,6 +133,7 @@ export function LifeObservatoryPage(){
   persist({version:1,current:createObserverRun(seed),previous});
   setShowCompare(false);
   setShowDetails(false);
+  window.scrollTo({top:0,left:0,behavior:"instant"});
  };
  const intervene=(id:ObserverId,choice:0|1)=>{
   if(!saved||saved.current.phase!=="watch")return;
@@ -143,6 +144,7 @@ export function LifeObservatoryPage(){
   if(!saved||saved.current.phase!=="watch")return;
   persist({...saved,current:settleObserverChapter(saved.current)});
   setShowDetails(false);
+  window.scrollTo({top:0,left:0,behavior:"instant"});
  };
  const advance=()=>{
   if(!saved||saved.current.phase!=="recap")return;
