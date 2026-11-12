@@ -43,9 +43,11 @@ function sceneModel(scene=state.scene,stage=state.stage,seed=state.seed,topic=st
  }
  const count=stage<=3?6:stage<=8?11:19;
  const arms=Array.from({length:count},(_,i)=>{
-  const q=rng(seed^Math.imul(i+1,0x4efc923));const t=i/Math.max(1,count-1);
+  const q=rng(seed^Math.imul(i+1,0x4efc923));
+  const positions=[.50,.26,.74,.12,.88,.39,.61,.04,.96,.19,.81,.32,.68,.45,.55,.08,.92,.36,.64];
+  const t=positions[i];
   return {id:'arm-'+i,baseX:210+t*376,baseY:398-Math.sin(t*Math.PI)*29,side:(t-.5)*2,
-   length:180+q()*105+(stage>=16?40:0),bend:(q()-.5)*57,phase:q()*TAU,thickness:1.3+q()*2.6};
+   length:180+q()*105,bend:(q()-.5)*57,phase:q()*TAU,thickness:1.3+q()*2.6};
  });
  return {scene,stage,seed,topic,phase,arms,attachment:topic==='music'?'chime-buds':topic==='travel'?'wing-fins':topic==='warmth'?'heart-calyx':'star-nectar',unitCount:arms.length,bones:arms};
 }
