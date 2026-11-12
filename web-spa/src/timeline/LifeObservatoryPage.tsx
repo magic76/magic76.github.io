@@ -8,7 +8,7 @@ import {
  observerAge,observerBondLabel,observerEnding,observerInterventionCount,
  observerScenes,settleObserverChapter,
  type ObserverAge,type ObserverChapter,type ObserverId,type ObserverLanguage,type ObserverPair,
- type ObserverRun,type ObserverSave as _NeverUsed
+ type ObserverRun
 } from "./lifeObservatory";
 import {loadObserverSave,removeObserverSave,writeObserverSave,type ObserverSave} from "./lifeObservatoryStorage";
 import "./lifeObservatory.css";
