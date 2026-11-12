@@ -27,9 +27,11 @@ fs.mkdirSync(OUT,{recursive:true});
       assert.equal(m.units.length,stage===3?1:stage===8?2:4);
       assert.equal(m.units[0].species,'spiral');
       if(stage===16)assert.deepEqual(m.units.map(x=>x.species),['spiral','weeping','lantern-fruit','crescent']);
+      assert.equal(m.lifeStage,stage===3?'seedling':stage===8?'sapling':'mature');
      } else{
       assert.equal(m.arms.length,stage===3?6:stage===8?11:19);
-      assert.equal(m.silhouette.domeWidth,stage===3?367:stage===8?465:555);
+      assert.equal(m.silhouette.domeWidth,stage===3?136:stage===8?365:555);
+      assert.equal(m.lifeStage,stage===3?'hatchling':stage===8?'juvenile':'mature');
      }
      await page.locator('#heroCanvas').screenshot({path:path.join(OUT,label+'-'+scene+'-'+stage+'.png')});
      if(stage===16){
@@ -89,6 +91,40 @@ fs.mkdirSync(OUT,{recursive:true});
      console.log('FANTASY_'+scene.toUpperCase()+'_BLACK_AREA='+JSON.stringify(silhouetteAreas));
      console.log('FANTASY_'+scene.toUpperCase()+'_SILHOUETTE='+black);
      await page.locator('#silhouetteBtn').click();
+    }
+   }
+   // Four distinctly designed skies and attached biological objects, same seed.
+   // Save both scene contact sheets as real browser artwork rather than synthetic diagrams.
+   if(label==='desktop'){
+    for(const scene of ['island','jelly']){
+     await page.locator('[data-scene="'+scene+'"]').click();
+     await page.locator('[data-stage="16"]').click();
+     const collage=await page.evaluate(async()=>{
+      return {ok:true};
+     });
+     assert.equal(collage.ok,true);
+     const portraits=[];
+     for(const topic of ['cosmos','warmth','music','travel']){
+      await page.locator('[data-topic="'+topic+'"]').click();
+      const shot=await page.locator('#heroCanvas').evaluate(cv=>cv.toDataURL('image/png'));
+      portraits.push(shot);
+      await page.locator('#heroCanvas').screenshot({path:path.join(OUT,'desktop-'+scene+'-topic-'+topic+'.png')});
+     }
+     assert.equal(new Set(portraits).size,4,'all storybook palettes must differ');
+     const contact=await page.evaluate(async(data)=>{
+      const canvas=document.createElement('canvas');canvas.width=1040;canvas.height=340;
+      const ctx=canvas.getContext('2d');
+      ctx.fillStyle='#eee9da';ctx.fillRect(0,0,1040,340);
+      const names=['cosmos','warmth','music','travel'];
+      for(let i=0;i<data.length;i++){
+       const img=new Image();img.src=data[i];await img.decode();
+       ctx.drawImage(img,i*260+2,0,256,315);
+       ctx.fillStyle='#374844';ctx.textAlign='center';ctx.font='bold 14px system-ui';
+       ctx.fillText(names[i],i*260+130,333);
+      }
+      return canvas.toDataURL('image/jpeg',.72).split(',')[1];
+     },portraits);
+     console.log('FANTASY_V3_'+scene.toUpperCase()+'_TOPICS='+contact);
     }
    }
    await page.locator('[data-scene="island"]').click();
