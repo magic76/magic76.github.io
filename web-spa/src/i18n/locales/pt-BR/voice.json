@@ -197,7 +197,13 @@
     "restartHint": "Não foi possível iniciar a sessão gratuita. Uma nova verificação pode ser necessária.",
     "backendNext": "Várias tentativas ficaram sem resposta. Volte mais tarde ou use sua chave Gemini.",
     "useKey": "Usar minha chave Gemini",
-    "verifyAgain": "Verificar novamente"
+    "verifyAgain": "Verificar novamente",
+    "checkingHuman": "Verificando se você é uma pessoa…",
+    "interactionHint": "Conclua a verificação abaixo. Sua mensagem será enviada automaticamente.",
+    "connecting": "Conectando ao chat gratuito…",
+    "sending": "Enviando sua mensagem…",
+    "challengeTimeout": "O tempo de verificação esgotou. Toque em Enviar novamente.",
+    "challengeUnavailable": "Não foi possível carregar ou concluir a verificação de segurança. Toque em Enviar novamente."
   }
 
 }

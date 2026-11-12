@@ -64,6 +64,16 @@ test("guest panel preserves send grants on non-verification errors; start can pa
  assert.match(panel,/guestText\.restartHint/);
  assert.doesNotMatch(panel,/setGuestPhase\("error"\);\s*}\s*throw reason/);
 });
+test("on-demand Turnstile errors require verification again rather than reporting backend failure",()=>{
+ const {classifyGuestTextFailure,Error}=loadHelper();
+ for(const code of ["TURNSTILE_LOAD_FAILED","TURNSTILE_ERROR","TURNSTILE_EXPIRED","TURNSTILE_TIMEOUT"]){
+  const result=classifyGuestTextFailure(new Error(code));
+  assert.equal(result.kind,"verification",code);
+  assert.equal(result.reverify,true,code);
+  assert.equal(result.retry,false,code);
+  assert.match(result.messageKey,/guestText\.challenge(?:Timeout|Unavailable)/);
+ }
+});
 test("new guest failure messages and buttons exist as strings in all 11 voice namespaces",()=>{
  const locales=["zh-TW","en","ja","ko","es","fr","de","pt-BR","id","vi","th"];
  let keys;
@@ -73,7 +83,7 @@ test("new guest failure messages and buttons exist as strings in all 11 voice na
   assert.ok(group,locale);
   const now=Object.keys(group).sort();
   if(!keys)keys=now;else assert.deepEqual(now,keys,locale);
-  assert.equal(keys.length,15);
+  assert.equal(keys.length,21);
   for(const value of Object.values(group))assert.equal(typeof value,"string",locale);
  }
  const panel=read("web-spa/src/live/TextChatPanel.tsx");

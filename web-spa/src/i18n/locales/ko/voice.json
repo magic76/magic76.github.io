@@ -197,7 +197,13 @@
     "restartHint": "무료 세션을 시작하지 못했습니다. 다시 연결할 때 보안 인증이 필요할 수 있습니다.",
     "backendNext": "여러 번 시도해도 응답이 없습니다. 나중에 다시 오거나 본인의 Gemini 키를 사용하세요.",
     "useKey": "내 Gemini 키 사용",
-    "verifyAgain": "다시 인증"
+    "verifyAgain": "다시 인증",
+    "checkingHuman": "사람인지 확인하고 있어요…",
+    "interactionHint": "아래 인증을 완료해 주세요. 완료되면 메시지가 자동으로 전송됩니다.",
+    "connecting": "무료 채팅에 연결하고 있어요…",
+    "sending": "메시지를 보내고 있어요…",
+    "challengeTimeout": "인증 시간이 초과됐어요. 보내기를 다시 눌러 주세요.",
+    "challengeUnavailable": "보안 인증을 불러오거나 완료하지 못했어요. 보내기를 다시 눌러 주세요."
   }
 
 }

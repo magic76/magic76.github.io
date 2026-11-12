@@ -197,7 +197,13 @@
     "restartHint": "La session gratuite n’a pas pu démarrer. Une nouvelle vérification peut être nécessaire.",
     "backendNext": "Plusieurs essais sont restés sans réponse. Revenez plus tard ou utilisez votre clé Gemini.",
     "useKey": "Utiliser ma clé Gemini",
-    "verifyAgain": "Vérifier à nouveau"
+    "verifyAgain": "Vérifier à nouveau",
+    "checkingHuman": "Vérification que vous êtes une personne…",
+    "interactionHint": "Terminez la vérification ci-dessous. Votre message sera envoyé automatiquement.",
+    "connecting": "Connexion au chat gratuit…",
+    "sending": "Envoi du message…",
+    "challengeTimeout": "Délai de vérification dépassé. Appuyez de nouveau sur Envoyer.",
+    "challengeUnavailable": "La vérification de sécurité n’a pas pu se charger ou aboutir. Appuyez de nouveau sur Envoyer."
   }
 
 }

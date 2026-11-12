@@ -5,7 +5,7 @@
 .crew-text-chat-history{display:flex;flex-direction:column;gap:12px;overflow-y:auto;min-height:210px;max-height:min(55dvh,480px);padding:16px 12px;border:1px solid var(--line);background:var(--surface-alt);border-radius:16px;overscroll-behavior:contain}
 .crew-text-chat-message{max-width:90%;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface,#fff);overflow-wrap:anywhere;align-self:flex-start;text-align:left}
 .crew-text-chat-message.user{align-self:flex-end;background:#e8e5ff;border-color:#d7d0ff}
-.crew-text-chat-message strong{display:block;font-size:11px;margin-bottom:5px}
+.crew-text-chat-message strong{display:block;font-size:12px;margin-bottom:5px}
 .crew-text-chat-message p{font-size:14px;line-height:1.6;margin:0;white-space:pre-wrap}
 .crew-text-chat-empty,.crew-text-chat-pending,.crew-text-chat-notice{color:var(--muted);font-size:12px;line-height:1.6}
 .crew-text-chat-error{color:#a13131;font-size:12px;margin:0}
@@ -22,6 +22,7 @@
 .crew-text-guest small{font-size:12px;line-height:1.5;color:var(--muted)}
 .crew-text-guest .btn{justify-self:start;min-height:44px}
 .crew-text-guest a{display:inline-flex;align-items:center;text-decoration:none}
+.crew-text-challenge-host{max-width:100%;min-width:0}
 
 .crew-text-mode-choice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:0 2px}
 .crew-text-mode-choice>span{font-size:12px;font-weight:700;color:var(--muted)}

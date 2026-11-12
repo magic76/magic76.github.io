@@ -197,7 +197,13 @@
     "restartHint": "Sesi gratis belum berhasil dibuat. Verifikasi keamanan mungkin diperlukan lagi.",
     "backendNext": "Beberapa percobaan tidak mendapat balasan. Coba lagi nanti atau gunakan kunci Gemini sendiri.",
     "useKey": "Gunakan kunci Gemini sendiri",
-    "verifyAgain": "Verifikasi lagi"
+    "verifyAgain": "Verifikasi lagi",
+    "checkingHuman": "Memastikan kamu bukan bot…",
+    "interactionHint": "Selesaikan verifikasi di bawah. Pesanmu akan terkirim otomatis setelah selesai.",
+    "connecting": "Menghubungkan chat gratis…",
+    "sending": "Mengirim pesan…",
+    "challengeTimeout": "Waktu verifikasi habis. Tekan Kirim lagi.",
+    "challengeUnavailable": "Verifikasi keamanan gagal dimuat atau diselesaikan. Tekan Kirim lagi."
   }
 
 }

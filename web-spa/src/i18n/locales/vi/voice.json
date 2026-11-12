@@ -197,7 +197,13 @@
     "restartHint": "Chưa tạo được phiên miễn phí. Lần kết nối tiếp theo có thể cần xác minh lại.",
     "backendNext": "Đã thử nhiều lần mà không có phản hồi. Hãy quay lại sau hoặc dùng khóa Gemini của mình.",
     "useKey": "Dùng khóa Gemini của tôi",
-    "verifyAgain": "Xác minh lại"
+    "verifyAgain": "Xác minh lại",
+    "checkingHuman": "Đang xác minh bạn là người thật…",
+    "interactionHint": "Hãy hoàn tất xác minh bên dưới. Tin nhắn sẽ tự động được gửi sau khi hoàn tất.",
+    "connecting": "Đang kết nối trò chuyện miễn phí…",
+    "sending": "Đang gửi tin nhắn…",
+    "challengeTimeout": "Xác minh đã hết thời gian. Hãy nhấn Gửi lần nữa.",
+    "challengeUnavailable": "Không thể tải hoặc hoàn tất xác minh bảo mật. Hãy nhấn Gửi lần nữa."
   }
 
 }

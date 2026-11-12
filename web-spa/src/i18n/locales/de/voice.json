@@ -197,7 +197,13 @@
     "restartHint": "Die kostenlose Sitzung wurde nicht gestartet. Beim nächsten Versuch kann eine neue Prüfung nötig sein.",
     "backendNext": "Mehrere Versuche blieben ohne Antwort. Versuche es später oder nutze deinen Gemini-Schlüssel.",
     "useKey": "Eigenen Gemini-Schlüssel nutzen",
-    "verifyAgain": "Erneut bestätigen"
+    "verifyAgain": "Erneut bestätigen",
+    "checkingHuman": "Wir prüfen, ob du ein Mensch bist…",
+    "interactionHint": "Bitte schließe die Prüfung unten ab. Danach wird deine Nachricht automatisch gesendet.",
+    "connecting": "Kostenlosen Chat verbinden…",
+    "sending": "Nachricht wird gesendet…",
+    "challengeTimeout": "Die Prüfung hat zu lange gedauert. Drücke erneut auf „Senden“.",
+    "challengeUnavailable": "Die Sicherheitsprüfung konnte nicht geladen oder abgeschlossen werden. Drücke erneut auf „Senden“."
   }
 
 }
