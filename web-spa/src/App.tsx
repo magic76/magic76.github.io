@@ -31,7 +31,8 @@ const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(
 const AccountPage=lazy(()=>import("./pages/AccountPage").then(m=>({default:m.AccountPage})));
 const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:m.TimelinePage})));
 
-const LifeObservatoryPage=lazy(()=>import("./timeline/LifeObservatoryPage").then(m=>({default:m.LifeObservatoryPage})));const TimelineComparePage=lazy(()=>import("./timeline/TimelineComparePage").then(m=>({default:m.TimelineComparePage})));
+const LifeObservatoryPage=lazy(()=>import("./timeline/LifeObservatoryPage").then(m=>({default:m.LifeObservatoryPage})));
+const LifeCafePage=lazy(()=>import("./timeline/LifeCafePage").then(m=>({default:m.LifeCafePage})));const TimelineComparePage=lazy(()=>import("./timeline/TimelineComparePage").then(m=>({default:m.TimelineComparePage})));
 const TimelineLivePage=lazy(()=>withNamespace("voice",import("./timeline/TimelineLivePage")).then(m=>({default:m.TimelineLivePage})));
 const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.FriendsPage})));const FriendLivePage=lazy(()=>withNamespace("voice",import("./friends/FriendLivePage")).then(m=>({default:m.FriendLivePage})));const FriendGomokuPage=lazy(()=>withNamespace("voice",import("./games/FriendGomokuPage")).then(m=>({default:m.FriendGomokuPage})));
 const CrewPlayHubPage=lazy(()=>import("./games/CrewPlayHubPage").then(m=>({default:m.CrewPlayHubPage})));
@@ -112,7 +113,8 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/games/:gameId" element={<AppChrome product="home"><GameRouteReady/><CrewPlayGamePage/></AppChrome>}/>
 <Route path="/timeline" element={<AppChrome product="teacher"><TimelinePage/></AppChrome>}/>
 <Route path="/timeline/simulate" element={<Navigate to="/timeline/observe" replace/>}/>
-<Route path="/timeline/observe" element={<AppChrome product="teacher"><LifeObservatoryPage/></AppChrome>}/>
+<Route path="/timeline/observe" element={<AppChrome product="teacher"><LifeCafePage/></AppChrome>}/>
+<Route path="/timeline/observe/classic" element={<AppChrome product="teacher"><LifeObservatoryPage/></AppChrome>}/>
  <Route path="/timeline/compare" element={<AppChrome product="teacher"><TimelineComparePage/></AppChrome>}/>
 <Route path="/timeline/live" element={<TimelineLivePage/>}/>
 <Route path="/teacher/voice-lab" element={<VoiceLabPage/>}/>
@@ -124,4 +126,4 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/fortune/live" element={<FortuneLivePage/>}/>
 <Route path="/zh-TW/*" element={<ZhTwCanonicalRedirect/>}/>
 <Route path="*" element={<Navigate to="/" replace/>}/>
-</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&pathname!=="/phone"&&<GlobalNav active={active} mobileImmersive={pathname==="/magic"}/>}{(pathname==="/"||pathname==="/settings")&&<OptionalWidgetBoundary><Suspense fallback={null}><OnboardingGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<OptionalWidgetBoundary><Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}<OptionalWidgetBoundary><Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense></OptionalWidgetBoundary>{pathname==="/"&&<OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallNudge/></Suspense></OptionalWidgetBoundary>}</>}
+</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&pathname!=="/phone"&&<GlobalNav active={active} mobileImmersive={pathname==="/magic"||pathname==="/timeline/observe"}/>}{(pathname==="/"||pathname==="/settings")&&<OptionalWidgetBoundary><Suspense fallback={null}><OnboardingGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<OptionalWidgetBoundary><Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}<OptionalWidgetBoundary><Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense></OptionalWidgetBoundary>{pathname==="/"&&<OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallNudge/></Suspense></OptionalWidgetBoundary>}</>}

@@ -104,7 +104,7 @@ test("saved world is fail-closed and original Timeline memories remain isolated"
  assert.match(storage,/crew-life-observatory-v3/);
  assert.doesNotMatch(storage,/crew-life-simulator-v1|crew_text_transcript_v1/);
  const app=read("web-spa/src/App.tsx");
- assert.match(app,/path="\/timeline\/observe"/);
+ assert.match(app,/path="\/timeline\/observe\/classic"/);
  const hub=read("web-spa/src/games/CrewPlayHubPage.tsx");
  assert.ok(hub.includes('to="/timeline/observe"'));
  const page=read("web-spa/src/timeline/LifeObservatoryPage.tsx");

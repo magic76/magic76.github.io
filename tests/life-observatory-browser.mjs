@@ -68,7 +68,7 @@ try{
  for(const [width,height] of [[360,640],[390,844],[1280,800]]){
   const context=await browser.newContext({viewport:{width,height},locale:"zh-TW",reducedMotion:"reduce",deviceScaleFactor:1});
   const page=await context.newPage();page.on("pageerror",error=>problems.push(width+": "+error.message));
-  await page.goto(address+"/timeline/observe",{waitUntil:"domcontentloaded",timeout:45000});
+  await page.goto(address+"/timeline/observe/classic",{waitUntil:"domcontentloaded",timeout:45000});
   await page.locator(".lo-intro .lo-primary").waitFor({state:"visible",timeout:30000});
   assert.equal(await page.locator(".lo-person").count(),3);
   await waitForPortraits(page,width+" intro");
@@ -141,8 +141,8 @@ try{
   assert.equal(await page.locator(".lo-compare-side").count(),2,"Second world must survive reload");
   await page.goto(address+"/timeline/simulate",{waitUntil:"domcontentloaded"});
   await page.waitForURL(/\/timeline\/observe/);
-  await page.locator(".lo-ending").waitFor({state:"visible",timeout:15000});
-  assert.equal(await page.locator(".lo-ending").count(),1,"Retired V2 bookmark opens V3 after lazy load");
+  await page.locator(".lc-page").waitFor({state:"visible",timeout:15000});
+  assert.equal(await page.locator(".lc-item").count(),5,"Legacy V2 bookmark now opens the new experiment box");
   await context.close();
  }
  assert.deepEqual(problems,[],"No uncaught runtime exceptions");

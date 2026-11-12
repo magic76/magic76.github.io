@@ -50,7 +50,7 @@ export function CrewPlayHubPage(){
   werewolf:zh?["AI 狼人殺","夜晚行動、質疑、推理與投票。"]:["AI Werewolf","Debate, bluff and vote."],
   "crazy-court":zh?["荒謬法庭","和 AI 朋友辯論荒謬案件。"]:["Crazy Court","Debate silly cases with an AI friend."],
   "truth-news":zh?["新聞真假猜猜看","從最新新聞中猜出哪則是真的。"]:["Real or Fiction News","Find the one real news headline."],
-  "life-observatory":zh?["三人命運觀察室","觀察三位朋友的人生，每個階段最多介入兩次。"]:["The Life Observatory","Follow three connected lives. Intervene at most twice per chapter."]
+  "life-observatory":zh?["Crew 生活實驗箱","一間咖啡店，三個朋友，五種物件。丟進去看看他們會做什麼！"]:["Crew Life Experiment Box","One café, three friends, five objects. Drop one in and see what they do!"]
  } as Record<string,string[]>;
  const titleFor=(id:string)=>id==="number-bomb"?(zh?"終極密碼":"Number Bomb"):id==="memory"?(zh?"翻牌記憶":"Memory Match"):t("playHub.games."+id+".title");
  const descFor=(id:string)=>id==="number-bomb"?(zh?"你來猜數字，AI 朋友當主持人公布提示。":"Guess a secret number while your Crew friend hosts."):
@@ -91,7 +91,7 @@ export function CrewPlayHubPage(){
   <div className="crew-play-catalog">
    <Link className="crew-play-game-card life-observatory-hub-card" to="/timeline/observe" hidden={!visible("life-observatory",extraLabels["life-observatory"][0],extraLabels["life-observatory"][1])} onClick={()=>remember("life-observatory")}>
     <div className="crew-play-game-art" aria-hidden="true"><span>✦</span></div>
-    <div className="crew-play-game-info"><strong>{extraLabels["life-observatory"][0]}</strong><small>{extraLabels["life-observatory"][1]}</small><span className="crew-play-game-voice-tag">{zh?"免費直接玩 · 不需 AI Key":"Free · No AI key"}</span></div>
+    <div className="crew-play-game-info"><strong>{extraLabels["life-observatory"][0]}</strong><small>{extraLabels["life-observatory"][1]}</small><span className="crew-play-game-voice-tag">{zh?"免費直接玩 · 猜人心":"Free to play · Predict reactions"}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>
    {crewGames.map((game,index)=><Link className="crew-play-game-card" hidden={!visible(game.id,titleFor(game.id),descFor(game.id))} onClick={()=>remember(game.id)} to={"/games/"+game.id} key={game.id}>

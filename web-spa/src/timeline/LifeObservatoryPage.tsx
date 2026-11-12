@@ -173,7 +173,7 @@ export function LifeObservatoryPage(){
  };
  return <main className="lo-page">
   <header className={"lo-header"+(run?" lo-header-playing":"")}>
-   <div className="lo-header-links"><Link to="/games">← {l("返回小遊戲","Back to Games")}</Link><span>CREW · LIFE OBSERVATORY</span></div>
+   <div className="lo-header-links"><Link to="/timeline/observe">← {l("玩新版生活實驗箱","Try the new Life Experiment Box")}</Link><span>CREW · LIFE OBSERVATORY</span></div>
    <div className="lo-title-area"><div>
     <span className="lo-eyebrow"><i/> CREW · THE LIFE OBSERVATORY</span>
     <h1>{run?l("三人命運觀察室","The Life Observatory"):l("如果你不在，他們會過著怎樣的人生？","What happens to them when you're gone?")}</h1>
