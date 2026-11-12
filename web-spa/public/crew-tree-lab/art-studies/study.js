@@ -8,8 +8,9 @@
 const W=800,H=820,$=id=>document.getElementById(id),TAU=Math.PI*2;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 function rng(seed){let a=seed>>>0;return ()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
-const FILES=['floating-island.svg','island-crown.svg','jelly-canopy.svg','lantern-bud.svg'],images=new Map();
-const state={scene:'island',stage:16,topic:'cosmos',seed:103,paused:false,reduced:!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches};
+const FILES=['floating-island.svg','island-crown.svg','jelly-canopy.svg','lantern-bud.svg',
+ 'crown-spiral.svg','crown-willow.svg','crown-lantern.svg','crown-moon.svg','jelly-inner-membrane.svg'],images=new Map();
+const state={scene:'island',stage:16,topic:'cosmos',seed:103,paused:false,silhouette:false,reduced:!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches};
 let last=0,visible=true;
 function load(){
  const ImageCtor=window.Image;
@@ -37,7 +38,11 @@ function sceneModel(scene=state.scene,stage=state.stage,seed=state.seed,topic=st
    {id:'upper',x:467+(r()-.5)*42,y:200+(r()-.5)*29,w:176,lean:(r()-.5)*.11}
   ];
   const count=stage<=3?1:stage<=8?2:4;
+  const species=['spiral','weeping','lantern-fruit','crescent'];
+  units.forEach((u,i)=>{u.species=species[i];});
   return {scene,stage,seed,topic,phase,units:units.slice(0,count),
+   silhouette:{mainIslandScale:stage<=3?.70:stage<=8?.87:1,
+    crownScale:stage<=3?.64:stage<=8?.84:1,distinctSpecies:count},
    attachment:stage>=8?{cosmos:'moon-isle',warmth:'living-bridge',music:'chime-garden',travel:'winged-island'}[topic]:null,
    bones:[],unitCount:count+(stage>=8?1:0)};
  }
@@ -47,9 +52,12 @@ function sceneModel(scene=state.scene,stage=state.stage,seed=state.seed,topic=st
   const positions=[.50,.26,.74,.12,.88,.39,.61,.04,.96,.19,.81,.32,.68,.45,.55,.08,.92,.36,.64];
   const t=positions[i];
   return {id:'arm-'+i,baseX:210+t*376,baseY:398-Math.sin(t*Math.PI)*29,side:(t-.5)*2,
-   length:180+q()*105,bend:(q()-.5)*57,phase:q()*TAU,thickness:2.7+q()*3.8};
+   length:180+q()*105,bend:(q()-.5)*57,phase:q()*TAU,
+   delay:Math.floor(q()*1600),thickness:2.7+q()*3.8};
  });
- return {scene,stage,seed,topic,phase,arms,attachment:topic==='music'?'chime-buds':topic==='travel'?'wing-fins':topic==='warmth'?'heart-calyx':'star-nectar',unitCount:arms.length,bones:arms};
+ return {scene,stage,seed,topic,phase,arms,
+  silhouette:{domeWidth:stage<=3?367:stage<=8?465:555,twistStrands:stage<=3?3:stage<=8?4:6,
+   secondaryCanopy:stage>=16?1:0},attachment:topic==='music'?'chime-buds':topic==='travel'?'wing-fins':topic==='warmth'?'heart-calyx':'star-nectar',unitCount:arms.length,bones:arms};
 }
 function backdrop(c,scene,seed){
  const g=c.createLinearGradient(0,0,0,H);
@@ -107,31 +115,9 @@ function charm(c,x,y,topic,scale=1){
  c.restore();
 }
 function floatUnit(c,u,index,model,time,staticMode){
- const r=rng(model.seed^Math.imul(index+1,21919));const yDrift=staticMode?0:Math.sin(time*.00062+model.phase+index*1.46)*7;
- const xDrift=staticMode?0:Math.sin(time*.00029+index)*4;
- const x=u.x+xDrift,y=u.y+yDrift,w=u.w,plateH=w*.62,sy=y-w*.29;
- c.save();c.translate(x,y);c.rotate(u.lean+(staticMode?0:Math.sin(time*.00034+index)*.009));c.translate(-x,-y);
- // Floating shadow and negative space beneath the island.
- const shadow=c.createRadialGradient(x,y+w*.32,0,x,y+w*.32,w*.46);
- shadow.addColorStop(0,'#50696935');shadow.addColorStop(1,'#50696900');
- c.fillStyle=shadow;c.beginPath();c.ellipse(x,y+w*.32,w*.46,w*.14,0,0,TAU);c.fill();
- art(c,'floating-island.svg',x-w*.5,sy,w,plateH);
- // The trunk is part of a real painted plate, aligned to the island top.
- art(c,'island-crown.svg',x-w*.36,sy-w*.50,w*.72,w*.70);
- if(model.stage>=8&&index===0){
-  c.save();c.translate(0,w*.11);c.fillStyle='#e3bd97';c.strokeStyle='#776763';c.lineWidth=2.2;
-  c.beginPath();c.moveTo(x+w*.13,sy+w*.09);c.lineTo(x+w*.13,sy-w*.09);
-  c.lineTo(x+w*.18,sy-w*.16);c.lineTo(x+w*.23,sy-w*.08);c.lineTo(x+w*.23,sy+w*.09);
-  c.closePath();c.fill();c.stroke();
-  c.fillStyle='#665763';c.beginPath();c.moveTo(x+w*.11,sy-w*.085);c.lineTo(x+w*.18,sy-w*.20);c.lineTo(x+w*.25,sy-w*.08);c.fill();
-  c.fillStyle='#f4eabb';c.fillRect(x+w*.175,sy-w*.025,w*.035,w*.045);c.restore();
- }
- if(model.stage>=16||index===0)for(let k=0;k<4;k++){
-  const a=r()*TAU,px=x+(r()-.5)*w*.79,py=sy+w*(.15+r()*.10);
-  leaf(c,px,py,3.5+r()*4,a,['#e7ce9b','#bad4a5','#e2b6a9'][k%3]);
- }
- c.restore();
+ window.CrewFantasyPaint.floatUnit(c,u,index,model,time,staticMode,art);
 }
+
 function floatScene(c,m,time,staticMode){
  const units=m.units;
  // Filaments connect actual land masses: topics can grow a bridge or a satellite.
@@ -168,68 +154,86 @@ function floatScene(c,m,time,staticMode){
   c.restore();
  }
 }
-function jellyTrunk(c,stage){
- const x=401,base=766;
- c.save();c.fillStyle='#607b76';c.strokeStyle='#5b7779';c.lineWidth=2;
- c.beginPath();c.moveTo(x-12,base);c.bezierCurveTo(353,684,408,570,393,445);
- c.bezierCurveTo(392,430,404,404,412,404);
- c.bezierCurveTo(438,572,391,707,x+12,base);c.closePath();c.fill();c.stroke();
- c.strokeStyle='#a2b8a6aa';c.lineWidth=3;c.beginPath();c.moveTo(402,733);c.quadraticCurveTo(385,615,405,492);c.stroke();
- c.strokeStyle='#638577';c.lineWidth=7;c.beginPath();c.moveTo(398,746);c.quadraticCurveTo(344,769,323,779);
- c.moveTo(400,746);c.quadraticCurveTo(458,770,487,774);c.stroke();c.restore();
-}
-function bonePath(c,arm,time,staticMode,topic){
- const sway=staticMode?0:Math.sin(time*.00115+arm.phase)*15;
- const x=arm.baseX,y=arm.baseY,len=arm.length;
- const b1x=x+arm.side*24+arm.bend*.35+sway*.4,b1y=y+len*.25;
- const b2x=x+arm.side*45+arm.bend+sway,b2y=y+len*.56;
- const ex=x+arm.side*28+arm.bend*.7+sway,ey=y+len;
- const grad=c.createLinearGradient(x,y,ex,ey);grad.addColorStop(0,'#548c8ccc');grad.addColorStop(.58,'#87b7aebd');grad.addColorStop(1,'#d2acb0c2');
- c.strokeStyle=grad;c.lineWidth=arm.thickness;c.lineCap='round';
- c.beginPath();c.moveTo(x,y);c.bezierCurveTo(b1x,b1y,b2x,b2y,ex,ey);c.stroke();
- c.strokeStyle='#f9e9c185';c.lineWidth=.8;c.beginPath();c.moveTo(x+2,y+2);c.bezierCurveTo(b1x+2,b1y,b2x+2,b2y,ex+2,ey);c.stroke();
+// Stable seeded bone identity; the display scale changes with maturity,
+ // not the recorded origin of earlier DNA bones.
+function bonePath(c,arm,time,staticMode,topic,stage){
+ const scale=stage<=3?.64:stage<=8?.82:1;
+ const delay=arm.delay||0;
+ const t=staticMode?0:Math.max(0,time-delay);
+ const sway=staticMode?0:Math.sin(t*.00124+arm.phase)*18;
+ const second=staticMode?0:Math.sin(t*.00185+arm.phase*.68)*10;
+ const x=400+(arm.baseX-400)*scale;
+ const y=stage<=3?428:stage<=8?411:383;
+ const len=arm.length*(stage<=3?.68:stage<=8?.84:1);
+ const side=arm.side;
+ const b1x=x+side*24+arm.bend*.35*scale+sway*.27,b1y=y+len*.23;
+ const b2x=x+side*45+arm.bend*scale+sway*.84,b2y=y+len*.60;
+ const ex=x+side*28+arm.bend*.7*scale+sway+second,ey=y+len;
+ const grad=c.createLinearGradient(x,y,ex,ey);
+ grad.addColorStop(0,'#538e92c9');grad.addColorStop(.61,'#8fc8c1d1');grad.addColorStop(1,'#dbc6bcb8');
+ c.strokeStyle=grad;c.lineWidth=arm.thickness*(stage<=3?.68:stage<=8?.85:1);
+ c.lineCap='round';c.beginPath();c.moveTo(x,y);
+ c.bezierCurveTo(b1x,b1y,b2x,b2y,ex,ey);c.stroke();
+ c.strokeStyle='#f9ebcf80';c.lineWidth=1.05;c.beginPath();
+ c.moveTo(x+1.8,y+1);c.bezierCurveTo(b1x+2,b1y,b2x+2,b2y,ex+1,ey);c.stroke();
+ if(stage>=16&&Math.abs(side)>.35){
+  c.strokeStyle='#78b0b3a0';c.lineWidth=1.5;c.beginPath();
+  c.moveTo(ex,ey-25);c.quadraticCurveTo(ex+side*18+second*.5,ey-15,ex+side*6,ey+5);c.stroke();
+ }
  return {x:ex,y:ey};
 }
+
 function jellyScene(c,m,time,staticMode){
- // Wide canopy / moving curtain / rooted trunk have distinct draw depths.
- const bob=staticMode?0:Math.sin(time*.00068+m.phase)*5;
+ const bob=staticMode?0:Math.sin(time*.00072+m.phase)*5;
  c.save();c.translate(0,bob);
- for(const arm of m.arms.filter((_,i)=>i%2===0)){
-  const end=bonePath(c,arm,time,staticMode,m.topic);
-  if(m.stage>=8&&arm.id.endsWith('0'))art(c,'lantern-bud.svg',end.x-20,end.y-16,40,54);
+ for(const [i,arm] of m.arms.entries()){
+  if(i%2!==0)continue;
+  const end=bonePath(c,arm,time,staticMode,m.topic,m.stage);
+  if(m.stage>=8&&i%6===0){
+   const size=m.stage>=16?34:26;
+   window.CrewFantasyPaint.lanternLight(c,art,end.x-size*.5,end.y-size*.18,size,i,time,staticMode,m.stage);
+  }
  }
- jellyTrunk(c,m.stage);
- // Rich original plate, not a procedural oval or a standard plant leaf crown.
- art(c,'jelly-canopy.svg',122,121,555,352);
+ window.CrewFantasyPaint.twistedTrunk(c,m.stage,m.seed,time,staticMode);
+ window.CrewFantasyPaint.canopy(c,art,m.stage,time,staticMode,m.seed);
  for(const [i,arm] of m.arms.entries()){
   if(i%2===0)continue;
-  const end=bonePath(c,arm,time,staticMode,m.topic);
-  if((i+m.seed)%4===0&&m.stage>=8){
-   const size=m.stage>=16?47:34;art(c,'lantern-bud.svg',end.x-size*.45,end.y-6,size,size*1.36);
+  const end=bonePath(c,arm,time,staticMode,m.topic,m.stage);
+  if(m.stage>=8&&(i+m.seed)%3===0){
+   const size=m.stage>=16?45:33;
+   window.CrewFantasyPaint.lanternLight(c,art,end.x-size*.5,end.y-size*.15,size,i,time,staticMode,m.stage);
   }
  }
  if(m.stage>=8){
-  const sprigs=m.stage>=16?6:3;
-  for(let i=0;i<sprigs;i++){
-   const x=310+i*31,y=498-(i%3)*19;
-   c.strokeStyle='#6e9690';c.lineWidth=2;c.beginPath();c.moveTo(401,562);
-   c.quadraticCurveTo(x+50,y-38,x,y);c.stroke();
-   leaf(c,x,y,10+(i%3)*3,i*.9,m.topic==='warmth'?'#eab9b1':'#afd3b9');
+  for(let i=0;i<(m.stage>=16?7:3);i++){
+   const xx=313+i*27,yy=517-(i%3)*13;
+   c.strokeStyle='#669a969a';c.lineWidth=2.5;c.beginPath();c.moveTo(401,570);
+   c.quadraticCurveTo(xx+42,yy-47,xx,yy);c.stroke();
+   leaf(c,xx,yy,11+(i%3)*2,i*.7,m.topic==='warmth'?'#e7b7b3':'#b9d9bc');
   }
  }
  if(m.stage>=16){
-  // Separate secondary nursery medusa grows from the main trunk.
-  c.globalAlpha=.80;art(c,'jelly-canopy.svg',469,391,147,94);c.globalAlpha=1;
-  for(let i=0;i<5;i++){c.strokeStyle='#8db1a8c0';c.lineWidth=1.5;c.beginPath();
-   const x=503+i*18;c.moveTo(x,459);c.quadraticCurveTo(x+Math.sin(time*.0006+i)*7,510,x-4,538+i%3*6);c.stroke();}
+  // A companion bud is its own miniature translucent medusa.
+  c.save();c.globalAlpha=.88;
+  art(c,'jelly-canopy.svg',480,406,152,102);
+  art(c,'jelly-inner-membrane.svg',489,420,130,81);c.restore();
+  for(let i=0;i<5;i++){
+   const bx=509+i*21;
+   c.strokeStyle='#76aeadbb';c.lineWidth=2;c.beginPath();c.moveTo(bx,475);
+   c.quadraticCurveTo(bx+Math.sin(time*.0007+i)*8,523,bx-4,555+(i%3)*4);c.stroke();
+  }
  }
  if(m.attachment){
-  const pos=m.topic==='cosmos'?[624,206]:m.topic==='music'?[203,430]:m.topic==='travel'?[625,457]:[193,352];
-  charm(c,pos[0],pos[1],m.topic,m.stage>=16?1.05:.75);
+  // These are botanical ornaments connected to the tree's growth system.
+  const pos=m.topic==='cosmos'?[610,211]:m.topic==='music'?[193,443]:m.topic==='travel'?[638,460]:[205,370];
+  c.strokeStyle='#739e9a';c.lineWidth=2;c.beginPath();c.moveTo(405,455);
+  c.quadraticCurveTo((pos[0]+405)*.5,pos[1]-25,pos[0],pos[1]+10);c.stroke();
+  charm(c,pos[0],pos[1],m.topic,m.stage>=16?1.0:.76);
  }
  c.restore();
 }
-function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true){
+
+function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=false){
  const bounds=canvas.getBoundingClientRect(),width=Math.max(180,bounds.width||400),height=Math.max(180,bounds.height||420);
  const px=Math.min(2,window.devicePixelRatio||1);
  const cw=Math.round(width*px),ch=Math.round(height*px);
@@ -239,23 +243,30 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true){
  const scale=Math.min(width/W,height/H),ox=(width-W*scale)/2,oy=(height-H*scale)/2;
  c.fillStyle=scene==='island'?'#e0e9dc':'#c7dcda';c.fillRect(0,0,width,height);
  c.translate(ox,oy);c.scale(scale,scale);
- backdrop(c,scene,seed);
+ if(silhouette){c.fillStyle='#faf5e7';c.fillRect(0,0,W,H);}
+ else{backdrop(c,scene,seed);window.CrewFantasyPaint.forest(c,seed,scene);}
  const model=sceneModel(scene,stage,seed,topic);
+ if(silhouette){c.save();c.filter='brightness(0)';}
  if(scene==='island')floatScene(c,model,time,staticMode);
  else jellyScene(c,model,time,staticMode);
+ if(silhouette){c.restore();}
+ else{
+  window.CrewFantasyPaint.life(c,model,time,staticMode);
+  window.CrewFantasyPaint.frame(c,scene,seed);
+ }
  return model;
 }
 function drawMain(now){
  const canvas=$('heroCanvas');if(!canvas)return;
- paint(canvas,state.scene,state.stage,state.seed,state.topic,now,state.paused||state.reduced);
+ paint(canvas,state.scene,state.stage,state.seed,state.topic,now,state.paused||state.reduced,state.silhouette);
 }
 function refreshStatic(){
  for(const c of document.querySelectorAll('[data-preview]'))
-  paint(c,state.scene,Number(c.dataset.preview),state.seed,state.topic,0,true);
+  paint(c,state.scene,Number(c.dataset.preview),state.seed,state.topic,0,true,state.silhouette);
 }
 function updateStatus(){
  const loaded=FILES.filter(ready).length;
- $('statusText').textContent=loaded===FILES.length?'4 / 4 原創素材已載入':'原創素材 '+loaded+' / 4（缺少時使用備用繪製）';
+ $('statusText').textContent=loaded===FILES.length?'9 / 9 原創素材已載入':'原創素材 '+loaded+' / 9（缺少時使用備用繪製）';
 }
 function changeUI(){
  $('artName').textContent=state.scene==='island'?'漂流群島':'水母燈籠樹';
@@ -268,6 +279,8 @@ function changeUI(){
   document.querySelectorAll('[data-'+field+']').forEach(el=>el.setAttribute('aria-pressed',String(String(state[key])===el.dataset[field])));
  $('freezeBtn').textContent=state.paused?'恢復動態':'暫停動態';
  $('freezeBtn').setAttribute('aria-pressed',String(state.paused));
+ $('silhouetteBtn').textContent=state.silhouette?'恢復水彩':'純黑剪影';
+ $('silhouetteBtn').setAttribute('aria-pressed',String(state.silhouette));
  refreshStatic();drawMain(0);
 }
 function wire(){
@@ -282,6 +295,7 @@ function wire(){
   state.seed=n;changeUI();
  });
  $('freezeBtn').addEventListener('click',()=>{state.paused=!state.paused;changeUI();});
+ $('silhouetteBtn').addEventListener('click',()=>{state.silhouette=!state.silhouette;changeUI();});
  window.addEventListener('resize',()=>{refreshStatic();drawMain(0);});
  const mq=window.matchMedia?.('(prefers-reduced-motion: reduce)');
  mq?.addEventListener?.('change',ev=>{state.reduced=ev.matches;if(!state.reduced)requestAnimationFrame(frame);drawMain(0);});
@@ -298,7 +312,8 @@ function frame(now){
 if(new URLSearchParams(location.search).get('qa')==='1'){
  window.__CREW_STUDIES_QA__={sceneModel,assetStatus:()=>({loaded:FILES.filter(ready),missing:FILES.filter(x=>!ready(x))}),
   state:()=>({...state}),paint:(scene,stage,seed,topic)=>paint($('heroCanvas'),scene,stage,seed,topic,0,true),
-  previews:()=>document.querySelectorAll('[data-preview]').length};
+  previews:()=>document.querySelectorAll('[data-preview]').length,
+  silhouette:()=>state.silhouette};
 }
 wire();updateStatus();changeUI();load();
 if(!state.reduced)requestAnimationFrame(frame);
