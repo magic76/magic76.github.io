@@ -94,7 +94,7 @@ function generate(tree){
    const p1={x:lerp(start.x,end.x,f==='weeping'?.2:.5)+side*(f==='weeping'?0:3),
     y:f==='weeping'?start.y+10:Math.min(start.y,end.y)-8};
    limbs.push({i:age*3+k,age,topic,start,p1,end,width:1.85,parentIndex:age*3,
-    generation:2,side,downward:f==='weeping'});
+    generation:2,attachmentT,side,downward:f==='weeping'});
   }
   for(let k=0;k<6;k++){
    const p=limbs[age*3+(k%3)].end,az=k*2.399963+rr()*.37;
