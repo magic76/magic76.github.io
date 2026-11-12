@@ -82,7 +82,7 @@ function generate(tree){
    parentIndex:-1,generation:1,side,downward:false};
   limbs.push(primary);
   for(let k=1;k<=2;k++){
-   const start={x:target.x+(k===2?side*6:0),y:target.y+(k===2?2:0)};
+   const start={x:target.x,y:target.y};
    let end={x:start.x+side*(12+rr()*22),y:start.y-(8+rr()*30)};
    if(f==='tall')end={x:start.x+side*(2+rr()*9),y:start.y-18-rr()*34};
    if(f==='weeping')end={x:start.x+side*(4+rr()*14),y:start.y+40+rr()*47+(variant?13:0)};
@@ -237,6 +237,21 @@ function feature(c,b,topic,family,palette,progress,seed){
  }
  c.restore();
 }
+const motifs={};
+function loadMotifs(){
+ const ImageCtor=root.Image||(typeof Image!=='undefined'?Image:null);
+ if(!ImageCtor)return;
+ for(const f of FAMILIES){
+  const img=new ImageCtor();motifs[f]=img;
+  img.onload=()=>{if(typeof root.dispatchEvent==='function'&&typeof root.Event==='function')
+    root.dispatchEvent(new root.Event('crew-tree-art-ready'));};
+  img.onerror=()=>{};img.src='/crew-tree-lab/art/v5-'+f+'-sprig.svg';
+ }
+}
+function assetStatus(){
+ const loaded=FAMILIES.filter(f=>motifs[f]?.complete&&motifs[f]?.naturalWidth>0);
+ return {version:5,loaded,missing:FAMILIES.filter(f=>!loaded.includes(f)),allLoaded:loaded.length===4};
+}
 function paint(c,tree,geo,ox,oy,scale,clock,opts={}){
  const f=geo.family,n=tree.growth.length,palette=PALETTES[f],variant=geo.crownVariant;
  const from=Number.isFinite(opts.revealFrom)?opts.revealFrom:geo.branches.length;
@@ -246,6 +261,16 @@ function paint(c,tree,geo,ox,oy,scale,clock,opts={}){
  const selected=geo.branches.filter(b=>b.generation===2&&b.i%3!==0);
  for(const b of selected){const p=b.i<from?1:progress;
   if(p>0)sprig(c,b,tree.seed,f,palette,variant,p,true);}
+ // Transparent authored botanical plates attach to first-generation limb tips.
+ // The fully procedural leaves below remain available for offline asset failures.
+ const img=motifs[f];
+ if(img?.complete&&img.naturalWidth>0)for(const b of geo.branches){
+  if(b.generation!==1)continue;
+  const p=b.i<from?1:progress;if(p<=0)continue;
+  const width=f==='tall'?49:f==='round'?79:f==='weeping'?68:63;
+  const ht=width*(f==='tall'?1.45:1.22);
+  c.save();c.globalAlpha=.50*p;c.drawImage(img,b.end.x-width*.52,b.end.y-ht*.68,width,ht);c.restore();
+ }
  paintWood(c,geo,tree.seed);
  for(const b of geo.branches){const p=b.i<from?1:progress;branch(c,b,p);}
  for(const b of selected){const p=b.i<from?1:progress;if(p>0)sprig(c,b,tree.seed,f,palette,variant,p);}
@@ -256,5 +281,6 @@ function paint(c,tree,geo,ox,oy,scale,clock,opts={}){
  }
  c.restore();
 }
-root.CrewTreeV5=Object.freeze({generate,paint,layout,families:FAMILIES.slice(),labels:LABELS,modelVersion:5});
+root.CrewTreeV5=Object.freeze({generate,paint,layout,families:FAMILIES.slice(),labels:LABELS,modelVersion:5,assetStatus});
+loadMotifs();
 })(window);
