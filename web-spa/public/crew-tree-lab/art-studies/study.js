@@ -269,6 +269,7 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
  if(silhouette){c.save();c.filter='brightness(0)';}
  const sceneLayer=(m,opacity=1,grow=null)=>{
   c.save();c.globalAlpha*=opacity;
+  if(reaction&&reaction.scene===scene)m.reactionProgress=reaction.progress;
   if(grow&&scene==='jelly')window.CrewFantasyV5.jellyGrowth(c,grow.from,stage,grow.progress);
   if(scene==='island')floatScene(c,m,time,staticMode);
   else jellyScene(c,m,time,staticMode);
@@ -344,6 +345,7 @@ function changeUI(){
 }
 function beginGrowth(next,pulse=false){
  const previous=state.stage;
+ state.reaction=null;
  state.stage=next;
  if(!state.reduced&&!state.paused&&!state.silhouette){
   state.growth={from:previous,to:next,pulse,started:window.performance?.now?.()||0,duration:1250};
