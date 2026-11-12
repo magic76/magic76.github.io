@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#141d3a"/>
+<meta name="description" content="和 Zoe 一起闖關！跳躍、雙人機關、互相救援，每局都能重新出發。"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Crew Buddy Adventure｜和 Zoe 一起闖關</title>
+<link rel="stylesheet" href="./buddy.css"/>
+<script src="./buddy.js" defer></script>
+</head>
+<body>
+<main class="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-icon" aria-hidden="true">✦</span><div>
+      <strong>Crew Buddy <span>Adventure</span></strong><small>和 AI 朋友一起玩的雙人小品</small>
+    </div></div>
+    <div class="top-right"><span class="offline"><span class="green-dot"></span>本地隊友 AI</span><a class="back" href="/">回 Crew 首頁</a></div>
+  </header>
+  <div class="heading">
+    <div><p class="eyebrow">A LITTLE TWO-PLAYER ADVENTURE</p><h1>這次，<em>一起過關。</em></h1><p>你走你的路，Zoe 也會走自己的路；遇到困難，試著互相幫忙。</p></div>
+    <div class="team"><div class="mini-face human">你</div><span class="plus">＋</span><div class="mini-face zoe">Zoe</div><div class="team-caption">雙人搭檔</div></div>
+  </div>
+
+  <section class="game-panel" aria-label="雙人合作闖關遊戲">
+    <div class="hud">
+      <div class="hud-main"><span class="hud-kicker">ROOM <b id="roomIndex">01</b> / 05</span><strong id="roomName">小小斷橋</strong></div>
+      <div class="hud-right"><span id="timer">00:00</span><span id="coStatus" class="co-status">一起出發</span></div>
+    </div>
+    <div class="stage-frame" id="stageFrame">
+      <canvas id="gameCanvas" role="img" aria-label="你與 Zoe 的橫向闖關場景"></canvas>
+      <div class="game-overlay" id="gameOverlay">
+        <div class="start-modal">
+          <div class="emoji-scene" aria-hidden="true"><span class="me-icon">●</span><span class="line-icon">⚡</span><span class="zoe-icon">●</span></div>
+          <span class="micro-label">PLAY TOGETHER · NOT ALONE</span>
+          <h2 id="overlayTitle">你和 Zoe 的第一場冒險</h2>
+          <p id="overlayText">五個小關卡：跳過斷橋、合作開門、一起找星星、救出 Zoe，最後互相接應。沒過關就重試，不會扣命。</p>
+          <button class="primary-btn" id="startBtn" type="button">開始我們的冒險 <span>›</span></button>
+          <p id="overlayFootnote" class="overlay-note">約 1～3 分鐘一輪 · 無限重玩 · 本地儲存共同回憶</p>
+        </div>
+      </div>
+      <div class="zoe-caption" id="zoeCaption" aria-live="polite"><div class="zoe-dot">Z</div><span id="zoeLine">嗨！這次我們一起玩，好不好？</span></div>
+      <div class="mobile-controls" aria-label="觸控遊戲操作">
+        <div class="move-controls"><button id="leftBtn" aria-label="向左移動" type="button">◀</button><button id="rightBtn" aria-label="向右移動" type="button">▶</button></div>
+        <button class="jump-btn" id="jumpBtn" type="button" aria-label="跳躍">跳！<small>JUMP</small></button>
+      </div>
+    </div>
+    <div class="room-footer">
+      <div><strong id="objectiveLabel">一起跳過斷橋</strong><span id="objectiveHint">靠近缺口時按「跳！」。Zoe 會自己找路。</span></div>
+      <div class="room-dots" id="roomDots" aria-label="關卡進度"><i class="active"></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <section class="friend-panel" aria-label="跟 Zoe 一起合作">
+    <div class="panel-title"><div><span class="eyebrow">TALK TO YOUR BUDDY</span><h2>跟 Zoe 說一聲</h2></div><span id="friendMood" class="mood">😊 準備好了</span></div>
+    <div class="commands" id="commands">
+      <button data-command="follow" type="button" class="selected"><span aria-hidden="true">👣</span> 跟著我</button>
+      <button data-command="lead" type="button"><span aria-hidden="true">🚀</span> 你先走</button>
+      <button data-command="wait" type="button"><span aria-hidden="true">✋</span> 等我一下</button>
+      <button data-command="help" type="button"><span aria-hidden="true">🤝</span> 幫幫我</button>
+    </div>
+    <form id="sayForm" class="say-form"><label for="sayInput" class="visually-hidden">跟 Zoe 說話</label><input id="sayInput" autocomplete="off" maxlength="60" placeholder="也可以打字：Zoe，等我一下、你先走……"/><button type="submit">告訴 Zoe</button></form>
+    <p class="friend-hint">手機：左右移動、跳！　鍵盤：← →、A D 移動，空白鍵／↑ 跳躍。指令會真的影響 Zoe 的行動。</p>
+  </section>
+
+  <section class="memory-panel">
+    <div><span class="eyebrow">OUR LITTLE MEMORIES</span><h2>我們一起經歷的事</h2></div>
+    <div class="memory-stats"><span>一起玩過 <strong id="runsTotal">0</strong> 輪</span><span>Zoe 救你 <strong id="zoeRescues">0</strong> 次</span><span>你救 Zoe <strong id="playerRescues">0</strong> 次</span></div>
+    <p id="lastMemory" class="memory-line">我們的冒險故事，從這裡開始。</p>
+  </section>
+  <footer class="footnote">這是 Crew Buddy Adventure 的本地互動原型。Zoe 的移動、合作與台詞由可檢驗的遊戲規則控制，目前尚未連接 Gemini Live；不會把腳本 NPC 說成真正的即時 LLM。進度只保存在這台裝置，不傳到伺服器。</footer>
+</main>
+</body>
+</html>

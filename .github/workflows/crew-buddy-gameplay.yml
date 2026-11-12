@@ -1,0 +1,31 @@
+name: Crew Buddy gameplay
+
+on:
+  pull_request:
+    paths:
+      - 'web-spa/public/crew-buddy-lab/**'
+      - 'tests/crew-buddy-lab.test.js'
+      - '.github/workflows/crew-buddy-gameplay.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'web-spa/public/crew-buddy-lab/**'
+      - 'tests/crew-buddy-lab.test.js'
+      - '.github/workflows/crew-buddy-gameplay.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prototype:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out game source
+        uses: actions/checkout@v4
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Crew Buddy adventure
+        run: node --test tests/crew-buddy-lab.test.js
