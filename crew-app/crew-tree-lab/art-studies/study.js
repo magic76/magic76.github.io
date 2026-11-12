@@ -10,7 +10,7 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 function rng(seed){let a=seed>>>0;return ()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
 const FILES=['floating-island.svg','island-crown.svg','jelly-canopy.svg','lantern-bud.svg',
  'crown-spiral.svg','crown-willow.svg','crown-lantern.svg','crown-moon.svg','jelly-inner-membrane.svg','spiral-leaf-tiers.svg'],images=new Map();
-const state={scene:'island',stage:16,topic:'cosmos',seed:103,paused:false,silhouette:false,reduced:!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches};
+const state={scene:'island',stage:16,topic:'cosmos',seed:103,turns:16,growth:null,reaction:null,paused:false,silhouette:false,reduced:!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches};
 let last=0,visible=true;
 function load(){
  const ImageCtor=window.Image;
@@ -125,7 +125,18 @@ function floatScene(c,m,time,staticMode){
  if(units.length>=2)vineBridge(c,units[1],units[0],m.topic);
  if(units.length>=3)vineBridge(c,units[0],units[2],m.topic);
  if(units.length>=4)vineBridge(c,units[3],units[2],m.topic);
- for(let i=units.length-1;i>=0;i--)floatUnit(c,units[i],i,m,time,staticMode);
+ for(let i=units.length-1;i>=0;i--){
+  c.save();
+  if(m.growthProgress!==undefined){
+   const previousCount=m.fromStage<=3?1:m.fromStage<=8?2:4;
+   if(i>=previousCount)window.CrewFantasyV5.emergence(c,units[i],i-previousCount+1,m.growthProgress);
+   else if(i===0&&m.fromStage<=3){
+    const t=window.CrewFantasyV5.ease(m.growthProgress),u=units[i];
+    c.translate(u.x,u.y+70*(1-t));c.scale(.7+.3*t,.7+.3*t);c.translate(-u.x,-u.y);
+   }
+  }
+  floatUnit(c,units[i],i,m,time,staticMode);c.restore();
+ }
  if(m.attachment){
   // Cosmic conversations sprout a real satellite island, not an unattached icon.
   if(m.topic==='cosmos'){
@@ -187,49 +198,49 @@ function bonePath(c,arm,time,staticMode,topic,stage){
 function jellyScene(c,m,time,staticMode){
  const bob=staticMode?0:Math.sin(time*.00072+m.phase)*5;
  c.save();c.translate(0,bob);
- // Newborns have a separate construction: no adult dome or trunk can appear.
- if(m.stage<=3){window.CrewFantasyV4.jellyHatchling(c,m,time,staticMode,art);c.restore();return;}
+ if(m.stage<=3){
+  window.CrewFantasyV4.jellyHatchling(c,m,time,staticMode,art);
+  c.restore();return;
+ }
+ // Every tentacle and living trunk branch belongs BEHIND the bell tissue.
+ // Draw all bones first, rather than half on top of the translucent cap.
+ const endpoints=[];
  for(const [i,arm] of m.arms.entries()){
-  if(i%2!==0)continue;
-  const end=bonePath(c,arm,time,staticMode,m.topic,m.stage);
-  if(m.stage>=8&&i%6===0){
-   const size=m.stage>=16?34:26;
-   window.CrewFantasyPaint.lanternLight(c,art,end.x-size*.5,end.y-size*.18,size,i,time,staticMode,m.stage);
-  }
+  endpoints.push(bonePath(c,arm,time,staticMode,m.topic,m.stage));
  }
  window.CrewFantasyPaint.twistedTrunk(c,m.stage,m.seed,time,staticMode);
+ // Fewer, grounded lanterns; delayed light follows actual tendril endpoints.
+ endpoints.forEach((end,i)=>{
+  if(i%4!==0)return;
+  const size=m.stage>=16?34:24;
+  window.CrewFantasyPaint.lanternLight(c,art,end.x-size*.5,end.y-size*.12,size,i,time,staticMode,m.stage);
+ });
+ for(let i=0;i<(m.stage>=16?5:3);i++){
+  const xx=325+i*35,yy=532-(i%3)*13;
+  c.strokeStyle='#669a969a';c.lineWidth=2.5;c.beginPath();c.moveTo(401,568);
+  c.quadraticCurveTo(xx+42,yy-43,xx,yy);c.stroke();
+  leaf(c,xx,yy,11+(i%3)*2,i*.7,m.topic==='warmth'?'#e7b7b3':'#b9d9bc');
+ }
+ const capSpec=m.stage>=16?{w:555,h:352,y:121}:{w:365,h:248,y:278};
+ c.save();
+ if(m.reactionProgress!==undefined)
+  window.CrewFantasyV5.capBounce(c,m.reactionProgress,m.stage);
+ window.CrewFantasyV5.capOcclusion(c,capSpec);
  const cap=window.CrewFantasyPaint.canopy(c,art,m.stage,time,staticMode,m.seed);
  if(m.stage>=16)window.CrewFantasyV4.fishHero(c,cap,time,staticMode,m.seed);
  else window.CrewFantasyV3.fishResident(c,cap,time,staticMode,m.seed,m.stage);
- for(const [i,arm] of m.arms.entries()){
-  if(i%2===0)continue;
-  const end=bonePath(c,arm,time,staticMode,m.topic,m.stage);
-  if(m.stage>=8&&(i+m.seed)%3===0){
-   const size=m.stage>=16?45:33;
-   window.CrewFantasyPaint.lanternLight(c,art,end.x-size*.5,end.y-size*.15,size,i,time,staticMode,m.stage);
-  }
- }
- if(m.stage>=8){
-  for(let i=0;i<(m.stage>=16?7:3);i++){
-   const xx=313+i*27,yy=517-(i%3)*13;
-   c.strokeStyle='#669a969a';c.lineWidth=2.5;c.beginPath();c.moveTo(401,570);
-   c.quadraticCurveTo(xx+42,yy-47,xx,yy);c.stroke();
-   leaf(c,xx,yy,11+(i%3)*2,i*.7,m.topic==='warmth'?'#e7b7b3':'#b9d9bc');
-  }
- }
+ c.restore();
  if(m.stage>=16){
-  // A companion bud is its own miniature translucent medusa.
-  c.save();c.globalAlpha=.88;
-  art(c,'jelly-canopy.svg',480,406,152,102);
-  art(c,'jelly-inner-membrane.svg',489,420,130,81);c.restore();
-  for(let i=0;i<5;i++){
-   const bx=509+i*21;
-   c.strokeStyle='#76aeadbb';c.lineWidth=2;c.beginPath();c.moveTo(bx,475);
-   c.quadraticCurveTo(bx+Math.sin(time*.0007+i)*8,523,bx-4,555+(i%3)*4);c.stroke();
+  c.save();c.globalAlpha=.78;
+  art(c,'jelly-canopy.svg',480,406,133,89);
+  art(c,'jelly-inner-membrane.svg',489,420,114,75);c.restore();
+  for(let i=0;i<4;i++){
+   const bx=510+i*24;
+   c.strokeStyle='#76aeadbb';c.lineWidth=2;c.beginPath();c.moveTo(bx,472);
+   c.quadraticCurveTo(bx+Math.sin(time*.0007+i)*8,508,bx-4,539+(i%3)*4);c.stroke();
   }
  }
  if(m.attachment){
-  // These are botanical ornaments connected to the tree's growth system.
   const pos=m.topic==='cosmos'?[610,211]:m.topic==='music'?[193,443]:m.topic==='travel'?[638,460]:[205,370];
   c.strokeStyle='#739e9a';c.lineWidth=2;c.beginPath();c.moveTo(405,455);
   c.quadraticCurveTo((pos[0]+405)*.5,pos[1]-25,pos[0],pos[1]+10);c.stroke();
@@ -238,7 +249,7 @@ function jellyScene(c,m,time,staticMode){
  c.restore();
 }
 
-function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=false){
+function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=false,transition=null,reaction=null){
  const bounds=canvas.getBoundingClientRect(),width=Math.max(180,bounds.width||400),height=Math.max(180,bounds.height||420);
  const px=Math.min(2,window.devicePixelRatio||1);
  const cw=Math.round(width*px),ch=Math.round(height*px);
@@ -256,20 +267,55 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
   if(topic==='travel')window.CrewFantasyV4.travelSky(c,seed,stage,time,staticMode);
  }
  if(silhouette){c.save();c.filter='brightness(0)';}
- if(scene==='island')floatScene(c,model,time,staticMode);
- else jellyScene(c,model,time,staticMode);
+ const sceneLayer=(m,opacity=1,grow=null)=>{
+  c.save();c.globalAlpha*=opacity;
+  if(reaction&&reaction.scene===scene)m.reactionProgress=reaction.progress;
+  if(grow&&scene==='jelly')window.CrewFantasyV5.jellyGrowth(c,grow.from,stage,grow.progress);
+  if(scene==='island')floatScene(c,m,time,staticMode);
+  else jellyScene(c,m,time,staticMode);
+  c.restore();
+ };
+ const p=transition?window.CrewFantasyV5.ease(transition.progress):1;
+ if(transition&&transition.from!==stage&&transition.progress<1){
+  const previous=sceneModel(scene,transition.from,seed,topic);
+  sceneLayer(previous,1-p);
+  model.growthProgress=transition.progress;model.fromStage=transition.from;
+  sceneLayer(model,p,transition);
+ }else if(transition&&transition.pulse&&transition.progress<1){
+  c.save();const zoom=1+.025*Math.sin(Math.PI*transition.progress);
+  c.translate(400,570);c.scale(zoom,zoom);c.translate(-400,-570);
+  sceneLayer(model);c.restore();
+ }else sceneLayer(model);
  if(silhouette){c.restore();}
  else{
+  c.save();c.globalAlpha*=transition?Math.max(.18,p):1;
   window.CrewFantasyV3.topicAccessories(c,model,time,staticMode);
   if(topic==='travel'&&scene==='island')window.CrewFantasyV4.travelStamp(c,model);
   window.CrewFantasyPaint.life(c,model,time,staticMode);
+  c.restore();
+  if(transition&&transition.progress<1)
+   window.CrewFantasyV5.particles(c,seed,scene,transition.progress,'growth');
+  if(reaction&&reaction.scene===scene&&reaction.progress<1)
+   window.CrewFantasyV5.reactionOverlay(c,scene,reaction.progress,seed,model);
   window.CrewFantasyPaint.frame(c,scene,seed);
  }
  return model;
 }
 function drawMain(now){
  const canvas=$('heroCanvas');if(!canvas)return;
- paint(canvas,state.scene,state.stage,state.seed,state.topic,now,state.paused||state.reduced,state.silhouette);
+ const tick=now||window.performance?.now?.()||0;
+ let growth=null,react=null;
+ if(state.growth){
+  const p=clamp((tick-state.growth.started)/state.growth.duration,0,1);
+  if(p>=1)state.growth=null;
+  else growth={...state.growth,progress:p};
+ }
+ if(state.reaction){
+  const p=clamp((tick-state.reaction.started)/state.reaction.duration,0,1);
+  if(p>=1)state.reaction=null;
+  else react={...state.reaction,progress:p};
+ }
+ paint(canvas,state.scene,state.stage,state.seed,state.topic,tick,state.paused||state.reduced,state.silhouette,growth,react);
 }
 function refreshStatic(){
  for(const c of document.querySelectorAll('[data-preview]'))
@@ -285,7 +331,8 @@ function changeUI(){
  $('artDetail').textContent=state.stage===3?'剩下的世界還在等你 · 再聊幾句，看看它會長成什麼樣子。':
   state.scene==='island'?'新聊天會長出獨立浮島、藤橋與植物。':'根莖不動，傘冠與新觸鬚沿骨架生長。';
  $('futureHint').hidden=state.stage!==3;
- $('stageText').textContent=state.stage+' 句 · '+(state.stage===16?'成熟':state.stage===8?'成長':'萌芽');
+ $('stageText').textContent=state.turns+' 句 · '+(state.stage===16?'成熟':state.stage===8?'成長':'萌芽');
+ $('simulateChatBtn').textContent='模擬新增一句聊天（目前 '+state.turns+' 句）';
  $('unitCount').textContent=String(sceneModel().unitCount).padStart(2,'0');
  $('renderTech').textContent='Canvas 2D';
  for(const [field,key] of [['scene','scene'],['stage','stage'],['topic','topic']])
@@ -296,19 +343,51 @@ function changeUI(){
  $('silhouetteBtn').setAttribute('aria-pressed',String(state.silhouette));
  refreshStatic();drawMain(0);
 }
+function beginGrowth(next,pulse=false){
+ const previous=state.stage;
+ state.reaction=null;
+ state.stage=next;
+ if(!state.reduced&&!state.paused&&!state.silhouette){
+  state.growth={from:previous,to:next,pulse,started:window.performance?.now?.()||0,duration:1250};
+ }else state.growth=null;
+ changeUI();
+}
+function triggerReaction(scene){
+ if(scene!==state.scene)return;
+ state.reaction={scene,started:window.performance?.now?.()||0,duration:920};
+ $('reactionStatus').textContent=scene==='island'?'樹洞居民向你揮手！':'水母彈了一下，掉出小光球！';
+ drawMain(window.performance?.now?.()||0);
+}
 function wire(){
  for(const field of ['scene','stage','topic'])
   document.querySelectorAll('[data-'+field+']').forEach(el=>el.addEventListener('click',()=>{
-   state[field]=field==='stage'?Number(el.dataset[field]):el.dataset[field];changeUI();
+   if(field==='stage'){state.turns=Number(el.dataset.stage);beginGrowth(state.turns);return;}
+   state[field]=el.dataset[field];state.growth=null;state.reaction=null;changeUI();
   }));
+ $('simulateChatBtn').addEventListener('click',()=>{
+  state.turns=Math.min(99,state.turns+1);
+  const next=state.turns<8?3:state.turns<16?8:16;
+  beginGrowth(next,true);
+ });
+ const hero=$('heroCanvas');
+ hero.addEventListener('pointerdown',ev=>{
+  const b=hero.getBoundingClientRect(),scale=Math.min(b.width/W,b.height/H);
+  const ox=(b.width-W*scale)/2,oy=(b.height-H*scale)/2;
+  const x=(ev.clientX-b.left-ox)/scale,y=(ev.clientY-b.top-oy)/scale;
+  if(window.CrewFantasyV5.hitTest(state.scene,state.stage,x,y,sceneModel()))
+   triggerReaction(state.scene);
+ });
+ hero.addEventListener('keydown',ev=>{
+  if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();triggerReaction(state.scene);}
+ });
  $('seedBtn').addEventListener('click',()=>{
   const n=Number($('seedInput').value);if(!Number.isSafeInteger(n)||n<1||n>999999){
    $('statusText').textContent='Seed 必須是 1～999999 的整數';return;
   }
-  state.seed=n;changeUI();
+  state.seed=n;state.growth=null;state.reaction=null;changeUI();
  });
- $('freezeBtn').addEventListener('click',()=>{state.paused=!state.paused;changeUI();});
- $('silhouetteBtn').addEventListener('click',()=>{state.silhouette=!state.silhouette;changeUI();});
+ $('freezeBtn').addEventListener('click',()=>{state.paused=!state.paused;state.growth=null;changeUI();});
+ $('silhouetteBtn').addEventListener('click',()=>{state.silhouette=!state.silhouette;state.growth=null;changeUI();});
  window.addEventListener('resize',()=>{refreshStatic();drawMain(0);});
  const mq=window.matchMedia?.('(prefers-reduced-motion: reduce)');
  mq?.addEventListener?.('change',ev=>{state.reduced=ev.matches;if(!state.reduced)requestAnimationFrame(frame);drawMain(0);});
@@ -327,6 +406,11 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
   state:()=>({...state}),paint:(scene,stage,seed,topic)=>paint($('heroCanvas'),scene,stage,seed,topic,0,true),
   previews:()=>document.querySelectorAll('[data-preview]').length,
   paintAt:(scene,stage,seed,topic,time)=>paint($('heroCanvas'),scene,stage,seed,topic,time,false,false),
+  growthFrame:(scene,from,to,progress,topic='cosmos')=>paint($('heroCanvas'),scene,to,state.seed,topic,1000,true,false,
+   {from,to,progress:clamp(progress,0,1),pulse:from===to}),
+  touchFrame:(scene,progress,topic='cosmos')=>paint($('heroCanvas'),scene,16,state.seed,topic,1000,true,false,null,
+   {scene,progress:clamp(progress,0,1)}),
+  hitTest:(scene,stage,x,y)=>window.CrewFantasyV5.hitTest(scene,stage,x,y,sceneModel(scene,stage)),
   silhouette:()=>state.silhouette};
 }
 wire();updateStatus();changeUI();load();
