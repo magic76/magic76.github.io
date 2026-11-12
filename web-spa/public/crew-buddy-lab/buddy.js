@@ -387,6 +387,7 @@ function rescue(e){
 }
 function aiTarget(){
  if(Z.trapped)return Z.x;
+ if(P.down)return P.x+(Z.x<P.x?-24:24);
  if(G.command==='wait')return G.commandAnchor;
  if(room.id==='switches'&&!G.roomFlags.gate){
   if(G.command==='follow')return P.x+48;
@@ -453,7 +454,7 @@ function updatePuzzle(){
    announce('橋固定好了！這次輪到我過去！',true);
   }
  }
- if(gateOpen()&&P.x>EXIT_X-46&&Z.x>EXIT_X-75&&Z.onGround&&P.onGround)finishRoom();
+ if(gateOpen()&&combatCleared()&&P.x>EXIT_X-46&&Z.x>EXIT_X-75&&Z.onGround&&P.onGround)finishRoom();
  if(P.x>EXIT_X-75&&Z.x<EXIT_X-160&&!G.softHint){
   G.softHint=true;announce('等等我！我們要一起到終點呀！',true);
  }
@@ -503,7 +504,7 @@ function gameStep(dt){
  const dir=(input.right?1:0)-(input.left?1:0);
  if(input.jump){tryJump(P);input.jump=false}
  movePerson(P,dir,dt);aiStep(dt);
- updatePuzzle();
+ combatStep(dt);updatePuzzle();
  if(G.roomTime>12&&!G.softHint&&room.id==='gap'&&Math.abs(P.x-365)<115){
   G.softHint=true;announce('你可以在斷橋前按「跳！」，我在對面等你！',true);
  }
@@ -594,7 +595,7 @@ function renderPlate(x,color,active,label){
  text(label,x,FLOOR-35,11,active?'#ffffff':'#dce9ff');
 }
 function renderGoal(){
- const open=gateOpen(),x=EXIT_GATE;
+ const open=gateOpen()&&combatCleared(),x=EXIT_GATE;
  ctx.save();ctx.globalAlpha=open?.92:1;
  rr(x-9,FLOOR-119,18,119,5,open?'#4f967d':'#646485',open?'#adffdc':'#d7b5ff');
  circle(x,FLOOR-105,9,open?'#aaffcf':'#f4aeca');
@@ -718,6 +719,7 @@ function frame(t){
 function keyState(key,on){
  if(key==='arrowleft'||key==='a')input.left=on;
  if(key==='arrowright'||key==='d')input.right=on;
+ if(key==='j'||key==='k'||key==='f')input.fire=on;
  if(on&&(key===' '||key==='arrowup'||key==='w'))input.jump=true;
 }
 function bindTouch(elId,action){
@@ -742,7 +744,7 @@ function parseCommand(str){
  return null;
 }
 function init(){
- readMemory();resetRoom();G.phase='ready';
+ loadCrewSprites();readMemory();resetRoom();G.phase='ready';
  $('startBtn').addEventListener('click',startRun);
  for(const b of document.querySelectorAll('[data-command]'))b.addEventListener('click',()=>setCommand(b.dataset.command));
  $('sayForm').addEventListener('submit',e=>{
@@ -751,15 +753,15 @@ function init(){
   else announce('我現在聽得懂「跟著我、你先走、等我、幫幫我」這幾種指令喔！',true);
   $('sayInput').value='';
  });
- bindTouch('leftBtn','left');bindTouch('rightBtn','right');bindTouch('jumpBtn','jump');
+ bindTouch('leftBtn','left');bindTouch('rightBtn','right');bindTouch('jumpBtn','jump');bindTouch('fireBtn','fire');
  window.addEventListener('keydown',e=>{
   const t=e.target;if(t&&['INPUT','TEXTAREA'].includes(t.tagName))return;
   const k=e.key.toLowerCase();
-  if(['arrowleft','arrowright','arrowup',' ','w','a','d'].includes(k))e.preventDefault();
+  if(['arrowleft','arrowright','arrowup',' ','w','a','d','j','k','f'].includes(k))e.preventDefault();
   keyState(k,true);
  });
  window.addEventListener('keyup',e=>keyState(e.key.toLowerCase(),false));
- window.addEventListener('blur',()=>{input.left=false;input.right=false;input.jump=false;});
+ window.addEventListener('blur',()=>{input.left=false;input.right=false;input.jump=false;input.fire=false;});
  window.addEventListener('resize',resize);
  if(window.ResizeObserver)new ResizeObserver(resize).observe($('stageFrame'));
  resize();last=performance.now();raf=requestAnimationFrame(frame);
@@ -774,7 +776,14 @@ if(params.get('qa')==='1'){
   step:gameStep,command:setCommand,jump:()=>tryJump(P),
   place:(who,x,y=FLOOR)=>{const obj=who==='zoe'?Z:P;obj.x=x;obj.y=y;obj.vy=0;obj.onGround=true},
   rescue:()=>rescue(P),finish:finishRun,updatePuzzle,aiStep,
-  controls:(left,right,jump)=>{input.left=!!left;input.right=!!right;if(jump)input.jump=true},
+  controls:(left,right,jump,fire)=>{input.left=!!left;input.right=!!right;if(jump)input.jump=true;input.fire=!!fire},
+  fire:()=>fireGun(P,true),combat:()=>({wave:combat.wave,triggered:combat.triggered,kills:combat.kills,
+   shotsFired:combat.shotsFired,zoeShots:combat.zoeShots,shots:combat.shots.map(x=>({...x})),
+   enemyShots:combat.enemyShots.map(x=>({...x})),enemies:combat.enemies.map(x=>({...x})),
+   covers:combat.cover.map(x=>({...x})),cleared:combatCleared()}),
+  spawnWave:spawnHostiles,hitEnemy:(i,damage=1)=>{const e=combat.enemies[i];if(e)hitEnemy(e,{x:e.x,y:e.y,damage})},
+  hurt:(who,damage=1)=>hitAvatar(who==='zoe'?Z:P,damage),
+  revive:(who)=>reviveAvatar(who==='zoe'?Z:P,who==='zoe'?P:Z),
   parseCommand,rooms:ROOM_DEFS.map(r=>r.id)
  }});
 }
