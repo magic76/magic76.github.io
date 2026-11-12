@@ -2,3 +2,6 @@
 @media(max-width:790px){.play-grid{grid-template-columns:1fr}.canvas-wrap{height:clamp(345px,53vw,490px)}.messages{height:260px;max-height:320px;flex:none}.gallery{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:510px){.page{padding:13px 9px 27px}.brand strong{font-size:14px}.brand small{font-size:10px}.brand-mark{width:36px;height:36px;font-size:22px}.tagline{font-size:10px;padding:7px}.intro{padding:23px 3px 18px;align-items:start}.intro h1{font-size:31px}.intro p:not(.overline){font-size:12px}.tag-pair{display:none}.play-grid{gap:12px}.tree-panel,.chat-panel{border-radius:19px}.tree-top{padding:14px 13px 10px}.tree-top h2{font-size:18px}.stage-pill{font-size:10px;padding:6px 7px}.canvas-wrap{height:clamp(340px,52dvh,440px);margin:0 8px}.tree-actions{gap:5px;padding:8px}.action-btn{font-size:11px}.trait-row{padding:12px 8px 6px}.trait-row span{font-size:10px}.messages{height:250px;min-height:210px}.collection{margin-top:13px;padding:15px 12px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.collection h2{font-size:18px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+
+/* Each saved tree shows its real generated morphology, not a generic category icon. */
+.tree-card .tree-thumb{width:54px;height:64px;flex-shrink:0;border-radius:9px;background:#7aada1}
