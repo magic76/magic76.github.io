@@ -60,6 +60,20 @@ async function preview(page,label){
   await wall.waitForFunction(()=>window.__TREE_ART_QA__?.status()?.allLoaded,{timeout:20000});
   assert.equal(await wall.locator('.specimen').count(),24,'8 seeds x 3 stages');
   await wall.screenshot({path:path.join(OUT,'24-tree-art-review.png'),fullPage:true});
+  const contact=await wall.evaluate(()=>{
+   const trees=[...document.querySelectorAll('.specimen canvas')];
+   const cellW=120,cellH=158;
+   const out=document.createElement('canvas');out.width=cellW*8;out.height=cellH*3;
+   const c=out.getContext('2d');c.fillStyle='#193e33';c.fillRect(0,0,out.width,out.height);
+   trees.forEach((tree,i)=>{
+    const col=i%8,row=Math.floor(i/8),x=col*cellW,y=row*cellH;
+    c.drawImage(tree,x+2,y+2,cellW-4,cellH-24);
+    c.font='bold 11px system-ui';c.fillStyle='#f2ffed';c.textAlign='center';
+    c.fillText([3,8,16][row]+' 句 · '+[103,241,548,871,1296,2039,3597,4407][col],x+cellW/2,y+cellH-7);
+   });
+   return out.toDataURL('image/jpeg',.69).split(',')[1];
+  });
+  console.log('V4_CONTACT_SHEET='+contact);
   await wall.getByRole('button',{name:'成熟 · 16 句'}).click();
   assert.equal(await wall.locator('.specimen').count(),8);
   await wall.screenshot({path:path.join(OUT,'8-mature-tree-art-review.png'),fullPage:true});
