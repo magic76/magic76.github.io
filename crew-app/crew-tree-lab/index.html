@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#102a29">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="和 Zoe 聊天，種出只有你們才有的奇怪樹。每個話題，都會讓樹長得不一樣。">
+<title>和 Zoe 種歪樹 · Crew Tree Lab</title>
+<link rel="stylesheet" href="./tree.css">
+<script src="./tree.js" defer></script>
+</head>
+<body>
+<main class="page">
+  <header class="top">
+    <a class="brand" href="/" aria-label="返回 Crew 首頁"><span class="brand-mark">✳</span><span><strong>Crew Tree Lab</strong><small>和 Zoe 種歪樹</small></span></a>
+    <span class="tagline">一個聊天，就會生長的小遊戲 <span class="live-dot"></span></span>
+  </header>
+  <section class="intro">
+    <div><p class="overline">A LITTLE GARDEN OF CONVERSATIONS</p><h1>今天要把樹<br><em>聊成什麼樣子？</em></h1><p>不必澆水，也不用解任務。跟 Zoe 聊什麼，枝葉就往那個方向亂長。</p></div>
+    <div class="tag-pair"><span>🌱 隨聊隨長</span><span>✦ 每棵不一樣</span></div>
+  </section>
+  <div class="play-grid">
+    <section class="tree-panel" aria-label="聊天種樹畫布">
+      <div class="tree-top"><div><span class="overline">OUR LITTLE TREE</span><h2 id="treeName">小小的歪樹苗</h2></div><span class="stage-pill" id="stageBadge">剛發芽 · 0 句</span></div>
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="treeCanvas" role="img" aria-label="會依據聊天內容長出不同枝幹、葉片和果實的樹"></canvas>
+        <span class="floating-note" id="growthToast" aria-live="polite"></span>
+        <span class="ground-label" id="treeSubtitle">你和 Zoe 的故事，才剛要開始。</span>
+      </div>
+      <div class="trait-row" id="traitRow"><span>🌿 待生長</span><span>🎨 隨聊天變化</span><span>✨ 可能突變</span></div>
+      <div class="tree-actions">
+        <button id="saveBtn" class="action-btn primary-action" type="button">✦ 收藏這棵樹</button>
+        <button id="shareBtn" class="action-btn" type="button">↗ 保存圖片</button>
+        <button id="newBtn" class="action-btn" type="button">↻ 新種一棵</button>
+      </div>
+      <div class="micro-help" id="growthHint">試著聊「咖啡、宇宙、旅行、貓咪」，看看會發生什麼。</div>
+    </section>
+    <section class="chat-panel" aria-label="和 Zoe 一起聊天">
+      <div class="chat-top"><div class="avatar">Z</div><div class="chat-head"><strong>Zoe</strong><span>陪你亂聊、陪樹亂長</span></div><span class="local-label">本地回應</span></div>
+      <div class="messages" id="messages" role="log" aria-live="polite" aria-label="你和 Zoe 的聊天紀錄"><div class="message zoe"><span class="sender">Zoe</span><p>來！我們種一棵不按牌理長的樹 🌱<br>你想先聊什麼？</p></div></div>
+      <div class="chat-bottom">
+        <div class="idea-title">不知道聊什麼？點一個試試</div>
+        <div class="idea-chips" id="ideaChips">
+          <button data-say="我今天喝了超多咖啡，想吃甜點！" type="button">☕ 咖啡甜點</button>
+          <button data-say="如果我們一起去宇宙旅行，會看到什麼？" type="button">🚀 宇宙冒險</button>
+          <button data-say="我今天心情很好，想笑一整天！" type="button">💗 開心聊天</button>
+          <button data-say="我想發明會唱歌的機器人和 AI！" type="button">🤖 AI 腦洞</button>
+        </div>
+        <form id="chatForm" class="composer"><label class="sr-only" for="chatInput">對 Zoe 說話</label><input id="chatInput" autocomplete="off" maxlength="240" placeholder="跟 Zoe 說點什麼…"><button type="submit" id="sendBtn" aria-label="傳送訊息">↑</button></form>
+        <p class="chat-notice">目前是<span>本地聊天互動原型</span>，不是 Gemini 即時對話。輸入不會傳到伺服器，收藏只保存生長特徵，不存聊天原文。</p>
+      </div>
+    </section>
+  </div>
+  <section class="collection" aria-label="我的歪樹收藏">
+    <div class="collection-head"><div><p class="overline">YOUR LITTLE FOREST</p><h2>我的歪樹森林 <span id="savedCount">0</span></h2></div><span>點一棵可以再看看它</span></div>
+    <div id="gallery" class="gallery"><p class="empty-forest">等你們一起養出第一棵樹，森林就從這裡開始。</p></div>
+  </section>
+  <footer>一棵樹，可能有幾百種枝葉組合。沒有標準答案，歪得有趣就好。 · Crew Tree Lab</footer>
+</main>
+</body>
+</html>
