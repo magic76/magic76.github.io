@@ -8,6 +8,8 @@ const v3=fs.readFileSync(path.join(ROOT,'v3-art.js'),'utf8');
 const v4=fs.readFileSync(path.join(ROOT,'v4-art.js'),'utf8');
 const v5=fs.readFileSync(path.join(ROOT,'v5-art.js'),'utf8');
 const v6=fs.readFileSync(path.join(ROOT,'v6-art.js'),'utf8');
+const v7=fs.readFileSync(path.join(ROOT,'v7-art.js'),'utf8');
+const stylesheet=fs.readFileSync(path.join(ROOT,'study.css'),'utf8');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 function boot(){
  const nodes=new Map(),gradient=()=>({addColorStop(){}}),draw={paths:0};
@@ -29,16 +31,18 @@ function boot(){
  const win={matchMedia:()=>({matches:true,addEventListener(){}}),Image:MockImage,addEventListener(){}};
  const scope={window:win,document:doc,location:{search:'?qa=1'},Math,URLSearchParams,Number,Map,
   requestAnimationFrame(){throw Error('Reduced-motion page should be still');}};
- vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(v5,scope,{timeout:10000});vm.runInContext(v6,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
+ vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(v5,scope,{timeout:10000});vm.runInContext(v6,scope,{timeout:10000});vm.runInContext(v7,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
  return {qa:win.__CREW_STUDIES_QA__,draw};
 }
 test('isolated art studies never touch current V5 storage or chat',()=>{
  assert.match(html,/data-scene="island"/);assert.match(html,/data-scene="jelly"/);
  assert.match(html,/data-stage="16"/);assert.match(html,/V5 收藏/);
- assert.match(html,/character-paint\.js\?v=6-20261113/);
- assert.match(html,/v3-art\.js\?v=6-20261113/);
- assert.match(html,/v4-art\.js\?v=6-20261113/);
- assert.match(html,/v5-art\.js\?v=6-20261113/);
+ assert.match(html,/character-paint\.js\?v=7-20261113/);
+ assert.match(html,/v3-art\.js\?v=7-20261113/);
+ assert.match(html,/v4-art\.js\?v=7-20261113/);
+ assert.match(html,/v5-art\.js\?v=7-20261113/);
+ assert.match(html,/v6-art\.js\?v=7-20261113/);
+ assert.match(html,/v7-art\.js\?v=7-20261113/);
  assert.match(html,/simulateChatBtn/);
  assert.match(html,/tabindex="0"/);
  assert.match(html,/silhouetteBtn/);
@@ -240,5 +244,32 @@ test('V6 medusa has botanical rim, connected coral roots, four true bell palette
    assert.equal(qa.growthFrame(scene,stage===3?3:stage===8?3:8,stage,.5).stage,stage);
    assert.equal(qa.touchFrame(scene,.45).stage,16);
   }
+ }
+});
+
+test('V7 mobile art viewport exactly matches the 800×820 source world',()=>{
+ assert.match(stylesheet,/\.frame canvas\s*\{aspect-ratio:800\s*\/\s*820\}/);
+ assert.match(stylesheet,/@media\(max-width:540px\)/);
+ assert.match(stylesheet,/\.introduction \.intro-copy\s*\{display:-webkit-box/);
+ assert.match(stylesheet,/\.scenes small\s*\{display:none\}/);
+ assert.match(stylesheet,/\.art-head\s*\{padding:7px 10px/);
+ assert.doesNotMatch(stylesheet,/\.frame canvas\{aspect-ratio:4\/4\.6\}\s*\}/);
+});
+test('V7 thick coral trunk, paper grain and hero characters render for all stages',()=>{
+ assert.match(source,/CrewFantasyV7\.livingTrunk/);
+ assert.match(source,/CrewFantasyV7\.picturebookFinish/);
+ assert.match(v7,/function livingTrunk\(/);
+ assert.match(v7,/function grainTile\(/);
+ assert.match(v7,/function picturebookFinish\(/);
+ assert.match(v7,/createImageData\(256,256\)/);
+ assert.match(v7,/putImageData/);
+ assert.match(v7,/c\.clip\(\)/);
+ assert.match(painter,/c\.scale\(1\.38,1\.38\)/);
+ assert.match(v3,/width=stage>=16\?29:21/);
+ const {qa}=boot();
+ for(const seed of [103,241])for(const scene of ['island','jelly']){
+  assert.equal(qa.paint(scene,16,seed,'travel').stage,16);
+  assert.equal(qa.growthFrame(scene,8,16,.5,'music').stage,16);
+  assert.equal(qa.touchFrame(scene,.4).stage,16);
  }
 });
