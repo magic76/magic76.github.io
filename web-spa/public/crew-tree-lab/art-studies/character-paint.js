@@ -155,8 +155,8 @@ function forest(c,seed,scene){
   c.fillStyle=['#9cbab364','#8aa39b47','#607d7560'][depth];c.fill();
  }
  for(let i=0;i<11;i++){
-  const x=55+(i*77+seed%41)%735,y=64+(i*59)%310,rx=45+r()*74;
-  c.globalAlpha=.10+r()*.10;c.fillStyle='#fff7e4';
+  const x=55+(i*77+seed%41)%735,y=39+(i*43)%140,rx=26+r()*51;
+  c.globalAlpha=.035+r()*.065;c.fillStyle='#fff7e4';
   c.beginPath();c.ellipse(x,y,rx,10+r()*16,-.12,0,TAU);c.fill();
  }
  c.globalAlpha=1;c.restore();
@@ -228,15 +228,15 @@ function life(c,m,time,still){
  c.restore();
 }
 function twistedTrunk(c,stage,seed,time,still){
- const thick=stage<=3?13:stage<=8?20:28, strands=stage<=3?3:stage<=8?4:6;
+ const thick=stage<=3?20:stage<=8?34:52, strands=stage<=3?3:stage<=8?4:6;
  c.save();
  // The spiralling stalk has an actual wide body; not several straight lines.
  const center=401,base=764,top=stage<=3?435:stage<=8?412:386;
  const r=rand(seed^0xc681);
  c.beginPath();c.moveTo(center-thick,base);
- c.bezierCurveTo(center-thick*2,693,center+thick*.5,575,center-thick*.66,top);
+ c.bezierCurveTo(center-thick*1.2,688,center+thick*1.5,569,center-thick*.72,top);
  c.quadraticCurveTo(center,top-19,center+thick*.70,top);
- c.bezierCurveTo(center+thick*1.8,555,center-thick*.8,684,center+thick,base);
+ c.bezierCurveTo(center+thick*1.4,552,center-thick*1.6,681,center+thick*1.18,base);
  c.closePath();
  let bark=c.createLinearGradient(center-thick*2,top,center+thick*2,base);
  bark.addColorStop(0,'#477a80');bark.addColorStop(.27,'#416e78');
@@ -246,10 +246,38 @@ function twistedTrunk(c,stage,seed,time,still){
   const x=center+(i-(strands-1)/2)*thick*.55,amp=thick*(.60+i%2*.42);
   c.beginPath();c.moveTo(x,base-2);
   c.bezierCurveTo(x+amp,680-i*3,x-amp,544+i*2,x+Math.sin(i*1.8)*thick*.45,top+8);
-  c.strokeStyle=i%2?'#d7b4a0a1':'#284f668f';c.lineWidth=Math.max(2.2,thick*.24);c.lineCap='round';c.stroke();
+  c.strokeStyle=i%2?'#d7b4a0a1':'#284f668f';c.lineWidth=Math.max(2.8,thick*.22);c.lineCap='round';c.stroke();
   c.beginPath();c.moveTo(x-2,base-12);
   c.bezierCurveTo(x+amp+5,673-i*3,x-amp+3,550+i*2,x+Math.sin(i*1.8)*thick*.45,top+8);
   c.strokeStyle=i%2?'#e1ecc3a2':'#a8dfd9b0';c.lineWidth=1.6+stage/12;c.stroke();
+ }
+ // Braided living tendrils spiral OUTSIDE the main trunk and visibly
+ // return to it. They must not read as parallel lines on a narrow pole.
+ const sideCount=stage<=3?1:stage<=8?3:5;
+ for(let i=0;i<sideCount;i++){
+  const side=i%2?1:-1,baseY=base-36-(i%3)*12;
+  const tipY=top+55+(i%4)*54;
+  const sway=still?0:Math.sin(time*.00058+i*.91+seed*.002)*5;
+  const outX=center+side*(thick*(1.40+i%3*.24))+sway;
+  c.strokeStyle=i%2?'#4e817f':'#5b6c77';
+  c.lineWidth=Math.max(5,thick*(.25-(i%3)*.023));
+  c.lineCap='round';
+  c.beginPath();c.moveTo(center+side*thick*.44,baseY);
+  c.bezierCurveTo(outX,baseY-79,outX+side*16,tipY+90,
+   center+side*(thick*.58),tipY);c.stroke();
+  c.strokeStyle=i%2?'#daead5a3':'#c9afba9e';c.lineWidth=1.7;
+  c.beginPath();c.moveTo(center+side*thick*.44,baseY-5);
+  c.bezierCurveTo(outX-side*3,baseY-74,outX+side*11,tipY+84,
+   center+side*(thick*.59),tipY);c.stroke();
+ }
+ if(stage>=8){
+  const coreY=stage>=16?568:615;
+  earthGlow(c,center,coreY,stage>=16?42:25,'#c3efe0a0');
+  for(const d of [-1,1]){
+   const gx=center+d*thick*.26;
+   earthGlow(c,gx,coreY-8,10,'#f8eac69c');
+   c.fillStyle='#e1ebcd';c.beginPath();c.ellipse(gx,coreY-8,4,9,d*.35,0,TAU);c.fill();
+  }
  }
  // Inset glowing branching runes twist over the bark.
  for(let i=0;i<(stage<=3?5:stage<=8?10:16);i++){
