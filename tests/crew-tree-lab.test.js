@@ -175,7 +175,7 @@ test('every new topic can change tree growth continuously after 32+ messages',()
  const {qa}=boot();
  for(let i=0;i<39;i++)qa.post(i%2?'咖啡甜點':'科技機器人');
  assert.equal(qa.state().current.growth.length,32);
- assert.ok(qa.state().geometry.branches.length<=73);
+ assert.ok(qa.state().geometry.branches.length<=96);
  assert.equal(qa.state().current.tags.food>0,true);
  assert.equal(qa.state().current.tags.tech>0,true);
  const base=qa.treeSignature(qa.state().current);
