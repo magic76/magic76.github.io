@@ -46,8 +46,10 @@ test("11 localized quote catalogs contain all 30 nonblank short thoughts; UI lab
    assert.ok(quotes[id].length<=125,lang+" "+id+" should be short");
    assert.doesNotMatch(quotes[id],/\{\{|\}\}/,lang+" "+id);
   }
-  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["chat","fortune","title"]);
-  for(const key of ["title","fortune","chat"])assert.ok(home.dailyQuote[key]?.trim(),lang+" "+key);
+  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["chat","chooseChart","fortune","fortuneFull","kind","markSelf","me","personalTitle","title"]);
+  assert.deepEqual(Object.keys(home.dailyQuote.kind).sort(),["bazi","tarot","vedic"]);
+  for(const text of Object.values(home.dailyQuote.kind))assert.ok(typeof text==="string"&&text.trim());
+  for(const key of ["title","fortune","chat","fortuneFull","personalTitle","chooseChart","me","markSelf"])assert.ok(home.dailyQuote[key]?.trim(),lang+" "+key);
   assert.ok(friends.dailyQuoteStarter?.trim(),lang);
   assert.deepEqual(friends.dailyQuoteStarter.match(/\{\{[^}]+\}\}/g),["{{quote}}"]);
   assert.equal(home.dailyTopics,undefined,"old homepage titles must be removed");
@@ -65,14 +67,19 @@ test("SSG placeholder, local midnight + visibility refresh; one card and both tr
  assert.match(cards,/visibilitychange/);
  assert.match(cards,/daily-quote-placeholder/);
  assert.match(cards,/pickDailyQuote\(now\)/);
- assert.match(cards,/to="\/fortune"/);
- assert.match(cards,/chat=text&quote=/);
+ assert.match(cards,/fortuneHref=isPersonal\?"\/fortune\?daily=1&chart="/);
+ assert.match(cards,/kind="\+personal!/);
+ assert.match(cards,/:"\/fortune"/);
+ assert.match(cards,/chat=text&quote=daily&chart=/);
+ assert.match(cards,/chat=text&quote="\+quote!/);
  assert.match(cards,/trackUsageEvent\("home_entry_click","fortune"\)/);
  assert.match(cards,/trackUsageEvent\("home_entry_click","friend"\)/);
  assert.equal((cards.match(/className="daily-quote-card"/g)||[]).length,1);
  assert.match(loader,/import\.meta\.glob\("\.\.\/i18n\/locales\/\*\/dailyQuote\.json"/);
  assert.match(loader,/getDailyQuote\(id\)/);
- assert.doesNotMatch(cards,/fetch\(|localStorage|window\.location/);
+ assert.doesNotMatch(cards,/fetch\(|window\.location/);
+ assert.match(cards,/import\("\.\/personalDailyLine"\)/);
+ assert.match(cards,/crew_fortune_profile_v2/);
  const mobile=read(root+"MobileHomePage.tsx"),desktop=read(root+"HomePage.tsx");
  assert.ok(mobile.indexOf('<DailyTopicCards variant="mobile"/>')>mobile.indexOf('className="cmh-allowance-slot"'));
  assert.ok(mobile.indexOf('<DailyTopicCards variant="mobile"/>')<mobile.indexOf('<section className="cmh-apps"'));
@@ -87,14 +94,18 @@ test("quote starter is allowlisted, same-language, opt-in and Shorts retains pri
  assert.match(friend,/!shortsPost&&friend\.id==="zoe"/);
  assert.match(friend,/loadQuoteText\(locale\.language,selectedQuote\.id\)/);
  assert.match(friend,/t\("dailyQuoteStarter",\{quote:quoteText\.text\}\)/);
- assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
- assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyQuoteStarter\)\}/);
+ assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|personalQuoteStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/showStarterWithHistory=\{Boolean\(personalQuoteStarter\|\|dailyQuoteStarter\)\}/);
  assert.match(chat,/historyReady&&messages\.length>0&&showStarterWithHistory&&firstStarter/);
  assert.match(chat,/firstOnly\/>/);
  assert.match(starters,/!firstOnly&&\(\["cafe","intro","smalltalk"\]/);
  assert.match(chat,/onPick=\{sentence=>void sendMessage\(sentence\)\}/);
  assert.match(chat,/sessionScope\.startsWith\("friend:"\)/);
  assert.match(friend,/getDailyTopic\(params\.get\("topic"\)\)/);
+ assert.match(friend,/params\.get\("quote"\)==="daily"/);
+ assert.match(friend,/\^\[a-f0-9\]\{64\}\$/);
+ assert.match(friend,/import\("\.\.\/pages\/personalDailyLine"\)/);
+ assert.match(friend,/personalQuoteStarter/);
  assert.doesNotMatch(friend,/setDraft\(dailyQuoteStarter\)|sendMessage\(dailyQuoteStarter\)/);
 });
 
@@ -107,4 +118,105 @@ test("frosted responsive styling, 44px taps, focus and reduced motion",()=>{
  const resumeCss=read("web-spa/src/live/quoteTextStarter.css");
  assert.match(resumeCss,/\.friend-text-stage \.crew-quote-resume-starters\{order:2/);
  assert.match(resumeCss,/min-height:44px/);
+});
+
+function loadPureTs(file,names,dependencies={}){
+ const src=stripTypeScriptTypes(read(file),{mode:"strip"})
+  .replace(/^import[^\n]*;\s*$/gm,"").replace(/^export\s+/gm,"");
+ return Function(...Object.keys(dependencies),src+"\nreturn {"+names.join(",")+"};")(...Object.values(dependencies));
+}
+
+test("saved profile selection deduplicates all three sources, self/default/override and rejects unknown hashes",()=>{
+ const {dailyProfileHash}=loadPureTs("web-spa/src/fortune/dailyCard.ts",["dailyProfileHash"]);
+ const helper=loadPureTs("web-spa/src/fortune/dailyProfileSelection.ts",
+  ["readDailyProfiles","chooseDailyProfile","readDailyPreference","saveDailyProfileChoice","dailyProfileLabel","HOME_DAILY_CHART_KEY"],{dailyProfileHash});
+ const memory=new Map();
+ const before=global.localStorage;
+ global.localStorage={getItem:key=>memory.get(key)||null,setItem:(key,value)=>memory.set(key,String(value))};
+ try{
+  const a={birthDate:"1985-07-06",birthTime:"04:10",gender:"1"};
+  const b={birthDate:"1995-01-20",birthTime:"08:40",gender:"2"};
+  const c={birthDate:"1999-02-12",birthTime:"",gender:"1"};
+  const ah=dailyProfileHash(a),bh=dailyProfileHash(b),ch=dailyProfileHash(c);
+  memory.set("crew_fortune_profile_v2",JSON.stringify(a));
+  memory.set("crew_fortune_presets_v1",JSON.stringify([
+   {mode:"vedic",profile:b,updatedAt:"2026-11-12T18:00:00Z"},
+   {mode:"bazi",profile:a,updatedAt:"2026-11-12T17:00:00Z"}]));
+  memory.set("crew_fortune_readings_v2",JSON.stringify([{mode:"tarot",profile:c},{mode:"vedic",profile:b}]));
+  let charts=helper.readDailyProfiles();
+  assert.deepEqual(charts.map(x=>x.hash),[ah,bh,ch]);
+  assert.equal(charts[0].mode,"bazi","mode is recovered from duplicate presets for primary");
+  assert.equal(helper.chooseDailyProfile(charts).hash,ah,"recent active profile wins initially");
+  assert.equal(helper.chooseDailyProfile(charts,"bogus"),undefined);
+  assert.equal(helper.chooseDailyProfile(charts,"a".repeat(64)),undefined);
+  assert.equal(helper.chooseDailyProfile(charts,bh).hash,bh,"exact local hash is allowed");
+  helper.saveDailyProfileChoice(bh,true);
+  assert.equal(helper.readDailyPreference().selfHash,bh);
+  assert.equal(helper.chooseDailyProfile(charts).hash,bh,"self wins the default");
+  helper.saveDailyProfileChoice(ah);
+  assert.equal(helper.chooseDailyProfile(charts).hash,ah,"explicit choice persists even with a self mark");
+  assert.equal(helper.readDailyPreference().selectedHash,ah);
+  assert.ok(helper.dailyProfileLabel(charts[1],"ja","インド占星術").includes("インド占星術"));
+  memory.set("crew_fortune_profile_v2","{broken json");
+  charts=helper.readDailyProfiles();
+  assert.deepEqual(charts.map(x=>x.hash),[bh,ah,ch],"other sources remain usable if primary is corrupt");
+  memory.clear();
+  memory.set("crew_fortune_readings_v2",JSON.stringify([{profile:c}]));
+  assert.equal(helper.chooseDailyProfile(helper.readDailyProfiles()).hash,ch,"history alone is enough");
+  memory.set("crew_fortune_profile_v2",JSON.stringify({birthDate:"2026-02-31"}));
+  assert.equal(helper.readDailyProfiles().length,1,"invalid dates are ignored");
+ }finally{global.localStorage=before;}
+});
+
+test("personalized line uses the same fortuneDaily translations, algorithm and optional almanac for all 11 locales",async()=>{
+ const daily=loadPureTs("web-spa/src/fortune/dailyCard.ts",["dailyProfileHash","buildDailyCard","localDateKey"]);
+ const profile={birthDate:"1985-07-06",birthTime:"04:10",gender:"1"};
+ const hash=daily.dailyProfileHash(profile);
+ const data={hash,profile,mode:"bazi"};
+ const i18n={t:(key,options)=>{
+  const bundle=JSON.parse(read(`web-spa/src/i18n/locales/${options.lng}/fortuneDaily.json`));
+  const value=key.split(".").reduce((node,part)=>node?.[part],bundle);
+  if(typeof value!=="string")throw Error("Missing translation "+key+" "+options.lng);
+  return value.replace(/\{\{(\w+)\}\}/g,(_,name)=>String(options[name]??""));
+ }};
+ const builder=loadPureTs("web-spa/src/pages/personalDailyLine.ts",["personalDailyLine"],{
+  i18n,loadUiNamespace:async()=>{},buildDailyCard:daily.buildDailyCard,localDateKey:daily.localDateKey,
+  readDailyKind:()=>"numerology",readDailyProfiles:()=>[data],chooseDailyProfile:(charts,wanted)=>charts.find(chart=>chart.hash===wanted)
+ });
+ for(const language of langs){
+  const first=await builder.personalDailyLine(language,"2026-11-12",hash);
+  const again=await builder.personalDailyLine(language,"2026-11-12",hash);
+  assert.equal(first.text,again.text,language);
+  assert.equal(first.kind,"numerology");
+  assert.ok(first.text.length>=6&&first.text.length<175,language);
+  const tomorrow=await builder.personalDailyLine(language,"2026-11-13",hash);
+  assert.notEqual(first.text,tomorrow.text,"daily copy changes " +language);
+ }
+ const optional=daily.buildDailyCard({kind:"numerology",profile,localDate:"2026-11-12",lang:"zh-TW",
+  almanac:"optional",translate:(key)=>key});
+ assert.ok(optional.theme,"home must not wait for the Solar global");
+ assert.equal(Object.hasOwn(optional,"almanac"),false);
+ assert.deepEqual(daily.buildDailyCard({kind:"numerology",profile,localDate:"2026-11-12",lang:"zh-TW",translate:key=>key}),
+  {status:"loading",reason:"lunar"},"Fortune's default almanac remains required");
+ const home=read(root+"DailyTopicCards.tsx"),fortune=read("web-spa/src/fortune/HomePage.tsx");
+ assert.match(home,/fortuneHref=isPersonal\?"\/fortune\?daily=1&chart="/);
+ assert.match(fortune,/dailyIntent=searchParams\.get\("daily"\)==="1"/);
+ assert.match(fortune,/<FortuneDailyCard chartHash=\{chartHash\}\/>/);
+ assert.doesNotMatch(home,/^import.*(dailyCard|FortuneDailyCard|fortuneDaily|dailyAi|ensureFortuneServices)/m);
+});
+
+test("personal chart selection remains compact and the exact /en and /ja desktop path uses route locale",()=>{
+ const css=read(root+"dailyTopicCards.css"),home=read(root+"DailyTopicCards.tsx");
+ assert.match(css,/\.daily-quote-heading\{display:flex/);
+ assert.match(css,/\.daily-quote-chart\{[^}]*min-height:44px/);
+ assert.match(css,/\.daily-quote--desktop \.daily-quote-chart/);
+ assert.match(css,/@media\(max-width:380px\)/);
+ assert.match(home,/useTranslation\("home"\)/);
+ assert.match(home,/const language=i18n\.language/);
+ assert.match(home,/to=\{fortuneHref\}/);
+ const routeI18n=read("web-spa/src/i18n/index.ts");
+ assert.match(routeI18n,/resolveInitialUiLocale/);
+ assert.match(routeI18n,/normalizeUiLocale/);
+ assert.match(routeI18n,/import enHome from/);
+ assert.doesNotMatch(home,/isAutomatedLocaleVisitor|preferredPublicLocaleDestination/);
 });

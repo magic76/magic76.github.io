@@ -8,19 +8,13 @@ import {buildDailyCard,dailyProfileHash,localDateKey,type DailyCard,type DailyKi
 import {readCachedDaily,readDailyKind,saveDailyKind,saveCachedDaily,readDailyCompletionStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
 import {generateDailyAi} from "./dailyAi";
 import {shareDailyCard} from "./shareCard";
-import {loadFortunePresets} from "./profileStore";
+import {readDailyProfiles,chooseDailyProfile} from "./dailyProfileSelection";
 import type {FortuneProfile} from "./types";
 import "./dailyCard.css";
 
-function getProfile():Partial<FortuneProfile>|null{
- try{
-  const primary=JSON.parse(localStorage.getItem("crew_fortune_profile_v2")||"null");
-  if(primary?.birthDate)return primary;
-  const saved=loadFortunePresets().find(p=>p.profile?.birthDate)?.profile;
-  if(saved)return saved;
-  const history=JSON.parse(localStorage.getItem("crew_fortune_readings_v2")||"[]");
-  return Array.isArray(history)?history.find(x=>x?.profile?.birthDate)?.profile||null:null;
- }catch{return null;}
+function getProfile(chartHash?:string):Partial<FortuneProfile>|null{
+ try{const charts=readDailyProfiles();return (chooseDailyProfile(charts,chartHash)||chooseDailyProfile(charts))?.profile||null;}
+ catch{return null;}
 }
 function useLocalDay(){
  const [date,setDate]=useState(()=>localDateKey());
@@ -33,14 +27,17 @@ function useLocalDay(){
  },[]);
  return date;
 }
-export function FortuneDailyCard(){
+export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  const {t,i18n}=useTranslation("fortuneDaily");
  const ready=useRouteNamespace("fortuneDaily");
  // Keep the SSG and first hydration pass identical, regardless of saved profile.
  const clientReady=useClientReady();
  const date=useLocalDay();
- const [profile,setProfile]=useState<Partial<FortuneProfile>|null>(()=>getProfile());
- const [selected,setSelected]=useState<DailyKind>(()=>readDailyKind());
+ const [profile,setProfile]=useState<Partial<FortuneProfile>|null>(()=>getProfile(chartHash));
+ const [selected,setSelected]=useState<DailyKind>(()=>{
+  if(typeof window!=="undefined"){const kind=new URLSearchParams(window.location.search).get("kind");if(kind==="numerology"||kind==="bazi")return kind;}
+  return readDailyKind();
+ });
  const [engineReady,setEngineReady]=useState(false);
  const [loadFailure,setLoadFailure]=useState(false);
  const [aiBusy,setAiBusy]=useState(false);
@@ -59,11 +56,11 @@ export function FortuneDailyCard(){
  const kind:DailyKind=selected==="bazi"&&profile?.birthTime?"bazi":"numerology";
  const locale=i18n.resolvedLanguage||i18n.language;
  useEffect(()=>{
-  const update=()=>{setProfile(getProfile());setRefresh(x=>x+1);};
+  const update=()=>{setProfile(getProfile(chartHash));setRefresh(x=>x+1);};
   window.addEventListener("focus",update);
   window.addEventListener("storage",update);
   return()=>{window.removeEventListener("focus",update);window.removeEventListener("storage",update);};
- },[]);
+ },[chartHash]);
  useEffect(()=>{
   if((kind!=="bazi"&&!/^zh/i.test(locale))||(kind==="bazi"&&!profile?.birthTime))return;
   let cancelled=false;

@@ -13,7 +13,7 @@ export type LunarDay={getDayInGanZhi():string;getDayYi?():string[];getDayJi?():s
 export type SolarEngine={fromYmd:(year:number,month:number,day:number)=>{getLunar:()=>LunarDay}};
 export type DailyInput={
  kind:DailyKind;profile:Partial<FortuneProfile>;bazi?:any;localDate:string;lang:string;
- lunar?:SolarEngine;translate?:(key:string,values?:Record<string,string|number>)=>string;
+ lunar?:SolarEngine;almanac?:"required"|"optional";translate?:(key:string,values?:Record<string,string|number>)=>string;
 };
 export const localDateKey=(now=new Date()):string=>
  [now.getFullYear(),String(now.getMonth()+1).padStart(2,"0"),String(now.getDate()).padStart(2,"0")].join("-");
@@ -212,12 +212,12 @@ export function buildDailyCard(input:DailyInput):DailyResult{
  }
  if(/^zh/i.test(lang)&&!almanac){
   const engine=input.lunar||(typeof window!=="undefined"?(window as typeof window&{Solar?:SolarEngine}).Solar:undefined);
-  if(!engine?.fromYmd)return {status:"loading",reason:"lunar"};
-  try{
+  if(!engine?.fromYmd){if(input.almanac!=="optional")return {status:"loading",reason:"lunar"};}
+  else try{
    const [y,m,d]=localDate.split("-").map(Number);
    const day=engine.fromYmd(y,m,d).getLunar();
    almanac=localAlmanac(day,lang);
-  }catch{return {status:"loading",reason:"lunar"};}
+  }catch{if(input.almanac!=="optional")return {status:"loading",reason:"lunar"};}
  }
  const chosen=ELEMENT_COLOR[colorElement]||ELEMENT_COLOR["木"];
  const luckyColor={element:translated(input,"elements."+colorElement),name:translated(input,"colors."+chosen.nameKey),hex:chosen.hex};

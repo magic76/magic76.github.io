@@ -575,5 +575,5 @@
     "withZoe": "和 Zoe 聊聊",
     "setup": "設定 Key"
   },
-  "dailyQuote": {"title": "今日小語", "fortune": "看今天運勢", "chat": "跟 Zoe 聊這句"}
+  "dailyQuote": {"title": "今日小語", "fortune": "算算我的今日運勢", "chat": "跟 Zoe 聊這句", "fortuneFull": "看完整運勢", "personalTitle": "今日運勢", "chooseChart": "選擇命盤", "me": "我自己", "markSelf": "這是我自己", "kind": {"bazi": "八字", "tarot": "生命靈數", "vedic": "印度星盤"}}
 }

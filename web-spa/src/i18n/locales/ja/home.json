@@ -575,5 +575,5 @@
     "withZoe": "Zoe と話す",
     "setup": "Key 設定"
   },
-  "dailyQuote": {"title": "今日のひとこと", "fortune": "今日の運勢を見る", "chat": "Zoeとこの言葉を話す"}
+  "dailyQuote": {"title": "今日のひとこと", "fortune": "今日の運勢を占う", "chat": "Zoeとこの言葉を話す", "fortuneFull": "詳しい運勢を見る", "personalTitle": "今日の運勢", "chooseChart": "命式を選ぶ", "me": "自分", "markSelf": "自分の命式にする", "kind": {"bazi": "四柱推命", "tarot": "数秘術", "vedic": "インド占星術"}}
 }
