@@ -4,6 +4,7 @@ const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const dir=path.join(__dirname,'../web-spa/public/crew-tree-lab');
 const script=fs.readFileSync(path.join(dir,'tree.js'),'utf8');
 const botany=fs.readFileSync(path.join(dir,'botany.js'),'utf8');
+const familyBotany=fs.readFileSync(path.join(dir,'family-art.js'),'utf8');
 const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
 const css=fs.readFileSync(path.join(dir,'tree.css'),'utf8');
 const artWall=fs.readFileSync(path.join(dir,'art-review.html'),'utf8');
@@ -47,7 +48,7 @@ function boot(options={}){
  const c={document,window,location:{search:'?qa=1'},URLSearchParams,localStorage:{
   getItem:key=>memory.get(key)||null,setItem:(key,v)=>memory.set(key,v)
  },setTimeout(){return 1},clearTimeout(){},Date,Math,console,Number,String,Array,Set,Map};
- vm.createContext(c);vm.runInContext(botany,c,{timeout:10000});vm.runInContext(script,c,{timeout:10000});
+ vm.createContext(c);vm.runInContext(botany,c,{timeout:10000});vm.runInContext(familyBotany,c,{timeout:10000});vm.runInContext(script,c,{timeout:10000});
  const qa=window.__TREE_QA__;
  assert.ok(qa,'QA interface is exposed only behind ?qa=1');
  return {qa,memory,get,paint,document};
@@ -71,12 +72,12 @@ test('curated magical tree starts from one quality silhouette but preserves 12 l
  assert.equal(qa.shapes.length,12);
  assert.equal(qa.leaves.length,8);
  assert.equal(qa.mutations.length,12);
- const shapes=new Set(),leaves=new Set(),palette=new Set();
+ const shapes=new Set(),leaves=new Set(),palette=new Set(),families=new Set(),variants=new Set();
  for(let seed=1;seed<=200;seed++){
   const g=qa.makeTree(seed).genome;
-  shapes.add(g.silhouette);leaves.add(g.leaf);palette.add(g.palette);
+  shapes.add(g.silhouette);leaves.add(g.leaf);palette.add(g.palette);families.add(g.treeFamily);variants.add(g.crownVariant);
  }
- assert.deepEqual([...shapes],[6],'new seeds must use one deliberately art-directed magic tree');
+ assert.deepEqual([...shapes],[6]);assert.equal(families.size,4);assert.equal(variants.size,2);
  assert.equal(leaves.size,8);
  assert.equal(palette.size,4,'new seeds remain within four harmonized color DNA presets');
  const legacy=qa.makeTree(999);legacy.genome.silhouette=11;legacy.genome.palette=11;
@@ -174,7 +175,7 @@ test('every new topic can change tree growth continuously after 32+ messages',()
  const {qa}=boot();
  for(let i=0;i<39;i++)qa.post(i%2?'咖啡甜點':'科技機器人');
  assert.equal(qa.state().current.growth.length,32);
- assert.ok(qa.state().geometry.branches.length<=73);
+ assert.ok(qa.state().geometry.branches.length<=96);
  assert.equal(qa.state().current.tags.food>0,true);
  assert.equal(qa.state().current.tags.tech>0,true);
  const base=qa.treeSignature(qa.state().current);
@@ -220,10 +221,10 @@ test('gallery renders real mini tree canvases and recreates the exact seed after
 });
 
 test('botanical renderer is loaded before chat and keeps an independent geometry contract',()=>{
- const a=html.indexOf('src="./botany.js?v=4-20261112"'),b=html.indexOf('src="./tree.js?v=4-20261112"');
+ const a=html.indexOf('src="./botany.js?v=4-20261112"'),b=html.indexOf('src="./tree.js?v=5-20261112"');
  assert.ok(a>=0&&b>a,'botany must be available before the tree controller');
  const {qa}=boot();
- assert.equal(qa.getRendererVersion(),4);
+ assert.equal(qa.getRendererVersion(),5);
  assert.match(botany,/attractor-guided/i);
  assert.match(botany,/function taperBranch\(/);
  assert.match(botany,/function targetAt\(/);
@@ -232,16 +233,19 @@ test('mature tree grows a genuinely connected hierarchical canopy, not branches 
  const {qa}=boot();
  for(let i=0;i<14;i++)qa.post(i%2?'宇宙星球':'咖啡蛋糕');
  const g=qa.state().geometry;
- assert.equal(g.modelVersion,4);
+ assert.equal(g.modelVersion,5);
  assert.ok(g.branches.length>=40);
- assert.ok(g.canopy.length>=150,'leaves form foliage clusters');
+ assert.ok(g.canopy.length>=70,'leaves form foliage clusters');
  const children=g.branches.filter(b=>b.parentIndex>=0);
  assert.ok(children.length>=8,'branches should attach to earlier branch tips');
  for(const child of children){
   const parent=g.branches[child.parentIndex];
   assert.ok(parent.i<child.i);
-  assert.equal(child.start.x,parent.end.x);
-  assert.equal(child.start.y,parent.end.y);
+  const u=1-child.attachmentT,q=child.attachmentT;
+  const px=u*u*parent.start.x+2*u*q*parent.p1.x+q*q*parent.end.x;
+  const py=u*u*parent.start.y+2*u*q*parent.p1.y+q*q*parent.end.y;
+  assert.ok(Math.abs(child.start.x-px)<1e-6);
+  assert.ok(Math.abs(child.start.y-py)<1e-6);
   assert.ok(child.width<parent.width,'woody parent tapers into thinner daughter branches');
  }
  const bounds=g.bounds;
@@ -262,22 +266,23 @@ test('sixteen conversations produce a stable printable tree after restore with n
  assert.doesNotThrow(()=>fresh.qa.draw());
  assert.equal(fresh.qa.exportImage(),true);
 });
-test('silhouette variants genuinely affect tree crown geometry and all fit in bounded 2D scenes',()=>{
- const {qa}=boot();
- const samples=[];
- for(let i=0;i<12;i++){
+test('each family has independent trunks, width and two distinct crowns',()=>{
+ const {qa}=boot();const widths={};const samples=new Set();
+ for(const f of qa.families)for(const variant of [0,1]){
   const tree=qa.makeTree(45001);
-  tree.genome.silhouette=i;
-  tree.growth=Array.from({length:15},(_,n)=>({topic:n%2?'food':'cosmos',mood:0,energy:.5}));
+  tree.genome.treeFamily=f;tree.genome.crownVariant=variant;
+  tree.growth=Array.from({length:16},(_,n)=>({topic:n%2?'food':'cosmos',mood:0,energy:.5}));
   const geo=qa.buildGeometry(tree);
-  assert.equal(geo.branches.length,45);
-  assert.ok(geo.bounds.minY<geo.bounds.maxY);
+  assert.equal(geo.branches.length,48);
   assert.ok(geo.bounds.maxX-geo.bounds.minX<1000);
   assert.ok(geo.branches.every(b=>Number.isFinite(b.end.x)&&Number.isFinite(b.end.y)));
-  samples.push([Math.round(geo.height),Math.round(geo.bounds.maxX-geo.bounds.minX),
-   geo.branches[15].end.x.toFixed(2)].join(':'));
+  samples.add(JSON.stringify(geo.branches.map(b=>[b.end.x.toFixed(1),b.end.y.toFixed(1)])));
+  if(variant===0)widths[f]=geo.bounds.maxX-geo.bounds.minX;
+  if(f==='twin')assert.equal(geo.metrics.primaryTrunks,2);
+  if(f==='weeping')assert.ok(geo.metrics.downwardBranches>=16);
  }
- assert.ok(new Set(samples).size>=10,'different silhouettes must result in different geometry');
+ assert.equal(samples.size,8,'the eight mature forms must differ');
+ assert.ok(widths.tall<widths.round*.75,'tall crown is substantially narrower');
 });
 
 test('V4 uses author-drawn botanical sprites instead of glossy bubbles or scattered emoji',()=>{
@@ -285,15 +290,15 @@ test('V4 uses author-drawn botanical sprites instead of glossy bubbles or scatte
  for(let i=0;i<10;i++)qa.post(i%2?'喝咖啡、吃蛋糕':'我想去宇宙旅行');
  assert.doesNotThrow(()=>qa.draw(),'fallback must still draw if SVG assets are offline');
  assert.ok(paint.paths>100,'the mature bark and branches remain real canvas paths');
- assert.match(html,/繪本魔法樹 V4/);
- assert.match(html,/botany\.js\?v=4-20261112/);
+ assert.match(html,/四大樹種 · Art V5/);
+ assert.match(html,/family-art\.js\?v=5-20261112/);
  assert.match(botany,/function drawPaintedWood\(/);
  assert.match(botany,/function drawSprig\(/);
  assert.match(botany,/drawImage\(/);
  assert.doesNotMatch(botany,/function canopyLobe\(/,'the plastic sphere painter must be deleted');
  assert.doesNotMatch(botany,/fillText\(trait\.icon|fillText\(icon,0,0/,'the painter must not paste emoji onto the tree');
- assert.equal(qa.artStatus().version,4);
- for(const name of artFiles){
+ assert.equal(qa.getRendererVersion(),5);
+ for(const name of [...artFiles,...qa.families.map(f=>'v5-'+f+'-sprig.svg')]){
   const svg=fs.readFileSync(path.join(dir,'art',name),'utf8');
   assert.match(svg,/<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/,name);
   assert.ok(svg.length>900,name+' should be an authored source asset, not a tiny emoji');
@@ -302,10 +307,10 @@ test('V4 uses author-drawn botanical sprites instead of glossy bubbles or scatte
 });
 test('review wall covers eight seeds x three stages without touching personal forest data',()=>{
  assert.match(artWall,/24 棵/);
- assert.match(artWall,/art-review\.js\?v=4-20261112/);
- assert.match(artWallScript,/const stages=\[3,8,16\]/);
- assert.match(artWallScript,/const seeds=\[103,241,548,871,1296,2039,3597,4407\]/);
- assert.match(artWallScript,/window\.CrewBotany\.paint\(/);
+ assert.match(artWall,/art-review\.js\?v=5-20261112/);
+ assert.match(artWallScript,/stages=\[3,8,16\]/);
+ assert.match(artWallScript,/seeds=\[103,241\]/);assert.match(artWall,/data-family="twin"/);assert.match(artWall,/matureCompare/);
+ assert.match(artWallScript,/window\.CrewTreeV5\.paint\(/);
  assert.doesNotMatch(artWallScript,/\blocalStorage\b|XMLHttpRequest|WebSocket|fetch\(/);
 });
 test('V4 preserves old saved-tree DNA and chat event format while switching art assets',()=>{
@@ -335,6 +340,25 @@ test('art layouts stay inside the gallery and mature stage with no numerical ove
   assert.ok(geo.bounds.maxY>geo.bounds.minY);
   assert.ok(geo.branches.every(b=>Number.isFinite(b.end.x)&&Number.isFinite(b.end.y)));
   assert.ok(geo.canopy.every(x=>Number.isFinite(x.x)&&Number.isFinite(x.y)));
-  assert.equal(geo.modelVersion,4);
+  assert.equal(geo.modelVersion,5);
  }
+});
+
+test('V4 collections migrate to V5 and keep stored growth events',()=>{
+ const legacy={seed:104,growth:[{topic:'cosmos',mood:.4,energy:.6}],
+  genome:{silhouette:4,leaf:1,palette:1,lean:.1,twist:0,fruit:2},mutations:[],tags:{cosmos:2}};
+ const {qa}=boot({storage:{'crew-tree-current-v1':JSON.stringify(legacy),'crew-tree-lab-v1':JSON.stringify([legacy])}});
+ assert.equal(qa.state().current.genome.treeFamily,'twin');
+ assert.equal(qa.state().current.growth[0].topic,'cosmos');
+ assert.equal(qa.state().forest.length,1);
+});
+test('adding conversation events never repositions earlier branch endpoints',()=>{
+ const {qa}=boot();
+ for(let i=0;i<8;i++)qa.post('宇宙星球月亮');
+ const previous=qa.state().geometry.branches.map(b=>[b.start.x,b.start.y,b.p1.x,b.p1.y,b.end.x,b.end.y]);
+ for(let i=0;i<8;i++)qa.post('今天唱歌聽音樂');
+ const next=qa.state().geometry.branches;
+ for(let i=0;i<previous.length;i++)assert.deepEqual(
+  [next[i].start.x,next[i].start.y,next[i].p1.x,next[i].p1.y,next[i].end.x,next[i].end.y],
+  previous[i]);
 });

@@ -81,10 +81,11 @@ function rng32(seed){let a=seed>>>0;return ()=>{a+=0x6D2B79F5;let t=a;t=Math.imu
 function randomSeed(){return ((Math.floor(Math.random()*4294967296) ^ Date.now())>>>0)||1;}
 function makeTree(seed=randomSeed()){
  const r=rng32(seed);
- // V4 deliberately starts with ONE art-directed magical tree species.
- // Old saved genomes retain all 12 legacy silhouettes; DNA shape stays compatible.
+ // Four structural species share one seeded, versioned DNA contract.
  const curatedPalettes=[0,1,7,9];
- return {seed,genome:{silhouette:6,leaf:Math.floor(r()*LEAVES.length),
+ const families=['round','tall','weeping','twin'];
+ return {seed,genome:{treeFamily:families[seed%4],crownVariant:(seed>>>3)&1,
+  silhouette:6,leaf:Math.floor(r()*LEAVES.length),
   palette:curatedPalettes[Math.floor(r()*curatedPalettes.length)],
   lean:(r()*2-1)*.40,twist:(r()*2-1)*.42,fruit:Math.floor(r()*12)},
   growth:[],tags:{},mutations:[],name:'小小的歪樹苗',createdAt:Date.now()};
@@ -96,7 +97,10 @@ function validateTree(value){
  !Number.isInteger(g.leaf)||g.leaf<0||g.leaf>=LEAVES.length||
  !Number.isInteger(g.palette)||g.palette<0||g.palette>=PALETTES.length)return null;
  const t=makeTree(value.seed);
- t.genome={...t.genome,silhouette:g.silhouette,leaf:g.leaf,palette:g.palette,
+ t.genome={...t.genome,treeFamily:['round','tall','weeping','twin'].includes(g.treeFamily)?g.treeFamily:
+  (g.silhouette===0?'tall':g.silhouette===3||g.silhouette===10?'weeping':g.silhouette===4?'twin':'round'),
+  crownVariant:g.crownVariant===0||g.crownVariant===1?g.crownVariant:(value.seed>>>3)&1,
+  silhouette:g.silhouette,leaf:g.leaf,palette:g.palette,
   lean:clamp(Number(g.lean)||0,-1,1),twist:clamp(Number(g.twist)||0,-1,1),fruit:Math.abs(Math.floor(g.fruit||0))%12};
  t.growth=value.growth.map(entry=>({topic:TOPICS[entry?.topic]?entry.topic:'daily',
   mood:clamp(Number(entry?.mood)||0,-1,1),energy:clamp(Number(entry?.energy)||.5,0,1)}));
@@ -147,7 +151,7 @@ function mutationFor(tag,turn,tree){
 function renameTree(tree){
  const total=tree.growth.length;
  if(total===0){tree.name='小小的歪樹苗';return tree.name}
- const tag=topTopic(tree),p=SILHOUETTES[tree.genome.silhouette];
+ const tag=topTopic(tree),p={name:window.CrewTreeV5.labels[tree.genome.treeFamily]||'圓冠魔法樹'};
  const nick={food:'咖啡過量',cosmos:'星球出走',tech:'半夜更新',travel:'到處旅行',love:'暖呼呼',weather:'下雨忘帶傘',
  nature:'森林迷路',dream:'月亮睡過頭',stress:'今天好辛苦',play:'胡鬧亂長',animals:'貓咪佔領',music:'邊唱邊跳',daily:'閒聊亂長'};
  tree.name=nick[tag]+(total>=4?'·':'')+(total>=4?p.name:'')+'樹';
@@ -166,10 +170,10 @@ function evolve(message){
  geom=buildGeometry(current);writeStorage();
  return {signal,mutation};
 }
-function buildGeometry(tree){return window.CrewBotany.generate(tree,SILHOUETTES,PALETTES);}
+function buildGeometry(tree){return window.CrewTreeV5.generate(tree);}
 function treeSignature(tree){
  const geo=buildGeometry(tree);
- return [tree.genome.silhouette,tree.genome.leaf,tree.genome.palette,
+ return [tree.genome.treeFamily,tree.genome.crownVariant,tree.genome.silhouette,tree.genome.leaf,tree.genome.palette,
   geo.height.toFixed(1),geo.branches.length,
   geo.branches.slice(0,5).map(b=>b.end.x.toFixed(1)+','+b.end.y.toFixed(1)+
   ','+b.p1.x.toFixed(1)+','+b.p1.y.toFixed(1)+','+b.topic).join(';'),
@@ -203,7 +207,7 @@ function updateTreeUI(){
  $('treeSubtitle').textContent=n===0?'你和 Zoe 的故事，才剛要開始。':
   '最近聊了'+TOPICS[topic].label+' · '+current.mutations.length+' 種奇怪突變';
  const traits=[
-  '🌳 '+SILHOUETTES[current.genome.silhouette].name,
+  '🌳 '+(window.CrewTreeV5.labels[current.genome.treeFamily]||'圓冠魔法樹'),
   '🍃 '+LEAVES[current.genome.leaf],
   TOPICS[topic].icon+' '+TOPICS[topic].label
  ];
@@ -226,10 +230,10 @@ function postMessage(raw){
  if(!text)return false;
  if(text.length>240)return false;
  const turn=current.growth.length+1;
- const previouslyVisible=Math.min(73,Math.max(2,current.growth.length*3));
+ const previouslyVisible=current.growth.length*3;
  appendMessage('me',text);
  const {signal,mutation}=evolve(text);
- growthMotion={from:Math.max(0,previouslyVisible-(current.growth.length>=25?3:0)),start:Date.now()};
+ growthMotion={from:previouslyVisible,start:Date.now()};
  const reply=sayZoe(signal,turn);
  appendMessage('zoe',reply);
  sessionMessages++;
@@ -282,7 +286,7 @@ function renderGallery(){
   if(thumbnail)scene(thumbnail,88,106,tree,buildGeometry(tree),0);
   const desc=document.createElement('span');
   const name=document.createElement('strong');name.textContent=tree.name;
-  const meta=document.createElement('small');meta.textContent=tree.growth.length+' 句 · '+SILHOUETTES[tree.genome.silhouette].name;
+  const meta=document.createElement('small');meta.textContent=tree.growth.length+' 句 · '+(window.CrewTreeV5.labels[tree.genome.treeFamily]||'圓冠魔法樹');
   desc.append(name,meta);b.append(icon,desc);
   b.addEventListener('click',()=>openSaved(tree.seed));gallery.appendChild(b);
  }
@@ -337,13 +341,13 @@ function drawTree(c,tree,geometry,ox,oy,factor,clock){
   revealFrom=growthMotion.from;
   if(progress>=1)growthMotion=null;
  }
- return window.CrewBotany.paint(c,tree,geometry,ox,oy,factor,clock,{
+ return window.CrewTreeV5.paint(c,tree,geometry,ox,oy,factor,clock,{
   revealFrom,progress,reducedMotion:reduceMotion,topics:TOPICS,mutations:MUTATIONS
  });
 }
 function scene(c,width,height,tree,geometry,clock,card=false){
  drawSky(c,width,height,tree,clock);
- const layout=window.CrewBotany.makeSceneLayout(geometry.bounds,width,height,card);
+ const layout=window.CrewTreeV5.layout(geometry.bounds,width,height,card);
  drawTree(c,tree,geometry,layout.ox,layout.oy,layout.factor,clock);
  if(card){
   c.fillStyle='#164236a8';c.fillRect(0,0,width,104);
@@ -407,7 +411,8 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
  Object.defineProperty(window,'__TREE_QA__',{value:{
   classify,makeTree,validateTree,buildGeometry,treeSignature,post:postMessage,save:saveTree,newTree:createNewTree,
   open:openSaved,exportImage,allTopics:Object.keys(TOPICS),mutations:MUTATIONS.map(m=>m.key),
-  getRendererVersion:()=>window.CrewBotany.modelVersion,
+  getRendererVersion:()=>window.CrewTreeV5.modelVersion,
+  families:window.CrewTreeV5.families.slice(),
   artStatus:()=>window.CrewBotany.artStatus(),
   shapes:SILHOUETTES.map(p=>p.name),leaves:LEAVES.slice(),
   state:()=>({current:JSON.parse(JSON.stringify(current)),forest:JSON.parse(JSON.stringify(forest)),

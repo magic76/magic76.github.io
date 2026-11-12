@@ -1,4 +1,4 @@
-name: Crew Tree V4 visual QA
+name: Crew Tree V5 visual QA
 
 on:
   pull_request:
@@ -37,7 +37,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: crew-tree-v4-browser-screenshots
+          name: crew-tree-v5-browser-screenshots
           path: /tmp/crew-tree-art-shots
           if-no-files-found: warn
           retention-days: 14
