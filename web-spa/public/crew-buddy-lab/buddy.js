@@ -572,6 +572,7 @@ if(params.get('qa')==='1'){
   step:gameStep,command:setCommand,jump:()=>tryJump(P),
   place:(who,x,y=FLOOR)=>{const obj=who==='zoe'?Z:P;obj.x=x;obj.y=y;obj.vy=0;obj.onGround=true},
   rescue:()=>rescue(P),finish:finishRun,updatePuzzle,aiStep,
+  controls:(left,right,jump)=>{input.left=!!left;input.right=!!right;if(jump)input.jump=true},
   parseCommand,rooms:ROOM_DEFS.map(r=>r.id)
  }});
 }
