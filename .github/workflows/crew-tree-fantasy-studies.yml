@@ -1,0 +1,51 @@
+name: Crew fantasy tree art studies
+on:
+  pull_request:
+    paths:
+      - 'web-spa/public/crew-tree-lab/art-studies/**'
+      - 'tests/crew-tree-fantasy.test.js'
+      - 'tests/crew-tree-fantasy.visual.cjs'
+      - '.github/workflows/crew-tree-fantasy-studies.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'web-spa/public/crew-tree-lab/art-studies/**'
+      - 'tests/crew-tree-fantasy.test.js'
+      - 'tests/crew-tree-fantasy.visual.cjs'
+      - '.github/workflows/crew-tree-fantasy-studies.yml'
+permissions:
+  contents: read
+jobs:
+  fantasy-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/crew-tree-fantasy.test.js
+  fantasy-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated Playwright
+        run: |
+          npm install --prefix /tmp/crew-fantasy-qa playwright@1.56.1 --no-audit --no-fund --silent
+          /tmp/crew-fantasy-qa/node_modules/.bin/playwright install --with-deps chromium
+      - name: Capture actual fantasy scenes
+        run: |
+          python3 -m http.server 8787 --directory web-spa/public > /tmp/crew-fantasy-server.log 2>&1 &
+          NODE_PATH=/tmp/crew-fantasy-qa/node_modules ART_OUTPUT=/tmp/crew-fantasy-screenshots node tests/crew-tree-fantasy.visual.cjs
+      - name: Store actual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crew-fantasy-art-studies-screenshots
+          path: /tmp/crew-fantasy-screenshots
+          if-no-files-found: warn
+          retention-days: 14

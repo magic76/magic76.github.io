@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="380" height="390" viewBox="0 0 380 390">
+<title>Crew original wind-curl tree and hand-painted leaves plate</title>
+<defs>
+ <linearGradient id="bark" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#675967"/><stop offset=".44" stop-color="#97746b"/><stop offset=".73" stop-color="#ad8d73"/><stop offset="1" stop-color="#645967"/></linearGradient>
+ <linearGradient id="fol" x1=".1" y1=".0" x2=".9" y2="1"><stop stop-color="#d7de9c"/><stop offset=".47" stop-color="#89ac91"/><stop offset="1" stop-color="#4e8283"/></linearGradient>
+ <filter id="soft"><feTurbulence baseFrequency=".055" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2"/></filter>
+</defs>
+<path d="M175 389Q171 335 185 278Q196 220 173 183Q151 151 119 153Q92 156 75 185Q78 135 111 127Q159 107 184 151Q201 181 214 218Q226 172 246 154Q267 141 287 142Q270 162 249 180Q231 210 227 247Q220 317 218 389Z" fill="url(#bark)" stroke="#73565f" stroke-width="4" stroke-linejoin="round"/>
+<path d="M207 334Q201 258 193 204Q186 165 169 156M212 290Q221 199 269 152" fill="none" stroke="#ddbd92" stroke-width="3" opacity=".5"/>
+<g filter="url(#soft)">
+ <path d="M22 153Q15 116 44 93Q39 57 82 52Q96 24 126 39Q157 13 179 49Q213 21 235 55Q272 35 283 74Q321 70 322 110Q358 125 331 156Q348 188 312 205Q287 232 250 208Q224 231 194 216Q165 235 142 209Q104 236 76 208Q33 215 22 178Z" fill="url(#fol)" opacity=".92" stroke="#59887f" stroke-width="3"/>
+ <path d="M35 131Q65 116 88 98Q103 51 142 69Q173 53 203 94Q241 63 276 112Q303 130 321 157" fill="none" stroke="#e9e6b2" stroke-width="12" opacity=".34"/>
+ <path d="M53 164Q80 183 112 164Q144 145 173 179Q207 197 246 164Q278 146 312 178" fill="none" stroke="#4f857e" stroke-width="13" opacity=".27"/>
+</g>
+<g fill="none" stroke="#e8deaa" stroke-width="2.6" opacity=".8"><path d="M88 132Q96 98 119 78M133 183Q150 145 160 125M237 182Q254 146 267 118M280 125Q276 100 256 91"/></g>
+<g fill="#f0d29c" opacity=".92"><ellipse cx="73" cy="159" rx="6" ry="9" transform="rotate(-27 73 159)"/><ellipse cx="135" cy="92" rx="5" ry="8"/><ellipse cx="238" cy="93" rx="5" ry="7"/><ellipse cx="290" cy="165" rx="8" ry="5"/><ellipse cx="178" cy="189" rx="5" ry="8"/></g>
+<g stroke="#436e69" stroke-width="2" fill="#e1e2b4" opacity=".88"><path d="M58 80Q49 64 60 53Q72 68 58 80Z"/><path d="M107 44Q99 27 116 22Q129 40 107 44Z"/><path d="M209 51Q196 31 213 26Q229 45 209 51Z"/><path d="M317 91Q334 74 344 96Q328 111 317 91Z"/><path d="M320 189Q348 191 335 207Q317 215 320 189Z"/></g>
+</svg>
