@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="160" viewBox="0 0 140 160">
+<defs><linearGradient id="fruit" x1="0" y1="0" x2="1" y2="1">
+<stop stop-color="#fae3b0"/><stop offset=".51" stop-color="#d49b65"/><stop offset="1" stop-color="#b56d57"/></linearGradient>
+<linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bed29d"/><stop offset="1" stop-color="#567f62"/></linearGradient></defs>
+<g fill="none" stroke="#785d49" stroke-width="3" stroke-linecap="round"><path d="M70 4 Q69 41 63 89"/><path d="M69 35 Q36 38 34 76"/><path d="M69 52 Q104 59 109 91"/></g>
+<path d="M70 38 Q38 7 18 20 Q31 49 70 38Z" fill="url(#leaf)" stroke="#436851" stroke-width="1.2"/>
+<path d="M69 42 Q90 8 119 23 Q108 52 69 42Z" fill="url(#leaf)" stroke="#436851" stroke-width="1.2"/>
+<g fill="url(#fruit)" stroke="#965e4c" stroke-width="2">
+<path d="M43 66 C28 75 27 106 45 122 Q65 139 81 117 Q94 101 80 78 Q70 59 43 66Z"/>
+<path d="M23 91 Q10 99 16 121 Q24 140 41 130 Q58 119 50 101 Q43 83 23 91Z"/>
+<path d="M102 99 Q86 101 86 123 Q91 145 108 139 Q129 131 126 114 Q123 96 102 99Z"/>
+</g>
+<g fill="none" stroke="#f9e4c2" stroke-opacity=".62" stroke-width="2.2" stroke-linecap="round">
+<path d="M46 77 Q38 91 43 104"/><path d="M27 102 Q23 112 29 119"/><path d="M104 107 Q99 116 103 126"/></g>
+<g fill="#8e5d42"><circle cx="62" cy="68" r="3"/><circle cx="35" cy="91" r="2.5"/><circle cx="107" cy="100" r="2.5"/></g>
+</svg>

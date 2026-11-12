@@ -39,7 +39,8 @@ function targetAt(i,height,profile,g,seed,count){
  let y=-height*.72+Math.cos(angle)*radius*height*.30;
  if(g.silhouette===2){y=-height*.65+Math.cos(angle)*radius*height*.22;}
  if(g.silhouette===3||g.silhouette===10){y+=Math.max(0,Math.abs(x)/Math.max(1,width)-.35)*height*.24;}
- if(g.silhouette===6||g.silhouette===8){y=-height*.80+Math.cos(angle)*radius*height*.17;}
+ if(g.silhouette===6){y=-height*.67+Math.cos(angle)*radius*height*.40;}
+ if(g.silhouette===8){y=-height*.80+Math.cos(angle)*radius*height*.17;}
  if(g.silhouette===5){y+=Math.sin(angle*3)*12;}
  if(g.silhouette===4){x+=x>=0?24:-24;}
  if(g.silhouette===9){x+=height*.19;}
@@ -128,10 +129,10 @@ function generate(tree,profiles,palettes){
  // clusters, not uncorrelated leaves scattered around trunk x/y.
  const xVals=[...trunk.map(p=>p.x),...canopy.map(p=>p.x-p.r),...canopy.map(p=>p.x+p.r)];
  const yVals=[...trunk.map(p=>p.y),...canopy.map(p=>p.y-p.r)];
- const bounds={minX:Math.min(...xVals,-27)-39,maxX:Math.max(...xVals,27)+39,
-  minY:Math.min(...yVals,-height)-43,maxY:18};
+ const bounds={minX:Math.min(...xVals,-27)-49,maxX:Math.max(...xVals,27)+49,
+  minY:Math.min(...yVals,-height)-57,maxY:18};
  return {height,trunk,branches,ornaments,canopy,bounds,profile,palette:palettes[g.palette],
-  attractors:availableTargets,modelVersion:2};
+  attractors:availableTargets,modelVersion:4};
 }
 function leaf(c,x,y,r,type,color,angle,opacity=1){
  c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha*=opacity;c.fillStyle=color;
@@ -192,154 +193,215 @@ function blend(a,b,t){
  const x=rgb(a),y=rgb(b),f=C(t,0,1);
  return '#'+x.map((v,i)=>Math.round(mix(v,y[i],f)).toString(16).padStart(2,'0')).join('');
 }
-function canopyLobe(c,x,y,r,seed,color,highlight,alpha=1){
- // Rounded irregular outlines read as one botanical mass, not as scattered dots.
- const rand=seeded(seed);
- const verts=10,points=[];
- for(let j=0;j<verts;j++){
-  const a=j*TAU/verts-Math.PI/2;
-  const irregular=.85+rand()*.28;
-  points.push({x:x+Math.cos(a)*r*irregular,y:y+Math.sin(a)*r*.85*irregular});
+/* Art V4: authored matte SVG foliage instead of glossy procedural bubbles.
+ * Each leaf sprite is composed and shaded by hand, while branch placement,
+ * growth and variation remain deterministic from the tree DNA. */
+const ART_FILES=[
+ 'foliage-olive.svg','foliage-sage.svg','foliage-sunlit.svg','foliage-teal.svg',
+ 'detail-bloom.svg','detail-fruit.svg','detail-star.svg'
+];
+const spriteBank={};
+function loadArtSprites(){
+ const ImageClass=root.Image||(typeof Image==='function'?Image:null);
+ if(!ImageClass)return;
+ for(const name of ART_FILES){
+  try{
+   const img=new ImageClass();
+   spriteBank[name]={image:img,loaded:false,failed:false};
+   img.onload=()=>{
+    spriteBank[name].loaded=true;
+    if(typeof root.dispatchEvent==='function'&&typeof root.Event==='function')
+      root.dispatchEvent(new root.Event('crew-tree-art-ready'));
+   };
+   img.onerror=()=>{spriteBank[name].failed=true;};
+   img.src='/crew-tree-lab/art/'+name;
+  }catch{spriteBank[name]={image:null,loaded:false,failed:true};}
  }
- c.save();
- c.globalAlpha*=alpha;
+}
+function artReady(name){
+ const entry=spriteBank[name];return !!(entry?.image&&entry.image.complete&&entry.image.naturalWidth>0);
+}
+function artStatus(){
+ return {loaded:ART_FILES.filter(artReady),missing:ART_FILES.filter(name=>!artReady(name)),
+  allLoaded:ART_FILES.every(artReady),version:4};
+}
+function paletteSprite(branch,tree){
+ const topic=branch.topic||'daily';
+ if(topic==='cosmos'||topic==='weather'||topic==='tech')return 'foliage-teal.svg';
+ if(topic==='food'||topic==='travel'||topic==='music')return 'foliage-sunlit.svg';
+ if(topic==='dream'||topic==='stress')return 'foliage-sage.svg';
+ const num=(tree.seed+branch.i*7+tree.genome.leaf*3)>>>0;
+ return ['foliage-olive.svg','foliage-sage.svg','foliage-sunlit.svg'][num%3];
+}
+function makeSceneLayout(bounds,width,height,card=false){
+ const left=Math.min(bounds.minX,-42),right=Math.max(bounds.maxX,42);
+ const top=bounds.minY,bottom=Math.max(12,bounds.maxY);
+ const bw=Math.max(1,right-left),bh=Math.max(1,bottom-top);
+ const stageFraction=card?.73:.78;
+ const factor=Math.min(width*.86/bw,height*stageFraction/bh,Math.min(width/435,height/470)*1.88);
+ const ox=width*.5-(left+right)*.5*factor;
+ return {factor,ox,oy:height*.85,bw,bh};
+}
+function bezierPoint(a,b,c,t){
+ const q=1-t;
+ return {x:q*q*a.x+2*q*t*b.x+t*t*c.x,y:q*q*a.y+2*q*t*b.y+t*t*c.y};
+}
+function drawPaintedWood(c,tree,geo){
+ const trunk=geo.trunk,n=tree.growth.length;
+ if(!trunk.length)return;
+ const widthAt=t=>(15+Math.min(n,15)*.57)*Math.pow(1-t,.82)+1.2;
+ const normals=[];
+ for(let i=0;i<trunk.length;i++){
+  const before=trunk[Math.max(0,i-1)],after=trunk[Math.min(trunk.length-1,i+1)];
+  const dx=after.x-before.x,dy=after.y-before.y,mag=Math.max(.0001,Math.hypot(dx,dy));
+  normals.push({x:-dy/mag,y:dx/mag});
+ }
+ const wood=c.createLinearGradient(-25,-210,30,0);
+ wood.addColorStop(0,'#ae8a67');
+ wood.addColorStop(.38,'#927057');
+ wood.addColorStop(1,'#624737');
+ c.save();c.lineJoin='round';c.lineCap='round';
  c.beginPath();
- const first=points[0],last=points[verts-1];
- c.moveTo((first.x+last.x)/2,(first.y+last.y)/2);
- for(let j=0;j<verts;j++){
-  const a=points[j],b=points[(j+1)%verts];
-  c.quadraticCurveTo(a.x,a.y,(a.x+b.x)/2,(a.y+b.y)/2);
+ for(let i=0;i<trunk.length;i++){
+  const t=i/(trunk.length-1),p=trunk[i],nrm=normals[i],w=widthAt(t)*.5;
+  if(i===0)c.moveTo(p.x+nrm.x*w,p.y+nrm.y*w);
+  else c.lineTo(p.x+nrm.x*w,p.y+nrm.y*w);
  }
- c.closePath();
- c.fillStyle=blend(color,'#1b5649',.28);
- c.fill();
- // Broad directional light gives foliage form, not per-leaf confetti.
- const grad=c.createRadialGradient(x-r*.33,y-r*.45,r*.07,x+r*.09,y+r*.07,r*1.35);
- grad.addColorStop(0,blend(highlight,'#f9ffe6',.28));
- grad.addColorStop(.5,color);
- grad.addColorStop(1,blend(color,'#24554d',.40));
- c.fillStyle=grad;c.fill();
- c.lineWidth=Math.max(.8,r*.058);
- c.strokeStyle=blend(color,'#294e43',.30);
- c.stroke();
- c.save();c.globalAlpha*=.19;
- c.fillStyle='#ffffe9';c.beginPath();c.ellipse(x-r*.26,y-r*.44,r*.38,r*.12,-.40,0,TAU);c.fill();
- c.restore();
+ for(let i=trunk.length-1;i>=0;i--){
+  const t=i/(trunk.length-1),p=trunk[i],nrm=normals[i],w=widthAt(t)*.5;
+  c.lineTo(p.x-nrm.x*w,p.y-nrm.y*w);
+ }
+ c.closePath();c.fillStyle=wood;c.fill();c.strokeStyle='#5d4739';c.lineWidth=1.25;c.stroke();
+ c.strokeStyle='#d9ac83';c.globalAlpha=.42;c.lineWidth=1.8;c.beginPath();
+ for(let i=0;i<trunk.length;i++){
+  const t=i/(trunk.length-1),p=trunk[i],nrm=normals[i],w=widthAt(t)*.21;
+  if(i===0)c.moveTo(p.x+nrm.x*w,p.y+nrm.y*w);
+  else c.lineTo(p.x+nrm.x*w,p.y+nrm.y*w);
+ }c.stroke();c.globalAlpha=1;
+ // Rare delicate bark grains; no repeating horizontal rings.
+ const r=seeded(tree.seed^0x5a38df);
+ for(let i=0;i<Math.min(15,4+n);i++){
+  const t=.1+r()*.72,p=trunk[Math.floor(t*(trunk.length-1))];
+  c.strokeStyle=i%2?'#563f325e':'#ead2aa4d';c.lineWidth=.7+r()*.5;
+  const dy=5+r()*12;
+  c.beginPath();c.moveTo(p.x+(r()-.5)*5,p.y-dy);
+  c.quadraticCurveTo(p.x+(r()-.5)*4,p.y-dy*.5,p.x+(r()-.5)*5,p.y);
+  c.stroke();
+ }
+ // Organic roots connect into soil and don't resemble a tripod.
+ c.strokeStyle='#795942';c.lineWidth=5;c.beginPath();
+ c.moveTo(trunk[0].x-3,-2);c.quadraticCurveTo(-15,6,-27,7);
+ c.moveTo(trunk[0].x+3,-2);c.quadraticCurveTo(16,5,28,8);c.stroke();
  c.restore();
 }
-function drawWood(c,tree,geo){
- const n=tree.growth.length;
- const trunk=geo.trunk;
- const bark=c.createLinearGradient(-45,0,55,-290);
- bark.addColorStop(0,'#72503c');bark.addColorStop(.46,'#a27758');bark.addColorStop(1,'#b5906d');
- // Rounded tapering segments join into a believable trunk base and central axis.
- c.lineJoin='round';c.lineCap='round';
- for(let i=1;i<trunk.length;i++){
-  const p=trunk[i-1],q=trunk[i],t=i/(trunk.length-1);
-  const thick=(15+Math.min(n,12)*.53)*Math.pow(1-t,.72)+1.6;
-  c.lineWidth=thick+2.5;c.strokeStyle='#674539';
-  c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);c.stroke();
-  c.lineWidth=thick;c.strokeStyle=bark;c.stroke();
-  c.lineWidth=Math.max(.7,thick*.09);c.strokeStyle='#e9c79b8c';
-  c.beginPath();c.moveTo(p.x-thick*.22,p.y);c.lineTo(q.x-thick*.19,q.y);c.stroke();
+function drawPaintedBranch(c,b,progress){
+ if(progress<=0)return;
+ const steps=9,max=Math.max(1,Math.round(steps*progress)),left=[],right=[];
+ for(let i=0;i<=max;i++){
+  const t=Math.min(progress,i/steps);
+  const p=bezierPoint(b.start,b.p1,b.end,t),q=bezierPoint(b.start,b.p1,b.end,Math.min(.999,t+.01));
+  const dx=q.x-p.x,dy=q.y-p.y,mag=Math.max(.001,Math.hypot(dx,dy));
+  const w=Math.max(.65,b.width*(1-t*.87))*.5;
+  const norm={x:-dy/mag,y:dx/mag};
+  left.push({x:p.x+norm.x*w,y:p.y+norm.y*w});
+  right.push({x:p.x-norm.x*w,y:p.y-norm.y*w});
  }
- if(n>4){
-  c.lineWidth=5;c.strokeStyle='#644b38';c.beginPath();
-  c.moveTo(-2,-5);c.quadraticCurveTo(-18,5,-26,7);
-  c.moveTo(2,-5);c.quadraticCurveTo(18,5,26,7);c.stroke();
+ c.beginPath();for(let i=0;i<left.length;i++){
+  if(i===0)c.moveTo(left[i].x,left[i].y);else c.lineTo(left[i].x,left[i].y);
  }
- const sr=seeded(tree.seed^0x5ba28d94);
- const visible=5+Math.min(12,n);
- for(let i=0;i<visible;i++){
-  const t=.12+sr()*.64,p=geo.trunk[Math.floor(t*(trunk.length-1))],len=3+sr()*9;
-  c.lineWidth=.8;c.strokeStyle='#5b453655';c.beginPath();
-  c.moveTo(p.x+2.6,p.y);
-  c.quadraticCurveTo(p.x+3.9,p.y-len*.5,p.x+3,p.y-len);c.stroke();
+ for(let i=right.length-1;i>=0;i--)c.lineTo(right[i].x,right[i].y);
+ c.closePath();c.fillStyle=b.generation>=2?'#81624a':'#866248';
+ c.fill();
+ c.strokeStyle='#674a38';c.lineWidth=.56;c.stroke();
+}
+function drawFallbackLeaves(c,seed,x,y,w,h,alpha){
+ // Natural pointed fallback rather than the old bubble renderer.
+ const r=seeded(seed);
+ c.save();c.globalAlpha*=alpha;
+ for(let i=0;i<12;i++){
+  const a=i*2.3999632+r()*.6;
+  const radius=(.15+r()*.36)*w,xx=x+Math.cos(a)*radius*.75,yy=y+Math.sin(a)*radius*.5-h*.4;
+  leaf(c,xx,yy,3+r()*6,i%3,'#6f9c75',a,.85);
+ }c.restore();
+}
+function drawSprig(c,name,x,y,width,age,seed,alpha=1,dark=false){
+ const img=spriteBank[name]?.image,ratio=.84;
+ const w=width*age,h=w*ratio;
+ if(w<=1)return;
+ c.save();c.globalAlpha*=alpha;
+ if(artReady(name)){
+  // Twig base in the original transparent SVG sits near (120, 190).
+  // Align that base with the actual procedurally grown branch endpoint.
+  if(dark)c.filter='brightness(.80) saturate(.85)';
+  const flip=((seed>>>3)&1)?-1:1;
+  c.translate(x,y);c.scale(flip,1);
+  c.drawImage(img,-w*.48,-h*.91,w,h);
+  c.filter='none';
+ }else{
+  drawFallbackLeaves(c,seed,x,y,w,h,1);
  }
+ c.restore();
+}
+function decorationKind(topic){
+ if(topic==='food'||topic==='travel')return 'detail-fruit.svg';
+ if(topic==='cosmos'||topic==='tech'||topic==='music'||topic==='dream')return 'detail-star.svg';
+ return 'detail-bloom.svg';
 }
 function paint(c,tree,geo,ox,oy,factor,clock,options={}){
- const n=tree.growth.length,pal=geo.palette,branches=geo.branches;
+ const count=tree.growth.length,branches=geo.branches;
  const fromIndex=Number.isFinite(options.revealFrom)?options.revealFrom:branches.length;
  const progress=options.reducedMotion?1:C(Number.isFinite(options.progress)?options.progress:1,0,1);
- const t=Number.isFinite(clock)?clock:0;
+ const stageScale=count<3?.71:count<6?.86:count<10?1:1.10;
+ const stride=count<5?2:count<11?2:3;
+ const visibleBranches=branches.filter(b=>b.i%stride===0||(b.generation>=3&&b.i%5===1));
  c.save();c.translate(ox,oy);c.scale(factor,factor);
  c.lineCap='round';c.lineJoin='round';
- // Quiet ground shadow makes trunk contact and visual weight more obvious.
- c.save();c.globalAlpha=.23;c.fillStyle='#163e32';c.beginPath();
- c.ellipse(0,3,Math.min(70,30+n*1.8),9,0,0,TAU);c.fill();c.restore();
- // Soft distant leaves behind the woody structure.
- // Each lobe follows an ACTUAL child branch, not the canvas center.
- if(n>0)for(const b of branches){
-  const appear=b.i<fromIndex?1:progress;if(appear<=0)continue;
-  const rand=seeded(tree.seed^Math.imul(b.i+1,0x20f69d7b));
-  const radius=(n<3?13:n<7?17:n<13?21:24)*(b.generation===1?1.03:.91);
-  const topicColor=options.topics?.[b.topic]?.color||pal[0];
-  const main=blend(pal[(b.i+1)%3],topicColor,b.i%4===0?.30:.08);
-  canopyLobe(c,b.end.x-rand()*9,b.end.y-3,radius*.98*appear,
-    tree.seed^Math.imul(b.i+1,17),blend(main,'#2f7359',.22),pal[1],.80);
+ // The ground is deliberately quiet: botanical silhouette remains the focus.
+ c.save();c.globalAlpha=.20;c.fillStyle='#234332';c.beginPath();
+ c.ellipse(0,5,Math.min(62,32+count*1.35),9,0,0,TAU);c.fill();c.restore();
+ // Depth layer: a few distant muted leaf sprigs peek through the branches.
+ for(const b of visibleBranches){
+  if(b.i%3!==0||count===0)continue;
+  const p=b.i<fromIndex?1:progress;if(p<=0)continue;
+  drawSprig(c,paletteSprite(b,tree),b.end.x-4,b.end.y-3,
+    (70+Math.min(count,13)*1.2)*stageScale,p,tree.seed^Math.imul(b.i+1,67),.65,true);
  }
- // The trunk now has layered bark shading, with child branches that visibly taper.
- drawWood(c,tree,geo);
+ drawPaintedWood(c,tree,geo);
  for(const b of branches){
-  const appear=b.i<fromIndex?1:progress;
-  if(appear<=0)continue;
-  taperBranch(c,b.start,b.p1,b.end,b.width,'#785344','#dfb68b74',appear);
+  const p=b.i<fromIndex?1:progress;
+  drawPaintedBranch(c,b,p);
  }
- // Front foliage overlaps naturally into generous crown masses.
- // Use 2-3 overlapping lobes per twig rather than hundreds of isolated emoji leaves.
- if(n>0)for(const b of branches){
-  const appear=b.i<fromIndex?1:progress;if(appear<=0)continue;
-  const rand=seeded(tree.seed^Math.imul(b.i+1,0x1ec62d41));
-  const topicColor=options.topics?.[b.topic]?.color||pal[0];
-  const leafCount=n>=11?3:2;
-  const baseSize=(n<3?13:n<7?17.5:n<13?21.5:25)*(b.generation===1?1:.88);
-  const mixAccent=b.i%6===0?.34:.07;
-  const main=blend(pal[(b.i+2)%3],topicColor,mixAccent);
-  for(let j=0;j<leafCount;j++){
-   const r=baseSize*(j===0?1: .68+rand()*.17)*appear;
-   const dir=j===0?0:j%2?1:-1;
-   const x=mix(b.start.x,b.end.x,appear)+(rand()-.5)*6+dir*(r*.51);
-   const y=mix(b.start.y,b.end.y,appear)-4-(j===0?r*.31:0)+(rand()-.5)*6;
-   const wind=options.reducedMotion?0:Math.sin(t*.0011+b.i*1.3+j)*.45;
-   canopyLobe(c,x+wind,y,r,tree.seed^Math.imul(b.i*7+j+1,0x21a4c3e7),
-    blend(main,pal[j%3],j===0?.10:.22),pal[1],.98);
-  }
-  // A few pronounced leaves/petals communicate leaf species at human scale.
-  // The canopy silhouette itself is independent of individual leaf geometry.
-  if(b.i%3===0){
-   const foliage=options.topics?.[b.topic]?.color||pal[1];
-   const subtype=b.topic==='tech'?4:b.topic==='cosmos'?3:b.topic==='love'?1:tree.genome.leaf;
-   leaf(c,b.end.x-8,b.end.y-11,7.5*appear,subtype,
-    blend(foliage,pal[1],.46),-.3,.91);
-   leaf(c,b.end.x+8,b.end.y-4,6.2*appear,subtype,
-    blend(foliage,pal[0],.45),.7,.9);
+ if(count>0){
+  // Curated clusters replace all 3.0 sphere lobes. Sparse enough to reveal
+  // natural gaps but overlap to form a readable canopy silhouette.
+  for(const b of visibleBranches){
+   const p=b.i<fromIndex?1:progress;if(p<=0)continue;
+   const r=seeded(tree.seed^Math.imul(b.i+1,0x3dca13a7));
+   const sway=options.reducedMotion?0:Math.sin((clock||0)*.001+b.i*.73)*.50;
+   const w=(81+Math.min(count,13)*1.5)*(b.generation===1?.98:.90)*stageScale*(.91+r()*.17);
+   const x=b.end.x+(r()-.5)*8+sway,y=b.end.y+(r()-.5)*5;
+   drawSprig(c,paletteSprite(b,tree),x,y,w,p,tree.seed^Math.imul(b.i+1,97),.97);
   }
  }
- // Fruit, flowers and conversation mutations are small decorations, not a full
- // curtain of emoji covering the tree shape.
- if(n>0)for(const a of geo.ornaments.slice(0,7)){
-  const b=branches[a.parentIndex],appear=b.i<fromIndex?1:progress;
-  if(appear<.9)continue;
-  const icon=options.topics?.[a.topic]?.ornament||'✿';
-  c.save();c.translate(a.x,a.y);
-  if(!options.reducedMotion)c.translate(0,Math.sin(t*.0012+a.float)*1.7);
-  c.shadowColor='#f8ffdf';c.shadowBlur=4;
-  c.font=Math.round(11*a.scale)+'px system-ui,sans-serif';
-  c.textAlign='center';c.textBaseline='middle';c.fillText(icon,0,0);c.restore();
+ // Special ornaments are designed SVG motifs, not raw emoji pasted to leaves.
+ const mutationBranches=branches.filter(b=>b.i%4===2);
+ for(let i=0;i<Math.min(5,tree.mutations?.length||0);i++){
+  const key=tree.mutations[i],trait=options.mutations?.find(m=>m.key===key);
+  const b=mutationBranches[(i*5+tree.seed)%Math.max(1,mutationBranches.length)];
+  if(!b||!trait)continue;
+  const p=b.i<fromIndex?1:progress;if(p<.73)continue;
+  const kind=decorationKind(b.topic==='daily'?(
+    ['sugar','bubbles'].includes(key)?'food':['starlight','circuit','moon','song'].includes(key)?'cosmos':'love'
+  ):b.topic);
+  drawSprig(c,kind,b.end.x+9,b.end.y+4,42,p,tree.seed^i*.29,1);
  }
- if(tree.mutations?.length){
-  tree.mutations.slice(0,7).forEach((key,i)=>{
-   const b=branches[(i*13+3)%branches.length];
-   if(!b)return;const appear=b.i<fromIndex?1:progress;
-   if(appear<.8)return;
-   const trait=options.mutations?.find(m=>m.key===key);if(!trait)return;
-   c.save();c.translate(b.end.x,b.end.y-15);
-   c.fillStyle='#fff5d7d9';c.beginPath();c.arc(0,0,10.5,0,TAU);c.fill();
-   c.font='14px system-ui';c.textAlign='center';c.textBaseline='middle';
-   c.fillText(trait.icon,0,0);c.restore();
-  });
+ if(count>=8){
+  // A single tiny intentional bloom makes the tree feel magical at maturity.
+  const b=branches[Math.min(branches.length-1,Math.floor(branches.length*.69))];
+  if(b)drawSprig(c,'detail-bloom.svg',b.end.x-13,b.end.y+8,29,1,tree.seed^61,.92);
  }
  c.restore();
 }
-root.CrewBotany=Object.freeze({generate,paint,leaf,seeded,modelVersion:3});
+root.CrewBotany=Object.freeze({generate,paint,leaf,seeded,modelVersion:4,loadArtSprites,artStatus,makeSceneLayout});
+loadArtSprites();
 })(window);
