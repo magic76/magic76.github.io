@@ -41,8 +41,9 @@ function sceneModel(scene=state.scene,stage=state.stage,seed=state.seed,topic=st
   const species=['spiral','weeping','lantern-fruit','crescent'];
   units.forEach((u,i)=>{u.species=species[i];});
   return {scene,stage,seed,topic,phase,units:units.slice(0,count),
-   silhouette:{mainIslandScale:stage<=3?.70:stage<=8?.87:1,
-    crownScale:stage<=3?.64:stage<=8?.84:1,distinctSpecies:count},
+   silhouette:{mainIslandScale:stage<=3?.44:stage<=8?.82:1,
+    crownScale:stage<=3?0:stage<=8?.72:1,distinctSpecies:count},
+   lifeStage:stage<=3?'seedling':stage<=8?'sapling':'mature',
    attachment:stage>=8?{cosmos:'moon-isle',warmth:'living-bridge',music:'chime-garden',travel:'winged-island'}[topic]:null,
    bones:[],unitCount:count+(stage>=8?1:0)};
  }
@@ -56,8 +57,8 @@ function sceneModel(scene=state.scene,stage=state.stage,seed=state.seed,topic=st
    delay:Math.floor(q()*1600),thickness:2.7+q()*3.8};
  });
  return {scene,stage,seed,topic,phase,arms,
-  silhouette:{domeWidth:stage<=3?367:stage<=8?465:555,twistStrands:stage<=3?3:stage<=8?4:6,
-   secondaryCanopy:stage>=16?1:0},attachment:topic==='music'?'chime-buds':topic==='travel'?'wing-fins':topic==='warmth'?'heart-calyx':'star-nectar',unitCount:arms.length,bones:arms};
+  silhouette:{domeWidth:stage<=3?136:stage<=8?365:555,twistStrands:stage<=3?0:stage<=8?4:6,
+   secondaryCanopy:stage>=16?1:0},lifeStage:stage<=3?'hatchling':stage<=8?'juvenile':'mature',attachment:topic==='music'?'chime-buds':topic==='travel'?'wing-fins':topic==='warmth'?'heart-calyx':'star-nectar',unitCount:arms.length,bones:arms};
 }
 function backdrop(c,scene,seed){
  const g=c.createLinearGradient(0,0,0,H);
@@ -163,8 +164,8 @@ function bonePath(c,arm,time,staticMode,topic,stage){
  const sway=staticMode?0:Math.sin(t*.00124+arm.phase)*18;
  const second=staticMode?0:Math.sin(t*.00185+arm.phase*.68)*10;
  const x=400+(arm.baseX-400)*scale;
- const y=stage<=3?428:stage<=8?411:383;
- const len=arm.length*(stage<=3?.68:stage<=8?.84:1);
+ const y=stage<=3?650:stage<=8?483:383;
+ const len=arm.length*(stage<=3?.18:stage<=8?.64:1);
  const side=arm.side;
  const b1x=x+side*24+arm.bend*.35*scale+sway*.27,b1y=y+len*.23;
  const b2x=x+side*45+arm.bend*scale+sway*.84,b2y=y+len*.60;
@@ -186,6 +187,8 @@ function bonePath(c,arm,time,staticMode,topic,stage){
 function jellyScene(c,m,time,staticMode){
  const bob=staticMode?0:Math.sin(time*.00072+m.phase)*5;
  c.save();c.translate(0,bob);
+ // Newborns have a separate construction: no adult dome or trunk can appear.
+ if(m.stage<=3){window.CrewFantasyV3.juvenileMedusa(c,m,time,staticMode,art);c.restore();return;}
  for(const [i,arm] of m.arms.entries()){
   if(i%2!==0)continue;
   const end=bonePath(c,arm,time,staticMode,m.topic,m.stage);
@@ -195,7 +198,8 @@ function jellyScene(c,m,time,staticMode){
   }
  }
  window.CrewFantasyPaint.twistedTrunk(c,m.stage,m.seed,time,staticMode);
- window.CrewFantasyPaint.canopy(c,art,m.stage,time,staticMode,m.seed);
+ const cap=window.CrewFantasyPaint.canopy(c,art,m.stage,time,staticMode,m.seed);
+ window.CrewFantasyV3.fishResident(c,cap,time,staticMode,m.seed,m.stage);
  for(const [i,arm] of m.arms.entries()){
   if(i%2===0)continue;
   const end=bonePath(c,arm,time,staticMode,m.topic,m.stage);
@@ -244,13 +248,14 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
  c.fillStyle=scene==='island'?'#e0e9dc':'#c7dcda';c.fillRect(0,0,width,height);
  c.translate(ox,oy);c.scale(scale,scale);
  if(silhouette){c.fillStyle='#faf5e7';c.fillRect(0,0,W,H);}
- else{backdrop(c,scene,seed);window.CrewFantasyPaint.forest(c,seed,scene);}
+ else{window.CrewFantasyV3.themeBackdrop(c,topic,seed,scene);window.CrewFantasyPaint.forest(c,seed,scene);}
  const model=sceneModel(scene,stage,seed,topic);
  if(silhouette){c.save();c.filter='brightness(0)';}
  if(scene==='island')floatScene(c,model,time,staticMode);
  else jellyScene(c,model,time,staticMode);
  if(silhouette){c.restore();}
  else{
+  window.CrewFantasyV3.topicAccessories(c,model,time,staticMode);
   window.CrewFantasyPaint.life(c,model,time,staticMode);
   window.CrewFantasyPaint.frame(c,scene,seed);
  }
