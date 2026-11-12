@@ -47,7 +47,7 @@ function sceneModel(scene=state.scene,stage=state.stage,seed=state.seed,topic=st
   const positions=[.50,.26,.74,.12,.88,.39,.61,.04,.96,.19,.81,.32,.68,.45,.55,.08,.92,.36,.64];
   const t=positions[i];
   return {id:'arm-'+i,baseX:210+t*376,baseY:398-Math.sin(t*Math.PI)*29,side:(t-.5)*2,
-   length:180+q()*105,bend:(q()-.5)*57,phase:q()*TAU,thickness:1.3+q()*2.6};
+   length:180+q()*105,bend:(q()-.5)*57,phase:q()*TAU,thickness:2.7+q()*3.8};
  });
  return {scene,stage,seed,topic,phase,arms,attachment:topic==='music'?'chime-buds':topic==='travel'?'wing-fins':topic==='warmth'?'heart-calyx':'star-nectar',unitCount:arms.length,bones:arms};
 }
@@ -117,9 +117,9 @@ function floatUnit(c,u,index,model,time,staticMode){
  c.fillStyle=shadow;c.beginPath();c.ellipse(x,y+w*.32,w*.46,w*.14,0,0,TAU);c.fill();
  art(c,'floating-island.svg',x-w*.5,sy,w,plateH);
  // The trunk is part of a real painted plate, aligned to the island top.
- art(c,'island-crown.svg',x-w*.36,sy-w*.67,w*.72,w*.70);
+ art(c,'island-crown.svg',x-w*.36,sy-w*.50,w*.72,w*.70);
  if(model.stage>=8&&index===0){
-  c.save();c.fillStyle='#e3bd97';c.strokeStyle='#776763';c.lineWidth=2.2;
+  c.save();c.translate(0,w*.11);c.fillStyle='#e3bd97';c.strokeStyle='#776763';c.lineWidth=2.2;
   c.beginPath();c.moveTo(x+w*.13,sy+w*.09);c.lineTo(x+w*.13,sy-w*.09);
   c.lineTo(x+w*.18,sy-w*.16);c.lineTo(x+w*.23,sy-w*.08);c.lineTo(x+w*.23,sy+w*.09);
   c.closePath();c.fill();c.stroke();
@@ -140,6 +140,14 @@ function floatScene(c,m,time,staticMode){
  if(units.length>=4)vineBridge(c,units[3],units[2],m.topic);
  for(let i=units.length-1;i>=0;i--)floatUnit(c,units[i],i,m,time,staticMode);
  if(m.attachment){
+  // Cosmic conversations sprout a real satellite island, not an unattached icon.
+  if(m.topic==='cosmos'){
+   const moon={id:'moonling',x:660+(m.seed%7-3)*3,y:234,w:m.stage>=16?116:88,lean:-.13};
+   c.save();c.strokeStyle='#77968ba8';c.lineWidth=2;
+   c.beginPath();c.moveTo(units[0].x+units[0].w*.29,units[0].y-53);
+   c.bezierCurveTo(550,384,602,350,moon.x-40,moon.y-19);c.stroke();c.restore();
+   floatUnit(c,moon,5,m,time,staticMode);
+  }
   const anchor=units[units.length-1];
   const x=m.topic==='cosmos'?660:m.topic==='travel'?665:m.topic==='music'?580:350;
   const y=m.topic==='cosmos'?190:m.topic==='travel'?185:m.topic==='music'?190:247;
@@ -150,7 +158,12 @@ function floatScene(c,m,time,staticMode){
    c.moveTo(units[1].x+20,units[1].y-23);
    c.bezierCurveTo(245,245,270,237,units[0].x-50,units[0].y-75);c.stroke();
   }
-  if(m.topic==='travel')for(let i=0;i<5;i++)leaf(c,x-35+i*16,y+30+i%2*6,6,-.8,'#c1d4b5');
+  if(m.topic==='travel'){
+   // Wing-shaped islands leave a trail of wind-blown propagules.
+   for(let i=0;i<7;i++)leaf(c,x-61+i*22,y+22+Math.sin(i*1.4)*13,7+(i%3)*3,-.8,'#c1d4b5');
+   c.strokeStyle='#7da79aa3';c.lineWidth=2.3;c.beginPath();c.moveTo(x-91,y+38);
+   c.quadraticCurveTo(x+10,y-45,x+72,y+16);c.stroke();
+  }
   if(m.topic==='music')for(let i=0;i<3;i++)charm(c,units[0].x+75+i*20,units[0].y-140-i*10,'music',.23);
   c.restore();
  }
@@ -171,7 +184,7 @@ function bonePath(c,arm,time,staticMode,topic){
  const b1x=x+arm.side*24+arm.bend*.35+sway*.4,b1y=y+len*.25;
  const b2x=x+arm.side*45+arm.bend+sway,b2y=y+len*.56;
  const ex=x+arm.side*28+arm.bend*.7+sway,ey=y+len;
- const grad=c.createLinearGradient(x,y,ex,ey);grad.addColorStop(0,'#6e9f9dac');grad.addColorStop(.58,'#abc1adbd');grad.addColorStop(1,'#dec5b299');
+ const grad=c.createLinearGradient(x,y,ex,ey);grad.addColorStop(0,'#548c8ccc');grad.addColorStop(.58,'#87b7aebd');grad.addColorStop(1,'#d2acb0c2');
  c.strokeStyle=grad;c.lineWidth=arm.thickness;c.lineCap='round';
  c.beginPath();c.moveTo(x,y);c.bezierCurveTo(b1x,b1y,b2x,b2y,ex,ey);c.stroke();
  c.strokeStyle='#f9e9c185';c.lineWidth=.8;c.beginPath();c.moveTo(x+2,y+2);c.bezierCurveTo(b1x+2,b1y,b2x+2,b2y,ex+2,ey);c.stroke();
