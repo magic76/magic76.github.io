@@ -41,15 +41,15 @@ function RelationRow({world,zh}:{world:CafeWorld;zh:boolean}){
  </div>;
 }
 function Secrets({world,zh}:{world:CafeWorld;zh:boolean}){
- const uncovered=world.revealed.length;
+ const uncovered=world.revealed.length+(world.phase==="finished"&&!world.revealed.includes("hana-moving")?1:0);
  return <section className="lc-secrets">
   <div className="lc-panel-heading"><h2>{zh?"他們沒說出口的事":"Things left unsaid"}</h2><span>{uncovered} / {CAFE_SECRETS.length}</span></div>
-  <div className="lc-secret-list">{CAFE_SECRETS.map((id:CafeSecret)=><div key={id} className={"lc-secret"+(world.revealed.includes(id)?" is-revealed":"")}>
-   <span aria-hidden="true">{world.revealed.includes(id)?"✦":"?"}</span>
-   <div><strong>{world.revealed.includes(id)?cafeSecretCopy[id].title[zh?"zh":"en"]:zh?"還沒被發現":"Not discovered"}</strong>
-    {world.revealed.includes(id)&&<p>{cafeSecretCopy[id].detail[zh?"zh":"en"]}</p>}
+  <div className="lc-secret-list">{CAFE_SECRETS.map((id:CafeSecret)=>{const known=known||(world.phase==="finished"&&id==="hana-moving");return <div key={id} className={"lc-secret"+(known?" is-revealed":"")}>
+   <span aria-hidden="true">{known?"✦":"?"}</span>
+   <div><strong>{known?cafeSecretCopy[id].title[zh?"zh":"en"]:zh?"還沒被發現":"Not discovered"}</strong>
+    {known&&<p>{cafeSecretCopy[id].detail[zh?"zh":"en"]}</p>}
    </div>
-  </div>)}</div>
+  </div>})}</div>
  </section>;
 }
 function LastReaction({world,zh,onContinue,onReset}:{world:CafeWorld;zh:boolean;onContinue:()=>void;onReset:()=>void}){
@@ -128,6 +128,7 @@ export function LifeCafePage(){
  const dismissAway=()=>update({...world,awayReports:[]});
  const reacting=world.phase==="reaction";
  const finished=world.phase==="finished";
+ const knownSecrets=world.revealed.length+(finished&&!world.revealed.includes("hana-moving")?1:0);
  return <main className="lc-page">
   <div className="lc-shell">
    <header className="lc-header">
@@ -170,7 +171,7 @@ export function LifeCafePage(){
     </div>
     <div className="lc-stage-furniture" aria-hidden="true"><div className="lc-cafe-table"><span>☕</span></div></div>
     <div className="lc-stage-bottom">
-     <span>{reacting&&last?cafePropCopy[last.item].icon:activeItem?cafePropCopy[activeItem].icon:"✦"}</span>
+     <span>{finished?"✦":reacting&&last?cafePropCopy[last.item].icon:activeItem?cafePropCopy[activeItem].icon:"✦"}</span>
      <p>{reacting&&last?last.news.title[language]:finished?l("今晚的故事有了結局","Tonight's story has an ending"):opening?l("「我可能要離開了。」誰寫了這封信？","Who wrote 'I might be leaving'?"):l("信交出去了，故事還沒有結束","The letter is out, but the story is not over.")}</p>
     </div>
    </section>
@@ -243,7 +244,7 @@ export function LifeCafePage(){
      </li>)}</ol>
     </div>
     <div className="lc-finished-stats">
-     <div><strong>{world.revealed.length}<small>/3</small></strong><span>{l("已揭露的秘密","Secrets uncovered")}</span></div>
+     <div><strong>{knownSecrets}<small>/3</small></strong><span>{l("已揭露的秘密","Secrets uncovered")}</span></div>
      <div><strong>{world.correctGuesses}<small>/{world.attemptedGuesses}</small></strong><span>{l("猜中第一反應","Correct predictions")}</span></div>
      <div><strong>{world.moves.length}</strong><span>{l("意外的故事","Unfolded moments")}</span></div>
     </div>
@@ -255,7 +256,7 @@ export function LifeCafePage(){
    </section>}
    <aside className="lc-bottom-panels">
     <div className="lc-discoveries"><button type="button" className="lc-fold-button" onClick={()=>setShowSecrets(v=>!v)} aria-expanded={showSecrets}>
-      <span>✧ {l("他們的秘密","Hidden stories")} · {world.revealed.length}/3</span><span>{showSecrets?"−":"+"}</span>
+      <span>✧ {l("他們的秘密","Hidden stories")} · {knownSecrets}/3</span><span>{showSecrets?"−":"+"}</span>
      </button>
      {showSecrets&&<Secrets world={world} zh={zh}/>}
     </div>
