@@ -232,3 +232,55 @@
 @media(prefers-reduced-motion:reduce){
  .lc-page *, .lc-page *::before, .lc-page *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* The story has a beginning, a three-act middle, and a concrete ending. */
+.lc-story-hook{padding:18px 22px 16px;margin-bottom:13px;border:1px solid #c5967b;border-radius:17px;
+ background:radial-gradient(ellipse at 95% 0%,#9b675d66,transparent 60%),linear-gradient(120deg,#33293b,#282235)}
+.lc-story-hook p{font-size:13px;line-height:1.75;color:#d6c7d2;margin:7px 0}
+.lc-story-hook blockquote{font:700 clamp(21px,3vw,30px)/1.5 "Noto Serif TC",Georgia,serif;color:#ffe3b4;
+ border-left:3px solid #f2bc80;margin:12px 0;padding:6px 14px;background:#312538aa}
+.lc-story-start{min-height:46px;border:1px solid #f6c68e;border-radius:11px;background:#f6cf9e;color:#261e2c;
+ font-weight:850!important;display:flex;gap:18px;align-items:center;justify-content:space-between;padding:9px 16px;margin-top:12px}
+.lc-story-start span{font-size:19px}
+.lc-story-progress{display:flex;align-items:center;gap:11px;padding:12px 15px;border:1px solid #7e647e;
+ border-radius:12px;background:#302739;margin-bottom:13px}
+.lc-story-progress>span{font-size:24px}
+.lc-story-progress p{color:#e9d6d6;font-size:12px;line-height:1.65;margin:0}
+.lc-opening-letter{display:flex;align-items:center;gap:13px;background:#3c3040;border:1px solid #ab8a76;
+ border-radius:12px;padding:13px 16px}
+.lc-opening-letter>span{font-size:32px}
+.lc-opening-letter strong{font-size:14px;color:#ffdfb7}
+.lc-opening-letter p{margin:5px 0 0;font-size:12px;color:#e1cdd7}
+.lc-guess-toggle{width:100%;display:flex;justify-content:space-between;gap:15px;align-items:center;min-height:44px;
+ padding:10px 3px;border:0;background:transparent;text-align:left;color:#cdbccc;font-size:12px}
+.lc-guess-toggle>span:last-child{font-size:20px;color:#f6ca9a}
+.lc-guess-content{padding:12px 0 2px}
+.lc-action-echo{display:flex;gap:7px;flex-wrap:wrap;align-items:center;border:1px solid #947886;border-radius:10px;
+ background:#463247;padding:10px 12px;font-size:12px;line-height:1.7;color:#e0d1dd;margin:11px 0}
+.lc-action-echo b{color:#ffe1b3}
+.lc-finale-body{max-width:790px!important;font-size:15px!important;line-height:2!important;color:#ffe7d4!important;margin:12px auto 19px!important}
+.lc-finale-answer{display:flex;gap:12px;text-align:left;max-width:760px;margin:18px auto;padding:17px 18px;
+ border:1px solid #c4a17d;border-radius:14px;background:#514051}
+.lc-finale-answer>span{font-size:27px}
+.lc-finale-answer strong{font-size:14px;color:#ffe8bf}
+.lc-finale-answer p{color:#e1d0d6;font-size:12px;line-height:1.8;margin:7px 0 0}
+.lc-episode-recap{max-width:760px;margin:19px auto 17px;text-align:left}
+.lc-episode-recap h3{font-size:15px;margin:0 0 11px;color:#f4d6bc}
+.lc-episode-recap ol{list-style:none;display:grid;gap:7px;margin:0;padding:0}
+.lc-episode-recap li{display:grid;grid-template-columns:70px 1fr;align-items:start;gap:10px;
+ padding:10px 11px;background:#282235;border:1px solid #6e596f;border-radius:10px}
+.lc-episode-recap li>span{color:#edc28e;font-size:11px;font-weight:800}
+.lc-episode-recap li p{color:#d9c5d5;font-size:12px;line-height:1.7;margin:0}
+#lc-console{scroll-margin-top:24px}
+@media(max-width:700px){
+ .lc-story-hook{padding:12px 14px;margin-bottom:10px}
+ .lc-story-hook p{font-size:12px;line-height:1.6;margin:5px 0}
+ .lc-story-hook blockquote{font-size:21px;margin:8px 0;padding:4px 11px}
+ .lc-story-start{width:100%;font-size:13px;min-height:44px;margin-top:8px}
+ .lc-stage{height:285px}
+ .lc-opening-letter{padding:11px}
+ .lc-finale-body{font-size:13px!important}
+ .lc-finale-answer{padding:13px}
+ .lc-episode-recap li{grid-template-columns:49px 1fr}
+}
+@media(max-width:365px){.lc-stage{height:273px}.lc-story-hook blockquote{font-size:19px}}
