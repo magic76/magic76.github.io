@@ -18,18 +18,63 @@ const TEXT={
  relay:['我幫你守住橋！','快過去按右邊的按鈕！','換我過來找你啦！']
 };
 let P=null,Z=null,room=null,last=0,raf=0,width=390,height=450,dpr=1,scale=1,viewW=700,viewH=700,camX=0,camY=0;
-let input={left:false,right:false,jump:false},pressedJump=false;
+let input={left:false,right:false,jump:false,fire:false},pressedJump=false;
 let bubble={text:'',until:0},particles=[],skyStars=[];
+const combat={shots:[],enemyShots:[],enemies:[],cover:[],flashes:[],wave:0,triggered:false,spawns:0,kills:0,roomKills:0,shotsFired:0,zoeShots:0,shake:0,doubleDownAt:0};
+let combatSoundEnabled=true;
+const crewSpriteImages={};
+function loadCrewSprites(){
+ const bank=window.CREW_NEON_SPRITES;
+ if(!bank||typeof Image==='undefined')return;
+ for(const [key,spec] of Object.entries(bank)){
+  if(!spec||!spec.src||!spec.w||!spec.h)continue;
+  const image=new Image();
+  image.src=spec.src;
+  crewSpriteImages[key]={image,spec};
+ }
+}
+function unlockSound(){
+ if(!combatSoundEnabled)return;
+ const Audio=window.AudioContext||window.webkitAudioContext;
+ if(!Audio)return;
+ try{
+  if(!soundCombat.ctx)soundCombat.ctx=new Audio();
+  if(soundCombat.ctx.state==='suspended'){
+   const pending=soundCombat.ctx.resume();
+   if(pending?.catch)pending.catch(()=>{});
+  }
+ }catch{/* Browser audio permission should never block movement. */}
+}
+function soundCombat(kind){
+ if(!combatSoundEnabled)return;
+ const Audio=window.AudioContext||window.webkitAudioContext;
+ if(!Audio)return;
+ try{
+  if(!soundCombat.ctx)soundCombat.ctx=new Audio();
+  const a=soundCombat.ctx,t=a.currentTime,last=soundCombat.last||{},min=kind==='shot'?.095:.16;
+  if(t-(last[kind]??-99)<min)return;
+  last[kind]=t;soundCombat.last=last;
+  const osc=a.createOscillator(),gain=a.createGain();
+  osc.type=kind==='kill'?'triangle':'sawtooth';
+  const f=kind==='shot'?460:kind==='hit'?840:kind==='kill'?370:190;
+  osc.frequency.setValueAtTime(f,t);
+  osc.frequency.exponentialRampToValueAtTime(kind==='kill'?690:100,t+.12);
+  gain.gain.setValueAtTime(.035,t);
+  gain.gain.exponentialRampToValueAtTime(.0001,t+.13);
+  osc.connect(gain);gain.connect(a.destination);osc.start(t);osc.stop(t+.14);
+ }catch{/* Audio is optional. */}
+}
+
 const G={
  phase:'ready',roomIndex:0,sequence:[0,1,2,3,4],time:0,roomTime:0,transitionTime:0,
  command:'lead',commandAnchor:0,roomFlags:{},events:[],rescueFx:0,
- stats:{runs:0,savedByZoe:0,savedZoe:0},lastSaved:'',completed:0,roomFails:0,softHint:false
+ stats:{runs:0,savedByZoe:0,savedZoe:0,killsTotal:0},lastSaved:'',completed:0,roomFails:0,softHint:false
 };
 function readMemory(){
  try{
   const data=JSON.parse(localStorage.getItem('crew-buddy-lab-v1')||'{}');
   const num=(x)=>Number.isFinite(x)?clamp(Math.floor(x),0,99999):0;
-  G.stats={runs:num(data.runs),savedByZoe:num(data.savedByZoe),savedZoe:num(data.savedZoe)};
+  G.stats={runs:num(data.runs),savedByZoe:num(data.savedByZoe),savedZoe:num(data.savedZoe),killsTotal:num(data.killsTotal)};
   G.lastSaved=typeof data.lastSaved==='string'?data.lastSaved.slice(0,240):'';
  }catch{}
  updateMemory();
@@ -48,7 +93,7 @@ function sample(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function orderRooms(){let rest=[1,2,3,4];for(let i=rest.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]]}return [0,...rest];}
 function makeEntity(x,isBuddy=false){
  return {x,y:FLOOR,vx:0,vy:0,onGround:true,speed:isBuddy?245:264,
-  w:25,h:52,face:1,walk:0,helped:0,trapped:false,isBuddy,checkpoint:85};
+  w:25,h:52,face:1,walk:0,helped:0,trapped:false,isBuddy,checkpoint:85,hp:5,maxHp:5,inv:0,down:false,gunCD:0,shooting:0};
 }
 function announce(message,force=false){
  if(!force&&G.time<bubble.until-.8)return;
@@ -82,7 +127,7 @@ function resetRoom(){
  G.roomFlags={gate:false,left:false,right:false,bridged:false,starP:false,starZ:false,released:false};
  G.roomTime=0;G.roomFails=0;G.softHint=false;G.rescueFx=0;
  input.left=false;input.right=false;input.jump=false;pressedJump=false;
- particles.length=0;
+ particles.length=0;resetCombat();
  const role=(room.id==='switches'||room.id==='stars'||room.id==='relay'||room.id==='gap')?'lead':'follow';
  setCommand(role,true);
  $('roomIndex').textContent=String(G.roomIndex+1).padStart(2,'0');
@@ -96,7 +141,7 @@ function resetRoom(){
  camX=0;updateHud();
 }
 function startRun(){
- G.phase='playing';G.time=0;G.roomIndex=0;G.completed=0;G.events=[];
+ G.phase='playing';G.time=0;G.roomIndex=0;G.completed=0;G.events=[];combat.kills=0;combat.shotsFired=0;combat.zoeShots=0;
  G.sequence=G.stats.runs>0?orderRooms():[0,1,2,3,4];
  G.stats.runs++;storeMemory();
  $('gameOverlay').hidden=true;
@@ -104,6 +149,9 @@ function startRun(){
 }
 function updateHud(){
  $('timer').textContent=String(Math.floor(G.time/60)).padStart(2,'0')+':'+String(Math.floor(G.time%60)).padStart(2,'0');
+ $('killCount').textContent=String(combat.kills);
+ $('playerHearts').textContent='♥ '.repeat(Math.max(0,P?.hp||0)).trim()+'♡ '.repeat(Math.max(0,5-(P?.hp||0))).trim();
+ $('zoeHearts').textContent='♥ '.repeat(Math.max(0,Z?.hp||0)).trim()+'♡ '.repeat(Math.max(0,5-(Z?.hp||0))).trim();
 }
 function isGap(x){
  for(const pit of room.pits){
@@ -119,7 +167,7 @@ function gateOpen(){
  room.id==='relay'?G.roomFlags.bridged:true;
 }
 function tryJump(e){
- if(!e||!e.onGround||e.trapped)return false;
+ if(!e||!e.onGround||e.trapped||e.down)return false;
  e.vy=-JUMP;e.onGround=false;burst(e.x,e.y-3,'#dbeeff',6);
  return true;
 }
@@ -129,12 +177,181 @@ function burst(x,y,color,n=9){
   particles.push({x,y,vx:Math.cos(a)*r,vy:Math.sin(a)*r-28,life:.45+Math.random()*.25,max:.7,color,size:1.8+Math.random()*3});
  }
 }
+function resetCombat(){
+ combat.shots.length=0;combat.enemyShots.length=0;combat.enemies.length=0;combat.flashes.length=0;
+ combat.triggered=false;combat.wave=0;combat.roomKills=0;combat.shake=0;combat.spawns=0;combat.doubleDownAt=0;
+ combat.cover=[{x:568,y:FLOOR-53,w:50,h:53},{x:752,y:FLOOR-43,w:42,h:43}];
+ if(room.id==='gap')combat.cover[0].x=660;
+ P.hp=P.maxHp;Z.hp=Z.maxHp;
+ P.down=Z.down=false;P.inv=Z.inv=0;P.gunCD=Z.gunCD=0;
+ input.fire=false;updateHud();
+}
+function coverBlocks(shot){
+ if(!shot.hostile)return false;
+ return combat.cover.some(c=>shot.x>c.x-3&&shot.x<c.x+c.w+3&&shot.y>c.y&&shot.y<FLOOR+4);
+}
+function spawnHostiles(){
+ if(combat.enemies.length>0||combat.wave>=2||G.phase!=='playing')return false;
+ combat.wave++;
+ const amount=(combat.wave===1?3:2)+Math.min(3,G.roomIndex);
+ const options=combat.wave===1?['grunt','grunt','turret','drone']:['grunt','drone','turret','grunt'];
+ for(let i=0;i<amount;i++){
+  const kind=room.id==='relay'&&combat.wave===2&&i===amount-1?'mech':options[(i+G.roomIndex+combat.wave)%options.length];
+  let x=clamp(330+i*(465/Math.max(1,amount-1))+(combat.wave===2?24:0),250,823);
+  for(const pit of room.pits)if(x>pit[0]-10&&x<pit[1]+10)x=pit[1]+24+(i%2)*16;
+  const y=kind==='drone'?FLOOR-105-(i%2)*23:FLOOR-22;
+  const hp=kind==='mech'?12:kind==='turret'?4:kind==='drone'?2:3;
+  combat.enemies.push({kind,x,y,baseY:y,hp,maxHp:hp,r:kind==='mech'?34:kind==='drone'?18:21,
+   vx:0,fire:.6+i*.29,hit:0,phase:i*.8,walk:0,bulletCount:0});
+ }
+ combat.spawns+=amount;combat.triggered=true;
+ $('coStatus').textContent='機械敵潮 '+combat.wave+' / 2';
+ if(combat.wave===1){
+  announce(G.roomIndex===0?'前面有機械兵！我幫你掩護，你負責往前！':'敵人又來了！我會掩護你！',true);
+ }else announce('第二波來了！我們一起把他們清掉！',true);
+ return true;
+}
+function targetEnemy(e,limit=520){
+ let nearest=null,best=limit;
+ for(const enemy of combat.enemies){
+  const dx=enemy.x-e.x,dy=enemy.y-(e.y-43);
+  if(e===P&&Math.sign(dx)!==e.face&&Math.abs(dx)>30)continue;
+  const d=Math.hypot(dx,dy);
+  if(d<best){best=d;nearest=enemy}
+ }
+ return nearest;
+}
+function gunMuzzle(e){return {x:e.x+e.face*35,y:e.y-45}}
+function fireGun(e,forced=false){
+ if(!e||e.trapped||e.down||G.phase!=='playing'||e.gunCD>0)return false;
+ const target=targetEnemy(e,e===P?520:600);
+ if(!forced&&e===P&&!input.fire)return false;
+ if(e===Z&&!target)return false;
+ if(e===Z&&target)e.face=target.x>=e.x?1:-1;
+ const muzzle=gunMuzzle(e),muzzleX=muzzle.x,muzzleY=muzzle.y;
+ const dx=target?target.x-muzzleX:e.face*450;
+ const dy=target?target.y-muzzleY:0;
+ const aim=target?clamp(Math.atan2(dy,Math.max(30,Math.abs(dx))),-.42,.42):0;
+ const vx=e.face*Math.cos(aim)*760,vy=Math.sin(aim)*760;
+ combat.shots.push({x:muzzleX,y:muzzleY,vx,vy,life:.93,damage:1,owner:e===Z?'zoe':'player',
+  trailX:muzzleX,trailY:muzzleY,hostile:false});
+ if(combat.shots.length>65)combat.shots.splice(0,combat.shots.length-65);
+ combat.flashes.push({x:muzzleX,y:muzzleY,life:.08,max:.08});
+ e.shooting=.17;e.gunCD=e===Z?(G.command==='help'?.21:.33):.16;
+ if(e===P){combat.shotsFired++;soundCombat('shot')}
+ else {combat.zoeShots++;if(combat.zoeShots%3===0)soundCombat('shot')}
+ return true;
+}
+function hitEnemy(enemy,shot){
+ enemy.hp-=shot.damage;enemy.hit=.15;combat.shake=Math.max(combat.shake,1.1);
+ burst(shot.x,shot.y,'#ffedbd',5);soundCombat('hit');
+ if(enemy.hp>0)return;
+ const idx=combat.enemies.indexOf(enemy);
+ if(idx<0)return;
+ combat.enemies.splice(idx,1);combat.kills++;combat.roomKills++;
+ G.stats.killsTotal++;
+ burst(enemy.x,enemy.y,enemy.kind==='mech'?'#ffc0ec':'#ffbf86',enemy.kind==='mech'?25:15);
+ combat.shake=Math.max(combat.shake,enemy.kind==='mech'?8:3.5);
+ if(combat.kills%4===0){
+  P.hp=Math.min(P.maxHp,P.hp+1);Z.hp=Math.min(Z.maxHp,Z.hp+1);
+  if(G.time>5)announce(sample(['漂亮！四連擊，補給收下！','我們越打越有默契了！','這波配合得不錯耶！']),true);
+ }
+ if(enemy.kind==='mech'){note('你和 Zoe 合力擊破了重裝機甲');announce('我們真的打贏大機甲了！',true)}
+ else if(combat.roomKills===3)note('你們一起清掉了機械敵群');
+ soundCombat('kill');updateHud();
+}
+function hitAvatar(e,damage=1){
+ if(e.inv>0||e.down||e.trapped)return false;
+ e.hp=Math.max(0,e.hp-damage);e.inv=.95;combat.shake=Math.max(combat.shake,5);
+ burst(e.x,e.y-49,'#ff9cbb',14);soundCombat('hurt');
+ if(e.hp===0){
+  e.down=true;e.vx=0;
+  if(e===P){G.command='help';announce('等等！你受傷了，我馬上過去救你！',true)}
+  else announce('我暫時動不了了！你可以來救我嗎？',true);
+  note(e===P?'你倒下時，Zoe 趕來救援':'Zoe 受傷倒下，你必須回頭救援');
+ }
+ updateHud();return true;
+}
+function reviveAvatar(e,helper){
+ if(!e.down||!helper||helper.down||Math.abs(e.x-helper.x)>82)return false;
+ e.down=false;e.hp=3;e.inv=1.3;e.y=FLOOR;e.vy=0;e.onGround=true;
+ combat.shake=Math.max(combat.shake,3);
+ burst(e.x,e.y-55,'#b5ffe0',22);soundCombat('kill');
+ if(e===P){G.stats.savedByZoe++;announce('抓到你了！我們一起繼續！',true);note('Zoe 把你扶起來，繼續並肩作戰')}
+ else{G.stats.savedZoe++;announce('你回來救我了！這次我掩護你！',true);note('你回頭救起倒下的 Zoe')}
+ G.rescueFx=1.1;storeMemory();updateHud();return true;
+}
+function combatCleared(){return !combat.triggered||(combat.wave>=2&&combat.enemies.length===0)}
+function combatStep(dt){
+ if(G.phase!=='playing')return;
+ P.inv=Math.max(0,P.inv-dt);Z.inv=Math.max(0,Z.inv-dt);
+ P.gunCD=Math.max(0,P.gunCD-dt);Z.gunCD=Math.max(0,Z.gunCD-dt);
+ P.shooting=Math.max(0,P.shooting-dt);Z.shooting=Math.max(0,Z.shooting-dt);
+ combat.shake=Math.max(0,combat.shake-dt*18);
+ if(!combat.triggered&&(P.x>218||G.roomTime>8))spawnHostiles();
+ if(combat.triggered&&combat.enemies.length===0&&combat.wave<2)spawnHostiles();
+ if(input.fire)fireGun(P);
+ if(!Z.down&&!Z.trapped)fireGun(Z);
+ for(let i=combat.enemies.length-1;i>=0;i--){
+  const enemy=combat.enemies[i];if(!enemy)continue;
+  enemy.fire-=dt;enemy.hit=Math.max(0,enemy.hit-dt);
+  const target=(!P.down&&Math.abs(P.x-enemy.x)<Math.abs(Z.x-enemy.x)+70)?P:Z;
+  if(enemy.kind==='grunt'&&Math.abs(enemy.x-target.x)>125){
+   const direction=target.x>enemy.x?1:-1;
+   const next=enemy.x+direction*dt*50;
+   if(!isGap(next)&&next>80&&next<835)enemy.x=next;
+   enemy.walk+=dt*8;
+  }
+  if(enemy.kind==='drone')enemy.y=enemy.baseY+Math.sin(G.time*2.7+enemy.phase)*13;
+  if(enemy.fire<=0&&target&&!target.down&&!target.trapped){
+   const mx=enemy.x+(target.x>enemy.x?20:-20),my=enemy.y-5;
+   const theta=Math.atan2(target.y-45-my,target.x-mx);
+   const speed=enemy.kind==='mech'?250:enemy.kind==='turret'?215:175;
+   combat.enemyShots.push({x:mx,y:my,vx:Math.cos(theta)*speed,vy:Math.sin(theta)*speed,
+    life:2.8,r:enemy.kind==='mech'?8:5,hostile:true});
+   enemy.fire=enemy.kind==='mech'?.95:enemy.kind==='turret'?1.3:1.8+Math.random()*.55;
+  }
+ }
+ for(let i=combat.shots.length-1;i>=0;i--){
+  const shot=combat.shots[i];shot.trailX=shot.x;shot.trailY=shot.y;
+  shot.x+=shot.vx*dt;shot.y+=shot.vy*dt;shot.life-=dt;
+  let hit=false;
+  for(const enemy of combat.enemies){
+   if(Math.hypot(shot.x-enemy.x,shot.y-enemy.y)<enemy.r+9){
+    hitEnemy(enemy,shot);hit=true;break;
+   }
+  }
+  if(hit||shot.life<=0||shot.x>WORLD+60||shot.x<0)combat.shots.splice(i,1);
+ }
+ for(let i=combat.enemyShots.length-1;i>=0;i--){
+  const shot=combat.enemyShots[i];shot.x+=shot.vx*dt;shot.y+=shot.vy*dt;shot.life-=dt;
+  let gone=coverBlocks(shot);
+  if(!gone){
+   for(const hero of [P,Z]){
+    if(hero.trapped||hero.down)continue;
+    if(Math.abs(shot.x-hero.x)<hero.w/2+shot.r&&Math.abs(shot.y-(hero.y-49))<38+shot.r){
+     hitAvatar(hero);gone=true;break;
+    }
+   }
+  }
+  if(gone||shot.life<=0||shot.x<0||shot.x>WORLD)combat.enemyShots.splice(i,1);
+ }
+ for(let i=combat.flashes.length-1;i>=0;i--){
+  combat.flashes[i].life-=dt;if(combat.flashes[i].life<=0)combat.flashes.splice(i,1);
+ }
+ if(P.down&&Z.down){if(!combat.doubleDownAt)combat.doubleDownAt=G.time;
+  if(G.time-combat.doubleDownAt>1.4){announce('沒關係，這關再來一次！',true);resetRoom()}
+ }else{
+  combat.doubleDownAt=0;
+  reviveAvatar(P,Z);reviveAvatar(Z,P);
+ }
+}
 function movePerson(e,dir,dt){
- if(e.trapped)return;
+ if(e.trapped||e.down)return;
  e.vx=dir*e.speed;
  if(Math.abs(dir)>.01)e.face=Math.sign(dir);
  e.x=clamp(e.x+e.vx*dt,23,WORLD-20);
- if(!gateOpen()&&e.x>EXIT_GATE-18&&e.x<EXIT_GATE+38){
+ if(!(gateOpen()&&combatCleared())&&e.x>EXIT_GATE-18&&e.x<EXIT_GATE+38){
   if(dir>0)e.x=Math.min(e.x,EXIT_GATE-19);
   else if(dir<0)e.x=Math.max(e.x,EXIT_GATE+39);
  }
@@ -185,6 +402,7 @@ function rescue(e){
 }
 function aiTarget(){
  if(Z.trapped)return Z.x;
+ if(P.down)return P.x+(Z.x<P.x?-24:24);
  if(G.command==='wait')return G.commandAnchor;
  if(room.id==='switches'&&!G.roomFlags.gate){
   if(G.command==='follow')return P.x+48;
@@ -205,7 +423,7 @@ function aiTarget(){
  return clamp(target,60,EXIT_X-15);
 }
 function aiStep(dt){
- if(Z.trapped)return;
+ if(Z.trapped||Z.down)return;
  const target=aiTarget(),delta=target-Z.x;
  let dir=Math.abs(delta)<9?0:clamp(delta/55,-1,1);
  if(room.id==='relay'&&!G.roomFlags.bridged&&Math.abs(Z.x-284)<17)dir=0;
@@ -251,7 +469,7 @@ function updatePuzzle(){
    announce('橋固定好了！這次輪到我過去！',true);
   }
  }
- if(gateOpen()&&P.x>EXIT_X-46&&Z.x>EXIT_X-75&&Z.onGround&&P.onGround)finishRoom();
+ if(gateOpen()&&combatCleared()&&P.x>EXIT_X-46&&Z.x>EXIT_X-75&&Z.onGround&&P.onGround)finishRoom();
  if(P.x>EXIT_X-75&&Z.x<EXIT_X-160&&!G.softHint){
   G.softHint=true;announce('等等我！我們要一起到終點呀！',true);
  }
@@ -301,7 +519,7 @@ function gameStep(dt){
  const dir=(input.right?1:0)-(input.left?1:0);
  if(input.jump){tryJump(P);input.jump=false}
  movePerson(P,dir,dt);aiStep(dt);
- updatePuzzle();
+ combatStep(dt);updatePuzzle();
  if(G.roomTime>12&&!G.softHint&&room.id==='gap'&&Math.abs(P.x-365)<115){
   G.softHint=true;announce('你可以在斷橋前按「跳！」，我在對面等你！',true);
  }
@@ -392,7 +610,7 @@ function renderPlate(x,color,active,label){
  text(label,x,FLOOR-35,11,active?'#ffffff':'#dce9ff');
 }
 function renderGoal(){
- const open=gateOpen(),x=EXIT_GATE;
+ const open=gateOpen()&&combatCleared(),x=EXIT_GATE;
  ctx.save();ctx.globalAlpha=open?.92:1;
  rr(x-9,FLOOR-119,18,119,5,open?'#4f967d':'#646485',open?'#adffdc':'#d7b5ff');
  circle(x,FLOOR-105,9,open?'#aaffcf':'#f4aeca');
@@ -444,6 +662,7 @@ function renderPuzzle(){
 }
 function renderCharacter(e){
  if(!e)return;
+ if(renderSpriteAvatar(e)){renderCombatCharacterLabel(e);return;}
  const buddy=e.isBuddy,palette=buddy?{
   coat:'#a98be2',coat2:'#7659ad',hair:'#cab1fd',hairDark:'#9475c9',face:'#f3c8b6',shoe:'#514b83',
   edge:'#f7d8ff',name:'Zoe'
@@ -487,6 +706,108 @@ function renderCharacter(e){
  text(palette.name,x,y-101,10,palette.edge);
  ctx.restore();
 }
+function renderSpriteAvatar(e){
+ const state=e.down?'death':e.trapped?'hit':e.inv>.8?'hit':!e.onGround?'dash':
+  Math.abs(e.vx)>20?'run':G.phase==='transition'?'victory':'idle';
+ const sheet=crewSpriteImages[state]||crewSpriteImages.idle;
+ const image=sheet?.image,spec=sheet?.spec;
+ if(!image||!image.complete||!image.naturalWidth||!spec||!spec.frames)return false;
+ const frame=Math.floor((G.time+(e.isBuddy?.32:0))*(state==='run'?11:state==='dash'?8:5))%spec.frames;
+ const sx=(frame%spec.cols)*spec.w,sy=Math.floor(frame/spec.cols)*spec.h,heroScale=.58;
+ const w=spec.w*heroScale,h=spec.h*heroScale;
+ ctx.save();
+ ctx.globalAlpha=e.trapped?.65:e.inv>0&&Math.floor(G.time*14)%2?.67:1;
+ ctx.fillStyle='#0e143b77';ctx.beginPath();ctx.ellipse(e.x,e.y+1,24,6,0,0,TAU);ctx.fill();
+ ctx.translate(e.x,e.y);ctx.scale(e.face,1);
+ if(e.isBuddy)ctx.filter='hue-rotate(120deg) saturate(1.45) brightness(1.06)';
+ ctx.drawImage(image,sx,sy,spec.w,spec.h,-w/2,-spec.baseline*heroScale,w,h);
+ ctx.filter='none';ctx.restore();
+ return true;
+}
+function renderCombatCharacterLabel(e){
+ const color=e.isBuddy?'#d4b4ff':'#9af3ef';
+ rr(e.x-27,e.y-115,54,17,9,'#142441d9','#ffffff24');
+ text(e.isBuddy?'Zoe':'YOU',e.x,e.y-103,10,color);
+ if(e.down){
+  rr(e.x-35,e.y-136,70,18,8,'#641f56dd');
+  text('待救援',e.x,e.y-123,11,'#ffe6e9');
+ }
+}
+function renderCover(){
+ for(const box of combat.cover){
+  const x=box.x,y=box.y,w=box.w,h=box.h;
+  ctx.save();ctx.shadowColor='#7dd7da';ctx.shadowBlur=8;
+  rr(x,y,w,h,7,'#395579','#82d7df');
+  ctx.shadowBlur=0;
+  rr(x+7,y+7,w-14,h-14,4,'#263b5b','#5e91ae');
+  ctx.strokeStyle='#95e7e3';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(x+9,y+9);ctx.lineTo(x+w-9,y+h-9);
+  ctx.moveTo(x+w-9,y+9);ctx.lineTo(x+9,y+h-9);ctx.stroke();
+  ctx.restore();
+ }
+}
+function renderHostiles(){
+ for(const enemy of combat.enemies){
+  const x=enemy.x,y=enemy.y,boss=enemy.kind==='mech';
+  ctx.save();ctx.translate(x,y);
+  ctx.shadowColor=enemy.hit>0?'#ffe19e':'#eb7aa2';ctx.shadowBlur=enemy.hit>0?17:5;
+  if(enemy.kind==='drone'){
+   circle(0,0,19,enemy.hit?'#fff0e4':'#805d99','#ffc1eb',2);
+   rr(-14,-5,28,13,7,'#452f70');
+   circle(-5,0,3.5,'#ffdc91');circle(7,0,3.5,'#ffdc91');
+   rr(-30,-17,20,7,4,'#b880e0');rr(10,-17,20,7,4,'#b880e0');
+   ctx.strokeStyle='#ffd8f3';ctx.lineWidth=3;ctx.beginPath();
+   ctx.moveTo(-34,-21);ctx.lineTo(-8,-21);ctx.moveTo(8,-21);ctx.lineTo(34,-21);ctx.stroke();
+  }else if(enemy.kind==='turret'){
+   rr(-22,-18,44,40,8,enemy.hit?'#ffe5e8':'#6a6386','#ffafac');
+   rr(-13,-24,26,10,4,'#e88e91');
+   rr(-43,-8,27,10,4,'#c384a0','#ffe0cc');
+   circle(-7,-8,5,'#ffcf80');circle(8,-8,5,'#ffcf80');
+   rr(-26,16,52,7,4,'#343654');
+  }else if(boss){
+   rr(-38,-40,76,62,12,enemy.hit?'#fff4e1':'#7c4677','#ffb8dd');
+   rr(-31,-37,62,21,5,'#3c365c','#e8a0e7');
+   circle(-13,-25,7,'#ffde9d');circle(13,-25,7,'#ffde9d');
+   rr(-53,-16,19,24,4,'#935783','#ffc6c8');
+   rr(34,-16,19,24,4,'#935783','#ffc6c8');
+   rr(-31,19,23,13,4,'#424660');rr(8,19,23,13,4,'#424660');
+   text('MECH',0,-54,12,'#ffe0ee');
+  }else{
+   rr(-21,-15,43,35,9,enemy.hit?'#fff1dc':'#6a6886','#e0a3cc');
+   rr(-15,-23,30,18,6,'#95618a');
+   circle(-7,-9,5,'#ffca88');circle(9,-9,5,'#ffca88');
+   rr(-24,15,18,8,4,'#353650');rr(8,15,18,8,4,'#353650');
+   rr(-28,1,10,10,3,'#bf8e98');
+  }
+  ctx.shadowBlur=0;
+  if(enemy.hp<enemy.maxHp||boss){
+   rr(-24,-boss*27-48,boss?48:48,5,2,'#16213b','#f0d5da55');
+   rr(-24,-boss*27-48,48*Math.max(0,enemy.hp/enemy.maxHp),5,2,'#ffa9be');
+  }
+  ctx.restore();
+ }
+}
+function renderProjectiles(){
+ ctx.save();
+ for(const shot of combat.shots){
+  ctx.shadowColor=shot.owner==='zoe'?'#d2aaff':'#ffe4ae';ctx.shadowBlur=12;
+  ctx.strokeStyle=shot.owner==='zoe'?'#d6b2ff':'#fff2bd';
+  ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();
+  ctx.moveTo(shot.x-shot.vx*.025,shot.y-shot.vy*.025);ctx.lineTo(shot.x,shot.y);ctx.stroke();
+  circle(shot.x,shot.y,3,'#ffffff');
+ }
+ for(const shot of combat.enemyShots){
+  ctx.shadowColor='#ff7896';ctx.shadowBlur=12;
+  circle(shot.x,shot.y,shot.r,'#ff9ab4','#fff4d2',1.5);
+ }
+ for(const flash of combat.flashes){
+  ctx.globalAlpha=Math.max(0,flash.life/flash.max);
+  ctx.shadowColor='#ffe2ae';ctx.shadowBlur=20;
+  circle(flash.x,flash.y,9+(1-flash.life/flash.max)*10,'#fff4d0');
+  ctx.globalAlpha=1;
+ }
+ ctx.shadowBlur=0;ctx.restore();
+}
 function renderParticles(){
  for(const p of particles){ctx.globalAlpha=clamp(p.life/p.max,0,1);
   circle(p.x,p.y,p.size,p.color);
@@ -503,10 +824,10 @@ function render(){
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
  scale=width/viewW;viewH=height/scale;camY=FLOOR-viewH*.71;
  if(P){let target=clamp(P.x-viewW*.38,0,Math.max(0,WORLD-viewW));camX+=(target-camX)*.12}
- ctx.save();ctx.scale(scale,scale);ctx.translate(-camX,-camY);
+ ctx.save();ctx.scale(scale,scale);ctx.translate(-camX+(combat.shake?(Math.random()-.5)*combat.shake:0),-camY+(combat.shake?(Math.random()-.5)*combat.shake:0));
  if(!room)room=ROOM_DEFS[0];
- renderSky();renderGround();renderPuzzle();renderGoal();
- renderCharacter(P);renderCharacter(Z);renderParticles();
+ renderSky();renderGround();renderPuzzle();renderGoal();renderCover();renderHostiles();
+ renderCharacter(P);renderCharacter(Z);renderProjectiles();renderParticles();
  ctx.restore();
 }
 function frame(t){
@@ -516,12 +837,14 @@ function frame(t){
 function keyState(key,on){
  if(key==='arrowleft'||key==='a')input.left=on;
  if(key==='arrowright'||key==='d')input.right=on;
+ if(key==='j'||key==='k'||key==='f')input.fire=on;
  if(on&&(key===' '||key==='arrowup'||key==='w'))input.jump=true;
 }
 function bindTouch(elId,action){
  const el=$(elId);if(!el)return;
  const down=e=>{if(e.cancelable)e.preventDefault();el.classList.add('pressed');
   if(action==='jump')input.jump=true;else input[action]=true;
+  if(action==='fire')unlockSound();
   try{el.setPointerCapture(e.pointerId)}catch{}
  };
  const up=e=>{if(e.cancelable)e.preventDefault();el.classList.remove('pressed');
@@ -534,14 +857,19 @@ function parseCommand(str){
  const t=str.trim().toLowerCase();
  if(!t)return null;
  if(/等|停一下|別動|停住|wait/.test(t))return 'wait';
- if(/幫|救|過來|help/.test(t))return 'help';
+ if(/幫|救|過來|掩護|cover|help/.test(t))return 'help';
  if(/先走|探路|去前面|lead|先去/.test(t))return 'lead';
  if(/跟|一起走|follow|回來/.test(t))return 'follow';
  return null;
 }
 function init(){
- readMemory();resetRoom();G.phase='ready';
- $('startBtn').addEventListener('click',startRun);
+ loadCrewSprites();readMemory();resetRoom();G.phase='ready';
+ $('startBtn').addEventListener('click',()=>{unlockSound();startRun()});
+ $('soundBtn').addEventListener('click',()=>{
+  combatSoundEnabled=!combatSoundEnabled;
+  $('soundBtn').textContent=combatSoundEnabled?'🔊':'🔇';
+  $('soundBtn').setAttribute('aria-pressed',combatSoundEnabled?'true':'false');
+ });
  for(const b of document.querySelectorAll('[data-command]'))b.addEventListener('click',()=>setCommand(b.dataset.command));
  $('sayForm').addEventListener('submit',e=>{
   e.preventDefault();const text=$('sayInput').value;const cmd=parseCommand(text);
@@ -549,15 +877,16 @@ function init(){
   else announce('我現在聽得懂「跟著我、你先走、等我、幫幫我」這幾種指令喔！',true);
   $('sayInput').value='';
  });
- bindTouch('leftBtn','left');bindTouch('rightBtn','right');bindTouch('jumpBtn','jump');
+ bindTouch('leftBtn','left');bindTouch('rightBtn','right');bindTouch('jumpBtn','jump');bindTouch('fireBtn','fire');
  window.addEventListener('keydown',e=>{
   const t=e.target;if(t&&['INPUT','TEXTAREA'].includes(t.tagName))return;
   const k=e.key.toLowerCase();
-  if(['arrowleft','arrowright','arrowup',' ','w','a','d'].includes(k))e.preventDefault();
+  if(['arrowleft','arrowright','arrowup',' ','w','a','d','j','k','f'].includes(k))e.preventDefault();
+  if(k==='j'||k==='k'||k==='f')unlockSound();
   keyState(k,true);
  });
  window.addEventListener('keyup',e=>keyState(e.key.toLowerCase(),false));
- window.addEventListener('blur',()=>{input.left=false;input.right=false;input.jump=false;});
+ window.addEventListener('blur',()=>{input.left=false;input.right=false;input.jump=false;input.fire=false;});
  window.addEventListener('resize',resize);
  if(window.ResizeObserver)new ResizeObserver(resize).observe($('stageFrame'));
  resize();last=performance.now();raf=requestAnimationFrame(frame);
@@ -572,7 +901,15 @@ if(params.get('qa')==='1'){
   step:gameStep,command:setCommand,jump:()=>tryJump(P),
   place:(who,x,y=FLOOR)=>{const obj=who==='zoe'?Z:P;obj.x=x;obj.y=y;obj.vy=0;obj.onGround=true},
   rescue:()=>rescue(P),finish:finishRun,updatePuzzle,aiStep,
-  controls:(left,right,jump)=>{input.left=!!left;input.right=!!right;if(jump)input.jump=true},
+  controls:(left,right,jump,fire)=>{input.left=!!left;input.right=!!right;if(jump)input.jump=true;input.fire=!!fire},
+  render, toggleSound:()=>{combatSoundEnabled=!combatSoundEnabled;return combatSoundEnabled},
+  fire:()=>fireGun(P,true),combat:()=>({wave:combat.wave,triggered:combat.triggered,kills:combat.kills,
+   shotsFired:combat.shotsFired,zoeShots:combat.zoeShots,shots:combat.shots.map(x=>({...x})),
+   enemyShots:combat.enemyShots.map(x=>({...x})),enemies:combat.enemies.map(x=>({...x})),
+   covers:combat.cover.map(x=>({...x})),cleared:combatCleared()}),
+  spawnWave:spawnHostiles,addEnemyShot:(x,y,vx=0,vy=0)=>combat.enemyShots.push({x,y,vx,vy,life:2,r:5,hostile:true}),hitEnemy:(i,damage=1)=>{const e=combat.enemies[i];if(e)hitEnemy(e,{x:e.x,y:e.y,damage})},
+  hurt:(who,damage=1)=>hitAvatar(who==='zoe'?Z:P,damage),
+  revive:(who)=>reviveAvatar(who==='zoe'?Z:P,who==='zoe'?P:Z),
   parseCommand,rooms:ROOM_DEFS.map(r=>r.id)
  }});
 }

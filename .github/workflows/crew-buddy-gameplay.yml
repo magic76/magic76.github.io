@@ -4,13 +4,13 @@ on:
   pull_request:
     paths:
       - 'web-spa/public/crew-buddy-lab/**'
-      - 'tests/crew-buddy-lab.test.js'
+      - 'tests/crew-buddy-*.test.js'
       - '.github/workflows/crew-buddy-gameplay.yml'
   push:
     branches: [master]
     paths:
       - 'web-spa/public/crew-buddy-lab/**'
-      - 'tests/crew-buddy-lab.test.js'
+      - 'tests/crew-buddy-*.test.js'
       - '.github/workflows/crew-buddy-gameplay.yml'
 
 permissions:
@@ -28,4 +28,4 @@ jobs:
         with:
           node-version: '22'
       - name: Validate Crew Buddy adventure
-        run: node --test tests/crew-buddy-lab.test.js
+        run: node --test tests/crew-buddy-*.test.js
