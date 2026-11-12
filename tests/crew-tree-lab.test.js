@@ -241,8 +241,11 @@ test('mature tree grows a genuinely connected hierarchical canopy, not branches 
  for(const child of children){
   const parent=g.branches[child.parentIndex];
   assert.ok(parent.i<child.i);
-  assert.equal(child.start.x,parent.end.x);
-  assert.equal(child.start.y,parent.end.y);
+  const u=1-child.attachmentT,q=child.attachmentT;
+  const px=u*u*parent.start.x+2*u*q*parent.p1.x+q*q*parent.end.x;
+  const py=u*u*parent.start.y+2*u*q*parent.p1.y+q*q*parent.end.y;
+  assert.ok(Math.abs(child.start.x-px)<1e-6);
+  assert.ok(Math.abs(child.start.y-py)<1e-6);
   assert.ok(child.width<parent.width,'woody parent tapers into thinner daughter branches');
  }
  const bounds=g.bounds;

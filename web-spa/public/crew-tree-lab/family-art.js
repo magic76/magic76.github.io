@@ -82,8 +82,12 @@ function generate(tree){
    parentIndex:-1,generation:1,side,downward:false};
   limbs.push(primary);
   for(let k=1;k<=2;k++){
-   const start={x:target.x,y:target.y};
-   let end={x:start.x+side*(12+rr()*22),y:start.y-(8+rr()*30)};
+   // Attach daughter twigs along the actual parent Bézier, not to its terminal tip.
+   // This builds filled crowns and curtain-like weeping growth instead of comb teeth.
+   const attachmentT=k===1?.46:.77,u=1-attachmentT;
+   const start={x:u*u*primary.start.x+2*u*attachmentT*primary.p1.x+attachmentT*attachmentT*primary.end.x,
+    y:u*u*primary.start.y+2*u*attachmentT*primary.p1.y+attachmentT*attachmentT*primary.end.y};
+   let end={x:start.x+side*(10+rr()*24),y:start.y-(14+rr()*30)};
    if(f==='tall')end={x:start.x+side*(2+rr()*9),y:start.y-18-rr()*34};
    if(f==='weeping')end={x:start.x+side*(4+rr()*14),y:start.y+40+rr()*47+(variant?13:0)};
    if(f==='twin')end={x:start.x+side*(12+rr()*19),y:start.y-(7+rr()*18)};
