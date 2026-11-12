@@ -1,0 +1,60 @@
+name: Life Observatory V3 prototype
+on:
+  pull_request:
+    paths:
+      - 'web-spa/src/timeline/lifeObservatory.ts'
+      - 'web-spa/src/timeline/lifeObservatoryStorage.ts'
+      - 'web-spa/src/timeline/LifeObservatoryPage.tsx'
+      - 'web-spa/src/timeline/lifeObservatory.css'
+      - 'web-spa/src/App.tsx'
+      - 'web-spa/src/games/CrewPlayHubPage.tsx'
+      - 'tests/life-observatory.test.js'
+      - 'tests/life-observatory-browser.mjs'
+      - '.github/workflows/life-observatory.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  simulation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check autonomous 3-person world, causal ripple and persistence
+        run: node --test tests/life-observatory.test.js
+  browser:
+    needs: simulation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save playwright@1.56.1
+      - name: Use Chrome on runner, install fallback if necessary
+        run: |
+          if command -v google-chrome >/dev/null || command -v google-chrome-stable >/dev/null || command -v chromium >/dev/null; then
+            echo "Using runner Chrome"
+          else
+            npx playwright install chromium
+          fi
+      - name: Install CJK font for readable screenshot assertions
+        run: sudo apt-get update -qq && sudo apt-get install -y fonts-noto-cjk
+      - run: CREW_DEPLOY_TARGET=cloudflare npm run build:web
+      - name: Include approved Timeline portraits (production asset copy)
+        run: mkdir -p dist/assets && cp -a assets/timeline dist/assets/timeline
+      - name: Run Life Observatory complete journeys at 360, 390 and 1280
+        run: node tests/life-observatory-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crew-life-observatory-v3-screenshots
+          path: artifacts/life-observatory-qa/
+          if-no-files-found: ignore
+          retention-days: 7

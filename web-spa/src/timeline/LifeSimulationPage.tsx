@@ -135,6 +135,7 @@ export function LifeSimulationPage(){
    <Link to="/timeline" className="life-sim-back">← {l("回到人生時間線","Back to Timeline")}</Link>
    <div className="life-sim-kicker">CREW · LIFE LAB <span>V2</span></div>
    <h1>{l("人生實驗室","Life Lab")}</h1>
+   <Link to="/timeline/observe" className="life-sim-observatory-entry">{l("✦ 新玩法試玩｜三人命運觀察室：不插手也會發生事","✦ V3 Preview · The Life Observatory: watch three lives unfold")} →</Link>
    <p>{l("同一個起點，走出不同人生。你的選擇會改變往後的事件；完成後，還能回到某一年試試另一條路。","One beginning, many lives. Choices shape later chapters; return to a turning point to explore another path.")}</p>
   </header>
   {storageWarning&&<p className="life-sim-warning" role="status">{l("目前無法可靠儲存：可以繼續玩，但離開後可能會失去進度。","Storage is unavailable: you can continue, but progress may be lost.")}</p>}
