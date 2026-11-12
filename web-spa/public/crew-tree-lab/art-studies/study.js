@@ -209,6 +209,7 @@ function jellyScene(c,m,time,staticMode){
   endpoints.push(bonePath(c,arm,time,staticMode,m.topic,m.stage));
  }
  window.CrewFantasyPaint.twistedTrunk(c,m.stage,m.seed,time,staticMode);
+ window.CrewFantasyV6.coralRoots(c,m.stage,m.topic,m.seed,time,staticMode);
  // Fewer, grounded lanterns; delayed light follows actual tendril endpoints.
  endpoints.forEach((end,i)=>{
   if(i%4!==0)return;
@@ -227,6 +228,8 @@ function jellyScene(c,m,time,staticMode){
   window.CrewFantasyV5.capBounce(c,m.reactionProgress,m.stage);
  window.CrewFantasyV5.capOcclusion(c,capSpec);
  const cap=window.CrewFantasyPaint.canopy(c,art,m.stage,time,staticMode,m.seed);
+ window.CrewFantasyV6.tintCanopy(c,cap,m.topic,m.stage,time,staticMode);
+ window.CrewFantasyV6.bellLeaves(c,cap,m.topic,m.stage,time,staticMode);
  if(m.stage>=16)window.CrewFantasyV4.fishHero(c,cap,time,staticMode,m.seed);
  else window.CrewFantasyV3.fishResident(c,cap,time,staticMode,m.seed,m.stage);
  c.restore();
@@ -298,6 +301,7 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
   if(reaction&&reaction.scene===scene&&reaction.progress<1)
    window.CrewFantasyV5.reactionOverlay(c,scene,reaction.progress,seed,model);
   window.CrewFantasyPaint.frame(c,scene,seed);
+  window.CrewFantasyV6.paperWash(c,seed,scene,stage);
  }
  return model;
 }
@@ -406,6 +410,11 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
   state:()=>({...state}),paint:(scene,stage,seed,topic)=>paint($('heroCanvas'),scene,stage,seed,topic,0,true),
   previews:()=>document.querySelectorAll('[data-preview]').length,
   paintAt:(scene,stage,seed,topic,time)=>paint($('heroCanvas'),scene,stage,seed,topic,time,false,false),
+  spiralGeometry:(stage=16)=>{const u=sceneModel('island',stage).units[0],w=u.w*(stage===8?.82:1),
+    cw=w*.97*(stage===8?.72:1),ch=w*.94*(stage===8?.72:1);
+    const ground=u.y-w*.12,top=ground-ch*.95+w*.07;
+    return window.CrewFantasyV6.spiralGeometry(u.x-cw*.5,top,cw,ch,ground,stage);
+  },
   growthFrame:(scene,from,to,progress,topic='cosmos')=>paint($('heroCanvas'),scene,to,state.seed,topic,1000,true,false,
    {from,to,progress:clamp(progress,0,1),pulse:from===to}),
   touchFrame:(scene,progress,topic='cosmos')=>paint($('heroCanvas'),scene,16,state.seed,topic,1000,true,false,null,

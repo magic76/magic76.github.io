@@ -128,7 +128,7 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  const cw=w*(index===0?.97:.95)*crownFactor;
  const ch=w*(index===0?.94:index===1?1.07:index===2?.97:.87)*crownFactor;
  const top=ground-ch*.95+w*.070;
- if(index===0&&m.stage>=8)root.CrewFantasyV5.spiralStair(c,x-cw*.50,top,cw,ch,m.stage,
+ if(index===0&&m.stage>=8)root.CrewFantasyV6.rootedSpiral(c,x-cw*.50,top,cw,ch,ground,m.stage,
    m.growthProgress===undefined?1:m.growthProgress,time,staticMode);
  else art(c,name,x-cw*.50,top,cw,ch);
  if(index===0)root.CrewFantasyV3.islandHollow(c,x,ground,w,time,staticMode,m.stage,m.seed);
