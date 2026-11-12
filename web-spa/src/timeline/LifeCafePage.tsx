@@ -224,9 +224,22 @@ export function LifeCafePage(){
    {reacting&&<div id="lc-reaction"><LastReaction world={world} zh={zh} onContinue={continueWorld} onReset={()=>reset(true)}/></div>}
    {finished&&<section className="lc-finished">
     <div className="lc-finished-symbol" aria-hidden="true">✦</div>
-    <span className="lc-step">EXPERIMENT COMPLETE</span>
-    <h2>{l("這五件小事，把他們變成了什麼樣？","Five small things changed their world.")}</h2>
-    <p>{l("不是每個秘密都會被揭開，也不是每段關係都會變好。換個物件或換個人，看看故事怎麼長。","Not every secret is uncovered, and not every relationship heals. Change the object or the recipient and try again.")}</p>
+    <span className="lc-step">{l("故事結局 · 第二天早上","THE END · THE NEXT MORNING")}</span>
+    <h2>{finale?.title[language]}</h2>
+    <p className="lc-finale-body">{finale?.detail[language]}</p>
+    <div className="lc-finale-answer">
+     <span aria-hidden="true">✉️</span><div>
+      <strong>{l("答案揭曉：匿名信是 Hana 寫的。","The answer: Hana wrote the letter.")}</strong>
+      <p>{l("她一直想告訴朋友自己要搬走。你讓誰先看到信，以及後來發生的事，決定了他們如何道別。","She was afraid to tell her friends she was moving. Your choices shaped how they said goodbye.")}</p>
+     </div>
+    </div>
+    <div className="lc-episode-recap">
+     <h3>{l("這段故事是怎麼發生的？","How did the story unfold?")}</h3>
+     <ol>{world.moves.map((move,i)=><li key={i}>
+      <span>{l("第","Act ")}{i+1}{zh?" 幕":""}</span>
+      <p><b>{cafePropCopy[move.item].title[language]} → {cafeNames[move.target]}</b>　{move.news.title[language]}</p>
+     </li>)}</ol>
+    </div>
     <div className="lc-finished-stats">
      <div><strong>{world.revealed.length}<small>/3</small></strong><span>{l("已揭露的秘密","Secrets uncovered")}</span></div>
      <div><strong>{world.correctGuesses}<small>/{world.attemptedGuesses}</small></strong><span>{l("猜中第一反應","Correct predictions")}</span></div>
@@ -234,7 +247,7 @@ export function LifeCafePage(){
     </div>
     <RelationRow world={world} zh={zh}/>
     <div className="lc-finished-actions">
-     <button type="button" className="lc-primary" onClick={()=>reset(true)}>{l("同一個世界，換個玩法","Rewind the same world")} <span aria-hidden="true">↻</span></button>
+     <button type="button" className="lc-primary" onClick={()=>reset(true)}>{l("換個人收到信，重玩一次","Replay: give the letter to someone else")} <span aria-hidden="true">↻</span></button>
      <button type="button" className="lc-secondary" onClick={()=>reset(false)}>{l("生成新的起點","Start from a new seed")}</button>
     </div>
    </section>}
@@ -245,7 +258,7 @@ export function LifeCafePage(){
      {showSecrets&&<Secrets world={world} zh={zh}/>}
     </div>
     <div className="lc-history"><button type="button" className="lc-fold-button" onClick={()=>setShowLog(v=>!v)} aria-expanded={showLog}>
-     <span>☰ {l("實驗紀錄","Experiment log")} · {world.moves.length}/5</span><span>{showLog?"−":"+"}</span></button>
+     <span>☰ {l("實驗紀錄","Experiment log")} · {world.moves.length}/{total}</span><span>{showLog?"−":"+"}</span></button>
      {showLog&&<ol>{world.moves.map((move,i)=><li key={i}><b>{cafePropCopy[move.item].icon} {cafePropCopy[move.item].title[language]} → {cafeNames[move.target]}</b>
        <p>{move.news.title[language]}</p></li>)}</ol>}
     </div>
