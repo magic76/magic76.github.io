@@ -48,7 +48,7 @@ test('same floating islands survive later stages',()=>{
  }
  assert.ok(draw.paths>150,'islands use layered mineral washes, roots and falling debris');
  assert.deepEqual([qa.sceneModel('island',3,103).silhouette.mainIslandScale,qa.sceneModel('island',8,103).silhouette.mainIslandScale,qa.sceneModel('island',16,103).silhouette.mainIslandScale],[.70,.87,1]);
- assert.deepEqual(qa.sceneModel('island',16,103).units.map(x=>x.species),['spiral','weeping','lantern-fruit','crescent']);
+ assert.deepEqual(JSON.parse(JSON.stringify(qa.sceneModel('island',16,103).units.map(x=>x.species))),['spiral','weeping','lantern-fruit','crescent']);
 });
 test('jellyfish grows new bones without relocating existing ones',()=>{
  const {qa}=boot();
