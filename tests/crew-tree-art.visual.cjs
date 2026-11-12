@@ -75,6 +75,10 @@ async function preview(page,label){
   assert.ok(metrics.weeping.downwardBranches>=16);
   assert.ok(metrics.tall.crownWidth<metrics.round.crownWidth*.75);
   await wall.screenshot({path:path.join(OUT,'24-tree-art-review.png'),fullPage:true});
+  await wall.getByRole('button',{name:'切換純黑剪影'}).click();
+  assert.equal(await wall.locator('#silhouetteBtn').getAttribute('aria-pressed'),'true');
+  await wall.locator('#matureCompare').screenshot({path:path.join(OUT,'four-mature-black-silhouettes.png')});
+  await wall.getByRole('button',{name:'恢復彩色樹木'}).click();
   const contact=await wall.evaluate(()=>{
    const trees=[...document.querySelectorAll('#reviewGallery .specimen canvas')];
    const cellW=120,cellH=158;

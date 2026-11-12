@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id);
 const families=window.CrewTreeV5.families,stages=[3,8,16],seeds=[103,241];
 const names=window.CrewTreeV5.labels;
-let family='all',stage='all',busy=false,resizePending=false;
+let family='all',stage='all',busy=false,resizePending=false,compareSilhouette=false;
 const topics=['nature','food','cosmos','weather','love','tech','music','travel'];
 function createTree(seed,turns,family){
  const r=window.CrewBotany.seeded(seed);
@@ -24,15 +24,17 @@ function background(c,w,h){
  c.quadraticCurveTo(w*.45,floor-58,w,floor-31);c.lineTo(w,floor);c.lineTo(0,floor);c.fill();
  c.globalAlpha=1;c.fillStyle='#6b9075';c.fillRect(0,floor,w,h-floor);
 }
-function drawOne(canvas,seed,age,family){
+function drawOne(canvas,seed,age,family,silhouette=false){
  const tree=createTree(seed,age,family),geo=window.CrewTreeV5.generate(tree);
  const rect=canvas.getBoundingClientRect();
  const w=Math.max(120,Math.round(rect.width||245)),h=Math.max(150,Math.round(rect.height||308));
  const dpr=Math.min(2,window.devicePixelRatio||1);
  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
- const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);background(c,w,h);
+ const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
+ if(silhouette){c.fillStyle='#f6f5eb';c.fillRect(0,0,w,h);}else background(c,w,h);
  const xy=window.CrewTreeV5.layout(geo.bounds,w,h);
- window.CrewTreeV5.paint(c,tree,geo,xy.ox,xy.oy,xy.factor,0,{reducedMotion:true});
+ c.save();if(silhouette)c.filter='brightness(0)';
+ window.CrewTreeV5.paint(c,tree,geo,xy.ox,xy.oy,xy.factor,0,{reducedMotion:true});c.restore();
  return geo;
 }
 function specimen(f,seed,age){
@@ -56,7 +58,7 @@ function populate(){
  let count=0;
  for(const f of families){
   const featured=specimen(f,103,16);
-  compare.append(featured.article);drawOne(featured.canvas,103,16,f);
+  compare.append(featured.article);drawOne(featured.canvas,103,16,f,compareSilhouette);
  }
  for(const f of families)for(const seed of seeds)for(const age of stages){
   if(family!=='all'&&family!==f)continue;
@@ -77,6 +79,12 @@ for(const b of document.querySelectorAll('[data-family]'))b.addEventListener('cl
 for(const b of document.querySelectorAll('[data-stage]'))b.addEventListener('click',()=>{
  stage=b.dataset.stage;
  document.querySelectorAll('[data-stage]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+ populate();
+});
+$('silhouetteBtn').addEventListener('click',()=>{
+ compareSilhouette=!compareSilhouette;
+ $('silhouetteBtn').setAttribute('aria-pressed',String(compareSilhouette));
+ $('silhouetteBtn').textContent=compareSilhouette?'恢復彩色樹木':'切換純黑剪影';
  populate();
 });
 window.addEventListener('crew-tree-art-ready',populate);
