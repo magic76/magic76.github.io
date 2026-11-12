@@ -42,6 +42,16 @@ const checkTapTargets=async(page,label)=>{
  assert.ok(metrics.length>0,label+" buttons missing");
  assert.ok(metrics.every(item=>item.w>=44&&item.h>=44),label+" small touch target "+JSON.stringify(metrics));
 };
+async function waitForPortraits(page,label){
+ await page.waitForFunction(()=>{
+  const frames=Array.from(document.querySelectorAll(".lo-person .lo-portrait"));
+  return frames.length===3&&frames.every(frame=>{
+   const image=frame.querySelector("img");
+   return image&&image.complete&&image.naturalWidth>0;
+  });
+ },null,{timeout:20000});
+ assert.equal(await page.locator(".lo-person .lo-portrait img").count(),3,label+" verified photos missing");
+}
 async function intervene(page,actor,index){
  await page.locator(".lo-scene-"+actor+" .lo-option-list button").nth(index).click();
 }
@@ -58,11 +68,13 @@ try{
   await page.goto(address+"/timeline/observe",{waitUntil:"domcontentloaded",timeout:45000});
   await page.locator(".lo-intro .lo-primary").waitFor({state:"visible",timeout:30000});
   assert.equal(await page.locator(".lo-person").count(),3);
+  await waitForPortraits(page,width+" intro");
   await overflow(page,width+" intro");
   await snapshot(page,width+"-intro");
   await page.locator(".lo-intro .lo-primary").click();
   await page.locator(".lo-scene").first().waitFor({state:"visible"});
   assert.equal(await page.locator(".lo-scene").count(),3);
+  await waitForPortraits(page,width+" watch");
   await checkTapTargets(page,width+" observe");
   await overflow(page,width+" observe");
   await snapshot(page,width+"-watch-16");
