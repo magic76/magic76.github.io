@@ -33,6 +33,18 @@ function loadCrewSprites(){
   crewSpriteImages[key]={image,spec};
  }
 }
+function unlockSound(){
+ if(!combatSoundEnabled)return;
+ const Audio=window.AudioContext||window.webkitAudioContext;
+ if(!Audio)return;
+ try{
+  if(!soundCombat.ctx)soundCombat.ctx=new Audio();
+  if(soundCombat.ctx.state==='suspended'){
+   const pending=soundCombat.ctx.resume();
+   if(pending?.catch)pending.catch(()=>{});
+  }
+ }catch{/* Browser audio permission should never block movement. */}
+}
 function soundCombat(kind){
  if(!combatSoundEnabled)return;
  const Audio=window.AudioContext||window.webkitAudioContext;
@@ -832,6 +844,7 @@ function bindTouch(elId,action){
  const el=$(elId);if(!el)return;
  const down=e=>{if(e.cancelable)e.preventDefault();el.classList.add('pressed');
   if(action==='jump')input.jump=true;else input[action]=true;
+  if(action==='fire')unlockSound();
   try{el.setPointerCapture(e.pointerId)}catch{}
  };
  const up=e=>{if(e.cancelable)e.preventDefault();el.classList.remove('pressed');
@@ -851,7 +864,7 @@ function parseCommand(str){
 }
 function init(){
  loadCrewSprites();readMemory();resetRoom();G.phase='ready';
- $('startBtn').addEventListener('click',startRun);
+ $('startBtn').addEventListener('click',()=>{unlockSound();startRun()});
  $('soundBtn').addEventListener('click',()=>{
   combatSoundEnabled=!combatSoundEnabled;
   $('soundBtn').textContent=combatSoundEnabled?'🔊':'🔇';
@@ -869,6 +882,7 @@ function init(){
   const t=e.target;if(t&&['INPUT','TEXTAREA'].includes(t.tagName))return;
   const k=e.key.toLowerCase();
   if(['arrowleft','arrowright','arrowup',' ','w','a','d','j','k','f'].includes(k))e.preventDefault();
+  if(k==='j'||k==='k'||k==='f')unlockSound();
   keyState(k,true);
  });
  window.addEventListener('keyup',e=>keyState(e.key.toLowerCase(),false));
