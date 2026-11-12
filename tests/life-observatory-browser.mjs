@@ -142,7 +142,7 @@ try{
   await page.goto(address+"/timeline/simulate",{waitUntil:"domcontentloaded"});
   await page.waitForURL(/\/timeline\/observe/);
   await page.locator(".lc-page").waitFor({state:"visible",timeout:15000});
-  assert.equal(await page.locator(".lc-item").count(),5,"Legacy V2 bookmark now opens the new experiment box");
+  assert.equal(await page.locator(".lc-opening-letter").count(),1,"Legacy V2 bookmark opens the story-guided letter, not the old five-item interface");
   await context.close();
  }
  assert.deepEqual(problems,[],"No uncaught runtime exceptions");

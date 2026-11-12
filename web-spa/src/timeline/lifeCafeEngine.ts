@@ -19,7 +19,7 @@ export type CafeMove={
  reveals:CafeSecret[];correct:boolean|null;
 };
 export type CafeWorld={
- version:1;seed:number;phase:CafePhase;lastSeenAt:number;
+ version:1|2;episodeLength?:3;seed:number;phase:CafePhase;lastSeenAt:number;
  used:CafeProp[];relations:Record<CafePair,number>;
  revealed:CafeSecret[];flags:string[];moves:CafeMove[];
  correctGuesses:number;attemptedGuesses:number;
@@ -29,7 +29,9 @@ export const CAFE_ACTORS=["mira","ethan","hana"] as const;
 export const CAFE_PROPS=["letter","ticket","rain","camera","coffee"] as const;
 export const CAFE_PAIRS=["mira-ethan","mira-hana","ethan-hana"] as const;
 export const CAFE_SECRETS=["hana-moving","ethan-song","mira-photo"] as const;
-export const CAFE_MAX_MOVES=5;
+export const CAFE_MAX_MOVES=3;
+/** Historical V1 saves retain their original five-step rules. New episodes are three moves long. */
+export const cafeLength=(world:CafeWorld):number=>world.version===2?3:5;
 export const cafeNames:Record<CafeActor,string>={mira:"Mira",ethan:"Ethan",hana:"Hana"};
 export const cafePropCopy:Record<CafeProp,{icon:string;title:CafeText;hint:CafeText}>={
  letter:{icon:"✉️",title:{zh:"匿名信",en:"Anonymous letter"},hint:{zh:"沒寫收件人",en:"No recipient"}},
@@ -51,7 +53,7 @@ const hash=(s:string)=>{let x=2166136261;for(let i=0;i<s.length;i++){x^=s.charCo
 const distinct=(a:CafeActor,b:CafeActor)=>CAFE_ACTORS.find(id=>id!==a&&id!==b)!;
 export function newCafeWorld(seed:number,now=Date.now()):CafeWorld{
  if(!Number.isSafeInteger(seed)||seed<0||seed>0xffffffff||!Number.isFinite(now)||now<0)throw Error("Invalid world seed/time");
- return {version:1,seed,lastSeenAt:now,phase:"ready",used:[],
+ return {version:2,episodeLength:3,seed,lastSeenAt:now,phase:"ready",used:[],
  relations:{"mira-ethan":66,"mira-hana":70,"ethan-hana":64},
  revealed:[],flags:[],moves:[],correctGuesses:0,attemptedGuesses:0,awayReports:[]};
 }
@@ -162,7 +164,8 @@ function react(w:CafeWorld,item:CafeProp,target:CafeActor,first:CafeActor):React
 }
 export function useCafeProp(world:CafeWorld,item:CafeProp,target:CafeActor,guess:CafeActor|null,now=Date.now()):CafeWorld{
  if(world.phase!=="ready"||!CAFE_PROPS.includes(item)||!CAFE_ACTORS.includes(target)||guess!==null&&!CAFE_ACTORS.includes(guess))throw Error("Invalid experiment input");
- if(world.used.includes(item)||world.used.length>=CAFE_MAX_MOVES)throw Error("Item already used");
+ if(world.used.includes(item)||world.used.length>=cafeLength(world))throw Error("Item already used");
+ if(world.version===2&&world.used.length===0&&item!=="letter")throw Error("Open the story with the anonymous letter");
  if(!Number.isFinite(now)||now<world.lastSeenAt)throw Error("Invalid experiment timestamp");
  const first=cafeFirstResponder(world,item,target);
  const outcome=react(world,item,target,first);
@@ -179,7 +182,7 @@ export function useCafeProp(world:CafeWorld,item:CafeProp,target:CafeActor,guess
 }
 export function continueCafeWorld(world:CafeWorld,now=Date.now()):CafeWorld{
  if(world.phase!=="reaction"||!Number.isFinite(now)||now<world.lastSeenAt)throw Error("Nothing to advance");
- return {...world,phase:world.used.length===CAFE_MAX_MOVES?"finished":"ready",lastSeenAt:now,awayReports:[]};
+ return {...world,phase:world.used.length===cafeLength(world)?"finished":"ready",lastSeenAt:now,awayReports:[]};
 }
 const awayTemplates=[
  news("Mira 把照片重新放進抽屜","Mira puts the photo away","她還是擔心被朋友誤會，但沒有把照片丟掉。","She's worried the photo may be misunderstood, but she doesn't throw it away."),
@@ -201,18 +204,50 @@ export function catchUpCafeWorld(world:CafeWorld,now=Date.now()):CafeWorld{
  }
  return {...world,awayReports,relations,lastSeenAt:now};
 }
+/**
+ * An actual ending: the missing sender is revealed on the next morning,
+ * and the consequences depend on what the player uncovered or left unresolved.
+ * This is authored fiction, not LLM-generated dialogue or a numeric score.
+ */
+export function cafeFinale(world:CafeWorld):CafeNews{
+ if(world.phase!=="finished")throw Error("The story is still unfolding");
+ const confessed=world.revealed.includes("hana-moving");
+ const mistaken=world.flags.includes("letter-misread")&&!world.flags.includes("photo-cleared")&&!world.flags.includes("rain-cleared");
+ const song=world.flags.includes("song-heard");
+ const photo=world.flags.includes("photo-found");
+ const bond=world.relations["mira-hana"]+world.relations["ethan-hana"];
+ if(confessed&&bond>=140){
+  return news("在離開之前，他們終於說了再見","They finally said goodbye",
+   "那封信其實是 Hana 寫的。她終於告訴朋友自己明天要搬走。"+(song?" Ethan 彈了那首一直沒勇氣公開的歌。":" Ethan 陪她走到車站。")+(photo?" Mira 把三人的照片送給了她。":" Mira 約好以後要常寫信。")+" 離開還是很難過，但這次誰都沒有錯過。",
+   "Hana wrote the unsigned letter. She finally told them she was leaving tomorrow. "+(song?"Ethan played the song he'd been hiding. ":"Ethan walked her to the station. ")+(photo?"Mira gave her their photograph. ":"Mira promised to keep in touch. ")+"Goodbye still hurt, but they had one.");
+ }
+ if(mistaken){
+  return news("他們錯過了最後一次道別","They missed the last goodbye",
+   "原來信是 Hana 寫的。她第二天搬走時，Ethan 還以為 Mira 才是要離開的人。直到看見 Hana 空下來的位置，他才明白誤會了誰。這個夏天少了一句沒說出口的再見。",
+   "Hana was the writer. When she left the next morning, Ethan still thought Mira was the one leaving. Only when Hana's chair was empty did he understand. A goodbye was lost.");
+ }
+ if(confessed){
+  return news("真相說出口了，卻還來不及靠近","The truth came out, but too late",
+   "原來信是 Hana 寫的。朋友們知道了她準備離開，卻因為之前的誤會，沒能好好說完想說的話。她搭上車時，三個人都還在想：如果那天早點開口呢？",
+   "Hana wrote the letter. Her friends learned she was leaving, but the earlier misunderstandings left too much unsaid. As she boarded the train, all three wondered what an earlier conversation might have changed.");
+ }
+ return news("直到隔天，匿名信才有了答案","The letter is answered a day late",
+  "那封信是 Hana 寫的。她沒有在咖啡店說出搬家的事，第二天便悄悄離開。"+(photo?" Mira 翻出三人的照片，才發現還有太多話沒說。":" Ethan 回到那張桌子，看見信還放在原處。")+" 原來，有些秘密不會因為時間過去就自動解開。",
+  "Hana wrote the letter. She left the next morning without explaining it in the café. "+(photo?"Mira found their photograph and realised how much was left unsaid. ":"Ethan found the letter still on the table. ")+"Some secrets don't resolve just because time passes.");
+}
 export function cafeWorldValid(value:unknown):value is CafeWorld{
  if(!value||typeof value!=="object")return false;
  const w=value as Partial<CafeWorld>;
- if(w.version!==1||!Number.isSafeInteger(w.seed)||Number(w.seed)<0||Number(w.seed)>0xffffffff)return false;
+ if((w.version!==1&&w.version!==2)||(w.version===2&&w.episodeLength!==3)||(w.version===1&&w.episodeLength!==undefined)||!Number.isSafeInteger(w.seed)||Number(w.seed)<0||Number(w.seed)>0xffffffff)return false;
  if(!Number.isFinite(w.lastSeenAt)||Number(w.lastSeenAt)<0||!["ready","reaction","finished"].includes(w.phase||""))return false;
- if(!Array.isArray(w.used)||w.used.length>5||new Set(w.used).size!==w.used.length||w.used.some(p=>!CAFE_PROPS.includes(p)))return false;
+ if(!Array.isArray(w.used)||w.used.length>cafeLength(w as CafeWorld)||new Set(w.used).size!==w.used.length||w.used.some(p=>!CAFE_PROPS.includes(p)))return false;
+ if(w.version===2&&w.used.length>0&&w.used[0]!=="letter")return false;
  if(!w.relations||CAFE_PAIRS.some(pair=>!Number.isInteger(w.relations?.[pair])||Number(w.relations?.[pair])<0||Number(w.relations?.[pair])>100))return false;
  if(!Array.isArray(w.revealed)||w.revealed.some(s=>!CAFE_SECRETS.includes(s))||new Set(w.revealed).size!==w.revealed.length)return false;
  if(!Array.isArray(w.flags)||w.flags.length>20||w.flags.some(s=>typeof s!=="string"||!/^[a-z-]{1,36}$/.test(s)))return false;
  if(!Array.isArray(w.moves)||w.moves.length!==w.used.length)return false;
- if(w.phase==="finished"&&w.used.length!==5||w.phase==="ready"&&w.used.length===5)return false;
- if(!Number.isInteger(w.correctGuesses)||!Number.isInteger(w.attemptedGuesses)||Number(w.correctGuesses)<0||Number(w.attemptedGuesses)<0||Number(w.correctGuesses)>Number(w.attemptedGuesses)||Number(w.attemptedGuesses)>5)return false;
+ if(w.phase==="finished"&&w.used.length!==cafeLength(w as CafeWorld)||w.phase==="ready"&&w.used.length===cafeLength(w as CafeWorld))return false;
+ if(!Number.isInteger(w.correctGuesses)||!Number.isInteger(w.attemptedGuesses)||Number(w.correctGuesses)<0||Number(w.attemptedGuesses)<0||Number(w.correctGuesses)>Number(w.attemptedGuesses)||Number(w.attemptedGuesses)>cafeLength(w as CafeWorld))return false;
  if(!Array.isArray(w.awayReports)||w.awayReports.length>3)return false;
  return w.moves.every((move,i)=>{
   if(!move||move.item!==w.used?.[i]||!CAFE_ACTORS.includes(move.target)||!CAFE_ACTORS.includes(move.first))return false;
