@@ -39,7 +39,8 @@ function targetAt(i,height,profile,g,seed,count){
  let y=-height*.72+Math.cos(angle)*radius*height*.30;
  if(g.silhouette===2){y=-height*.65+Math.cos(angle)*radius*height*.22;}
  if(g.silhouette===3||g.silhouette===10){y+=Math.max(0,Math.abs(x)/Math.max(1,width)-.35)*height*.24;}
- if(g.silhouette===6||g.silhouette===8){y=-height*.80+Math.cos(angle)*radius*height*.17;}
+ if(g.silhouette===6){y=-height*.67+Math.cos(angle)*radius*height*.40;}
+ if(g.silhouette===8){y=-height*.80+Math.cos(angle)*radius*height*.17;}
  if(g.silhouette===5){y+=Math.sin(angle*3)*12;}
  if(g.silhouette===4){x+=x>=0?24:-24;}
  if(g.silhouette===9){x+=height*.19;}
