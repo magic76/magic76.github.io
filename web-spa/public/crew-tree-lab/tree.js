@@ -81,8 +81,12 @@ function rng32(seed){let a=seed>>>0;return ()=>{a+=0x6D2B79F5;let t=a;t=Math.imu
 function randomSeed(){return ((Math.floor(Math.random()*4294967296) ^ Date.now())>>>0)||1;}
 function makeTree(seed=randomSeed()){
  const r=rng32(seed);
- return {seed,genome:{silhouette:Math.floor(r()*SILHOUETTES.length),leaf:Math.floor(r()*LEAVES.length),
-  palette:Math.floor(r()*PALETTES.length),lean:r()*2-1,twist:r()*2-1,fruit:Math.floor(r()*12)},
+ // V4 deliberately starts with ONE art-directed magical tree species.
+ // Old saved genomes retain all 12 legacy silhouettes; DNA shape stays compatible.
+ const curatedPalettes=[0,1,7,9];
+ return {seed,genome:{silhouette:6,leaf:Math.floor(r()*LEAVES.length),
+  palette:curatedPalettes[Math.floor(r()*curatedPalettes.length)],
+  lean:(r()*2-1)*.40,twist:(r()*2-1)*.42,fruit:Math.floor(r()*12)},
   growth:[],tags:{},mutations:[],name:'小小的歪樹苗',createdAt:Date.now()};
 }
 function validateTree(value){
@@ -284,26 +288,47 @@ function renderGallery(){
  }
 }
 function drawSky(c,width,height,tree,clock){
- const topic=topTopic(tree),palette=PALETTES[tree.genome.palette];
- const bg=c.createLinearGradient(0,0,0,height);
- bg.addColorStop(0,topic==='cosmos'?'#293962':topic==='tech'?'#2b6264':topic==='weather'?'#647f98':'#5c9690');
- bg.addColorStop(.66,topic==='cosmos'?'#9a9cbd':'#b0cfb0');bg.addColorStop(1,'#c5d9aa');
- c.fillStyle=bg;c.fillRect(0,0,width,height);
- const day=clock*.0001;
- for(let i=0;i<8;i++){
-  const x=((i*117+36)%510)/510*width,y=((i*71+22)%305)/390*height;
-  c.globalAlpha=.08+.03*Math.sin(day+i);
-  c.fillStyle=i%2?'#ffffff':palette[1];
-  c.beginPath();c.ellipse(x,y,27+(i%3)*19,12+(i%2)*9,.2,0,TAU);c.fill();
+ const floor=height*.85;
+ const grad=c.createLinearGradient(0,0,0,height);
+ grad.addColorStop(0,'#d5e5d5');
+ grad.addColorStop(.54,'#edf0dc');
+ grad.addColorStop(.84,'#e6e6ca');
+ grad.addColorStop(1,'#a5baa0');
+ c.fillStyle=grad;c.fillRect(0,0,width,height);
+ // Deliberately quiet storybook backdrop: warm daylight, distant hand-drawn hills.
+ // No repeated floating glass ovals or high-gloss radial bubbles.
+ c.save();
+ const light=c.createRadialGradient(width*.23,height*.15,2,width*.23,height*.15,width*.65);
+ light.addColorStop(0,'#fef9db9c');light.addColorStop(.42,'#fff9e836');light.addColorStop(1,'#fff9e800');
+ c.fillStyle=light;c.fillRect(0,0,width,height);
+ c.globalAlpha=.38;
+ c.fillStyle='#b4cbb6';c.beginPath();c.moveTo(0,floor-36);
+ c.bezierCurveTo(width*.19,floor-79,width*.31,floor-23,width*.53,floor-45);
+ c.bezierCurveTo(width*.72,floor-80,width*.88,floor-38,width,floor-53);
+ c.lineTo(width,floor);c.lineTo(0,floor);c.fill();
+ c.fillStyle='#98b8a5';c.beginPath();c.moveTo(0,floor-10);
+ c.bezierCurveTo(width*.16,floor-33,width*.35,floor-3,width*.52,floor-20);
+ c.bezierCurveTo(width*.78,floor-43,width*.88,floor-9,width,floor-22);
+ c.lineTo(width,floor);c.lineTo(0,floor);c.fill();
+ c.restore();
+ // Natural soil instead of the earlier hard striped floor.
+ c.fillStyle='#6c8c70';c.fillRect(0,floor,width,height-floor);
+ const earth=c.createLinearGradient(0,floor,0,height);
+ earth.addColorStop(0,'#648765');earth.addColorStop(.9,'#3c6556');
+ c.fillStyle=earth;c.fillRect(0,floor+4,width,height-floor);
+ c.strokeStyle='#476d55';c.lineWidth=2;c.beginPath();
+ c.moveTo(0,floor+2);c.lineTo(width,floor+2);c.stroke();
+ // Hand-placed soft tufts, staying behind the hero tree.
+ const dots=Math.round(width/39);
+ for(let i=0;i<dots;i++){
+  const x=(i+.31+((i*7)%4)*.11)*width/dots,y=floor+9+(i*17)%26;
+  c.globalAlpha=.22;c.strokeStyle=i%3?'#add1a0':'#d6d3a0';
+  c.lineWidth=1.15;c.beginPath();
+  c.moveTo(x-6,y+2);c.quadraticCurveTo(x-9,y-6,x-10,y-7);
+  c.moveTo(x-6,y+2);c.quadraticCurveTo(x-1,y-4,x,y-8);
+  c.stroke();
  }
  c.globalAlpha=1;
- const floor=height*.83;
- c.fillStyle='#355c51';c.fillRect(0,floor,width,height-floor);
- c.fillStyle='#81ac83';c.fillRect(0,floor,width,6);
- for(let i=0;i<30;i++){
-  const x=((i*79+29)%421)/421*width,y=floor+9+(i%6)*12;
-  c.fillStyle=i%3?'#5e866a':'#b4d99f';c.fillRect(x,y,9+i%3*5,2);
- }
 }
 function drawTree(c,tree,geometry,ox,oy,factor,clock){
  let revealFrom=geometry.branches.length,progress=1;
@@ -318,11 +343,8 @@ function drawTree(c,tree,geometry,ox,oy,factor,clock){
 }
 function scene(c,width,height,tree,geometry,clock,card=false){
  drawSky(c,width,height,tree,clock);
- const bounds=geometry.bounds;
- const bw=Math.max(1,bounds.maxX-bounds.minX),bh=Math.max(1,bounds.maxY-bounds.minY);
- const factor=Math.min(width*.83/bw,height*(card?.66:.73)/bh,Math.min(width/435,height/470)*1.47);
- const ox=width*.5-(bounds.minX+bounds.maxX)*.5*factor;
- drawTree(c,tree,geometry,ox,height*.83,factor,clock);
+ const layout=window.CrewBotany.makeSceneLayout(geometry.bounds,width,height,card);
+ drawTree(c,tree,geometry,layout.ox,layout.oy,layout.factor,clock);
  if(card){
   c.fillStyle='#164236a8';c.fillRect(0,0,width,104);
   c.fillStyle='#f0ffe9';c.font='bold 39px system-ui';c.textAlign='center';c.fillText(tree.name,width/2,66);
@@ -378,6 +400,7 @@ function init(){
  $('shareBtn').addEventListener('click',exportImage);
  window.addEventListener?.('resize',resize);
  if(window.ResizeObserver)new window.ResizeObserver(resize).observe($('canvasWrap'));
+ window.addEventListener?.('crew-tree-art-ready',renderGallery);
  window.requestAnimationFrame?.(render);
 }
 if(new URLSearchParams(location.search).get('qa')==='1'){
@@ -385,6 +408,7 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
   classify,makeTree,validateTree,buildGeometry,treeSignature,post:postMessage,save:saveTree,newTree:createNewTree,
   open:openSaved,exportImage,allTopics:Object.keys(TOPICS),mutations:MUTATIONS.map(m=>m.key),
   getRendererVersion:()=>window.CrewBotany.modelVersion,
+  artStatus:()=>window.CrewBotany.artStatus(),
   shapes:SILHOUETTES.map(p=>p.name),leaves:LEAVES.slice(),
   state:()=>({current:JSON.parse(JSON.stringify(current)),forest:JSON.parse(JSON.stringify(forest)),
    geometry:geom,sessionMessages,renderTime}),
