@@ -128,8 +128,8 @@ function generate(tree,profiles,palettes){
  // clusters, not uncorrelated leaves scattered around trunk x/y.
  const xVals=[...trunk.map(p=>p.x),...canopy.map(p=>p.x-p.r),...canopy.map(p=>p.x+p.r)];
  const yVals=[...trunk.map(p=>p.y),...canopy.map(p=>p.y-p.r)];
- const bounds={minX:Math.min(...xVals,-27)-16,maxX:Math.max(...xVals,27)+16,
-  minY:Math.min(...yVals,-height)-21,maxY:18};
+ const bounds={minX:Math.min(...xVals,-27)-39,maxX:Math.max(...xVals,27)+39,
+  minY:Math.min(...yVals,-height)-43,maxY:18};
  return {height,trunk,branches,ornaments,canopy,bounds,profile,palette:palettes[g.palette],
   attractors:availableTargets,modelVersion:2};
 }
