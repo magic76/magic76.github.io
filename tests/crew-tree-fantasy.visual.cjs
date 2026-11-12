@@ -58,8 +58,18 @@ fs.mkdirSync(OUT,{recursive:true});
   const p=await ctx.newPage();await p.goto(URL+'bake.html',{waitUntil:'domcontentloaded'});
   assert.equal(await p.locator('#bakeBtn').count(),1);
   assert.equal(await p.locator('#checkRig').count(),1);
+  // These are genuine third-party engine probes. Their results are logged,
+  // not counted as success unless the official runtime reports success.
+  await p.locator('#checkRig').click();
+  await p.waitForFunction(()=>document.querySelector('#rigReport')?.textContent?.includes('成功')||
+    document.querySelector('#rigReport')?.textContent?.includes('失敗'),{timeout:25000}).catch(()=>{});
+  console.log('RIGBY2D_RUNTIME_PROBE '+(await p.locator('#rigReport').innerText()).slice(0,500));
+  await p.locator('#bakeBtn').click();
+  await p.waitForFunction(()=>document.querySelector('#bakeReport')?.textContent?.includes('完成')||
+    document.querySelector('#bakeReport')?.textContent?.includes('失敗'),{timeout:25000}).catch(()=>{});
+  console.log('P5_BRUSH_BAKE_PROBE '+(await p.locator('#bakeReport').innerText()).slice(0,500));
   await p.screenshot({path:path.join(OUT,'authoring-tools.png'),fullPage:true});
-  console.log('FANTASY_AUTHORING_UI_OK; external runtime probes need network and separate validation');
+  console.log('FANTASY_AUTHORING_UI_OK; runtime probes logged without falsely marking unavailable CDN as passed');
   await ctx.close();
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});
