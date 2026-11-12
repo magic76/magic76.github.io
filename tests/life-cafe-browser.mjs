@@ -54,6 +54,7 @@ try{
   await page.goto(base+"/timeline/observe",{waitUntil:"domcontentloaded",timeout:45000});
   await page.locator(".lc-item").first().waitFor({state:"visible",timeout:25000});
   await portraits(page);
+  if(width<=390)assert.equal(await page.locator(".crew-mobile-dock").evaluate(el=>getComputedStyle(el).display),"none","Immersive game must not overlap prop controls with mobile site dock");
   assert.equal(await page.locator(".lc-character").count(),3);
   assert.equal(await page.locator(".lc-item").count(),5);
   await layout(page,width+" opening");
