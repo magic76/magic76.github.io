@@ -893,7 +893,7 @@ if(params.get('qa')==='1'){
    shotsFired:combat.shotsFired,zoeShots:combat.zoeShots,shots:combat.shots.map(x=>({...x})),
    enemyShots:combat.enemyShots.map(x=>({...x})),enemies:combat.enemies.map(x=>({...x})),
    covers:combat.cover.map(x=>({...x})),cleared:combatCleared()}),
-  spawnWave:spawnHostiles,hitEnemy:(i,damage=1)=>{const e=combat.enemies[i];if(e)hitEnemy(e,{x:e.x,y:e.y,damage})},
+  spawnWave:spawnHostiles,addEnemyShot:(x,y,vx=0,vy=0)=>combat.enemyShots.push({x,y,vx,vy,life:2,r:5,hostile:true}),hitEnemy:(i,damage=1)=>{const e=combat.enemies[i];if(e)hitEnemy(e,{x:e.x,y:e.y,damage})},
   hurt:(who,damage=1)=>hitAvatar(who==='zoe'?Z:P,damage),
   revive:(who)=>reviveAvatar(who==='zoe'?Z:P,who==='zoe'?P:Z),
   parseCommand,rooms:ROOM_DEFS.map(r=>r.id)
