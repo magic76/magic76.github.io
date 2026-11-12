@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="310" viewBox="0 0 500 310">
+<title>Crew original floating island watercolor plate</title>
+<defs>
+ <linearGradient id="earth" x1=".2" y1=".12" x2=".75" y2=".94"><stop stop-color="#cbb695"/><stop offset=".42" stop-color="#a57e72"/><stop offset="1" stop-color="#634f65"/></linearGradient>
+ <linearGradient id="grass" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#d5e3a0"/><stop offset=".48" stop-color="#8eaa88"/><stop offset="1" stop-color="#5d9180"/></linearGradient>
+ <linearGradient id="root" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#a48073"/><stop offset="1" stop-color="#5e5368"/></linearGradient>
+ <filter id="rough" x="-12%" y="-15%" width="124%" height="132%"><feTurbulence baseFrequency=".044" numOctaves="3" seed="5" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="4"/></filter>
+ <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".34" numOctaves="2" seed="8"/><feColorMatrix type="saturate" values="0"/></filter>
+ <clipPath id="island"><path d="M31 115C70 89 154 91 199 80C273 61 376 77 461 105C480 121 452 139 419 152C389 170 376 205 338 223C309 255 288 270 264 285C241 282 237 258 222 252C177 241 165 204 140 182C112 152 78 152 45 139Z"/></clipPath>
+</defs>
+<path d="M31 115C70 89 154 91 199 80C273 61 376 77 461 105C480 121 452 139 419 152C389 170 376 205 338 223C309 255 288 270 264 285C241 282 237 258 222 252C177 241 165 204 140 182C112 152 78 152 45 139Z" fill="url(#earth)" stroke="#685e68" stroke-width="3" stroke-linejoin="round" filter="url(#rough)"/>
+<g clip-path="url(#island)">
+ <path d="M16 114Q115 138 206 133Q301 143 487 102L490 161Q352 184 304 220Q244 278 223 262Q146 216 119 162Z" fill="#836c75" opacity=".48"/>
+ <path d="M120 138Q164 181 191 204L214 229Q180 203 148 191M314 145Q311 195 269 280M405 138Q363 177 341 206M256 137Q277 174 277 218" fill="none" stroke="#e8c0a0" stroke-width="5" opacity=".44"/>
+ <path d="M94 145Q165 193 226 207M355 156Q322 209 292 247M162 160Q213 197 227 245" fill="none" stroke="#5d5666" stroke-width="4" opacity=".40"/>
+ <g fill="#f8dfb2" opacity=".48"><path d="M73 126L108 159L130 160L116 144Z"/><path d="M344 176L379 156L361 194Z"/><path d="M233 216L257 245L250 209Z"/></g>
+</g>
+<path d="M26 111C83 91 154 90 201 83C273 68 376 77 464 101C449 113 424 120 388 125C346 132 308 126 261 126C222 132 195 132 157 129C100 131 50 128 26 111Z" fill="url(#grass)" stroke="#6b907a" stroke-width="3"/>
+<path d="M51 108Q126 93 207 95Q309 78 426 102" fill="none" stroke="#f2edc5" stroke-width="6" opacity=".55" stroke-linecap="round"/>
+<g fill="none" stroke="#537868" stroke-width="3" stroke-linecap="round"><path d="M104 130Q102 157 120 174Q139 193 129 216"/><path d="M385 131Q404 157 390 184Q375 201 395 222"/><path d="M226 131Q202 157 207 178"/></g>
+<g fill="#d3d9a1" stroke="#799b82" stroke-width="1.8"><path d="M127 213Q110 189 108 182Q129 191 127 213Z"/><path d="M394 220Q418 190 407 184Q392 199 394 220Z"/><path d="M207 178Q219 159 226 161Q220 178 207 178Z"/></g>
+<g fill="#e8e0b9" opacity=".55"><circle cx="65" cy="117" r="3"/><circle cx="128" cy="103" r="2.5"/><circle cx="351" cy="98" r="4"/><circle cx="420" cy="112" r="2"/></g>
+</svg>
