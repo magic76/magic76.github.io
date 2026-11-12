@@ -41,6 +41,8 @@
     "retry": "다시 불러오기",
     "yourProfile": "내 정보",
     "once": "한 번만 설정",
+    "dailySetupHint": "완료하면 매일 맞춤 운세를 확인할 수 있어요.",
+    "dailyNext": "오늘의 운세 보기",
     "mode": "풀이 방식",
     "birthday": "생년월일",
     "birthTime": "출생 시간",

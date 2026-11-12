@@ -577,5 +577,7 @@
     "withZoe": "Ngobrol dengan Zoe",
     "setup": "Atur Key"
   },
-  "dailyQuote": {"title": "Renungan kecil hari ini", "fortune": "Lihat ramalanku hari ini", "chat": "Bahas ini dengan Zoe", "fortuneFull": "Lihat ramalan lengkap", "personalTitle": "Ramalanmu hari ini", "chooseChart": "Pilih bagan lahir", "me": "Baganku", "markSelf": "Tandai sebagai milikku", "kind": {"bazi": "BaZi", "tarot": "Numerologi", "vedic": "Bagan Weda"}, "chatRead": "Minta Zoe jelaskan ramalan hari ini", "setupChart": "Buat profil lahir untuk ramalan harian pribadiku", "setupHint": "Isi tanggal lahir sekali, dapatkan pesan harian khusus untukmu."}
+  "dailyQuote": {"title": "Renungan kecil hari ini", "fortune": "Lihat ramalanku hari ini", "chat": "Bahas ini dengan Zoe", "fortuneFull": "Lihat ramalan lengkap", "personalTitle": "Ramalanmu hari ini", "chooseChart": "Pilih bagan lahir", "me": "Baganku", "markSelf": "Tandai sebagai milikku", "kind": {"bazi": "BaZi", "tarot": "Numerologi", "vedic": "Bagan Weda"}, "chatRead": "Minta Zoe jelaskan ramalan hari ini", "setupChart": "Buat profil lahir untuk ramalan harian pribadiku", "setupHint": "Isi tanggal dan waktu lahir untuk melihat ramalan pribadimu setiap hari.",
+    "basisBazi": "Berdasarkan bagan kelahiran BaZi-mu",
+    "basisNumerology": "Berdasarkan tanggal lahir (numerologi)"}
 }

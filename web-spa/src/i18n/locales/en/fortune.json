@@ -41,6 +41,8 @@
     "retry": "Reload",
     "yourProfile": "Your details",
     "once": "Set up once",
+    "dailySetupHint": "Once complete, check your personal fortune every day.",
+    "dailyNext": "See today’s fortune",
     "mode": "Method",
     "birthday": "Date of birth",
     "birthTime": "Time of birth",

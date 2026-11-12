@@ -74,7 +74,7 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  const text=isPersonal?personal!.text:readyQuote?quote!.text:"";
  const selectedOption=charts.find(chart=>chart.hash===personal?.hash);
  const title=isPersonal?t("dailyQuote.personalTitle"):t("dailyQuote.title");
- const fortuneHref=isPersonal?"/fortune?daily=1&chart="+personal!.hash+"&kind="+personal!.kind:"/fortune";
+ const fortuneHref=isPersonal?"/fortune?daily=1&chart="+personal!.hash+"&kind="+personal!.kind:"/fortune/reading?mode=bazi&from=daily";
  const chatHref=isPersonal?"/friend/live?id=zoe&from=home&chat=text&quote=daily&chart="+personal!.hash:"";
  const selectChart=(value:string)=>{
   if(value==="__self__"&&personal){
@@ -95,13 +95,13 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
      </select>:null}
     </div>
     {text?<p className="daily-quote-text">{text}</p>:<span className="daily-quote-placeholder" aria-hidden="true"/>}
-    {!isPersonal?<p className="daily-quote-benefit">{t("dailyQuote.setupHint")}</p>:null}
+    {isPersonal?<p className="daily-quote-basis">{t(personal!.kind==="bazi"?"dailyQuote.basisBazi":"dailyQuote.basisNumerology")}</p>:<p className="daily-quote-benefit">{t("dailyQuote.setupHint")}</p>}
    </div>
    <div className={"daily-quote-actions"+(isPersonal?"":" daily-quote-actions--setup")}>
     {isPersonal?<>
      <Link className="daily-quote-action daily-quote-action--fortune" to={fortuneHref} onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.fortuneFull")}</Link>
      <Link className="daily-quote-action daily-quote-action--chat" to={chatHref} onClick={()=>trackUsageEvent("home_entry_click","friend")}>{t("dailyQuote.chatRead")}</Link>
-    </>:<Link className="daily-quote-action daily-quote-action--chat" to="/fortune" onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.setupChart")}</Link>}
+    </>:<Link className="daily-quote-action daily-quote-action--chat" to="/fortune/reading?mode=bazi&from=daily" onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.setupChart")}</Link>}
    </div>
   </div>
  </section>;

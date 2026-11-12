@@ -7,8 +7,9 @@
 .daily-quote-body h2{margin:0;font-size:14px;line-height:1.35;font-weight:800;letter-spacing:-.015em}
 .daily-quote-body h2 span{color:#785ba8}
 .daily-quote-text{margin:0;font-size:13px;line-height:1.35;color:#37394b;overflow-wrap:anywhere}
+.daily-quote-basis{margin:1px 0 0;color:#62536f;font-size:12px;line-height:1.3;overflow-wrap:anywhere}
 .daily-quote-benefit{margin:1px 0 0;color:#62536f;font-size:12px;line-height:1.3;overflow-wrap:anywhere}
-.daily-quote--desktop .daily-quote-benefit{color:#e8dce9}
+.daily-quote--desktop .daily-quote-benefit,.daily-quote--desktop .daily-quote-basis{color:#e8dce9}
 .daily-quote-placeholder{width:70%;height:15px;margin:3px 0 2px;border-radius:8px;background:rgba(106,88,141,.12)}
 .daily-quote-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
 .daily-quote-actions--setup{grid-template-columns:minmax(0,1fr)}

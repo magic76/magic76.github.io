@@ -65,6 +65,16 @@ export function findExistingAiForKind(date:string,kind:DailyKind):{profileHash:s
  const found=matches.find(([key,v])=>key.startsWith(kind+":")&&typeof v.ai==="string"&&v.ai.length>0);
  return found?{profileHash:found[0].slice(kind.length+1),ai:found[1].ai!}:null;
 }
+/** Null means no human tab choice has ever been saved. */
+export function readDailyKindChoice():DailyKind|null{
+ try{const choice=localStorage.getItem(DAILY_KIND_KEY);return choice==="bazi"||choice==="numerology"?choice:null;}
+ catch{return null;}
+}
+/** All daily surfaces share the same profile-based default and manual override. */
+export function resolveDailyKind(mode:"bazi"|"tarot"|"vedic",birthTime?:string|null,choice:DailyKind|null=readDailyKindChoice()):DailyKind{
+ if(choice)return choice==="bazi"&&birthTime?"bazi":"numerology";
+ return mode==="bazi"&&birthTime?"bazi":"numerology";
+}
 export function readDailyKind():DailyKind{
  try{return localStorage.getItem(DAILY_KIND_KEY)==="bazi"?"bazi":"numerology";}catch{return "numerology";}
 }

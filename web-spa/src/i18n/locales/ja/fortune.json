@@ -41,6 +41,8 @@
     "retry": "再読み込み",
     "yourProfile": "あなたの情報",
     "once": "一度だけ設定",
+    "dailySetupHint": "設定が終わったら、毎日の運勢を確認できます。",
+    "dailyNext": "今日の運勢を見る",
     "mode": "占術",
     "birthday": "生年月日",
     "birthTime": "出生時刻",

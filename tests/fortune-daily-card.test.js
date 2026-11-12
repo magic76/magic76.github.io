@@ -14,7 +14,7 @@ const memory=new Map();
 global.localStorage={getItem:key=>memory.get(key)??null,setItem:(key,value)=>memory.set(key,String(value)),
  removeItem:key=>memory.delete(key)};
 const store=loadTs("web-spa/src/fortune/dailyStore.ts",
- ["readDailyCache","readCachedDaily","saveCachedDaily","readDailyKind","saveDailyKind","readDailyStreak","markDailySeen","pruneDailyCache","DAILY_CACHE_KEY","DAILY_COPY_REVISION","DAILY_STREAK_KEY","isDailyCompleted","completeDailyExploration","recentDailyExplorations","readDailyCompletionStreak"],
+ ["readDailyCache","readCachedDaily","saveCachedDaily","readDailyKind","readDailyKindChoice","resolveDailyKind","saveDailyKind","readDailyStreak","markDailySeen","pruneDailyCache","DAILY_CACHE_KEY","DAILY_COPY_REVISION","DAILY_STREAK_KEY","isDailyCompleted","completeDailyExploration","recentDailyExplorations","readDailyCompletionStreak"],
  {localDateKey:pure.localDateKey});
 const translate=(key,values={})=>key+JSON.stringify(values);
 const profile={birthDate:"1985-07-06",birthTime:"04:10",gender:"1"};
@@ -48,9 +48,9 @@ test("D2 local dates use wall clock, not UTC",()=>{
 });
 
 test("D3 missing birth time, persisted kind, and cache fault tolerance",()=>{
- memory.clear();assert.equal(store.readDailyKind(),"numerology");
+ memory.clear();assert.equal(store.readDailyKind(),"numerology");assert.equal(store.readDailyKindChoice(),null);
  assert.deepEqual(onDate("bazi","2026-10-27",{birthDate:"1985-07-06"}),{status:"unavailable",reason:"birthTime"});
- store.saveDailyKind("bazi");assert.equal(store.readDailyKind(),"bazi");
+ store.saveDailyKind("bazi");assert.equal(store.readDailyKind(),"bazi");assert.equal(store.readDailyKindChoice(),"bazi");
  const card=getCard(onDate("numerology","2026-10-27")),hash=pure.dailyProfileHash(profile);
  store.saveCachedDaily(card,hash,undefined,"en");
  assert.deepEqual(store.readCachedDaily(card.date,card.kind,hash).card,card);

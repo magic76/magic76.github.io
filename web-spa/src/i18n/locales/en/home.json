@@ -577,5 +577,7 @@
     "withZoe": "Chat with Zoe",
     "setup": "Set up Key"
   },
-  "dailyQuote": {"title": "Today’s little thought", "fortune": "Check my daily fortune", "chat": "Talk to Zoe about this", "fortuneFull": "See full fortune", "personalTitle": "Your daily fortune", "chooseChart": "Choose a birth chart", "me": "My chart", "markSelf": "Mark as my chart", "kind": {"bazi": "BaZi", "tarot": "Numerology", "vedic": "Vedic chart"}, "chatRead": "Ask Zoe to explain today’s fortune", "setupChart": "Set up my chart for a daily personal fortune", "setupHint": "Enter your birthday once for a daily fortune just for you."}
+  "dailyQuote": {"title": "Today’s little thought", "fortune": "Check my daily fortune", "chat": "Talk to Zoe about this", "fortuneFull": "See full fortune", "personalTitle": "Your daily fortune", "chooseChart": "Choose a birth chart", "me": "My chart", "markSelf": "Mark as my chart", "kind": {"bazi": "BaZi", "tarot": "Numerology", "vedic": "Vedic chart"}, "chatRead": "Ask Zoe to explain today’s fortune", "setupChart": "Set up my chart for a daily personal fortune", "setupHint": "Enter your birth date and time to see your daily fortune.",
+    "basisBazi": "Based on your BaZi birth chart",
+    "basisNumerology": "Based on your birthday (numerology)"}
 }

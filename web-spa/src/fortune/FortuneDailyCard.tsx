@@ -1,11 +1,11 @@
 import {useEffect,useMemo,useRef,useState} from "react";
-import {Link} from "react-router-dom";
+import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {geminiKey,ensureFortuneServices} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyCard,dailyProfileHash,localDateKey,type DailyCard,type DailyKind} from "./dailyCard";
-import {DAILY_COPY_REVISION,readCachedDaily,readDailyKind,saveDailyKind,saveCachedDaily,readDailyCompletionStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
+import {DAILY_COPY_REVISION,readCachedDaily,readDailyKindChoice,resolveDailyKind,saveDailyKind,saveCachedDaily,readDailyCompletionStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
 import {generateDailyAi} from "./dailyAi";
 import {shareDailyCard} from "./shareCard";
 import {readDailyProfiles,chooseDailyProfile} from "./dailyProfileSelection";
@@ -33,10 +33,15 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  // Keep the SSG and first hydration pass identical, regardless of saved profile.
  const clientReady=useClientReady();
  const date=useLocalDay();
+ const [searchParams,setSearchParams]=useSearchParams();
  const [profile,setProfile]=useState<Partial<FortuneProfile>|null>(()=>getProfile(chartHash));
  const [selected,setSelected]=useState<DailyKind>(()=>{
-  if(typeof window!=="undefined"){const kind=new URLSearchParams(window.location.search).get("kind");if(kind==="numerology"||kind==="bazi")return kind;}
-  return readDailyKind();
+  if(typeof window!=="undefined"){
+   const kind=new URLSearchParams(window.location.search).get("kind");
+   if(kind==="numerology"||kind==="bazi")return kind;
+  }
+  const chart=chooseDailyProfile(readDailyProfiles(),chartHash);
+  return resolveDailyKind(chart?.mode||"tarot",chart?.profile.birthTime,readDailyKindChoice());
  });
  const [engineReady,setEngineReady]=useState(false);
  const [loadFailure,setLoadFailure]=useState(false);
@@ -57,6 +62,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  const locale=i18n.resolvedLanguage||i18n.language;
  useEffect(()=>{
   const update=()=>{setProfile(getProfile(chartHash));setRefresh(x=>x+1);};
+  update();
   window.addEventListener("focus",update);
   window.addEventListener("storage",update);
   return()=>{window.removeEventListener("focus",update);window.removeEventListener("storage",update);};
@@ -99,7 +105,13 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
   <span className="kicker">CREW FORTUNE · {t("today")}</span><h2>{t("emptyTitle")}</h2>
   <p>{t("emptyDescription")}</p><Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} →</Link>
  </section>;
- function changeKind(next:DailyKind){if(next==="bazi"&&!profile?.birthTime)return;setSelected(saveDailyKind(next));setAiError("");}
+ function changeKind(next:DailyKind){
+  if(next==="bazi"&&!profile?.birthTime)return;
+  setSelected(saveDailyKind(next));setAiError("");
+  // Keep the visible tab in the URL, so refreshing a home deep link preserves a manual switch.
+  const updated=new URLSearchParams(searchParams);updated.set("kind",next);
+  setSearchParams(updated,{replace:true});
+ }
  async function useGemini(current:DailyCard){
   if(aiBusy||!window.CrewAI?.call||!geminiKey())return;
   const token=activeKey;setAiBusy(true);setAiError("");

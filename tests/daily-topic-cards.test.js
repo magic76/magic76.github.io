@@ -46,10 +46,10 @@ test("11 localized quote catalogs contain all 30 nonblank short thoughts; UI lab
    assert.ok(quotes[id].length<=125,lang+" "+id+" should be short");
    assert.doesNotMatch(quotes[id],/\{\{|\}\}/,lang+" "+id);
   }
-  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["chat","chatRead","chooseChart","fortune","fortuneFull","kind","markSelf","me","personalTitle","setupChart","setupHint","title"]);
+  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["basisBazi","basisNumerology","chat","chatRead","chooseChart","fortune","fortuneFull","kind","markSelf","me","personalTitle","setupChart","setupHint","title"]);
   assert.deepEqual(Object.keys(home.dailyQuote.kind).sort(),["bazi","tarot","vedic"]);
   for(const text of Object.values(home.dailyQuote.kind))assert.ok(typeof text==="string"&&text.trim());
-  for(const key of ["title","fortune","chat","chatRead","fortuneFull","personalTitle","chooseChart","me","markSelf","setupChart","setupHint"])assert.ok(home.dailyQuote[key]?.trim(),lang+" "+key);
+  for(const key of ["title","fortune","chat","chatRead","fortuneFull","personalTitle","chooseChart","me","markSelf","setupChart","setupHint","basisBazi","basisNumerology"])assert.ok(home.dailyQuote[key]?.trim(),lang+" "+key);
   assert.ok(friends.dailyQuoteStarter?.trim(),lang);
   assert.ok(friends.dailyFortuneStarter?.trim(),lang);
   assert.doesNotMatch(friends.dailyFortuneStarter,/\{\{|\}\}/,lang);
@@ -60,7 +60,7 @@ test("11 localized quote catalogs contain all 30 nonblank short thoughts; UI lab
  assert.notEqual(JSON.parse(read("web-spa/src/i18n/locales/zh-TW/dailyQuote.json")).q01,en.q01);
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json")).dailyQuote;
  assert.equal(zh.setupChart,"設定我的命盤，每天看專屬運勢");
- assert.equal(zh.setupHint,"填一次生日，每天一句專屬運勢");
+ assert.equal(zh.setupHint,"填生日和出生時間，完成後每天看專屬運勢");
  for(const lang of langs){
   const copy=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/home.json`)).dailyQuote;
   assert.doesNotMatch(copy.setupChart+" "+copy.setupHint,/\{\{|\}\}|Zoe/i,lang+" no-chat setup");
@@ -79,15 +79,17 @@ test("SSG placeholder, local midnight + visibility refresh; personalized Zoe CTA
  assert.match(cards,/pickDailyQuote\(now\)/);
  assert.match(cards,/fortuneHref=isPersonal\?"\/fortune\?daily=1&chart="/);
  assert.match(cards,/kind="\+personal!/);
- assert.match(cards,/:"\/fortune"/);
+ assert.match(cards,/:"\/fortune\/reading\?mode=bazi&from=daily"/);
  assert.match(cards,/chat=text&quote=daily&chart=/);
  assert.match(cards,/isPersonal\?<\>/);
  assert.match(cards,/to=\{chatHref\}/);
  assert.match(cards,/t\("dailyQuote.chatRead"\)/);
- assert.match(cards,/to="\/fortune" onClick=\{\(\)=>trackUsageEvent\("home_entry_click","fortune"\)\}/);
+ assert.match(cards,/to="\/fortune\/reading\?mode=bazi&from=daily" onClick=\{\(\)=>trackUsageEvent\("home_entry_click","fortune"\)\}/);
  assert.match(cards,/t\("dailyQuote.setupChart"\)/);
- assert.match(cards,/!isPersonal\?<p className="daily-quote-benefit">\{t\("dailyQuote.setupHint"\)\}/);
+ assert.match(cards,/:<p className="daily-quote-benefit">\{t\("dailyQuote.setupHint"\)\}/);
  assert.match(cards,/daily-quote-actions--setup/);
+ assert.match(cards,/dailyQuote\.basisBazi/);
+ assert.match(cards,/dailyQuote\.basisNumerology/);
  assert.doesNotMatch(cards,/t\("dailyQuote.chat"\)/,"no-chart branch must not advertise Zoe");
  assert.doesNotMatch(cards,/birthDate.*chatHref/);
  assert.doesNotMatch(cards,/chat=text&quote="\+quote!/,"generic daily quote must not link to Zoe on homepage");
@@ -205,7 +207,9 @@ test("personalized line uses the same fortuneDaily translations, algorithm and o
  }};
  const builder=loadPureTs("web-spa/src/pages/personalDailyLine.ts",["personalDailyLine"],{
   i18n,loadUiNamespace:async()=>{},buildDailyCard:daily.buildDailyCard,localDateKey:daily.localDateKey,
-  readDailyKind:()=>"numerology",readDailyProfiles:()=>[data],chooseDailyProfile:(charts,wanted)=>charts.find(chart=>chart.hash===wanted)
+  readDailyKindChoice:()=>null,resolveDailyKind:(mode,time,choice)=>choice||(mode==="bazi"&&time?"bazi":"numerology"),
+  readCachedDaily:()=>null,readSavedBaziResult:()=>null,DAILY_COPY_REVISION:3,DAILY_SOLAR:{},
+  readDailyProfiles:()=>[data],chooseDailyProfile:(charts,wanted)=>charts.find(chart=>chart.hash===wanted)
  });
  for(const language of langs){
   const first=await builder.personalDailyLine(language,"2026-11-12",hash);
@@ -238,7 +242,7 @@ test("personal chart selection remains compact and the exact /en and /ja desktop
  assert.match(home,/useTranslation\("home"\)/);
  assert.match(home,/const language=i18n\.language/);
  assert.match(home,/to=\{fortuneHref\}/);
- assert.match(home,/to="\/fortune"/);
+ assert.match(home,/to="\/fortune\/reading\?mode=bazi&from=daily"/);
  const routeI18n=read("web-spa/src/i18n/index.ts");
  assert.match(routeI18n,/resolveInitialUiLocale/);
  assert.match(routeI18n,/normalizeUiLocale/);

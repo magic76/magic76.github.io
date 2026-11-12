@@ -577,5 +577,7 @@
     "withZoe": "Trò chuyện với Zoe",
     "setup": "Cài Key"
   },
-  "dailyQuote": {"title": "Một lời nhắn hôm nay", "fortune": "Xem vận may hôm nay", "chat": "Trò chuyện với Zoe", "fortuneFull": "Xem vận may chi tiết", "personalTitle": "Vận may hôm nay", "chooseChart": "Chọn lá số", "me": "Của tôi", "markSelf": "Đánh dấu là của tôi", "kind": {"bazi": "Bát tự", "tarot": "Thần số học", "vedic": "Chiêm tinh Vệ Đà"}, "chatRead": "Nhờ Zoe giải nghĩa vận may hôm nay", "setupChart": "Tạo lá số để xem vận may riêng mỗi ngày", "setupHint": "Chỉ cần nhập ngày sinh một lần để xem lời nhắn riêng mỗi ngày."}
+  "dailyQuote": {"title": "Một lời nhắn hôm nay", "fortune": "Xem vận may hôm nay", "chat": "Trò chuyện với Zoe", "fortuneFull": "Xem vận may chi tiết", "personalTitle": "Vận may hôm nay", "chooseChart": "Chọn lá số", "me": "Của tôi", "markSelf": "Đánh dấu là của tôi", "kind": {"bazi": "Bát tự", "tarot": "Thần số học", "vedic": "Chiêm tinh Vệ Đà"}, "chatRead": "Nhờ Zoe giải nghĩa vận may hôm nay", "setupChart": "Tạo lá số để xem vận may riêng mỗi ngày", "setupHint": "Nhập ngày và giờ sinh để xem vận may riêng của bạn mỗi ngày.",
+    "basisBazi": "Dựa trên lá số Bát Tự của bạn",
+    "basisNumerology": "Dựa trên ngày sinh (thần số học)"}
 }

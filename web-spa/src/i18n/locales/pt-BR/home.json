@@ -577,5 +577,7 @@
     "withZoe": "Conversar com Zoe",
     "setup": "Config. Key"
   },
-  "dailyQuote": {"title": "Uma frase para hoje", "fortune": "Ver minha sorte de hoje", "chat": "Conversar com Zoe", "fortuneFull": "Ver previsão completa", "personalTitle": "Sua sorte de hoje", "chooseChart": "Escolher mapa natal", "me": "Meu mapa", "markSelf": "Marcar como meu mapa", "kind": {"bazi": "BaZi", "tarot": "Numerologia", "vedic": "Mapa védico"}, "chatRead": "Pedir à Zoe para interpretar meu dia", "setupChart": "Criar meu mapa para ver a sorte de cada dia", "setupHint": "Informe sua data de nascimento uma vez e veja uma mensagem só sua por dia."}
+  "dailyQuote": {"title": "Uma frase para hoje", "fortune": "Ver minha sorte de hoje", "chat": "Conversar com Zoe", "fortuneFull": "Ver previsão completa", "personalTitle": "Sua sorte de hoje", "chooseChart": "Escolher mapa natal", "me": "Meu mapa", "markSelf": "Marcar como meu mapa", "kind": {"bazi": "BaZi", "tarot": "Numerologia", "vedic": "Mapa védico"}, "chatRead": "Pedir à Zoe para interpretar meu dia", "setupChart": "Criar meu mapa para ver a sorte de cada dia", "setupHint": "Informe sua data e hora de nascimento para ver sua previsão diária.",
+    "basisBazi": "Com base no seu mapa BaZi",
+    "basisNumerology": "Com base na sua data de nascimento (numerologia)"}
 }

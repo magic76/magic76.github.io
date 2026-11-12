@@ -1,6 +1,8 @@
 import i18n,{loadUiNamespace} from "../i18n";
 import {buildDailyCard,localDateKey,type DailyKind} from "../fortune/dailyCard";
-import {readDailyKind} from "../fortune/dailyStore";
+import {DAILY_COPY_REVISION,readCachedDaily,readDailyKindChoice,resolveDailyKind} from "../fortune/dailyStore";
+import {readSavedBaziResult} from "../fortune/dailyBaziSource";
+import {DAILY_SOLAR} from "../fortune/dailySolar";
 import {readDailyProfiles,chooseDailyProfile} from "../fortune/dailyProfileSelection";
 
 /** Only imported after a known saved birth chart, never from the initial home graph. */
@@ -9,13 +11,18 @@ export async function personalDailyLine(language:string,date=localDateKey(),requ
  if(!chart)return null;
  await loadUiNamespace("fortuneDaily");
  const translate=(key:string,values?:Record<string,string|number>)=>String(i18n.t(key,{ns:"fortuneDaily",lng:language,...values}));
- const preferred:DailyKind=readDailyKind()==="bazi"&&chart.profile.birthTime?"bazi":"numerology";
+ const preferred:DailyKind=resolveDailyKind(chart.mode,chart.profile.birthTime,readDailyKindChoice());
  const input={profile:chart.profile,localDate:date,lang:language,translate,almanac:"optional" as const};
  let kind:DailyKind=preferred;
- let result=buildDailyCard({...input,kind});
- // BaZi calculation requires runtime scripts that the homepage intentionally never loads.
- // Use the same existing numerology method as the Fortune card's alternative instead.
- if("status" in result&&kind==="bazi"){
+ const cached=kind==="bazi"?readCachedDaily(date,"bazi",chart.hash):null;
+ // Only reuse a same-profile, same-locale, current-copy BaZi card.
+ const validCache=cached?.card.kind==="bazi"&&cached.card.date===date&&
+  cached.locale===language&&cached.copyRevision===DAILY_COPY_REVISION;
+ const savedBazi=kind==="bazi"&&!validCache?readSavedBaziResult(chart.hash):null;
+ let result=validCache?cached!.card:kind==="bazi"&&savedBazi?
+  buildDailyCard({...input,kind,bazi:savedBazi,lunar:DAILY_SOLAR}):
+  buildDailyCard({...input,kind:"numerology"});
+ if(kind==="bazi"&&!validCache&&(!savedBazi||"status" in result)){
   kind="numerology";
   result=buildDailyCard({...input,kind});
  }
