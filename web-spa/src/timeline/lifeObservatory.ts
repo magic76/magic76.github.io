@@ -1,7 +1,7 @@
 import type {TimelineCharacterId} from "./timelineCharacters";
 
 /**
- * An isolated, deterministic world: no background AI, no network, no mutation of V2 Timeline.
+ * An isolated, deterministic world: no background AI, no network, no mutation of canonical Timeline memories.
  * Each scene has authored outcomes. The user may intervene twice per chapter; the rest is agency.
  */
 export type ObserverId=TimelineCharacterId;
