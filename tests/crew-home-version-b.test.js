@@ -46,8 +46,9 @@ test("B: homepage referrals frontload the existing manual guest gate, focus only
  assert.ok(identity>=0&&identity<first&&first<switcher);
  assert.match(live,/!shortsPost&&!homeFirstAction\?voiceStart:null/);
  assert.match(live,/focusStartOnVerified=\{homeFirstAction\}/);
- assert.match(starter,/phase==="ready"&&challenge\)startButton.current\?\.focus\(\{preventScroll:true\}\)/);
- assert.match(starter,/<button ref=\{startButton\} type="button" className="btn" disabled=\{!challenge\} onClick=\{\(\)=>void begin\(\)\}\>/);
+ assert.match(starter,/phase==="ready"&&\(challenge\|\|readVerifyTicket\(ticketCapable\)\)\)startButton.current\?\.focus\(\{preventScroll:true\}\)/);
+ assert.match(starter,/\},\[focusStartOnVerified,phase,challenge,ticketCapable\]\)/);
+ assert.match(starter,/<button ref=\{startButton\} type="button" className="btn" disabled=\{!challenge&&!readVerifyTicket\(ticketCapable\)\} onClick=\{\(\)=>void begin\(\)\}\>/);
  assert.match(starter,/async function begin\(\)/);
  assert.match(starter,/getUserMedia\(\{audio:true\}\)/);
 });

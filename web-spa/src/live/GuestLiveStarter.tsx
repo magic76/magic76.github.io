@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {ensureLive} from "../lib/runtime";
 import {trackUsageEvent} from "../analytics/usage";
 import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled,GUEST_TOKEN_ENDPOINT,type GuestTrialGrant} from "../lib/guestTrial";
+import {readVerifyTicket,saveVerifyTicket,clearVerifyTicket,isVerifyTicketRejected} from "./guestVerifyTicket";
 
 type WidgetApi={
  render:(el:HTMLElement,options:{sitekey:string;action:string;callback:(token:string)=>void;"expired-callback":()=>void;"error-callback":()=>void})=>string;
@@ -20,6 +21,7 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
   return t("guestTrial."+key);
  };
  const [siteKey,setSiteKey]=useState("");
+ const [ticketCapable,setTicketCapable]=useState(false);
  const [signinRequired,setSigninRequired]=useState(false);
  const [memberSignedIn,setMemberSignedIn]=useState(false);
  const [phase,setPhase]=useState<"checking"|"ready"|"login"|"exhausted"|"full"|"unavailable"|"starting"|"error">("checking");
@@ -48,6 +50,7 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
     setPhase("unavailable");return;
    }
    setSigninRequired(Boolean(config.signinRequired));
+   setTicketCapable(config.verifyTicket===1);
    let signedIn=false;
    if(config.trial){setRemaining(config.trial.limit-config.trial.used);setQuotaLimit(config.trial.limit)}
    if(config.memberMetering||config.signinRequired){
@@ -83,7 +86,7 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
   return()=>{active.current=false};
  },[quotaRefresh]);
  useEffect(()=>{
-  if(!siteKey||phase!=="ready")return;
+  if(!siteKey||phase!=="ready"||readVerifyTicket(ticketCapable))return;
   let cancelled=false;
   const render=()=>{
    if(cancelled||!host.current||widget.current!==null)return;
@@ -112,10 +115,11 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
    cancelled=true;script?.removeEventListener("load",render);
    if(widget.current!==null){try{turnstile()?.remove(widget.current)}catch{}widget.current=null}
   };
- },[siteKey,phase]);
- useEffect(()=>{if(focusStartOnVerified&&phase==="ready"&&challenge)startButton.current?.focus({preventScroll:true})},[focusStartOnVerified,phase,challenge]);
+ },[siteKey,phase,ticketCapable]);
+ useEffect(()=>{if(focusStartOnVerified&&phase==="ready"&&(challenge||readVerifyTicket(ticketCapable)))startButton.current?.focus({preventScroll:true})},[focusStartOnVerified,phase,challenge,ticketCapable]);
  async function begin(){
-  if(busy.current||phase!=="ready"||!challenge)return;
+  const verifyTicket=readVerifyTicket(ticketCapable);
+  if(busy.current||phase!=="ready"||(!challenge&&!verifyTicket))return;
   busy.current=true;setMicPermissionDenied(false);setPhase("starting");setMessage("");
   trackUsageEvent("guest_trial_start_click",role);
   let tokenRequested=false;
@@ -145,9 +149,13 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
    }
    tokenRequested=true;
    const res=await fetch(GUEST_TOKEN_ENDPOINT,{method:"POST",cache:"no-store",
-    headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge,...(authTicket?{authTicket}:{})})});
+    headers:{"content-type":"application/json"},body:JSON.stringify({...(verifyTicket?{verifyTicket}:{challengeToken:challenge}),...(authTicket?{authTicket}:{})})});
    if(!res.headers.get("content-type")?.includes("application/json"))throw Error("invalid response");
-   const data=await res.json() as GuestTrialGrant&{code?:string};
+   const data=await res.json() as GuestTrialGrant&{code?:string;verifyTicket?:string;verifyTicketExpiresAt?:number};
+   if(verifyTicket&&!res.ok&&isVerifyTicketRejected(data.code)){
+    clearVerifyTicket();setTicketCapable(false);setChallenge("");
+    setMessage(t("guestTrial.retry"));setPhase("ready");return;
+   }
    if(!res.ok||!data.token||!data.model||data.seconds!==300){
     trackUsageEvent("guest_trial_token_failed",role);
     if(active.current){
@@ -158,6 +166,7 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
     }
     return;
    }
+   saveVerifyTicket(data);
    if(active.current){trackUsageEvent("guest_trial_token_issued",role);window.dispatchEvent(new Event("crew:guest-trial-used"));await onGrant(data)}
   }catch(error){
    const denied=error instanceof DOMException&&error.name==="NotAllowedError";
@@ -175,9 +184,10 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
     <p>{t("guestTrial.homeDesc")}</p>
     {remaining!==null&&<p role="status">{t(memberSignedIn?"guestTrial.memberRemaining":"guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
    {phase==="checking"&&<p role="status">{t("guestTrial.checking")}</p>}
-   {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
+   {phase==="ready"&&<>{!readVerifyTicket(ticketCapable)&&<div ref={host} aria-label="Turnstile verification"/>}
+    {message&&<p role="status">{message}</p>}
     <p style={{fontSize:13,lineHeight:1.5,margin:0}}>{t("guestTrial.microphoneNotice")}</p>
-    <button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{t("guestTrial.start")}</button></>}
+    <button ref={startButton} type="button" className="btn" disabled={!challenge&&!readVerifyTicket(ticketCapable)} onClick={()=>void begin()}>{t("guestTrial.start")}</button></>}
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
     <Link className="btn" to="/account">{t("guestTrial.signInAction")}</Link></>}

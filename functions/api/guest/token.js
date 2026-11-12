@@ -100,7 +100,7 @@ function validOrigin(request,url){
  return origin===url.origin&&request.headers.get("sec-fetch-site")!=="cross-site";
 }
 function disabled(){return json({enabled:false},200);}
-export async function onRequestGet({request,env}){
+export async function onRequestGet({request,env},services){
  const url=new URL(request.url);
  if(!validHost(url,env))return disabled();
  const issue=guestTrialConfigurationIssue(env);
@@ -112,6 +112,7 @@ export async function onRequestGet({request,env}){
   return disabled();
  }
  const config={enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,seconds:SESSION_SECONDS,
+  ...(services?.verifyTicket&&env.CREW_AUTH_DB?.prepare?{verifyTicket:1}:{}),
   ...(env[MEMBER_SIGNIN_FLAG]==="1"?{signinRequired:true}:{}),
   ...(memberMeterEnabled(env)?{memberMetering:true}:{})};
  // Anonymous D1 claims are one use per rolling window. Never guess when the
@@ -223,7 +224,7 @@ async function issueMemberTrial(input,env){
  }
 }
 
-export async function onRequestPost({request,env}){
+export async function onRequestPost({request,env},services){
  const url=new URL(request.url);
  if(!validHost(url,env))return json({error:"Not found"},404);
  if(!configured(env))return json({error:"Guest trial unavailable"},503);
@@ -241,12 +242,26 @@ export async function onRequestPost({request,env}){
   if(raw.length>4096)return json({error:"Request too large"},413);
   input=JSON.parse(raw);
  }catch{return json({error:"Invalid request"},400)}
- if(!input||typeof input.challengeToken!=="string"||input.challengeToken.length<10
-    ||input.challengeToken.length>2048)return json({error:"Verification required"},400);
- try{
-  if(!await verifyCaptcha(input.challengeToken,ip,env.GUEST_TURNSTILE_SECRET,url.hostname))
-   return json({error:"Verification failed"},403);
- }catch{return json({error:"Verification temporarily unavailable"},503)}
+ if(!input||typeof input!=="object"||Array.isArray(input))return json({error:"Invalid request"},400);
+ const viaTicket=Object.prototype.hasOwnProperty.call(input,"verifyTicket");
+ if(viaTicket){
+  if(!await services?.verifyTicket?.voice(request,env,input.verifyTicket))
+   return json({error:"Verification required",code:"VERIFY_REQUIRED"},403);
+ }else{
+  if(typeof input.challengeToken!=="string"||input.challengeToken.length<10||input.challengeToken.length>2048)
+   return json({error:"Verification required"},400);
+  try{
+   if(!await verifyCaptcha(input.challengeToken,ip,env.GUEST_TURNSTILE_SECRET,url.hostname))
+    return json({error:"Verification failed"},403);
+  }catch{return json({error:"Verification temporarily unavailable"},503)}
+ }
+ const grant=await issueVoiceAfterVerification(input,env,ip,agent);
+ if(viaTicket||!grant.ok||!services?.verifyTicket)return grant;
+ const proof=await services.verifyTicket.issue(request,env);
+ if(!proof)return grant;
+ try{return json({...await grant.json(),...proof},grant.status)}catch{return grant}
+}
+async function issueVoiceAfterVerification(input,env,ip,agent){
  // In meter-only mode, signed-in visitors receive account-counted trials,
  // while unsigned visitors retain the existing anonymous flow.
  if(env[MEMBER_SIGNIN_FLAG]==="1"||

@@ -4,7 +4,7 @@ export const GUEST_TOKEN_ENDPOINT="https://crew-guest-trial.shanliyoung.workers.
 export function guestTrialDiscoveryEnabled():boolean{
  return typeof window!=="undefined"&&!isCrewAndroidShell();
 }
-export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number;signinRequired?:boolean;memberMetering?:boolean;trial?:{used:number;limit:number}};
+export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number;signinRequired?:boolean;memberMetering?:boolean;verifyTicket?:number;trial?:{used:number;limit:number}};
 export function invalidateGuestTrialConfig(){cachedConfig=null;cachedAt=0}
 export type GuestTrialGrant={token:string;model:string;seconds:number;issuedAt:string;expiresAt:string};
 // Share one in-flight GET across the home guide and Live entry. No token, proof,
@@ -26,6 +26,7 @@ export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
   return value?.enabled===true&&typeof value.siteKey==="string"&&value.siteKey&&Number(value.seconds)===300
    ?{enabled:true,siteKey:value.siteKey,seconds:300,signinRequired:value.signinRequired===true,
      memberMetering:value.memberMetering===true||value.signinRequired===true,
+     ...(value.verifyTicket===1?{verifyTicket:1}:{}),
       ...(Number.isInteger(value.trial?.used)&&Number.isInteger(value.trial?.limit)&&value.trial.limit>0&&value.trial.used>=0&&value.trial.used<=value.trial.limit
        ?{trial:{used:value.trial.used,limit:value.trial.limit}}:{})}:{enabled:false};
  }catch{return {enabled:false}}

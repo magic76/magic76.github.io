@@ -3,6 +3,7 @@ import {buildShortsTextSystems} from "./shortsTextContext";
 import {createTypingReveal} from "./typingReveal";
 import {sendGuestTextWithRenewal} from "./guestTextFlow";
 import {useGuestTextChallenge} from "./guestTextChallenge";
+import {readVerifyTicket,saveVerifyTicket,clearVerifyTicket,isVerifyTicketRejected} from "./guestVerifyTicket";
 import {classifyGuestTextFailure,guestTextWorkerError,markGuestTextStartError,isGuestTextStartError} from "./guestTextError";
 import {readSessionTranscript,writeSessionTranscript,saveFriendResume,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
@@ -55,6 +56,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const [guestPhase,setGuestPhase]=useState<GuestPhase>("checking");
  const [guestToken,setGuestToken]=useState(getSavedGuestSession);
  const [siteKey,setSiteKey]=useState("");
+ const [ticketCapable,setTicketCapable]=useState(false);
  const [guestStatus,setGuestStatus]=useState("");
  const [remaining,setRemaining]=useState<number|null>(null);
  const mounted=useRef(true);
@@ -120,10 +122,10 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   void fetch(GUEST_TEXT_ENDPOINT,{cache:"no-store",signal:controller.signal})
    .then(async response=>{
     if(!response.ok)throw Error("Unavailable");
-    const config=await response.json() as {enabled?:boolean;siteKey?:string;dailyLimit?:number};
+    const config=await response.json() as {enabled?:boolean;siteKey?:string;dailyLimit?:number;verifyTicket?:number};
     if(!mounted.current||controller.signal.aborted)return;
     if(config.enabled!==true||typeof config.siteKey!=="string"||!config.siteKey){setGuestPhase("unavailable");return}
-    setSiteKey(config.siteKey);
+    setTicketCapable(config.verifyTicket===1);setSiteKey(config.siteKey);
     setGuestPhase(current=>current==="checking"?(getSavedGuestSession()?"active":"ready"):current);
    }).catch(()=>{if(mounted.current&&!controller.signal.aborted)setGuestPhase("unavailable")});
   return()=>controller.abort();
@@ -135,13 +137,25 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  async function startGuestText():Promise<string>{
   setGuestStatus(t("guestText.checkingHuman"));
   try{
-   const challengeToken=await waitForChallenge();
+   const verifyTicket=readVerifyTicket(ticketCapable);
+   let response:Response|undefined,data:{sessionToken?:string;expiresAt?:number;remaining?:number;code?:string;verifyTicket?:string;verifyTicketExpiresAt?:number}|undefined;
+   if(verifyTicket){
+    response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
+     headers:{"content-type":"application/json"},body:JSON.stringify({action:"start",verifyTicket})});
+    data=await response.json();
+    if(!response.ok&&isVerifyTicketRejected(data?.code)){
+     clearVerifyTicket();response=undefined;data=undefined;
+    }
+   }
+   if(!response){
+    const challengeToken=await waitForChallenge();
+    response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
+     headers:{"content-type":"application/json"},body:JSON.stringify({action:"start",challengeToken})});
+    data=await response.json();
+   }
    setGuestPhase("starting");
-   setGuestStatus(t("guestText.connecting"));
-   const response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
-    headers:{"content-type":"application/json"},
-    body:JSON.stringify({action:"start",challengeToken})});
-   const data=await response.json() as {sessionToken?:string;expiresAt?:number;remaining?:number;code?:string};
+   if(!data)throw Error("GUEST_START_FAILED");
+   saveVerifyTicket(data);
    if(data.code==="DAILY_LIMIT"){
     setRemaining(0);setGuestPhase("exhausted");throw guestTextWorkerError(data.code,response.status);
    }

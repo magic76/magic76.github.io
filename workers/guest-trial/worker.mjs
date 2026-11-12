@@ -2,6 +2,7 @@
 /** Public five-minute Guest Trial Worker. Legacy private QA endpoint retired. */
 import {onRequestGet,onRequestPost,selectGuestGeminiKey,verifyCaptcha} from "../../functions/api/guest/token.js";
 import {onTextRequest} from "./text-chat.mjs";
+import * as verifyTicket from "./verify-ticket.mjs";
 import {pollVideoTtsQueue,videoTtsResult} from "./video-tts.mjs";
 const ORIGIN="https://www.3sssi.com", HOST="crew-guest-trial.shanliyoung.workers.dev", PATH="/api/guest/token", TEXT_PATH="/api/guest/text";
 function response(body,status=200,origin){
@@ -33,10 +34,10 @@ export default {
    GUEST_TURNSTILE_SECRET:env.GUEST_TURNSTILE_SECRET||env.TURNSTILE_SECRET_KEY,
    GUEST_TURNSTILE_SITE_KEY:env.GUEST_TURNSTILE_SITE_KEY||"0x4AAAAAAFpJ8ljaQjJq_Aqy"};
   const result=url.pathname===TEXT_PATH
-   ?await onTextRequest(internal,bindings,{verifyCaptcha,selectGuestGeminiKey})
+   ?await onTextRequest(internal,bindings,{verifyCaptcha,selectGuestGeminiKey,verifyTicket})
    :request.method==="GET"
-    ?await onRequestGet({request:internal,env:bindings})
-    :await onRequestPost({request:internal,env:bindings});
+    ?await onRequestGet({request:internal,env:bindings},{verifyTicket})
+    :await onRequestPost({request:internal,env:bindings},{verifyTicket});
   const headers=new Headers(result.headers);
   headers.set("access-control-allow-origin",ORIGIN);
   headers.set("vary","Origin");

@@ -47,12 +47,18 @@ async function parseInput(request){
  }catch{return {error:json({code:"BAD_REQUEST"},400)}}
 }
 async function createSession(request,env,input,deps,visitor){
- if(typeof input.challengeToken!=="string"||input.challengeToken.length<10||input.challengeToken.length>2048)
-  return json({code:"VERIFY_REQUIRED"},400);
- let verified=false;
- try{verified=await deps.verifyCaptcha(input.challengeToken,request.headers.get("cf-connecting-ip"),env.GUEST_TURNSTILE_SECRET,"www.3sssi.com","crew-guest-trial")}
- catch{return json({code:"TEMP_UNAVAILABLE"},503)}
- if(!verified)return json({code:"VERIFY_FAILED"},403);
+ const viaTicket=Object.prototype.hasOwnProperty.call(input,"verifyTicket");
+ if(viaTicket){
+  if(!await deps.verifyTicket?.text(request,env,visitor,input.verifyTicket))
+   return json({code:"VERIFY_REQUIRED"},403);
+ }else{
+  if(typeof input.challengeToken!=="string"||input.challengeToken.length<10||input.challengeToken.length>2048)
+   return json({code:"VERIFY_REQUIRED"},400);
+  let verified=false;
+  try{verified=await deps.verifyCaptcha(input.challengeToken,request.headers.get("cf-connecting-ip"),env.GUEST_TURNSTILE_SECRET,"www.3sssi.com","crew-guest-trial")}
+  catch{return json({code:"TEMP_UNAVAILABLE"},503)}
+  if(!verified)return json({code:"VERIFY_FAILED"},403);
+ }
  const db=env.CREW_AUTH_DB,now=Date.now(),day=taipeiDay(now);
  try{
   await ensureTables(db);
@@ -63,7 +69,8 @@ async function createSession(request,env,input,deps,visitor){
   await db.prepare("DELETE FROM crew_guest_text_sessions WHERE expires_at<?").bind(now).run();
   await db.prepare("INSERT INTO crew_guest_text_sessions (token_hash,visitor_hash,expires_at) VALUES (?,?,?)")
    .bind(hash,visitor,now+SESSION_MS).run();
-  return json({sessionToken:token,remaining:DAILY_TURNS-Number(record?.used||0),expiresAt:now+SESSION_MS});
+  const proof=viaTicket?null:await deps.verifyTicket?.issue(request,env,visitor);
+  return json({sessionToken:token,remaining:DAILY_TURNS-Number(record?.used||0),expiresAt:now+SESSION_MS,...(proof||{})});
  }catch{return json({code:"TEMP_UNAVAILABLE"},503)}
 }
 function cleanMessages(raw){
@@ -140,7 +147,7 @@ async function sendText(env,input,deps,visitor){
 export async function onTextRequest(request,env,deps){
  if(request.headers.get("origin")!=="https://www.3sssi.com")return json({code:"ORIGIN_REJECTED"},403);
  if(request.method==="GET")return json(configured(env)
-  ?{enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,dailyLimit:DAILY_TURNS}:{enabled:false});
+  ?{enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,dailyLimit:DAILY_TURNS,...(deps.verifyTicket&&env.CREW_AUTH_DB?.prepare?{verifyTicket:1}:{})}:{enabled:false});
  if(request.method!=="POST")return json({code:"METHOD_NOT_ALLOWED"},405);
  if(!configured(env))return json({code:"TEMP_UNAVAILABLE"},503);
  const visitor=await visitorHash(request,env);

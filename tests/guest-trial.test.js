@@ -10,6 +10,8 @@ const backend=import("data:text/javascript;base64,"+Buffer.from(source).toString
 const transport=require("../crew-live.js");
 async function loadStandaloneWorker(){
  const backendUrl="data:text/javascript;base64,"+Buffer.from(source).toString("base64");
+ const verifySource=fs.readFileSync(path.join(root,"workers/guest-trial/verify-ticket.mjs"),"utf8");
+ const verifyUrl="data:text/javascript;base64,"+Buffer.from(verifySource).toString("base64");
  const videoSource=fs.readFileSync(path.join(root,"workers/guest-trial/video-tts.mjs"),"utf8");
  const videoUrl="data:text/javascript;base64,"+Buffer.from(videoSource).toString("base64");
  const workerRaw=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
@@ -18,6 +20,7 @@ async function loadStandaloneWorker(){
  const workerSource=workerRaw
   .replace('import {onRequestGet,onRequestPost,selectGuestGeminiKey,verifyCaptcha} from "../../functions/api/guest/token.js";', 'const {onRequestGet,onRequestPost,selectGuestGeminiKey,verifyCaptcha}=await import("'+backendUrl+'");')
   .replace('import {onTextRequest} from "./text-chat.mjs";', 'const {onTextRequest}=await import("'+textUrl+'");')
+  .replace('import * as verifyTicket from "./verify-ticket.mjs";', 'const verifyTicket=await import("'+verifyUrl+'");')
   .replace('import {pollVideoTtsQueue,videoTtsResult} from "./video-tts.mjs";', 'const {pollVideoTtsQueue,videoTtsResult}=await import("'+videoUrl+'");');
  assert.notEqual(workerRaw,workerSource);
  assert.ok(!workerSource.includes('from "../../functions/api/guest/'));
