@@ -133,13 +133,19 @@ fs.mkdirSync(OUT,{recursive:true});
       console.log('FANTASY_V5_'+scene.toUpperCase()+'_'+from+'_TO_'+to+'='+contact);
      }
     }
+    const reactionFrames=[];
     for(const progress of [0,.45,.85]){
-     await page.evaluate(({scene,progress})=>
-      window.__CREW_STUDIES_QA__.touchFrame(scene,progress),{scene,progress});
+     const image=await page.evaluate(({scene,progress})=>{
+      window.__CREW_STUDIES_QA__.touchFrame(scene,progress);
+      return document.querySelector('#heroCanvas').toDataURL('image/png');
+     },{scene,progress});
+     reactionFrames.push(image);
      await page.locator('#heroCanvas').screenshot({
       path:path.join(OUT,'V5-TOUCH-'+label+'-'+scene+'-'+Math.round(progress*100)+'.png')
      });
     }
+    assert.equal(new Set(reactionFrames).size,3,
+     'touch must animate the character body/arms and light droplets over three moments');
    }
    // Reduced-motion mode keeps transitions immediate, while keyboard can still
    // trigger the same touch response and politely announces what happened.
@@ -149,6 +155,17 @@ fs.mkdirSync(OUT,{recursive:true});
    await page.keyboard.press('Enter');
    assert.match(await page.locator('#reactionStatus').innerText(),/揮手/);
    assert.equal(await page.evaluate(()=>window.__CREW_STUDIES_QA__.hitTest('jelly',16,400,294)),true);
+   await page.locator('[data-scene="jelly"]').click();
+   const touched=await page.evaluate(()=>{
+    const cv=document.querySelector('#heroCanvas'),b=cv.getBoundingClientRect();
+    const scale=Math.min(b.width/800,b.height/820),ox=(b.width-800*scale)/2,oy=(b.height-820*scale)/2;
+    cv.dispatchEvent(new PointerEvent('pointerdown',{
+     bubbles:true,clientX:b.left+ox+400*scale,clientY:b.top+oy+294*scale
+    }));
+    return document.querySelector('#reactionStatus').textContent;
+   });
+   assert.match(touched,/水母彈了一下/,'actual pointer hit must trigger medusa response');
+   await page.locator('[data-scene="island"]').click();
    await page.locator('[data-stage="3"]').click();
    await page.locator('#simulateChatBtn').click();
    assert.equal(await page.evaluate(()=>window.__CREW_STUDIES_QA__.state().turns),4);
