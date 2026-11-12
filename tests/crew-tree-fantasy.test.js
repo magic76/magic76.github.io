@@ -145,7 +145,7 @@ test('V4 staged composition, botanical spiral and exploratory travel art are act
  assert.match(v4,/function travelCliff\(/);
  assert.match(v4,/function refract\(/);
  assert.match(v4,/function fishHero\(/);
- assert.match(painter,/spiral-leaf-tiers\.svg/);
+ assert.match(v5,/function spiralStair\(/); // V5 replaces the V4 plate; archive still exists below.
  assert.match(html,/futureHint/);
  assert.match(html,/剩下的世界|還有好多故事/);
  const leaf=fs.readFileSync(path.join(ROOT,'assets/spiral-leaf-tiers.svg'),'utf8');
