@@ -13,18 +13,31 @@ fs.mkdirSync(OUT,{recursive:true});
    page.on('pageerror',error=>failures.push(error.message));
    page.on('response',res=>{if(res.status()>=400)failures.push('HTTP '+res.status()+': '+res.url());});
    await page.goto(URL+'?qa=1',{waitUntil:'networkidle',timeout:40000});
-   await page.waitForFunction(()=>window.__CREW_STUDIES_QA__?.assetStatus()?.loaded?.length===4,{timeout:20000});
+   await page.waitForFunction(()=>window.__CREW_STUDIES_QA__?.assetStatus()?.loaded?.length===9,{timeout:20000});
    assert.equal(await page.locator('[data-preview]').count(),3);
    assert.equal(await page.locator('[data-scene]').count(),2);
+   assert.equal(await page.locator('#silhouetteBtn').count(),1);
    for(const scene of ['island','jelly']){
     await page.locator('[data-scene="'+scene+'"]').click();
     for(const stage of [3,8,16]){
      await page.locator('[data-stage="'+stage+'"]').click();
      const m=await page.evaluate(()=>window.__CREW_STUDIES_QA__.sceneModel());
      assert.equal(m.stage,stage);assert.equal(m.scene,scene);
-     if(scene==='island')assert.equal(m.units.length,stage===3?1:stage===8?2:4);
-     else assert.equal(m.arms.length,stage===3?6:stage===8?11:19);
+     if(scene==='island'){
+      assert.equal(m.units.length,stage===3?1:stage===8?2:4);
+      assert.equal(m.units[0].species,'spiral');
+      if(stage===16)assert.deepEqual(m.units.map(x=>x.species),['spiral','weeping','lantern-fruit','crescent']);
+     } else{
+      assert.equal(m.arms.length,stage===3?6:stage===8?11:19);
+      assert.equal(m.silhouette.domeWidth,stage===3?367:stage===8?465:555);
+     }
      await page.locator('#heroCanvas').screenshot({path:path.join(OUT,label+'-'+scene+'-'+stage+'.png')});
+     if(stage===16){
+      await page.locator('#silhouetteBtn').click();
+      assert.equal(await page.locator('#silhouetteBtn').getAttribute('aria-pressed'),'true');
+      await page.locator('#heroCanvas').screenshot({path:path.join(OUT,label+'-'+scene+'-silhouette.png')});
+      await page.locator('#silhouetteBtn').click();
+     }
     }
     const sheet=await page.evaluate(()=>{
      const previews=[...document.querySelectorAll('[data-preview]')];
@@ -36,6 +49,20 @@ fs.mkdirSync(OUT,{recursive:true});
      return out.toDataURL('image/jpeg',.68).split(',')[1];
     });
     if(label==='desktop')console.log('FANTASY_'+scene.toUpperCase()+'_CONTACT='+sheet);
+    if(label==='desktop'){
+     await page.locator('#silhouetteBtn').click();
+     const black=await page.evaluate(()=>{
+      const previews=[...document.querySelectorAll('[data-preview]')];
+      const out=document.createElement('canvas');out.width=900;out.height=420;
+      const c=out.getContext('2d');c.fillStyle='#faf5e7';c.fillRect(0,0,900,420);
+      previews.forEach((src,i)=>{c.drawImage(src,i*300+2,0,296,400);
+       c.fillStyle='#30352f';c.font='bold 16px system-ui';c.textAlign='center';
+       c.fillText([3,8,16][i]+' turns',i*300+150,415);});
+      return out.toDataURL('image/jpeg',.72).split(',')[1];
+     });
+     console.log('FANTASY_'+scene.toUpperCase()+'_SILHOUETTE='+black);
+     await page.locator('#silhouetteBtn').click();
+    }
    }
    await page.locator('[data-scene="island"]').click();
    await page.locator('[data-stage="16"]').click();
@@ -49,7 +76,7 @@ fs.mkdirSync(OUT,{recursive:true});
    assert.ok(width.doc<=width.viewport+2,'No horizontal scrolling at '+label+': '+JSON.stringify(width));
    assert.equal(failures.length,0,JSON.stringify(failures));
    await page.screenshot({path:path.join(OUT,label+'-whole-art-study.png'),fullPage:true});
-   console.log('FANTASY_BROWSER_OK '+label+' 2 scenes x 3 stages; original SVG=4; overflow=0');
+   console.log('FANTASY_BROWSER_OK '+label+' 2 scenes x 3 stages; original SVG=9; overflow=0');
    await ctx.close();
   }
   // External authoring tools are separately reported: a CDN outage must not

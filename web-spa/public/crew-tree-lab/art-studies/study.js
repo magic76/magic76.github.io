@@ -313,6 +313,7 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
  window.__CREW_STUDIES_QA__={sceneModel,assetStatus:()=>({loaded:FILES.filter(ready),missing:FILES.filter(x=>!ready(x))}),
   state:()=>({...state}),paint:(scene,stage,seed,topic)=>paint($('heroCanvas'),scene,stage,seed,topic,0,true),
   previews:()=>document.querySelectorAll('[data-preview]').length,
+  paintAt:(scene,stage,seed,topic,time)=>paint($('heroCanvas'),scene,stage,seed,topic,time,false,false),
   silhouette:()=>state.silhouette};
 }
 wire();updateStatus();changeUI();load();
