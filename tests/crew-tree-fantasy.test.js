@@ -6,6 +6,7 @@ const source=fs.readFileSync(path.join(ROOT,'study.js'),'utf8');
 const painter=fs.readFileSync(path.join(ROOT,'character-paint.js'),'utf8');
 const v3=fs.readFileSync(path.join(ROOT,'v3-art.js'),'utf8');
 const v4=fs.readFileSync(path.join(ROOT,'v4-art.js'),'utf8');
+const v5=fs.readFileSync(path.join(ROOT,'v5-art.js'),'utf8');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 function boot(){
  const nodes=new Map(),gradient=()=>({addColorStop(){}}),draw={paths:0};
@@ -27,15 +28,18 @@ function boot(){
  const win={matchMedia:()=>({matches:true,addEventListener(){}}),Image:MockImage,addEventListener(){}};
  const scope={window:win,document:doc,location:{search:'?qa=1'},Math,URLSearchParams,Number,Map,
   requestAnimationFrame(){throw Error('Reduced-motion page should be still');}};
- vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
+ vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(v5,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
  return {qa:win.__CREW_STUDIES_QA__,draw};
 }
 test('isolated art studies never touch current V5 storage or chat',()=>{
  assert.match(html,/data-scene="island"/);assert.match(html,/data-scene="jelly"/);
  assert.match(html,/data-stage="16"/);assert.match(html,/V5 收藏/);
- assert.match(html,/character-paint\.js\?v=4-20261113/);
- assert.match(html,/v3-art\.js\?v=4-20261113/);
- assert.match(html,/v4-art\.js\?v=4-20261113/);
+ assert.match(html,/character-paint\.js\?v=5-20261113/);
+ assert.match(html,/v3-art\.js\?v=5-20261113/);
+ assert.match(html,/v4-art\.js\?v=5-20261113/);
+ assert.match(html,/v5-art\.js\?v=5-20261113/);
+ assert.match(html,/simulateChatBtn/);
+ assert.match(html,/tabindex="0"/);
  assert.match(html,/silhouetteBtn/);
  assert.doesNotMatch(source,/\blocalStorage\b|\bfetch\s*\(|\bWebSocket\b/);
 });
@@ -153,4 +157,40 @@ test('V4 staged composition, botanical spiral and exploratory travel art are act
   const a=qa.sceneModel(scene,age,103,'travel');
   assert.equal(JSON.stringify(a),JSON.stringify(qa.sceneModel(scene,age,103,'travel')));
  }
+});
+
+test('V5 morphs full-size leaf staircase instead of scribble-ring plates',()=>{
+ assert.match(v5,/leaves=mature\?10:8/);
+ assert.match(v5,/function spiralStair\(/);
+ assert.match(v5,/function emergence\(/);
+ assert.match(v5,/function jellyGrowth\(/);
+ assert.match(v5,/function capOcclusion\(/);
+ assert.match(painter,/CrewFantasyV5\.spiralStair/);
+ assert.doesNotMatch(painter,/art\(c,'spiral-leaf-tiers\.svg'/);
+ const {qa}=boot();assert.equal(qa.sceneModel('island',16,103).units[0].species,'spiral');
+});
+test('V5 has real transition frames and keyboard accessible hit reactions',()=>{
+ assert.match(source,/function beginGrowth\(/);
+ assert.match(source,/state\.turns/);
+ assert.match(source,/addEventListener\('pointerdown'/);
+ assert.match(source,/addEventListener\('keydown'/);
+ assert.match(source,/window\.CrewFantasyV5\.capOcclusion/);
+ const {qa}=boot();
+ assert.equal(typeof qa.growthFrame,'function');
+ assert.equal(typeof qa.touchFrame,'function');
+ for(const scene of ['island','jelly']){
+  for(const [from,to] of [[3,8],[8,16]]){
+   const zero=qa.growthFrame(scene,from,to,0);
+   const middle=qa.growthFrame(scene,from,to,.5);
+   const full=qa.growthFrame(scene,from,to,1);
+   assert.equal(zero.stage,to);
+   assert.equal(middle.stage,to);
+   assert.equal(full.stage,to);
+  }
+  const model=qa.touchFrame(scene,.4);
+  assert.equal(model.stage,16);
+ }
+ assert.equal(qa.hitTest('island',16,397,450),true);
+ assert.equal(qa.hitTest('jelly',16,400,294),true);
+ assert.equal(qa.hitTest('island',16,50,50),false);
 });
