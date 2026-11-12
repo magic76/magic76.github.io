@@ -575,5 +575,5 @@
     "withZoe": "Hablar con Zoe",
     "setup": "Config. Key"
   },
-  "dailyQuote": {"title": "Una frase para hoy", "fortune": "Consultar mi fortuna de hoy", "chat": "Hablar de esto con Zoe", "fortuneFull": "Ver la lectura completa", "personalTitle": "Tu fortuna de hoy", "chooseChart": "Elegir carta natal", "me": "Mi carta", "markSelf": "Marcar como mi carta", "kind": {"bazi": "BaZi", "tarot": "Numerología", "vedic": "Carta védica"}}
+  "dailyQuote": {"title": "Una frase para hoy", "fortune": "Consultar mi fortuna de hoy", "chat": "Hablar de esto con Zoe", "fortuneFull": "Ver la lectura completa", "personalTitle": "Tu fortuna de hoy", "chooseChart": "Elegir carta natal", "me": "Mi carta", "markSelf": "Marcar como mi carta", "kind": {"bazi": "BaZi", "tarot": "Numerología", "vedic": "Carta védica"}, "chatRead": "Pedir a Zoe que interprete mi día", "setupChart": "Crear mi carta para ver mi fortuna diaria", "setupHint": "Indica tu fecha de nacimiento una vez y recibe una frase diaria para ti."}
 }

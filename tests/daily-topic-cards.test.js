@@ -46,19 +46,29 @@ test("11 localized quote catalogs contain all 30 nonblank short thoughts; UI lab
    assert.ok(quotes[id].length<=125,lang+" "+id+" should be short");
    assert.doesNotMatch(quotes[id],/\{\{|\}\}/,lang+" "+id);
   }
-  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["chat","chooseChart","fortune","fortuneFull","kind","markSelf","me","personalTitle","title"]);
+  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["chat","chatRead","chooseChart","fortune","fortuneFull","kind","markSelf","me","personalTitle","setupChart","setupHint","title"]);
   assert.deepEqual(Object.keys(home.dailyQuote.kind).sort(),["bazi","tarot","vedic"]);
   for(const text of Object.values(home.dailyQuote.kind))assert.ok(typeof text==="string"&&text.trim());
-  for(const key of ["title","fortune","chat","fortuneFull","personalTitle","chooseChart","me","markSelf"])assert.ok(home.dailyQuote[key]?.trim(),lang+" "+key);
+  for(const key of ["title","fortune","chat","chatRead","fortuneFull","personalTitle","chooseChart","me","markSelf","setupChart","setupHint"])assert.ok(home.dailyQuote[key]?.trim(),lang+" "+key);
   assert.ok(friends.dailyQuoteStarter?.trim(),lang);
+  assert.ok(friends.dailyFortuneStarter?.trim(),lang);
+  assert.doesNotMatch(friends.dailyFortuneStarter,/\{\{|\}\}/,lang);
   assert.deepEqual(friends.dailyQuoteStarter.match(/\{\{[^}]+\}\}/g),["{{quote}}"]);
   assert.equal(home.dailyTopics,undefined,"old homepage titles must be removed");
   assert.ok(friends.textStarters.topics["photo-story"],"cached old topic links must still work");
  }
  assert.notEqual(JSON.parse(read("web-spa/src/i18n/locales/zh-TW/dailyQuote.json")).q01,en.q01);
+ const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json")).dailyQuote;
+ assert.equal(zh.setupChart,"設定我的命盤，每天看專屬運勢");
+ assert.equal(zh.setupHint,"填一次生日，每天一句專屬運勢");
+ for(const lang of langs){
+  const copy=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/home.json`)).dailyQuote;
+  assert.doesNotMatch(copy.setupChart+" "+copy.setupHint,/\{\{|\}\}|Zoe/i,lang+" no-chat setup");
+  assert.ok(copy.setupChart.length>=10&&copy.setupHint.length>=10,lang+" meaningful setup copy");
+ }
 });
 
-test("SSG placeholder, local midnight + visibility refresh; one card and both tracked links",()=>{
+test("SSG placeholder, local midnight + visibility refresh; personalized Zoe CTA and generic fortune setup",()=>{
  const cards=read(root+"DailyTopicCards.tsx");
  const loader=read(root+"quoteCatalog.ts");
  assert.match(cards,/useState<TodayQuote\|null>\(null\)/);
@@ -71,7 +81,16 @@ test("SSG placeholder, local midnight + visibility refresh; one card and both tr
  assert.match(cards,/kind="\+personal!/);
  assert.match(cards,/:"\/fortune"/);
  assert.match(cards,/chat=text&quote=daily&chart=/);
- assert.match(cards,/chat=text&quote="\+quote!/);
+ assert.match(cards,/isPersonal\?<\>/);
+ assert.match(cards,/to=\{chatHref\}/);
+ assert.match(cards,/t\("dailyQuote.chatRead"\)/);
+ assert.match(cards,/to="\/fortune" onClick=\{\(\)=>trackUsageEvent\("home_entry_click","fortune"\)\}/);
+ assert.match(cards,/t\("dailyQuote.setupChart"\)/);
+ assert.match(cards,/!isPersonal\?<p className="daily-quote-benefit">\{t\("dailyQuote.setupHint"\)\}/);
+ assert.match(cards,/daily-quote-actions--setup/);
+ assert.doesNotMatch(cards,/t\("dailyQuote.chat"\)/,"no-chart branch must not advertise Zoe");
+ assert.doesNotMatch(cards,/birthDate.*chatHref/);
+ assert.doesNotMatch(cards,/chat=text&quote="\+quote!/,"generic daily quote must not link to Zoe on homepage");
  assert.match(cards,/trackUsageEvent\("home_entry_click","fortune"\)/);
  assert.match(cards,/trackUsageEvent\("home_entry_click","friend"\)/);
  assert.equal((cards.match(/className="daily-quote-card"/g)||[]).length,1);
@@ -94,8 +113,8 @@ test("quote starter is allowlisted, same-language, opt-in and Shorts retains pri
  assert.match(friend,/!shortsPost&&friend\.id==="zoe"/);
  assert.match(friend,/loadQuoteText\(locale\.language,selectedQuote\.id\)/);
  assert.match(friend,/t\("dailyQuoteStarter",\{quote:quoteText\.text\}\)/);
- assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|personalQuoteStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
- assert.match(friend,/showStarterWithHistory=\{Boolean\(personalQuoteStarter\|\|dailyQuoteStarter\)\}/);
+ assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)\}/);
  assert.match(chat,/historyReady&&messages\.length>0&&showStarterWithHistory&&firstStarter/);
  assert.match(chat,/firstOnly\/>/);
  assert.match(starters,/!firstOnly&&\(\["cafe","intro","smalltalk"\]/);
@@ -105,7 +124,12 @@ test("quote starter is allowlisted, same-language, opt-in and Shorts retains pri
  assert.match(friend,/params\.get\("quote"\)==="daily"/);
  assert.match(friend,/\^\[a-f0-9\]\{64\}\$/);
  assert.match(friend,/import\("\.\.\/pages\/personalDailyLine"\)/);
- assert.match(friend,/personalQuoteStarter/);
+ assert.match(friend,/dailyFortuneStarter=dailyFortune\?t\("dailyFortuneStarter"\):undefined/);
+ assert.match(friend,/dailyLookupPending/);
+ assert.match(friend,/dailyFortune\?"\\n"\+dailyFortune.context/);
+ assert.match(friend,/dailyFortune\?":daily:"\+dailyFortune.hash/);
+ assert.match(friend,/Promise.all\(\[import\("..\/pages\/personalDailyLine"\),import\("..\/pages\/dailyFortuneReader"\)\]\)/);
+ assert.doesNotMatch(friend,/personalQuoteStarter/);
  assert.doesNotMatch(friend,/setDraft\(dailyQuoteStarter\)|sendMessage\(dailyQuoteStarter\)/);
 });
 
@@ -214,6 +238,7 @@ test("personal chart selection remains compact and the exact /en and /ja desktop
  assert.match(home,/useTranslation\("home"\)/);
  assert.match(home,/const language=i18n\.language/);
  assert.match(home,/to=\{fortuneHref\}/);
+ assert.match(home,/to="\/fortune"/);
  const routeI18n=read("web-spa/src/i18n/index.ts");
  assert.match(routeI18n,/resolveInitialUiLocale/);
  assert.match(routeI18n,/normalizeUiLocale/);

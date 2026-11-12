@@ -129,5 +129,6 @@
     }
   }
 ,
-  "dailyQuoteStarter": "今天的小語：「{{quote}}」想跟你聊聊這句。"
+  "dailyQuoteStarter": "今天的小語：「{{quote}}」想跟你聊聊這句。",
+  "dailyFortuneStarter": "幫我解讀今天的運勢"
 }

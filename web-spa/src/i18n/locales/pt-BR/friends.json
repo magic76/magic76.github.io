@@ -129,5 +129,6 @@
     }
   }
 ,
-  "dailyQuoteStarter": "A frase de hoje: “{{quote}}” Queria conversar sobre isso."
+  "dailyQuoteStarter": "A frase de hoje: “{{quote}}” Queria conversar sobre isso.",
+  "dailyFortuneStarter": "Me ajude a interpretar a sorte de hoje"
 }

@@ -129,5 +129,6 @@
     }
   }
 ,
-  "dailyQuoteStarter": "Lời nhắn hôm nay: “{{quote}}” Mình muốn trò chuyện về câu này."
+  "dailyQuoteStarter": "Lời nhắn hôm nay: “{{quote}}” Mình muốn trò chuyện về câu này.",
+  "dailyFortuneStarter": "Giúp mình giải nghĩa vận may hôm nay"
 }
