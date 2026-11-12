@@ -39,6 +39,21 @@ fs.mkdirSync(OUT,{recursive:true});
       await page.locator('#silhouetteBtn').click();
      }
     }
+    if(scene==='jelly'){
+     // QA-only fixed-time sampling verifies the living membrane and delayed
+     // tendrils really animate rather than only rendering a static poster.
+     const animated=await page.evaluate(()=>{
+      const qa=window.__CREW_STUDIES_QA__,canvas=document.getElementById('heroCanvas');
+      qa.paintAt('jelly',16,103,'music',1500);
+      const first=canvas.toDataURL('image/png');
+      qa.paintAt('jelly',16,103,'music',4100);
+      const second=canvas.toDataURL('image/png');
+      return first!==second;
+     });
+     assert.ok(animated,'breathing umbrella, glowing buds and staggered tendrils must animate');
+     // Restore the static/reduced-motion scene before comparison captures.
+     await page.locator('[data-stage="16"]').click();
+    }
     const sheet=await page.evaluate(()=>{
      const previews=[...document.querySelectorAll('[data-preview]')];
      const out=document.createElement('canvas');out.width=900;out.height=420;
@@ -60,6 +75,18 @@ fs.mkdirSync(OUT,{recursive:true});
        c.fillText([3,8,16][i]+' turns',i*300+150,415);});
       return out.toDataURL('image/jpeg',.72).split(',')[1];
      });
+     const silhouetteAreas=await page.evaluate(()=>{
+      return [...document.querySelectorAll('[data-preview]')].map(cv=>{
+       const ctx=cv.getContext('2d'),a=ctx.getImageData(0,0,cv.width,cv.height).data;
+       let count=0;for(let k=0;k<a.length;k+=4){
+        if(a[k]<62&&a[k+1]<62&&a[k+2]<62&&a[k+3]>100)count++;
+       }
+       return count;
+      });
+     });
+     assert.ok(silhouetteAreas[0]<silhouetteAreas[1]&&silhouetteAreas[1]<silhouetteAreas[2],
+      'maturity must grow identifiable black silhouette area '+JSON.stringify(silhouetteAreas));
+     console.log('FANTASY_'+scene.toUpperCase()+'_BLACK_AREA='+JSON.stringify(silhouetteAreas));
      console.log('FANTASY_'+scene.toUpperCase()+'_SILHOUETTE='+black);
      await page.locator('#silhouetteBtn').click();
     }
