@@ -3,8 +3,8 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {TimelinePortrait} from "./TimelinePortrait";
 import {
- CAFE_ACTORS,CAFE_PAIRS,CAFE_PROPS,CAFE_SECRETS,CAFE_MAX_MOVES,cafeNames,cafePropCopy,cafeSecretCopy,
- cafeBond,cafeWorldValid,continueCafeWorld,newCafeWorld,useCafeProp,
+ CAFE_ACTORS,CAFE_PAIRS,CAFE_PROPS,CAFE_SECRETS,cafeNames,cafePropCopy,cafeSecretCopy,
+ cafeFinale,cafeLength,continueCafeWorld,newCafeWorld,useCafeProp,
  type CafeActor,type CafeProp,type CafeSecret,type CafeWorld
 } from "./lifeCafeEngine";
 import {loadCafeWorld,saveCafeWorld,clearCafeWorld} from "./lifeCafeStorage";
@@ -19,7 +19,6 @@ function freshSeed():number{
  if(typeof crypto!=="undefined"&&crypto.getRandomValues)return crypto.getRandomValues(new Uint32Array(1))[0];
  return Date.now()>>>0;
 }
-function personTitle(id:CafeActor){return cafeNames[id]}
 function ActorPortrait({id,active,reacting,onClick,zh}:{id:CafeActor;active:boolean;reacting:boolean;onClick:()=>void;zh:boolean}){
  const meta=actorsMeta[id];
  return <button type="button" className={"lc-character lc-character-"+id+(active?" lc-character-active":"")+(reacting?" lc-character-reacting":"")}
@@ -72,7 +71,7 @@ function LastReaction({world,zh,onContinue,onReset}:{world:CafeWorld;zh:boolean;
   </div>}
   <div className="lc-reaction-actions">
    <button type="button" className="lc-primary" onClick={onContinue}>
-    {world.used.length>=CAFE_MAX_MOVES?zh?"看看這場實驗的結局":"See how this experiment ended":zh?"再加一個變數":"Add another twist"}
+    {world.used.length>=cafeLength(world)?zh?"揭曉三人的結局":"Reveal how their story ends":zh?"繼續下一幕":"Continue the story"}
     <span aria-hidden="true">→</span>
    </button>
    <button type="button" className="lc-quiet-action" onClick={onReset}>{zh?"換一種可能性，重來":"Rewind this world"}</button>
@@ -88,10 +87,14 @@ export function LifeCafePage(){
  const [item,setItem]=useState<CafeProp>("letter");
  const [target,setTarget]=useState<CafeActor>("ethan");
  const [guess,setGuess]=useState<CafeActor|null>(null);
+ const [showGuess,setShowGuess]=useState(false);
  const [warning,setWarning]=useState(false);
  const [showSecrets,setShowSecrets]=useState(false);
  const [showLog,setShowLog]=useState(false);
  const last=world.moves.at(-1);
+ const opening=world.version===2&&world.used.length===0;
+ const total=cafeLength(world);
+ const finale=world.phase==="finished"?cafeFinale(world):null;
  const activeItem=world.used.includes(item)?CAFE_PROPS.find(p=>!world.used.includes(p))||item:item;
  const update=(next:CafeWorld)=>{
   setWorld(next);
@@ -102,14 +105,14 @@ export function LifeCafePage(){
   const next=newCafeWorld(sameSeed?world.seed:freshSeed());
   if(!clearCafeWorld())setWarning(true);
   update(next);
-  setItem("letter");setTarget("ethan");setGuess(null);setShowSecrets(false);setShowLog(false);
+  setItem("letter");setTarget("ethan");setGuess(null);setShowGuess(false);setShowSecrets(false);setShowLog(false);
   window.scrollTo({top:0,behavior:"instant"});
  };
  const apply=()=>{
   if(world.phase!=="ready")return;
   try{
    const next=useCafeProp(world,activeItem,target,guess);
-   update(next);setGuess(null);
+   update(next);setGuess(null);setShowGuess(false);
    window.requestAnimationFrame(()=>document.getElementById("lc-reaction")?.scrollIntoView({block:"start",behavior:"smooth"}));
   }catch{setWarning(true);}
  };
@@ -118,7 +121,7 @@ export function LifeCafePage(){
    const next=continueCafeWorld(world);
    update(next);
    setItem(CAFE_PROPS.find(p=>!next.used.includes(p))||"letter");
-   setGuess(null);
+   setGuess(null);setShowGuess(false);
    window.scrollTo({top:0,behavior:"instant"});
   }catch{setWarning(true);}
  };
@@ -131,9 +134,9 @@ export function LifeCafePage(){
     <Link className="lc-back" to="/games">← {l("回小遊戲","Back to games")}</Link>
     <div className="lc-header-label">CREW · LITTLE WORLD EXPERIMENT</div>
     <div className="lc-header-title"><div><span className="lc-eyebrow"><span/> {l("一個會誤會彼此的小世界","A SMALL WORLD OF MISUNDERSTANDINGS")}</span>
-     <h1>{l("今天，咖啡店會發生什麼？","What will happen at the café?")}</h1>
-     <p>{l("你只放進一個東西。剩下的，讓他們自己決定。","Add one thing. Let the three of them take it from there.")}</p>
-    </div><div className="lc-counter"><strong>{world.used.length}<small> / {CAFE_MAX_MOVES}</small></strong><span>{l("次實驗","experiments")}</span></div></div>
+     <h1>{l("誰寫了那封匿名信？","Who wrote the anonymous letter?")}</h1>
+     <p>{l("三個從小認識的朋友在咖啡店見面，有人準備離開，卻不敢說。","Three childhood friends meet at a café. One is leaving, but cannot say it.")}</p>
+    </div><div className="lc-counter"><strong>{world.used.length}<small> / {total}</small></strong><span>{l("幕故事","story beats")}</span></div></div>
    </header>
    {warning&&<p className="lc-warning" role="status">{l("目前無法安全儲存進度。離開後可能需要重玩。","Local storage is unavailable; your experiment may not survive a reload.")}</p>}
    {world.awayReports.length>0&&<section className="lc-away" aria-label={l("離開後的世界","Since you were away")}>
