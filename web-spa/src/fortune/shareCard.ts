@@ -63,12 +63,16 @@ export async function buildDailyShareFile(card:import("./dailyCard").DailyCard,l
  // Approved Q-character illustration; same-origin source, graceful art fallback.
  const art=await dailyArt(card.artSrc);
  ctx.fillStyle="#ffffffa8";ctx.fillRect(70,177,940,474);
- if(art){
+ if(art&&art.naturalWidth>0&&art.naturalHeight>0){
   const width=835,height=470;
-  // Contain square artwork in the original sharing-card frame without stretching.
-  const scale=Math.min(width/art.naturalWidth,height/art.naturalHeight);
+  const cx=122+width/2,cy=179+height/2,radius=height/2;
+  // Clip to a true circle, then cover it with 15% overscan without distorting artwork.
+  const scale=Math.max(height/art.naturalWidth,height/art.naturalHeight)*1.15;
   const drawWidth=art.naturalWidth*scale,drawHeight=art.naturalHeight*scale;
-  ctx.drawImage(art,122+(width-drawWidth)/2,179+(height-drawHeight)/2,drawWidth,drawHeight);
+  ctx.save();
+  ctx.beginPath();ctx.arc(cx,cy,radius,0,Math.PI*2);ctx.clip();
+  ctx.drawImage(art,cx-drawWidth/2,cy-drawHeight/2,drawWidth,drawHeight);
+  ctx.restore();
  }else{
   ctx.fillStyle="#9975bb";ctx.font="225px sans-serif";ctx.textAlign="center";ctx.fillText("✦",540,535);ctx.textAlign="left";
  }
