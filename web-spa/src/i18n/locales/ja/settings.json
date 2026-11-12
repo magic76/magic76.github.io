@@ -115,6 +115,7 @@
     "pricingLink": "Google の公式料金を見る",
     "setupNoticeTitle": "Gemini キーがまだですか？無料で作れます",
     "setupNoticeDesc": "Google アカウントで約 1 分でキーを取得できます。Crew の AI 機能で共通利用できます。オフラインゲームには不要です。無料利用量はモデルで異なります。",
+    "keyCapabilities": "Key 不要：AI フレンドとのテキストチャット（1日 {{count}} 通）、Key 不要のゲーム、Shorts、単語練習。Key が必要：音声チャット、先生のレッスン、物語作成、AI 占い解説。",
     "setupNoticeAction": "無料の設定手順を見る",
     "setupInvalidTitle": "Gemini キーが使えない可能性があります",
     "setupInvalidDesc": "キーを確認するか、新しいキーを無料作成してください。設定後は会話に戻ります。",

@@ -15,6 +15,7 @@
 .crew-language-trigger-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .crew-language-picker-header{flex:none}
 .crew-language-picker-header .crew-language-trigger{min-height:44px;flex:none}
+.crew-language-picker-header .crew-language-globe{flex:none;color:var(--muted,#657084)}
 .crew-language-picker-header .crew-language-trigger-name{flex:none;overflow:visible;text-overflow:clip}
 .crew-language-trigger svg{flex:none}
 .crew-language-picker-settings .crew-language-trigger{max-width:100%;min-width:180px;min-height:44px;justify-content:space-between;font-size:14px}

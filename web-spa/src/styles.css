@@ -613,7 +613,7 @@ button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--
 .crew-gemini-setup-notice{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px;border:1px solid #d9dffb;border-radius:15px;background:linear-gradient(115deg,#f5f3ff,#f1f6ff)}
 .crew-gemini-setup-copy{display:grid;gap:5px;min-width:0}
 .crew-gemini-setup-copy strong{font-size:13px;color:#333858}
-.crew-gemini-setup-copy small{font-size:11px;line-height:1.6;color:#606b80}
+.crew-gemini-setup-copy small{font-size:12px;line-height:1.6;color:#525c70}
 .crew-gemini-setup-notice>.btn{flex-shrink:0;font-size:12px}
 .crew-gemini-setup-live{width:100%;max-width:470px}
 @media(max-width:620px){

@@ -115,6 +115,7 @@
     "pricingLink": "Veja os preços oficiais do Google",
     "setupNoticeTitle": "Ainda não tem chave Gemini? Crie uma grátis",
     "setupNoticeDesc": "Obtenha uma chave com sua Conta Google em cerca de um minuto. Uma chave serve para os recursos de IA do Crew; jogos offline dispensam chave. Os limites gratuitos variam por modelo.",
+    "keyCapabilities": "Sem Key: mensagens com amigos de IA ({{count}} por dia), jogos sem Key, Shorts e vocabulário. Com Key: conversa por voz, aulas, criação de histórias e leituras de IA.",
     "setupNoticeAction": "Veja como configurar grátis",
     "setupInvalidTitle": "Sua chave Gemini pode não estar funcionando",
     "setupInvalidDesc": "Confira ou verifique sua chave novamente, ou crie outra gratuitamente. Você voltará à conversa após configurar.",

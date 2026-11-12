@@ -15,6 +15,7 @@ import {completedLessons} from "./courseProgress";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {loadUiNamespace} from "../i18n";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
+import {hasLearningHistory} from "./learningHistory";
 
 export function PracticePage(){
  const {t}=useTranslation("teacher");
@@ -26,6 +27,8 @@ export function PracticePage(){
  const storedProfile=useTeacherStore(s=>s.teacherProfile);
  const profile=getTeacherProfile(ready?storedProfile:"emma");
  const chinese=i18n.resolvedLanguage==="zh-TW";
+ // Keep SSR and the first hydration render identical; after mount, hide empty continuations.
+ const showContinue=!ready||hasLearningHistory(target,profile.id);
  // SSG prerenders zh-TW and then en through a cached React.lazy page. A lazy
  // import alone only loads the namespace for the FIRST locale. Suspend until
  // each locale's lesson catalog is ready, including on subsequent SSG passes.
@@ -37,18 +40,18 @@ export function PracticePage(){
  return <>
  <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>{tToday("learnToday.teachersCourses")}</h1><p>{tToday("learnToday.teacherIntro")}</p></section>
  <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{target}</strong><Link to="/settings#settings-learning">{t("practice.targetChange")}</Link></section>
- <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")}>
+ <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")} style={!showContinue?{gridTemplateColumns:"minmax(0,1fr)"}:undefined}>
   <Link className="crew-role-entry teacher" to="/teacher/roles?mode=teacher">
    <span className="crew-role-symbol crew-role-portrait"><TeacherAvatar profile={profile}/></span>
    <strong>{t("practice.teacher")} <span className="crew-role-name">· {profile.name}</span></strong><span>{t("practice.teacherDesc")}</span>
    <small>{t("practice.teacherAction")} <b aria-hidden="true">↗</b></small>
   </Link>
-  <Link className="crew-role-entry teacher" to="/teacher/live?intent=continue">
+  {showContinue&&<Link className="crew-role-entry teacher" to="/teacher/live?intent=continue">
    <span className="crew-role-symbol"><Icon name="chat"/></span><strong>{t("practiceEntry.continueTitle")}</strong>
    <span>{t("practiceEntry.continueDesc")}</span><small>{t("practice.next")} ↗</small>
-  </Link>
+  </Link>}
  </section>
- <section className="section crew-continue-section"><div className="section-head"><h2>{t("practice.continue")}</h2><Link to="/learn">{tToday("learnToday.backToLearn")} →</Link></div><ContinueLearningCard compact/></section>
+ {showContinue&&<section className="section crew-continue-section"><div className="section-head"><h2>{t("practice.continue")}</h2><Link to="/learn">{tToday("learnToday.backToLearn")} →</Link></div><ContinueLearningCard compact/></section>}
  {target==="英文"&&<section className="section crew-course-tracks" aria-label={tToday("learnToday.courseTracks")}>
   <div className="section-head"><h2>{tToday("learnToday.courseTracks")}</h2></div>
   <div className="grid two-col">{COURSE_TRACKS.map(track=>{

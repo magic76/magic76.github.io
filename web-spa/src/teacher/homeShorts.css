@@ -58,3 +58,6 @@
 .crew-home-short-question{min-height:44px;padding:10px 12px;transition:transform 120ms ease}
 .crew-home-short-question:active{transform:scale(.97)}
 @media(prefers-reduced-motion:reduce){.crew-home-short-question{transition:none}}
+
+/* One muted translation line keeps the desktop preview at a stable height. */
+.crew-home-short-translation{display:block;overflow:hidden;min-width:0;max-width:100%;white-space:nowrap;text-overflow:ellipsis;color:var(--muted,#657084);font-size:12px;line-height:18px;font-weight:400}

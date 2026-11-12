@@ -133,6 +133,7 @@ export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[],sharedFeed,sha
       <strong>{post.friendName}</strong>
       {shortsStoryEpisodes(post,feed?.posts||[]).length>1?<small className="crew-home-short-series">{en?"Ongoing story":"連載故事"}</small>:null}
       <p lang={post.language}>{post.caption}</p>
+      {i18n.resolvedLanguage==="zh-TW"&&post.translationZh&&post.language!=="zh"?<small className="crew-home-short-translation" lang="zh-Hant" title={post.translationZh}>{post.translationZh}</small>:null}
       <Link className="crew-home-short-question" onClick={()=>{
        trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home");
       }} to={shortsChatUrl(post,undefined,0)}>

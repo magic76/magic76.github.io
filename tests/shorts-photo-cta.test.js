@@ -57,7 +57,10 @@ test("photo CTA, fixed-in-view return, accessible controls, no microphone autopl
  assert.match(page,/window\.addEventListener\("touchmove",arm/);
  assert.match(page,/--crew-shorts-header-offset/);
  assert.match(page,/fetchShortsPost\(focusPostId,friendId,abort\.signal\)/);
- assert.match(page,/aria-label=\{t\("shorts\.translation"\)\}/);
+ assert.match(page,/className="crew-short-translation-toggle"/);
+  assert.match(page,/aria-expanded=\{translated===post\.id\}/);
+  assert.match(page,/aria-controls=\{"crew-short-translation-"\+post\.id\}/);
+  assert.match(page,/\{t\(translated===post\.id\?"shorts\.hideTranslation":"shorts\.showTranslation"\)\}/);
  assert.match(page,/aria-label=\{t\("shorts\.like"\)\}/);
  assert.match(css,/height:min\(52svh,480px\)/);
  assert.match(css,/html:has\(\.crew-shorts-page\[data-scroll-snap="ready"\]\)/);

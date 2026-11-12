@@ -115,6 +115,7 @@
     "pricingLink": "查看 Google 官方計費說明",
     "setupNoticeTitle": "還沒有 Gemini Key？可以免費建立",
     "setupNoticeDesc": "用 Google 帳號約 1 分鐘即可申請。Crew 需要 AI 的功能共用同一組 Key；離線遊戲無需 Key。免費額度依模型而異。",
+    "keyCapabilities": "不用 Key：和 AI 朋友打字聊天（每天 {{count}} 則）、免 Key 遊戲、Shorts、單字練習。需要 Key：語音聊天、老師課程、故事創作、算命 AI 解讀等。",
     "setupNoticeAction": "查看免費申請步驟",
     "setupInvalidTitle": "Gemini Key 可能無法使用",
     "setupInvalidDesc": "請檢查、重新驗證或免費建立新的 Key。設定完成後會返回對話。",

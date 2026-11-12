@@ -115,6 +115,7 @@
     "pricingLink": "See Google's official pricing",
     "setupNoticeTitle": "No Gemini Key yet? Create one for free",
     "setupNoticeDesc": "Get a key with your Google account in about a minute. One key works across Crew's AI features; offline games need no key. Free usage varies by model.",
+    "keyCapabilities": "No Key needed: text chat with AI friends ({{count}} messages daily), key-free games, Shorts and vocabulary practice. Key needed: voice chat, teacher lessons, story creation and AI fortune readings.",
     "setupNoticeAction": "See free setup steps",
     "setupInvalidTitle": "Your Gemini Key may not be working",
     "setupInvalidDesc": "Check or re-verify your key, or create another one for free. You'll return to your chat after setup.",
