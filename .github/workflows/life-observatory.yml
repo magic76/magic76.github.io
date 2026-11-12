@@ -44,7 +44,11 @@ jobs:
           else
             npx playwright install chromium
           fi
+      - name: Install CJK font for readable screenshot assertions
+        run: sudo apt-get update -qq && sudo apt-get install -y fonts-noto-cjk
       - run: CREW_DEPLOY_TARGET=cloudflare npm run build:web
+      - name: Include approved Timeline portraits (production asset copy)
+        run: mkdir -p dist/assets && cp -a assets/timeline dist/assets/timeline
       - name: Run Life Observatory complete journeys at 360, 390 and 1280
         run: node tests/life-observatory-browser.mjs
       - uses: actions/upload-artifact@v4
