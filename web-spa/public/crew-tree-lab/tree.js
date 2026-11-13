@@ -41,6 +41,10 @@ function clearSurprise(){
 }
 function cueSurprise(event){
  if(!event)return;
+ // The small below-art ribbon is the only milestone announcement.
+ // Do not leave the previous centered growthToast obscuring the new resident.
+ clearTimeout(toastTimer);toastTimer=0;
+ $('growthToast').classList.remove('show');
  clearSurprise();
  const box=$('surpriseMoment');box.hidden=false;
  $('surpriseIcon').textContent=event.emoji;
@@ -332,7 +336,7 @@ function postMessage(raw){
  $('watchGrowthBtn').hidden=false;
  $('watchGrowthBtn').textContent=surprise?surprise.emoji+' '+surprise.title+' · 看驚喜':
   '🌱 第 '+current.growth.length+' 句，樹又長大了 · 看一眼';
- if(surprise){cueSurprise(surprise);popToast(surprise.emoji+' '+surprise.title);}
+ if(surprise)cueSurprise(surprise);
  else popToast(mutation?'✨ 突變！'+MUTATIONS.find(m=>m.key===mutation).name:'🌱 '+TOPICS[signal.topic].label+'長出新枝！');
  sparkle();
  return {topic:signal.topic,mutation,turn,count:current.growth.length,reply,surprise:surprise?.title||null};
