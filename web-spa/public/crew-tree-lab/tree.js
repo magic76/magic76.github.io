@@ -7,11 +7,25 @@ const VISUAL_KINDS=['island','jelly','round','tall','weeping','twin'];
 const WORLD_CHOICES=['auto','cosmos','warmth','music','travel'];
 const KIND_LABELS={island:'漂流浮島樹',jelly:'水母燈籠樹',round:'V5 圓冠樹',tall:'V5 高樹',weeping:'V5 垂柳樹',twin:'V5 雙生樹'};
 const WORLD_LABELS={cosmos:'宇宙',warmth:'溫暖',music:'音樂',travel:'旅行'};
-const milestone={3:{emoji:'🌱',title:'第一位發光居民搬進來！',detail:'有人在樹洞敲門，快看看新朋友。'},
- 8:{emoji:'🏝️',title:'新浮島出現了！',detail:'世界長出新家園，還有新的樹枝與夥伴。'},
- 16:{emoji:'🪼',title:'傳說居民登場！',detail:'樹的世界完全展開，水母燈籠也點亮了。'}};
+const milestone={
+ island:{
+  3:{emoji:'🌱',title:'第一位小居民搬進浮島！',detail:'小苗旁邊，亮起一盞新朋友的燈。'},
+  8:{emoji:'🏝️',title:'新浮島出現了！',detail:'藤橋伸向第二座小島，新鄰居來了。'},
+  16:{emoji:'✨',title:'漂流群島完整展開！',detail:'四座浮島和新居民一起點亮夜空。'}
+ },
+ jelly:{
+  3:{emoji:'🫧',title:'第一隻小魚來作伴！',detail:'小水母的傘下，多了一位發光的朋友。'},
+  8:{emoji:'🪼',title:'水母燈籠長出新觸鬚！',detail:'珊瑚根舒展，更多小光球游過來。'},
+  16:{emoji:'🌟',title:'傳說燈籠樹完全點亮！',detail:'整座水底世界亮起來，小魚們集合了。'}
+ },
+ botanical:{
+  3:{emoji:'🌱',title:'小樹迎來第一位朋友！',detail:'新的嫩葉和居民一起出現。'},
+  8:{emoji:'🌿',title:'新枝條展開了！',detail:'新的樹冠和小夥伴正慢慢長大。'},
+  16:{emoji:'✨',title:'魔法樹長成了！',detail:'枝葉茂盛，新的驚喜還在繼續。'}
+ }
+};
 let soundEnabled=true;
-function stageForTurns(n){return n<3?3:n<8?8:16;}
+function stageForTurns(n){return n<8?3:n<16?8:16;}
 function resolvedWorld(tree){
  if(WORLD_CHOICES.includes(tree.world)&&tree.world!=='auto')return tree.world;
  const t=topTopic(tree);
@@ -20,13 +34,19 @@ function resolvedWorld(tree){
  return ['cosmos','warmth','music','travel'][tree.seed%4];
 }
 function isFantasy(tree){return tree&&['island','jelly'].includes(tree.visualKind);}
+function clearSurprise(){
+ clearTimeout(surpriseTimer);surpriseTimer=0;
+ const box=$('surpriseMoment');
+ if(box){box.hidden=true;box.classList.remove('enter');}
+}
 function cueSurprise(event){
  if(!event)return;
+ clearSurprise();
  const box=$('surpriseMoment');box.hidden=false;
  $('surpriseIcon').textContent=event.emoji;
  $('surpriseTitle').textContent=event.title;$('surpriseDetail').textContent=event.detail;
  box.classList.remove('enter');void box.offsetWidth;box.classList.add('enter');
- clearTimeout(surpriseTimer);surpriseTimer=setTimeout(()=>{box.hidden=true;box.classList.remove('enter')},3300);
+ surpriseTimer=setTimeout(clearSurprise,3300);
  if(soundEnabled){try{
   const Audio=window.AudioContext||window.webkitAudioContext;
   if(Audio){if(!audioContext)audioContext=new Audio();
@@ -48,12 +68,14 @@ function cueSurprise(event){
 }
 function chooseKind(value){
  if(!VISUAL_KINDS.includes(value))return false;
+ clearSurprise();$('watchGrowthBtn').hidden=true;
  current.visualKind=value;
  if(['round','tall','weeping','twin'].includes(value))current.genome.treeFamily=value;
  growthMotion=null;renameTree(current);writeStorage();updateTreeUI();renderGallery();return true;
 }
 function chooseWorld(value){
  if(!WORLD_CHOICES.includes(value))return false;
+ clearSurprise();$('watchGrowthBtn').hidden=true;
  current.world=value;growthMotion=null;writeStorage();updateTreeUI();renderGallery();return true;
 }
 const SILHOUETTES=[
@@ -207,10 +229,14 @@ function mutationFor(tag,turn,tree){
 function renameTree(tree){
  const total=tree.growth.length;
  if(total===0){tree.name='小小的歪樹苗';return tree.name}
- const tag=topTopic(tree),p={name:window.CrewTreeV5.labels[tree.genome.treeFamily]||'圓冠魔法樹'};
+ const tag=topTopic(tree);
  const nick={food:'咖啡過量',cosmos:'星球出走',tech:'半夜更新',travel:'到處旅行',love:'暖呼呼',weather:'下雨忘帶傘',
  nature:'森林迷路',dream:'月亮睡過頭',stress:'今天好辛苦',play:'胡鬧亂長',animals:'貓咪佔領',music:'邊唱邊跳',daily:'閒聊亂長'};
- tree.name=nick[tag]+(total>=4?'·':'')+(total>=4?p.name:'')+'樹';
+ // V9 names use the selected living species, never the hidden V5 genome.
+ // Original botanical species names already end in 樹; don't append a duplicate.
+ const species=isFantasy(tree)?KIND_LABELS[tree.visualKind]:
+  (window.CrewTreeV5.labels[tree.genome.treeFamily]||'圓冠魔法樹');
+ tree.name=(total<4?'':nick[tag]+'·')+species;
  return tree.name;
 }
 function evolve(message){
@@ -302,7 +328,7 @@ function postMessage(raw){
  appendMessage('zoe',reply);
  sessionMessages++;
  updateTreeUI();
- const surprise=milestone[current.growth.length]||null;
+ const surprise=(milestone[current.visualKind]||milestone.botanical)[current.growth.length]||null;
  $('watchGrowthBtn').hidden=false;
  $('watchGrowthBtn').textContent=surprise?surprise.emoji+' '+surprise.title+' · 看驚喜':
   '🌱 第 '+current.growth.length+' 句，樹又長大了 · 看一眼';
@@ -323,7 +349,7 @@ function saveTree(silent=false){
 }
 function createNewTree(){
  if(current.growth.length>0)saveTree(true);
- current=makeTree();geom=buildGeometry(current);growthMotion=null;$('watchGrowthBtn').hidden=true;writeStorage();
+ current=makeTree();geom=buildGeometry(current);growthMotion=null;clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','新的一顆樹苗來啦！這次要把它聊成什麼怪樣子？🌱');
  updateTreeUI();popToast('新的小樹苗準備好了！');
 }
@@ -336,7 +362,7 @@ function openSaved(seed){
  if(!selected)return false;
  if(current.growth.length>0&&current.seed!==selected.seed)saveTree(true);
  current=validateTree(JSON.parse(JSON.stringify(selected)));
- geom=buildGeometry(current);growthMotion=null;$('watchGrowthBtn').hidden=true;writeStorage();
+ geom=buildGeometry(current);growthMotion=null;clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','啊，這是我們之前的「'+current.name+'」！繼續聊天，它還能長出新東西喔。');
  updateTreeUI();popToast('🌿 找到這棵歪樹了！');
  window.scrollTo?.({top:0,behavior:'smooth'});
