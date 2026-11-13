@@ -136,6 +136,7 @@
   }
 ,
   "dailyQuoteStarter": "Lời nhắn hôm nay: “{{quote}}” Mình muốn trò chuyện về câu này.",
+  "dailyFortuneContinue": "Mình muốn hỏi tiếp về phần luận giải vận may hôm nay bạn vừa nói. Điểm quan trọng nhất là gì?",
   "dailyFortuneStarter": "Giúp mình giải nghĩa vận may hôm nay",
   "dailyFortuneStarters": {
     "goodFor": "Hôm nay mình nên làm gì thì tốt?",

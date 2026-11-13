@@ -28,17 +28,21 @@ test("reader uses only computed symbolic card fields, remains deterministic and 
  assert.ok(bounded.endsWith("[/ZOE DAILY FORTUNE]"));
  assert.ok(bounded.length<=600);
 });
-test("local hash failure returns ordinary Zoe starters, no personal system or scope",()=>{
+test("legacy daily entry keeps its behavior; explicit fortune handoff never resumes general Zoe",()=>{
  const friend=read("web-spa/src/friends/FriendLivePage.tsx"),home=read("web-spa/src/pages/DailyTopicCards.tsx");
  assert.match(friend,/friend\.id==="zoe"&&textMode&&params\.get\("quote"\)==="daily"/);
  assert.match(friend,/\^\[a-f0-9\]\{64\}\$/);
- assert.match(friend,/hash:line\?\.hash\|\|"",context:line\?buildDailyFortuneContext\(line\.card\):""/);
+ assert.match(friend,/hash:line\?\.hash\|\|"",context:matching\?buildDailyFortuneContext\(line!\.card\):""/);
  assert.match(friend,/dailyLookup\?\.key===dailyLookupKey&&dailyLookup\.hash===personalChartHash&&dailyLookup\.context/);
  assert.match(friend,/dailyFortune\?"\\n"\+dailyFortune\.context:""/);
- assert.match(friend,/dailyFortune\?":daily:"\+dailyFortune\.hash:""/);
- assert.match(friend,/firstStarter=\{shortsStarter\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
- assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)\}/);
+ assert.match(friend,/dailyHandoff\?":fortune:"\+dailyKind\+":"\+personalChartHash\+":"\+dayKey:dailyFortune\?":daily:"\+dailyFortune\.hash:""/);
+ assert.match(friend,/firstStarter=\{shortsStarter\|\|fortuneContinue\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
  assert.match(friend,/dailyLookupPending\?<p/);
+ assert.match(friend,/const dailyHandoff=Boolean\(dailyEntry&&params\.get\("from"\)==="fortune"\)/);
+ assert.match(friend,/autoStarter=\{fortuneContinue\}/);
+ assert.match(friend,/replyFallback=\{fortuneReplies\}/);
+ assert.match(friend,/\.catch\(\(\)=>null\)/);
  assert.match(home,/chatHref=isPersonal&&\/\^\[a-f0-9\]\{64\}\$\/\.test\(personal!\.hash\)\?fortuneHref\+"&zoe=1"/);
  assert.doesNotMatch(home,/quote="\+quote!/,"no-chart home CTA now directs to fortune setup");
  assert.match(home,/t\("dailyQuote.setupChart"\)/);

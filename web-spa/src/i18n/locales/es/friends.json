@@ -136,6 +136,7 @@
   }
 ,
   "dailyQuoteStarter": "La frase de hoy: «{{quote}}». Me gustaría hablar de ella.",
+  "dailyFortuneContinue": "Quiero seguir hablando de la lectura de hoy que acabas de darme. ¿Qué significa lo más importante?",
   "dailyFortuneStarter": "Ayúdame a interpretar mi fortuna de hoy",
   "dailyFortuneStarters": {
     "goodFor": "¿Qué me conviene hacer hoy?",

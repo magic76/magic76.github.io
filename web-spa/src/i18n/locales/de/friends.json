@@ -136,6 +136,7 @@
   }
 ,
   "dailyQuoteStarter": "Mein Gedanke für heute: „{{quote}}“ Darüber würde ich gern reden.",
+  "dailyFortuneContinue": "Ich möchte zu deiner heutigen Deutung weiterfragen. Was bedeutet der wichtigste Punkt für mich heute?",
   "dailyFortuneStarter": "Hilf mir, mein heutiges Horoskop zu deuten",
   "dailyFortuneStarters": {
     "goodFor": "Was wäre heute gut für mich?",
