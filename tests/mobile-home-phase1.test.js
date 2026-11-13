@@ -18,16 +18,18 @@ test("mobile homepage is a separate responsive presentation; desktop keeps its p
  assert.match(css,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
 });
 
-test("mobile hero uses real device-local completed friend resume and never invents Zoe",()=>{
+test("mobile hero uses last completed friend resume with a Zoe-only first-visit fallback",()=>{
  const page=read("web-spa/src/pages/MobileHomePage.tsx");
  const resume=read("web-spa/src/live/sessionTranscript.ts");
  assert.match(page,/readLatestFriendResume\(\)/);
- assert.match(page,/resume\?\.friendId==="zoe"\?resume:null/);
- assert.match(page,/resume&&resume.friendId!=="zoe"\?resume:null/);
- assert.match(page,/otherFriend\.name/);
- assert.match(page,/\.slice\(0,84\)/);
+ assert.match(page,/resume\?CREW_FRIENDS.find\(friend=>friend.id===resume.friendId\)/);
+ assert.match(page,/resumeFriend\?resume:null/);
+ assert.match(page,/resumeFriend\?\.avatar\|\|zoePhoto/);
+ assert.match(page,/friendResume\?t\("layout2.resumeTitle",\{name:resumeFriend!/);
+ assert.match(page,/formatResumePreview\(friendResume.preview,26\)/);
  assert.match(page,/PREVIEW_HIDDEN_KEY/);
  assert.match(page,/setPreviewHidden\(next\)/);
+ assert.doesNotMatch(page,/cmh-other-resume/);
  assert.match(resume,/messages\.at\(-1\)\?\.role!=="assistant"/);
  assert.match(page,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=home&chat=text"/);
  assert.match(page,/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);

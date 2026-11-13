@@ -7,6 +7,7 @@ import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import type {ShortFeed} from "../teacher/shortsFeed";
 import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscript";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
+import {formatResumePreview} from "./formatResumePreview";
 import {GuideHub} from "../guides/GuideHub";
 import {useClientReady} from "../lib/useClientReady";
 import {DailyTopicCards} from "./DailyTopicCards";
@@ -94,11 +95,11 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
    setActiveSlide(index=>(index+(dx<0?1:-1)+SLIDES.length)%SLIDES.length);
   }
  };
- const zoeResume=resume?.friendId==="zoe"?resume:null;
- const otherResume=resume&&resume.friendId!=="zoe"?resume:null;
- const otherFriend=otherResume?CREW_FRIENDS.find(friend=>friend.id===otherResume.friendId):null;
- const excerpt=(value:string)=>value.trim().replace(/\s+/g," ").slice(0,84);
- const recentLine=(line:string)=>previewHidden?copy("上一則訊息已隱藏","Previous message hidden"):excerpt(line);
+ const resumeFriend=resume?CREW_FRIENDS.find(friend=>friend.id===resume.friendId):null;
+ const friendResume=resumeFriend?resume:null;
+ const resumeId=friendResume?.friendId;
+ const textDestination=resumeId?"/friend/live?id="+encodeURIComponent(resumeId)+"&from=home&chat=text":ZOE_TEXT;
+ const voiceDestination=resumeId?"/friend/live?id="+encodeURIComponent(resumeId)+"&from=home&entry=bubble":ZOE_VOICE;
  const togglePreview=()=>{
   const next=!previewHidden;setPreviewHidden(next);
   try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0")}catch{/* Optional privacy choice. */}
@@ -119,29 +120,35 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
      if(ignoreSwipeClick.current){event.preventDefault();event.stopPropagation();ignoreSwipeClick.current=false}
     }}>
     <div className="cmh-carousel-track" style={{transform:`translate3d(-${activeSlide*100}%,0,0)`}}>
-     <section className="cmh-slide cmh-zoe" data-active={activeSlide===0} aria-hidden={activeSlide!==0}
-      aria-label={copy("和 Zoe 聊天","Talk to Zoe")}>
+     <section className={"cmh-slide cmh-zoe"+(friendResume?" cmh-zoe-return":"")} data-active={activeSlide===0} aria-hidden={activeSlide!==0}
+      aria-label={friendResume?t("layout2.resumeTitle",{name:resumeFriend!.name}):copy("和 Zoe 聊天","Talk to Zoe")}>
       <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
-      <div className={"cmh-zoe-copy cmh-slide-copy"+(zoeResume?" cmh-zoe-copy-return":"")}>
-       <span className="cmh-zoe-eyebrow"><i aria-hidden="true"/> ZOE · AI FRIEND</span>
-       <h1>{zoeResume?copy("繼續和 Zoe 聊","Continue with Zoe"):copy("一起聊聊吧！","Let's chat!")}</h1>
-       {zoeResume?
-        <p className="cmh-zoe-preview">{recentLine(zoeResume.preview)}</p>:
-        <p>{copy("一句話，開啟好心情。","Start with a hello.")}</p>}
+      <div className={"cmh-zoe-copy cmh-slide-copy"+(friendResume?" cmh-zoe-copy-return":"")}>
+       <span className="cmh-zoe-eyebrow"><i aria-hidden="true"/> {friendResume?resumeFriend!.name.toUpperCase():"ZOE"} · AI FRIEND</span>
+       <h1>{friendResume?t("layout2.resumeTitle",{name:resumeFriend!.name}):copy("一起聊聊吧！","Let's chat!")}</h1>
+       {!friendResume&&<p>{copy("一句話，開啟好心情。","Start with a hello.")}</p>}
       </div>
       <div className="cmh-scene cmh-zoe-scene" aria-hidden="true">
        <div className="cmh-scene-ring cmh-scene-ring-outer"/><div className="cmh-scene-ring cmh-scene-ring-inner"/>
        <span className="cmh-zoe-back-note">HELLO<span>✳</span></span>
-       <img className="cmh-zoe-photo" src={zoePhoto} alt="" width="160" height="200" loading="eager" decoding="async"/>
+       <img className="cmh-zoe-photo" src={resumeFriend?.avatar||zoePhoto} alt="" width="160" height="200" loading="eager" decoding="async"/>
        <span className="cmh-chat-pop cmh-chat-pop-first">Hey! <span aria-hidden="true">✦</span></span>
        <span className="cmh-chat-pop cmh-chat-pop-last">{copy("聊聊？","Talk?")} <span aria-hidden="true">♥</span></span>
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
+      {friendResume&&<div className="cmh-resume-preview-row">
+       <p className="cmh-zoe-preview" title={previewHidden?undefined:formatResumePreview(friendResume.preview)}>
+        {previewHidden?t("layout2.previewHidden"):<><span className="cmh-preview-label">{t("layout2.previewLabel")}</span> {formatResumePreview(friendResume.preview,26)}</>}
+       </p>
+       <button type="button" tabIndex={activeSlide===0?0:-1} className="cmh-preview-eye" onClick={togglePreview}
+        aria-label={t(previewHidden?"layout2.showPreview":"layout2.hidePreview")} aria-pressed={previewHidden}>
+        <Icon name={previewHidden?"eye":"eye-off"}/>
+       </button>
+      </div>}
       <div className="cmh-zoe-actions">
-       <Link to={ZOE_TEXT} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{zoeResume?copy("繼續文字聊天","Continue chat"):copy("文字聊天","Text Zoe")}</Link>
-       <Link to={ZOE_VOICE} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{copy("語音聊天","Voice")}</Link>
+       <Link to={textDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{friendResume?t("layout2.resumeAction"):copy("文字聊天","Text Zoe")}</Link>
+       <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{copy("語音聊天","Voice")}</Link>
       </div>
-      {zoeResume&&<button type="button" tabIndex={activeSlide===0?0:-1} className="cmh-preview-toggle" onClick={togglePreview}>{previewHidden?copy("顯示上一句","Show last message"):copy("隱藏上一句","Hide last message")}</button>}
      </section>
      <section className="cmh-slide cmh-slide-friends" data-active={activeSlide===1} aria-hidden={activeSlide!==1}
       aria-label={copy("認識其他 AI 朋友","Meet AI friends")}>
@@ -226,14 +233,6 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       :t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
    </div>}
   </div>
-  {otherResume&&otherFriend&&<section className="cmh-other-resume" aria-label={copy("續聊","Resume chat")}>
-   <img src={otherFriend.avatar} alt="" width="40" height="40" loading="lazy"/>
-   <Link to={"/friend/live?id="+encodeURIComponent(otherResume.friendId)+"&from=home&chat=text"} className="cmh-other-resume-link" onClick={()=>trackUsageEvent("home_entry_click","friend")}>
-    <strong>{copy("繼續和 "+otherFriend.name+" 聊","Continue with "+otherFriend.name)}</strong>
-    <span>{recentLine(otherResume.preview)}</span>
-   </Link>
-   <button type="button" onClick={togglePreview} className="cmh-other-hide" aria-label={previewHidden?copy("顯示上一句","Show last message"):copy("隱藏上一句","Hide last message")}><Icon name="cards"/></button>
-  </section>}
   <DailyTopicCards variant="mobile"/>
   <section className="cmh-apps" aria-labelledby="cmh-apps-title">
    <div className="cmh-section-heading"><h2 id="cmh-apps-title">{copy("想玩什麼？","What sounds fun?")}</h2></div>

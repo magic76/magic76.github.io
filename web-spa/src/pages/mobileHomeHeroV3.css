@@ -332,3 +332,20 @@
  .cmh-allowance-slot{min-height:36px;display:grid;place-items:center;padding:0 3px}
  .cmh-free-allowance{font-size:12px;line-height:1.45;text-align:center;font-weight:600;color:#56465d;margin:0;max-width:100%;overflow-wrap:anywhere;text-wrap:balance}
 }
+
+/* Return banner: full-width single-line preview above CTAs; stickers stay on first visits only. */
+@media(max-width:767px){
+ .cmh-zoe-return .cmh-chat-pop{display:none!important}
+ .cmh-resume-preview-row{position:absolute;z-index:8;left:14px;right:14px;bottom:62px;
+  display:flex;align-items:center;gap:5px;min-height:44px;padding-left:10px;
+  border-radius:12px;background:#3d263bdb;color:#fff;box-shadow:0 1px 0 #ffffff35 inset}
+ .cmh-resume-preview-row .cmh-zoe-preview{display:block;flex:1;min-width:0;max-width:none;margin:0;
+  font-size:12px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  overflow-wrap:normal;word-break:normal;-webkit-line-clamp:unset;line-clamp:unset;color:#fff}
+ .cmh-resume-preview-row .cmh-preview-label{font-weight:800;color:#fff}
+ .cmh-preview-eye{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;
+  padding:10px;border:0;border-left:1px solid #ffffff55;border-radius:0 12px 12px 0;
+  background:#ffffff18;color:#fff;cursor:pointer}
+ .cmh-preview-eye svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.8;fill:none}
+}
+@media(max-width:380px){.cmh-resume-preview-row{left:12px;right:12px;bottom:60px}}

@@ -76,7 +76,8 @@
     "explore": "Veja outras possibilidades",
     "tap": "Toque para abrir"
   },
-  "layout2": {"title": "Diga seu primeiro oi para {{name}}.","action": "Diga oi para {{name}}","description": "Não precisa de assunto. Comece com um oi.","voice": "Usar conversa por voz","more": "Quer tentar outra coisa?","resumeTitle": "Continuar com Zoe","resumeAction": "Continuar conversa por texto","chatTitle": "Comece com um oi","chatDescription": "Converse com um amigo de IA e veja no que dá.","previewHidden": "Última mensagem oculta","showPreview": "Mostrar última mensagem","hidePreview": "Ocultar última mensagem"},
+  "layout2": {"title": "Diga seu primeiro oi para {{name}}.","action": "Diga oi para {{name}}","description": "Não precisa de assunto. Comece com um oi.","voice": "Usar conversa por voz","more": "Quer tentar outra coisa?","resumeTitle": "Continuar com {{name}}",
+    "previewLabel": "Último papo:","resumeAction": "Continuar conversa por texto","chatTitle": "Comece com um oi","chatDescription": "Converse com um amigo de IA e veja no que dá.","previewHidden": "Última mensagem oculta","showPreview": "Mostrar última mensagem","hidePreview": "Ocultar última mensagem"},
   "world": {
     "freeAllowance": {"full": "Sem cadastro · {{count}} mensagens + {{minutes}} min de voz por dia. Mais amanhã", "textOnly": "Sem cadastro · {{count}} mensagens grátis por dia. Mais amanhã", "voiceUsed": "Voz esgotada hoje · {{count}} mensagens por dia. Mais amanhã"},
     "practiceLang": {"label": "Idioma de prática:", "aria": "Escolher idioma para chat e conversa por voz"},
