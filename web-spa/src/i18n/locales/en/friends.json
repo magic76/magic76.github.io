@@ -130,5 +130,9 @@
   }
 ,
   "dailyQuoteStarter": "Today’s thought: “{{quote}}” I’d love to talk about it.",
-  "dailyFortuneStarter": "Help me understand today’s fortune"
+  "dailyFortuneStarter": "Help me understand today’s fortune",
+  "dailyFortuneStarters": {
+    "goodFor": "What would be good for me to do today?",
+    "watchOut": "What should I watch out for today?"
+  }
 }

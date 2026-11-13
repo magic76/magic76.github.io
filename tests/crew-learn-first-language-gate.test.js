@@ -91,7 +91,7 @@ test("selected language flows into Friends; modes and character voice remain ind
  const store=read("web-spa/src/store/teacherStore.ts");
  assert.match(friends,/const language=useTeacherStore\(s=>s\.targetLanguage\)/);
  assert.match(friends,/const nativeLanguage=useTeacherStore\(s=>s\.nativeLanguage\)/);
- assert.match(friends,/friendLanguageReminder\(language,nativeLanguage,friendChatMode\)/);
+ assert.match(friends,/friendLanguageReminder\(language,friendNativeLanguage,friendChatMode\)/);
  assert.match(friends,/voice:normalizeLiveVoice\(friend\.voice\)/);
  assert.match(modes,/Speak only "\+target\+" by default/);
  assert.match(modes,/Start in "\+native\+/);

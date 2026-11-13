@@ -130,5 +130,9 @@
   }
 ,
   "dailyQuoteStarter": "今日のひとこと「{{quote}}」について話してみたいな。",
-  "dailyFortuneStarter": "今日の運勢を読み解いて"
+  "dailyFortuneStarter": "今日の運勢を読み解いて",
+  "dailyFortuneStarters": {
+    "goodFor": "今日は何をするとよさそう？",
+    "watchOut": "今日は何に気をつけたらいい？"
+  }
 }

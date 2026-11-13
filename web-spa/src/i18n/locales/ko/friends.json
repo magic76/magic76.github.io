@@ -130,5 +130,9 @@
   }
 ,
   "dailyQuoteStarter": "오늘의 한마디: “{{quote}}” 이 말에 대해 이야기하고 싶어.",
-  "dailyFortuneStarter": "오늘의 운세를 풀이해 줘"
+  "dailyFortuneStarter": "오늘의 운세를 풀이해 줘",
+  "dailyFortuneStarters": {
+    "goodFor": "오늘은 무엇을 하면 좋을까?",
+    "watchOut": "오늘은 어떤 점을 조심해야 할까?"
+  }
 }

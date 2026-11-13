@@ -130,5 +130,9 @@
   }
 ,
   "dailyQuoteStarter": "Pesan hari ini: “{{quote}}” Aku ingin membicarakannya.",
-  "dailyFortuneStarter": "Bantu aku memahami ramalan hari ini"
+  "dailyFortuneStarter": "Bantu aku memahami ramalan hari ini",
+  "dailyFortuneStarters": {
+    "goodFor": "Apa yang baik untuk kulakukan hari ini?",
+    "watchOut": "Apa yang perlu kuwaspadai hari ini?"
+  }
 }

@@ -130,5 +130,9 @@
   }
 ,
   "dailyQuoteStarter": "ข้อความวันนี้: “{{quote}}” อยากชวนคุยเรื่องนี้หน่อย",
-  "dailyFortuneStarter": "ช่วยตีความดวงวันนี้ให้หน่อย"
+  "dailyFortuneStarter": "ช่วยตีความดวงวันนี้ให้หน่อย",
+  "dailyFortuneStarters": {
+    "goodFor": "วันนี้ทำอะไรถึงจะดี?",
+    "watchOut": "วันนี้ควรระวังเรื่องอะไรบ้าง?"
+  }
 }
