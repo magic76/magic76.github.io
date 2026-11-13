@@ -58,8 +58,9 @@
  .cmh-zoe-secondary{background:#ffffff30;border:1px solid #ffffff8f;color:#fff!important;flex:.8}
  .cmh-preview-toggle{position:relative;z-index:3;display:block;align-self:flex-start;min-height:44px;border:0;background:transparent;color:#fff9fb;
   padding:2px 0;font-size:12px;text-decoration:underline;cursor:pointer}
- .cmh-carousel-dots{display:flex;align-items:center;justify-content:center;gap:5px;padding:2px 0 0;min-height:34px}
- .cmh-carousel-dots button{display:grid;place-items:center;min-width:44px;min-height:44px;border:0;padding:0;cursor:pointer;background:transparent;color:#bc8695}
+ .cmh-carousel-dots{display:flex;align-items:center;justify-content:center;gap:0;padding:2px 0 0;min-height:34px}
+ /* Each button hugs its animated span plus 8px per side: visible edge gap = 16px. */
+ .cmh-carousel-dots button{display:grid;place-items:center;width:max-content;min-width:0;min-height:44px;border:0;padding:0 8px;cursor:pointer;background:transparent;color:#bc8695}
  .cmh-carousel-dots button span{display:block;width:7px;height:7px;border-radius:99px;background:#d7cbd1;transition:width 220ms ease,background-color 220ms ease}
  .cmh-carousel-dots button.is-active span{width:24px;background:#cb8190}
  @media(prefers-reduced-motion:no-preference){

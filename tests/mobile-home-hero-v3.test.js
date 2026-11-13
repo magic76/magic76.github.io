@@ -61,7 +61,23 @@ test("mobile-only art has four color directions, layered motion and reduced-moti
  assert.match(base,/\.cmh-carousel-track\{display:flex/);
  assert.match(art,/min-height:46px/);
  for(const f of [base,art])for(const m of f.matchAll(/font-size:(\d+(?:\.\d+)?)px/g))assert.ok(Number(m[1])>=12,"font below 12px: "+m[0]);
- assert.match(art,/\.cmh-carousel-dots button\{min-height:44px;min-width:44px\}/);
+ // The V3 sheet loads after the base sheet: neither override may restore 44px widths.
+ assert.match(base,/\.cmh-carousel-dots\{[^}]*gap:0;/);
+ assert.match(base,/\.cmh-carousel-dots button\{[^}]*width:max-content;min-width:0;min-height:44px;[^}]*padding:0 8px/);
+ assert.match(base,/\.cmh-carousel-dots button span\{[^}]*width:7px;height:7px;[^}]*transition:width 220ms ease,background-color 220ms ease/);
+ assert.match(base,/\.cmh-carousel-dots button\.is-active span\{width:24px;/);
+ assert.match(base,/@media\(prefers-reduced-motion:reduce\)\{[\s\S]*?\.cmh-carousel-track,\.cmh-carousel-dots button span\{transition:none\}/);
+ assert.match(art,/\.cmh-carousel-dots\{min-height:44px;padding-top:1px;gap:0\}/);
+ assert.match(art,/\.cmh-carousel-dots button\{min-width:0;min-height:44px\}/);
+ assert.match(art,/\.cmh-carousel-dots button\{min-height:44px;min-width:0\}/);
+ assert.doesNotMatch(art,/\.cmh-carousel-dots button\{[^}]*min-width:44px/);
+ // With no flex gap, each neighbor contributes exactly 8px of side padding.
+ // A 24px active pill (or 7px idle dot) changes its own button width, not this gap.
+ for(const left of [7,24])for(const right of [7,24]){
+  const leftButton=left+16,rightButton=right+16;
+  const visibleGap=(leftButton-left)/2+(rightButton-right)/2;
+  assert.equal(visibleGap,16);
+ }
  for(const frame of ["cmh-v4-backdrop","cmh-v4-texture","cmh-v4-copy","cmh-v4-scene","cmh-v4-cta"]){
   assert.match(art,new RegExp("@keyframes "+frame));
  }
