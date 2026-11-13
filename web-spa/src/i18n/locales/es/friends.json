@@ -109,6 +109,12 @@
   },
   "kicker": "Amigos Crew",
   "textStarters": {
+    "targetHint": "Puedes empezar en español con {{name}} o elegir una frase corta en {{language}}. {{name}} te ayudará a practicar.",
+    "meaning": {
+      "cafe": "¡Hola, {{name}}! Un café, por favor.",
+      "intro": "¡Hola, {{name}}! Quiero presentarme.",
+      "smalltalk": "¡Hola, {{name}}! ¿Cómo estás hoy?"
+    },
     "heading": "Toca una frase para empezar a chatear",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",

@@ -109,6 +109,12 @@
   },
   "kicker": "Crew の友だち",
   "textStarters": {
+    "targetHint": "まず日本語で{{name}}と話しても大丈夫。下の短い{{language}}の文も使えます。{{name}}と気軽に練習しましょう。",
+    "meaning": {
+      "cafe": "こんにちは、{{name}}！コーヒーをください。",
+      "intro": "こんにちは、{{name}}！自己紹介をしたいです。",
+      "smalltalk": "こんにちは、{{name}}！今日は元気ですか？"
+    },
     "heading": "一文をタップしてすぐに会話",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",

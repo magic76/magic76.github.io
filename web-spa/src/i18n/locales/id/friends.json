@@ -109,6 +109,12 @@
   },
   "kicker": "Teman Crew",
   "textStarters": {
+    "targetHint": "Kamu bisa mulai dalam bahasa Indonesia dengan {{name}} atau pilih kalimat pendek dalam {{language}}. {{name}} akan menemanimu berlatih.",
+    "meaning": {
+      "cafe": "Hai {{name}}! Kopi satu, ya.",
+      "intro": "Hai {{name}}! Aku ingin memperkenalkan diri.",
+      "smalltalk": "Hai {{name}}! Apa kabarmu hari ini?"
+    },
     "heading": "Ketuk satu kalimat untuk langsung mengobrol",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",

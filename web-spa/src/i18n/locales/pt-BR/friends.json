@@ -109,6 +109,12 @@
   },
   "kicker": "Amigos Crew",
   "textStarters": {
+    "targetHint": "Você pode começar em português com {{name}} ou escolher uma frase curta em {{language}} abaixo. {{name}} vai ajudar você a praticar.",
+    "meaning": {
+      "cafe": "Oi, {{name}}! Um café, por favor.",
+      "intro": "Oi, {{name}}! Quero me apresentar.",
+      "smalltalk": "Oi, {{name}}! Como você está hoje?"
+    },
     "heading": "Toque em uma frase para começar a conversar",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",

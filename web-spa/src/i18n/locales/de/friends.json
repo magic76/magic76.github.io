@@ -109,6 +109,12 @@
   },
   "kicker": "Crew-Freunde",
   "textStarters": {
+    "targetHint": "Du kannst zuerst auf Deutsch mit {{name}} schreiben oder unten einen kurzen Satz auf {{language}} wählen. {{name}} hilft dir beim Üben.",
+    "meaning": {
+      "cafe": "Hallo {{name}}! Einen Kaffee, bitte.",
+      "intro": "Hallo {{name}}! Ich möchte mich vorstellen.",
+      "smalltalk": "Hallo {{name}}! Wie geht es dir heute?"
+    },
     "heading": "Tippe auf einen Satz, um direkt zu chatten",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",

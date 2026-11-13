@@ -109,6 +109,12 @@
   },
   "kicker": "Crew 친구",
   "textStarters": {
+    "targetHint": "먼저 한국어로 {{name}}에게 말하거나 아래의 짧은 {{language}} 문장을 골라 보세요. {{name}}과 쉽게 연습할 수 있어요.",
+    "meaning": {
+      "cafe": "안녕, {{name}}! 커피 한 잔 주세요.",
+      "intro": "안녕, {{name}}! 자기소개를 하고 싶어요.",
+      "smalltalk": "안녕, {{name}}! 오늘 잘 지내요?"
+    },
     "heading": "문장을 눌러 바로 대화 시작",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",

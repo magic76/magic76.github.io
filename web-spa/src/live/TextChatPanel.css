@@ -61,6 +61,10 @@
 .crew-text-starters-heading{font-size:13px;line-height:1.5;color:var(--muted);font-weight:700}
 .crew-text-starters-options{display:grid;gap:8px;min-width:0}
 .crew-text-starter{display:flex;align-items:center;width:100%;min-height:44px;padding:10px 14px;text-align:left;text-wrap:pretty;overflow-wrap:anywhere;background:var(--surface,#fff);border:1px solid var(--line);border-radius:12px;color:var(--text);font:inherit;font-size:14px;line-height:1.5;cursor:pointer}
+.crew-text-starters-target-hint{margin:0;color:#514e59;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.crew-text-starter-target{flex-direction:column;align-items:flex-start;gap:3px;white-space:normal}
+.crew-text-starter-phrase{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.crew-text-starter-meaning{font-size:13px;line-height:1.5;color:#514e59;overflow-wrap:anywhere}
 .crew-text-starter:hover{border-color:#8d83d4}
 .crew-text-starter:focus-visible{outline:2px solid #7465c8;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.crew-text-starter{scroll-behavior:auto;transition:none}}
