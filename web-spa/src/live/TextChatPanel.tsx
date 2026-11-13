@@ -3,6 +3,7 @@ import {buildShortsTextSystems} from "./shortsTextContext";
 import {createTypingReveal} from "./typingReveal";
 import {sendGuestTextWithRenewal} from "./guestTextFlow";
 import {useGuestTextChallenge} from "./guestTextChallenge";
+import {hasGuestChallengeHandoff,takeUsedGuestHandoff,takeMicFallbackNotice} from "./guestTextChallenge";
 import {classifyGuestTextFailure,guestTextWorkerError,markGuestTextStartError,isGuestTextStartError} from "./guestTextError";
 import {readSessionTranscript,writeSessionTranscript,saveFriendResume,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
@@ -57,6 +58,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const [guestToken,setGuestToken]=useState(getSavedGuestSession);
  const [siteKey,setSiteKey]=useState("");
  const [guestStatus,setGuestStatus]=useState("");
+ const [micFallbackNotice]=useState(takeMicFallbackNotice);
  const [remaining,setRemaining]=useState<number|null>(null);
  const mounted=useRef(true);
  const chatRoot=useRef<HTMLElement>(null);
@@ -139,9 +141,11 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   setGuestToken("");setGuestPhase("ready");setRequestSent(false);
  }
  async function startGuestText():Promise<string>{
-  setGuestStatus(t("guestText.checkingHuman"));
+  let handedOff=false;
+  setGuestStatus(hasGuestChallengeHandoff()?"":t("guestText.checkingHuman"));
   try{
    const challengeToken=await waitForChallenge();
+   handedOff=takeUsedGuestHandoff();
    setGuestPhase("starting");
    setGuestStatus(t("guestText.connecting"));
    const response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
@@ -160,6 +164,12 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    return data.sessionToken;
   }catch(reason){
    const failure=classifyGuestTextFailure(reason);
+   if(handedOff&&failure.reverify&&mounted.current){
+    // The transferred Turnstile token can expire before the Worker sees it.
+    // One transparent retry uses a fresh normal, verify-on-send challenge.
+    setGuestPhase("ready");
+    return startGuestText();
+   }
    if(mounted.current&&failure.kind!=="dailyLimit"&&!(["unavailable","exhausted"].includes(phaseRef.current))){
     setGuestPhase(failure.reverify?"error":"paused");
    }
@@ -303,6 +313,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   {!guestMode&&<small role="status" className="crew-text-chat-live-status">{liveStatus||(english?"Gemini Live keyboard chat · no microphone":"Gemini Live 鍵盤對話・不需麥克風")}</small>}
   {guestMode&&<div ref={guestBox} className="crew-text-guest" role="region" aria-label={english?"Free text practice":"免費文字練習"}>
    <strong>{english?`Free text practice · ${GUEST_TEXT_DAILY_TURNS} messages/day · no API key`:`免費文字練習・每天 ${GUEST_TEXT_DAILY_TURNS} 則・不需 API Key`}</strong>
+   {micFallbackNotice&&<small role="status">{t("guestText.micFallbackNotice",{name:speaker})}</small>}
    {guestPhase==="checking"&&<small role="status">{english?"Checking availability…":"正在確認免費額度…"}</small>}
    {challengeRequested&&guestPhase==="ready"&&<><div ref={host} className="crew-text-challenge-host" aria-label="Turnstile verification"/>
     <small role="status">{t("guestText.interactionHint")}</small></>}

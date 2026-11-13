@@ -185,6 +185,7 @@
   },
   "guestText": {
     "verifyRequired": "Debes verificarte para enviar el mensaje. Vuelve a verificarte y pulsa Enviar.",
+    "micFallbackNotice": "Sin micrófono: ahora puedes escribir gratis a {{name}}. Arriba puedes volver al chat de voz.",
     "verifyFailed": "La verificación falló. Complétala de nuevo antes de enviar.",
     "sessionExpired": "Tu sesión gratuita caducó. Vuelve a verificarte para continuar.",
     "dailyLimit": "Ya usaste tus 12 mensajes de texto gratuitos de hoy. Puedes usar tu propia clave de Gemini.",

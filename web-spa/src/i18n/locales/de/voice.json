@@ -185,6 +185,7 @@
   },
   "guestText": {
     "verifyRequired": "Zum Senden ist eine Sicherheitsprüfung nötig. Bitte erneut bestätigen und dann senden.",
+    "micFallbackNotice": "Kein Mikrofon: Du chattest jetzt kostenlos per Text mit {{name}}. Oben kannst du wieder zu Sprache wechseln.",
     "verifyFailed": "Die Sicherheitsprüfung ist fehlgeschlagen. Bitte erneut bestätigen und senden.",
     "sessionExpired": "Deine kostenlose Sitzung ist abgelaufen. Bestätige dich erneut, um fortzufahren.",
     "dailyLimit": "Deine 12 kostenlosen Textnachrichten für heute sind aufgebraucht. Du kannst deinen eigenen Gemini-Schlüssel nutzen.",
