@@ -193,55 +193,130 @@ function paintGeneric(c,tips,time,seedNum,color,s,n){
  }
 }
 function stars(c,tips,time){
- let prev=null;
- for(let i=0;i<tips.length;i+=6){
-  const p=tips[i];if(prev)stroke(c,prev.x,prev.y,p.x,p.y,'#a0eeff80',1.3);
-  glow(c,p.x,p.y,23,'#baf3ff',.73);
-  c.strokeStyle='#e9ffff';c.lineWidth=2;c.beginPath();c.moveTo(p.x-9,p.y);
-  c.lineTo(p.x+9,p.y);c.moveTo(p.x,p.y-9);c.lineTo(p.x,p.y+9);c.stroke();
-  prev=p;
- }
+ // Constellation tree: a large orbital crown growing from the same trunk,
+ // cyan-white stellar nodes and connected constellations, not recolored leaves.
  c.save();c.globalCompositeOperation='screen';
- glow(c,390,530,220,'#4389ec',.20);c.restore();void time;
+ glow(c,390,533,235,'#4a95ff',.20);
+ for(let ring=0;ring<3;ring++){
+  c.strokeStyle=ring===0?'#84eafa9a':ring===1?'#c5ccff6b':'#b4eeff46';
+  c.lineWidth=ring===0?3:1.5;c.setLineDash(ring===0?[]:[7,14]);
+  c.beginPath();c.ellipse(390,520,200-ring*18,146+ring*13,ring*.11,0,TAU);c.stroke();
+ }
+ c.setLineDash([]);
+ const nodes=[];
+ for(let i=0;i<13;i++){
+  const angle=i*TAU/13-.65,rx=202+Math.sin(i*3)*11,ry=156+Math.cos(i*2)*12;
+  nodes.push({x:390+Math.cos(angle)*rx,y:516+Math.sin(angle)*ry});
+ }
+ for(let i=0;i<nodes.length;i++){
+  const p=nodes[i],next=nodes[(i+5)%nodes.length];
+  if(i%2===0)stroke(c,p.x,p.y,next.x,next.y,'#8de9ff51',1.6);
+  // Light connects to an actual branch, not just a floating ornament.
+  if(i%3===0)stroke(c,390,695,p.x,p.y,'#60cde249',2);
+  glow(c,p.x,p.y,33,i%3?'#a8efff':'#fff4d8',.69);
+  c.strokeStyle='#f9ffff';c.lineWidth=2.4;c.beginPath();
+  c.moveTo(p.x-12,p.y);c.lineTo(p.x+12,p.y);
+  c.moveTo(p.x,p.y-12);c.lineTo(p.x,p.y+12);c.stroke();
+  ellipse(c,p.x,p.y,3.6,3.6,'#fff');
+ }
+ for(let i=0;i<tips.length;i+=7){
+  const p=tips[i];glow(c,p.x,p.y,17,'#9fe5ff',.65);
+  ellipse(c,p.x,p.y,2.8,2.8,'#fff');
+ }
+ c.restore();void time;
 }
 function crystals(c,tips){
- for(let i=0;i<tips.length;i+=3){
-  const p=tips[i],len=16+(i%4)*5;
-  glow(c,p.x,p.y-8,31,'#9fdbff',.62);
-  c.fillStyle=i%2?'#66e4f4':'#b8d6ff';c.strokeStyle='#eaffff';c.lineWidth=1.5;
-  c.beginPath();c.moveTo(p.x,p.y-len);
-  c.lineTo(p.x+8,p.y-4);c.lineTo(p.x,p.y+8);c.lineTo(p.x-8,p.y-4);c.closePath();
-  c.fill();c.stroke();stroke(c,p.x,p.y-len,p.x,p.y+8,'#f2ffffbb',1);
+ // Crystal tree: unmistakable angular, jagged ice crown. Wide faceted
+ // blades emerge from actual botanical branches around the central trunk.
+ c.save();c.globalCompositeOperation='screen';
+ glow(c,390,533,240,'#72beff',.19);
+ const offsets=[-190,-146,-101,-59,-7,37,89,135,181];
+ for(let i=0;i<offsets.length;i++){
+  const x=390+offsets[i],tall=108+(i%3)*47;
+  const base=660+(i%2)*25,apex=base-tall-62-(i%2)*27;
+  stroke(c,390,727,x,base,'#6dc7eb88',4);
+  const fill=c.createLinearGradient(x-27,base,x+19,apex);
+  fill.addColorStop(0,'#346eaddd');fill.addColorStop(.54,i%2?'#a1f2ffdd':'#83b4ffdf');
+  fill.addColorStop(1,'#e6feffff');
+  c.fillStyle=fill;c.strokeStyle='#dcfbff';c.lineWidth=2.4;
+  c.beginPath();c.moveTo(x,apex);c.lineTo(x+22,base-39);
+  c.lineTo(x+14,base+19);c.lineTo(x-24,base-29);c.closePath();c.fill();c.stroke();
+  c.fillStyle='#e9fbffc2';c.beginPath();c.moveTo(x,apex);
+  c.lineTo(x+4,base-21);c.lineTo(x-23,base-29);c.closePath();c.fill();
+  stroke(c,x,apex,x+4,base-20,'#ffffffcc',2);
+  glow(c,x,apex,34,'#b0edff',.71);
  }
+ for(let i=0;i<tips.length;i+=4){
+  const p=tips[i],j=12+i%3*8;
+  c.fillStyle='#c5efff';c.beginPath();c.moveTo(p.x,p.y-j);
+  c.lineTo(p.x+7,p.y+5);c.lineTo(p.x-7,p.y+5);c.closePath();c.fill();
+ }
+ c.restore();
 }
 function lanterns(c,tips,time){
- for(let i=0;i<tips.length;i+=5){
-  const p=tips[i],y=p.y+16+Math.sin(time*.0015+p.phase)*1.5;
-  stroke(c,p.x,p.y,p.x,y-8,'#eec48b',1.3);
-  glow(c,p.x,y,38,'#ffc978',.89);
-  const light=c.createLinearGradient(p.x,y-12,p.x,y+12);
-  light.addColorStop(0,'#ffcf92');light.addColorStop(1,'#d46c52');
-  ellipse(c,p.x,y,10,13,light);
-  stroke(c,p.x-8,y-2,p.x+8,y-2,'#ffe9ae',1.3);
-  stroke(c,p.x,y+12,p.x,y+18,'#ffd48e',1.4);
+ // Lantern tree: a wide architectural arch of real boughs supports hanging
+ // paper lanterns; amber-red light is visibly different from the ice crown.
+ c.save();
+ glow(c,390,561,210,'#ffb56d',.21);
+ const xPositions=[170,224,275,325,390,455,509,562,608];
+ c.strokeStyle='#78566a';c.lineWidth=8;c.lineCap='round';
+ for(let i=0;i<xPositions.length;i++){
+  const x=xPositions[i],y=473+Math.abs(i-4)*24;
+  c.beginPath();c.moveTo(390,710);c.quadraticCurveTo((390+x)/2,y-87,x,y);c.stroke();
+  c.strokeStyle='#c0a16d';c.lineWidth=2;
+  c.beginPath();c.moveTo(390,710);c.quadraticCurveTo((390+x)/2,y-87,x,y);c.stroke();
+  c.strokeStyle='#78566a';c.lineWidth=8;
  }
+ for(let i=0;i<xPositions.length;i++){
+  const x=xPositions[i],hook=485+Math.abs(i-4)*23;
+  const wiggle=Math.sin(time*.0015+i)*3,y=hook+38+(i%2)*22;
+  stroke(c,x,hook,x+wiggle,y-21,'#e3b77a',2.2);
+  glow(c,x+wiggle,y,67,'#ffb45d',.82);
+  const g=c.createLinearGradient(x,y-24,x,y+25);
+  g.addColorStop(0,'#ffe7a6');g.addColorStop(.45,'#ffad69');
+  g.addColorStop(1,'#bb4961');
+  ellipse(c,x+wiggle,y,20,25,g);
+  c.strokeStyle='#fff1c3';c.lineWidth=1.8;
+  c.beginPath();c.ellipse(x+wiggle,y,20,25,0,0,TAU);c.stroke();
+  stroke(c,x+wiggle-17,y-6,x+wiggle+17,y-6,'#fff3c3bb',2);
+  stroke(c,x+wiggle,y+25,x+wiggle,y+38,'#f9c49d',2);
+  ellipse(c,x+wiggle,y,4.5,10,'#fff5d0');
+ }
+ c.restore();void tips;
 }
 function petals(c,tips,time){
- for(let i=0;i<tips.length;i+=3){
-  const p=tips[i],len=20+i%4*22;
-  c.strokeStyle='#f5a8d6a6';c.lineWidth=2;c.beginPath();c.moveTo(p.x,p.y);
-  c.quadraticCurveTo(p.x+Math.sin(i)*12,p.y+len*.6,p.x+5,p.y+len);c.stroke();
+ // Blossom waterfall: immense rose canopy and long, asymmetric draping
+ // floral curtains. Unlike other forms it has NO star or lantern crown.
+ c.save();c.globalCompositeOperation='screen';
+ glow(c,390,530,260,'#ff93d2',.16);
+ const canopy=c.createRadialGradient(390,505,18,390,505,205);
+ canopy.addColorStop(0,'#ffe0f48b');canopy.addColorStop(.58,'#f3a1d58c');
+ canopy.addColorStop(1,'#d364a300');
+ c.fillStyle=canopy;c.beginPath();c.ellipse(390,511,225,122,0,Math.PI,0);c.fill();
+ for(let i=0;i<50;i++){
+  const angle=i*2.39996,x=390+Math.cos(angle)*(i%7*29+26),y=506+Math.sin(angle)*(i%5*19+13);
+  glow(c,x,y,26,'#f5a6e1',.35);
   for(let k=0;k<3;k++){
-   const x=p.x+Math.sin(i*6+k*2.2)*11,y=p.y+k*9;
-   glow(c,x,y,17,'#ffb5df',.35);
-   ellipse(c,x,y,8,4,k===0?'#ffe7f7':'#f4a1d0',k*1.5);
+   const a=k*TAU/3+i*.37;
+   ellipse(c,x+Math.cos(a)*8,y+Math.sin(a)*8,11,5,
+    k===0?'#ffe7f7':'#f6a1d3',a);
   }
  }
- for(let i=0;i<18;i++){
-  const p=tips[i%tips.length];if(!p)continue;
-  const offset=(time*.015+i*47)%140;
-  ellipse(c,p.x+Math.sin(i*.76)*12,p.y+offset,3.9,2,'#ffbfdc',i*.8);
+ for(let i=0;i<24;i++){
+  const x=181+i*18,anchor=535+Math.sin(i*1.6)*46;
+  const fall=107+(i%5)*30;
+  stroke(c,x,anchor,x+Math.sin(i)*18,anchor+fall,'#f4a2d8a8',2);
+  for(let j=0;j<4;j++){
+   const py=anchor+j*fall/4,px=x+Math.sin(i+j)*10;
+   glow(c,px,py,16,'#ffb2df',.35);
+   ellipse(c,px,py,8,4,j%2?'#f4a0ca':'#fff0f4',j*.6);
+  }
  }
+ for(let i=0;i<34;i++){
+  const x=180+(i*53)%430,y=635+(i*61+(time*.012||0))%245;
+  ellipse(c,x+Math.sin(i)*7,y,5,2.5,'#ffd0e8',i*.85);
+ }
+ c.restore();void tips;
 }
 function shape(c,tree,n,x,y,scale,alpha,time,staticMode,marks){
  if(!tree||!goodSeed(tree.seed))return;
@@ -302,7 +377,7 @@ function paint(canvas,g,active,time=0,opts={}){
  const turns=prev+(showN-prev)*p;
  const st=stage(showN);
  let growth=st==='seed'||st==='sprout'?1:st==='sapling'?.66+.16*clamp((turns-3)/5,0,1):
- .82+.18*clamp((turns-8)/8,0,1);
+ st==='final'?.98+.19*p:.82+.16*clamp((turns-8)/8,0,1);
  if(showN>=8)island(c,940,(1-p)*(opts.motion?.fromTurns<8?86:0));
  // The foreground tree is anchored in the same place at every age.
  shape(c,current,showN,390,940,growth,1,time,still,current.growth?.map(x=>x.topic));
