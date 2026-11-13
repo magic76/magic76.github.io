@@ -399,26 +399,76 @@ function paint(canvas,g,active,time=0,opts={}){
  }
  c.restore();return true;
 }
-function poster(canvas,g,active,now){
- if(!canvas)return false;
+const forestLevels=[
+ {at:0,name:'新芽森林',icon:'🌱'},
+ {at:3,name:'螢菇森林',icon:'🍄'},
+ {at:4,name:'月池森林',icon:'💧'},
+ {at:5,name:'極光森林',icon:'🌌'}
+];
+function forestLevel(n){
+ return forestLevels.reduce((level,item)=>n>=item.at?item:level,forestLevels[0]);
+}
+// Copy is generated from the latest topic marker, not from the user's private
+// message. Only topic features are persisted, including in retired trees.
+const leafQuotes={
+ food:'今天長出一片琥珀色的香甜。',
+ cosmos:'剛剛那顆星，落在了新生的枝梢。',
+ travel:'這一片葉子，想帶我們去遠方。',
+ animals:'有小腳印，悄悄走進森林裡。',
+ music:'夜風一吹，枝葉就輕輕唱起歌。',
+ daily:'今天的小小一句，成為森林的新光。',
+ tech:'一點靈感，正在枝頭閃閃發亮。',
+ love:'溫柔的話，讓樹開出一盞暖燈。',
+ weather:'雨後的夜色，把新葉洗得明亮。',
+ nature:'綠色的生命，又向天空長了一點。',
+ dream:'一個夢，讓月亮多了一條小路。',
+ stress:'今天的心事，變成一片柔軟的葉。',
+ play:'奇妙的笑聲，種出一個新驚喜。'
+};
+function latestTopic(g,active){
+ const live=active?.growth;
+ if(Array.isArray(live)&&live.length)return live[live.length-1]?.topic||'daily';
+ const last=g?.slots?.[g.slots.length-1];
+ return last?.topics?.[last.topics.length-1]||'daily';
+}
+function poster(canvas,g,active,now,opts={}){
+ if(!canvas||!g)return false;
  canvas.width=1080;canvas.height=1920;
  const c=canvas.getContext('2d');if(!c)return false;
- c.fillStyle='#12101c';c.fillRect(0,0,1080,1920);
- paint(canvas,g,active,now,{width:1080,height:1560,still:true});
- c.fillStyle='#141024';c.fillRect(0,1560,1080,360);
- c.textAlign='center';c.fillStyle='#7fe7c4';c.font='700 42px system-ui';
- c.fillText('我的森林 · '+g.totalCompleted+' 棵樹',540,1655);
- const total=g.totalCompleted*16+(active?.growth?.length||0);
- c.fillStyle='#f5eee6';c.font='700 35px system-ui';
- c.fillText('和 Zoe 聊了 '+total+' 句，種出這片森林',540,1736);
- const date=new Date();
- c.fillStyle='#b9b3c9';c.font='29px system-ui';
- c.fillText(date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate()+' · Crew 種樹',540,1797);
- c.fillStyle='#7fe7c4';c.font='700 32px system-ui';c.fillText('3sssi.com',540,1868);
+ const art=document.createElement('canvas');
+ art.width=1080;art.height=1440;
+ if(!paint(art,g,active,now,{width:1080,height:1440,still:true,reveal:opts.reveal||null}))return false;
+ c.setTransform(1,0,0,1,0,0);
+ c.fillStyle='#12101C';c.fillRect(0,0,1080,1920);
+ c.drawImage(art,0,0,1080,1440);
+ // Exactly the bottom quarter of the poster is the information zone.
+ c.fillStyle='#12101C';c.fillRect(0,1440,1080,480);
+ c.fillStyle='#6257E7';c.fillRect(0,1440,1080,8);
+ const level=forestLevel(g.totalCompleted);
+ const topic=opts.topic||latestTopic(g,active);
+ const quote=leafQuotes[topic]||leafQuotes.daily;
+ c.textAlign='left';c.textBaseline='alphabetic';
+ c.fillStyle='#a9a0ff';c.font='700 27px system-ui';
+ c.fillText('CREW TREE LAB    ·    '+level.icon+' '+level.name,64,1512);
+ c.fillStyle='#F7F7F4';c.font='800 52px system-ui';
+ c.fillText('我的森林 · '+g.totalCompleted+' 棵樹',64,1580);
+ const total=g.totalCompleted*MAX+Math.min(MAX,active?.growth?.length||0);
+ c.fillStyle='#cbc6d8';c.font='500 30px system-ui';
+ c.fillText('和 Zoe 聊了 '+total+' 句，讓這片森林慢慢發光',64,1641);
+ c.fillStyle='#6257E7';c.fillRect(64,1676,8,85);
+ c.fillStyle='#F7F7F4';c.font='700 27px system-ui';
+ c.fillText('今天新長出的一句話',90,1700);
+ c.font='500 32px system-ui';
+ c.fillText('「'+quote+'」',90,1751);
+ const dt=opts.date instanceof Date?opts.date:new Date();
+ const stamp=dt.getFullYear()+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+String(dt.getDate()).padStart(2,'0');
+ c.fillStyle='#b9b4cb';c.font='500 25px system-ui';c.fillText(stamp+' · Crew 種樹',64,1845);
+ c.textAlign='right';c.fillStyle='#F7F7F4';c.font='750 29px system-ui';c.fillText('3sssi.com',1016,1845);
  return true;
 }
+
 root.CrewGlowForestV6=Object.freeze({
  W,H,MAX,forms,slots,topicColors,stage,form,rarity,empty,restore,snapshot,complete,progress,
- paint,poster
+ paint,poster,forestLevel,leafQuotes,latestTopic
 });
 })(typeof window!=='undefined'?window:globalThis);
