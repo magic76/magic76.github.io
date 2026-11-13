@@ -752,6 +752,7 @@ test('V6 postcard module shares current 3/8/16 milestones without touching fores
  assert.equal(get('momentSave').hidden,false);
  assert.match(get('momentSaveLabel').textContent,/破殼.+存下這一刻/);
  assert.equal(qa.glowPoster().active.growth.length,3);
+ assert.equal(qa.glowPoster().options.reveal,undefined,'3 turns must not show 16-turn final');
  assert.ok(qa.exportImage());
  assert.ok(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 3 句')));
  qa.post('貓咪');
@@ -759,11 +760,13 @@ test('V6 postcard module shares current 3/8/16 milestones without touching fores
  for(let n=5;n<=8;n++)qa.post('音樂');
  assert.match(get('momentSaveLabel').textContent,/浮島.+存下這一刻/);
  assert.equal(qa.glowPoster().active.growth.length,8);
+ assert.equal(qa.glowPoster().options.reveal,undefined,'8 turns must not reveal final form');
  assert.ok(qa.exportImage());
  assert.ok(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 8 句')));
  for(let n=9;n<=16;n++)qa.post('旅行');
  assert.match(get('momentSaveLabel').textContent,/存下這一刻/);
  assert.equal(qa.glowPoster().active.growth.length,16);
+ assert.ok(qa.glowPoster().options.reveal,'16 turns freezes final reveal');
  assert.ok(qa.exportImage());
  assert.ok(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 16 句')),
   '16th-turn card must not double-count the completed tree as 32');

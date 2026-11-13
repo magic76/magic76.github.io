@@ -38,7 +38,10 @@ function showProgressMoment(age){
 function momentPosterArgs(){
  return momentCapture?{
   garden:momentCapture.garden,active:momentCapture.tree,
-  options:{reveal:{tree:momentCapture.tree},topic:momentCapture.topic}
+  // Only a completed 16th turn reveals the final species. Intermediate
+  // postcards must preserve their real 3/8-turn silhouette and sentence count.
+  options:{...(momentCapture.tree.growth.length>=16?
+   {reveal:{tree:momentCapture.tree}}:{}),topic:momentCapture.topic}
  }:{garden,active:current,options:{topic:GLOW.latestTopic(garden,current)}};
 }
 function loadGarden(){
