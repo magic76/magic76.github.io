@@ -19,3 +19,36 @@ footer a{color:#c4e5cc;text-decoration:underline;text-underline-offset:3px}
  .canvas-wrap{height:clamp(365px,54dvh,440px)}
  .tree-top{padding:13px 13px 9px}
 }
+
+/* Crew Tree Game V1: preserve existing app navigation and 390px layout. */
+.world-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 12px 11px}
+.world-picker label{font-size:11px;font-weight:750;color:#c6e8d8;display:flex;flex-direction:column;gap:5px;min-width:0}
+.world-picker select{width:100%;min-width:0;min-height:44px;padding:9px;border-radius:12px;
+ background:#183d3c;color:#ebfff4;border:1px solid #9ce4c56b;font-weight:700;font-size:12px}
+.world-picker select:focus-visible,.world-meta button:focus-visible{outline:3px solid #d6ffd5;outline-offset:2px}
+.world-meta{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;
+ font-size:11px;color:#c4edcd}
+.world-meta button{min-height:44px;min-width:84px;background:#244f47;border:1px solid #a6e5c15b;
+ border-radius:12px;color:#effde4;padding:9px;font-size:12px;font-weight:700}
+.next-surprise{margin:2px 12px 7px;padding:8px 11px;border:1px solid #ffd89457;
+ background:#e7bf6a12;color:#fbe6b0;border-radius:12px;font-size:12px;font-weight:750}
+.surprise-moment[hidden]{display:none!important}
+.surprise-moment{position:absolute;z-index:3;left:50%;top:16%;transform:translateX(-50%);
+ width:min(88%,315px);display:flex;align-items:center;flex-direction:column;gap:5px;
+ text-align:center;border:1px solid #f9e2a4d2;border-radius:20px;padding:13px 14px 15px;
+ box-shadow:0 0 39px #ffdd8585,0 12px 35px #060c1aaa;background:#172f46e9;
+ color:#fff3cd;pointer-events:none;backdrop-filter:blur(7px)}
+.surprise-moment .surprise-icon{font-size:34px;filter:drop-shadow(0 0 10px #ffe5a7)}
+.surprise-moment strong{font-size:16px;line-height:1.4}
+.surprise-moment #surpriseDetail{font-size:12px;line-height:1.4;color:#fff4d9}
+.surprise-moment.enter{animation:tree-arrival .45s cubic-bezier(.2,1.65,.4,1) both}
+@keyframes tree-arrival{0%{opacity:0;transform:translate(-50%,16px) scale(.72)}
+ 100%{opacity:1;transform:translate(-50%,0) scale(1)}}
+.canvas-wrap:has(.surprise-moment:not([hidden])){box-shadow:0 0 28px #f4cc9066}
+@media(max-width:510px){
+ .world-picker{gap:7px;margin:0 8px 9px}
+ .world-picker select{font-size:12px;max-width:100%}
+ .surprise-moment{top:12%;padding:11px 12px}
+ .surprise-moment strong{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){.surprise-moment.enter{animation:none}}
