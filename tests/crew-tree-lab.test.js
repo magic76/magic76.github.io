@@ -226,7 +226,7 @@ test('gallery renders real mini tree canvases and recreates the exact seed after
 });
 
 test('botanical renderer is loaded before chat and keeps an independent geometry contract',()=>{
- const a=html.indexOf('src="./botany.js?v=4-20261112"'),b=html.indexOf('src="./tree.js?v=5-20261112"');
+ const a=html.indexOf('src="./botany.js?v=4-20261112"'),b=html.indexOf('src="./tree.js?v=game-1-20261113"');
  assert.ok(a>=0&&b>a,'botany must be available before the tree controller');
  const {qa}=boot();
  assert.equal(qa.getRendererVersion(),5);
@@ -295,7 +295,9 @@ test('V4 uses author-drawn botanical sprites instead of glossy bubbles or scatte
  for(let i=0;i<10;i++)qa.post(i%2?'喝咖啡、吃蛋糕':'我想去宇宙旅行');
  assert.doesNotThrow(()=>qa.draw(),'fallback must still draw if SVG assets are offline');
  assert.ok(paint.paths>100,'the mature bark and branches remain real canvas paths');
- assert.match(html,/四大樹種 · Art V5/);
+ assert.match(html,/V5 圓冠魔法樹/);
+ assert.match(html,/V5 高聳魔法樹/);
+ assert.match(html,/id="treeArtVersion"/);
  assert.match(html,/family-art\.js\?v=5-20261112/);
  assert.match(botany,/function drawPaintedWood\(/);
  assert.match(botany,/function drawSprig\(/);
