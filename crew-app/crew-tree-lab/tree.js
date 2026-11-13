@@ -403,6 +403,7 @@ function updateTreeUI(){
  $('growthHint').textContent=n===0?'試著聊「咖啡、宇宙、旅行、貓咪」，看看會發生什麼。':
   n<3?'再聊幾句，樹冠就會開始亂長！':
   '改聊另一個話題，枝葉的形狀和裝飾可能突然變異。';
+ if(useV6)syncGardenUI();
 }
 function appendMessage(who,message){
  const outer=document.createElement('div');outer.className='message '+(who==='me'?'me':'zoe');
@@ -610,6 +611,14 @@ function render(now=0){
  window.requestAnimationFrame?.(render);
 }
 function exportImage(){
+ if(useV6){try{
+  const out=document.createElement('canvas');
+  if(!GLOW.poster(out,garden,current,renderTime))return false;
+  const a=document.createElement('a');a.href=out.toDataURL('image/png');
+  a.download='crew-forest-'+garden.totalCompleted+'-trees.png';
+  document.body.appendChild(a);a.click();a.remove();return true;
+ }catch{return false;}}
+
  if(!current.growth.length){popToast('先讓樹長大，再存圖吧！');return false}
  try{
   const out=document.createElement('canvas');out.width=900;out.height=1200;
@@ -621,7 +630,7 @@ function exportImage(){
 }
 function init(){
  reduceMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
- readStorage();geom=buildGeometry(current);resize();renderGallery();updateTreeUI();
+ readStorage();loadGarden();geom=buildGeometry(current);resize();renderGallery();updateTreeUI();renderRetired();
  $('chatForm').addEventListener('submit',ev=>{ev.preventDefault();const input=$('chatInput');
   const text=input.value.trim();if(postMessage(text))input.value='';
  });
@@ -631,6 +640,7 @@ function init(){
  });
  $('saveBtn').addEventListener('click',()=>saveTree(false));
  $('newBtn').addEventListener('click',createNewTree);
+ $('resetGardenBtn').addEventListener('click',()=>{if(!window.confirm||window.confirm('確定重新開始這座森林？已退休的樹也會從目前場景清除。'))resetGarden();});
  $('shareBtn').addEventListener('click',exportImage);
  $('kindSelect').addEventListener('change',ev=>chooseKind(ev.target.value));
  $('worldSelect').addEventListener('change',ev=>chooseWorld(ev.target.value));
@@ -653,6 +663,10 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
  Object.defineProperty(window,'__TREE_QA__',{value:{
   classify,makeTree,validateTree,buildGeometry,treeSignature,post:postMessage,save:saveTree,newTree:createNewTree,
   chooseKind,chooseWorld,resolvedWorld,stageForTurns,
+  glow:()=>useV6?{garden:JSON.parse(JSON.stringify(garden)),stage:GLOW.stage(visibleGrowAge()),
+   age:visibleGrowAge(),reveal:reveal?{form:GLOW.form(reveal.tree.seed).id,rarity:GLOW.rarity(reveal.tree.seed).key}:null}:null,
+  glowStage:n=>GLOW?.stage(n),glowForm:seed=>GLOW?.form(seed),glowRarity:seed=>GLOW?.rarity(seed),
+  glowSeed:seedForQA,glowReset:resetGarden,
   open:openSaved,exportImage,allTopics:Object.keys(TOPICS),mutations:MUTATIONS.map(m=>m.key),
   getRendererVersion:()=>window.CrewTreeV5.modelVersion,
   families:window.CrewTreeV5.families.slice(),
