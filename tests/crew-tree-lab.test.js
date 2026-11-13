@@ -114,6 +114,7 @@ test('topic recognition chooses distinct branches and meaningful local Zoe repli
  assert.equal(a.topic,'food');
  assert.ok(a.reply.includes('樹')||a.reply.includes('枝'));
  assert.equal(qa.state().current.growth.length,1);
+ assert.equal(qa.state().current.growth.length,1);
 });
 test('a conversation causes obvious new geometry and persists only topic features',()=>{
  const {qa,memory,paint}=boot();
@@ -375,6 +376,8 @@ test('Game V1 exposes V9 living worlds and keeps existing V5 families & navigati
  assert.match(html,/id="worldSelect"/);
  assert.match(html,/id="surpriseMoment"/);
  assert.match(html,/id="soundBtn"/);
+ assert.match(html,/id="watchGrowthBtn"/);
+ assert.match(css,/\.watch-growth\[hidden\]\{display:none!important\}/);
  assert.match(html,/art-studies\/v9-art\.js/);
  assert.match(html,/art-studies\/study\.js/);
  assert.match(script,/CrewFantasyGameArt\.paint/);
@@ -429,6 +432,8 @@ test('Game V1 every message grows fantasy scale and 3/8/16 unlock surprises exac
  const sizes=fantasyCalls.map(args=>args[10]?.turns).filter(Number.isFinite);
  assert.ok(sizes.includes(1)&&sizes.includes(8)&&sizes.includes(16));
  assert.equal(get('surpriseTitle').textContent,'傳說居民登場！');
+ assert.equal(get('watchGrowthBtn').hidden,false);
+ assert.match(get('watchGrowthBtn').textContent,/看驚喜/);
  assert.equal(get('nextSurprise').textContent,'傳說世界已解鎖 · 每句仍會繼續成長');
  assert.equal(get('treeArtVersion').textContent,'✨ Art V9 · 活的幻想樹');
  const storage=JSON.stringify(qa.state().current);

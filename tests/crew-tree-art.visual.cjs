@@ -36,6 +36,14 @@ async function preview(page,label){
    assert.equal(await page.locator('.tree-art-version').innerText(),'✨ Art V9 · 活的幻想樹');
    assert.equal(await page.locator('#kindSelect').inputValue(),'island');
    assert.equal(await page.locator('#worldSelect').inputValue(),'cosmos');
+   if(label==='mobile'){
+    const fit=await page.locator('#treeCanvas').evaluate(canvas=>{
+     const b=canvas.getBoundingClientRect(),w=b.width,h=b.height,scale=Math.min(w/800,h/820);
+     return {w,h,letterboxTop:(h-820*scale)/2};
+    });
+    assert.ok(fit.letterboxTop<3,'V9 phone must not retain the pale top/bottom bars '+JSON.stringify(fit));
+    console.log('TREE_GAME_V1_MOBILE_CANVAS_FIT='+JSON.stringify(fit));
+   }
    const captures=[];
    for(let n=1;n<=16;n++){
     const reply=await page.evaluate(text=>window.__TREE_QA__.post(text),messages[n-1]);
@@ -45,6 +53,7 @@ async function preview(page,label){
      await page.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-'+label+'-island-'+n+'-turns.png')});
      captures.push({scene:'island',n,url:await page.locator('#treeCanvas').evaluate(cv=>cv.toDataURL('image/png'))});
      assert.equal(await page.locator('#surpriseMoment').isVisible(),true);
+     assert.equal(await page.locator('#watchGrowthBtn').isVisible(),true,'mobile chat should have a route back to growing world');
      await page.screenshot({path:path.join(OUT,'GameV1-'+label+'-island-'+n+'-surprise.png')});
      if(label==='mobile'&&(n===3||n===16))await preview(page,String(n));
     }
