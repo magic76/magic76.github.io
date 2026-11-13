@@ -130,5 +130,9 @@
   }
 ,
   "dailyQuoteStarter": "Mein Gedanke für heute: „{{quote}}“ Darüber würde ich gern reden.",
-  "dailyFortuneStarter": "Hilf mir, mein heutiges Horoskop zu deuten"
+  "dailyFortuneStarter": "Hilf mir, mein heutiges Horoskop zu deuten",
+  "dailyFortuneStarters": {
+    "goodFor": "Was wäre heute gut für mich?",
+    "watchOut": "Worauf sollte ich heute achten?"
+  }
 }

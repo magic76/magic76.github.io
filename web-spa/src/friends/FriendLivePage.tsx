@@ -7,6 +7,7 @@ import {useEffect,useMemo,useRef,useState} from "react";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
 import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
+import {detectNativeLanguage} from "../teacher/teacherLocale";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
@@ -77,6 +78,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  // No birth details or generated fortune text ever travel in the URL.
  const personalChartHash=!shortsPost&&friend.id==="zoe"&&textMode&&params.get("quote")==="daily"?params.get("chart"):null;
  const validDailyHash=Boolean(personalChartHash&&/^[a-f0-9]{64}$/.test(personalChartHash));
+ const dailyEntry=validDailyHash;
  const dailyLookupKey=validDailyHash?locale.language+":"+personalChartHash:"";
  const [dailyLookup,setDailyLookup]=useState<{key:string;context:string;hash:string}|null>(null);
  useEffect(()=>{
@@ -108,13 +110,14 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const shortsReturnTo=shortsPost?"/teacher/shorts?post="+encodeURIComponent(shortsPost.id):null;
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
- const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>{const saved=useTeacherStore.getState().friendChatMode;return intent==="speak"&&saved==="natural"?"bilingual":saved});
+ const friendNativeLanguage=dailyEntry?detectNativeLanguage(locale.language):nativeLanguage;
+ const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>{const saved=useTeacherStore.getState().friendChatMode;return dailyEntry?"natural":(intent==="speak"&&saved==="natural"?"bilingual":saved)});
  const [modeNote,setModeNote]=useState("");
  const region=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
  const sessionId=friend.id;
  const [lifeOpening]=useState(()=>!shortsPost&&!intent?nextFriendLifeOpening(friend.id):"");
- const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost),[friend,language,nativeLanguage,friendChatMode,region,accentStrength,customAccent,shortsPost]);
- const languageDirective=useMemo(()=>friendLanguageReminder(language,nativeLanguage,friendChatMode),[language,nativeLanguage,friendChatMode]);
+ const system=useMemo(()=>buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost),[friend,language,friendNativeLanguage,friendChatMode,region,accentStrength,customAccent,shortsPost]);
+ const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
   system:system+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":""),languageDirective,
@@ -192,7 +195,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   const connected=["listening","speaking"].includes(live.state);
   const pending=["requesting-mic","connecting"].includes(live.state);
   // Silent control never creates an artificial learner utterance.
-  const applied=connected&&live.sendControl(friendLanguageTransition(language,nativeLanguage,chosen));
+  const applied=connected&&live.sendControl(friendLanguageTransition(language,friendNativeLanguage,chosen));
   useTeacherStore.getState().setFriendChatMode(chosen);
   if(applied||(!connected&&!pending))setActiveFriendChatMode(chosen);
   setModeNote(applied?t("chatModeChanged"):t("chatModeSavedNext"));
@@ -244,6 +247,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     {textMode?(dailyLookupPending?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:dailyFortune?":daily:"+dailyFortune.hash:"")} searchEnabled={!shortsPost} system={system+(dailyFortune?"\n"+dailyFortune.context:"")+"\n"+languageDirective} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
      firstStarter={selectedQuestion||(shortsHook?shortsHookLabel(shortsHook,english):undefined)||dailyFortuneStarter||dailyQuoteStarter||dailyTopicStarter}
+     starters={dailyEntry?[t("dailyFortuneStarters.goodFor"),t("dailyFortuneStarters.watchOut")]:undefined}
      showStarterWithHistory={Boolean(dailyFortuneStarter||dailyQuoteStarter)}
      onExchange={shortsPost?()=>{if(usageSentRef.current)return;usageSentRef.current=true;trackUsageEvent("friend_conversation");trackUsageEvent("shorts_conversation");rememberShortsConversation(shortsPost)}:undefined}/>):<>
     {!shortsPost&&!homeFirstAction?voiceStart:null}

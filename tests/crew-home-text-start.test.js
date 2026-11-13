@@ -29,7 +29,7 @@ test("friend text empty state offers one-tap starters and preserves verification
  const starters=read("web-spa/src/live/TextChatStarters.tsx");
  const style=read("web-spa/src/live/TextChatPanel.css");
  assert.match(panel,/historyReady&&!messages.length&&!draft.trim\(\)&&!busy&&sessionScope.startsWith\("friend:"\)/);
- assert.match(panel,/<TextChatStarters onPick=\{sentence=>void sendMessage\(sentence\)\} speaker=\{speaker\} firstStarter=\{firstStarter\}\/>/);
+ assert.match(panel,/<TextChatStarters onPick=\{sentence=>void sendMessage\(sentence\)\} speaker=\{speaker\} firstStarter=\{firstStarter\} starters=\{starters\}\/>/);
  assert.match(starters,/onClick=\{\(\)=>onPick\(t\("textStarters\."\+key,\{name:speaker\}\)\)\}/);
  assert.match(starters,/type="button"/);
  assert.doesNotMatch(starters,/send\(|submit\(|fetch\(|getUserMedia\(/);
@@ -44,7 +44,7 @@ test("starter click shares sendMessage, pending draft and Turnstile dispatch wit
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
  assert.match(panel,/async function sendMessage\(text:string\)/);
  assert.match(panel,/const value=text.trim\(\).slice\(0,1200\)/);
- assert.match(panel,/<TextChatStarters onPick=\{sentence=>void sendMessage\(sentence\)\} speaker=\{speaker\} firstStarter=\{firstStarter\}\/>/);
+ assert.match(panel,/<TextChatStarters onPick=\{sentence=>void sendMessage\(sentence\)\} speaker=\{speaker\} firstStarter=\{firstStarter\} starters=\{starters\}\/>/);
  assert.doesNotMatch(panel,/<TextChatStarters onPick=\{setDraft\}\/>/);
  assert.match(panel,/onSubmit=\{event=>\{event.preventDefault\(\);void sendMessage\(draft\)\}\}/);
  assert.match(panel,/pendingSend.current=\{before:messages,value,sent:false\}/);

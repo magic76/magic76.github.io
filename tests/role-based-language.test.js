@@ -21,9 +21,9 @@ test("friend mode and teacher speaking level are independently saved and used in
  const teacher=read("web-spa/src/teacher/teacherPolicy.ts");
  assert.match(store,/friendChatMode:explicitFriendChatMode\(\)/);
  assert.match(store,/learnerSpeakingLevel:normalizeLearnerSpeakingLevel/);
- assert.match(page,/friendLanguageReminder\(language,nativeLanguage,friendChatMode\)/);
+ assert.match(page,/friendLanguageReminder\(language,friendNativeLanguage,friendChatMode\)/);
  assert.match(page,/useState<FriendChatLanguageMode>/);
- assert.match(page,/friendLanguageTransition\(language,nativeLanguage,chosen\)/);
+ assert.match(page,/friendLanguageTransition\(language,friendNativeLanguage,chosen\)/);
  assert.match(page,/aria-pressed=\{friendChatMode===value\}/);
  assert.match(read("web-spa/src/live/useLiveSession.ts"),/sendControl=useCallback/);
  assert.match(teacher,/teacherLanguageGuidance\(input\.learnerSpeakingLevel/);
