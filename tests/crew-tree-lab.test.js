@@ -12,14 +12,15 @@ const artWall=fs.readFileSync(path.join(dir,'art-review.html'),'utf8');
 const artWallScript=fs.readFileSync(path.join(dir,'art-review.js'),'utf8');
 const artFiles=['foliage-olive.svg','foliage-sage.svg','foliage-sunlit.svg','foliage-teal.svg','detail-bloom.svg','detail-fruit.svg','detail-star.svg'];
 function boot(options={}){
- const nodes=new Map(),memory=new Map(),timers=new Map(),paint={paths:0,ellipses:0,lines:0,frames:0,downloads:0,foliageGradients:0};
+ const nodes=new Map(),memory=new Map(),timers=new Map(),paint={paths:0,ellipses:0,lines:0,frames:0,downloads:0,foliageGradients:0,texts:[],rects:[],canvasSizes:[]};
  let timerId=0;
  if(options.storage)for(const [k,v] of Object.entries(options.storage))memory.set(k,v);
  const gradient=()=>({addColorStop(){}});
  const context2D=new Proxy({
   beginPath(){paint.paths++},ellipse(){paint.ellipses++},lineTo(){paint.lines++},
   createLinearGradient:gradient,
-  fillText(){paint.frames++},
+  fillText(text,x,y){paint.frames++;paint.texts.push({text,x,y,color:this.fillStyle})},
+  fillRect(x,y,w,h){paint.rects.push({x,y,w,h,color:this.fillStyle})},
   setTransform(){},clearRect(){}
  },{
   get:(o,k)=>o[k]||(
@@ -29,10 +30,10 @@ function boot(options={}){
  });
  function element(tag='div'){
   const value={tagName:tag.toUpperCase(),dataset:{},style:{},hidden:false,
-   className:'',textContent:'',value:'',scrollTop:0,scrollHeight:240,
+   className:'',textContent:'',value:'',scrollTop:0,scrollHeight:240,listeners:{},
    childNodes:[],classList:{add(){},remove(){},toggle(){}},
-   addEventListener(){},setAttribute(){},getBoundingClientRect(){return {width:390,height:386}},
-   getContext(){return context2D},toDataURL(){return 'data:image/png;base64,ZmFrZQ=='},
+   addEventListener(k,fn){this.listeners[k]=fn},setAttribute(){},getBoundingClientRect(){return {width:390,height:386}},
+   getContext(){return context2D},toDataURL(){paint.canvasSizes.push([this.width,this.height]);return 'data:image/png;base64,ZmFrZQ=='},
    click(){paint.downloads++},remove(){},
    append(...children){this.childNodes.push(...children)},
    appendChild(child){this.childNodes.push(child)},removeChild(child){this.childNodes.splice(this.childNodes.indexOf(child),1)},
@@ -672,4 +673,72 @@ test('V6 replica, no new dependencies or backend, responsive milestones and 1080
  assert.match(forest,/colorFamilies/);
  assert.doesNotMatch(forest,/\bWebGL\b.*(?:createContext|getContext\('webgl)/);
  assert.doesNotMatch(script+forest,/\bfetch\s*\(|XMLHttpRequest|WebSocket\s*\(/);
+});
+
+test('V6 1080×1920 postcard reserves a 480px branded bottom quarter with level, sentence and privacy-safe daily line',()=>{
+ const {qa,get,paint,memory}=boot({glow:true});
+ assert.equal(qa.glowSeed(100),true);
+ for(let i=1;i<=16;i++)qa.post('宇宙星球太空');
+ assert.equal(qa.glow().garden.totalCompleted,1);
+ assert.equal(get('momentSave').hidden,false,'16th turn offers save this moment');
+ assert.match(get('momentSaveLabel').textContent,/星空樹/);
+ const snap=qa.glowPoster();
+ assert.equal(snap.active.seed,100,'snapshot must retain finished seed after automatic new sprout');
+ assert.equal(snap.active.growth.length,16);
+ assert.equal(snap.garden.totalCompleted,1);
+ assert.equal(snap.options.topic,'cosmos');
+ assert.equal(qa.exportImage(),true);
+ assert.equal(paint.downloads,1);
+ assert.ok(paint.canvasSizes.some(([w,h])=>w===1080&&h===1920),'exact 1080×1920 PNG');
+ assert.ok(paint.rects.some(r=>r.x===0&&r.y===1440&&r.w===1080&&r.h===480&&r.color==='#12101C'),
+   'bottom information panel is exactly one quarter height');
+ assert.ok(paint.rects.some(r=>r.y===1440&&r.color==='#6257E7'),'purple rule uses #6257E7');
+ for(const fragment of ['我的森林 · 1 棵樹','今天新長出的一句話','剛剛那顆星','3sssi.com','新芽森林']){
+  assert.ok(paint.texts.some(line=>String(line.text).includes(fragment)),fragment);
+ }
+ assert.ok(paint.texts.some(line=>line.color==='#F7F7F4'));
+ assert.equal(paint.texts.some(line=>String(line.text).includes('宇宙星球太空')),false,
+  'actual private user sentence must not be included in share PNG');
+ get('quickForestSave').listeners.click();
+ get('captureMilestoneBtn').listeners.click();
+ assert.equal(paint.downloads,3,'both buttons use the same PNG exporter');
+ qa.post('咖啡甜點');
+ assert.equal(get('momentSave').hidden,true,'next turn closes stale moment CTA');
+ assert.equal(qa.glowPoster().active.growth.length,1,'after new chat share uses new active tree');
+ assert.equal(memory.get('crew-tree-glow-forest-v6').includes('宇宙星球太空'),false);
+});
+test('V6 3/4/5 forests all surface persistent save-this-moment CTA and level changes',()=>{
+ const {qa,get}=boot({glow:true});
+ for(let i=0;i<5;i++){
+  qa.glowSeed(300+i);
+  for(let n=0;n<16;n++)qa.post('音樂唱歌');
+  assert.equal(get('momentSave').hidden,false);
+  assert.match(get('momentSaveLabel').textContent,/存下這一刻/);
+  const photo=qa.glowPoster();
+  assert.equal(photo.garden.totalCompleted,i+1);
+  assert.equal(photo.active.seed,300+i);
+  assert.equal(photo.active.growth.length,16);
+  if(i===2)assert.match(get('momentSaveLabel').textContent,/螢光菇/);
+  if(i===3)assert.match(get('momentSaveLabel').textContent,/池塘/);
+  if(i===4)assert.match(get('momentSaveLabel').textContent,/極光/);
+ }
+ assert.equal(get('gardenTotal').textContent,'5');
+ assert.match(glowScript,/const forestLevels=/);
+ assert.match(glowScript,/function forestLevel\(n\)/);
+ assert.match(glowScript,/at:3,name:'螢菇森林'/);
+ assert.match(glowScript,/at:4,name:'月池森林'/);
+ assert.match(glowScript,/at:5,name:'極光森林'/);
+});
+test('V6 each sentence adds a persistent topic-tinted pair of leaves to its branch and both copies stay identical',()=>{
+ assert.match(glowScript,/Persistent leaf geometry for every sentence/);
+ assert.match(glowScript,/Math\.ceil\(shape\.branches\.length\*\(i\+1\)\/16\)-1/);
+ assert.match(glowScript,/const col=topicColors\[topic\]\|\|topicColors\.daily/);
+ for(const id of ['quickForestSave','captureMilestoneBtn','momentSaveLabel'])assert.ok(html.includes('id="'+id+'"'));
+ assert.match(css,/body\.glow-v6 \.quick-forest-save\{display:flex;position:absolute/);
+ assert.match(css,/body\.glow-v6 \.moment-save\[hidden\]\{display:none!important\}/);
+ for(const name of ['forest-v6.js','tree.js','tree.css','index.html']){
+  const local=fs.readFileSync(path.join(dir,name),'utf8');
+  const mirrored=fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab',name),'utf8');
+  assert.equal(local,mirrored,'replica content must match '+name);
+ }
 });
