@@ -4,6 +4,7 @@ const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const dir=path.join(__dirname,'../web-spa/public/crew-tree-lab');
 const script=fs.readFileSync(path.join(dir,'tree.js'),'utf8');
 const glowScript=fs.readFileSync(path.join(dir,'forest-v6.js'),'utf8');
+const postcardScript=fs.readFileSync(path.join(dir,'postcard-v6.js'),'utf8');
 const botany=fs.readFileSync(path.join(dir,'botany.js'),'utf8');
 const familyBotany=fs.readFileSync(path.join(dir,'family-art.js'),'utf8');
 const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
@@ -56,7 +57,7 @@ function boot(options={}){
  const c={document,window,location:{search:'?qa=1'},URLSearchParams,localStorage:{
   getItem:key=>memory.get(key)||null,setItem:(key,v)=>memory.set(key,v)
  },setTimeout(fn){const id=++timerId;timers.set(id,fn);return id},clearTimeout(id){timers.delete(id)},Date,Math,console,Number,String,Array,Set,Map};
- vm.createContext(c);vm.runInContext(botany,c,{timeout:10000});vm.runInContext(familyBotany,c,{timeout:10000});if(options.glow)vm.runInContext(glowScript,c,{timeout:10000});vm.runInContext(script,c,{timeout:10000});
+ vm.createContext(c);vm.runInContext(botany,c,{timeout:10000});vm.runInContext(familyBotany,c,{timeout:10000});if(options.glow){vm.runInContext(glowScript,c,{timeout:10000});vm.runInContext(postcardScript,c,{timeout:10000});}vm.runInContext(script,c,{timeout:10000});
  const qa=window.__TREE_QA__;
  assert.ok(qa,'QA interface is exposed only behind ?qa=1');
  return {qa,memory,get,paint,document,fantasyCalls,timers};
@@ -724,6 +725,7 @@ test('V6 3/4/5 forests all surface persistent save-this-moment CTA and level cha
  }
  assert.equal(get('gardenTotal').textContent,'5');
  assert.match(glowScript,/const forestLevels=/);
+ assert.match(postcardScript,/inForest\?0:Math\.min/);
  assert.match(glowScript,/function forestLevel\(n\)/);
  assert.match(glowScript,/at:3,name:'螢菇森林'/);
  assert.match(glowScript,/at:4,name:'月池森林'/);
@@ -741,4 +743,42 @@ test('V6 each sentence adds a persistent topic-tinted pair of leaves to its bran
   const mirrored=fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab',name),'utf8');
   assert.equal(local,mirrored,'replica content must match '+name);
  }
+});
+
+test('V6 postcard module shares current 3/8/16 milestones without touching forest drawing',()=>{
+ const {qa,get,paint}=boot({glow:true});
+ assert.equal(qa.glowSeed(101),true);
+ for(let n=1;n<=3;n++)qa.post('宇宙星球');
+ assert.equal(get('momentSave').hidden,false);
+ assert.match(get('momentSaveLabel').textContent,/破殼.+存下這一刻/);
+ assert.equal(qa.glowPoster().active.growth.length,3);
+ assert.ok(qa.exportImage());
+ assert.ok(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 3 句')));
+ qa.post('貓咪');
+ assert.equal(get('momentSave').hidden,true,'new chat clears the stale postcard');
+ for(let n=5;n<=8;n++)qa.post('音樂');
+ assert.match(get('momentSaveLabel').textContent,/浮島.+存下這一刻/);
+ assert.equal(qa.glowPoster().active.growth.length,8);
+ assert.ok(qa.exportImage());
+ assert.ok(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 8 句')));
+ for(let n=9;n<=16;n++)qa.post('旅行');
+ assert.match(get('momentSaveLabel').textContent,/存下這一刻/);
+ assert.equal(qa.glowPoster().active.growth.length,16);
+ assert.ok(qa.exportImage());
+ assert.ok(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 16 句')),
+  '16th-turn card must not double-count the completed tree as 32');
+ assert.equal(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 32 句')),false);
+ assert.equal(paint.downloads,3);
+});
+test('V6 postcard is a separate, mirrored presentation adapter and the painting engine is not edited',()=>{
+ assert.match(html,/postcard-v6\.js/);
+ assert.match(script,/CrewForestPostcardV6\?\.render/);
+ assert.match(postcardScript,/ART_HEIGHT=1440,FOOTER=480/);
+ assert.match(postcardScript,/strokeRect\(24,24/);
+ assert.match(postcardScript,/leafQuotes\[topic\]/);
+ assert.doesNotMatch(postcardScript,/\bfetch\s*\(|WebGL|XMLHttpRequest/);
+ assert.equal(fs.readFileSync(path.join(dir,'postcard-v6.js'),'utf8'),
+  fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab/postcard-v6.js'),'utf8'));
+ assert.equal(fs.readFileSync(path.join(dir,'forest-v6.js'),'utf8'),
+  fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab/forest-v6.js'),'utf8'));
 });

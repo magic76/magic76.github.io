@@ -23,6 +23,18 @@ function showMoment(finished,done){
  $('momentSaveLabel').textContent=done.forestEvent?
   done.forestEvent+' · 存下這一刻':done.form.icon+' '+done.form.name+' 揭曉 · 存下這一刻';
 }
+function showProgressMoment(age){
+ if(!useV6||(age!==3&&age!==8))return;
+ momentCapture={garden:JSON.parse(JSON.stringify(garden)),
+  tree:validateTree(JSON.parse(JSON.stringify(current))),
+  topic:current.growth.at(-1)?.topic||'daily'};
+ const box=$('momentSave');
+ if(!box)return;
+ box.hidden=false;
+ $('momentSaveLabel').textContent=age===3?
+  '🌱 小樹第一次破殼 · 存下這一刻':
+  '🏝️ 浮島第一次升空 · 存下這一刻';
+}
 function momentPosterArgs(){
  return momentCapture?{
   garden:momentCapture.garden,active:momentCapture.tree,
@@ -477,7 +489,7 @@ function postMessage(raw){
  $('watchGrowthBtn').hidden=false;
  $('watchGrowthBtn').textContent=surprise?surprise.emoji+' '+surprise.title+' · 看驚喜':
   '🌱 第 '+current.growth.length+' 句，樹又長大了 · 看一眼';
- if(surprise)cueSurprise(surprise);
+ if(surprise){cueSurprise(surprise);if(useV6)showProgressMoment(age);}
  else popToast(mutation?'✨ 突變！'+MUTATIONS.find(m=>m.key===mutation).name:'🌱 '+TOPICS[signal.topic].label+'長出新枝！');
  sparkle();
  return {topic:signal.topic,mutation,turn,count:current.growth.length,reply,surprise:surprise?.title||null};
@@ -646,12 +658,14 @@ function exportImage(){
   try{
    const {garden:sceneGarden,active,options}=momentPosterArgs();
    const out=document.createElement('canvas');
-   if(!GLOW.poster(out,sceneGarden,active,renderTime,options))throw Error('poster unavailable');
+   if(!window.CrewForestPostcardV6?.render(out,sceneGarden,active,renderTime,options))
+    throw Error('postcard unavailable');
    const png=out.toDataURL('image/png');
    if(!png.startsWith('data:image/png'))throw Error('PNG encoding unsupported');
    const a=document.createElement('a');a.href=png;
    a.download='crew-forest-'+sceneGarden.totalCompleted+'-trees.png';
    document.body.appendChild(a);a.click();a.remove();
+   popToast('已下載森林明信片 · PNG 1080×1920');
    return true;
   }catch{
    popToast('這個瀏覽器暫時無法下載 PNG，請稍後再試。');

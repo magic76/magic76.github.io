@@ -347,7 +347,7 @@ async function preview(page,label){
   assert.equal(png.readUInt32BE(20),1920,'PNG height');
   const sampled=await glow.evaluate(()=>{
    const q=window.__TREE_QA__.glowPoster(),out=document.createElement('canvas');
-   window.CrewGlowForestV6.poster(out,q.garden,q.active,1000,q.options);
+   window.CrewForestPostcardV6.render(out,q.garden,q.active,1000,q.options);
    const c=out.getContext('2d');
    return {width:out.width,height:out.height,
     black:[...c.getImageData(5,1500,1,1).data],

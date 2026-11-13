@@ -20,6 +20,7 @@
 <script src="./art-studies/v9-art.js?v=9-game-20261113" defer></script>
 <script src="./art-studies/study.js?v=9-game-20261113" defer></script>
 <script src="./forest-v6.js?v=glow-v6-20261113" defer></script>
+<script src="./postcard-v6.js?v=glow-postcard-v1" defer></script>
 <script src="./tree.js?v=glow-v6-20261113" defer></script>
 </head>
 <body>
@@ -63,7 +64,7 @@
       </div>
       <div class="canvas-wrap" id="canvasWrap">
         <canvas id="treeCanvas" role="img" aria-label="夜光森林：依聊天句數變成種子、嫩芽、小樹、浮島與四種最終樹形"></canvas><span class="tree-art-version" id="treeArtVersion">✨ Art V9 · 活的幻想樹</span>
-        <button id="quickForestSave" class="quick-forest-save" type="button" aria-label="下載我的森林 PNG 圖片" title="下載森林 PNG"> <span aria-hidden="true">↓</span> 下載 PNG</button>
+        <button id="quickForestSave" class="quick-forest-save" type="button" aria-label="一鍵下載目前森林的 1080×1920 PNG 明信片" title="下載森林明信片 PNG"> <span aria-hidden="true">↓</span> 下載 PNG</button>
         <span class="floating-note" id="growthToast" aria-live="polite"></span>
         <span class="ground-label" id="treeSubtitle">你和 Zoe 的故事，才剛要開始。</span>
       </div>
@@ -74,7 +75,7 @@
       </div>
       <div class="moment-save" id="momentSave" hidden role="group" aria-label="收藏里程碑">
         <span id="momentSaveLabel">✨ 這一刻值得留下來</span>
-        <button id="captureMilestoneBtn" type="button">↗ 存下這一刻</button>
+        <button id="captureMilestoneBtn" type="button" aria-label="將這一刻保存成 PNG 明信片">↗ 存下這一刻</button>
       </div>
       <div class="garden-progress" aria-label="這棵樹的生長進度">
         <div class="garden-progress-top"><span>正在長的樹 · 第 <strong id="gardenAge">0</strong> / 16 句</span>
