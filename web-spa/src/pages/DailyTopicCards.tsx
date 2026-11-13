@@ -4,13 +4,23 @@ import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
 import {pickDailyQuote} from "./dailyQuotes";
 import {loadQuoteText} from "./quoteCatalog";
-import {hasStoredChart} from "./storedChart";
 import "./dailyTopicCards.css";
 
 type TodayQuote={id:string;text:string;language:string};
 type TodayPersonal={hash:string;text:string;language:string;kind:"bazi"|"numerology"};
 type ChartOption={hash:string;label:string;self:boolean};
-
+function hasStoredChart():boolean{
+ for(const key of ["crew_fortune_profile_v2","crew_fortune_presets_v1","crew_fortune_readings_v2"]){
+  try{
+   const value=localStorage.getItem(key);
+   if(!value)continue;
+   const parsed=JSON.parse(value);
+   if(key==="crew_fortune_profile_v2"&&typeof parsed?.birthDate==="string")return true;
+   if(Array.isArray(parsed)&&parsed.some(x=>typeof x?.profile?.birthDate==="string"))return true;
+  }catch{/* A corrupt record must not conceal the other saved charts. */}
+ }
+ return false;
+}
 /** One SSG-safe frosted card. The chart engine only enters a lazy chunk after mount. */
 export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  const {t,i18n}=useTranslation("home");

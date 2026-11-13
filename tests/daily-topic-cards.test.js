@@ -101,8 +101,7 @@ test("SSG placeholder, local midnight + visibility refresh; personalized Zoe CTA
  assert.match(loader,/getDailyQuote\(id\)/);
  assert.doesNotMatch(cards,/fetch\(|window\.location/);
  assert.match(cards,/import\("\.\/personalDailyLine"\)/);
- assert.match(cards,/import \{hasStoredChart\} from "\.\/storedChart"/);
- assert.match(read(root+"storedChart.ts"),/crew_fortune_profile_v2/);
+ assert.match(cards,/crew_fortune_profile_v2/);
  const mobile=read(root+"MobileHomePage.tsx"),desktop=read(root+"HomePage.tsx");
  assert.ok(mobile.indexOf('<DailyTopicCards variant="mobile"/>')>mobile.indexOf('className="cmh-allowance-slot"'));
  assert.ok(mobile.indexOf('<DailyTopicCards variant="mobile"/>')<mobile.indexOf('<section className="cmh-apps"'));

@@ -40,7 +40,7 @@ test("Discovery phrases and headline are present in each of the eleven supported
    assert.ok(typeof phrase==="string"&&phrase.trim().length>4,lang+":"+key);
   }
   assert.equal(world.discovery.item2,undefined,lang+":removed duplicate");
-  assert.equal(typeof JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/home.json")).quickEntry.shorts,"string");
+  assert.equal(typeof JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/home.json")).liveBubble.start,"string");
  }
 });
 test("Mobile portrait keeps discovery visible without affecting compact landscape or reduced-motion",()=>{
@@ -59,16 +59,17 @@ test("Mobile portrait keeps discovery visible without affecting compact landscap
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.crew-portal-discovery-caret\{animation:none\}\}/);
 });
 
-test("Content shortcut labels wrap safely without covering mobile controls",()=>{
+test("Zoe bubble calls out voice in every language without clipping the label",()=>{
  const css=read("web-spa/src/pages/homeLiveBubble.css");
- assert.match(css,/\.crew-live-bubble-label\{[^}]*white-space:normal/);
- assert.match(css,/\.crew-live-bubble-label\{[^}]*overflow-wrap:anywhere/);
+ assert.match(css,/\.crew-live-bubble-label\{[^}]*white-space:nowrap/);
+ assert.match(css,/\.crew-live-bubble-label\{[^}]*overflow:visible/);
  assert.doesNotMatch(css,/\.crew-live-bubble-label\{[^}]*text-overflow:ellipsis/);
  assert.match(css,/\.crew-live-bubble-label\{[^}]*font-size:12px/);
- assert.match(css,/@media\(max-width:767px\)\{\.crew-home-live-bubble\{display:none!important\}\}/);
- assert.match(css,/@media\(min-width:768px\) and \(max-width:1099px\)/);
- for(const lang of ["zh-TW","en","de","es","fr","id","ja","ko","pt-BR","th","vi"]){
+ assert.match(css,/\.crew-live-bubble-label\{[^}]*overflow-wrap:normal/);
+ assert.match(css,/@media\(max-width:700px\) and \(max-height:670px\) and \(orientation:portrait\)\{\.crew-home-live-bubble\{bottom:calc\(var\(--nav-h,68px\) \+ env\(safe-area-inset-bottom,0px\)\)\}\}/);
+ const starts={"zh-TW":"語音開聊","en":"Voice","de":"Audio","es":"Voz","fr":"Vocal","id":"Suara","ja":"音声会話","ko":"음성대화","pt-BR":"Voz","th":"แชตเสียง","vi":"Thoại"};
+ for(const [lang,label] of Object.entries(starts)){
   const home=JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/home.json"));
-  assert.ok(home.quickEntry.fortune&&home.quickEntry.shorts,lang);
+  assert.equal(home.liveBubble.start,label,lang);
  }
 });

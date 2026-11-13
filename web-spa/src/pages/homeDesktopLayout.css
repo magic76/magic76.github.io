@@ -116,10 +116,11 @@
   left:max(8px,calc((100vw - var(--crew-desktop-home-frame)) / 2 - 86px));
   right:auto;
  }
- /* Portaled to body. The 86px-max content shortcut fits wholly in the
-  * 94px+ side gutter, outside the Shorts carousel and dark home frame. */
+ /* Portaled to body. Seat it 6px outside the dark frame, in the right
+  * gutter: this keeps the Live action near content without covering Shorts
+  * carousel arrows, the 'view all' link or the rightmost card. */
  body:has(.crew-home-legacy) .crew-home-live-bubble{
-  right:max(8px,calc((100vw - var(--crew-desktop-home-frame)) / 2 - 86px));
+  right:max(24px,calc((100vw - var(--crew-desktop-home-frame)) / 2 - 70px));
   bottom:24px;
  }
 }

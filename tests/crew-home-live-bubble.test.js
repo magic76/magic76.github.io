@@ -1,56 +1,57 @@
-const {test}=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
+const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
 const read=p=>fs.readFileSync(path.join(__dirname,"..",p),"utf8");
-const bubble=read("web-spa/src/pages/HomeLiveBubble.tsx"),css=read("web-spa/src/pages/homeLiveBubble.css");
-test("home corner is a chart-aware content entry, not a Live/microphone prompt",()=>{
+test("the home right corner is Zoe Live, not a mystery box",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
+ const bubble=read("web-spa/src/pages/HomeLiveBubble.tsx");
+ const css=read("web-spa/src/pages/homeLiveBubble.css");
  assert.match(home,/import \{HomeLiveBubble\} from "\.\/HomeLiveBubble"/);
  assert.match(home,/<HomeLiveBubble\/>/);
  assert.doesNotMatch(home,/HomeMysteryGift/);
+ assert.match(bubble,/\/friend\/live\?id=zoe&from=home&entry=bubble/);
  assert.match(bubble,/createPortal\(/);
  assert.match(bubble,/setPortalHost\(document\.body\)/);
+ assert.match(bubble,/portalHost\?createPortal\(/);
  assert.match(bubble,/className="crew-live-bubble-trigger"/);
- assert.match(bubble,/hasStoredChart\(\)/);
- assert.match(bubble,/"\/teacher\/shorts"/);
- assert.match(bubble,/"\/fortune\?daily=1"/);
- for(const forbidden of [/ZOE_LIVE/,/entry=bubble/,/useGuestTrialQuota/,/geminiKey/,/microphone/,/home_live_bubble_(?:view|click)/,/warmLive/,/zoePortrait/])assert.doesNotMatch(bubble,forbidden);
-});
-test("SSG and chart deep link remain safe, with lazy daily logic",()=>{
- assert.match(bubble,/if\(!ready\|\|!portalHost\|\|!chartResolved\)return null/);
- assert.match(bubble,/useClientReady\(\)/);
- assert.match(bubble,/import\("\.\/personalDailyLine"\)/);
- assert.match(bubble,/personalDailyLine\(i18n\.language\)/);
- assert.match(bubble,/\/\^\[a-f0-9\]\{64\}\$\//);
- assert.match(bubble,/"\/fortune\?daily=1&chart="\+line\.hash\+"&kind="\+line\.kind/);
- assert.match(bubble,/\.catch\(\(\)=>\{/);
- assert.match(bubble,/"storage"/);
- assert.match(read("web-spa/src/pages/DailyTopicCards.tsx"),/import \{hasStoredChart\} from "\.\/storedChart"/);
- assert.match(read("web-spa/src/pages/storedChart.ts"),/crew_fortune_profile_v2/);
-});
-test("content entry preserves click analytics, mobile/notice safety and reduced motion",()=>{
- assert.match(bubble,/trackUsageEvent\("home_entry_click",storedChart\?"fortune":"shorts"\)/);
+ assert.match(bubble,/zoePortrait/);
+ assert.doesNotMatch(bubble,/GiftBoxArt|drawGift|GIFTS|role="dialog"/);
  assert.match(css,/\.crew-home-live-bubble\{position:fixed/);
- assert.match(css,/\.crew-live-bubble-trigger\{pointer-events:auto;[^}]*min-height:76px/);
- assert.match(css,/:focus-visible/);
- assert.match(css,/font-size:12px/);
- assert.match(css,/@media\(max-width:767px\)\{\.crew-home-live-bubble\{display:none!important\}\}/);
- assert.match(css,/@media\(min-width:768px\) and \(max-width:1099px\)/);
- assert.match(css,/body:has\(\.crew-update-notice\) \.crew-home-live-bubble\{display:none\}/);
+ assert.match(css,/var\(--nav-h,68px\) \+ env\(safe-area-inset-bottom/);
+ assert.match(css,/min-height:64px/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
- assert.doesNotMatch(bubble,/setTimeout\(|IntersectionObserver|home_live_bubble_view/);
+ assert.match(css,/body:has\(\.crew-update-notice\) \.crew-home-live-bubble\{display:none\}/);
+});
+test("only one timed invitation appears after Hero scroll, without blocking clicks",()=>{
+ const bubble=read("web-spa/src/pages/HomeLiveBubble.tsx");
+ const css=read("web-spa/src/pages/homeLiveBubble.css");
+ assert.match(bubble,/querySelector<HTMLElement>\("\.crew-home-portal"\)/);
+ assert.match(bubble,/IntersectionObserver/);
+ assert.match(bubble,/if\(heroVisible\)\{setShowInvite\(false\);return\}/);
+ assert.match(bubble,/if\(invited\.current\)return/);
+ assert.match(bubble,/setTimeout\(\(\)=>setShowInvite\(false\),6500\)/);
+ assert.match(css,/pointer-events:none/);
+ assert.match(css,/\.crew-live-bubble-trigger\{pointer-events:auto/);
+ assert.match(bubble,/trial\.remaining===0/);
+ assert.match(bubble,/\/account#settings-gemini/);
+ assert.match(bubble,/onClick=\{visit\}/);
+ assert.match(bubble,/<Icon name=\{needsSetup\?"settings":"mic"\}\/>/);
+});
+test("Live bubble analytics and attribution are safely allowlisted",()=>{
+ const bubble=read("web-spa/src/pages/HomeLiveBubble.tsx");
  const live=read("web-spa/src/friends/FriendLivePage.tsx");
- for(const name of ["home_live_bubble_connected","home_live_bubble_conversation"]){
-  assert.ok(live.includes('trackUsageEvent("'+name+'"'));
-  for(const file of ["web-spa/src/analytics/usage.ts","functions/api/usage/event.ts","web-spa/src/analytics/UsageDashboardPage.tsx"])
+ for(const name of ["home_live_bubble_view","home_live_bubble_click","home_live_bubble_connected","home_live_bubble_conversation"]){
+  const source=name.endsWith("view")||name.endsWith("click")?bubble:live;
+  assert.ok(source.includes('trackUsageEvent("'+name+'"'),"missing instrumentation: "+name);
+  for(const file of ["web-spa/src/analytics/usage.ts","functions/api/usage/event.ts","web-spa/src/analytics/UsageDashboardPage.tsx"]){
    assert.ok(read(file).includes(name),file+" missing "+name);
+  }
  }
  assert.match(live,/params\.get\("entry"\)==="bubble"/);
+ assert.match(live,/live\.turns\.some\(turn=>Boolean\(turn\.input\?\.trim\(\)&&turn\.output\?\.trim\(\)\)\)/);
+ assert.match(bubble,/trackUsageEvent\("home_entry_click",needsSetup\?"settings":"friend"\)/);
 });
-test("eleven languages have localized accessible labels",()=>{
+test("Live bubble copy is available in all 11 supported site languages",()=>{
  for(const lang of ["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"]){
   const home=JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/home.json"));
-  for(const key of ["heading","fortune","shorts"])
-   assert.ok(typeof home.quickEntry?.[key]==="string"&&home.quickEntry[key].trim(),lang+": "+key);
-  for(const key of ["title","subtitle"])
-   assert.ok(typeof home.mobileHero?.[key]==="string"&&home.mobileHero[key].trim(),lang+": "+key);
+  for(const key of ["invite","start","setup"])assert.ok(home.liveBubble?.[key],lang+" missing "+key);
  }
 });

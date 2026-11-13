@@ -76,7 +76,7 @@
     "explore": "Xem thêm hoạt động",
     "tap": "Chạm để mở"
   },
-  "layout2": {"title": "Học tiếng cùng {{name}}","action": "Chào {{name}}","description": "Không cần chuẩn bị chủ đề. Cứ chào trước nhé.","voice": "Chuyển sang trò chuyện bằng giọng nói","more": "Muốn thử điều khác không?","resumeTitle": "Tiếp tục trò chuyện với {{name}}",
+  "layout2": {"title": "Nói lời chào đầu tiên với {{name}}.","action": "Chào {{name}}","description": "Không cần chuẩn bị chủ đề. Cứ chào trước nhé.","voice": "Chuyển sang trò chuyện bằng giọng nói","more": "Muốn thử điều khác không?","resumeTitle": "Tiếp tục trò chuyện với {{name}}",
     "previewLabel": "Lần trước:","resumeAction": "Tiếp tục nhắn tin","chatTitle": "Bắt đầu bằng lời chào","chatDescription": "Trò chuyện cùng bạn AI và xem câu chuyện sẽ đi đến đâu.","previewHidden": "Đã ẩn tin nhắn gần nhất","showPreview": "Hiện tin nhắn gần nhất","hidePreview": "Ẩn tin nhắn gần nhất"},
   "world": {
     "freeAllowance": {"full": "Không cần đăng ký · {{count}} tin nhắn + {{minutes}} phút thoại mỗi ngày. Mai lại có", "textOnly": "Không cần đăng ký · {{count}} tin nhắn miễn phí mỗi ngày. Mai lại có", "voiceUsed": "Hết lượt thoại hôm nay · {{count}} tin nhắn/ngày. Mai lại có"},
@@ -571,8 +571,6 @@
     "soulsDescription": "Cho đồ vật thường ngày biết nói.",
     "learnDescription": "Học một câu ngoại ngữ mới."
   },
-  "mobileHero": {"title": "Học tiếng với AI", "subtitle": "Chào một câu là đủ."},
-  "quickEntry": {"heading": "Khám phá Crew", "fortune": "Vận may hôm nay", "shorts": "Xem Shorts"},
   "liveBubble": {
     "invite": "Chào! Trò chuyện chút nhé?",
     "start": "Thoại",
