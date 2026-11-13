@@ -75,6 +75,13 @@ function syncGardenUI(){
  $('nextSurprise').textContent=$('gardenNext').textContent;
  $('worldName').textContent='夜光森林 · 每句話都有顏色';
  $('growthHint').textContent='每棵長滿 16 句會留在森林。森林長大後，有菇路、池塘和極光。';
+ const topic=topTopic(current);
+ $('traitRow').innerHTML=[
+  '✦ '+name,
+  '🎨 '+TOPICS[topic].label,
+  '🌿 '+current.mutations.length+' 種突變',
+  '🌙 夜光森林'
+ ].map(x=>'<span>'+x+'</span>').join('');
  $('treeSubtitle').textContent=n===0?'從第一句開始，每句都讓森林多一點光。':
   n===16?'最終形態：'+name+' · '+GLOW.rarity(reveal?reveal.tree.seed:current.seed).name:
   '第 '+n+' 句，保留了話題色彩。最終形態還是祕密。';
@@ -629,6 +636,7 @@ function exportImage(){
  }catch{popToast('這個瀏覽器無法儲存圖片，先收藏樹吧！');return false}
 }
 function init(){
+ if(useV6)document.body.classList.add('glow-v6');
  reduceMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
  readStorage();loadGarden();geom=buildGeometry(current);resize();renderGallery();updateTreeUI();renderRetired();
  $('chatForm').addEventListener('submit',ev=>{ev.preventDefault();const input=$('chatInput');
