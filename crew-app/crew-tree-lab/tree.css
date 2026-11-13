@@ -167,3 +167,28 @@ body.glow-v6 button:focus-visible,body.glow-v6 input:focus-visible{
 @media(prefers-reduced-motion:reduce){
  body.glow-v6 .garden-progress-track i{transition:none}
 }
+
+/* Glow V6 postcard capture: a persistent, accessible upper-right download.
+   The small version mark lives upper-left to avoid overlap at 390px. */
+.quick-forest-save{display:none}
+body.glow-v6 .quick-forest-save{display:flex;position:absolute;z-index:5;right:10px;top:10px;
+ align-items:center;justify-content:center;gap:5px;min-height:44px;min-width:112px;
+ border:1px solid #f7f7f48c;border-radius:999px;padding:8px 11px;
+ background:#6257E7ed;color:#F7F7F4;font-weight:850;font-size:12px;
+ box-shadow:0 6px 23px #0a071dac;cursor:pointer}
+body.glow-v6 .quick-forest-save span{font-size:20px;line-height:1}
+body.glow-v6 .tree-art-version{right:auto;left:10px;top:13px;font-size:9px;
+ letter-spacing:.15px;max-width:calc(100% - 140px)}
+body.glow-v6 .moment-save[hidden]{display:none!important}
+body.glow-v6 .moment-save{display:flex;align-items:center;justify-content:space-between;gap:10px;
+ margin:8px 12px 3px;padding:7px 10px;border-radius:13px;
+ border:1px solid #a79cff66;background:#261e40;color:#F7F7F4;font-size:12px;font-weight:700}
+body.glow-v6 .moment-save button{flex-shrink:0;min-height:44px;border:0;
+ background:#6257E7;color:#F7F7F4;padding:7px 13px;border-radius:10px;
+ font-weight:850;font-size:12px}
+body.glow-v6 .moment-save button:focus-visible,body.glow-v6 .quick-forest-save:focus-visible{
+ outline:3px solid #F7F7F4;outline-offset:2px}
+@media(max-width:510px){
+ body.glow-v6 .quick-forest-save{right:8px;top:8px;min-width:106px;min-height:44px}
+ body.glow-v6 .moment-save{margin:6px 8px 2px;padding:6px 9px}
+}
