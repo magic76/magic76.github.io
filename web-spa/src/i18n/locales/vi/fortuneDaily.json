@@ -283,5 +283,21 @@
   "flipBack": "Xem mặt trước",
   "moreDetails": "Chi tiết giải đoán",
   "recentDays": "7 ngày gần đây",
-  "notCompleted": "Chưa hoàn thành"
+  "notCompleted": "Chưa hoàn thành",
+  "zoeReading": {
+    "title": "Zoe giải nghĩa vận hôm nay",
+    "loading": "Zoe đang diễn giải lá bài hôm nay…",
+    "staticNote": "Lời giải của Zoe từ thẻ hôm nay, không cần AI.",
+    "fallback": "Này, {{kind}} cho ta một gợi ý hôm nay: “{{headline}}”. Nghe kịch tính nhỉ, nhưng điều đáng chú ý là: {{theme}}\n\nHãy thử {{do}} trước. Còn {{avoid}} thì đừng cố quá. Màu may mắn là {{color}}; xem như một lời nhắc nhỏ chứ không phải phép màu nhé.",
+    "needKey": "Cần Gemini Key để Zoe tạo lời giải AI mới. Bản này không cần Key.",
+    "continueChat": "Tiếp tục hỏi Zoe trong chat",
+    "ask": "Hỏi Zoe về hôm nay",
+    "placeholder": "Bạn muốn tìm hiểu thêm gì?",
+    "send": "Hỏi Zoe",
+    "sending": "Đang trả lời…",
+    "quota": "Đã hết hạn mức Gemini. Bạn vẫn có thể xem bản giải từ thẻ.",
+    "error": "Không thể tạo lời giải AI. Đây là bản từ thẻ hôm nay.",
+    "key": "Gemini Key không sử dụng được. Hãy kiểm tra cài đặt.",
+    "retry": "Thử lại"
+  }
 }

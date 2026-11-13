@@ -283,5 +283,21 @@
   "flipBack": "See the front",
   "moreDetails": "More reading details",
   "recentDays": "Last 7 days",
-  "notCompleted": "Not completed"
+  "notCompleted": "Not completed",
+  "zoeReading": {
+    "title": "Zoe's take on today",
+    "loading": "Zoe is putting today's reading into words…",
+    "staticNote": "A quick note from Zoe based on your daily card, without AI.",
+    "fallback": "Okay, {{kind}} is giving us a clue for today: {{headline}}. That sounds dramatic, but here's the useful part: {{theme}}\n\nI'd try {{do}} first. And go easy on {{avoid}}—not because the universe is keeping score, but because you can choose your pace. Your lucky color is {{color}}; think of it as a little reminder, not a magic switch.",
+    "needKey": "A Gemini Key is needed for a fresh AI interpretation here. This reading is available without one.",
+    "continueChat": "Keep talking with Zoe in chat",
+    "ask": "Ask Zoe about today's reading",
+    "placeholder": "What would you like to explore?",
+    "send": "Ask Zoe",
+    "sending": "Replying…",
+    "quota": "Gemini's quota is exhausted. The daily-card interpretation is still available.",
+    "error": "Zoe couldn't generate a new interpretation. Here's the card-based version.",
+    "key": "The Gemini Key couldn't be used. You can update it below.",
+    "retry": "Try again"
+  }
 }

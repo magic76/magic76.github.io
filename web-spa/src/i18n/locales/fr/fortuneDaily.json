@@ -283,5 +283,21 @@
   "flipBack": "Voir le recto",
   "moreDetails": "Plus de détails",
   "recentDays": "7 derniers jours",
-  "notCompleted": "Non terminé"
+  "notCompleted": "Non terminé",
+  "zoeReading": {
+    "title": "La lecture du jour par Zoe",
+    "loading": "Zoe prépare votre lecture du jour…",
+    "staticNote": "Une lecture de Zoe basée sur votre carte, sans IA.",
+    "fallback": "Alors, {{kind}} nous souffle ceci aujourd’hui : « {{headline}} ». Ça semble grandiose, mais retenons surtout : {{theme}}\n\nCommencez par {{do}}. Pour {{avoid}}, allez-y doucement. Votre couleur porte-bonheur est {{color}} : un petit rappel, pas une promesse magique.",
+    "needKey": "Une clé Gemini est nécessaire pour une nouvelle lecture IA. Celle-ci est accessible sans clé.",
+    "continueChat": "Continuer avec Zoe dans le chat",
+    "ask": "Poser une question à Zoe",
+    "placeholder": "Que souhaitez-vous approfondir ?",
+    "send": "Demander",
+    "sending": "Réponse en cours…",
+    "quota": "Quota Gemini atteint. La lecture de la carte reste disponible.",
+    "error": "La lecture IA a échoué. Voici la version basée sur la carte.",
+    "key": "La clé Gemini ne fonctionne pas. Vérifiez les paramètres.",
+    "retry": "Réessayer"
+  }
 }

@@ -283,5 +283,21 @@
   "flipBack": "再看正面",
   "moreDetails": "更多命理細節",
   "recentDays": "近七天探索",
-  "notCompleted": "尚未完成"
+  "notCompleted": "尚未完成",
+  "zoeReading": {
+    "title": "Zoe 解讀今天的運勢",
+    "loading": "Zoe 正在幫你整理今天的命理重點…",
+    "staticNote": "先看 Zoe 根據今日小卡整理的解讀，不需要 AI。",
+    "fallback": "嘿，今天的{{kind}}給了你一個線索：「{{headline}}」。聽起來很有命運感對吧？但我比較在意實際一點的部分：{{theme}}\n\n今天不妨先從「{{do}}」開始，至於「{{avoid}}」，就別硬碰硬啦。幸運色是{{color}}，把它當作提醒自己調整步調的小暗號就好。命理是讓你多一個角度思考，不是替你做決定喔。",
+    "needKey": "要讓 Zoe 用 Gemini 即時生成專屬解讀，需要先設定 Gemini Key；現在這段不用 Key 也能看。",
+    "continueChat": "在聊天裡繼續問 Zoe",
+    "ask": "繼續問 Zoe 今天的運勢",
+    "placeholder": "今天有什麼想深入問的？",
+    "send": "送出問題",
+    "sending": "Zoe 回覆中…",
+    "quota": "Gemini 額度已用完，先看看這段今日小卡解讀。",
+    "error": "Zoe 這次沒能生成新解讀，先用小卡版本陪你看。",
+    "key": "Gemini Key 無法使用，請在下方檢查設定。",
+    "retry": "再試一次"
+  }
 }

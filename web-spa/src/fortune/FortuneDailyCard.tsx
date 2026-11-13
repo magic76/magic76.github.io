@@ -7,6 +7,7 @@ import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyCard,dailyProfileHash,localDateKey,type DailyCard,type DailyKind} from "./dailyCard";
 import {DAILY_COPY_REVISION,readCachedDaily,readDailyKindChoice,resolveDailyKind,saveDailyKind,saveCachedDaily,readDailyCompletionStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
 import {generateDailyAi} from "./dailyAi";
+import {FortuneZoeReading} from "./FortuneZoeReading";
 import {shareDailyCard} from "./shareCard";
 import {readDailyProfiles,chooseDailyProfile} from "./dailyProfileSelection";
 import type {FortuneProfile} from "./types";
@@ -164,7 +165,8 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
      </div>
     </div>
    </div>
-   {/^[a-f0-9]{64}$/.test(profileHash)&&<Link className="fortune-daily-zoe" to={"/friend/live?id=zoe&from=home&chat=text&quote=daily&chart="+profileHash}>{t("dailyQuote.chatRead",{ns:"home"})}</Link>}
+   {/^[a-f0-9]{64}$/.test(profileHash)&&<Link className="fortune-daily-zoe" to={"/fortune?daily=1&chart="+profileHash+"&kind="+kind+"&zoe=1"}>{t("dailyQuote.chatRead",{ns:"home"})}</Link>}
+   {/^[a-f0-9]{64}$/.test(profileHash)&&searchParams.get("zoe")==="1"&&<FortuneZoeReading key={date+":"+kind+":"+profileHash+":"+locale} card={full} hash={profileHash} locale={locale} scrollOnOpen/>}
    <div className="fortune-daily-week"><span>{t("recentDays")}</span>
     <div className="fortune-daily-week-dots">{days.map(item=><span key={item.date} title={item.date} className={item.completed?"done":""} aria-label={item.date+" · "+t(item.completed?"completed":"notCompleted")}>{item.completed?"✦":"·"}</span>)}</div>
    </div>

@@ -283,5 +283,21 @@
   "flipBack": "Lihat sisi depan",
   "moreDetails": "Detail bacaan",
   "recentDays": "7 hari terakhir",
-  "notCompleted": "Belum selesai"
+  "notCompleted": "Belum selesai",
+  "zoeReading": {
+    "title": "Tafsiran hari ini oleh Zoe",
+    "loading": "Zoe sedang merangkai tafsiran hari ini…",
+    "staticNote": "Catatan Zoe dari kartu harianmu, tanpa AI.",
+    "fallback": "Nah, {{kind}} memberi petunjuk hari ini: “{{headline}}”. Kedengarannya besar, tetapi intinya: {{theme}}\n\nCoba mulai dari {{do}}. Untuk {{avoid}}, jangan memaksakan diri. Warna keberuntunganmu {{color}}; anggap sebagai pengingat kecil, bukan jaminan.",
+    "needKey": "Perlu Gemini Key untuk tafsiran AI baru dari Zoe. Versi ini bisa dibaca tanpa Key.",
+    "continueChat": "Lanjut ngobrol dengan Zoe",
+    "ask": "Tanya Zoe tentang hari ini",
+    "placeholder": "Apa yang ingin kamu dalami?",
+    "send": "Tanya Zoe",
+    "sending": "Membalas…",
+    "quota": "Kuota Gemini habis. Tafsiran kartu tetap tersedia.",
+    "error": "Tafsiran AI gagal dibuat. Ini versi dari kartu harian.",
+    "key": "Gemini Key tidak dapat digunakan. Periksa pengaturan.",
+    "retry": "Coba lagi"
+  }
 }

@@ -283,5 +283,21 @@
   "flipBack": "Vorderseite ansehen",
   "moreDetails": "Weitere Details",
   "recentDays": "Letzte 7 Tage",
-  "notCompleted": "Nicht abgeschlossen"
+  "notCompleted": "Nicht abgeschlossen",
+  "zoeReading": {
+    "title": "Zoes Deutung für heute",
+    "loading": "Zoe formuliert deine heutige Deutung…",
+    "staticNote": "Zoes kurze Deutung aus der Tageskarte – ohne KI.",
+    "fallback": "Also, {{kind}} gibt heute den Hinweis „{{headline}}“. Klingt groß, aber wichtig ist: {{theme}}\n\nProbier zuerst {{do}}. Bei {{avoid}} lieber einen Gang zurückschalten. Deine Glücksfarbe ist {{color}} – als kleine Erinnerung, nicht als Zaubertrick.",
+    "needKey": "Für eine neue KI-Deutung von Zoe brauchst du einen Gemini Key. Diese Version geht ohne.",
+    "continueChat": "Mit Zoe im Chat weiterreden",
+    "ask": "Zoe zur Tagesdeutung fragen",
+    "placeholder": "Was möchtest du genauer wissen?",
+    "send": "Zoe fragen",
+    "sending": "Antwort wird erstellt…",
+    "quota": "Gemini-Kontingent erreicht. Die Kartendeutung bleibt verfügbar.",
+    "error": "Die KI-Deutung war nicht möglich. Hier ist die Kartenversion.",
+    "key": "Gemini Key funktioniert nicht. Bitte prüfe die Einstellungen.",
+    "retry": "Erneut versuchen"
+  }
 }
