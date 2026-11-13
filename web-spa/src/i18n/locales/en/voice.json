@@ -206,6 +206,14 @@
     "sending": "Sending your message…",
     "challengeTimeout": "Verification timed out. Press Send to try again.",
     "challengeUnavailable": "Security verification could not load or complete. Press Send to try again."
+  },
+  "textChat": {
+    "typing": "{{name}} is typing",
+    "nextHeading": "You could say",
+    "followUps": {
+      "more": "Tell me more.",
+      "why": "Why is that?",
+      "change": "Let’s talk about something else."
+    }
   }
-
 }

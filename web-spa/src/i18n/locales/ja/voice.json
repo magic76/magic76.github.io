@@ -206,6 +206,14 @@
     "sending": "メッセージを送信しています…",
     "challengeTimeout": "認証がタイムアウトしました。もう一度「送信」を押してください。",
     "challengeUnavailable": "セキュリティ認証を読み込むか完了することができませんでした。もう一度「送信」を押してください。"
+  },
+  "textChat": {
+    "typing": "{{name}} が入力中",
+    "nextHeading": "次はこう言ってみよう",
+    "followUps": {
+      "more": "もっと聞かせて。",
+      "why": "どうして？",
+      "change": "別の話をしよう。"
+    }
   }
-
 }

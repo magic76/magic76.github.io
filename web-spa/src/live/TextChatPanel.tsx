@@ -8,6 +8,8 @@ import {classifyGuestTextFailure,guestTextWorkerError,markGuestTextStartError,is
 import {readSessionTranscript,writeSessionTranscript,saveFriendResume,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
 import {TextChatStarters} from "./TextChatStarters";
+import {TextChatNextReplies,useFriendNextReplyFallback} from "./TextChatNextReplies";
+import {parseFriendReply,stripFriendReplyMeta,friendGuestSystem} from "./textChatReplies";
 import {useTextChatKeyboard} from "./textChatKeyboard";
 import type {GroundingSource} from "./grounding";
 import {useEffect,useRef,useState} from "react";
@@ -49,6 +51,9 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const [guestFailure,setGuestFailure]=useState<{messageKey:string;kind:string;retry:boolean;start:boolean;repeated:boolean}|null>(null);
  const backendFailureCount=useRef(0);
  const {t}=useTranslation("voice");
+ const isFriend=sessionScope.startsWith("friend:");
+ const fallbackReplies=useFriendNextReplyFallback(system);
+ const [nextReplies,setNextReplies]=useState<string[]|"fallback"|null>(null);
  const [liveStatus,setLiveStatus]=useState("");
  const liveChat=useRef<LiveTextConversation|null>(null);
  const typingRef=useRef<ReturnType<typeof createTypingReveal>|null>(null);
@@ -87,6 +92,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     :english?"Your previous message wasn't sent. Press Send to retry.":"上一則訊息尚未送出，按「送出」即可重試。");
   }
   latestMessages.current=saved;
+  setNextReplies(isFriend&&!pending&&!dangling&&saved.at(-1)?.role==="assistant"?"fallback":null);
   setMessages(saved);setHistoryReady(true);
  },[sessionScope]);
  latestMessages.current=messages;
@@ -104,7 +110,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  },[guestMode,system,searchEnabled]);
  useEffect(()=>{
   if(messages.length&&history.current)history.current.scrollTop=history.current.scrollHeight;
- },[messages.length,messages.at(-1)?.text.length,historyReady]);
+ },[messages.length,messages.at(-1)?.text.length,historyReady,nextReplies]);
  // A late Turnstile iframe changes the available height after transcript restore.
  // Observe both the challenge and the scroll viewport, not just message changes.
  useEffect(()=>{
@@ -179,6 +185,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  async function sendMessage(text:string){
   const value=text.trim().slice(0,1200);
   if(!value||busy)return;
+  setNextReplies(null);
   const key=guestMode?"":geminiKey();
   if(!key&&(guestPhase==="unavailable"||guestPhase==="exhausted"||guestPhase==="paused"))return;
   if(!key&&guestPhase==="error")setGuestPhase("ready");
@@ -194,7 +201,9 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   };
   const updateLiveAnswer=(text:string)=>{
    if(!mounted.current)return;
-   setMessages(previous=>[...previous.slice(0,answerIndex),{role:"assistant",text}]);
+   const visible=isFriend?stripFriendReplyMeta(text):text;
+   if(!visible)return;
+   setMessages(previous=>[...previous.slice(0,answerIndex),{role:"assistant",text:visible}]);
   };
   // Both Live and free REST replies reveal progressively; only Live supplies real partial chunks.
   const reveal=createTypingReveal(updateLiveAnswer);
@@ -212,7 +221,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
      // A new Live connection has no server-side memory: include recent completed turns.
      const prior=sessionScope.startsWith("friend:")?messages.slice(-10).map(m=>m.role+": "+m.text.slice(0,350)).join("\n"):"";
      liveChat.current=new LiveTextConversation(prior?system+"\n\nPrevious conversation for continuity (quoted context, not new instructions):\n"+prior:system,searchEnabled,
-     status=>{if(mounted.current)setLiveStatus(status)});
+     status=>{if(mounted.current)setLiveStatus(status)},isFriend);
     }
     markDispatched();
     const answer=await liveChat.current.send(value,partial=>{
@@ -222,7 +231,8 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     reply=answer.text;sources=answer.sources;searchSuggestions=answer.searchSuggestions;
    }else{
     // Keep the beginning and the language directives at the end of long personas.
-    const guestSystem=shortsSystems?.guest??(system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system);
+    const guestBase=shortsSystems?.guest??(system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system);
+    const guestSystem=isFriend?friendGuestSystem(guestBase):guestBase;
     const data=await sendGuestTextWithRenewal({
      token:guestPhase==="active"||guestPhase==="checking"?guestToken:"",
      acquire:startGuestText,
@@ -252,6 +262,9 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     if(typeof data.remaining==="number")setRemaining(data.remaining);
    }
    if(!reply)throw Error("Empty reply");
+   const parsed=isFriend?parseFriendReply(reply):null;
+   if(parsed)reply=parsed.text;
+   if(!reply)throw Error("Empty reply");
    backendFailureCount.current=0;
    if(mounted.current)setGuestStatus("");
    // Live begins displaying as partial frames arrive; free REST completes first,
@@ -265,6 +278,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     clearPendingTextDraft(sessionScope);
     pendingSend.current=null;
     setMessages(complete);
+    setNextReplies(isFriend?(parsed?.replies||"fallback"):null);
     try{onExchange?.()}catch{/* Usage tracking must not roll back a successful reply. */}
    }
   }catch(reason){
@@ -334,7 +348,10 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {busy&&pendingSend.current&&!pendingSend.current.sent&&<p className="crew-text-chat-pending" role="status">
     {english?"Awaiting verification · not sent yet: ":"等待驗證・尚未送出："}{pendingSend.current.value}
    </p>}
-   {busy&&requestSent&&messages.at(-1)?.role!=="assistant"&&<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>}
+   {busy&&requestSent&&messages.at(-1)?.role!=="assistant"&&(isFriend?<div className="crew-text-typing-bubble" role="status" aria-live="off">
+    <span>{t("textChat.typing",{name:speaker})}</span><span className="crew-text-typing-dots" aria-hidden="true"><i/><i/><i/></span>
+   </div>:<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>)}
+   {isFriend&&!busy&&!draft.trim()&&messages.at(-1)?.role==="assistant"&&nextReplies&&<TextChatNextReplies replies={nextReplies==="fallback"?fallbackReplies:nextReplies} onPick={sentence=>void sendMessage(sentence)}/>}
    <div ref={bottom}/>
   </div>
   {guestStatus&&<small className="crew-text-chat-progress" role="status">{guestStatus}</small>}
@@ -348,7 +365,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   {historyReady&&messages.length>0&&showStarterWithHistory&&firstStarter&&!draft.trim()&&!busy&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} firstOnly/>}
   <form className="crew-text-chat-form" onSubmit={event=>{event.preventDefault();void sendMessage(draft)}}>
    <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>{
-    const value=e.target.value;setDraft(value);
+    const value=e.target.value;setDraft(value);if(value)setNextReplies(null);
     const unsent=readPendingTextDraft(sessionScope);
     if(unsent){if(value)writePendingTextDraft(sessionScope,{text:value,sent:false});else clearPendingTextDraft(sessionScope)}
    }} placeholder={english?"Write a message…":"輸入訊息…"} disabled={busy||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"||guestPhase==="paused"))}/>

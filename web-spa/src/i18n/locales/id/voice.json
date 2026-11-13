@@ -206,6 +206,14 @@
     "sending": "Mengirim pesan…",
     "challengeTimeout": "Waktu verifikasi habis. Tekan Kirim lagi.",
     "challengeUnavailable": "Verifikasi keamanan gagal dimuat atau diselesaikan. Tekan Kirim lagi."
+  },
+  "textChat": {
+    "typing": "{{name}} sedang mengetik",
+    "nextHeading": "Kamu bisa bilang",
+    "followUps": {
+      "more": "Ceritakan lebih banyak.",
+      "why": "Kenapa begitu?",
+      "change": "Ayo bahas hal lain."
+    }
   }
-
 }

@@ -206,6 +206,14 @@
     "sending": "메시지를 보내고 있어요…",
     "challengeTimeout": "인증 시간이 초과됐어요. 보내기를 다시 눌러 주세요.",
     "challengeUnavailable": "보안 인증을 불러오거나 완료하지 못했어요. 보내기를 다시 눌러 주세요."
+  },
+  "textChat": {
+    "typing": "{{name}}님이 입력 중",
+    "nextHeading": "다음에 이렇게 말해 보세요",
+    "followUps": {
+      "more": "더 얘기해 줘.",
+      "why": "왜 그래?",
+      "change": "다른 얘기 하자."
+    }
   }
-
 }
