@@ -7,10 +7,19 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="和 Zoe 聊天，種出只有你們才有的奇怪樹。每個話題，都會讓樹長得不一樣。">
 <title>和 Zoe 種歪樹 · Crew Tree Lab</title>
-<link rel="stylesheet" href="./tree.css?v=5-20261112">
+<link rel="stylesheet" href="./tree.css?v=game-1-20261113">
 <script src="./botany.js?v=4-20261112" defer></script>
 <script src="./family-art.js?v=5-20261112" defer></script>
-<script src="./tree.js?v=5-20261112" defer></script>
+<script src="./art-studies/character-paint.js?v=9-game-20261113" defer></script>
+<script src="./art-studies/v3-art.js?v=9-game-20261113" defer></script>
+<script src="./art-studies/v4-art.js?v=9-game-20261113" defer></script>
+<script src="./art-studies/v5-art.js?v=9-game-20261113" defer></script>
+<script src="./art-studies/v6-art.js?v=9-game-20261113" defer></script>
+<script src="./art-studies/v7-art.js?v=9-game-20261113" defer></script>
+<script src="./art-studies/v8-art.js?v=9-game-20261113" defer></script>
+<script src="./art-studies/v9-art.js?v=9-game-20261113" defer></script>
+<script src="./art-studies/study.js?v=9-game-20261113" defer></script>
+<script src="./tree.js?v=game-1-20261113" defer></script>
 </head>
 <body>
 <main class="page">
@@ -25,9 +34,36 @@
   <div class="play-grid">
     <section class="tree-panel" aria-label="聊天種樹畫布">
       <div class="tree-top"><div><span class="overline">OUR LITTLE TREE</span><h2 id="treeName">小小的歪樹苗</h2></div><span class="stage-pill" id="stageBadge">剛發芽 · 0 句</span></div>
+      <div class="world-picker" role="group" aria-label="選擇樹種與主題世界">
+        <label for="kindSelect">樹種
+          <select id="kindSelect" aria-label="選擇樹種">
+            <option value="island">🏝️ 漂流浮島樹 · V9</option>
+            <option value="jelly">🪼 水母燈籠樹 · V9</option>
+            <option value="round">🌳 V5 圓冠魔法樹</option>
+            <option value="tall">🌲 V5 高聳魔法樹</option>
+            <option value="weeping">🌿 V5 垂柳魔法樹</option>
+            <option value="twin">🌱 V5 雙生魔法樹</option>
+          </select>
+        </label>
+        <label for="worldSelect">主題世界
+          <select id="worldSelect" aria-label="選擇主題世界">
+            <option value="auto">✨ 依聊天自動變化</option>
+            <option value="cosmos">🌌 宇宙</option><option value="warmth">💛 溫暖</option>
+            <option value="music">🎼 音樂</option><option value="travel">🧳 旅行</option>
+          </select>
+        </label>
+        <div class="world-meta"><span id="worldName">世界：宇宙</span>
+          <button type="button" id="soundBtn" aria-pressed="true">🔊 音效開</button>
+        </div>
+      </div>
       <div class="canvas-wrap" id="canvasWrap">
-        <canvas id="treeCanvas" role="img" aria-label="會依據聊天內容長出不同枝幹、樹冠、葉片和果實的樹"></canvas><span class="tree-art-version">🌿 四大樹種 · Art V5</span>
+        <canvas id="treeCanvas" role="img" aria-label="會依據聊天內容長出不同枝幹、樹冠、葉片和果實的樹"></canvas><span class="tree-art-version" id="treeArtVersion">✨ Art V9 · 活的幻想樹</span>
         <span class="floating-note" id="growthToast" aria-live="polite"></span>
+        <div class="surprise-moment" id="surpriseMoment" role="status" aria-live="polite" hidden>
+          <span class="surprise-icon" id="surpriseIcon" aria-hidden="true">🌱</span>
+          <strong id="surpriseTitle">驚喜正在發生</strong>
+          <span id="surpriseDetail">世界有了新居民</span>
+        </div>
         <span class="ground-label" id="treeSubtitle">你和 Zoe 的故事，才剛要開始。</span>
       </div>
       <div class="trait-row" id="traitRow"><span>🌿 待生長</span><span>🎨 隨聊天變化</span><span>✨ 可能突變</span></div>
@@ -36,6 +72,7 @@
         <button id="shareBtn" class="action-btn" type="button">↗ 保存圖片</button>
         <button id="newBtn" class="action-btn" type="button">↻ 新種一棵</button>
       </div>
+      <div class="next-surprise" id="nextSurprise" aria-live="polite">再聊 3 句，解鎖下一個驚喜</div>
       <div class="micro-help" id="growthHint">試著聊「咖啡、宇宙、旅行、貓咪」，看看會發生什麼。</div>
     </section>
     <section class="chat-panel" aria-label="和 Zoe 一起聊天">
