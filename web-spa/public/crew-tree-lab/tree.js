@@ -416,6 +416,9 @@ function postMessage(raw){
  const text=String(raw||'').trim();
  if(!text)return false;
  if(text.length>240)return false;
+ if(useV6&&current.growth.length>=16){
+  reveal=null;current=makeTree();geom=buildGeometry(current);clearSurprise();
+ }
  const turn=current.growth.length+1;
  const previousTurns=current.growth.length;
  const previouslyVisible=previousTurns*3;
@@ -426,7 +429,19 @@ function postMessage(raw){
  appendMessage('zoe',reply);
  sessionMessages++;
  updateTreeUI();
- const surprise=(milestone[current.visualKind]||milestone.botanical)[current.growth.length]||null;
+ const age=current.growth.length;
+ const surprise=useV6?({
+  3:{emoji:'🌱',title:'種子破殼了！',detail:'嫩芽長成小樹，留下第一抹話題顏色。'},
+  8:{emoji:'🏝️',title:'整棵樹浮起來了！',detail:'一座小島托著樹升上發光的夜空。'}
+ })[age]||null:(milestone[current.visualKind]||milestone.botanical)[age]||null;
+ if(useV6&&age===16){
+  const result=finishGardenTree();
+  $('watchGrowthBtn').hidden=false;
+  $('watchGrowthBtn').textContent='✨ '+result.event.title+' · 看揭曉';
+  return {topic:signal.topic,mutation,turn,count:16,reply,surprise:result.event.title,
+   form:result.done.form.id,rarity:result.done.rarity.key,forestEvent:result.done.forestEvent};
+ }
+ if(useV6){writeGarden();syncGardenUI();}
  $('watchGrowthBtn').hidden=false;
  $('watchGrowthBtn').textContent=surprise?surprise.emoji+' '+surprise.title+' · 看驚喜':
   '🌱 第 '+current.growth.length+' 句，樹又長大了 · 看一眼';
@@ -447,7 +462,7 @@ function saveTree(silent=false){
 }
 function createNewTree(){
  if(current.growth.length>0)saveTree(true);
- current=makeTree();geom=buildGeometry(current);growthMotion=null;clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
+ current=makeTree();geom=buildGeometry(current);growthMotion=null;reveal=null;clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','新的一顆樹苗來啦！這次要把它聊成什麼怪樣子？🌱');
  updateTreeUI();popToast('新的小樹苗準備好了！');
 }
@@ -460,7 +475,7 @@ function openSaved(seed){
  if(!selected)return false;
  if(current.growth.length>0&&current.seed!==selected.seed)saveTree(true);
  current=validateTree(JSON.parse(JSON.stringify(selected)));
- geom=buildGeometry(current);growthMotion=null;clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
+ geom=buildGeometry(current);growthMotion=null;reveal=null;clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','啊，這是我們之前的「'+current.name+'」！繼續聊天，它還能長出新東西喔。');
  updateTreeUI();popToast('🌿 找到這棵歪樹了！');
  window.scrollTo?.({top:0,behavior:'smooth'});
@@ -539,6 +554,12 @@ function drawTree(c,tree,geometry,ox,oy,factor,clock){
  });
 }
 function scene(c,width,height,tree,geometry,clock,card=false){
+ if(useV6&&c===ctx&&!card){
+  GLOW.paint(canvas,garden,tree,clock,{width,height,dpr,still:reduceMotion,
+   motion:growthMotion,reveal:reveal&&Date.now()<reveal.until?reveal:null});
+  if(growthMotion&&Date.now()-growthMotion.start>=1250)growthMotion=null;
+  return;
+ }
  if(isFantasy(tree)&&window.CrewFantasyGameArt&&c.canvas){
   const count=tree.growth.length,stage=stageForTurns(count);
   const active=tree===current&&c===ctx&&growthMotion&&!reduceMotion&&!card;
@@ -575,6 +596,7 @@ function render(now=0){
  if(lastFrame&&now-lastFrame<30){window.requestAnimationFrame?.(render);return;}
  lastFrame=now;renderTime=now;
  if(!ctx||!current||!geom)return;
+ if(useV6&&reveal&&Date.now()>=reveal.until){reveal=null;syncGardenUI();}
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
  scene(ctx,w,h,current,geom,now);
  ctx.save();ctx.translate(w*.5,h*.83);ctx.scale(Math.min(w/435,h/470),Math.min(w/435,h/470));
