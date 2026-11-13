@@ -76,7 +76,7 @@
     "explore": "ほかの楽しみ方を見る",
     "tap": "タップして開く"
   },
-  "layout2": {"title": "{{name}} に最初のひと言を。","action": "{{name}} に話しかける","description": "話題を考えなくても大丈夫。まずは挨拶から。","voice": "音声チャットに切り替える","more": "ほかのことも試す？","resumeTitle": "{{name}} との会話を再開",
+  "layout2": {"title": "{{name}}と楽しく語学","action": "{{name}} に話しかける","description": "話題を考えなくても大丈夫。まずは挨拶から。","voice": "音声チャットに切り替える","more": "ほかのことも試す？","resumeTitle": "{{name}} との会話を再開",
     "previewLabel": "前回の会話：","resumeAction": "テキスト会話を続ける","chatTitle": "まずは挨拶から","chatDescription": "AI の友達に話しかけて、会話を楽しもう。","previewHidden": "前のメッセージは非表示です","showPreview": "前のメッセージを表示","hidePreview": "前のメッセージを隠す"},
   "world": {
     "freeAllowance": {"full": "登録不要・文字は毎日{{count}}通、音声{{minutes}}分。明日また無料で", "textOnly": "登録不要・文字は毎日{{count}}通。明日また無料で", "voiceUsed": "今日の音声分は終了・文字は毎日{{count}}通。明日また"},
@@ -571,6 +571,8 @@
     "soulsDescription": "身近な物をおしゃべりさせよう。",
     "learnDescription": "外国語のひと言に挑戦しよう。"
   },
+  "mobileHero": {"title": "AI 友達と語学を楽しむ", "subtitle": "まずはあいさつから。"},
+  "quickEntry": {"heading": "Crewを探索", "fortune": "今日の運勢", "shorts": "Shortsを見る"},
   "liveBubble": {
     "invite": "ねえ、少しおしゃべりしない？",
     "start": "音声会話",
