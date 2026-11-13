@@ -22,7 +22,7 @@ import {getDailyTopic} from "../pages/dailyTopics";
 import {getDailyQuote} from "../pages/dailyQuotes";
 import {loadQuoteText} from "../pages/quoteCatalog";
 import {nextFriendLifeOpening} from "../characters/lifeBook";
-import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageMode} from "./friendLanguage";
+import {friendLanguageReminder,friendLanguageTransition,friendBeginnerTextStart,type FriendChatLanguageMode} from "./friendLanguage";
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
@@ -120,6 +120,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const [lifeOpening]=useState(()=>!shortsPost&&!intent?nextFriendLifeOpening(friend.id):"");
  const system=useMemo(()=>buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost),[friend,language,friendNativeLanguage,friendChatMode,region,accentStrength,customAccent,shortsPost]);
  const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
+ const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
   system:system+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":""),languageDirective,
@@ -247,7 +248,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
-    {textMode?(dailyLookupPending?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:dailyFortune?":daily:"+dailyFortune.hash:"")} searchEnabled={!shortsPost} system={system+(dailyFortune?"\n"+dailyFortune.context:"")+"\n"+languageDirective} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
+    {textMode?(dailyLookupPending?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:dailyFortune?":daily:"+dailyFortune.hash:"")} searchEnabled={!shortsPost} system={system+(dailyFortune?"\n"+dailyFortune.context:"")+"\n"+languageDirective+(beginnerTextStart?"\n"+beginnerTextStart:"")} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
      firstStarter={shortsStarter||dailyFortuneStarter||dailyQuoteStarter||dailyTopicStarter}
      starters={dailyEntry?[t("dailyFortuneStarters.goodFor"),t("dailyFortuneStarters.watchOut")]:undefined}
      showStarterWithHistory={Boolean(dailyFortuneStarter||dailyQuoteStarter)}

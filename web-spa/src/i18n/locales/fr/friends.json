@@ -109,6 +109,12 @@
   },
   "kicker": "Amis Crew",
   "textStarters": {
+    "targetHint": "Tu peux commencer en français avec {{name}} ou choisir une phrase courte en {{language}}. {{name}} t’aidera à pratiquer.",
+    "meaning": {
+      "cafe": "Salut {{name}} ! Un café, s’il te plaît.",
+      "intro": "Salut {{name}} ! J’aimerais me présenter.",
+      "smalltalk": "Salut {{name}} ! Comment vas-tu aujourd’hui ?"
+    },
     "heading": "Touchez une phrase pour démarrer la discussion",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",

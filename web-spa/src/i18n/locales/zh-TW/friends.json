@@ -109,6 +109,12 @@
   },
   "kicker": "Crew 朋友",
   "textStarters": {
+    "targetHint": "可以先用中文跟 {{name}} 聊，或點下面的{{language}}短句；{{name}} 會陪你慢慢練。",
+    "meaning": {
+      "cafe": "嗨 {{name}}！請給我一杯咖啡。",
+      "intro": "嗨 {{name}}！我想自我介紹。",
+      "smalltalk": "嗨 {{name}}！你今天好嗎？"
+    },
     "heading": "點一句直接開聊",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",

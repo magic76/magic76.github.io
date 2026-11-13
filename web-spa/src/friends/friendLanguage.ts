@@ -74,3 +74,15 @@ export function friendLanguageRule(language:string,nativeLanguage="en",mode:Frie
   "On reconnect preserve the current conversational language and relationship.\n"+
   friendAdaptiveTargetChatRule(target)+"\n";
 }
+
+/** Text-only, opt-in beginner bridge; never attached to spoken Live directives. */
+export function friendBeginnerTextStart(language:string,glossLanguage:string,mode:FriendChatLanguageMode){
+ const target=friendSpokenLanguage(language),gloss=nativeName(glossLanguage.replace(/^pt-BR$/i,"pt"));
+ const sameLanguage=target===gloss||(target==="Mandarin Chinese"&&glossLanguage.toLowerCase().startsWith("zh"));
+ if(mode!=="bilingual"||target==="English"||sameLanguage)return "";
+ return "[TEXT CHAT BEGINNER EXCEPTION] For your first 2 text replies, use beginner "+target+
+  ": 1-2 short sentences, common words and one easy question. After each reply, on a NEW line add ONE brief "+gloss+
+  " meaning in parentheses. This is the ONLY exception to 'one language per reply / never translate automatically'; only this parenthesized meaning may be in "+gloss+
+  ". Omit the gloss if the user is fluent in "+target+
+  " or declines translation. Then resume normal rules.";
+}

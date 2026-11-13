@@ -109,6 +109,12 @@
   },
   "kicker": "Bạn Crew",
   "textStarters": {
+    "targetHint": "Bạn có thể bắt đầu bằng tiếng Việt với {{name}} hoặc chọn một câu {{language}} ngắn bên dưới. {{name}} sẽ cùng bạn luyện tập đơn giản.",
+    "meaning": {
+      "cafe": "Chào {{name}}! Cho mình một ly cà phê nhé.",
+      "intro": "Chào {{name}}! Mình muốn giới thiệu bản thân.",
+      "smalltalk": "Chào {{name}}! Hôm nay bạn khỏe không?"
+    },
     "heading": "Chạm vào một câu để bắt đầu trò chuyện ngay",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",

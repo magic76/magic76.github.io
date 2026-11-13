@@ -109,6 +109,12 @@
   },
   "kicker": "เพื่อน Crew",
   "textStarters": {
+    "targetHint": "เริ่มคุยภาษาไทยกับ {{name}} ได้เลย หรือเลือกประโยคสั้น ๆ ในภาษา{{language}} ด้านล่าง {{name}} จะช่วยฝึกแบบง่าย ๆ",
+    "meaning": {
+      "cafe": "สวัสดี {{name}}! ขอกาแฟหนึ่งแก้วนะ",
+      "intro": "สวัสดี {{name}}! ฉันอยากแนะนำตัวเอง",
+      "smalltalk": "สวัสดี {{name}}! วันนี้สบายดีไหม?"
+    },
     "heading": "แตะประโยคเพื่อเริ่มแชตทันที",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",

@@ -109,6 +109,12 @@
   },
   "kicker": "Crew Friends",
   "textStarters": {
+    "targetHint": "You can start in English with {{name}}, or tap a simple {{language}} phrase below. {{name}} will keep it easy.",
+    "meaning": {
+      "cafe": "Hi {{name}}! A coffee, please.",
+      "intro": "Hi {{name}}! I want to introduce myself.",
+      "smalltalk": "Hi {{name}}! How are you today?"
+    },
     "heading": "Tap a phrase to start chatting",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",
