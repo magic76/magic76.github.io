@@ -12,14 +12,16 @@ const FILES=['floating-island.svg','island-crown.svg','jelly-canopy.svg','lanter
  'crown-spiral.svg','crown-willow.svg','crown-lantern.svg','crown-moon.svg','jelly-inner-membrane.svg','spiral-leaf-tiers.svg'],images=new Map();
 const state={scene:'island',stage:16,topic:'cosmos',seed:103,turns:16,growth:null,reaction:null,paused:false,silhouette:false,reduced:!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches};
 let last=0,visible=true;
+function isGameHost(){return !!document.getElementById('treeCanvas')&&!document.getElementById('heroCanvas');}
 function load(){
  const ImageCtor=window.Image;
  if(!ImageCtor)return;
  for(const name of FILES){
   const im=new ImageCtor();images.set(name,im);
-  im.onload=()=>{refreshStatic();if(state.reduced||state.paused)drawMain(0);updateStatus();};
-  im.onerror=()=>{updateStatus();};
-  im.src='./assets/'+name;
+  im.onload=()=>{if(isGameHost()){window.dispatchEvent?.(new Event('crew-tree-fantasy-ready'));return;}
+   refreshStatic();if(state.reduced||state.paused)drawMain(0);updateStatus();};
+  im.onerror=()=>{if(!isGameHost())updateStatus();};
+  im.src=isGameHost()?'/crew-tree-lab/art-studies/assets/'+name:'./assets/'+name;
  }
 }
 function ready(name){const img=images.get(name);return !!(img?.complete&&img.naturalWidth>0);}
@@ -255,13 +257,14 @@ function jellyScene(c,m,time,staticMode){
  c.restore();
 }
 
-function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=false,transition=null,reaction=null){
- const bounds=canvas.getBoundingClientRect(),width=Math.max(180,bounds.width||400),height=Math.max(180,bounds.height||420);
- const px=Math.min(2,window.devicePixelRatio||1);
+function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=false,transition=null,reaction=null,game=null){
+ const bounds=canvas.getBoundingClientRect(),width=game?.width||Math.max(180,bounds.width||400),
+  height=game?.height||Math.max(180,bounds.height||420);
+ const px=game?.px||Math.min(2,window.devicePixelRatio||1);
  const cw=Math.round(width*px),ch=Math.round(height*px);
  if(canvas.width!==cw||canvas.height!==ch){canvas.width=cw;canvas.height=ch;}
  const c=canvas.getContext('2d');if(!c)return null;
- c.setTransform(px,0,0,px,0,0);c.clearRect(0,0,width,height);
+ c.save();c.setTransform(px,0,0,px,0,0);c.clearRect(0,0,width,height);
  const scale=Math.min(width/W,height/H),ox=(width-W*scale)/2,oy=(height-H*scale)/2;
  c.fillStyle=scene==='island'?'#e0e9dc':'#c7dcda';c.fillRect(0,0,width,height);
  c.translate(ox,oy);c.scale(scale,scale);
@@ -282,6 +285,18 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
  if(silhouette){c.save();c.filter='brightness(0)';}
  const sceneLayer=(m,opacity=1,grow=null)=>{
   c.save();c.globalAlpha*=opacity;
+  if(game&&Number.isFinite(game.turns)){
+   // No abrupt static plate: every user sentence expands the organism.
+   const factor=(life,n)=>life<=3?.79+.16*clamp(n/2,0,1):
+    life<=8?.80+.20*clamp((n-3)/4,0,1):
+    .76+.24*clamp((n-8)/8,0,1)+.024*clamp((n-16)/16,0,1);
+   const now=game.turns,prior=Number.isFinite(game.fromTurns)?game.fromTurns:now;
+   const isOld=!!(transition&&m.stage!==stage);
+   const a=factor(m.stage,isOld?prior:prior),b=factor(m.stage,isOld?prior:now);
+   const progress=transition?window.CrewFantasyV5.ease(transition.progress):1;
+   const k=isOld?a:a+(b-a)*progress;
+   c.translate(400,532);c.scale(k,k);c.translate(-400,-532);
+  }
   if(reaction&&reaction.scene===scene)m.reactionProgress=reaction.progress;
   if(grow&&scene==='jelly')window.CrewFantasyV5.jellyGrowth(c,grow.from,stage,grow.progress);
   if(scene==='island')floatScene(c,m,time,staticMode);
@@ -313,6 +328,7 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
    window.CrewFantasyV5.reactionOverlay(c,scene,reaction.progress,seed,model);
   window.CrewFantasyPaint.frame(c,scene,seed);
  }
+ c.restore();
  return model;
 }
 function drawMain(now){
@@ -415,6 +431,11 @@ function frame(now){
  if(now-last>33&&visible&&!state.paused){drawMain(now);last=now;}
  requestAnimationFrame(frame);
 }
+// Reuse the SAME V9 painter in the real chat game, without mounting the art
+// study's buttons and status DOM. No duplicate renderer or captured chat text.
+window.CrewFantasyGameArt=Object.freeze({paint,sceneModel,
+ assetsReady:()=>FILES.every(ready),assetStatus:()=>({loaded:FILES.filter(ready),missing:FILES.filter(x=>!ready(x))})});
+if(isGameHost()){load();return;}
 if(new URLSearchParams(location.search).get('qa')==='1'){
  window.__CREW_STUDIES_QA__={sceneModel,assetStatus:()=>({loaded:FILES.filter(ready),missing:FILES.filter(x=>!ready(x))}),
   state:()=>({...state}),paint:(scene,stage,seed,topic)=>paint($('heroCanvas'),scene,stage,seed,topic,0,true),
