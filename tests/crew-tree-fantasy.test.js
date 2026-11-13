@@ -10,6 +10,7 @@ const v5=fs.readFileSync(path.join(ROOT,'v5-art.js'),'utf8');
 const v6=fs.readFileSync(path.join(ROOT,'v6-art.js'),'utf8');
 const v7=fs.readFileSync(path.join(ROOT,'v7-art.js'),'utf8');
 const v8=fs.readFileSync(path.join(ROOT,'v8-art.js'),'utf8');
+const v9=fs.readFileSync(path.join(ROOT,'v9-art.js'),'utf8');
 const stylesheet=fs.readFileSync(path.join(ROOT,'study.css'),'utf8');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 function boot(){
@@ -32,19 +33,20 @@ function boot(){
  const win={matchMedia:()=>({matches:true,addEventListener(){}}),Image:MockImage,addEventListener(){}};
  const scope={window:win,document:doc,location:{search:'?qa=1'},Math,URLSearchParams,Number,Map,
   requestAnimationFrame(){throw Error('Reduced-motion page should be still');}};
- vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(v5,scope,{timeout:10000});vm.runInContext(v6,scope,{timeout:10000});vm.runInContext(v7,scope,{timeout:10000});vm.runInContext(v8,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
+ vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(v5,scope,{timeout:10000});vm.runInContext(v6,scope,{timeout:10000});vm.runInContext(v7,scope,{timeout:10000});vm.runInContext(v8,scope,{timeout:10000});vm.runInContext(v9,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
  return {qa:win.__CREW_STUDIES_QA__,draw};
 }
 test('isolated art studies never touch current V5 storage or chat',()=>{
  assert.match(html,/data-scene="island"/);assert.match(html,/data-scene="jelly"/);
  assert.match(html,/data-stage="16"/);assert.match(html,/V5 收藏/);
- assert.match(html,/character-paint\.js\?v=8-20261113/);
- assert.match(html,/v3-art\.js\?v=8-20261113/);
- assert.match(html,/v4-art\.js\?v=8-20261113/);
- assert.match(html,/v5-art\.js\?v=8-20261113/);
- assert.match(html,/v6-art\.js\?v=8-20261113/);
- assert.match(html,/v7-art\.js\?v=8-20261113/);
- assert.match(html,/v8-art\.js\?v=8-20261113/);
+ assert.match(html,/character-paint\.js\?v=9-20261113/);
+ assert.match(html,/v3-art\.js\?v=9-20261113/);
+ assert.match(html,/v4-art\.js\?v=9-20261113/);
+ assert.match(html,/v5-art\.js\?v=9-20261113/);
+ assert.match(html,/v6-art\.js\?v=9-20261113/);
+ assert.match(html,/v7-art\.js\?v=9-20261113/);
+ assert.match(html,/v8-art\.js\?v=9-20261113/);
+ assert.match(html,/v9-art\.js\?v=9-20261113/);
  assert.match(html,/simulateChatBtn/);
  assert.match(html,/tabindex="0"/);
  assert.match(html,/silhouetteBtn/);
@@ -318,4 +320,48 @@ test('V8 tree residents and hut windows have breathing warm lights and animation
   assert.equal(qa.growthFrame('island',3,stage,.5).stage,stage);
  }
  assert.equal(qa.touchFrame('island',.4).stage,16);
+});
+
+test('Art V9 paints distinct deep topic nights before paper and living tree',()=>{
+ assert.match(v9,/function nightSky\(/);
+ assert.match(v9,/function distantLayer\(/);
+ assert.match(v9,/function foregroundContrast\(/);
+ for(const t of ['cosmos','warmth','music','travel'])
+  assert.match(v9,new RegExp(t+':\\{top'));
+ const nightAt=source.indexOf('window.CrewFantasyV9.nightSky');
+ const backgroundAt=source.indexOf('window.CrewFantasyPaint.forest');
+ const paperAt=source.indexOf('window.CrewFantasyV7.picturebookFinish');
+ const stageAt=source.indexOf('const sceneLayer=');
+ assert.ok(nightAt>0&&nightAt<backgroundAt&&backgroundAt<paperAt&&paperAt<stageAt);
+ assert.match(source,/CrewFantasyV9\.distantLayer/);
+ assert.match(source,/CrewFantasyV9\.foregroundContrast/);
+ const {qa}=boot();
+ for(const scene of ['island','jelly'])for(const stage of [3,8,16]){
+  assert.equal(qa.paint(scene,stage,103,'cosmos').stage,stage);
+  assert.equal(qa.growthFrame(scene,stage===3?3:stage===8?3:8,stage,.5).stage,stage);
+ }
+});
+test('Art V9 residents have brighter lights and cheerful expressions',()=>{
+ assert.match(v9,/function residentWarmth\(/);
+ assert.match(v9,/function smilingResident\(/);
+ assert.match(v9,/function cottageBloom\(/);
+ assert.match(painter,/CrewFantasyV9\.residentWarmth/);
+ assert.match(painter,/CrewFantasyV9\.cottageBloom/);
+ assert.match(v3,/CrewFantasyV9\.smilingResident/);
+ const {qa}=boot();
+ assert.equal(qa.paint('island',16,241,'warmth').stage,16);
+ assert.equal(qa.touchFrame('island',.45).stage,16);
+});
+test('Art V9 bell looks like a bioluminescent lantern under every topic',()=>{
+ assert.match(v9,/function bellGlow\(/);
+ assert.match(v9,/function rimLights\(/);
+ assert.match(v9,/globalCompositeOperation='screen'/);
+ assert.match(v9,/createRadialGradient/);
+ assert.match(source,/CrewFantasyV9\.bellGlow/);
+ assert.match(source,/CrewFantasyV9\.rimLights/);
+ for(const t of ['cosmos','warmth','music','travel']){
+  const {qa}=boot();assert.equal(qa.paint('jelly',16,103,t).stage,16);
+  assert.equal(qa.growthFrame('jelly',8,16,.5,t).stage,16);
+  assert.equal(qa.touchFrame('jelly',.45,t).stage,16);
+ }
 });
