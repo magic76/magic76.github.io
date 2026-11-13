@@ -76,7 +76,7 @@
     "explore": "Descubre más opciones",
     "tap": "Toca para abrir"
   },
-  "layout2": {"title": "Aprende idiomas con {{name}}","action": "Saluda a {{name}}","description": "No necesitas un tema. Empieza con un hola.","voice": "Usar chat de voz","more": "¿Quieres probar otra cosa?","resumeTitle": "Seguir hablando con {{name}}",
+  "layout2": {"title": "Saluda a {{name}}.","action": "Saluda a {{name}}","description": "No necesitas un tema. Empieza con un hola.","voice": "Usar chat de voz","more": "¿Quieres probar otra cosa?","resumeTitle": "Seguir hablando con {{name}}",
     "previewLabel": "Último chat:","resumeAction": "Continuar chat de texto","chatTitle": "Empieza con un hola","chatDescription": "Habla con un amigo de IA y descubre adónde llegan.","previewHidden": "Último mensaje oculto","showPreview": "Mostrar último mensaje","hidePreview": "Ocultar último mensaje"},
   "world": {
     "freeAllowance": {"full": "Sin registro · {{count}} mensajes y {{minutes}} min de voz al día. Más mañana", "textOnly": "Sin registro · {{count}} mensajes gratis al día. Más mañana", "voiceUsed": "Voz agotada hoy · {{count}} mensajes al día. Vuelve mañana"},
@@ -571,8 +571,6 @@
     "soulsDescription": "Haz que un objeto cotidiano hable.",
     "learnDescription": "Aprende una frase en otro idioma."
   },
-  "mobileHero": {"title": "Idiomas con IA", "subtitle": "Empieza con un hola."},
-  "quickEntry": {"heading": "Explora Crew", "fortune": "Suerte de hoy", "shorts": "Ver Shorts"},
   "liveBubble": {
     "invite": "¡Hola! ¿Charlamos un rato?",
     "start": "Voz",

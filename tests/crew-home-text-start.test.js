@@ -15,9 +15,11 @@ test("chat destinations use text mode but retain exhausted quota redirect",()=>{
  assert.match(portal,/!exhausted\?<img className="crew-portal-cta-avatar"/);
  assert.match(portal,/ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0/);
  assert.match(portal,/trackUsageEvent\("home_entry_click",exhausted\?"settings":"friend"\)/);
- assert.match(bubble,/const target=storedChart\?fortuneHref:"\/teacher\/shorts"/);
- assert.match(bubble,/trackUsageEvent\("home_entry_click",storedChart\?"fortune":"shorts"\)/);
- assert.doesNotMatch(bubble,/needsSetup|geminiKey|useGuestTrialQuota|entry=bubble/);
+ assert.match(bubble,/const ZOE_LIVE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
+ assert.match(bubble,/<Icon name=\{needsSetup\?"settings":"mic"\}\/>/);
+ assert.match(bubble,/trial\.remaining===0/);
+ assert.match(bubble,/const target=needsSetup\?"\/account#settings-gemini":ZOE_LIVE/);
+ assert.match(bubble,/trackUsageEvent\("home_entry_click",needsSetup\?"settings":"friend"\)/);
  assert.doesNotMatch(line,/to:"\/friend\/live\?id=zoe&from=home&chat=text"/);
  assert.match(onboarding,/chat:"\/friend\/live\?id=zoe&from=home&chat=text"/);
 });
@@ -66,6 +68,6 @@ test("11 locales offer three string starters and text-first CTAs, teacher voice 
    if(key!=="heading")assert.match(friends.textStarters[key],/\{\{name\}\}/,lang+" "+key);
   }
   assert.doesNotMatch(friends.textStarters.heading,/edit|bearbeit|modifiable|修|編集|수정|editar|แก้ไข|sửa|bisa diedit/i,lang+" heading must not imply editing");
-  assert.equal(typeof home.quickEntry.shorts,"string");
+  assert.equal(typeof home.liveBubble.start,"string");
  }
 });

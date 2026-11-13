@@ -1,62 +1,93 @@
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {createPortal} from "react-dom";
 import {useTranslation} from "react-i18next";
+import zoePortrait from "../../../assets/friends/crew_friend_zoe.webp";
+import {Icon} from "../components/Icon";
 import {trackUsageEvent} from "../analytics/usage";
+import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
 import {useClientReady} from "../lib/useClientReady";
-import {hasStoredChart} from "./storedChart";
+import {geminiKey} from "../lib/runtime";
 import "./homeLiveBubble.css";
 
-/** A chart-aware content shortcut, never an audio or API-key entry. */
+const ZOE_LIVE="/friend/live?id=zoe&from=home&entry=bubble";
+function warmLive(){void import("../friends/FriendLivePage").catch(()=>{/* Optional preload only. */})}
+
+/** An immediate Live entry, not an in-home chat or another setup flow. */
 export function HomeLiveBubble(){
- const {t,i18n}=useTranslation("home");
+ const {t}=useTranslation("home");
  const ready=useClientReady();
+ const hasKey=ready&&Boolean(geminiKey());
+ const trial=useGuestTrialQuota(!ready||hasKey);
+ const needsSetup=ready&&!hasKey&&trial.resolved&&(!trial.enabled||trial.remaining===0);
  const [portalHost,setPortalHost]=useState<HTMLElement|null>(null);
- const [storedChart,setStoredChart]=useState(false);
- const [chartResolved,setChartResolved]=useState(false);
- const [fortuneHref,setFortuneHref]=useState("/fortune?daily=1");
+ const [heroVisible,setHeroVisible]=useState(true);
+ const [showInvite,setShowInvite]=useState(false);
+ const invited=useRef(false);
+ const rootRef=useRef<HTMLElement|null>(null);
+
+ // The animated home shell has a transform. Portal to body so fixed placement
+ // stays relative to the viewport, not the full page document.
  useEffect(()=>{setPortalHost(document.body)},[]);
  useEffect(()=>{
-  if(!ready)return;
-  let active=true,request=0;
-  const refresh=()=>{
-   const token=++request;
-   const found=hasStoredChart();
-   setStoredChart(found);
-   setChartResolved(true);
-   setFortuneHref("/fortune?daily=1");
-   if(!found)return;
-   // Only after mount + a locally saved chart: preserve the daily card's
-   // chosen profile and actual kind (BaZi or numerology fallback).
-   void import("./personalDailyLine").then(({personalDailyLine})=>
-    personalDailyLine(i18n.language)
-   ).then(line=>{
-    if(active&&token===request&&line&&/^[a-f0-9]{64}$/.test(line.hash)&&
-       (line.kind==="bazi"||line.kind==="numerology")){
-     setFortuneHref("/fortune?daily=1&chart="+line.hash+"&kind="+line.kind);
-    }
-   }).catch(()=>{/* Plain daily deep link selects the locally saved chart. */});
-  };
-  const onVisible=()=>{if(document.visibilityState==="visible")refresh()};
-  refresh();
-  window.addEventListener("storage",refresh);
-  window.addEventListener("focus",refresh);
-  document.addEventListener("visibilitychange",onVisible);
-  return()=>{active=false;request++;window.removeEventListener("storage",refresh);
-   window.removeEventListener("focus",refresh);document.removeEventListener("visibilitychange",onVisible)};
- },[ready,i18n.language]);
- // Render nothing for SSG and the first hydration frame. Do not show the
- // wrong destination briefly before the local storage check finishes.
- if(!ready||!portalHost||!chartResolved)return null;
- const target=storedChart?fortuneHref:"/teacher/shorts";
- const label=t(storedChart?"quickEntry.fortune":"quickEntry.shorts");
- return createPortal(
-  <aside className="crew-home-live-bubble" aria-label={t("quickEntry.heading")}>
-   <Link className="crew-live-bubble-trigger" to={target}
-    onClick={()=>trackUsageEvent("home_entry_click",storedChart?"fortune":"shorts")}
-    aria-label={label}>
-    <span className="crew-live-bubble-icon" aria-hidden="true">{storedChart?"✦":"▶"}</span>
+  const hero=document.querySelector<HTMLElement>(".crew-home-portal");
+  if(!hero)return;
+  if(typeof IntersectionObserver==="undefined"){
+   const update=()=>{const bounds=hero.getBoundingClientRect();setHeroVisible(bounds.bottom>0&&bounds.top<window.innerHeight)};
+   update();
+   window.addEventListener("scroll",update,{passive:true});
+   window.addEventListener("resize",update);
+   return()=>{window.removeEventListener("scroll",update);window.removeEventListener("resize",update)};
+  }
+  const observer=new IntersectionObserver(entries=>setHeroVisible(Boolean(entries[0]?.isIntersecting)),{threshold:.05});
+  observer.observe(hero);
+  return()=>observer.disconnect();
+ },[]);
+ useEffect(()=>{
+  if(heroVisible){setShowInvite(false);return}
+  if(invited.current)return;
+  invited.current=true;
+  setShowInvite(true);
+  const timer=window.setTimeout(()=>setShowInvite(false),6500);
+  return()=>window.clearTimeout(timer);
+ },[heroVisible]);
+ useEffect(()=>{
+  const node=rootRef.current;
+  if(!node)return;
+  if(typeof IntersectionObserver==="undefined"){
+   if(getComputedStyle(node).display!=="none")trackUsageEvent("home_live_bubble_view");
+   return;
+  }
+  const observer=new IntersectionObserver(entries=>{
+   if(entries.some(entry=>entry.isIntersecting)&&getComputedStyle(node).display!=="none"){
+    trackUsageEvent("home_live_bubble_view");
+    observer.disconnect();
+   }
+  },{threshold:.5});
+  observer.observe(node);
+  return()=>observer.disconnect();
+ },[portalHost]);
+
+ function visit(){
+  trackUsageEvent("home_live_bubble_click");
+  trackUsageEvent("home_entry_click",needsSetup?"settings":"friend");
+ }
+ const target=needsSetup?"/account#settings-gemini":ZOE_LIVE;
+ const label=needsSetup?t("liveBubble.setup"):t("liveBubble.start");
+ const invite=needsSetup?t("world.chatExhausted"):t("liveBubble.invite");
+ return portalHost?createPortal(
+  <aside ref={rootRef} className="crew-home-live-bubble" aria-label={t("liveBubble.heading")}>
+   {showInvite&&<span className="crew-live-bubble-invite" aria-hidden="true">{invite}</span>}
+   <Link className="crew-live-bubble-trigger" to={target} onClick={visit}
+    onMouseEnter={!needsSetup?warmLive:undefined}
+    onTouchStart={!needsSetup?warmLive:undefined}
+    onFocus={!needsSetup?warmLive:undefined}
+    aria-label={needsSetup?t("world.chatExhausted"):t("liveBubble.withZoe")}>
+    <span className="crew-live-bubble-avatar">
+     <img src={zoePortrait} alt="" width="56" height="56" decoding="async"/>
+     <span className="crew-live-bubble-mic" aria-hidden="true"><Icon name={needsSetup?"settings":"mic"}/></span>
+    </span>
     <span className="crew-live-bubble-label">{label}</span>
    </Link>
-  </aside>,portalHost);
+  </aside>,portalHost):null;
 }
