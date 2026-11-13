@@ -86,8 +86,12 @@ body.glow-v6 .tree-art-version{
  letter-spacing:.9px;font-size:9px;
 }
 body.glow-v6 .ground-label{
- background:#171227db;border:1px solid #5f547252;color:#e3dcef;
- bottom:12px;max-width:94%;white-space:nowrap;
+ background:#171227b8;border:1px solid #5f547252;color:#e3dcef;
+ /* Slim pill hugging the very bottom edge: the mushroom path ends near
+    canvas y 1034 and the pond near y 1059, so a 30px pill at bottom:12px
+    used to sit on top of both. At bottom:4px it clears them. */
+ bottom:4px;max-width:88%;white-space:nowrap;
+ padding:4px 10px;font-size:10px;
 }
 body.glow-v6 .garden-summary{
  display:flex;align-items:center;justify-content:space-between;gap:8px;

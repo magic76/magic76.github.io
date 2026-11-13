@@ -5,8 +5,8 @@
  */
 (function(root){'use strict';
 const W=780,H=1120,TAU=Math.PI*2,MAX=16,MAX_RETIRED=18;
-const slots=[{x:150,y:930,s:.50,a:.75},{x:630,y:930,s:.50,a:.75},
- {x:95,y:960,s:.68,a:.90},{x:685,y:960,s:.68,a:.90}];
+const slots=[{x:170,y:930,s:.46,a:.62},{x:610,y:930,s:.46,a:.62},
+ {x:125,y:962,s:.60,a:.80},{x:655,y:962,s:.60,a:.80}];
 const forms=[
  {id:'constellation',name:'星空樹',icon:'✦',note:'每片枝梢都連成星座。'},
  {id:'crystal',name:'水晶樹',icon:'💎',note:'冰藍晶簇順著枝幹向天空生長。'},
@@ -93,14 +93,43 @@ function glow(c,x,y,r,color,alpha=1){
  g.addColorStop(0,color);g.addColorStop(.24,color+'a8');g.addColorStop(1,color+'00');
  c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();c.restore();
 }
+// Pre-rendered glow sprites (the prototype's soft canopy). One 64px sprite per
+// color, stamped with drawImage: far cheaper than a gradient per leaf, and the
+// overlapping stamps are what make the crown read as one luminous cloud.
+// Falls back to the gradient glow when there is no document (bare Node).
+const spriteCache=new Map();
+function glowSprite(color){
+ if(spriteCache.has(color))return spriteCache.get(color);
+ let s=null;
+ if(typeof document!=='undefined'&&document.createElement){
+  try{
+   s=document.createElement('canvas');s.width=s.height=64;
+   const sc=s.getContext('2d');
+   if(sc){
+    const g=sc.createRadialGradient(32,32,2,32,32,32);
+    g.addColorStop(0,'#ffffff');g.addColorStop(.25,color);g.addColorStop(1,color+'00');
+    sc.fillStyle=g;sc.fillRect(0,0,64,64);
+   }
+  }catch(e){s=null;}
+ }
+ spriteCache.set(color,s);return s;
+}
+function stampGlow(c,x,y,size,color,alpha){
+ const s=glowSprite(color);
+ if(s&&typeof c.drawImage==='function'){
+  c.save();c.globalAlpha*=clamp(alpha,0,1);
+  c.drawImage(s,x-size,y-size,size*2,size*2);c.restore();return;
+ }
+ glow(c,x,y,size,color,alpha);
+}
 function stroke(c,x,y,xx,yy,color,w){
  c.strokeStyle=color;c.lineWidth=w;c.lineCap='round';c.beginPath();
  c.moveTo(x,y);c.lineTo(xx,yy);c.stroke();
 }
 function night(c,time,seed,count,still){
  const sky=c.createLinearGradient(0,0,0,H);
- sky.addColorStop(0,'#0a0914');sky.addColorStop(.51,'#17132f');sky.addColorStop(.79,'#302240');
- sky.addColorStop(1,'#161021');c.fillStyle=sky;c.fillRect(0,0,W,H);
+ sky.addColorStop(0,'#12101c');sky.addColorStop(.55,'#1e1a33');sky.addColorStop(1,'#2a2140');
+ c.fillStyle=sky;c.fillRect(0,0,W,H);
  const moon=c.createRadialGradient(590,257,4,590,257,380);
  moon.addColorStop(0,'#9385c426');moon.addColorStop(1,'#6b4c9400');
  c.fillStyle=moon;c.fillRect(0,0,W,800);
@@ -147,18 +176,31 @@ function night(c,time,seed,count,still){
  }
 }
 function island(c,y,lift=0){
- const top=y-4+lift;
+ // The prototype's island: a soft rounded mound, not a flat table. Top edge
+ // is a gentle upward curve, bottom a soft point; three short curved cracks
+ // near the bottom, one small cyan crystal accent. No straight rim line
+ // across the top, no vertical legs.
+ const top=y-18+lift;
  glow(c,390,top+18,165,'#59dabf',.19);
- const g=c.createLinearGradient(390,top-10,390,top+108);
- g.addColorStop(0,'#59426c');g.addColorStop(.2,'#2b274f');g.addColorStop(1,'#15152d');
- c.fillStyle=g;c.beginPath();c.moveTo(245,top);
- c.bezierCurveTo(305,top-23,482,top-28,535,top);
- c.bezierCurveTo(503,top+42,435,top+107,383,top+102);
- c.bezierCurveTo(310,top+94,265,top+34,245,top);c.fill();
- stroke(c,246,top,535,top,'#82efcf',3);
- for(let i=0;i<5;i++){
-  const x=299+i*43;stroke(c,x,top+30,x-8,top+93-i%3*12,'#5aa2ad77',1.5);
+ const g=c.createLinearGradient(0,top,0,top+80);
+ g.addColorStop(0,'#2b2140');g.addColorStop(1,'#14101f');
+ c.fillStyle=g;c.beginPath();
+ c.moveTo(240,top);
+ c.quadraticCurveTo(270,top+70,390,top+80);
+ c.quadraticCurveTo(510,top+70,540,top);
+ c.quadraticCurveTo(390,top-14,240,top);
+ c.closePath();c.fill();
+ c.strokeStyle='rgba(127,231,196,.4)';c.lineWidth=2;
+ c.beginPath();c.moveTo(240,top);
+ c.quadraticCurveTo(390,top-14,540,top);c.stroke();
+ c.strokeStyle='#0d0b14';c.lineWidth=2;
+ for(const vx of [-70,-20,45]){
+  c.beginPath();c.moveTo(390+vx,top+58);
+  c.quadraticCurveTo(390+vx+8,top+88,390+vx-4,top+110);c.stroke();
  }
+ c.fillStyle='#6ee7ff';
+ c.beginPath();c.moveTo(478,top+64);c.lineTo(486,top+84);c.lineTo(470,top+84);c.closePath();c.fill();
+ stampGlow(c,478,top+76,18,'#6ee7ff',.6);
  for(let i=0;i<4;i++){
   const x=311+i*50;glow(c,x,top-7,15,'#86ffe5',.56);
   ellipse(c,x,top-9,6,3.8,'#d6ffe6');stroke(c,x,top-4,x,top+3,'#e2f6d8',1.5);
@@ -185,11 +227,20 @@ function seed(c,s,time,topic){
  }
 }
 function paintGeneric(c,tips,time,seedNum,color,s,n){
- const r=rng(seedNum^0xCC01),visible=Math.min(tips.length,Math.ceil(tips.length*n/16));
- for(let i=0;i<visible;i+=2){
-  const tip=tips[i],p=.65+.35*Math.sin(time*.0015+tip.phase);
-  glow(c,tip.x,tip.y,13,color,.36*p);
-  ellipse(c,tip.x,tip.y,3.7,6.6,i%4===0?'#d8fff2':color,(r()-.5)*1.2);
+ // Prototype canopy: every visible tip gets a wide halo stamp and a bright
+ // core with a white heart. The overlapping stamps merge into a single
+ // luminous cloud instead of a set of hard dots. No flat wash behind it:
+ // the prototype has none, and a wash flattens the crown into haze.
+ const visible=Math.min(tips.length,Math.ceil(tips.length*n/16));
+ for(let i=0;i<visible;i++){
+  const tip=tips[i];
+  stampGlow(c,tip.x-6,tip.y-10,tip.size*5.5,color,.26);
+ }
+ for(let i=0;i<visible;i++){
+  const tip=tips[i],p=.75+.25*Math.sin(time*.002+tip.phase);
+  stampGlow(c,tip.x,tip.y,tip.size*3.4,color,.85*p);
+  c.fillStyle='#ffffff';
+  c.beginPath();c.arc(tip.x,tip.y,Math.max(1,tip.size*.45),0,TAU);c.fill();
  }
 }
 function stars(c,tips,time){
@@ -198,22 +249,24 @@ function stars(c,tips,time){
  c.save();c.globalCompositeOperation='screen';
  glow(c,390,533,235,'#4a95ff',.20);
  for(let ring=0;ring<3;ring++){
-  c.strokeStyle=ring===0?'#84eafa9a':ring===1?'#c5ccff6b':'#b4eeff46';
-  c.lineWidth=ring===0?3:1.5;c.setLineDash(ring===0?[]:[7,14]);
-  c.beginPath();c.ellipse(390,520,200-ring*18,146+ring*13,ring*.11,0,TAU);c.stroke();
+  // Faint orbital accent only: the dense cloud underneath is the tree, so
+  // the rings stay thin and dim instead of caging the crown in wire.
+  c.strokeStyle=ring===0?'#84eafa59':ring===1?'#c5ccff40':'#b4eeff2e';
+  c.lineWidth=ring===0?2:1.2;c.setLineDash(ring===0?[]:[7,14]);
+  c.beginPath();c.ellipse(390,520,178-ring*16,130+ring*11,ring*.11,0,TAU);c.stroke();
  }
  c.setLineDash([]);
  const nodes=[];
  for(let i=0;i<13;i++){
-  const angle=i*TAU/13-.65,rx=202+Math.sin(i*3)*11,ry=156+Math.cos(i*2)*12;
+  const angle=i*TAU/13-.65,rx=180+Math.sin(i*3)*11,ry=140+Math.cos(i*2)*12;
   nodes.push({x:390+Math.cos(angle)*rx,y:516+Math.sin(angle)*ry});
  }
  for(let i=0;i<nodes.length;i++){
   const p=nodes[i],next=nodes[(i+5)%nodes.length];
-  if(i%2===0)stroke(c,p.x,p.y,next.x,next.y,'#8de9ff51',1.6);
+  if(i%2===0)stroke(c,p.x,p.y,next.x,next.y,'#8de9ff51',1.2);
   // Light connects to an actual branch, not just a floating ornament.
-  if(i%3===0)stroke(c,390,695,p.x,p.y,'#60cde249',2);
-  glow(c,p.x,p.y,33,i%3?'#a8efff':'#fff4d8',.69);
+  if(i%3===0)stroke(c,390,695,p.x,p.y,'#60cde240',1.2);
+  glow(c,p.x,p.y,33,i%3?'#a8efff':'#fff4d8',.55+.25*Math.sin(time*.002+i*1.7));
   c.strokeStyle='#f9ffff';c.lineWidth=2.4;c.beginPath();
   c.moveTo(p.x-12,p.y);c.lineTo(p.x+12,p.y);
   c.moveTo(p.x,p.y-12);c.lineTo(p.x,p.y+12);c.stroke();
@@ -223,14 +276,14 @@ function stars(c,tips,time){
   const p=tips[i];glow(c,p.x,p.y,17,'#9fe5ff',.65);
   ellipse(c,p.x,p.y,2.8,2.8,'#fff');
  }
- c.restore();void time;
+ c.restore();
 }
 function crystals(c,tips){
  // Crystal tree: unmistakable angular, jagged ice crown. Wide faceted
  // blades emerge from actual botanical branches around the central trunk.
  c.save();c.globalCompositeOperation='screen';
  glow(c,390,533,240,'#72beff',.19);
- const offsets=[-190,-146,-101,-59,-7,37,89,135,181];
+ const offsets=[-167,-128,-89,-52,-6,33,78,119,159];
  for(let i=0;i<offsets.length;i++){
   const x=390+offsets[i],tall=108+(i%3)*47;
   const base=660+(i%2)*25,apex=base-tall-62-(i%2)*27;
@@ -245,6 +298,10 @@ function crystals(c,tips){
   c.lineTo(x+4,base-21);c.lineTo(x-23,base-29);c.closePath();c.fill();
   stroke(c,x,apex,x+4,base-20,'#ffffffcc',2);
   glow(c,x,apex,34,'#b0edff',.71);
+  if(i%3===2){
+   c.strokeStyle='#ffffff';c.lineWidth=1.6;c.beginPath();
+   c.moveTo(x-8,apex);c.lineTo(x+8,apex);c.moveTo(x,apex-8);c.lineTo(x,apex+8);c.stroke();
+  }
  }
  for(let i=0;i<tips.length;i+=4){
   const p=tips[i],j=12+i%3*8;
@@ -258,7 +315,7 @@ function lanterns(c,tips,time){
  // paper lanterns; amber-red light is visibly different from the ice crown.
  c.save();
  glow(c,390,561,210,'#ffb56d',.21);
- const xPositions=[170,224,275,325,390,455,509,562,608];
+ const xPositions=[195,242,288,335,390,445,492,538,585];
  c.strokeStyle='#78566a';c.lineWidth=8;c.lineCap='round';
  for(let i=0;i<xPositions.length;i++){
   const x=xPositions[i],y=473+Math.abs(i-4)*24;
@@ -279,8 +336,14 @@ function lanterns(c,tips,time){
   c.strokeStyle='#fff1c3';c.lineWidth=1.8;
   c.beginPath();c.ellipse(x+wiggle,y,20,25,0,0,TAU);c.stroke();
   stroke(c,x+wiggle-17,y-6,x+wiggle+17,y-6,'#fff3c3bb',2);
+  stroke(c,x+wiggle,y-21,x+wiggle,y+25,'#fff3c355',1.2);
   stroke(c,x+wiggle,y+25,x+wiggle,y+38,'#f9c49d',2);
   ellipse(c,x+wiggle,y,4.5,10,'#fff5d0');
+ }
+ // A few small lights climb the trunk so the arch does not sit on a bare stick.
+ for(const ly of [762,818,876]){
+  glow(c,390+(ly%2?5:-5),ly,20,'#ffb45d',.5);
+  ellipse(c,390+(ly%2?5:-5),ly,2.6,2.6,'#ffe9b8');
  }
  c.restore();void tips;
 }
@@ -289,10 +352,10 @@ function petals(c,tips,time){
  // floral curtains. Unlike other forms it has NO star or lantern crown.
  c.save();c.globalCompositeOperation='screen';
  glow(c,390,530,260,'#ff93d2',.16);
- const canopy=c.createRadialGradient(390,505,18,390,505,205);
- canopy.addColorStop(0,'#ffe0f48b');canopy.addColorStop(.58,'#f3a1d58c');
+ const canopy=c.createRadialGradient(390,505,18,390,505,132);
+ canopy.addColorStop(0,'#ffe0f48b');canopy.addColorStop(.5,'#f3a1d58c');
  canopy.addColorStop(1,'#d364a300');
- c.fillStyle=canopy;c.beginPath();c.ellipse(390,511,225,122,0,Math.PI,0);c.fill();
+ c.fillStyle=canopy;c.beginPath();c.ellipse(390,511,200,112,0,0,TAU);c.fill();
  for(let i=0;i<50;i++){
   const angle=i*2.39996,x=390+Math.cos(angle)*(i%7*29+26),y=506+Math.sin(angle)*(i%5*19+13);
   glow(c,x,y,26,'#f5a6e1',.35);
@@ -303,7 +366,7 @@ function petals(c,tips,time){
   }
  }
  for(let i=0;i<24;i++){
-  const x=181+i*18,anchor=535+Math.sin(i*1.6)*46;
+  const x=200+i*16,anchor=535+Math.sin(i*1.6)*46;
   const fall=107+(i%5)*30;
   stroke(c,x,anchor,x+Math.sin(i)*18,anchor+fall,'#f4a2d8a8',2);
   for(let j=0;j<4;j++){
@@ -313,7 +376,7 @@ function petals(c,tips,time){
   }
  }
  for(let i=0;i<34;i++){
-  const x=180+(i*53)%430,y=635+(i*61+(time*.012||0))%245;
+  const x=200+(i*53)%380,y=635+(i*61+(time*.012||0))%245;
   ellipse(c,x+Math.sin(i)*7,y,5,2.5,'#ffd0e8',i*.85);
  }
  c.restore();void tips;
@@ -328,20 +391,53 @@ function shape(c,tree,n,x,y,scale,alpha,time,staticMode,marks){
  }
  const vis=Math.ceil(shape.branches.length*clamp(n/16,.2,1)),tips=shape.tips;
  const end=stageNow==='final';
+ // Branches stay one quiet dark stroke each, prototype-thin (b.w, never
+ // thicker): the twigs disappear into the glow instead of reading as wire.
+ // Slot trees get their branches dimmed further so their glow, not their
+ // skeleton, is what shows through the tree in front of them.
+ c.save();
+ if(alpha<1)c.globalAlpha*=.62;
  for(let i=0;i<vis;i++){
   const b=shape.branches[i],sway=staticMode?0:Math.sin(time*.0012+seedNum*.01)*Math.max(0,(5-b.d))*1.1;
-  c.lineCap='round';c.strokeStyle='#0e1027';c.lineWidth=b.w+3;
+  c.lineCap='round';c.strokeStyle='#0e1027';c.lineWidth=Math.max(1,b.w);
   c.beginPath();c.moveTo(b.x,b.y);c.lineTo(b.x1+sway,b.y1);c.stroke();
-  c.strokeStyle=i%4?'#4e9b96':'#9f8cbb';c.lineWidth=Math.max(1.1,b.w*.37);
-  c.beginPath();c.moveTo(b.x-2,b.y);c.lineTo(b.x1-2+sway,b.y1);c.stroke();
+  if(i===0){
+   c.strokeStyle='rgba(127,231,196,.30)';c.lineWidth=1.4;
+   c.beginPath();c.moveTo(b.x-4,b.y);c.lineTo(b.x1-4+sway,b.y1);c.stroke();
+  }
+ }
+ c.restore();
+ // The canopy cloud is the tree itself. Every stage from sapling on draws
+ // the dense glowing tips first (the prototype's look); the final form is
+ // an accent laid on top of the cloud, never a replacement for it. That is
+ // what the port got wrong: the final forms used to skip the cloud and draw
+ // only their own sparse geometry, so the tree read as a wire diagram.
+ const formId=form(seedNum).id;
+ paintGeneric(c,tips,time,seedNum,end&&formId==='petal'?'#ffb5cc':palette,scale,n);
+ if(stageNow==='sapling'){
+  // A young tree needs a crown, not a bare twig: a few soft puffs with
+  // tiny leaves gather around the highest visible tips.
+  const shown=tips.slice(0,Math.max(1,Math.ceil(tips.length*n/16)));
+  const top=shown.slice().sort((a,b)=>a.y-b.y).slice(0,4);
+  for(const tp of top){
+   stampGlow(c,tp.x,tp.y,30,palette,.5);
+   for(let k=0;k<3;k++){
+    const a=k*TAU/3+tp.phase;
+    ellipse(c,tp.x+Math.cos(a)*9,tp.y+Math.sin(a)*7,7,3.5,k===0?'#eafff5':palette,a);
+   }
+  }
  }
  if(end){
-  const formId=form(seedNum).id;
+  // Slot trees sit behind the active tree and behind each other: their
+  // solid forms (lantern bodies, crystal facets, blossoms) are dimmed so
+  // the tree behind still shows through. Their glow stays brighter.
+  c.save();if(alpha<1)c.globalAlpha*=.75;
   if(formId==='constellation')stars(c,tips,time);
   else if(formId==='crystal')crystals(c,tips);
   else if(formId==='lantern')lanterns(c,tips,time);
   else petals(c,tips,time);
- }else paintGeneric(c,tips,time,seedNum,palette,scale,n);
+  c.restore();
+ }
  if(Array.isArray(marks)){
   // Persistent leaf geometry for every sentence: not transient UI confetti.
   // Use newly revealed branch tips, never a detached row of identical dots.
@@ -354,9 +450,9 @@ function shape(c,tree,n,x,y,scale,alpha,time,staticMode,marks){
    const col=topicColors[topic]||topicColors.daily,latest=i===shown-1;
    const phase=seedNum*.001+i*1.618;
    const sway=staticMode?0:Math.sin(time*.0013+phase)*1.7;
-   const size=latest?11.5:8.5;
-   if(latest)glow(c,xx,yy,42,col,.81);
-   else glow(c,xx,yy,19,col,.27);
+   const size=latest?13:9.5;
+   if(latest)stampGlow(c,xx,yy,46,col,.55+.3*Math.sin(time*.003+phase));
+   else stampGlow(c,xx,yy,19,col,.27);
    c.save();c.translate(xx+sway,yy);
    c.rotate(Math.sin(phase)*.24);
    for(const side of [-1,1]){
@@ -366,6 +462,15 @@ function shape(c,tree,n,x,y,scale,alpha,time,staticMode,marks){
     c.restore();
    }
    c.restore();
+   if(latest){
+    // The newest sentence stays visibly alive: three sparks orbit its leaves.
+    for(let k=0;k<3;k++){
+     const a=time*.0022+k*TAU/3+phase;
+     const gx=xx+Math.cos(a)*17,gy=yy+Math.sin(a)*13;
+     stampGlow(c,gx,gy,7,'#ffffff',.7);
+     ellipse(c,gx,gy,1.8,1.8,'#ffffff');
+    }
+   }
   }
   // Keep the original per-topic dots as tiny veins / pollen accents.
   for(let i=0;i<shown;i++){
@@ -400,8 +505,11 @@ function paint(canvas,g,active,time=0,opts={}){
  const prev=opts.motion?opts.motion.fromTurns:n;
  const turns=prev+(showN-prev)*p;
  const st=stage(showN);
- let growth=st==='seed'||st==='sprout'?1:st==='sapling'?.66+.16*clamp((turns-3)/5,0,1):
- st==='final'?.98+.19*p:.82+.16*clamp((turns-8)/8,0,1);
+ // Prototype growth scale: the sapling stays small, the tree is full size
+ // from the island stage on. No overshoot at the reveal: the flash and the
+ // burst sell the transformation, and a 17% wider crown would swallow the
+ // trees behind it.
+ let growth=st==='seed'||st==='sprout'?1:st==='sapling'?.5+.2*clamp((turns-3)/4,0,1):1;
  if(showN>=8)island(c,940,(1-p)*(opts.motion?.fromTurns<8?86:0));
  // The foreground tree is anchored in the same place at every age.
  shape(c,current,showN,390,940,growth,1,time,still,current.growth?.map(x=>x.topic));
