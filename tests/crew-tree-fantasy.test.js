@@ -9,6 +9,7 @@ const v4=fs.readFileSync(path.join(ROOT,'v4-art.js'),'utf8');
 const v5=fs.readFileSync(path.join(ROOT,'v5-art.js'),'utf8');
 const v6=fs.readFileSync(path.join(ROOT,'v6-art.js'),'utf8');
 const v7=fs.readFileSync(path.join(ROOT,'v7-art.js'),'utf8');
+const v8=fs.readFileSync(path.join(ROOT,'v8-art.js'),'utf8');
 const stylesheet=fs.readFileSync(path.join(ROOT,'study.css'),'utf8');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 function boot(){
@@ -31,18 +32,19 @@ function boot(){
  const win={matchMedia:()=>({matches:true,addEventListener(){}}),Image:MockImage,addEventListener(){}};
  const scope={window:win,document:doc,location:{search:'?qa=1'},Math,URLSearchParams,Number,Map,
   requestAnimationFrame(){throw Error('Reduced-motion page should be still');}};
- vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(v5,scope,{timeout:10000});vm.runInContext(v6,scope,{timeout:10000});vm.runInContext(v7,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
+ vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(v5,scope,{timeout:10000});vm.runInContext(v6,scope,{timeout:10000});vm.runInContext(v7,scope,{timeout:10000});vm.runInContext(v8,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
  return {qa:win.__CREW_STUDIES_QA__,draw};
 }
 test('isolated art studies never touch current V5 storage or chat',()=>{
  assert.match(html,/data-scene="island"/);assert.match(html,/data-scene="jelly"/);
  assert.match(html,/data-stage="16"/);assert.match(html,/V5 收藏/);
- assert.match(html,/character-paint\.js\?v=7-20261113/);
- assert.match(html,/v3-art\.js\?v=7-20261113/);
- assert.match(html,/v4-art\.js\?v=7-20261113/);
- assert.match(html,/v5-art\.js\?v=7-20261113/);
- assert.match(html,/v6-art\.js\?v=7-20261113/);
- assert.match(html,/v7-art\.js\?v=7-20261113/);
+ assert.match(html,/character-paint\.js\?v=8-20261113/);
+ assert.match(html,/v3-art\.js\?v=8-20261113/);
+ assert.match(html,/v4-art\.js\?v=8-20261113/);
+ assert.match(html,/v5-art\.js\?v=8-20261113/);
+ assert.match(html,/v6-art\.js\?v=8-20261113/);
+ assert.match(html,/v7-art\.js\?v=8-20261113/);
+ assert.match(html,/v8-art\.js\?v=8-20261113/);
  assert.match(html,/simulateChatBtn/);
  assert.match(html,/tabindex="0"/);
  assert.match(html,/silhouetteBtn/);
@@ -256,7 +258,7 @@ test('V7 mobile art viewport exactly matches the 800×820 source world',()=>{
  assert.doesNotMatch(stylesheet,/\.frame canvas\{aspect-ratio:4\/4\.6\}\s*\}/);
 });
 test('V7 thick coral trunk, paper grain and hero characters render for all stages',()=>{
- assert.match(source,/CrewFantasyV7\.livingTrunk/);
+ assert.match(source,/CrewFantasyV8\.braidedRoots/);
  assert.match(source,/CrewFantasyV7\.picturebookFinish/);
  assert.match(v7,/function livingTrunk\(/);
  assert.match(v7,/function grainTile\(/);
@@ -272,4 +274,48 @@ test('V7 thick coral trunk, paper grain and hero characters render for all stage
   assert.equal(qa.growthFrame(scene,8,16,.5,'music').stage,16);
   assert.equal(qa.touchFrame(scene,.4).stage,16);
  }
+});
+
+test('V8 paper tooth affects the sky, not the luminous characters',()=>{
+ assert.match(v7,/globalCompositeOperation='overlay'/);
+ assert.match(v7,/globalCompositeOperation='soft-light'/);
+ assert.match(source,/CrewFantasyV8\.organismHalo/);
+ assert.match(source,/CrewFantasyV8\.moonRim/);
+ assert.match(source,/CrewFantasyV7\.picturebookFinish/);
+ const positionOfPaper=source.indexOf('window.CrewFantasyV7.picturebookFinish');
+ const positionOfTree=source.indexOf('const sceneLayer=');
+ assert.ok(positionOfPaper>0&&positionOfPaper<positionOfTree,
+  'paper must be painted onto sky BEFORE characters to preserve saturated highlights');
+ assert.doesNotMatch(source,/window\.CrewFantasyV7\.picturebookFinish\(c,seed,scene,stage\);\s*\}\s*return model/);
+});
+test('V8 medusa uses interwoven root strands and upward canopy forks, not mushroom stalk',()=>{
+ assert.match(v8,/function braidedRoots\(/);
+ assert.match(v8,/count=mature\?7:5/);
+ assert.match(v8,/arms=mature\?6:4/);
+ assert.match(v8,/function strand\(/);
+ assert.match(v8,/function organismHalo\(/);
+ assert.match(source,/CrewFantasyV8\.braidedRoots/);
+ assert.doesNotMatch(source,/CrewFantasyV7\.livingTrunk\(/);
+ assert.doesNotMatch(source,/CrewFantasyPaint\.twistedTrunk\(/);
+ assert.match(source,/CrewFantasyV6\.coralRoots/);
+ const {qa}=boot();
+ for(const stage of [8,16]){
+  const m=qa.paint('jelly',stage,103,'cosmos');
+  assert.equal(m.stage,stage);
+  assert.equal(qa.growthFrame('jelly',8,stage,.5).stage,stage);
+ }
+});
+test('V8 tree residents and hut windows have breathing warm lights and animation',()=>{
+ assert.match(v8,/function warmHollow\(/);
+ assert.match(v8,/function hollowMotion\(/);
+ assert.match(v8,/function hutWindow\(/);
+ assert.match(v3,/CrewFantasyV8\.hollowMotion/);
+ assert.match(painter,/CrewFantasyV8\.warmHollow/);
+ assert.match(painter,/CrewFantasyV8\.hutWindow/);
+ const {qa}=boot();
+ for(const stage of [8,16]){
+  assert.equal(qa.paint('island',stage,241,'warmth').stage,stage);
+  assert.equal(qa.growthFrame('island',3,stage,.5).stage,stage);
+ }
+ assert.equal(qa.touchFrame('island',.4).stage,16);
 });

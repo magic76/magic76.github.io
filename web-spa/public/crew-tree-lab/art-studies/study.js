@@ -208,8 +208,7 @@ function jellyScene(c,m,time,staticMode){
  for(const [i,arm] of m.arms.entries()){
   endpoints.push(bonePath(c,arm,time,staticMode,m.topic,m.stage));
  }
- window.CrewFantasyPaint.twistedTrunk(c,m.stage,m.seed,time,staticMode);
- window.CrewFantasyV7.livingTrunk(c,m.stage,m.seed,m.topic,time,staticMode);
+ window.CrewFantasyV8.braidedRoots(c,m.stage,m.seed,m.topic,time,staticMode);
  window.CrewFantasyV6.coralRoots(c,m.stage,m.topic,m.seed,time,staticMode);
  // Fewer, grounded lanterns; delayed light follows actual tendril endpoints.
  endpoints.forEach((end,i)=>{
@@ -233,6 +232,7 @@ function jellyScene(c,m,time,staticMode){
  window.CrewFantasyV6.bellLeaves(c,cap,m.topic,m.stage,time,staticMode);
  if(m.stage>=16)window.CrewFantasyV4.fishHero(c,cap,time,staticMode,m.seed);
  else window.CrewFantasyV3.fishResident(c,cap,time,staticMode,m.seed,m.stage);
+ window.CrewFantasyV8.moonRim(c,'jelly',m.stage,m.topic,time,staticMode);
  c.restore();
  if(m.stage>=16){
   c.save();c.globalAlpha*=.78;
@@ -269,6 +269,11 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
   window.CrewFantasyV3.themeBackdrop(c,topic,seed,scene);
   window.CrewFantasyPaint.forest(c,seed,scene);
   if(topic==='travel')window.CrewFantasyV4.travelSky(c,seed,stage,time,staticMode);
+  // Paper pigment belongs on the environment, under the living subject.
+  // This prevents V7's gray veil from desaturating the luminous canopy/fish.
+  window.CrewFantasyV6.paperWash(c,seed,scene,stage);
+  window.CrewFantasyV7.picturebookFinish(c,seed,scene,stage);
+  window.CrewFantasyV8.organismHalo(c,model,time,staticMode);
  }
  if(silhouette){c.save();c.filter='brightness(0)';}
  const sceneLayer=(m,opacity=1,grow=null)=>{
@@ -302,8 +307,6 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
   if(reaction&&reaction.scene===scene&&reaction.progress<1)
    window.CrewFantasyV5.reactionOverlay(c,scene,reaction.progress,seed,model);
   window.CrewFantasyPaint.frame(c,scene,seed);
-  window.CrewFantasyV6.paperWash(c,seed,scene,stage);
-  window.CrewFantasyV7.picturebookFinish(c,seed,scene,stage);
  }
  return model;
 }

@@ -37,7 +37,7 @@ fs.mkdirSync(OUT,{recursive:true});
      if(label==='mobile'){
       // Capture the actual first 844px of the page, not a cropped canvas.
       await page.evaluate(()=>window.scrollTo(0,0));
-      await page.screenshot({path:path.join(OUT,'V7-FIRST-FOLD-390-'+scene+'-'+stage+'.png')});
+      await page.screenshot({path:path.join(OUT,'V8-FIRST-FOLD-390-'+scene+'-'+stage+'.png')});
       if(stage===16){
        const bounds=await page.evaluate(()=>{
         const rect=document.getElementById('heroCanvas').getBoundingClientRect();
@@ -49,7 +49,7 @@ fs.mkdirSync(OUT,{recursive:true});
         '390px canvas must have no pastel letterbox strip '+JSON.stringify(bounds));
        assert.ok(bounds.top>=0&&bounds.bottom<844-8&&bounds.rootY<844-12,
         'entire living character including coral roots must fit first fold '+JSON.stringify(bounds));
-       console.log('FANTASY_V7_MOBILE_FULL_ROOT_'+scene.toUpperCase()+'='+JSON.stringify(bounds));
+       console.log('FANTASY_V8_MOBILE_FULL_ROOT_'+scene.toUpperCase()+'='+JSON.stringify(bounds));
       }
      }
      if(stage===8)await page.locator('#heroCanvas').screenshot({
@@ -90,7 +90,10 @@ fs.mkdirSync(OUT,{recursive:true});
       c.fillText([3,8,16][i]+' turns',i*300+150,415);});
      return out.toDataURL('image/jpeg',.68).split(',')[1];
     });
-    if(label==='desktop')console.log('FANTASY_'+scene.toUpperCase()+'_CONTACT='+sheet);
+    if(label==='desktop'){
+     console.log('FANTASY_'+scene.toUpperCase()+'_CONTACT='+sheet);
+     console.log('FANTASY_V8_'+scene.toUpperCase()+'_AGES='+sheet);
+    }
     if(label==='desktop')console.log('FANTASY_V4_'+scene.toUpperCase()+'_AGES='+sheet);
     if(label==='desktop'){
      await page.locator('#silhouetteBtn').click();
@@ -132,7 +135,7 @@ fs.mkdirSync(OUT,{recursive:true});
       },{scene,from,to,progress});
       pictures.push(shot);
       await page.locator('#heroCanvas').screenshot({
-       path:path.join(OUT,'V7-GROWTH-'+label+'-'+scene+'-'+from+'-to-'+to+'-'+Math.round(progress*100)+'.png')
+       path:path.join(OUT,'V8-GROWTH-'+label+'-'+scene+'-'+from+'-to-'+to+'-'+Math.round(progress*100)+'.png')
       });
      }
      assert.equal(new Set(pictures).size,3,'start, in-between and final morph frames must all differ '+scene);
@@ -155,7 +158,7 @@ fs.mkdirSync(OUT,{recursive:true});
        return normal.reduce((total,v,i)=>total+Math.abs(v-transitionStart[i]),0)/normal.length;
       });
       assert.ok(difference<18,'zero-progress transition must not render ghost canopy: pixel delta '+difference);
-      console.log('FANTASY_V7_ZERO_MORPH_COLOR_DIFF='+difference.toFixed(2));
+      console.log('FANTASY_V8_ZERO_MORPH_COLOR_DIFF='+difference.toFixed(2));
      }
      if(label==='desktop'){
       const contact=await page.evaluate(async pictures=>{
@@ -169,7 +172,7 @@ fs.mkdirSync(OUT,{recursive:true});
        }
        return out.toDataURL('image/jpeg',.70).split(',')[1];
       },pictures);
-      console.log('FANTASY_V7_'+scene.toUpperCase()+'_'+from+'_TO_'+to+'='+contact);
+      console.log('FANTASY_V8_'+scene.toUpperCase()+'_'+from+'_TO_'+to+'='+contact);
      }
     }
     const reactionFrames=[];
@@ -180,11 +183,25 @@ fs.mkdirSync(OUT,{recursive:true});
      },{scene,progress});
      reactionFrames.push(image);
      await page.locator('#heroCanvas').screenshot({
-      path:path.join(OUT,'V7-TOUCH-'+label+'-'+scene+'-'+Math.round(progress*100)+'.png')
+      path:path.join(OUT,'V8-TOUCH-'+label+'-'+scene+'-'+Math.round(progress*100)+'.png')
      });
     }
     assert.equal(new Set(reactionFrames).size,3,
      'touch must animate the character body/arms and light droplets over three moments');
+    if(label==='desktop'){
+     const sheet=await page.evaluate(async frames=>{
+      const out=document.createElement('canvas');out.width=900;out.height=390;
+      const c=out.getContext('2d');c.fillStyle='#ece6dc';c.fillRect(0,0,900,390);
+      for(let i=0;i<3;i++){
+       const img=new Image();img.src=frames[i];await img.decode();
+       c.drawImage(img,i*300+2,0,296,363);
+       c.font='bold 15px system-ui';c.textAlign='center';c.fillStyle='#344e49';
+       c.fillText(['before','reaction 45%','release 85%'][i],i*300+150,384);
+      }
+      return out.toDataURL('image/jpeg',.68).split(',')[1];
+     },reactionFrames);
+     console.log('FANTASY_V8_'+scene.toUpperCase()+'_TOUCH_CONTACT='+sheet);
+    }
    }
    // Reduced-motion mode keeps transitions immediate, while keyboard can still
    // trigger the same touch response and politely announces what happened.
@@ -246,7 +263,7 @@ fs.mkdirSync(OUT,{recursive:true});
       }
       assert.equal(new Set(capColors).size,4,
        'V6 bell pigment in the actual canopy must change across four themes: '+JSON.stringify(capColors));
-      console.log('FANTASY_V7_BELL_COLORS='+JSON.stringify(capColors));
+      console.log('FANTASY_V8_BELL_COLORS='+JSON.stringify(capColors));
      }
      const contact=await page.evaluate(async(data)=>{
       const canvas=document.createElement('canvas');canvas.width=1040;canvas.height=340;
@@ -275,6 +292,28 @@ fs.mkdirSync(OUT,{recursive:true});
    const width=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:window.innerWidth}));
    assert.ok(width.doc<=width.viewport+2,'No horizontal scrolling at '+label+': '+JSON.stringify(width));
    assert.equal(failures.length,0,JSON.stringify(failures));
+   if(label==='desktop'){
+    // V8 chroma audit: real image pixels, not class names or shader strings.
+    for(const scene of ['island','jelly']){
+     await page.locator('[data-scene="'+scene+'"]').click();
+     await page.locator('[data-topic="cosmos"]').click();
+     await page.locator('[data-stage="16"]').click();
+     const metric=await page.locator('#heroCanvas').evaluate(cv=>{
+      const ctx=cv.getContext('2d'),a=ctx.getImageData(0,0,cv.width,cv.height).data;
+      let saturated=0,bright=0,total=0,peak=0;
+      for(let y=0;y<cv.height;y+=7)for(let x=0;x<cv.width;x+=7){
+       const j=(y*cv.width+x)*4,r=a[j],g=a[j+1],b=a[j+2];
+       const hi=Math.max(r,g,b),lo=Math.min(r,g,b);
+       if(hi-lo>62)saturated++;if(hi>220)bright++;
+       peak=Math.max(peak,hi-lo);total++;
+      }
+      return {saturated,bright,total,chromaPeak:peak};
+     });
+     assert.ok(metric.bright>8&&metric.chromaPeak>65,
+      'watercolor must preserve bright highlights and vivid saturated pigments '+JSON.stringify(metric));
+     console.log('FANTASY_V8_CHROMA_'+scene.toUpperCase()+'='+JSON.stringify(metric));
+    }
+   }
    await page.screenshot({path:path.join(OUT,label+'-whole-art-study.png'),fullPage:true});
    console.log('FANTASY_BROWSER_OK '+label+' 2 scenes x 3 stages; original SVG=10; overflow=0');
    await ctx.close();
@@ -294,7 +333,7 @@ fs.mkdirSync(OUT,{recursive:true});
    await ctx.close();return result;
   })();
   assert.ok(grain.max-grain.min>=65,'paper grain needs visible opacity contrast '+JSON.stringify(grain));
-  console.log('FANTASY_V7_PAPER_GRAIN='+JSON.stringify(grain));
+  console.log('FANTASY_V8_PAPER_GRAIN='+JSON.stringify(grain));
   // The real button path animates when motion is allowed; reduced motion
   // produces immediate still art instead of an unexpected tween.
   const motion=await browser.newContext({viewport:{width:850,height:850},reducedMotion:'no-preference'});
@@ -315,7 +354,7 @@ fs.mkdirSync(OUT,{recursive:true});
   assert.equal(await live.evaluate(()=>window.__CREW_STUDIES_QA__.state().growth?.from),3);
   await live.waitForTimeout(1450);
   await motion.close();
-  console.log('FANTASY_V7_REAL_GROWTH_UI_OK; stage transitions, no-preference motion and reduced-motion fallbacks');
+  console.log('FANTASY_V8_REAL_GROWTH_UI_OK; stage transitions, no-preference motion and reduced-motion fallbacks');
   // External authoring tools are separately reported: a CDN outage must not
   // be mistaken for an actual successful p5.brush/Rigby2D implementation.
   const ctx=await browser.newContext({viewport:{width:1280,height:850}});
