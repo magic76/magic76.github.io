@@ -45,13 +45,18 @@ function boot(options={}){
  const document={getElementById:get,createElement:element,body:element('body')};
  const window={addEventListener(){},requestAnimationFrame(){return 1},devicePixelRatio:3,
   ResizeObserver:class{observe(){}},matchMedia(){return {matches:false}},scrollTo(){}};
+ const fantasyCalls=[];
+ if(options.fantasy){
+  context2D.canvas=get('treeCanvas');
+  window.CrewFantasyGameArt={paint:(...args)=>{fantasyCalls.push(args);return {};}};
+ }
  const c={document,window,location:{search:'?qa=1'},URLSearchParams,localStorage:{
   getItem:key=>memory.get(key)||null,setItem:(key,v)=>memory.set(key,v)
  },setTimeout(){return 1},clearTimeout(){},Date,Math,console,Number,String,Array,Set,Map};
  vm.createContext(c);vm.runInContext(botany,c,{timeout:10000});vm.runInContext(familyBotany,c,{timeout:10000});vm.runInContext(script,c,{timeout:10000});
  const qa=window.__TREE_QA__;
  assert.ok(qa,'QA interface is exposed only behind ?qa=1');
- return {qa,memory,get,paint,document};
+ return {qa,memory,get,paint,document,fantasyCalls};
 }
 test('the garden is a small responsive chat toy, not a fake Gemini conversation',()=>{
  assert.match(html,/和 Zoe 種歪樹/);
@@ -361,4 +366,85 @@ test('adding conversation events never repositions earlier branch endpoints',()=
  for(let i=0;i<previous.length;i++)assert.deepEqual(
   [next[i].start.x,next[i].start.y,next[i].p1.x,next[i].p1.y,next[i].end.x,next[i].end.y],
   previous[i]);
+});
+
+test('Game V1 exposes V9 living worlds and keeps existing V5 families & navigation untouched',()=>{
+ assert.match(html,/id="kindSelect"/);
+ assert.match(html,/id="worldSelect"/);
+ assert.match(html,/id="surpriseMoment"/);
+ assert.match(html,/id="soundBtn"/);
+ assert.match(html,/art-studies\/v9-art\.js/);
+ assert.match(html,/art-studies\/study\.js/);
+ assert.match(script,/CrewFantasyGameArt\.paint/);
+ assert.match(script,/navigator\.vibrate/);
+ assert.match(script,/createOscillator\(/);
+ assert.match(css,/\.world-picker select\{[^}]*min-height:44px/);
+ assert.doesNotMatch(html,/首頁、聊天、探索、學習、我的/);
+ const {qa}=boot();
+ assert.equal(qa.families.length,4);
+ assert.deepEqual([0,1,2,3,7,8,15,16].map(qa.stageForTurns),[3,3,3,8,8,16,16,16]);
+});
+test('Game V1 safely restores old V5 species while new trees persist V9 choices and inferred topic worlds',()=>{
+ const {qa,memory}=boot();
+ const old=qa.makeTree(9861);
+ const original=old.genome.treeFamily;
+ delete old.visualKind;delete old.world;
+ const legacy=qa.validateTree(old);
+ assert.equal(legacy.visualKind,original);
+ assert.equal(legacy.world,'auto');
+ assert.equal(qa.chooseKind('jelly'),true);
+ assert.equal(qa.chooseWorld('music'),true);
+ assert.equal(qa.state().current.visualKind,'jelly');
+ assert.equal(qa.state().current.world,'music');
+ assert.equal(qa.chooseKind('fake-tree'),false);
+ assert.equal(qa.chooseWorld('fake-world'),false);
+ qa.post('宇宙太空星球');
+ assert.equal(qa.resolvedWorld(qa.state().current),'music','explicit world should win over topic');
+ assert.equal(qa.chooseWorld('auto'),true);
+ assert.equal(qa.resolvedWorld(qa.state().current),'cosmos','auto follows dominant topic');
+ assert.ok(memory.get('crew-tree-current-v1').includes('"visualKind":"jelly"'));
+ assert.ok(memory.get('crew-tree-current-v1').includes('"world":"auto"'));
+ const saved=qa.validateTree(JSON.parse(memory.get('crew-tree-current-v1')));
+ assert.equal(saved.visualKind,'jelly');assert.equal(saved.world,'auto');
+});
+test('Game V1 every message grows fantasy scale and 3/8/16 unlock surprises exactly once',()=>{
+ const {qa,get,fantasyCalls}=boot({fantasy:true});
+ assert.equal(qa.chooseKind('island'),true);
+ assert.equal(qa.chooseWorld('travel'),true);
+ const ages=[],events=[];
+ for(let i=1;i<=16;i++){
+  const r=qa.post(i%2?'旅行地圖海洋':'在宇宙看星星');
+  assert.equal(r.count,i);
+  ages.push(qa.stageForTurns(i));
+  if(r.surprise)events.push(i);
+  qa.draw();
+ }
+ assert.deepEqual(events,[3,8,16]);
+ assert.equal(ages[2],8);assert.equal(ages[7],16);
+ assert.ok(fantasyCalls.length>=16,'real-game route uses shared V9 painter every turn');
+ assert.ok(fantasyCalls.every(args=>args[1]==='island'),'selected V9 scene is actually rendered');
+ assert.ok(fantasyCalls.every(args=>args[4]==='travel'),'explicit world travels to shared renderer');
+ const sizes=fantasyCalls.map(args=>args[10]?.turns).filter(Number.isFinite);
+ assert.ok(sizes.includes(1)&&sizes.includes(8)&&sizes.includes(16));
+ assert.equal(get('surpriseTitle').textContent,'傳說居民登場！');
+ assert.equal(get('nextSurprise').textContent,'傳說世界已解鎖 · 每句仍會繼續成長');
+ assert.equal(get('treeArtVersion').textContent,'✨ Art V9 · 活的幻想樹');
+ const storage=JSON.stringify(qa.state().current);
+ assert.equal(storage.includes('在宇宙看星星'),false);
+});
+test('Game V1 collector and export route V9 without corrupting saved V5',()=>{
+ const {qa,memory,fantasyCalls}=boot({fantasy:true});
+ qa.chooseKind('jelly');qa.chooseWorld('cosmos');
+ qa.post('宇宙星球');qa.post('旅行海洋');qa.post('音樂唱歌');
+ assert.equal(qa.save(),true);
+ assert.equal(qa.exportImage(),true);
+ assert.ok(fantasyCalls.some(args=>args[1]==='jelly'&&args[10]?.height===1200),
+  'PNG export should render the V9 world, not old branch graphics');
+ const tree=qa.state().current;
+ qa.newTree();qa.chooseKind('twin');qa.post('開心');
+ assert.equal(qa.save(),true);
+ assert.equal(qa.open(tree.seed),true);
+ assert.equal(qa.state().current.visualKind,'jelly');
+ const reloaded=boot({storage:Object.fromEntries(memory)});
+ assert.equal(reloaded.qa.state().current.visualKind,'jelly');
 });
