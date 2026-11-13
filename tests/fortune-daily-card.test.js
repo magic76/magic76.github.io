@@ -344,3 +344,41 @@ test("D11 direct Fortune URL keeps stable hooks across lazy locale and saved cha
  assert.match(home,/!hasDaily&&<details className="fortune-journey-daily">/,
   "old collapsible presentation remains only for a visitor without a saved chart");
 });
+
+test("D12 daily fortune offers one safe, profile-bound Zoe continuation matching home",()=>{
+ const source=read("web-spa/src/fortune/FortuneDailyCard.tsx");
+ const home=read("web-spa/src/pages/DailyTopicCards.tsx");
+ const fullStart=source.indexOf("{full?<>");
+ const fullEnd=source.indexOf('</>:<p role="status"',fullStart);
+ assert.ok(fullStart>0&&fullEnd>fullStart,"Zoe link must be in the existing successful-card branch");
+ const full=source.slice(fullStart,fullEnd);
+ const links=[...full.matchAll(/<Link className="fortune-daily-zoe"[^>]*>[^<]*<\/Link>/g)];
+ assert.equal(links.length,1,"only one Zoe action on a full card");
+ const zoe=links[0][0];
+ assert.match(full,/\{\/\^\[a-f0-9\]\{64\}\$\/\.test\(profileHash\)&&<Link className="fortune-daily-zoe"/,
+  "the continuation must require a 64-digit hex profile hash");
+ const fortunePath=zoe.match(/to=\{"(\/friend\/live[^"]+chart=)"\+profileHash\}/);
+ const homePath=home.match(/chatHref=isPersonal\?"(\/friend\/live[^"]+chart=)"\+personal!\.hash/);
+ assert.ok(fortunePath&&homePath,"both surfaces must use a profile-bound /friend/live link");
+ assert.equal(fortunePath[1],homePath[1],"same destination prefix as the home daily card");
+ assert.match(zoe,/\{t\("dailyQuote\.chatRead",\{ns:"home"\}\)\}/,"reuse the home locale key");
+ const sceneEnd=full.indexOf('</div>\n   {',full.indexOf('className="fortune-daily-scene"'));
+ const linkAt=full.indexOf('<Link className="fortune-daily-zoe"');
+ const weekAt=full.indexOf('className="fortune-daily-week"');
+ assert.ok(sceneEnd>=0&&linkAt>sceneEnd&&linkAt<weekAt,"Zoe follows the flipper, before the weekly markers");
+ assert.equal(full.slice(0,linkAt).includes('revealed&&<div className="fortune-daily-extras"'),false,
+  "Zoe must be available without flipping");
+ const empty=source.slice(source.indexOf('if(!clientReady||!ready)return'),fullStart);
+ assert.doesNotMatch(empty,/\/friend\/live/,"loading and no-profile branches must not expose the link");
+ assert.doesNotMatch(zoe,/onClick|sendMessage|setDraft|localStorage|fetch\s*\(|trackUsageEvent|useEffect/,
+  "navigation only: no sends, draft changes, storage writes, API or analytics");
+ const css=read("web-spa/src/fortune/dailyCard.css");
+ const rule=css.match(/\.fortune-daily-zoe\{([^}]*)\}/);
+ assert.ok(rule,"dedicated secondary action styling");
+ assert.match(rule[1],/min-height:44px/);
+ const font=rule[1].match(/font-size:([\d.]+)px/);
+ assert.ok(font&&Number(font[1])>=12,"legible label >=12px");
+ assert.match(rule[1],/white-space:normal/);
+ assert.match(rule[1],/overflow-wrap:anywhere/);
+ assert.match(css,/\.fortune-daily-zoe:focus-visible\{[^}]*outline:/);
+});
