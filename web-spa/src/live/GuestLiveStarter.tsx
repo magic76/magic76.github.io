@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from "react";
-import {Link} from "react-router-dom";
+import {Link,useNavigate} from "react-router-dom";
+import {clearGuestChallengeHandoff,offerGuestChallengeToken} from "./guestTextChallenge";
 import {useTranslation} from "react-i18next";
 import {ensureLive} from "../lib/runtime";
 import {trackUsageEvent} from "../analytics/usage";
@@ -13,6 +14,8 @@ const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
 export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFallback}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";focusStartOnVerified?:boolean;textFallback?:{href:string;name:string}}){
  const {t}=useTranslation("common");
+ const navigate=useNavigate();
+ const [micUnavailable,setMicUnavailable]=useState(false);
  const [micPermissionDenied,setMicPermissionDenied]=useState(false);
  const microphoneHelp=()=>{
   const agent=navigator.userAgent;
@@ -116,12 +119,12 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
  useEffect(()=>{if(focusStartOnVerified&&phase==="ready"&&challenge)startButton.current?.focus({preventScroll:true})},[focusStartOnVerified,phase,challenge]);
  async function begin(){
   if(busy.current||phase!=="ready"||!challenge)return;
-  busy.current=true;setMicPermissionDenied(false);setPhase("starting");setMessage("");
+  busy.current=true;setMicPermissionDenied(false);setMicUnavailable(false);setPhase("starting");setMessage("");
   trackUsageEvent("guest_trial_start_click",role);
   let tokenRequested=false;
   try{
-   await ensureLive();
    if(!navigator.mediaDevices?.getUserMedia)throw new Error("microphone unavailable");
+   await ensureLive();
    const mic=await navigator.mediaDevices.getUserMedia({audio:true});
    mic.getTracks().forEach(track=>track.stop());
    if(!active.current)return;
@@ -161,18 +164,32 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
    if(active.current){trackUsageEvent("guest_trial_token_issued",role);window.dispatchEvent(new Event("crew:guest-trial-used"));await onGrant(data)}
   }catch(error){
    const denied=error instanceof DOMException&&error.name==="NotAllowedError";
+   const blocked=denied||(error instanceof DOMException&&error.name==="SecurityError");
+   const noMicrophone=(error instanceof DOMException&&error.name==="NotFoundError")
+    ||(error instanceof Error&&error.name==="Error"&&error.message==="microphone unavailable");
+   const micFailed=blocked||noMicrophone;
    if(!tokenRequested&&denied)trackUsageEvent("guest_trial_mic_denied",role);
    else trackUsageEvent(tokenRequested?"guest_trial_token_failed":"guest_trial_setup_failed",role);
+   if(!tokenRequested&&micFailed&&textFallback&&active.current){
+    offerGuestChallengeToken(challenge);
+    navigate(textFallback.href,{replace:true});
+    return;
+   }
+   if(micFailed)setMicUnavailable(true);
    if(denied){
     setMicPermissionDenied(true);
-    if(active.current){setMessage(t("guestTrial.micDenied"));setPhase("error")}
-   }else if(active.current){setMessage(t("guestTrial.serviceUnavailable"));setPhase("error")}
+    if(active.current){setMessage(t("guestTrial.micDenied"));if(textFallback)setMessage(t("guestTrial.micTextFallback",{name:textFallback.name}));setPhase("error")}
+   }else if(active.current){
+    if(blocked)setMicPermissionDenied(true);
+    setMessage(micFailed?(textFallback?t("guestTrial.micTextFallback",{name:textFallback.name}):t(noMicrophone?"guestTrial.micNotFound":"guestTrial.micDenied")):t("guestTrial.serviceUnavailable"));
+    setPhase("error");
+   }
   }finally{busy.current=false}
  }
  return <div className="notice guest-live-entry" role="region" aria-label={phase==="full"?t("guestTrial.limit"):phase==="exhausted"?t("guestTrial.usedUpTitle"):t("guestTrial.homeTitle")}>
   <div style={{display:"grid",gap:10,width:"100%"}}>
-   {phase!=="exhausted"&&phase!=="full"&&<><strong>{t("guestTrial.homeTitle")}</strong>
-    <p>{t("guestTrial.homeDesc")}</p>
+   {phase!=="exhausted"&&phase!=="full"&&<><strong>{phase==="error"&&micUnavailable&&textFallback?t("guestTrial.micTextTitle"):t("guestTrial.homeTitle")}</strong>
+    <p>{phase==="error"&&micUnavailable&&textFallback?t("guestTrial.micTextDesc"):t("guestTrial.homeDesc")}</p>
     {remaining!==null&&<p role="status">{t(memberSignedIn?"guestTrial.memberRemaining":"guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
    {phase==="checking"&&<p role="status">{t("guestTrial.checking")}</p>}
    {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
@@ -188,7 +205,7 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
     <Link className="btn secondary" to="/games/1a2b">{t("guestTrial.free1a2b")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role={phase==="error"&&micPermissionDenied?"alert":"status"}>{message||t("guestTrial.unavailable")}</p>}
    {phase==="error"&&textFallback&&<Link className="btn" to={textFallback.href}>{t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}
-   {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setMicPermissionDenied(false);setPhase("ready")}}>{t("guestTrial.retry")}</button>}
+   {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{clearGuestChallengeHandoff();setChallenge("");setMicPermissionDenied(false);setMicUnavailable(false);setPhase("ready")}}>{t(micPermissionDenied?"guestTrial.retryMic":"guestTrial.retry")}</button>}
    {phase==="error"&&micPermissionDenied&&<p style={{fontSize:13,lineHeight:1.6,margin:0,overflowWrap:"anywhere"}}>{microphoneHelp()}</p>}
    {(phase==="error"||phase==="unavailable")&&<Link className="guest-live-key-link" style={{minHeight:44,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:13,lineHeight:1.5,textDecoration:"underline"}} to="/account#settings-gemini">{t("guestTrial.keySettingsLink")}</Link>}
   </div>

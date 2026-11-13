@@ -185,6 +185,7 @@
   },
   "guestText": {
     "verifyRequired": "Cần xác minh bảo mật để gửi tin nhắn. Hãy xác minh lại rồi nhấn Gửi.",
+    "micFallbackNotice": "Không dùng được mic. Đã chuyển sang nhắn tin miễn phí với {{name}}. Bấm chuyển sang giọng nói phía trên nếu muốn.",
     "verifyFailed": "Xác minh không thành công. Hãy thực hiện lại trước khi gửi.",
     "sessionExpired": "Phiên miễn phí đã hết hạn. Xác minh lại để tiếp tục.",
     "dailyLimit": "Bạn đã dùng hết 12 tin nhắn văn bản miễn phí hôm nay. Bạn có thể dùng khóa Gemini của mình.",

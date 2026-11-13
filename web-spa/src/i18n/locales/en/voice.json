@@ -185,6 +185,7 @@
   },
   "guestText": {
     "verifyRequired": "Security verification is required. Verify again, then press Send.",
+    "micFallbackNotice": "Microphone unavailable. You can now text {{name}} for free. Use “Switch to voice” above to try voice again.",
     "verifyFailed": "Security verification failed. Complete it again, then send your message.",
     "sessionExpired": "Your free session expired. Verify again to continue.",
     "dailyLimit": "You have used today’s 12 free text messages. You can switch to your own Gemini key.",

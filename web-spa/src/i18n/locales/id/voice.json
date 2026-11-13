@@ -185,6 +185,7 @@
   },
   "guestText": {
     "verifyRequired": "Verifikasi keamanan diperlukan. Verifikasi lagi, lalu tekan Kirim.",
+    "micFallbackNotice": "Mikrofon tidak tersedia. Kamu sekarang bisa chat teks gratis dengan {{name}}. Pilih mode suara di atas untuk kembali.",
     "verifyFailed": "Verifikasi gagal. Selesaikan lagi sebelum mengirim.",
     "sessionExpired": "Sesi gratis berakhir. Verifikasi lagi untuk melanjutkan.",
     "dailyLimit": "Kamu sudah memakai 12 pesan teks gratis hari ini. Kamu bisa menggunakan kunci Gemini sendiri.",

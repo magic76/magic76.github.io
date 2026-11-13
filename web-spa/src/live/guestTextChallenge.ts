@@ -7,6 +7,32 @@ type ChallengeApi={
 };
 const turnstile=()=> (window as Window&{turnstile?:ChallengeApi}).turnstile;
 const TIMEOUT_MS=40000;
+// Single-use, same-tab handoff. Never persist, log or include a challenge in the URL.
+const HANDOFF_TTL_MS=240000;
+let offered:{token:string;expiresAt:number}|null=null;
+let offeredTimeout:ReturnType<typeof setTimeout>|null=null;
+let micFallbackNotice=false;
+let lastChallengeWasHandoff=false;
+export function clearGuestChallengeHandoff(){
+ offered=null;lastChallengeWasHandoff=false;micFallbackNotice=false;
+ if(offeredTimeout!==null){clearTimeout(offeredTimeout);offeredTimeout=null}
+}
+export function offerGuestChallengeToken(token:string){
+ clearGuestChallengeHandoff();
+ if(!token)return;
+ offered={token,expiresAt:Date.now()+HANDOFF_TTL_MS};
+ offeredTimeout=setTimeout(()=>{offered=null;offeredTimeout=null},HANDOFF_TTL_MS);
+ micFallbackNotice=true;
+}
+export function takeMicFallbackNotice(){const notice=micFallbackNotice;micFallbackNotice=false;return notice}
+export function hasGuestChallengeHandoff(){return Boolean(offered&&offered.expiresAt>Date.now())}
+export function takeUsedGuestHandoff(){const used=lastChallengeWasHandoff;lastChallengeWasHandoff=false;return used}
+function takeGuestChallengeToken(){
+ const token=offered&&offered.expiresAt>Date.now()?offered.token:"";
+ offered=null;
+ if(offeredTimeout!==null){clearTimeout(offeredTimeout);offeredTimeout=null}
+ return token;
+}
 
 /** No script, host or token exists until a guest actually attempts to send. */
 export function useGuestTextChallenge(guestMode:boolean,phase:string,siteKey:string){
@@ -76,6 +102,9 @@ export function useGuestTextChallenge(guestMode:boolean,phase:string,siteKey:str
  },[requested,guestMode,phase,siteKey,settle]);
  const waitForChallenge=()=>{
   if(pending.current)return Promise.reject(Error("TURNSTILE_BUSY"));
+  const handedOff=takeGuestChallengeToken();
+  lastChallengeWasHandoff=Boolean(handedOff);
+  if(handedOff)return Promise.resolve(handedOff);
   return new Promise<string>((resolve,reject)=>{
    pending.current={resolve,reject};
    timeout.current=setTimeout(()=>settle(Error("TURNSTILE_TIMEOUT")),TIMEOUT_MS);

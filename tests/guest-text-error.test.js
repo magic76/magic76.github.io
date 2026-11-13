@@ -83,7 +83,7 @@ test("new guest failure messages and buttons exist as strings in all 11 voice na
   assert.ok(group,locale);
   const now=Object.keys(group).sort();
   if(!keys)keys=now;else assert.deepEqual(now,keys,locale);
-  assert.equal(keys.length,21);
+  assert.equal(keys.length,22);
   for(const value of Object.values(group))assert.equal(typeof value,"string",locale);
  }
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
