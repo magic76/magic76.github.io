@@ -27,7 +27,7 @@ import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./f
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
 import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
-import {isShortsHook,shortsHookLabel,shortsOpeningHint,shortsSelectedQuestion,shortsQuestionOpeningHint,rememberShortsConversation} from "../teacher/shortsSocial";
+import {isShortsHook,shortsOpeningHint,shortsSelectedQuestion,shortsQuestionOpeningHint,rememberShortsConversation} from "../teacher/shortsSocial";
 import "./friends.css";
 
 /**
@@ -70,6 +70,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const shortsHook=shortsPost&&isShortsHook(urlHook)?urlHook:null;
  const selectedQuestion=shortsPost?shortsSelectedQuestion(shortsPost,params.get("q"),
   (key,detail)=>t("home:shorts."+key,{detail})):"";
+ const shortsHookText=shortsHook?t("home:shorts."+({details:"hooksDetails",feelings:"hooksFeelings",next:"hooksNext"}[shortsHook])):undefined;
+ const shortsStarter=shortsPost?(selectedQuestion||shortsHookText||t("voice:friendLive.postStarter")):undefined;
  // Only known IDs can resolve a starter; Shorts always retains its own priority.
  const dailyTopic=!shortsPost&&friend.id==="zoe"?getDailyTopic(params.get("topic")):undefined;
  const dailyTopicStarter=dailyTopic?t("textStarters.topics."+dailyTopic.id,{name:friend.name}):undefined;
@@ -230,7 +232,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       <div><small>CREW SHORTS · {shortsPost.publishedAt.slice(0,10)}</small>
        <p lang={shortsPost.language}>{shortsPost.caption}</p>
        {selectedQuestion?<small className="friend-live-post-hook">{t("friendLive.hookPrefix")}{selectedQuestion}</small>
-        :shortsHook?<small className="friend-live-post-hook">{t("friendLive.hookPrefix")}{shortsHookLabel(shortsHook,english)}</small>:null}</div>
+        :shortsHook?<small className="friend-live-post-hook">{t("friendLive.hookPrefix")}{shortsHookText}</small>:null}</div>
      </section>:null}
     {postUnavailable?<p className="friend-live-post-unavailable" role="status">{t("friendLive.postUnavailable")}</p>:null}
     {shortsPost&&!textMode?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
@@ -246,7 +248,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     {textMode?(dailyLookupPending?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:dailyFortune?":daily:"+dailyFortune.hash:"")} searchEnabled={!shortsPost} system={system+(dailyFortune?"\n"+dailyFortune.context:"")+"\n"+languageDirective} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
-     firstStarter={selectedQuestion||(shortsHook?shortsHookLabel(shortsHook,english):undefined)||dailyFortuneStarter||dailyQuoteStarter||dailyTopicStarter}
+     firstStarter={shortsStarter||dailyFortuneStarter||dailyQuoteStarter||dailyTopicStarter}
      starters={dailyEntry?[t("dailyFortuneStarters.goodFor"),t("dailyFortuneStarters.watchOut")]:undefined}
      showStarterWithHistory={Boolean(dailyFortuneStarter||dailyQuoteStarter)}
      onExchange={shortsPost?()=>{if(usageSentRef.current)return;usageSentRef.current=true;trackUsageEvent("friend_conversation");trackUsageEvent("shorts_conversation");rememberShortsConversation(shortsPost)}:undefined}/>):<>

@@ -99,6 +99,7 @@
     "brand": "Crew フレンド · {{language}}",
     "stageAria": "{{name}} とおしゃべり",
     "hookPrefix": "話したいこと：",
+    "postStarter": "この写真で何があったの？",
     "postUnavailable": "元の投稿が見つからないため、通常のおしゃべりに切り替えました。",
     "textChat": "テキストチャット",
     "voiceChat": "音声チャット",

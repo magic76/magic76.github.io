@@ -99,6 +99,7 @@
     "brand": "Crew Friend · {{language}}",
     "stageAria": "Chat with {{name}}",
     "hookPrefix": "You wanted to ask: ",
+    "postStarter": "What's happening in this photo?",
     "postUnavailable": "We couldn't find the original post, so this is a regular chat with your friend.",
     "textChat": "Text chat",
     "voiceChat": "Voice chat",

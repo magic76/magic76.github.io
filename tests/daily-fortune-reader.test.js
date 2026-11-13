@@ -36,7 +36,7 @@ test("local hash failure returns ordinary Zoe starters, no personal system or sc
  assert.match(friend,/dailyLookup\?\.key===dailyLookupKey&&dailyLookup\.hash===personalChartHash&&dailyLookup\.context/);
  assert.match(friend,/dailyFortune\?"\\n"\+dailyFortune\.context:""/);
  assert.match(friend,/dailyFortune\?":daily:"\+dailyFortune\.hash:""/);
- assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/firstStarter=\{shortsStarter\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
  assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)\}/);
  assert.match(friend,/dailyLookupPending\?<p/);
  assert.match(home,/quote=daily&chart=/);

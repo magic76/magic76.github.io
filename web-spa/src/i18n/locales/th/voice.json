@@ -99,6 +99,7 @@
     "brand": "เพื่อน Crew · {{language}}",
     "stageAria": "คุยกับ {{name}}",
     "hookPrefix": "สิ่งที่อยากคุย: ",
+    "postStarter": "ในรูปนี้เกิดอะไรขึ้นเหรอ?",
     "postUnavailable": "ไม่พบโพสต์เดิม จึงเปลี่ยนเป็นการคุยกับเพื่อนแบบปกติ",
     "textChat": "แชทข้อความ",
     "voiceChat": "แชทเสียง",

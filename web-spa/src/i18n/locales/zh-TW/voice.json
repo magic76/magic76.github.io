@@ -99,6 +99,7 @@
     "brand": "Crew 朋友 · {{language}}",
     "stageAria": "和 {{name}} 聊天",
     "hookPrefix": "你想聊：",
+    "postStarter": "這張照片裡發生了什麼事？",
     "postUnavailable": "找不到原本的動態，已改為一般朋友聊天。",
     "textChat": "文字聊天",
     "voiceChat": "語音聊天",
