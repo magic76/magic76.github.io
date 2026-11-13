@@ -99,6 +99,7 @@
     "brand": "Ami Crew · {{language}}",
     "stageAria": "Discussion avec {{name}}",
     "hookPrefix": "Tu voulais demander : ",
+    "postStarter": "Que se passe-t-il sur cette photo ?",
     "postUnavailable": "Publication d’origine introuvable : c’est une discussion normale avec ton ami.",
     "textChat": "Chat écrit",
     "voiceChat": "Chat vocal",

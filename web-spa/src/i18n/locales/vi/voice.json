@@ -99,6 +99,7 @@
     "brand": "Bạn Crew · {{language}}",
     "stageAria": "Trò chuyện với {{name}}",
     "hookPrefix": "Bạn muốn hỏi: ",
+    "postStarter": "Chuyện gì đang xảy ra trong bức ảnh này?",
     "postUnavailable": "Không tìm thấy bài đăng gốc nên đã chuyển sang trò chuyện bình thường.",
     "textChat": "Trò chuyện bằng chữ",
     "voiceChat": "Trò chuyện bằng giọng nói",

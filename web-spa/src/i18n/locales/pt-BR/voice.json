@@ -99,6 +99,7 @@
     "brand": "Amigo Crew · {{language}}",
     "stageAria": "Conversa com {{name}}",
     "hookPrefix": "Você queria perguntar: ",
+    "postStarter": "O que está acontecendo nesta foto?",
     "postUnavailable": "Não encontramos a publicação original; esta é uma conversa normal com seu amigo.",
     "textChat": "Chat por texto",
     "voiceChat": "Chat por voz",

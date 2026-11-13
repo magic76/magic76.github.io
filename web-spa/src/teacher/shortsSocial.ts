@@ -9,14 +9,6 @@ export const SHORTS_HOOKS:readonly ShortsHook[]=["details","feelings","next"];
 export function isShortsHook(value:string|null):value is ShortsHook{
  return value!==null&&SHORTS_HOOKS.some(hook=>hook===value);
 }
-export function shortsHookLabel(hook:ShortsHook,en:boolean):string{
- const labels={
-  details:["Tell me more","怎麼回事？"],
-  feelings:["How do you feel?","你現在怎麼想？"],
-  next:["What happened next?","後來呢？"]
- } as const;
- return labels[hook][en?0:1];
-}
 export function shortsOpeningHint(hook:string|null):string{
  if(!isShortsHook(hook))return "";
  const hints:Record<ShortsHook,string>={

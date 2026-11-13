@@ -115,7 +115,7 @@ test("quote starter is allowlisted, same-language, opt-in and Shorts retains pri
  assert.match(friend,/!shortsPost&&friend\.id==="zoe"/);
  assert.match(friend,/loadQuoteText\(locale\.language,selectedQuote\.id\)/);
  assert.match(friend,/t\("dailyQuoteStarter",\{quote:quoteText\.text\}\)/);
- assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/firstStarter=\{shortsStarter\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
  assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)\}/);
  assert.match(chat,/historyReady&&messages\.length>0&&showStarterWithHistory&&firstStarter/);
  assert.match(chat,/firstOnly\/>/);
