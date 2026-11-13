@@ -17,7 +17,7 @@ function showMoment(finished,done){
  // image must still contain the exact completed tree and forest state.
  momentCapture={garden:JSON.parse(JSON.stringify(garden)),
   tree:validateTree(JSON.parse(JSON.stringify(finished))),
-  topic:finished.growth.at(-1)?.topic||'daily'};
+  topic:finished.growth.at(-1)?.topic||'daily',forestEvent:done.forestEvent||null};
  const box=$('momentSave');if(!box)return;
  box.hidden=false;
  $('momentSaveLabel').textContent=done.forestEvent?
@@ -41,7 +41,7 @@ function momentPosterArgs(){
   // Only a completed 16th turn reveals the final species. Intermediate
   // postcards must preserve their real 3/8-turn silhouette and sentence count.
   options:{...(momentCapture.tree.growth.length>=16?
-   {reveal:{tree:momentCapture.tree}}:{}),topic:momentCapture.topic}
+   {reveal:{tree:momentCapture.tree}}:{}),topic:momentCapture.topic,forestEvent:momentCapture.forestEvent||null}
  }:{garden,active:current,options:{topic:GLOW.latestTopic(garden,current)}};
 }
 function loadGarden(){
@@ -112,11 +112,12 @@ function syncGardenUI(){
  $('nextSurprise').textContent=$('gardenNext').textContent;
  $('worldName').textContent='夜光森林 · 每句話都有顏色';
  $('growthHint').textContent='每棵長滿 16 句會留在森林。森林長大後，有菇路、池塘和極光。';
- const topic=topTopic(current);
+ const visibleTree=reveal?.tree||current;
+ const topic=topTopic(visibleTree);
  $('traitRow').innerHTML=[
   '✦ '+name,
   '🎨 '+TOPICS[topic].label,
-  '🌿 '+current.mutations.length+' 種突變',
+  '🌿 '+visibleTree.mutations.length+' 種突變',
   '🌙 夜光森林'
  ].map(x=>'<span>'+x+'</span>').join('');
  $('treeSubtitle').textContent=n===0?'從第一句開始，每句都讓森林多一點光。':
@@ -602,7 +603,7 @@ function drawTree(c,tree,geometry,ox,oy,factor,clock){
 }
 function scene(c,width,height,tree,geometry,clock,card=false){
  if(useV6&&c===ctx&&!card){
-  GLOW.paint(canvas,garden,tree,clock,{width,height,dpr,still:reduceMotion,
+  GLOW.paint(canvas,reveal?window.CrewForestPostcardV6.sceneGarden(garden,reveal.tree):garden,tree,clock,{width,height,dpr,still:reduceMotion,
    motion:growthMotion,reveal:reveal&&Date.now()<reveal.until?reveal:null});
   if(growthMotion&&Date.now()-growthMotion.start>=1250)growthMotion=null;
   return;

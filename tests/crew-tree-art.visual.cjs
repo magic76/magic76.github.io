@@ -320,6 +320,8 @@ async function preview(page,label){
      assert.equal(await glow.locator('#momentSave').isVisible(),true,
        'all 16th turns offer save-this-moment before the new seed appears');
      assert.match(await glow.locator('#captureMilestoneBtn').innerText(),/存下這一刻/);
+      assert.doesNotMatch(await glow.locator('#traitRow').innerText(),/日常.*0 種突變/,
+       'the HUD must still show the completed tree');
      if(i>=2)await glow.locator('.tree-panel').screenshot({
       path:path.join(OUT,'V6-mobile-forest-'+(i+1)+'-save-moment.png')
      });
@@ -352,11 +354,14 @@ async function preview(page,label){
    return {width:out.width,height:out.height,
     black:[...c.getImageData(5,1500,1,1).data],
     purple:[...c.getImageData(5,1444,1,1).data],
-    level:window.CrewGlowForestV6.forestLevel(q.garden.totalCompleted).name};
+    level:window.CrewForestPostcardV6.forestLabel(q.garden.totalCompleted).name,
+     duplicateFree:window.CrewForestPostcardV6.sceneGarden(q.garden,q.active).slots.filter(Boolean).length};
   });
   assert.deepEqual(sampled.black.slice(0,3),[18,16,28]);
   assert.deepEqual(sampled.purple.slice(0,3),[98,87,231]);
-  assert.equal(sampled.level,'極光森林');
+  assert.equal(sampled.level,'極光');
+   assert.equal(sampled.duplicateFree,3,'3 slotted trees plus 1 revealed tree');
+   assert.equal(await glow.locator('#shareBtn').isVisible(),false,'no duplicated action-row share');
   const secondDownload=glow.waitForEvent('download');
   await glow.locator('#captureMilestoneBtn').click();
   assert.match((await secondDownload).suggestedFilename(),/crew-forest-5-trees\.png$/);
@@ -380,6 +385,8 @@ async function preview(page,label){
   await glow.waitForTimeout(3850);
   await glow.locator('#canvasWrap').screenshot({path:path.join(OUT,'V6-mobile-5-trees-new-seed.png')});
   assert.equal((await glow.evaluate(()=>window.__TREE_QA__.glow())).stage,'seed');
+   assert.match(await glow.locator('#traitRow').innerText(),/日常/,
+    'HUD switches to the new seed after reveal');
   await glow.screenshot({path:path.join(OUT,'V6-mobile-five-forest-full-page.png'),fullPage:true});
   await glow.reload({waitUntil:'networkidle'});
   const savedGarden=await glow.evaluate(()=>window.__TREE_QA__.glow());

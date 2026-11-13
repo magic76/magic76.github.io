@@ -192,3 +192,6 @@ body.glow-v6 .moment-save button:focus-visible,body.glow-v6 .quick-forest-save:f
  body.glow-v6 .quick-forest-save{right:8px;top:8px;min-width:106px;min-height:44px}
  body.glow-v6 .moment-save{margin:6px 8px 2px;padding:6px 9px}
 }
+
+/* V6 keeps the top-right PNG download, not the redundant action-row share. */
+body.glow-v6 #shareBtn{display:none!important}
