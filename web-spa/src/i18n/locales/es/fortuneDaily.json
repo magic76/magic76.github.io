@@ -283,5 +283,21 @@
   "flipBack": "Ver el frente",
   "moreDetails": "Más detalles",
   "recentDays": "Últimos 7 días",
-  "notCompleted": "Sin completar"
+  "notCompleted": "Sin completar",
+  "zoeReading": {
+    "title": "La lectura de Zoe para hoy",
+    "loading": "Zoe prepara la lectura de hoy…",
+    "staticNote": "Una lectura de Zoe basada en tu carta, sin IA.",
+    "fallback": "A ver, {{kind}} nos deja esta pista hoy: «{{headline}}». Suena intenso, pero lo importante es: {{theme}}\n\nYo empezaría por {{do}}. Y con {{avoid}}, mejor baja el ritmo. Tu color de la suerte es {{color}}; úsalo como recordatorio, no como garantía.",
+    "needKey": "Para una lectura nueva con IA necesitas una clave Gemini. Esta versión no la requiere.",
+    "continueChat": "Seguir hablando con Zoe",
+    "ask": "Preguntar a Zoe por hoy",
+    "placeholder": "¿Qué te gustaría explorar?",
+    "send": "Preguntar",
+    "sending": "Respondiendo…",
+    "quota": "Se agotó la cuota de Gemini. La lectura de la carta sigue disponible.",
+    "error": "No se pudo generar la lectura con IA. Aquí tienes la versión de la carta.",
+    "key": "La clave Gemini no funciona. Revisa la configuración.",
+    "retry": "Reintentar"
+  }
 }

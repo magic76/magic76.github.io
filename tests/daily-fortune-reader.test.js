@@ -39,7 +39,7 @@ test("local hash failure returns ordinary Zoe starters, no personal system or sc
  assert.match(friend,/firstStarter=\{shortsStarter\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
  assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)\}/);
  assert.match(friend,/dailyLookupPending\?<p/);
- assert.match(home,/quote=daily&chart=/);
+ assert.match(home,/chatHref=isPersonal&&\/\^\[a-f0-9\]\{64\}\$\/\.test\(personal!\.hash\)\?fortuneHref\+"&zoe=1"/);
  assert.doesNotMatch(home,/quote="\+quote!/,"no-chart home CTA now directs to fortune setup");
  assert.match(home,/t\("dailyQuote.setupChart"\)/);
  assert.doesNotMatch(friend,/setDraft\(dailyFortuneStarter\)|sendMessage\(dailyFortuneStarter\)/);

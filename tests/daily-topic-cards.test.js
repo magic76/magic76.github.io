@@ -80,9 +80,10 @@ test("SSG placeholder, local midnight + visibility refresh; personalized Zoe CTA
  assert.match(cards,/fortuneHref=isPersonal\?"\/fortune\?daily=1&chart="/);
  assert.match(cards,/kind="\+personal!/);
  assert.match(cards,/:"\/fortune\/reading\?mode=bazi&from=daily"/);
- assert.match(cards,/chat=text&quote=daily&chart=/);
+ assert.match(cards,/chatHref=isPersonal&&\/\^\[a-f0-9\]\{64\}\$\/\.test\(personal!\.hash\)\?fortuneHref\+"&zoe=1"/);
+ assert.doesNotMatch(cards,/chat=text&quote=daily&chart=/);
  assert.match(cards,/isPersonal\?<\>/);
- assert.match(cards,/to=\{chatHref\}/);
+ assert.match(cards,/chatHref&&<Link[^>]+to=\{chatHref\}/);
  assert.match(cards,/t\("dailyQuote.chatRead"\)/);
  assert.match(cards,/to="\/fortune\/reading\?mode=bazi&from=daily" onClick=\{\(\)=>trackUsageEvent\("home_entry_click","fortune"\)\}/);
  assert.match(cards,/t\("dailyQuote.setupChart"\)/);

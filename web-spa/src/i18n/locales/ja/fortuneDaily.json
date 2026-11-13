@@ -283,5 +283,21 @@
   "flipBack": "表面に戻る",
   "moreDetails": "詳しい占いの内容",
   "recentDays": "最近7日間",
-  "notCompleted": "未達成"
+  "notCompleted": "未達成",
+  "zoeReading": {
+    "title": "Zoeが読む今日の運勢",
+    "loading": "Zoeが今日の読み解きを考えています…",
+    "staticNote": "AIを使わず、今日のカードからZoeがまとめたメモです。",
+    "fallback": "さて、今日の{{kind}}には「{{headline}}」というヒントがあるよ。ちょっと大げさに聞こえるけれど、ポイントはここ：{{theme}}\n\nまずは「{{do}}」を試してみて。「{{avoid}}」には無理に突っ込まないで。ラッキーカラーの{{color}}は、ペースを整える小さな合図として使おう。未来を決めつける話じゃないよ。",
+    "needKey": "ZoeのAI解釈にはGemini Keyが必要です。このメモはKeyなしで読めます。",
+    "continueChat": "チャットでZoeに続きを聞く",
+    "ask": "今日の運勢について質問",
+    "placeholder": "もう少し知りたいことは？",
+    "send": "質問する",
+    "sending": "返信中…",
+    "quota": "Geminiの利用枠に達しました。カードの解釈をご覧ください。",
+    "error": "AI解釈を作れませんでした。カード版を表示しています。",
+    "key": "Gemini Keyを使えません。設定を確認してください。",
+    "retry": "再試行"
+  }
 }
