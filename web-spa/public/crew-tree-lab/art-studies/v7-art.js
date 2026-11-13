@@ -88,10 +88,15 @@ function picturebookFinish(c,seed,scene,stage){
  const tile=grainTile(seed);
  if(tile){
   const pattern=c.createPattern(tile,'repeat');
-  if(pattern){c.globalAlpha*=.81;c.fillStyle=pattern;c.fillRect(0,0,800,820);c.globalAlpha=inherited;}
+  if(pattern){
+   c.globalCompositeOperation='overlay';
+   c.globalAlpha=inherited*.40;
+   c.fillStyle=pattern;c.fillRect(0,0,800,820);
+   c.globalAlpha=inherited;c.globalCompositeOperation='source-over';
+  }
  }else{
   for(let i=0;i<160;i++){
-   c.globalAlpha=inherited*.14;c.fillStyle=i%2?'#836c69':'#f5ebd3';
+   c.globalAlpha=inherited*.08;c.fillStyle=i%2?'#806d73':'#f5ebd3';
    c.fillRect(r()*800,r()*820,1+r()*5,1+r()*2);
   }
   c.globalAlpha=inherited;
@@ -99,14 +104,14 @@ function picturebookFinish(c,seed,scene,stage){
  // Watercolor pools bleed past each other with irregular and translucent edges.
  for(let i=0;i<68;i++){
   const x=r()*800,y=r()*820,rx=6+r()*28,ry=3+r()*14;
-  c.globalAlpha=inherited*(.018+r()*.042);
+  c.globalCompositeOperation='soft-light';c.globalAlpha=inherited*(.05+r()*.10);
   c.fillStyle=i%3===0?'#f8e9c5':i%3===1?'#729b9e':'#ad858f';
   c.beginPath();c.ellipse(x,y,rx,ry,(r()-.5)*.6,0,TAU);c.fill();
  }
- c.globalAlpha=inherited;
+ c.globalAlpha=inherited;c.globalCompositeOperation='source-over';
  // A softly deckled vignette instead of a synthetic hard rectangle.
  const g=c.createRadialGradient(390,390,188,398,405,550);
- g.addColorStop(0,'#fff4e500');g.addColorStop(.75,'#e8cfbd09');g.addColorStop(1,'#a0877d52');
+ g.addColorStop(0,'#fff4e500');g.addColorStop(.75,'#e8cfbd08');g.addColorStop(1,'#967c731b');
  c.fillStyle=g;c.fillRect(0,0,800,820);
  c.restore();
 }
