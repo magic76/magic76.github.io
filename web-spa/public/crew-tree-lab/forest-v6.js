@@ -343,14 +343,38 @@ function shape(c,tree,n,x,y,scale,alpha,time,staticMode,marks){
   else petals(c,tips,time);
  }else paintGeneric(c,tips,time,seedNum,palette,scale,n);
  if(Array.isArray(marks)){
-  const shown=Math.min(n,marks.length);
+  // Persistent leaf geometry for every sentence: not transient UI confetti.
+  // Use newly revealed branch tips, never a detached row of identical dots.
+  // Each topic gets a physical luminous pair of leaves that remains afterward.
+  const shown=Math.min(n,marks.length,16);
+  for(let i=2;i<shown;i++){
+   const idx=Math.min(shape.branches.length-1,
+    Math.max(0,Math.ceil(shape.branches.length*(i+1)/16)-1));
+   const b=shape.branches[idx],xx=b.x1,yy=b.y1,topic=marks[i];
+   const col=topicColors[topic]||topicColors.daily,latest=i===shown-1;
+   const phase=seedNum*.001+i*1.618;
+   const sway=staticMode?0:Math.sin(time*.0013+phase)*1.7;
+   const size=latest?11.5:8.5;
+   if(latest)glow(c,xx,yy,42,col,.81);
+   else glow(c,xx,yy,19,col,.27);
+   c.save();c.translate(xx+sway,yy);
+   c.rotate(Math.sin(phase)*.24);
+   for(const side of [-1,1]){
+    c.save();c.rotate(side*.53);
+    ellipse(c,side*size*.67,-size*.35,size*.90,size*.42,col,side*.36);
+    ellipse(c,side*size*.73,-size*.45,size*.37,size*.16,'#f7fff3cc',side*.36);
+    c.restore();
+   }
+   c.restore();
+  }
+  // Keep the original per-topic dots as tiny veins / pollen accents.
   for(let i=0;i<shown;i++){
    const p=tips[(i*7+seedNum%5)%Math.max(1,tips.length)];
    if(!p)continue;
    const col=topicColors[marks[i]]||topicColors.daily;
-   glow(c,p.x,p.y,23,col,.61);
-   ellipse(c,p.x,p.y,4.4,4.4,'#ffffff');
-   ellipse(c,p.x+1,p.y,2.8,2.8,col);
+   glow(c,p.x,p.y,i===shown-1?28:19,col,i===shown-1?.80:.42);
+   ellipse(c,p.x,p.y,3.8,3.8,'#ffffff');
+   ellipse(c,p.x+1,p.y,2.6,2.6,col);
   }
  }
  c.restore();
