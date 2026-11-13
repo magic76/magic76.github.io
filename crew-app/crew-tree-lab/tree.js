@@ -6,7 +6,29 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const GLOW=window.CrewGlowForestV6;
 const useV6=!!GLOW&&!new URLSearchParams(location.search).has('legacy');
 const GARDEN_KEY='crew-tree-glow-forest-v6';
-let garden=useV6?GLOW.empty():null,reveal=null,forestBannerTimer=0;
+let garden=useV6?GLOW.empty():null,reveal=null,forestBannerTimer=0,momentCapture=null;
+function clearMoment(){
+ momentCapture=null;
+ const el=$('momentSave');if(el)el.hidden=true;
+}
+function showMoment(finished,done){
+ // Freeze just structured tree characteristics, never chat originals or IDs.
+ // A completing 16th turn starts a new seed immediately, but the requested
+ // image must still contain the exact completed tree and forest state.
+ momentCapture={garden:JSON.parse(JSON.stringify(garden)),
+  tree:validateTree(JSON.parse(JSON.stringify(finished))),
+  topic:finished.growth.at(-1)?.topic||'daily'};
+ const box=$('momentSave');if(!box)return;
+ box.hidden=false;
+ $('momentSaveLabel').textContent=done.forestEvent?
+  done.forestEvent+' · 存下這一刻':done.form.icon+' '+done.form.name+' 揭曉 · 存下這一刻';
+}
+function momentPosterArgs(){
+ return momentCapture?{
+  garden:momentCapture.garden,active:momentCapture.tree,
+  options:{reveal:{tree:momentCapture.tree},topic:momentCapture.topic}
+ }:{garden,active:current,options:{topic:GLOW.latestTopic(garden,current)}};
+}
 function loadGarden(){
  if(!useV6)return;
  try{garden=GLOW.restore(JSON.parse(localStorage.getItem(GARDEN_KEY)||'null'));}
@@ -20,7 +42,7 @@ function visibleGrowAge(){return reveal?16:current.growth.length;}
 function resetGarden(){
  if(!useV6)return false;
  clearTimeout(forestBannerTimer);clearSurprise();
- garden=GLOW.empty();reveal=null;growthMotion=null;
+ garden=GLOW.empty();reveal=null;growthMotion=null;clearMoment();
  current=makeTree();geom=buildGeometry(current);writeStorage();writeGarden();
  $('watchGrowthBtn').hidden=true;
  resetChat('Zoe','新的森林開始了。從一顆發光種子慢慢長出你的世界。');
@@ -28,7 +50,7 @@ function resetGarden(){
 }
 function seedForQA(value){
  if(!useV6||!Number.isInteger(value)||value<0||value>4294967295)return false;
- current=makeTree(value);geom=buildGeometry(current);reveal=null;growthMotion=null;
+ current=makeTree(value);geom=buildGeometry(current);reveal=null;growthMotion=null;clearMoment();
  clearSurprise();writeStorage();updateTreeUI();return true;
 }
 function renderRetired(){
@@ -100,6 +122,7 @@ function finishGardenTree(){
  cueSurprise(event);
  clearTimeout(forestBannerTimer);
  if(done.forestEvent)forestBannerTimer=setTimeout(()=>popToast(done.forestEvent),4100);
+ showMoment(finished,done);
  appendMessage('zoe','你的 '+done.form.name+' 誕生了（'+done.rarity.name+'）！新種子已經種下，森林正在變大。');
  updateTreeUI();renderGallery();return {done,event};
 }
@@ -424,6 +447,7 @@ function postMessage(raw){
  const text=String(raw||'').trim();
  if(!text)return false;
  if(text.length>240)return false;
+ if(useV6&&momentCapture)clearMoment();
  if(useV6&&current.growth.length>=16){
   reveal=null;current=makeTree();geom=buildGeometry(current);clearSurprise();
  }
@@ -470,7 +494,7 @@ function saveTree(silent=false){
 }
 function createNewTree(){
  if(current.growth.length>0)saveTree(true);
- current=makeTree();geom=buildGeometry(current);growthMotion=null;reveal=null;clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
+ current=makeTree();geom=buildGeometry(current);growthMotion=null;reveal=null;clearMoment();clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','新的一顆樹苗來啦！這次要把它聊成什麼怪樣子？🌱');
  updateTreeUI();popToast('新的小樹苗準備好了！');
 }
@@ -483,7 +507,7 @@ function openSaved(seed){
  if(!selected)return false;
  if(current.growth.length>0&&current.seed!==selected.seed)saveTree(true);
  current=validateTree(JSON.parse(JSON.stringify(selected)));
- geom=buildGeometry(current);growthMotion=null;reveal=null;clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
+ geom=buildGeometry(current);growthMotion=null;reveal=null;clearMoment();clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','啊，這是我們之前的「'+current.name+'」！繼續聊天，它還能長出新東西喔。');
  updateTreeUI();popToast('🌿 找到這棵歪樹了！');
  window.scrollTo?.({top:0,behavior:'smooth'});
@@ -618,14 +642,22 @@ function render(now=0){
  window.requestAnimationFrame?.(render);
 }
 function exportImage(){
- if(useV6){try{
-  const out=document.createElement('canvas');
-  if(!GLOW.poster(out,garden,current,renderTime))return false;
-  const a=document.createElement('a');a.href=out.toDataURL('image/png');
-  a.download='crew-forest-'+garden.totalCompleted+'-trees.png';
-  document.body.appendChild(a);a.click();a.remove();return true;
- }catch{return false;}}
-
+ if(useV6){
+  try{
+   const {garden:sceneGarden,active,options}=momentPosterArgs();
+   const out=document.createElement('canvas');
+   if(!GLOW.poster(out,sceneGarden,active,renderTime,options))throw Error('poster unavailable');
+   const png=out.toDataURL('image/png');
+   if(!png.startsWith('data:image/png'))throw Error('PNG encoding unsupported');
+   const a=document.createElement('a');a.href=png;
+   a.download='crew-forest-'+sceneGarden.totalCompleted+'-trees.png';
+   document.body.appendChild(a);a.click();a.remove();
+   return true;
+  }catch{
+   popToast('這個瀏覽器暫時無法下載 PNG，請稍後再試。');
+   return false;
+  }
+ }
  if(!current.growth.length){popToast('先讓樹長大，再存圖吧！');return false}
  try{
   const out=document.createElement('canvas');out.width=900;out.height=1200;
@@ -650,6 +682,8 @@ function init(){
  $('newBtn').addEventListener('click',createNewTree);
  $('resetGardenBtn').addEventListener('click',()=>{if(!window.confirm||window.confirm('確定重新開始這座森林？已退休的樹也會從目前場景清除。'))resetGarden();});
  $('shareBtn').addEventListener('click',exportImage);
+ $('quickForestSave').addEventListener('click',exportImage);
+ $('captureMilestoneBtn').addEventListener('click',exportImage);
  $('kindSelect').addEventListener('change',ev=>chooseKind(ev.target.value));
  $('worldSelect').addEventListener('change',ev=>chooseWorld(ev.target.value));
  $('watchGrowthBtn').addEventListener('click',()=>{
@@ -675,6 +709,7 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
    age:visibleGrowAge(),reveal:reveal?{form:GLOW.form(reveal.tree.seed).id,rarity:GLOW.rarity(reveal.tree.seed).key}:null}:null,
   glowStage:n=>GLOW?.stage(n),glowForm:seed=>GLOW?.form(seed),glowRarity:seed=>GLOW?.rarity(seed),
   glowSeed:seedForQA,glowReset:resetGarden,
+  glowPoster:()=>useV6?momentPosterArgs():null,glowClearMoment:clearMoment,
   open:openSaved,exportImage,allTopics:Object.keys(TOPICS),mutations:MUTATIONS.map(m=>m.key),
   getRendererVersion:()=>window.CrewTreeV5.modelVersion,
   families:window.CrewTreeV5.families.slice(),
