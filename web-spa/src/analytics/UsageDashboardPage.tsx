@@ -2,9 +2,9 @@ import {useEffect,useMemo,useState} from "react";
 import "./usage-dashboard.css";
 import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
 import {SoulsUsagePanel,SOULS_USAGE_EVENTS,SOULS_USAGE_NAMES} from "./SoulsUsagePanel";
+import {UsageExportControls} from "./UsageExportControls";
+import {num,total,totalMany,comparison,type Row,type EventUsers} from "./usageExport";
 
-type Row={day:string;event:string;detail?:string;count:number;users:number};
-type EventUsers={event:string;users:number};
 type Report={
  days:number;activeUsers:number;chatUsers:number;
  previousActiveUsers:number;previousChatUsers:number;
@@ -65,13 +65,7 @@ const games:{id:string;label:string}[]=[
  {id:"gomoku",label:"五子棋"},{id:"connect4",label:"四子棋"},
  {id:"reversi",label:"黑白棋"},{id:"nonsense",label:"荒謬新聞直播 / 胡說大賽"},{id:"crazy-court",label:"荒謬法庭"},{id:"werewolf",label:"狼人殺"},{id:"twenty-questions",label:"20 Questions"},{id:"mystery",label:"海龜湯"}
 ];
-const num=(n:number)=>Math.round(n).toLocaleString("zh-TW");
-const total=(rows:Row[],name:string,detail?:string)=>rows.filter(r=>r.event===name&&(detail===undefined||r.detail===detail)).reduce((sum,r)=>sum+r.count,0);
-const totalMany=(rows:Row[],events:string[])=>events.reduce((sum,event)=>sum+total(rows,event),0);
 const eventRatio=(value:number,previous:number)=>previous>0?(value/previous*100).toFixed(1)+"%":"—";
-const comparison=(current:number,previous:number)=>previous===0
- ? "前一期尚無可比較的使用紀錄"
- : `較前一期 ${current>=previous?"+":""}${num(current-previous)}（${current>=previous?"+":""}${Math.round((current-previous)/previous*100)}%）`;
 const chatStart=["teacher_conversation_start","friend_conversation_start","timeline_conversation_start","souls_live_connected"];
 const chatSpeech=["teacher_user_spoke","friend_user_spoke","timeline_user_spoke","souls_user_input"];
 const chatReply=["teacher_ai_replied","friend_ai_replied","timeline_ai_replied","souls_ai_replied"];
@@ -121,6 +115,7 @@ export function UsageDashboardPage(){
     <button type="button" aria-pressed={days===7} onClick={()=>setDays(7)}>最近 7 天</button>
     <button type="button" aria-pressed={days===30} onClick={()=>setDays(30)}>最近 30 天</button>
     <a href="#guest-trial-stats" className="usage-jump">免費試用統計</a>
+    <UsageExportControls data={data} days={days} category={selected} bars={bars} categoryEventTotal={totalMany(rows,selected.events)} disabled={loading||!!error||!data||data.days!==days}/>
     <span className="usage-source">資料來源：Web · Cloudflare（不含 Android）</span>
    </div>
   </section>
