@@ -257,6 +257,8 @@ function jellyScene(c,m,time,staticMode){
  c.restore();
 }
 
+// Game V1's single turn-based scale is shared by all 3/8/16 plates.
+const growthScale=turns=>.66+.34*clamp(turns/16,0,1)+.018*clamp((turns-16)/16,0,1);
 function firstVisitor(c,scene,seed,time,still,progress=1){
  // The visitor is one stable, cheeky watercolor creature, not a detached
  // particle. At sentence 3 it fades into the still-small stage 3 world.
@@ -307,7 +309,7 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
  // Continuous scale is a function of turns only, not of the 3/8/16 art
  // plate. The old and newly unlocked plate share the same visual size during
  // a crossfade. Never reset to a smaller multiplier at a stage boundary.
- const growthScale=turns=>.66+.34*clamp(turns/16,0,1)+.018*clamp((turns-16)/16,0,1);
+
  const sceneLayer=(m,opacity=1,grow=null)=>{
   c.save();c.globalAlpha*=opacity;
   if(game&&Number.isFinite(game.turns)){
