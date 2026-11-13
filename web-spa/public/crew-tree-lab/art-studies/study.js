@@ -132,7 +132,7 @@ function floatScene(c,m,time,staticMode){
   if(m.growthProgress!==undefined){
    const previousCount=m.fromStage<=3?1:m.fromStage<=8?2:4;
    if(i>=previousCount)window.CrewFantasyV5.emergence(c,units[i],i-previousCount+1,m.growthProgress);
-   else if(i===0&&m.fromStage<=3){
+   else if(i===0&&m.fromStage<=3&&!Number.isFinite(m.gameTurns)){
     const t=window.CrewFantasyV5.ease(m.growthProgress),u=units[i];
     c.translate(u.x,u.y+70*(1-t));c.scale(.7+.3*t,.7+.3*t);c.translate(-u.x,-u.y);
    }
@@ -257,6 +257,27 @@ function jellyScene(c,m,time,staticMode){
  c.restore();
 }
 
+function firstVisitor(c,scene,seed,time,still,progress=1){
+ // The visitor is one stable, cheeky watercolor creature, not a detached
+ // particle. At sentence 3 it fades into the still-small stage 3 world.
+ c.save();c.globalAlpha*=clamp(progress,0,1);
+ const x=scene==='island'?462:493,y=scene==='island'?428:463;
+ const bob=still?0:Math.sin(time*.0014+seed*.01)*3;
+ c.translate(x,y+bob);c.shadowColor='#ffe0a1';c.shadowBlur=19;
+ const lamp=c.createRadialGradient(0,0,2,0,0,29);
+ lamp.addColorStop(0,'#fff5c5db');lamp.addColorStop(.5,'#ffda8f80');
+ lamp.addColorStop(1,'#fff2c000');
+ c.fillStyle=lamp;c.beginPath();c.arc(0,0,29,0,TAU);c.fill();
+ c.shadowBlur=4;c.fillStyle=scene==='island'?'#ffe4ac':'#bef5d9';
+ c.beginPath();c.ellipse(0,0,11,13,0,0,TAU);c.fill();
+ c.fillStyle='#344e58';
+ for(const side of [-1,1]){c.beginPath();c.arc(side*4,-1,1.55,0,TAU);c.fill();}
+ c.strokeStyle='#99696b';c.lineWidth=1.6;c.lineCap='round';
+ c.beginPath();c.arc(0,2,4.4,.20,Math.PI-.20);c.stroke();
+ c.strokeStyle='#d6f3be';c.lineWidth=2.1;c.beginPath();
+ c.moveTo(8,5);c.lineTo(14,-5);c.stroke();c.restore();
+}
+
 function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=false,transition=null,reaction=null,game=null){
  const bounds=canvas.getBoundingClientRect(),width=game?.width||Math.max(180,bounds.width||400),
   height=game?.height||Math.max(180,bounds.height||420);
@@ -283,22 +304,25 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
   window.CrewFantasyV8.organismHalo(c,model,time,staticMode);
  }
  if(silhouette){c.save();c.filter='brightness(0)';}
+ // Continuous scale is a function of turns only, not of the 3/8/16 art
+ // plate. The old and newly unlocked plate share the same visual size during
+ // a crossfade. Never reset to a smaller multiplier at a stage boundary.
+ const growthScale=turns=>.66+.34*clamp(turns/16,0,1)+.018*clamp((turns-16)/16,0,1);
  const sceneLayer=(m,opacity=1,grow=null)=>{
   c.save();c.globalAlpha*=opacity;
   if(game&&Number.isFinite(game.turns)){
-   // No abrupt static plate: every user sentence expands the organism.
-   const factor=(life,n)=>life<=3?.79+.16*clamp(n/2,0,1):
-    life<=8?.80+.20*clamp((n-3)/4,0,1):
-    .76+.24*clamp((n-8)/8,0,1)+.024*clamp((n-16)/16,0,1);
-   const now=game.turns,prior=Number.isFinite(game.fromTurns)?game.fromTurns:now;
-   const isOld=!!(transition&&m.stage!==stage);
-   const a=factor(m.stage,isOld?prior:prior),b=factor(m.stage,isOld?prior:now);
+   const fromTurns=Number.isFinite(game.fromTurns)?game.fromTurns:game.turns;
    const progress=transition?window.CrewFantasyV5.ease(transition.progress):1;
-   const k=isOld?a:a+(b-a)*progress;
+   const currentTurns=fromTurns+(game.turns-fromTurns)*progress;
+   const k=growthScale(currentTurns);
+   m.gameTurns=game.turns;
    c.translate(400,532);c.scale(k,k);c.translate(-400,-532);
   }
   if(reaction&&reaction.scene===scene)m.reactionProgress=reaction.progress;
-  if(grow&&scene==='jelly')window.CrewFantasyV5.jellyGrowth(c,grow.from,stage,grow.progress);
+  // V5's demo-only jellyGrowth shrinks the next plate to 48%/71% before
+  // enlarging it. Skip that reset in the live game; the *new* tentacles
+  // emerge through the plate crossfade while the existing organism stays put.
+  if(grow&&scene==='jelly'&&!game)window.CrewFantasyV5.jellyGrowth(c,grow.from,stage,grow.progress);
   if(scene==='island')floatScene(c,m,time,staticMode);
   else jellyScene(c,m,time,staticMode);
   c.restore();
@@ -314,6 +338,11 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
   c.translate(400,570);c.scale(zoom,zoom);c.translate(-400,-570);
   sceneLayer(model);c.restore();
  }else sceneLayer(model);
+ if(game&&Number.isFinite(game.turns)&&game.turns>=3&&stage===3&&!silhouette){
+  const from=Number.isFinite(game.fromTurns)?game.fromTurns:game.turns;
+  const p=transition&&from<3?window.CrewFantasyV5.ease(transition.progress):1;
+  firstVisitor(c,scene,seed,time,staticMode,p);
+ }
  if(silhouette){c.restore();}
  else{
   c.save();c.globalAlpha*=transition?Math.max(.18,p):1;
@@ -434,6 +463,7 @@ function frame(now){
 // Reuse the SAME V9 painter in the real chat game, without mounting the art
 // study's buttons and status DOM. No duplicate renderer or captured chat text.
 window.CrewFantasyGameArt=Object.freeze({paint,sceneModel,
+ growthScale,
  assetsReady:()=>FILES.every(ready),assetStatus:()=>({loaded:FILES.filter(ready),missing:FILES.filter(x=>!ready(x))})});
 if(isGameHost()){load();return;}
 if(new URLSearchParams(location.search).get('qa')==='1'){
