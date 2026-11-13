@@ -37,7 +37,7 @@ test("Desktop keeps its keyboard-accessible mode rail; mobile no longer renders 
 });
 
 test("Desktop modes and deep links stay intact; mobile slide actions use original destinations",()=>{
- assert.match(desktop,/<h1>\{canResume\?t\("layout2.resumeTitle"\):t\("layout2.title"/);
+ assert.match(desktop,/<h1>\{canResume\?t\("layout2.resumeTitle",\{name:friendName\}\):t\("layout2.title"/);
  assert.match(rail,/const title=mode==="chat"/);
  assert.match(rail,/const description=mode==="chat"/);
  for(const route of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])
@@ -67,20 +67,23 @@ test("Mobile quota follows carousel, hides for BYOK and preserves voice secondar
  }
  assert.match(mobile,/className="cmh-zoe-secondary"/);
  assert.match(mobile,/className="cmh-zoe-primary"/);
- assert.match(mobile,/繼續文字聊天/);
+ assert.match(mobile,/friendResume\?t\("layout2.resumeAction"\)/);
  assert.match(mobile,/文字聊天/);
  assert.match(desktop,/className="crew-portal-layout2-voice"/);
 });
 
-test("Resuming Zoe and other friends retains local privacy and separate continue cards",()=>{
- assert.match(mobile,/resume\?\.friendId==="zoe"\?resume:null/);
- assert.match(mobile,/otherResume=resume&&resume.friendId!=="zoe"/);
- assert.match(mobile,/\.slice\(0,84\)/);
+test("Last friend resumes in the first mobile slide and desktop without removing the old continue card",()=>{
+ assert.match(mobile,/const resumeFriend=resume\?CREW_FRIENDS.find/);
+ assert.match(mobile,/const friendResume=resumeFriend\?resume:null/);
+ assert.match(mobile,/resumeFriend\?\.avatar\|\|zoePhoto/);
+ assert.match(mobile,/textDestination=resumeId\?"\/friend\/live\?id="\+encodeURIComponent\(resumeId\)/);
+ assert.doesNotMatch(mobile,/className="cmh-other-resume"/);
  assert.match(mobile,/PREVIEW_HIDDEN_KEY/);
  assert.match(mobile,/setPreviewHidden\(next\)/);
- assert.match(mobile,/className="cmh-other-resume"/);
+ assert.match(mobile,/className="cmh-preview-eye"/);
  assert.match(desktop,/readLatestFriendResume\(\)/);
- assert.match(desktop,/const canResume=Boolean\(resume\?\.friendId==="zoe"/);
+ assert.match(desktop,/const canResume=Boolean\(resumeId&&!selectedPost/);
+ assert.match(desktop,/\(!deepLink.friend\|\|deepLink.friend===resumeId\)/);
  assert.match(desktop,/PREVIEW_HIDDEN_KEY/);
  assert.match(home,/className="crew-home-continue"/);
 });
@@ -117,12 +120,12 @@ test("Accessible compact styling, reduced motion and translations across 11 loca
  assert.match(mobile,/document.visibilityState==="visible"/);
  assert.match(mobile,/prefers-reduced-motion: reduce/);
  for(const [,size] of css.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g))assert.ok(Number(size)>=12,'under 12px font '+size);
- const keys=["title","action","description","voice","more","resumeTitle","resumeAction","chatTitle","chatDescription","previewHidden","showPreview","hidePreview"];
+ const keys=["title","action","description","voice","more","resumeTitle","resumeAction","previewLabel","chatTitle","chatDescription","previewHidden","showPreview","hidePreview"];
  for(const lang of locales){
   const data=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/home.json`));
   assert.deepEqual(Object.keys(data.layout2).sort(),keys.slice().sort(),lang+': keys');
   for(const k of keys)assert.ok(typeof data.layout2[k]==="string"&&data.layout2[k].trim(),lang+':'+k);
-  for(const k of ["title","action"])assert.match(data.layout2[k],/\{\{name\}\}/,lang+':'+k);
+  for(const k of ["title","action","resumeTitle"])assert.match(data.layout2[k],/\{\{name\}\}/,lang+':'+k);
  }
  for(const f of ["HomePage.tsx","HomePortal.tsx","MobileHomePage.tsx","HomeModeRail.tsx"])
   assert.ok(Buffer.byteLength(read('web-spa/src/pages/'+f))<26000,f);

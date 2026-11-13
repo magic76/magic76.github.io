@@ -7,7 +7,8 @@ import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscrip
 import {PortalParticleField} from "./PortalParticleField";
 import {HomeDiscoveryLine} from "./HomeDiscoveryLine";
 
-import {readHomeDeepLink,HOME_FRIEND_NAMES} from "./homeDeepLink.mjs";
+import {readHomeDeepLink,HOME_FRIEND_IDS,HOME_FRIEND_NAMES} from "./homeDeepLink.mjs";
+import {formatResumePreview} from "./formatResumePreview";
 import {shortsChatUrl,shortsPhotoQuestions} from "../teacher/shortsSocial";
 import type {ShortFeed} from "../teacher/shortsFeed";
 import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
@@ -41,10 +42,15 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
  const exhausted=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0;
  const trialAvailable=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==0;
  const [deepLink,setDeepLink]=useState<ReturnType<typeof readHomeDeepLink>>({tab:null,friend:null,game:null,short:null});
- const friendId=deepLink.tab==="chat"&&deepLink.friend?deepLink.friend:"zoe";
- const friendName=HOME_FRIEND_NAMES[friendId]||"Zoe";
  // A Shorts ID is active only when it matches a post from the validated network feed.
  const selectedPost=deepLink.short?shortsFeed?.posts.find(post=>post.id===deepLink.short)||null:null;
+ const [resume,setResume]=useState<FriendResume|null>(null);
+ const [previewHidden,setPreviewHidden]=useState(false);
+ const resumeId=resume&&HOME_FRIEND_IDS.includes(resume.friendId)?resume.friendId:null;
+ // A valid explicit friend deep link takes priority over someone else's saved chat.
+ const canResume=Boolean(resumeId&&!selectedPost&&(!deepLink.friend||deepLink.friend===resumeId));
+ const friendId=deepLink.tab==="chat"&&deepLink.friend?deepLink.friend:canResume&&resumeId?resumeId:"zoe";
+ const friendName=HOME_FRIEND_NAMES[friendId]||"Zoe";
  const questions=selectedPost?shortsPhotoQuestions(selectedPost,(key,detail)=>t("shorts."+key,{detail})):[];
  const shortsDestination=selectedPost?shortsChatUrl(selectedPost,undefined,questions.length?0:undefined):null;
  const destination=exhausted?"/account#settings-gemini":shortsDestination||
@@ -64,11 +70,8 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
  const fieldEligible=idleReady&&inViewport&&foreground;
  const canAnimate=fieldEligible&&!paused;
  const [mode,setMode]=useState<HomeMode>("chat");
- const [resume,setResume]=useState<FriendResume|null>(null);
- const [previewHidden,setPreviewHidden]=useState(false);
  const [manuallySelected,setManuallySelected]=useState(false);
  const target=destination;
- const canResume=Boolean(resume?.friendId==="zoe"&&friendId==="zoe"&&!selectedPost);
  const destinations={chat:destination,learn:teacherDestination,
   fortune:"/fortune/reading?mode=tarot",play:"/games/"+gameId};
  const onModeChange=(next:HomeMode)=>{setMode(next);setManuallySelected(true)};
@@ -151,10 +154,10 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
    </aside>
    <div className="crew-portal-layout2-main">
     <p className="crew-portal-intro">{t("world.intro")}</p>
-    <span className="crew-portal-kicker" aria-hidden="true">ZOE · AI FRIEND</span>
+    <span className="crew-portal-kicker" aria-hidden="true">{friendName.toUpperCase()} · AI FRIEND</span>
     <div className="crew-portal-copy">
-     <h1>{canResume?t("layout2.resumeTitle"):t("layout2.title",{name:friendName})}</h1>
-     <p className="crew-portal-description">{canResume?(previewHidden?t("layout2.previewHidden"):resume?.preview.slice(0,84)):t("layout2.description")}</p>
+     <h1>{canResume?t("layout2.resumeTitle",{name:friendName}):t("layout2.title",{name:friendName})}</h1>
+     <p className="crew-portal-description">{canResume?(previewHidden?t("layout2.previewHidden"):t("layout2.previewLabel")+" "+formatResumePreview(resume?.preview||"")):t("layout2.description")}</p>
     </div>
     <Link className="crew-portal-cta" to={target} data-preparing={preparing} aria-busy={preparing}
      onPointerDown={warmFriendStart} onTouchStart={warmFriendStart} onFocus={warmFriendStart} onMouseEnter={warmFriendStart} onClick={handleLaunch}>
@@ -172,7 +175,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
        :<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}
      </div>
     </div>
-    <Link className="crew-portal-layout2-voice" to="/friend/live?id=zoe&from=home&entry=bubble" onClick={()=>trackUsageEvent("home_entry_click","voice")}>{t("layout2.voice")} ↗</Link>
+    <Link className="crew-portal-layout2-voice" to={"/friend/live?id="+encodeURIComponent(friendId)+"&from=home&entry=bubble"} onClick={()=>trackUsageEvent("home_entry_click","voice")}>{t("layout2.voice")} ↗</Link>
     {canResume&&<button type="button" className="crew-portal-layout2-hide" onClick={togglePreview}>{previewHidden?t("layout2.showPreview"):t("layout2.hidePreview")}</button>}
     <div className="crew-portal-discovery-slot">{mode==="chat"&&!selectedPost&&<HomeDiscoveryLine animate={canAnimate&&!manuallySelected}/>}</div>
    </div>

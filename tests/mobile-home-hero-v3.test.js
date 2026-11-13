@@ -8,8 +8,8 @@ test("four illustrated slides preserve Zoe first and real destinations",()=>{
  const jsx=read("web-spa/src/pages/MobileHomePage.tsx");
  assert.match(jsx,/SLIDES=\["zoe","friends","game","learn"\]/);
  assert.match(jsx,/CAROUSEL_INTERVAL_MS=11000/);
- assert.match(jsx,/resume\?\.friendId==="zoe"\?resume:null/);
- assert.match(jsx,/otherResume=resume&&resume.friendId!=="zoe"/);
+ assert.match(jsx,/const resumeFriend=resume\?CREW_FRIENDS.find/);
+ assert.match(jsx,/const friendResume=resumeFriend\?resume:null/);
  assert.match(jsx,/cmh-zoe-scene/);
  assert.match(jsx,/cmh-chat-pop-first/);
  assert.match(jsx,/cmh-chat-pop-last/);
