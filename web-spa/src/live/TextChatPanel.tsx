@@ -7,6 +7,7 @@ import {classifyGuestTextFailure,guestTextWorkerError,markGuestTextStartError,is
 import {readSessionTranscript,writeSessionTranscript,saveFriendResume,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
 import {TextChatStarters} from "./TextChatStarters";
+import {useTextChatKeyboard} from "./textChatKeyboard";
 import type {GroundingSource} from "./grounding";
 import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
@@ -58,6 +59,8 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const [guestStatus,setGuestStatus]=useState("");
  const [remaining,setRemaining]=useState<number|null>(null);
  const mounted=useRef(true);
+ const chatRoot=useRef<HTMLElement>(null);
+ useTextChatKeyboard(chatRoot);
  const history=useRef<HTMLDivElement>(null);
  const guestBox=useRef<HTMLDivElement>(null);
  const bottom=useRef<HTMLDivElement>(null);
@@ -112,7 +115,10 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   });
   observer.observe(log);
   if(guest)observer.observe(guest);
-  return()=>{observer.disconnect();cancelAnimationFrame(frame)};
+  const onKeyboardLayout=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{log.scrollTop=log.scrollHeight})};
+  chatRoot.current?.addEventListener("crew:text-keyboard-change",onKeyboardLayout);
+  const root=chatRoot.current;
+  return()=>{root?.removeEventListener("crew:text-keyboard-change",onKeyboardLayout);observer.disconnect();cancelAnimationFrame(frame)};
  },[historyReady,guestMode]);
  useEffect(()=>{
   if(!guestMode)return;
@@ -286,7 +292,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    if(mounted.current){setBusy(false);setRequestSent(false)}
   }
  }
- return <section className={"crew-text-chat"+(messages.length||busy||guestPhase==="active"?" is-chatting":"")} aria-label={english?"Text chat":"文字聊天"}>
+ return <section ref={chatRoot} className={"crew-text-chat"+(messages.length||busy||guestPhase==="active"?" is-chatting":"")} aria-label={english?"Text chat":"文字聊天"}>
   {hasKey&&<div className="crew-text-mode-choice">
    <span>{guestMode?(english?"Free text practice":"免費文字練習"):(english?"Using your Gemini key":"使用自己的 Gemini Key")}</span>
    <button type="button" className="btn secondary small" disabled={busy} onClick={()=>{

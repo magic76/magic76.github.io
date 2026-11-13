@@ -72,3 +72,34 @@
 .crew-text-chat-error{display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px;line-height:1.5}
 .crew-text-chat-error p{flex:0 0 100%;margin:0;overflow-wrap:anywhere;font-size:12px}
 .crew-text-chat-error .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;white-space:normal;text-align:center;text-decoration:none}
+
+/* A mobile software keyboard owns the visual viewport, not the voice dock.
+   :has() keeps the teacher override strictly inside text mode. */
+@media(max-width:640px){
+ body.teacher-theme.session-page .teacher-live-stage.live-stage:has(>.crew-text-chat){padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+ body.teacher-theme.session-page:has(.crew-text-keyboard-open) .app-header{
+  position:fixed;top:var(--crew-text-keyboard-visible-top,0px);left:0;right:0;z-index:81;
+ }
+ body.teacher-theme.session-page:has(.crew-text-keyboard-open){overflow:hidden}
+ body.teacher-theme.session-page .teacher-live-stage.live-stage.crew-text-keyboard-open:has(>.crew-text-chat){
+  position:fixed;z-index:80;box-sizing:border-box;left:0;right:0;
+  top:calc(var(--crew-text-keyboard-visible-top,0px) + var(--crew-text-keyboard-header-height,0px));
+  height:calc(var(--crew-text-keyboard-visible-height,100dvh) - var(--crew-text-keyboard-header-height,0px));
+  max-height:none;min-height:0;width:100%;max-width:850px;margin:0 auto;
+  padding:6px 12px 4px;
+  display:flex;flex-direction:column;gap:6px;overflow:hidden;
+ }
+ body.teacher-theme.session-page .teacher-live-stage.crew-text-keyboard-open>.live-identity,
+ body.teacher-theme.session-page .teacher-live-stage.crew-text-keyboard-open>.crew-chat-mode-switch{display:none}
+ .live-stage.crew-text-keyboard-open>.crew-text-chat{display:flex;flex:1 1 0;min-height:0;flex-direction:column;gap:6px}
+ .live-stage.crew-text-keyboard-open .crew-text-chat-history{flex:1 1 0;min-height:0;max-height:none;order:0}
+ .live-stage.crew-text-keyboard-open .crew-text-chat-form{flex:0 0 auto;margin-top:auto;order:3}
+ .live-stage.crew-text-keyboard-open .crew-text-mode-choice,
+ .live-stage.crew-text-keyboard-open .crew-text-chat-live-status,
+ .live-stage.crew-text-keyboard-open .crew-text-chat-notice,
+ .live-stage.crew-text-keyboard-open .crew-text-chat>.crew-text-starters,
+ .live-stage.crew-text-keyboard-open .crew-text-guest:not(:has(.crew-text-challenge-host)){display:none}
+ .live-stage.crew-text-keyboard-open .crew-text-chat-progress,
+ .live-stage.crew-text-keyboard-open .crew-text-chat-error{flex:0 0 auto;order:2}
+ .live-stage.crew-text-keyboard-open .crew-text-guest:has(.crew-text-challenge-host){flex:0 0 auto;order:1}
+}

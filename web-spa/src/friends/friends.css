@@ -188,3 +188,21 @@
  .desktop-live-workspace.friend-desktop-workspace>.friend-text-stage{padding:16px 22px}
  .desktop-live-workspace .friend-text-stage .live-identity{margin:0}
 }
+
+/* Keyboard focus: reuse the app header and give the transcript the visible area.
+   Fixed visual-viewport coordinates survive iOS offsetTop and Android resize. */
+@media(max-width:640px){
+ .friend-desktop-workspace>.friend-text-stage.crew-text-keyboard-open{
+  position:fixed;z-index:80;box-sizing:border-box;left:0;right:0;
+  top:calc(var(--crew-text-keyboard-visible-top,0px) + var(--crew-text-keyboard-header-height,0px));
+  height:calc(var(--crew-text-keyboard-visible-height,100dvh) - var(--crew-text-keyboard-header-height,0px));
+  max-height:none;min-height:0;margin:0 auto;padding:6px 10px 4px;
+ }
+ .friend-text-stage.crew-text-keyboard-open>.live-identity,
+ .friend-text-stage.crew-text-keyboard-open>.friend-language-switch,
+ .friend-text-stage.crew-text-keyboard-open>.crew-chat-mode-switch,
+ .friend-text-stage.crew-text-keyboard-open>.friend-live-post,
+ .friend-text-stage.crew-text-keyboard-open>.friend-live-post-unavailable{display:none}
+}
+
+@media(max-width:640px){body.teacher-theme.session-page .friend-desktop-workspace>.friend-text-stage.live-stage.crew-text-keyboard-open{padding-bottom:4px}}
