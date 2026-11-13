@@ -412,9 +412,24 @@ function drawTree(c,tree,geometry,ox,oy,factor,clock){
  });
 }
 function scene(c,width,height,tree,geometry,clock,card=false){
- drawSky(c,width,height,tree,clock);
- const layout=window.CrewTreeV5.layout(geometry.bounds,width,height,card);
- drawTree(c,tree,geometry,layout.ox,layout.oy,layout.factor,clock);
+ if(isFantasy(tree)&&window.CrewFantasyGameArt&&c.canvas){
+  const count=tree.growth.length,stage=stageForTurns(count);
+  const active=tree===current&&c===ctx&&growthMotion&&!reduceMotion&&!card;
+  const progress=active?clamp((Date.now()-growthMotion.start)/1250,0,1):1;
+  const from=active?stageForTurns(growthMotion.fromTurns):stage;
+  const transition=active&&progress<1?{from,to:stage,progress,pulse:from===stage}:null;
+  // One real scene renderer for the game, thumbnails, and exported image.
+  // Explicit virtual dimensions prevent offscreen canvases from defaulting to 400px.
+  window.CrewFantasyGameArt.paint(c.canvas,tree.visualKind,stage,tree.seed,
+   resolvedWorld(tree),clock,reduceMotion||card,false,transition,null,
+   {width,height,px:card||c!==ctx?1:dpr,turns:count,
+    fromTurns:active?growthMotion.fromTurns:count});
+  if(active&&progress>=1)growthMotion=null;
+ }else{
+  drawSky(c,width,height,tree,clock);
+  const layout=window.CrewTreeV5.layout(geometry.bounds,width,height,card);
+  drawTree(c,tree,geometry,layout.ox,layout.oy,layout.factor,clock);
+ }
  if(card){
   c.fillStyle='#164236a8';c.fillRect(0,0,width,104);
   c.fillStyle='#f0ffe9';c.font='bold 39px system-ui';c.textAlign='center';c.fillText(tree.name,width/2,66);
