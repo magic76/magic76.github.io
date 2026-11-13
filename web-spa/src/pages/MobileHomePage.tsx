@@ -125,8 +125,8 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
       <div className={"cmh-zoe-copy cmh-slide-copy"+(friendResume?" cmh-zoe-copy-return":"")}>
        <span className="cmh-zoe-eyebrow"><i aria-hidden="true"/> {friendResume?resumeFriend!.name.toUpperCase():"ZOE"} · AI FRIEND</span>
-       <h1>{friendResume?t("layout2.resumeTitle",{name:resumeFriend!.name}):copy("一起聊聊吧！","Let's chat!")}</h1>
-       {!friendResume&&<p>{copy("一句話，開啟好心情。","Start with a hello.")}</p>}
+       <h1>{friendResume?t("layout2.resumeTitle",{name:resumeFriend!.name}):t("mobileHero.title")}</h1>
+       {!friendResume&&<p>{t("mobileHero.subtitle")}</p>}
       </div>
       <div className="cmh-scene cmh-zoe-scene" aria-hidden="true">
        <div className="cmh-scene-ring cmh-scene-ring-outer"/><div className="cmh-scene-ring cmh-scene-ring-inner"/>
