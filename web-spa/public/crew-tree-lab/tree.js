@@ -3,6 +3,100 @@ const $=id=>document.getElementById(id);
 const canvas=$('treeCanvas'),ctx=canvas.getContext('2d');
 const STORE='crew-tree-lab-v1',CURRENT='crew-tree-current-v1',MAX_GROWTH=32,MAX_SAVED=18,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const GLOW=window.CrewGlowForestV6;
+const useV6=!!GLOW&&!new URLSearchParams(location.search).has('legacy');
+const GARDEN_KEY='crew-tree-glow-forest-v6';
+let garden=useV6?GLOW.empty():null,reveal=null,forestBannerTimer=0;
+function loadGarden(){
+ if(!useV6)return;
+ try{garden=GLOW.restore(JSON.parse(localStorage.getItem(GARDEN_KEY)||'null'));}
+ catch{garden=GLOW.empty();}
+}
+function writeGarden(){
+ if(!useV6)return;
+ try{localStorage.setItem(GARDEN_KEY,JSON.stringify(garden));}catch{}
+}
+function visibleGrowAge(){return reveal?16:current.growth.length;}
+function resetGarden(){
+ if(!useV6)return false;
+ clearTimeout(forestBannerTimer);clearSurprise();
+ garden=GLOW.empty();reveal=null;growthMotion=null;
+ current=makeTree();geom=buildGeometry(current);writeStorage();writeGarden();
+ $('watchGrowthBtn').hidden=true;
+ resetChat('Zoe','新的森林開始了。從一顆發光種子慢慢長出你的世界。');
+ updateTreeUI();renderRetired();renderGallery();return true;
+}
+function seedForQA(value){
+ if(!useV6||!Number.isInteger(value)||value<0||value>4294967295)return false;
+ current=makeTree(value);geom=buildGeometry(current);reveal=null;growthMotion=null;
+ clearSurprise();writeStorage();updateTreeUI();return true;
+}
+function renderRetired(){
+ const box=$('retiredForest');
+ if(!useV6||!box)return;
+ box.hidden=garden.retired.length===0;
+ $('retiredCount').textContent=String(garden.retired.length);
+ const row=$('retiredGallery');row.innerHTML='';
+ for(const data of garden.retired){
+  const entry=document.createElement('div');entry.className='retired-tree';
+  const cv=document.createElement('canvas');cv.width=130;cv.height=188;
+  const growth=Array.from({length:16},(_,i)=>({topic:data.topics[i]||'daily'}));
+  GLOW.paint(cv,GLOW.empty(),{seed:data.seed,growth},0,{width:130,height:188,still:true});
+  const label=document.createElement('span');
+  label.textContent=GLOW.form(data.seed).name+' · '+GLOW.rarity(data.seed).name;
+  entry.append(cv,label);row.appendChild(entry);
+ }
+}
+function syncGardenUI(){
+ if(!useV6)return;
+ const n=visibleGrowAge(),st=GLOW.stage(n);
+ const name={seed:'一顆發光種子',sprout:'裂殼的嫩芽',sapling:'長大的小樹',island:'發光浮島樹',
+  final:GLOW.form(reveal?reveal.tree.seed:current.seed).name}[st];
+ $('treeName').textContent=name;
+ $('stageBadge').textContent=({seed:'種子',sprout:'嫩芽',sapling:'破殼',island:'浮島',final:'最終揭曉'})[st]+' · '+n+' / 16';
+ $('treeArtVersion').textContent='✦ GLOW FOREST V6';
+ $('gardenCount').textContent=String(garden.slots.length);
+ $('gardenTotal').textContent=String(garden.totalCompleted);
+ $('gardenAge').textContent=String(n);
+ $('gardenBarFill').style.width=Math.min(100,n/16*100)+'%';
+ $('gardenNext').textContent=n<3?'再聊 '+(3-n)+' 句，種子會破殼':
+  n<8?'再聊 '+(8-n)+' 句，整棵樹會浮起來':
+  n<16?'再聊 '+(16-n)+' 句，揭曉最終形態':'最終形態揭曉！';
+ $('gardenM3').className=n>=3?'done':n<3?'next':'';
+ $('gardenM8').className=n>=8?'done':n>=3?'next':'';
+ $('gardenM16').className=n>=16?'done':n>=8?'next':'unknown';
+ $('gardenM16').textContent=n===16?'16 句 · '+GLOW.form(reveal?reveal.tree.seed:current.seed).name:'16 句 · ？？？';
+ $('gardenRarity').hidden=n!==16;
+ if(n===16)$('gardenRarity').textContent='稀有度：'+GLOW.rarity(reveal?reveal.tree.seed:current.seed).name;
+ $('forestNext').textContent=GLOW.progress(garden,n).next;
+ $('forestUnlocks').textContent=(garden.totalCompleted>=3?'🍄 菇路 ':'')+
+  (garden.totalCompleted>=4?'💧 池塘 ':'')+
+  (garden.totalCompleted>=5?'🌌 極光':'');
+ $('nextSurprise').textContent=$('gardenNext').textContent;
+ $('worldName').textContent='夜光森林 · 每句話都有顏色';
+ $('growthHint').textContent='每棵長滿 16 句會留在森林。森林長大後，有菇路、池塘和極光。';
+ $('treeSubtitle').textContent=n===0?'從第一句開始，每句都讓森林多一點光。':
+  n===16?'最終形態：'+name+' · '+GLOW.rarity(reveal?reveal.tree.seed:current.seed).name:
+  '第 '+n+' 句，保留了話題色彩。最終形態還是祕密。';
+}
+function finishGardenTree(){
+ const finished=validateTree(JSON.parse(JSON.stringify(current)));
+ if(!finished||finished.growth.length!==16)return null;
+ saveTree(true);
+ const done=GLOW.complete(garden,finished);
+ if(!done)return null;
+ reveal={tree:finished,started:renderTime,until:Date.now()+3800};
+ current=makeTree();geom=buildGeometry(current);growthMotion=null;
+ writeStorage();writeGarden();renderRetired();
+ const event={emoji:done.form.icon,title:'最終形態：'+done.form.name+'！',
+  detail:done.form.note+' 稀有度：'+done.rarity.name+'。新種子已經種下。'};
+ cueSurprise(event);
+ clearTimeout(forestBannerTimer);
+ if(done.forestEvent)forestBannerTimer=setTimeout(()=>popToast(done.forestEvent),4100);
+ appendMessage('zoe','你的 '+done.form.name+' 誕生了（'+done.rarity.name+'）！新種子已經種下，森林正在變大。');
+ updateTreeUI();renderGallery();return {done,event};
+}
+
 const VISUAL_KINDS=['island','jelly','round','tall','weeping','twin'];
 const WORLD_CHOICES=['auto','cosmos','warmth','music','travel'];
 const KIND_LABELS={island:'漂流浮島樹',jelly:'水母燈籠樹',round:'V5 圓冠樹',tall:'V5 高樹',weeping:'V5 垂柳樹',twin:'V5 雙生樹'};
