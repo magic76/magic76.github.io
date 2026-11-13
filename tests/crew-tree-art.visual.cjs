@@ -53,15 +53,30 @@ async function preview(page,label){
      await page.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-'+label+'-island-'+n+'-turns.png')});
      captures.push({scene:'island',n,url:await page.locator('#treeCanvas').evaluate(cv=>cv.toDataURL('image/png'))});
      assert.equal(await page.locator('#surpriseMoment').isVisible(),true);
+     assert.equal(await page.evaluate(n=>window.__TREE_QA__.stageForTurns(n),n),n===16?16:n===8?8:3);
+     const islandCopy=await page.locator('#surpriseMoment').innerText();
+     assert.ok(n===3?islandCopy.includes('第一位小居民'):n===8?islandCopy.includes('新浮島'):islandCopy.includes('群島完整'));
+     assert.doesNotMatch(islandCopy,/水母|珊瑚|觸鬚/);
+     const strip=await page.evaluate(()=>{
+      const art=document.getElementById('treeCanvas').getBoundingClientRect();
+      const card=document.getElementById('surpriseMoment').getBoundingClientRect();
+      return{bottom:art.bottom,top:card.top,height:card.height};
+     });
+     assert.ok(strip.top>=strip.bottom-1&&strip.height<75,'surprise must be a short ribbon BELOW the artwork '+JSON.stringify(strip));
      assert.equal(await page.locator('#watchGrowthBtn').isVisible(),true,'mobile chat should have a route back to growing world');
-     await page.screenshot({path:path.join(OUT,'GameV1-'+label+'-island-'+n+'-surprise.png')});
+     await page.locator('.tree-panel').screenshot({path:path.join(OUT,'GameV1-'+label+'-island-'+n+'-surprise.png')});
      if(label==='mobile'&&(n===3||n===16))await preview(page,String(n));
     }
    }
    // The real game must show BOTH V9 families through chat growth, including
    // the three surprise moments and custom thematic worlds.
-   await page.evaluate(()=>{window.__TREE_QA__.newTree();
-    window.__TREE_QA__.chooseKind('jelly');window.__TREE_QA__.chooseWorld('music');});
+   const islandSeed=await page.evaluate(()=>window.__TREE_QA__.state().current.seed);
+   await page.evaluate(()=>window.__TREE_QA__.newTree());
+   assert.equal(await page.locator('#surpriseMoment').isVisible(),false,'new seed clears previous celebration');
+   await page.locator('.tree-panel').screenshot({path:path.join(OUT,'GameV1-'+label+'-new-tree-no-stale-surprise.png')});
+   await page.evaluate(()=>{window.__TREE_QA__.chooseKind('jelly');window.__TREE_QA__.chooseWorld('music');});
+   assert.equal(await page.locator('#surpriseMoment').isVisible(),false,'changing species/world keeps old celebration hidden');
+   await page.locator('.tree-panel').screenshot({path:path.join(OUT,'GameV1-'+label+'-switch-to-jelly-no-stale-surprise.png')});
    for(let n=1;n<=16;n++){
     const reply=await page.evaluate(text=>window.__TREE_QA__.post(text),messages[n-1]);
     assert.equal(reply.count,n);
@@ -69,9 +84,26 @@ async function preview(page,label){
      await page.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-'+label+'-jelly-'+n+'-turns.png')});
      captures.push({scene:'jelly',n,url:await page.locator('#treeCanvas').evaluate(cv=>cv.toDataURL('image/png'))});
      assert.equal(await page.locator('#surpriseMoment').isVisible(),true);
-     await page.screenshot({path:path.join(OUT,'GameV1-'+label+'-jelly-'+n+'-surprise.png')});
+     assert.equal(await page.evaluate(n=>window.__TREE_QA__.stageForTurns(n),n),n===16?16:n===8?8:3);
+     const jellyCopy=await page.locator('#surpriseMoment').innerText();
+     assert.ok(n===3?jellyCopy.includes('小魚'):n===8?jellyCopy.includes('觸鬚'):jellyCopy.includes('燈籠樹'));
+     assert.doesNotMatch(jellyCopy,/浮島|樹洞|群島/);
+     const strip=await page.evaluate(()=>{
+      const art=document.getElementById('treeCanvas').getBoundingClientRect();
+      const card=document.getElementById('surpriseMoment').getBoundingClientRect();
+      return{bottom:art.bottom,top:card.top,height:card.height};
+     });
+     assert.ok(strip.top>=strip.bottom-1&&strip.height<75,'jelly friend must remain visible above the short ribbon '+JSON.stringify(strip));
+     await page.locator('.tree-panel').screenshot({path:path.join(OUT,'GameV1-'+label+'-jelly-'+n+'-surprise.png')});
     }
    }
+   // Save/open/swap must cancel the pending 3.3-second surprise timer.
+   await page.evaluate(seed=>window.__TREE_QA__.open(seed),islandSeed);
+   assert.equal(await page.locator('#surpriseMoment').isVisible(),false,'opening saved island hides last jelly event');
+   await page.locator('.tree-panel').screenshot({path:path.join(OUT,'GameV1-'+label+'-open-saved-no-stale-surprise.png')});
+   await page.evaluate(()=>window.__TREE_QA__.chooseWorld('travel'));
+   assert.equal(await page.locator('#surpriseMoment').isVisible(),false,'world change should never reopen previous event');
+   await page.locator('.tree-panel').screenshot({path:path.join(OUT,'GameV1-'+label+'-world-change-no-stale-surprise.png')});
    if(label==='mobile'){
     const sheet=await page.evaluate(async captures=>{
      const out=document.createElement('canvas');out.width=900;out.height=700;
@@ -100,6 +132,19 @@ async function preview(page,label){
    console.log('TREE_GAME_V1_BROWSER_OK '+label+' both V9 scenes, 3/8/16 surprises, 390px no overflow; V5 branches='+state.geometry.branches.length);
    await ctx.close();
   }
+  // Check desktop 1440px aspect ratio rather than only mobile crop.
+  const wideCtx=await browser.newContext({viewport:{width:1440,height:900},deviceScaleFactor:1,reducedMotion:'reduce'});
+  const wide=await wideCtx.newPage();await wide.goto(ROOT+'?qa=1',{waitUntil:'networkidle'});
+  const wideFit=await wide.evaluate(()=>{
+   const b=document.getElementById('treeCanvas').getBoundingClientRect(),ratio=b.width*820/800;
+   return{width:b.width,height:b.height,expected:ratio,blank:Math.abs(b.height-ratio),
+    scrollWidth:document.documentElement.scrollWidth,viewport:window.innerWidth};
+  });
+  assert.ok(wideFit.blank<2,'1440px world ratio must match 800:820 '+JSON.stringify(wideFit));
+  assert.ok(wideFit.scrollWidth<=wideFit.viewport+2,'no desktop horizontal overflow');
+  await wide.locator('.tree-panel').screenshot({path:path.join(OUT,'GameV1-1440-stage-and-short-ribbon-layout.png')});
+  console.log('TREE_GAME_V1_DESKTOP_1440_FIT='+JSON.stringify(wideFit));
+  await wideCtx.close();
   // Real V5 1.25-second live growth (not a static after-state) at 390px.
   const animCtx=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'no-preference'});
   const anim=await animCtx.newPage();await anim.goto(ROOT+'?qa=1',{waitUntil:'networkidle'});
@@ -115,12 +160,37 @@ async function preview(page,label){
   await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-3-half.png')});
   await anim.waitForTimeout(850);
   await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-3-end.png')});
-  const five=[...Array(5)].map((_,i)=>messages[3+i]);for(const text of five)await anim.evaluate(text=>window.__TREE_QA__.post(text),text);
+  const four=[...Array(4)].map((_,i)=>messages[3+i]);
+  for(const text of four)await anim.evaluate(msg=>window.__TREE_QA__.post(msg),text);
+  assert.equal(await anim.evaluate(()=>window.__TREE_QA__.state().current.growth.length),7);
+  await anim.waitForTimeout(1400);
+  await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-7-before-8.png')});
+  const beforeScale=await anim.evaluate(()=>window.CrewFantasyGameArt.growthScale(7));
+  await anim.evaluate(text=>window.__TREE_QA__.post(text),messages[7]);
   assert.equal(await anim.evaluate(()=>window.__TREE_QA__.state().current.growth.length),8);
-  await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-8-surprise.png')});
-  await anim.waitForTimeout(1450);
+  assert.equal(await anim.evaluate(()=>window.__TREE_QA__.stageForTurns(8)),8);
+  await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-8-start.png')});
+  await anim.waitForTimeout(540);
+  await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-8-half.png')});
+  await anim.waitForTimeout(860);
+  await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-8-end.png')});
+  const nextScale=await anim.evaluate(()=>window.CrewFantasyGameArt.growthScale(8));
+  assert.ok(nextScale>=beforeScale,'8-turn plate cannot restart at a smaller scale');
+  for(let n=9;n<=15;n++)await anim.evaluate(text=>window.__TREE_QA__.post(text),messages[n-1]);
+  await anim.waitForTimeout(1420);
+  await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-15-before-16.png')});
+  await anim.evaluate(text=>window.__TREE_QA__.post(text),messages[15]);
+  assert.equal(await anim.evaluate(()=>window.__TREE_QA__.stageForTurns(16)),16);
+  await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-16-start.png')});
+  await anim.waitForTimeout(540);
+  await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-16-half.png')});
+  await anim.waitForTimeout(860);
+  await anim.locator('#treeCanvas').screenshot({path:path.join(OUT,'GameV1-390-growth-16-end.png')});
+  assert.ok(await anim.evaluate(()=>window.CrewFantasyGameArt.growthScale(16)>=window.CrewFantasyGameArt.growthScale(15)));
+  console.log('TREE_GAME_V1_GROWTH_STAGE_CONTINUITY_OK scales='+beforeScale+','+nextScale);
+  await anim.waitForTimeout(100);
   await animCtx.close();
-  console.log('TREE_GAME_V1_GROWTH_OK 390px real button/chats; 3 start/mid/end and 8 surprise');
+  console.log('TREE_GAME_V1_GROWTH_OK 390px real chats; 3 seedling visitor, 7→8 and 15→16 start/mid/end; no scale reset');
   const c=await browser.newContext({viewport:{width:1280,height:800},deviceScaleFactor:1,reducedMotion:'reduce'});
   const wall=await c.newPage();await wall.goto(ROOT+'art-review.html?qa=1',{waitUntil:'networkidle'});
   await wall.waitForFunction(()=>window.__TREE_ART_QA__?.status()?.allLoaded,{timeout:20000});
