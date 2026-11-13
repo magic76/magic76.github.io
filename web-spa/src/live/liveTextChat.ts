@@ -1,4 +1,5 @@
 import {ensureLive,type LiveSession} from "../lib/runtime";
+import {FRIEND_TEXT_INSTRUCTIONS} from "./textChatReplies";
 import {extractGroundingSources,extractSearchSuggestions,mergeGroundingSources,type GroundingSource} from "./grounding";
 
 export type LiveTextAnswer={text:string;sources:GroundingSource[];searchSuggestions?:string};
@@ -13,7 +14,7 @@ export class LiveTextConversation{
  private sources:GroundingSource[]=[];
  private suggestions="";
  private closed=false;
- constructor(private system:string,private searchEnabled:boolean,private onStatus?:(message:string)=>void){}
+ constructor(private system:string,private searchEnabled:boolean,private onStatus?:(message:string)=>void,private friendScope=false){}
 
  private settle(error?:Error,answer?:LiveTextAnswer){
   const pending=this.pending;
@@ -54,7 +55,7 @@ export class LiveTextConversation{
     if(!window.CrewLive?.Session)throw new Error("Gemini Live runtime unavailable");
     const session=new window.CrewLive.Session({
      textOnly:true,models:["gemini-3.8-live"],maxLiveAttempts:1,
-     system:this.system+"\n[KEYBOARD CHAT] Respond naturally in the configured character and language. The user types messages. Return clear, concise conversational replies."+(this.searchEnabled?"\n[CURRENT FACTS] Do not claim live web search access in ordinary chat; ask the user to use a dedicated search action for current facts.":""),
+     system:this.system+"\n[KEYBOARD CHAT] Respond naturally in the configured character and language. The user types messages. Return clear, concise conversational replies."+(this.searchEnabled?"\n[CURRENT FACTS] Do not claim live web search access in ordinary chat; ask the user to use a dedicated search action for current facts.":"")+(this.friendScope?FRIEND_TEXT_INSTRUCTIONS:""),
      openingPrompt:"",voice:"Kore",volume:0,connectTimeoutMs:12000,
      // Unlike an on-demand search, ordinary teacher/friend conversation must
      // not automatically attach Google Search. That optional tool has separate

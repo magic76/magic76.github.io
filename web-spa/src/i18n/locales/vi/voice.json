@@ -206,6 +206,14 @@
     "sending": "Đang gửi tin nhắn…",
     "challengeTimeout": "Xác minh đã hết thời gian. Hãy nhấn Gửi lần nữa.",
     "challengeUnavailable": "Không thể tải hoặc hoàn tất xác minh bảo mật. Hãy nhấn Gửi lần nữa."
+  },
+  "textChat": {
+    "typing": "{{name}} đang nhập",
+    "nextHeading": "Bạn có thể nói",
+    "followUps": {
+      "more": "Kể thêm cho mình nhé.",
+      "why": "Tại sao vậy?",
+      "change": "Mình nói chuyện khác nhé."
+    }
   }
-
 }

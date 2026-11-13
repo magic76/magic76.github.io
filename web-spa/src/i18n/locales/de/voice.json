@@ -206,6 +206,14 @@
     "sending": "Nachricht wird gesendet…",
     "challengeTimeout": "Die Prüfung hat zu lange gedauert. Drücke erneut auf „Senden“.",
     "challengeUnavailable": "Die Sicherheitsprüfung konnte nicht geladen oder abgeschlossen werden. Drücke erneut auf „Senden“."
+  },
+  "textChat": {
+    "typing": "{{name}} schreibt",
+    "nextHeading": "Du könntest sagen",
+    "followUps": {
+      "more": "Erzähl mir mehr.",
+      "why": "Warum?",
+      "change": "Lass uns über etwas anderes reden."
+    }
   }
-
 }

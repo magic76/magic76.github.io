@@ -206,6 +206,14 @@
     "sending": "Enviando tu mensaje…",
     "challengeTimeout": "La verificación ha caducado. Pulsa Enviar de nuevo.",
     "challengeUnavailable": "No se pudo cargar o completar la verificación de seguridad. Pulsa Enviar de nuevo."
+  },
+  "textChat": {
+    "typing": "{{name}} está escribiendo",
+    "nextHeading": "Puedes decir",
+    "followUps": {
+      "more": "Cuéntame más.",
+      "why": "¿Por qué?",
+      "change": "Hablemos de otra cosa."
+    }
   }
-
 }

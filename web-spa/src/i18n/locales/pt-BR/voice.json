@@ -206,6 +206,14 @@
     "sending": "Enviando sua mensagem…",
     "challengeTimeout": "O tempo de verificação esgotou. Toque em Enviar novamente.",
     "challengeUnavailable": "Não foi possível carregar ou concluir a verificação de segurança. Toque em Enviar novamente."
+  },
+  "textChat": {
+    "typing": "{{name}} está digitando",
+    "nextHeading": "Você pode dizer",
+    "followUps": {
+      "more": "Me conta mais.",
+      "why": "Por quê?",
+      "change": "Vamos mudar de assunto."
+    }
   }
-
 }

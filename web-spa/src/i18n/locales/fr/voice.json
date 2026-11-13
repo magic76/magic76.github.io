@@ -206,6 +206,14 @@
     "sending": "Envoi du message…",
     "challengeTimeout": "Délai de vérification dépassé. Appuyez de nouveau sur Envoyer.",
     "challengeUnavailable": "La vérification de sécurité n’a pas pu se charger ou aboutir. Appuyez de nouveau sur Envoyer."
+  },
+  "textChat": {
+    "typing": "{{name}} écrit",
+    "nextHeading": "Tu peux dire",
+    "followUps": {
+      "more": "Raconte-moi la suite.",
+      "why": "Pourquoi ?",
+      "change": "Parlons d’autre chose."
+    }
   }
-
 }

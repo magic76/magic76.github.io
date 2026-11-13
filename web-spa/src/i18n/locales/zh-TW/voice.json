@@ -206,6 +206,14 @@
     "sending": "正在傳送訊息…",
     "challengeTimeout": "驗證等候逾時，請再按一次送出。",
     "challengeUnavailable": "安全驗證無法載入或完成，請再按一次送出。"
+  },
+  "textChat": {
+    "typing": "{{name}} 正在輸入",
+    "nextHeading": "接下來可以說",
+    "followUps": {
+      "more": "多說一點。",
+      "why": "為什麼？",
+      "change": "換個話題。"
+    }
   }
-
 }
