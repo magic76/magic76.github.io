@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#102a29">
+<meta name="theme-color" content="#0b0912">
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="和 Zoe 聊天，種出只有你們才有的奇怪樹。每個話題，都會讓樹長得不一樣。">
 <title>和 Zoe 種歪樹 · Crew Tree Lab</title>
-<link rel="stylesheet" href="./tree.css?v=game-1-20261113">
+<link rel="stylesheet" href="./tree.css?v=glow-v6-20261113">
 <script src="./botany.js?v=4-20261112" defer></script>
 <script src="./family-art.js?v=5-20261112" defer></script>
 <script src="./art-studies/character-paint.js?v=9-game-20261113" defer></script>
@@ -19,7 +19,8 @@
 <script src="./art-studies/v8-art.js?v=9-game-20261113" defer></script>
 <script src="./art-studies/v9-art.js?v=9-game-20261113" defer></script>
 <script src="./art-studies/study.js?v=9-game-20261113" defer></script>
-<script src="./tree.js?v=game-1-20261113" defer></script>
+<script src="./forest-v6.js?v=glow-v6-20261113" defer></script>
+<script src="./tree.js?v=glow-v6-20261113" defer></script>
 </head>
 <body>
 <main class="page">
@@ -28,12 +29,16 @@
     <span class="tagline">一個聊天，就會生長的小遊戲 <span class="live-dot"></span></span>
   </header>
   <section class="intro">
-    <div><p class="overline">A LITTLE GARDEN OF CONVERSATIONS</p><h1>和 Zoe，<br><em>種一棵有故事的樹。</em></h1><p>聊一句，樹就長出新枝葉。每棵樹都是你和 Zoe 一起創作的。</p></div>
+    <div><p class="overline">A LITTLE GARDEN OF CONVERSATIONS</p><h1>和 Zoe，<br><em>種出一片發光的森林。</em></h1><p>一棵樹從種子長到 16 句，揭曉星空、水晶、燈籠或花瀑的祕密。長滿就住進森林，旁邊再長出新種子。</p></div>
     <div class="tag-pair"><span>🌱 隨聊隨長</span><span>✦ 每棵不一樣</span></div>
   </section>
   <div class="play-grid">
     <section class="tree-panel" aria-label="聊天種樹畫布">
-      <div class="tree-top"><div><span class="overline">OUR LITTLE TREE</span><h2 id="treeName">小小的歪樹苗</h2></div><span class="stage-pill" id="stageBadge">剛發芽 · 0 句</span></div>
+      <div class="tree-top"><div><span class="overline">YOUR GLOWING FOREST</span><h2 id="treeName">小小的歪樹苗</h2></div><span class="stage-pill" id="stageBadge">剛發芽 · 0 句</span></div>
+      <div class="garden-summary" aria-live="polite">
+        <span>🌲 森林已有 <strong id="gardenTotal">0</strong> 棵 · 場景裡 <strong id="gardenCount">0</strong> 棵</span>
+        <button id="resetGardenBtn" type="button" aria-label="重新開始一座森林">換一座森林 ↻</button>
+      </div>
       <div class="world-picker" role="group" aria-label="選擇樹種與主題世界">
         <label for="kindSelect">樹種
           <select id="kindSelect" aria-label="選擇樹種">
@@ -57,7 +62,7 @@
         </div>
       </div>
       <div class="canvas-wrap" id="canvasWrap">
-        <canvas id="treeCanvas" role="img" aria-label="會依據聊天內容長出不同枝幹、樹冠、葉片和果實的樹"></canvas><span class="tree-art-version" id="treeArtVersion">✨ Art V9 · 活的幻想樹</span>
+        <canvas id="treeCanvas" role="img" aria-label="夜光森林：依聊天句數變成種子、嫩芽、小樹、浮島與四種最終樹形"></canvas><span class="tree-art-version" id="treeArtVersion">✨ Art V9 · 活的幻想樹</span>
         <span class="floating-note" id="growthToast" aria-live="polite"></span>
         <span class="ground-label" id="treeSubtitle">你和 Zoe 的故事，才剛要開始。</span>
       </div>
@@ -66,10 +71,23 @@
         <strong id="surpriseTitle">驚喜正在發生</strong>
         <span id="surpriseDetail">世界有了新居民</span>
       </div>
+      <div class="garden-progress" aria-label="這棵樹的生長進度">
+        <div class="garden-progress-top"><span>正在長的樹 · 第 <strong id="gardenAge">0</strong> / 16 句</span>
+        <span id="gardenNext">再聊 3 句，種子會破殼</span></div>
+        <div class="garden-progress-track"><i id="gardenBarFill"></i></div>
+        <div class="garden-milestones">
+          <span id="gardenM3" class="next">3 句 · 破殼</span>
+          <span id="gardenM8">8 句 · 浮島</span>
+          <span id="gardenM16" class="unknown">16 句 · ？？？</span>
+        </div>
+        <p class="forest-next" id="forestNext">再長滿 3 棵，解鎖螢光菇小路</p>
+        <div id="forestUnlocks" class="forest-unlocks"></div>
+        <p class="garden-rarity" id="gardenRarity" hidden></p>
+      </div>
       <div class="trait-row" id="traitRow"><span>🌿 待生長</span><span>🎨 隨聊天變化</span><span>✨ 可能突變</span></div>
       <div class="tree-actions">
         <button id="saveBtn" class="action-btn primary-action" type="button">✦ 收藏這棵樹</button>
-        <button id="shareBtn" class="action-btn" type="button">↗ 保存圖片</button>
+        <button id="shareBtn" class="action-btn" type="button">↗ 保存森林分享圖</button>
         <button id="newBtn" class="action-btn" type="button">↻ 新種一棵</button>
       </div>
       <div class="next-surprise" id="nextSurprise" aria-live="polite">再聊 3 句，解鎖下一個驚喜</div>
@@ -95,6 +113,11 @@
   <section class="collection" aria-label="我的歪樹收藏">
     <div class="collection-head"><div><p class="overline">YOUR LITTLE FOREST</p><h2>我的歪樹森林 <span id="savedCount">0</span></h2></div><span>點一棵可以再看看它</span></div>
     <div id="gallery" class="gallery"><p class="empty-forest">等你們一起養出第一棵樹，森林就從這裡開始。</p></div>
+  </section>
+  <section class="retired-forest" id="retiredForest" hidden aria-label="退休的樹">
+    <h2>🌲 退休的樹 <span id="retiredCount">0</span> 棵</h2>
+    <p>森林住滿後，最老的樹會移到這裡。這些已完成的樹仍保留最終形態。</p>
+    <div id="retiredGallery" class="retired-gallery"></div>
   </section>
   <footer>一棵樹，可能有幾百種枝葉組合。沒有標準答案，歪得有趣就好。 · <a href="./art-review.html">樹木美術驗收牆（24 棵）</a> · Crew Tree Lab</footer>
 </main>
