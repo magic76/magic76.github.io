@@ -11,7 +11,8 @@ const artWall=fs.readFileSync(path.join(dir,'art-review.html'),'utf8');
 const artWallScript=fs.readFileSync(path.join(dir,'art-review.js'),'utf8');
 const artFiles=['foliage-olive.svg','foliage-sage.svg','foliage-sunlit.svg','foliage-teal.svg','detail-bloom.svg','detail-fruit.svg','detail-star.svg'];
 function boot(options={}){
- const nodes=new Map(),memory=new Map(),paint={paths:0,ellipses:0,lines:0,frames:0,downloads:0,foliageGradients:0};
+ const nodes=new Map(),memory=new Map(),timers=new Map(),paint={paths:0,ellipses:0,lines:0,frames:0,downloads:0,foliageGradients:0};
+ let timerId=0;
  if(options.storage)for(const [k,v] of Object.entries(options.storage))memory.set(k,v);
  const gradient=()=>({addColorStop(){}});
  const context2D=new Proxy({
@@ -45,13 +46,18 @@ function boot(options={}){
  const document={getElementById:get,createElement:element,body:element('body')};
  const window={addEventListener(){},requestAnimationFrame(){return 1},devicePixelRatio:3,
   ResizeObserver:class{observe(){}},matchMedia(){return {matches:false}},scrollTo(){}};
+ const fantasyCalls=[];
+ if(options.fantasy){
+  context2D.canvas=get('treeCanvas');
+  window.CrewFantasyGameArt={paint:(...args)=>{fantasyCalls.push(args);return {};}};
+ }
  const c={document,window,location:{search:'?qa=1'},URLSearchParams,localStorage:{
   getItem:key=>memory.get(key)||null,setItem:(key,v)=>memory.set(key,v)
- },setTimeout(){return 1},clearTimeout(){},Date,Math,console,Number,String,Array,Set,Map};
+ },setTimeout(fn){const id=++timerId;timers.set(id,fn);return id},clearTimeout(id){timers.delete(id)},Date,Math,console,Number,String,Array,Set,Map};
  vm.createContext(c);vm.runInContext(botany,c,{timeout:10000});vm.runInContext(familyBotany,c,{timeout:10000});vm.runInContext(script,c,{timeout:10000});
  const qa=window.__TREE_QA__;
  assert.ok(qa,'QA interface is exposed only behind ?qa=1');
- return {qa,memory,get,paint,document};
+ return {qa,memory,get,paint,document,fantasyCalls,timers};
 }
 test('the garden is a small responsive chat toy, not a fake Gemini conversation',()=>{
  assert.match(html,/和 Zoe 種歪樹/);
@@ -108,6 +114,7 @@ test('topic recognition chooses distinct branches and meaningful local Zoe repli
  const a=qa.post(examples.food);
  assert.equal(a.topic,'food');
  assert.ok(a.reply.includes('樹')||a.reply.includes('枝'));
+ assert.equal(qa.state().current.growth.length,1);
  assert.equal(qa.state().current.growth.length,1);
 });
 test('a conversation causes obvious new geometry and persists only topic features',()=>{
@@ -221,7 +228,7 @@ test('gallery renders real mini tree canvases and recreates the exact seed after
 });
 
 test('botanical renderer is loaded before chat and keeps an independent geometry contract',()=>{
- const a=html.indexOf('src="./botany.js?v=4-20261112"'),b=html.indexOf('src="./tree.js?v=5-20261112"');
+ const a=html.indexOf('src="./botany.js?v=4-20261112"'),b=html.indexOf('src="./tree.js?v=game-1-20261113"');
  assert.ok(a>=0&&b>a,'botany must be available before the tree controller');
  const {qa}=boot();
  assert.equal(qa.getRendererVersion(),5);
@@ -290,7 +297,9 @@ test('V4 uses author-drawn botanical sprites instead of glossy bubbles or scatte
  for(let i=0;i<10;i++)qa.post(i%2?'喝咖啡、吃蛋糕':'我想去宇宙旅行');
  assert.doesNotThrow(()=>qa.draw(),'fallback must still draw if SVG assets are offline');
  assert.ok(paint.paths>100,'the mature bark and branches remain real canvas paths');
- assert.match(html,/四大樹種 · Art V5/);
+ assert.match(html,/V5 圓冠魔法樹/);
+ assert.match(html,/V5 高聳魔法樹/);
+ assert.match(html,/id="treeArtVersion"/);
  assert.match(html,/family-art\.js\?v=5-20261112/);
  assert.match(botany,/function drawPaintedWood\(/);
  assert.match(botany,/function drawSprig\(/);
@@ -361,4 +370,184 @@ test('adding conversation events never repositions earlier branch endpoints',()=
  for(let i=0;i<previous.length;i++)assert.deepEqual(
   [next[i].start.x,next[i].start.y,next[i].p1.x,next[i].p1.y,next[i].end.x,next[i].end.y],
   previous[i]);
+});
+
+test('Game V1 exposes V9 living worlds and keeps existing V5 families & navigation untouched',()=>{
+ assert.match(html,/id="kindSelect"/);
+ assert.match(html,/id="worldSelect"/);
+ assert.match(html,/id="surpriseMoment"/);
+ assert.match(html,/id="soundBtn"/);
+ assert.match(html,/id="watchGrowthBtn"/);
+ assert.match(css,/\.watch-growth\[hidden\]\{display:none!important\}/);
+ assert.match(html,/art-studies\/v9-art\.js/);
+ assert.match(html,/art-studies\/study\.js/);
+ assert.match(script,/CrewFantasyGameArt\.paint/);
+ assert.match(script,/navigator\.vibrate/);
+ assert.match(script,/createOscillator\(/);
+ assert.match(css,/\.world-picker select\{[^}]*min-height:44px/);
+ assert.doesNotMatch(html,/首頁、聊天、探索、學習、我的/);
+ const {qa}=boot();
+ assert.equal(qa.families.length,4);
+ assert.deepEqual([0,1,2,3,7,8,15,16].map(qa.stageForTurns),[3,3,3,3,3,8,8,16]);
+});
+test('Game V1 safely restores old V5 species while new trees persist V9 choices and inferred topic worlds',()=>{
+ const {qa,memory}=boot();
+ const old=qa.makeTree(9861);
+ const original=old.genome.treeFamily;
+ delete old.visualKind;delete old.world;
+ const legacy=qa.validateTree(old);
+ assert.equal(legacy.visualKind,original);
+ assert.equal(legacy.world,'auto');
+ assert.equal(qa.chooseKind('jelly'),true);
+ assert.equal(qa.chooseWorld('music'),true);
+ assert.equal(qa.state().current.visualKind,'jelly');
+ assert.equal(qa.state().current.world,'music');
+ assert.equal(qa.chooseKind('fake-tree'),false);
+ assert.equal(qa.chooseWorld('fake-world'),false);
+ qa.post('宇宙太空星球');
+ assert.equal(qa.resolvedWorld(qa.state().current),'music','explicit world should win over topic');
+ assert.equal(qa.chooseWorld('auto'),true);
+ assert.equal(qa.resolvedWorld(qa.state().current),'cosmos','auto follows dominant topic');
+ assert.ok(memory.get('crew-tree-current-v1').includes('"visualKind":"jelly"'));
+ assert.ok(memory.get('crew-tree-current-v1').includes('"world":"auto"'));
+ const saved=qa.validateTree(JSON.parse(memory.get('crew-tree-current-v1')));
+ assert.equal(saved.visualKind,'jelly');assert.equal(saved.world,'auto');
+});
+test('Game V1 every message grows fantasy scale and 3/8/16 unlock surprises exactly once',()=>{
+ const {qa,get,fantasyCalls}=boot({fantasy:true});
+ assert.equal(qa.chooseKind('island'),true);
+ assert.equal(qa.chooseWorld('travel'),true);
+ const ages=[],events=[];
+ for(let i=1;i<=16;i++){
+  const r=qa.post(i%2?'旅行地圖海洋':'在宇宙看星星');
+  assert.equal(r.count,i);
+  ages.push(qa.stageForTurns(i));
+  if(r.surprise)events.push(i);
+  qa.draw();
+ }
+ assert.deepEqual(events,[3,8,16]);
+ assert.equal(ages[2],3);assert.equal(ages[7],8);assert.equal(ages[14],8);assert.equal(ages[15],16);
+ assert.ok(fantasyCalls.length>=16,'real-game route uses shared V9 painter every turn');
+ assert.ok(fantasyCalls.every(args=>args[1]==='island'),'selected V9 scene is actually rendered');
+ assert.ok(fantasyCalls.every(args=>args[4]==='travel'),'explicit world travels to shared renderer');
+ const sizes=fantasyCalls.map(args=>args[10]?.turns).filter(Number.isFinite);
+ assert.ok(sizes.includes(1)&&sizes.includes(8)&&sizes.includes(16));
+ assert.equal(get('surpriseTitle').textContent,'漂流群島完整展開！');
+ assert.equal(get('watchGrowthBtn').hidden,false);
+ assert.match(get('watchGrowthBtn').textContent,/看驚喜/);
+ assert.equal(get('nextSurprise').textContent,'傳說世界已解鎖 · 每句仍會繼續成長');
+ assert.equal(get('treeArtVersion').textContent,'✨ Art V9 · 活的幻想樹');
+ const storage=JSON.stringify(qa.state().current);
+ assert.equal(storage.includes('在宇宙看星星'),false);
+});
+test('Game V1 collector and export route V9 without corrupting saved V5',()=>{
+ const {qa,memory,fantasyCalls}=boot({fantasy:true});
+ qa.chooseKind('jelly');qa.chooseWorld('cosmos');
+ qa.post('宇宙星球');qa.post('旅行海洋');qa.post('音樂唱歌');
+ assert.equal(qa.save(),true);
+ assert.equal(qa.exportImage(),true);
+ assert.ok(fantasyCalls.some(args=>args[1]==='jelly'&&args[10]?.height===1200),
+  'PNG export should render the V9 world, not old branch graphics');
+ const tree=qa.state().current;
+ qa.newTree();qa.chooseKind('twin');qa.post('開心');
+ assert.equal(qa.save(),true);
+ assert.equal(qa.open(tree.seed),true);
+ assert.equal(qa.state().current.visualKind,'jelly');
+ const reloaded=boot({storage:Object.fromEntries(memory)});
+ assert.equal(reloaded.qa.state().current.visualKind,'jelly');
+});
+
+test('Game V1 revised stage thresholds and per-species milestone copy stay visually honest',()=>{
+ for(const scene of ['island','jelly']){
+  const {qa,get}=boot();
+  qa.chooseKind(scene);
+  const surprises=[];
+  for(let n=1;n<=16;n++){
+   const r=qa.post(n%2?'宇宙星球旅行':'我喜歡音樂');
+   if(r.surprise){
+    surprises.push({n,title:r.surprise,stage:qa.stageForTurns(n),
+      detail:get('surpriseDetail').textContent});
+   }
+  }
+  assert.deepEqual(surprises.map(x=>x.n),[3,8,16]);
+  assert.deepEqual(surprises.map(x=>x.stage),[3,8,16]);
+  if(scene==='island'){
+   assert.match(surprises[0].title,/居民/);
+   assert.match(surprises[1].title,/浮島/);
+   assert.match(surprises[2].title,/群島/);
+   assert.equal(surprises.some(x=>/水母|觸鬚|珊瑚/.test(x.title+x.detail)),false);
+  }else{
+   assert.match(surprises[0].title,/小魚/);
+   assert.match(surprises[1].title,/觸鬚/);
+   assert.match(surprises[2].title,/燈籠/);
+   assert.equal(surprises.some(x=>/浮島|樹洞|群島/.test(x.title+x.detail)),false);
+  }
+  assert.equal(get('surpriseMoment').hidden,false);
+ }
+});
+test('Game V1 switching species/world/new tree/saved tree cancels stale surprise timer',()=>{
+ const {qa,get,timers}=boot();
+ qa.chooseKind('island');
+ const postTo=(target)=>{let r;while(qa.state().current.growth.length<target)r=qa.post('宇宙星球');return r;};
+ postTo(3);
+ assert.equal(get('surpriseMoment').hidden,false);
+ assert.equal(timers.size,1,'milestone uses only the ribbon timer, not a second centered toast');
+ qa.chooseKind('jelly');
+ assert.equal(get('surpriseMoment').hidden,true);
+ assert.equal(timers.size,0,'switching species cancels the only milestone timer');
+ postTo(8);
+ assert.equal(get('surpriseMoment').hidden,false);
+ qa.chooseWorld('music');
+ assert.equal(get('surpriseMoment').hidden,true);
+ assert.equal(timers.size,0);
+ postTo(16);
+ assert.equal(get('surpriseMoment').hidden,false);
+ const original=qa.state().current.seed;
+ qa.newTree();
+ assert.equal(get('surpriseMoment').hidden,true);
+ assert.equal(timers.size,1,'a new-tree toast may remain, but no old celebration timer');
+ qa.chooseKind('island');postTo(3);
+ assert.equal(get('surpriseMoment').hidden,false);
+ assert.equal(qa.open(original),true);
+ assert.equal(get('surpriseMoment').hidden,true);
+ assert.equal(timers.size,1,'opening saved tree creates only its new toast timer');
+ // The hidden UI must not reappear when timeouts from a previous world fire.
+ for(const fn of timers.values())fn();
+ assert.equal(get('surpriseMoment').hidden,true);
+});
+test('Game V1 tree names use correct living species, no double 樹, and retain V5 names',()=>{
+ for(const kind of ['island','jelly','round','tall','weeping','twin']){
+  const {qa}=boot();
+  qa.chooseKind(kind);
+  for(let n=0;n<8;n++)qa.post(n%2?'宇宙星球':'音樂唱歌');
+  const current=qa.state().current;
+  const expected=kind==='island'?'漂流浮島樹':kind==='jelly'?'水母燈籠樹':null;
+  if(expected)assert.ok(current.name.includes(expected),kind+': '+current.name);
+  assert.doesNotMatch(current.name,/樹樹/);
+  assert.ok(current.name.endsWith('樹'));
+ }
+});
+test('Game V1 milestone banner is outside canvas and desktop artboard is exactly 800:820',()=>{
+ const indexCanvas=html.indexOf('id="canvasWrap"');
+ const endWrap=html.indexOf('<div class="trait-row"',indexCanvas);
+ const banner=html.indexOf('id="surpriseMoment"');
+ const canvasEnd=html.indexOf('</div>',html.indexOf('id="treeSubtitle"'));
+ assert.ok(banner>canvasEnd&&banner<endWrap,'banner must live below image, not cover resident or island');
+ assert.match(css,/\.canvas-wrap\{aspect-ratio:800 \/ 820;height:auto;min-height:0\}/);
+ assert.match(css,/\.surprise-moment\{position:relative;top:auto;left:auto;transform:none/);
+});
+test('Game V1 monotonically scales all chat turns without stage-based resets',()=>{
+ const source=fs.readFileSync(path.join(dir,'art-studies/study.js'),'utf8');
+ assert.match(source,/const growthScale=turns=>/);
+ assert.match(source,/fromTurns\+\(game.turns-fromTurns\)\*progress/);
+ assert.match(source,/grow&&scene==='jelly'&&!game/);
+ assert.match(source,/m\.fromStage<=3&&!Number\.isFinite\(m\.gameTurns\)/);
+ assert.match(source,/function firstVisitor\(/);
+ const x=source.match(/const growthScale=turns=>([^;]+);/);
+ assert.ok(x,'stable QA growth scale');
+ const fn=Function('clamp','return turns=>'+x[1])((n,a,b)=>Math.max(a,Math.min(b,n)));
+ const nums=[0,1,2,3,7,8,9,15,16,20,32].map(fn);
+ for(let i=1;i<nums.length;i++)assert.ok(nums[i]>=nums[i-1],
+  'growth scale must never shrink at stage thresholds, '+nums.join(','));
+ assert.ok(nums[5]>nums[4]&&nums[8]>nums[7]);
 });
