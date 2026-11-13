@@ -108,6 +108,7 @@ function islandHollow(c,x,ground,w,time,still,stage,seed){
  c.strokeStyle='#f2d2b3';c.lineWidth=2.1;c.beginPath();c.arc(0,11,7,.2,Math.PI-.2);c.stroke();
  c.fillStyle='#ecb9a8';for(const side of [-1,1]){c.beginPath();c.arc(side*18,8,3.7,0,TAU);c.fill();}
  root.CrewFantasyV8.hollowMotion(c,stage,time,still,seed);
+ root.CrewFantasyV9.smilingResident(c,stage,time,still,seed);
  c.restore();
 }
 function juvenileMedusa(c,model,time,still,art){
