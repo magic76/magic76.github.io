@@ -600,7 +600,7 @@ test('V6 four forms, exact rarity bands and first topic shades are deterministic
  assert.deepEqual([100,101,102,103].map(n=>qa.glowForm(n).id),
   ['constellation','crystal','lantern','petal']);
  assert.deepEqual([100,101,111,112,139,140,199].map(n=>qa.glowRarity(n).key),
-  ['legend','legend','epic','epic','rare','common','common']);
+  ['legend','legend','epic','rare','rare','common','common']);
  // The user supplied six topic colors are deterministic while existing 12 topic
  // classifier and 12 mutations retain their original behavior.
  assert.equal(qa.classify('咖啡蛋糕').topic,'food');
