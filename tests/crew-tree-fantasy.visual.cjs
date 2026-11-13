@@ -37,7 +37,7 @@ fs.mkdirSync(OUT,{recursive:true});
      if(label==='mobile'){
       // Capture the actual first 844px of the page, not a cropped canvas.
       await page.evaluate(()=>window.scrollTo(0,0));
-      await page.screenshot({path:path.join(OUT,'V8-FIRST-FOLD-390-'+scene+'-'+stage+'.png')});
+      await page.screenshot({path:path.join(OUT,'V9-FIRST-FOLD-390-'+scene+'-'+stage+'.png')});
       if(stage===16){
        const bounds=await page.evaluate(()=>{
         const rect=document.getElementById('heroCanvas').getBoundingClientRect();
@@ -49,7 +49,7 @@ fs.mkdirSync(OUT,{recursive:true});
         '390px canvas must have no pastel letterbox strip '+JSON.stringify(bounds));
        assert.ok(bounds.top>=0&&bounds.bottom<844-8&&bounds.rootY<844-12,
         'entire living character including coral roots must fit first fold '+JSON.stringify(bounds));
-       console.log('FANTASY_V8_MOBILE_FULL_ROOT_'+scene.toUpperCase()+'='+JSON.stringify(bounds));
+       console.log('FANTASY_V9_MOBILE_FULL_ROOT_'+scene.toUpperCase()+'='+JSON.stringify(bounds));
       }
      }
      if(stage===8)await page.locator('#heroCanvas').screenshot({
@@ -92,7 +92,7 @@ fs.mkdirSync(OUT,{recursive:true});
     });
     if(label==='desktop'){
      console.log('FANTASY_'+scene.toUpperCase()+'_CONTACT='+sheet);
-     console.log('FANTASY_V8_'+scene.toUpperCase()+'_AGES='+sheet);
+     console.log('FANTASY_V9_'+scene.toUpperCase()+'_AGES='+sheet);
     }
     if(label==='desktop')console.log('FANTASY_V4_'+scene.toUpperCase()+'_AGES='+sheet);
     if(label==='desktop'){
@@ -135,7 +135,7 @@ fs.mkdirSync(OUT,{recursive:true});
       },{scene,from,to,progress});
       pictures.push(shot);
       await page.locator('#heroCanvas').screenshot({
-       path:path.join(OUT,'V8-GROWTH-'+label+'-'+scene+'-'+from+'-to-'+to+'-'+Math.round(progress*100)+'.png')
+       path:path.join(OUT,'V9-GROWTH-'+label+'-'+scene+'-'+from+'-to-'+to+'-'+Math.round(progress*100)+'.png')
       });
      }
      assert.equal(new Set(pictures).size,3,'start, in-between and final morph frames must all differ '+scene);
@@ -158,7 +158,7 @@ fs.mkdirSync(OUT,{recursive:true});
        return normal.reduce((total,v,i)=>total+Math.abs(v-transitionStart[i]),0)/normal.length;
       });
       assert.ok(difference<18,'zero-progress transition must not render ghost canopy: pixel delta '+difference);
-      console.log('FANTASY_V8_ZERO_MORPH_COLOR_DIFF='+difference.toFixed(2));
+      console.log('FANTASY_V9_ZERO_MORPH_COLOR_DIFF='+difference.toFixed(2));
      }
      if(label==='desktop'){
       const contact=await page.evaluate(async pictures=>{
@@ -172,7 +172,7 @@ fs.mkdirSync(OUT,{recursive:true});
        }
        return out.toDataURL('image/jpeg',.70).split(',')[1];
       },pictures);
-      console.log('FANTASY_V8_'+scene.toUpperCase()+'_'+from+'_TO_'+to+'='+contact);
+      console.log('FANTASY_V9_'+scene.toUpperCase()+'_'+from+'_TO_'+to+'='+contact);
      }
     }
     const reactionFrames=[];
@@ -183,7 +183,7 @@ fs.mkdirSync(OUT,{recursive:true});
      },{scene,progress});
      reactionFrames.push(image);
      await page.locator('#heroCanvas').screenshot({
-      path:path.join(OUT,'V8-TOUCH-'+label+'-'+scene+'-'+Math.round(progress*100)+'.png')
+      path:path.join(OUT,'V9-TOUCH-'+label+'-'+scene+'-'+Math.round(progress*100)+'.png')
      });
     }
     assert.equal(new Set(reactionFrames).size,3,
@@ -200,7 +200,7 @@ fs.mkdirSync(OUT,{recursive:true});
       }
       return out.toDataURL('image/jpeg',.68).split(',')[1];
      },reactionFrames);
-     console.log('FANTASY_V8_'+scene.toUpperCase()+'_TOUCH_CONTACT='+sheet);
+     console.log('FANTASY_V9_'+scene.toUpperCase()+'_TOUCH_CONTACT='+sheet);
     }
    }
    // Reduced-motion mode keeps transitions immediate, while keyboard can still
@@ -263,7 +263,7 @@ fs.mkdirSync(OUT,{recursive:true});
       }
       assert.equal(new Set(capColors).size,4,
        'V6 bell pigment in the actual canopy must change across four themes: '+JSON.stringify(capColors));
-      console.log('FANTASY_V8_BELL_COLORS='+JSON.stringify(capColors));
+      console.log('FANTASY_V9_BELL_COLORS='+JSON.stringify(capColors));
      }
      const contact=await page.evaluate(async(data)=>{
       const canvas=document.createElement('canvas');canvas.width=1040;canvas.height=340;
@@ -311,7 +311,34 @@ fs.mkdirSync(OUT,{recursive:true});
      });
      assert.ok(metric.bright>8&&metric.chromaPeak>65,
       'watercolor must preserve bright highlights and vivid saturated pigments '+JSON.stringify(metric));
-     console.log('FANTASY_V8_CHROMA_'+scene.toUpperCase()+'='+JSON.stringify(metric));
+     console.log('FANTASY_V9_CHROMA_'+scene.toUpperCase()+'='+JSON.stringify(metric));
+    }
+   }
+   if(label==='mobile'){
+    // Measure the *painted* canvas, not a CSS gradient. A dark sky should
+    // be clearly separated from a luminous 16-turn subject at 390px.
+    for(const scene of ['island','jelly']){
+     await page.locator('[data-scene="'+scene+'"]').click();
+     await page.locator('[data-stage="16"]').click();
+     await page.locator('[data-topic="cosmos"]').click();
+     const metric=await page.locator('#heroCanvas').evaluate(cv=>{
+      const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;
+      const at=(x,y)=>{const p=ctx.getImageData(Math.round(x*w/800),Math.round(y*h/820),1,1).data;
+       return {lum:.2126*p[0]+.7152*p[1]+.0722*p[2],max:Math.max(p[0],p[1],p[2])};};
+      const sky=[[42,35],[115,45],[185,71],[54,119],[140,131]];
+      const night=sky.reduce((a,p)=>a+at(...p).lum,0)/sky.length;
+      let peak=0,lit=0;
+      for(let y=188;y<510;y+=12)for(let x=255;x<560;x+=12){
+       const px=at(x,y);peak=Math.max(peak,px.max);if(px.max>208)lit++;
+      }
+      return{night:Math.round(night),peak,lit};
+     });
+     assert.ok(metric.night<125,
+      'V9 night sky must be substantially deeper, got '+JSON.stringify(metric));
+     assert.ok(metric.peak>metric.night+65&&metric.lit>=2,
+      'hero / lantern highlights must separate from the night '+JSON.stringify(metric));
+     console.log('FANTASY_V9_MOBILE_NIGHT_'+scene.toUpperCase()+'='+JSON.stringify(metric));
+     await page.screenshot({path:path.join(OUT,'V9-390-night-contrast-'+scene+'.png')});
     }
    }
    await page.screenshot({path:path.join(OUT,label+'-whole-art-study.png'),fullPage:true});
@@ -333,7 +360,7 @@ fs.mkdirSync(OUT,{recursive:true});
    await ctx.close();return result;
   })();
   assert.ok(grain.max-grain.min>=65,'paper grain needs visible opacity contrast '+JSON.stringify(grain));
-  console.log('FANTASY_V8_PAPER_GRAIN='+JSON.stringify(grain));
+  console.log('FANTASY_V9_PAPER_GRAIN='+JSON.stringify(grain));
   // The real button path animates when motion is allowed; reduced motion
   // produces immediate still art instead of an unexpected tween.
   const motion=await browser.newContext({viewport:{width:850,height:850},reducedMotion:'no-preference'});
@@ -354,7 +381,7 @@ fs.mkdirSync(OUT,{recursive:true});
   assert.equal(await live.evaluate(()=>window.__CREW_STUDIES_QA__.state().growth?.from),3);
   await live.waitForTimeout(1450);
   await motion.close();
-  console.log('FANTASY_V8_REAL_GROWTH_UI_OK; stage transitions, no-preference motion and reduced-motion fallbacks');
+  console.log('FANTASY_V9_REAL_GROWTH_UI_OK; stage transitions, no-preference motion and reduced-motion fallbacks');
   // External authoring tools are separately reported: a CDN outage must not
   // be mistaken for an actual successful p5.brush/Rigby2D implementation.
   const ctx=await browser.newContext({viewport:{width:1280,height:850}});

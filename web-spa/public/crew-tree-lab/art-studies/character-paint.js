@@ -136,6 +136,7 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  else art(c,name,x-cw*.50,top,cw,ch);
  if(index===0){
   root.CrewFantasyV8.warmHollow(c,x,ground,w,m.stage,time,staticMode,m.seed);
+  root.CrewFantasyV9.residentWarmth(c,x,ground,w,m.stage,time,staticMode,m.seed);
   root.CrewFantasyV3.islandHollow(c,x,ground,w,time,staticMode,m.stage,m.seed);
  }
  // Small grounded details, not emoji pasted over crown.
@@ -146,6 +147,7 @@ function floatUnit(c,u,index,m,time,staticMode,art){
   path(c,[[bx-w*.035,by],[bx-w*.035,by-w*.16],[bx,by-w*.23],[bx+w*.04,by-w*.16],[bx+w*.04,by]],'#f0ccab','#85747c',1.7);
   path(c,[[bx-w*.05,by-w*.15],[bx,by-w*.255],[bx+w*.06,by-w*.15]],'#715d70','#715d70',1.1);
   c.fillStyle='#fff4d1';c.fillRect(bx-w*.002,by-w*.14,w*.021,w*.036);
+  root.CrewFantasyV9.cottageBloom(c,bx,by,w,time,staticMode,m.seed);
   root.CrewFantasyV8.hutWindow(c,bx,by,w,time,staticMode,m.seed);
   c.restore();
  }
