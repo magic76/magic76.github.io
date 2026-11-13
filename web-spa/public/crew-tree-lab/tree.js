@@ -303,6 +303,9 @@ function postMessage(raw){
  sessionMessages++;
  updateTreeUI();
  const surprise=milestone[current.growth.length]||null;
+ $('watchGrowthBtn').hidden=false;
+ $('watchGrowthBtn').textContent=surprise?surprise.emoji+' '+surprise.title+' · 看驚喜':
+  '🌱 第 '+current.growth.length+' 句，樹又長大了 · 看一眼';
  if(surprise){cueSurprise(surprise);popToast(surprise.emoji+' '+surprise.title);}
  else popToast(mutation?'✨ 突變！'+MUTATIONS.find(m=>m.key===mutation).name:'🌱 '+TOPICS[signal.topic].label+'長出新枝！');
  sparkle();
@@ -320,7 +323,7 @@ function saveTree(silent=false){
 }
 function createNewTree(){
  if(current.growth.length>0)saveTree(true);
- current=makeTree();geom=buildGeometry(current);growthMotion=null;writeStorage();
+ current=makeTree();geom=buildGeometry(current);growthMotion=null;$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','新的一顆樹苗來啦！這次要把它聊成什麼怪樣子？🌱');
  updateTreeUI();popToast('新的小樹苗準備好了！');
 }
@@ -333,7 +336,7 @@ function openSaved(seed){
  if(!selected)return false;
  if(current.growth.length>0&&current.seed!==selected.seed)saveTree(true);
  current=validateTree(JSON.parse(JSON.stringify(selected)));
- geom=buildGeometry(current);growthMotion=null;writeStorage();
+ geom=buildGeometry(current);growthMotion=null;$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','啊，這是我們之前的「'+current.name+'」！繼續聊天，它還能長出新東西喔。');
  updateTreeUI();popToast('🌿 找到這棵歪樹了！');
  window.scrollTo?.({top:0,behavior:'smooth'});
@@ -485,6 +488,10 @@ function init(){
  $('shareBtn').addEventListener('click',exportImage);
  $('kindSelect').addEventListener('change',ev=>chooseKind(ev.target.value));
  $('worldSelect').addEventListener('change',ev=>chooseWorld(ev.target.value));
+ $('watchGrowthBtn').addEventListener('click',()=>{
+  $('canvasWrap').scrollIntoView?.({behavior:reduceMotion?'auto':'smooth',block:'center'});
+  $('watchGrowthBtn').hidden=true;
+ });
  $('soundBtn').addEventListener('click',()=>{
   soundEnabled=!soundEnabled;
   $('soundBtn').textContent=soundEnabled?'🔊 音效開':'🔇 音效關';
