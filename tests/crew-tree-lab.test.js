@@ -229,7 +229,10 @@ test('gallery renders real mini tree canvases and recreates the exact seed after
 });
 
 test('botanical renderer is loaded before chat and keeps an independent geometry contract',()=>{
- const a=html.indexOf('src="./botany.js?v=4-20261112"'),b=html.indexOf('src="./tree.js?v=game-1-20261113"');
+ const a=html.indexOf('src="./botany.js?v=4-20261112"'),
+  g=html.indexOf('src="./forest-v6.js?v=glow-v6-20261113"'),
+  b=html.indexOf('src="./tree.js?v=glow-v6-20261113"');
+ assert.ok(g>a&&b>g,'forest renderer must load after botany and before tree controller');
  assert.ok(a>=0&&b>a,'botany must be available before the tree controller');
  const {qa}=boot();
  assert.equal(qa.getRendererVersion(),5);
