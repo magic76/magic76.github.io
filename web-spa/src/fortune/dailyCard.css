@@ -71,3 +71,7 @@
 .fortune-daily-setup-hint{font-size:13px;line-height:1.5;color:#5a476d;margin:0 0 12px}
 .fortune-daily-next-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;min-width:0;max-width:100%;padding:8px 14px;margin-top:12px;border:1px solid #765c94;border-radius:12px;background:#fff9ff;color:#523970;font-size:14px;font-weight:750;text-decoration:none;text-align:center;overflow-wrap:anywhere}
 .fortune-daily-next-link:focus-visible{outline:3px solid #6d58b2;outline-offset:3px}
+
+/* Secondary continuation outside the fixed-height flipper, available before and after reveal. */
+.fortune-daily-zoe{box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;min-width:0;min-height:44px;padding:10px 14px;margin-top:12px;border:1px solid #9d89b8;border-radius:12px;background:#fff9ff;color:#523970;font-size:14px;font-weight:750;line-height:1.5;text-align:center;text-decoration:none;white-space:normal;overflow-wrap:anywhere}
+.fortune-daily-zoe:focus-visible{outline:3px solid #6d58b2;outline-offset:3px}
