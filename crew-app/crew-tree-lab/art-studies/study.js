@@ -229,10 +229,12 @@ function jellyScene(c,m,time,staticMode){
  window.CrewFantasyV5.capOcclusion(c,capSpec);
  const cap=window.CrewFantasyPaint.canopy(c,art,m.stage,time,staticMode,m.seed);
  window.CrewFantasyV6.tintCanopy(c,cap,m.topic,m.stage,time,staticMode);
+ window.CrewFantasyV9.bellGlow(c,cap,m.topic,m.stage,time,staticMode);
  window.CrewFantasyV6.bellLeaves(c,cap,m.topic,m.stage,time,staticMode);
  if(m.stage>=16)window.CrewFantasyV4.fishHero(c,cap,time,staticMode,m.seed);
  else window.CrewFantasyV3.fishResident(c,cap,time,staticMode,m.seed,m.stage);
  window.CrewFantasyV8.moonRim(c,'jelly',m.stage,m.topic,time,staticMode);
+ window.CrewFantasyV9.rimLights(c,cap,m.topic,m.stage,time,staticMode);
  c.restore();
  if(m.stage>=16){
   c.save();c.globalAlpha*=.78;
@@ -267,7 +269,9 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
  if(silhouette){c.fillStyle='#faf5e7';c.fillRect(0,0,W,H);}
  else{
   window.CrewFantasyV3.themeBackdrop(c,topic,seed,scene);
+  window.CrewFantasyV9.nightSky(c,topic,seed,scene);
   window.CrewFantasyPaint.forest(c,seed,scene);
+  window.CrewFantasyV9.distantLayer(c,topic,scene);
   if(topic==='travel')window.CrewFantasyV4.travelSky(c,seed,stage,time,staticMode);
   // Paper pigment belongs on the environment, under the living subject.
   // This prevents V7's gray veil from desaturating the luminous canopy/fish.
@@ -302,6 +306,7 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
   if(topic==='travel'&&scene==='island')window.CrewFantasyV4.travelStamp(c,model);
   window.CrewFantasyPaint.life(c,model,time,staticMode);
   c.restore();
+  window.CrewFantasyV9.foregroundContrast(c,scene,seed);
   if(transition&&transition.progress<1)
    window.CrewFantasyV5.particles(c,seed,scene,transition.progress,'growth');
   if(reaction&&reaction.scene===scene&&reaction.progress<1)
