@@ -3,6 +3,59 @@ const $=id=>document.getElementById(id);
 const canvas=$('treeCanvas'),ctx=canvas.getContext('2d');
 const STORE='crew-tree-lab-v1',CURRENT='crew-tree-current-v1',MAX_GROWTH=32,MAX_SAVED=18,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const VISUAL_KINDS=['island','jelly','round','tall','weeping','twin'];
+const WORLD_CHOICES=['auto','cosmos','warmth','music','travel'];
+const KIND_LABELS={island:'漂流浮島樹',jelly:'水母燈籠樹',round:'V5 圓冠樹',tall:'V5 高樹',weeping:'V5 垂柳樹',twin:'V5 雙生樹'};
+const WORLD_LABELS={cosmos:'宇宙',warmth:'溫暖',music:'音樂',travel:'旅行'};
+const milestone={3:{emoji:'🌱',title:'第一位發光居民搬進來！',detail:'有人在樹洞敲門，快看看新朋友。'},
+ 8:{emoji:'🏝️',title:'新浮島出現了！',detail:'世界長出新家園，還有新的樹枝與夥伴。'},
+ 16:{emoji:'🪼',title:'傳說居民登場！',detail:'樹的世界完全展開，水母燈籠也點亮了。'}};
+let soundEnabled=true;
+function stageForTurns(n){return n<3?3:n<8?8:16;}
+function resolvedWorld(tree){
+ if(WORLD_CHOICES.includes(tree.world)&&tree.world!=='auto')return tree.world;
+ const t=topTopic(tree);
+ if(t==='cosmos'||t==='music'||t==='travel')return t;
+ if(['love','stress','food','animals','weather','nature'].includes(t))return 'warmth';
+ return ['cosmos','warmth','music','travel'][tree.seed%4];
+}
+function isFantasy(tree){return tree&&['island','jelly'].includes(tree.visualKind);}
+function cueSurprise(event){
+ if(!event)return;
+ const box=$('surpriseMoment');box.hidden=false;
+ $('surpriseIcon').textContent=event.emoji;
+ $('surpriseTitle').textContent=event.title;$('surpriseDetail').textContent=event.detail;
+ box.classList.remove('enter');void box.offsetWidth;box.classList.add('enter');
+ clearTimeout(surpriseTimer);surpriseTimer=setTimeout(()=>{box.hidden=true;box.classList.remove('enter')},3300);
+ if(soundEnabled){try{
+  const Audio=window.AudioContext||window.webkitAudioContext;
+  if(Audio){if(!audioContext)audioContext=new Audio();
+   if(audioContext.state==='suspended')audioContext.resume?.();
+   const at=audioContext.currentTime;
+   [659.25,880,1046.5].forEach((note,i)=>{
+    const o=audioContext.createOscillator(),g=audioContext.createGain();
+    o.type='sine';o.frequency.value=note;
+    g.gain.setValueAtTime(.0001,at+i*.093);
+    g.gain.exponentialRampToValueAtTime(.038,at+i*.093+.018);
+    g.gain.exponentialRampToValueAtTime(.0001,at+i*.093+.20);
+    o.connect(g);g.connect(audioContext.destination);
+    o.start(at+i*.093);o.stop(at+i*.093+.21);
+   });
+  }
+ }catch{}}
+ try{if(typeof navigator!=='undefined'&&typeof navigator.vibrate==='function')
+  navigator.vibrate([28,45,44]);}catch{}
+}
+function chooseKind(value){
+ if(!VISUAL_KINDS.includes(value))return false;
+ current.visualKind=value;
+ if(['round','tall','weeping','twin'].includes(value))current.genome.treeFamily=value;
+ growthMotion=null;renameTree(current);writeStorage();updateTreeUI();renderGallery();return true;
+}
+function chooseWorld(value){
+ if(!WORLD_CHOICES.includes(value))return false;
+ current.world=value;growthMotion=null;writeStorage();updateTreeUI();renderGallery();return true;
+}
 const SILHOUETTES=[
  {name:'直衝雲端',height:1.17,spread:.70,wiggle:.07,lean:0,droop:0},
  {name:'螺旋跳舞',height:1.03,spread:1.04,wiggle:.50,lean:.03,droop:0},
@@ -76,7 +129,7 @@ const MUTATIONS=[
 ];
 const MUT_BY_TOPIC={cosmos:'starlight',food:'sugar',tech:'circuit',love:'heartvine',weather:'raincloud',stress:'thorns',dream:'moon',animals:'cats',music:'song',play:'jelly',travel:'bubbles',nature:'fireflies'};
 let current=null,forest=[],geom=null,renderTime=0,lastFrame=0,scale=1,dpr=1,w=420,h=440;
-let bubbles=[],toastTimer=0,reduceMotion=false,sessionMessages=0,growthMotion=null;
+let bubbles=[],toastTimer=0,surpriseTimer=0,audioContext=null,reduceMotion=false,sessionMessages=0,growthMotion=null;
 function rng32(seed){let a=seed>>>0;return ()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
 function randomSeed(){return ((Math.floor(Math.random()*4294967296) ^ Date.now())>>>0)||1;}
 function makeTree(seed=randomSeed()){
@@ -88,7 +141,7 @@ function makeTree(seed=randomSeed()){
   silhouette:6,leaf:Math.floor(r()*LEAVES.length),
   palette:curatedPalettes[Math.floor(r()*curatedPalettes.length)],
   lean:(r()*2-1)*.40,twist:(r()*2-1)*.42,fruit:Math.floor(r()*12)},
-  growth:[],tags:{},mutations:[],name:'小小的歪樹苗',createdAt:Date.now()};
+  growth:[],tags:{},mutations:[],visualKind:seed%2?'island':'jelly',world:'auto',name:'小小的歪樹苗',createdAt:Date.now()};
 }
 function validateTree(value){
  if(!value||!Number.isSafeInteger(value.seed)||!value.genome||!Array.isArray(value.growth)||value.growth.length>MAX_GROWTH)return null;
@@ -106,6 +159,9 @@ function validateTree(value){
   mood:clamp(Number(entry?.mood)||0,-1,1),energy:clamp(Number(entry?.energy)||.5,0,1)}));
  t.tags=Object.fromEntries(Object.entries(value.tags||{}).filter(([k,v])=>TOPICS[k]&&Number.isFinite(v)).map(([k,v])=>[k,clamp(v,0,100)]));
  t.mutations=[...new Set((value.mutations||[]).filter(k=>MUTATIONS.some(m=>m.key===k)))].slice(0,12);
+ // Existing V5 saves have no visualKind; preserve their legacy family.
+ t.visualKind=VISUAL_KINDS.includes(value.visualKind)?value.visualKind:t.genome.treeFamily;
+ t.world=WORLD_CHOICES.includes(value.world)?value.world:'auto';
  t.createdAt=Number.isFinite(value.createdAt)?value.createdAt:Date.now();
  renameTree(t);
  return t;
@@ -173,7 +229,7 @@ function evolve(message){
 function buildGeometry(tree){return window.CrewTreeV5.generate(tree);}
 function treeSignature(tree){
  const geo=buildGeometry(tree);
- return [tree.genome.treeFamily,tree.genome.crownVariant,tree.genome.silhouette,tree.genome.leaf,tree.genome.palette,
+ return [tree.visualKind,resolvedWorld(tree),tree.genome.treeFamily,tree.genome.crownVariant,tree.genome.silhouette,tree.genome.leaf,tree.genome.palette,
   geo.height.toFixed(1),geo.branches.length,
   geo.branches.slice(0,5).map(b=>b.end.x.toFixed(1)+','+b.end.y.toFixed(1)+
   ','+b.p1.x.toFixed(1)+','+b.p1.y.toFixed(1)+','+b.topic).join(';'),
@@ -206,10 +262,17 @@ function updateTreeUI(){
  $('stageBadge').textContent=stageLabel(current)+' · '+n+' 句';
  $('treeSubtitle').textContent=n===0?'你和 Zoe 的故事，才剛要開始。':
   '最近聊了'+TOPICS[topic].label+' · '+current.mutations.length+' 種奇怪突變';
+ const kind=KIND_LABELS[current.visualKind]||'圓冠魔法樹';
+ $('kindSelect').value=current.visualKind;$('worldSelect').value=current.world;
+ $('worldName').textContent='世界：'+WORLD_LABELS[resolvedWorld(current)];
+ $('treeArtVersion').textContent=isFantasy(current)?'✨ Art V9 · 活的幻想樹':'🌿 四大樹種 · Art V5';
+ const next=[3,8,16].find(x=>x>n);
+ $('nextSurprise').textContent=next?'再聊 '+(next-n)+' 句，解鎖下一個驚喜':'傳說世界已解鎖 · 每句仍會繼續成長';
  const traits=[
-  '🌳 '+(window.CrewTreeV5.labels[current.genome.treeFamily]||'圓冠魔法樹'),
+  '🌳 '+kind,
   '🍃 '+LEAVES[current.genome.leaf],
-  TOPICS[topic].icon+' '+TOPICS[topic].label
+  TOPICS[topic].icon+' '+TOPICS[topic].label,
+ '🌌 '+WORLD_LABELS[resolvedWorld(current)]
  ];
  if(current.mutations.length)traits.push(MUTATIONS.find(m=>m.key===current.mutations.at(-1)).icon+' '+MUTATIONS.find(m=>m.key===current.mutations.at(-1)).name);
  $('traitRow').innerHTML=traits.map(x=>'<span>'+x+'</span>').join('');
@@ -230,17 +293,20 @@ function postMessage(raw){
  if(!text)return false;
  if(text.length>240)return false;
  const turn=current.growth.length+1;
- const previouslyVisible=current.growth.length*3;
+ const previousTurns=current.growth.length;
+ const previouslyVisible=previousTurns*3;
  appendMessage('me',text);
  const {signal,mutation}=evolve(text);
- growthMotion={from:previouslyVisible,start:Date.now()};
+ growthMotion={from:previouslyVisible,fromTurns:previousTurns,start:Date.now(),duration:1250};
  const reply=sayZoe(signal,turn);
  appendMessage('zoe',reply);
  sessionMessages++;
  updateTreeUI();
- popToast(mutation?'✨ 突變！'+MUTATIONS.find(m=>m.key===mutation).name:'🌱 '+TOPICS[signal.topic].label+'長出新枝！');
+ const surprise=milestone[current.growth.length]||null;
+ if(surprise){cueSurprise(surprise);popToast(surprise.emoji+' '+surprise.title);}
+ else popToast(mutation?'✨ 突變！'+MUTATIONS.find(m=>m.key===mutation).name:'🌱 '+TOPICS[signal.topic].label+'長出新枝！');
  sparkle();
- return {topic:signal.topic,mutation,turn,count:current.growth.length,reply};
+ return {topic:signal.topic,mutation,turn,count:current.growth.length,reply,surprise:surprise?.title||null};
 }
 function saveTree(silent=false){
  if(current.growth.length<1){if(!silent)popToast('先和 Zoe 聊一句，讓樹發芽！');return false}
@@ -286,7 +352,7 @@ function renderGallery(){
   if(thumbnail)scene(thumbnail,88,106,tree,buildGeometry(tree),0);
   const desc=document.createElement('span');
   const name=document.createElement('strong');name.textContent=tree.name;
-  const meta=document.createElement('small');meta.textContent=tree.growth.length+' 句 · '+(window.CrewTreeV5.labels[tree.genome.treeFamily]||'圓冠魔法樹');
+  const meta=document.createElement('small');meta.textContent=tree.growth.length+' 句 · '+(KIND_LABELS[tree.visualKind]||window.CrewTreeV5.labels[tree.genome.treeFamily]||'圓冠魔法樹')+' · '+WORLD_LABELS[resolvedWorld(tree)];
   desc.append(name,meta);b.append(icon,desc);
   b.addEventListener('click',()=>openSaved(tree.seed));gallery.appendChild(b);
  }
@@ -402,21 +468,30 @@ function init(){
  $('saveBtn').addEventListener('click',()=>saveTree(false));
  $('newBtn').addEventListener('click',createNewTree);
  $('shareBtn').addEventListener('click',exportImage);
+ $('kindSelect').addEventListener('change',ev=>chooseKind(ev.target.value));
+ $('worldSelect').addEventListener('change',ev=>chooseWorld(ev.target.value));
+ $('soundBtn').addEventListener('click',()=>{
+  soundEnabled=!soundEnabled;
+  $('soundBtn').textContent=soundEnabled?'🔊 音效開':'🔇 音效關';
+  $('soundBtn').setAttribute('aria-pressed',String(soundEnabled));
+ });
  window.addEventListener?.('resize',resize);
  if(window.ResizeObserver)new window.ResizeObserver(resize).observe($('canvasWrap'));
  window.addEventListener?.('crew-tree-art-ready',renderGallery);
+ window.addEventListener?.('crew-tree-fantasy-ready',renderGallery);
  window.requestAnimationFrame?.(render);
 }
 if(new URLSearchParams(location.search).get('qa')==='1'){
  Object.defineProperty(window,'__TREE_QA__',{value:{
   classify,makeTree,validateTree,buildGeometry,treeSignature,post:postMessage,save:saveTree,newTree:createNewTree,
+  chooseKind,chooseWorld,resolvedWorld,stageForTurns,
   open:openSaved,exportImage,allTopics:Object.keys(TOPICS),mutations:MUTATIONS.map(m=>m.key),
   getRendererVersion:()=>window.CrewTreeV5.modelVersion,
   families:window.CrewTreeV5.families.slice(),
   artStatus:()=>window.CrewBotany.artStatus(),
   shapes:SILHOUETTES.map(p=>p.name),leaves:LEAVES.slice(),
   state:()=>({current:JSON.parse(JSON.stringify(current)),forest:JSON.parse(JSON.stringify(forest)),
-   geometry:geom,sessionMessages,renderTime}),
+   geometry:geom,sessionMessages,renderTime,growthMotion:growthMotion?{...growthMotion}:null,soundEnabled}),
   draw:()=>scene(ctx,w,h,current,geom,renderTime)
  }});
 }
