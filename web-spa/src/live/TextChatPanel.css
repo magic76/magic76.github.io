@@ -118,3 +118,19 @@
 .crew-text-next-replies .crew-text-starters-options{display:flex;flex-wrap:wrap;gap:7px}
 .crew-text-next-replies .crew-text-starter{width:auto;max-width:100%;flex:0 1 auto;min-height:44px;min-width:0;font-size:13px;padding:9px 12px;white-space:normal}
 @media(max-width:640px){.live-stage.crew-text-keyboard-open .crew-text-next-replies{display:none}}
+
+/* Friend-only learning, inline with the transcript; never shifts the composer. */
+.crew-text-learning-tip{margin-top:7px;border-top:1px solid var(--line);padding-top:6px;color:#494560;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+.crew-text-learning-tip span{font-weight:700}
+.crew-text-learning-check{display:block;min-height:44px;max-width:100%;margin-top:5px;padding:9px 11px;background:transparent;border:1px solid #756caa;border-radius:11px;color:#443878;font:inherit;font-size:12px;font-weight:700;text-align:left;cursor:pointer}
+.crew-text-learning-check:disabled{opacity:.55;cursor:default}
+.crew-text-learning-summary{min-width:0;max-width:100%;padding:10px 12px;border:1px solid #b7addb;border-radius:14px;background:var(--surface,#fff);color:var(--text);font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.crew-text-learning-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.crew-text-learning-header strong{font-size:13px}
+.crew-text-learning-header button{flex:none;min-width:44px;min-height:44px;border:0;background:transparent;border-radius:10px;color:var(--text);font-size:24px;cursor:pointer}
+.crew-text-learning-summary ul{padding-left:20px;margin:2px 0 0}
+.crew-text-learning-summary li{margin-top:4px;overflow-wrap:anywhere}
+.crew-text-learning-summary :is(button):focus-visible,.crew-text-learning-check:focus-visible{outline:2px solid #6753bb;outline-offset:2px}
+@media(max-width:640px){.live-stage.crew-text-keyboard-open .crew-text-learning-summary{display:none}}
+@media(prefers-reduced-motion:reduce){.crew-text-learning-summary,.crew-text-learning-check{transition:none;animation:none}}
+.crew-text-learning-better{font-weight:700}

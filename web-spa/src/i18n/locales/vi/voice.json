@@ -208,6 +208,7 @@
     "challengeUnavailable": "Không thể tải hoặc hoàn tất xác minh bảo mật. Hãy nhấn Gửi lần nữa."
   },
   "textChat": {
+    "learning": {"checkButton": "Mình nói đúng chưa?", "checkQuestion": "Câu này có tự nhiên không?", "better": "Tự nhiên hơn:", "summaryTitle": "3 cách diễn đạt hôm nay", "dismiss": "Đóng phần tổng kết"},
     "typing": "{{name}} đang nhập",
     "nextHeading": "Bạn có thể nói",
     "followUps": {

@@ -208,6 +208,7 @@
     "challengeUnavailable": "No se pudo cargar o completar la verificación de seguridad. Pulsa Enviar de nuevo."
   },
   "textChat": {
+    "learning": {"checkButton": "¿Lo dije bien?", "checkQuestion": "¿Suena natural esta frase?", "better": "Más natural:", "summaryTitle": "3 expresiones de hoy", "dismiss": "Cerrar resumen"},
     "typing": "{{name}} está escribiendo",
     "nextHeading": "Puedes decir",
     "followUps": {

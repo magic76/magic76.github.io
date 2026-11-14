@@ -1,4 +1,6 @@
 import {LiveTextConversation} from "./liveTextChat";
+import {textChatByokMessage} from "./textChatByokMessage";
+import {useFriendTextLearning,FriendLearningCheck,FriendLearningTip,FriendLearningSummary} from "./TextChatLearning";
 import {buildShortsTextSystems} from "./shortsTextContext";
 import {createTypingReveal} from "./typingReveal";
 import {sendGuestTextWithRenewal} from "./guestTextFlow";
@@ -52,6 +54,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const backendFailureCount=useRef(0);
  const {t}=useTranslation("voice");
  const isFriend=sessionScope.startsWith("friend:");
+ const learning=useFriendTextLearning(system,sessionScope);
  const fallbackReplies=useFriendNextReplyFallback(system);
  const [nextReplies,setNextReplies]=useState<string[]|"fallback"|null>(null);
  const [liveStatus,setLiveStatus]=useState("");
@@ -271,6 +274,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    // then uses the same visual reveal (not a claim of server-side streaming).
    await reveal.finish(reply);
    if(mounted.current){
+    if(isFriend&&parsed)learning.record(answerIndex,reply,parsed.tip,parsed.phrase,value);
     const complete=[...next,{role:"assistant" as const,text:reply,sources,searchSuggestions}];
     latestMessages.current=complete;
     writeSessionTranscript(sessionScope,complete);
@@ -294,12 +298,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
      (/RESOURCE_EXHAUSTED|quota/i.test(type)||status===429?"quota":
       /NOT_FOUND|unsupported model|model not found/i.test(type)||[400,404].includes(status)?"model":
       /UNAUTHENTICATED|PERMISSION_DENIED|invalid.*key/i.test(type)||[401,403].includes(status)?"key":"service");
-    const byokMessage=category==="key"?(english?"This Gemini key is invalid or lacks permission.":"目前的 Gemini Key 無效或沒有存取權限。")
-     :category==="quota"?(english?"Gemini rejected this Live text request (429: rate or usage limit). This does not necessarily mean your API key is out of quota. Try again later or check this model in Google AI Studio.":"Gemini 暫時拒絕這次 Live 文字請求（429：速率或用量限制）。不代表整把 API Key 的額度已用完；可稍後重試，或查看 Google AI Studio 的模型限制。")
-     :category==="model"?(english?"The Gemini text model is unavailable for this key.":"目前的 Gemini Key 無法使用這個文字模型。")
-     :/transcri|no text|no reply/i.test(type)?(english?"Gemini Live connected but returned no text transcript.":"Gemini Live 已連線，但沒有收到文字轉錄。")
-     :/1006|WebSocket|socket|setup/i.test(type)?(english?"Gemini Live WebSocket connection was interrupted or rejected. Please retry.":"Gemini Live WebSocket 連線中斷或遭拒，請重試。")
-     :(english?"Gemini Live text connection failed. Retry or switch to free practice.":"Gemini Live 文字連線失敗，請重試或改用免費文字練習。");
+    const byokMessage=textChatByokMessage(category,type,english);
     if(key){setError(byokMessage);setGuestFailure(null)}
     else{
      const failure=classifyGuestTextFailure(reason);
@@ -348,7 +347,9 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   <div ref={history} className="crew-text-chat-history" role="log" aria-label={english?"Conversation":"對話內容"} aria-live="polite" aria-relevant="additions">
    {!messages.length&&!firstStarter&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}
    {historyReady&&!messages.length&&!draft.trim()&&!busy&&sessionScope.startsWith("friend:")&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} starters={starters}/>}
-   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}
+   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>
+   {isFriend&&m.role==="user"&&!messages.slice(i+1).some(item=>item.role==="user")&&learning.canCheck(i,m.text)&&<FriendLearningCheck disabled={busy||(guestMode&&["unavailable","exhausted","paused"].includes(guestPhase))} onClick={()=>learning.check(i,m.text,value=>void sendMessage(value))}/>}
+   {isFriend&&m.role==="assistant"&&(!busy||i!==messages.length-1)&&learning.notes.find(note=>note.index===i&&note.reply===m.text)?.tip&&<FriendLearningTip text={learning.notes.find(note=>note.index===i)?.tip||""}/>}{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}
    {m.role==="assistant"&&busy&&i===messages.length-1&&<span className="crew-text-stream-cursor" aria-hidden="true">▍</span>}</div>)}
    {busy&&pendingSend.current&&!pendingSend.current.sent&&<p className="crew-text-chat-pending" role="status">
     {english?"Awaiting verification · not sent yet: ":"等待驗證・尚未送出："}{pendingSend.current.value}
@@ -357,6 +358,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     <span>{t("textChat.typing",{name:speaker})}</span><span className="crew-text-typing-dots" aria-hidden="true"><i/><i/><i/></span>
    </div>:<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>)}
    {isFriend&&!busy&&!draft.trim()&&messages.at(-1)?.role==="assistant"&&nextReplies&&<TextChatNextReplies replies={nextReplies==="fallback"?fallbackReplies:nextReplies} onPick={sentence=>void sendMessage(sentence)}/>}
+   {isFriend&&!learning.dismissed&&<FriendLearningSummary phrases={learning.summary(messages)} onDismiss={learning.dismiss}/>}
    <div ref={bottom}/>
   </div>
   {guestStatus&&<small className="crew-text-chat-progress" role="status">{guestStatus}</small>}

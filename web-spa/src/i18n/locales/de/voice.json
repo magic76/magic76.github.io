@@ -208,6 +208,7 @@
     "challengeUnavailable": "Die Sicherheitsprüfung konnte nicht geladen oder abgeschlossen werden. Drücke erneut auf „Senden“."
   },
   "textChat": {
+    "learning": {"checkButton": "Habe ich das richtig gesagt?", "checkQuestion": "Klingt dieser Satz natürlich?", "better": "Natürlicher:", "summaryTitle": "3 Wendungen von heute", "dismiss": "Lernrückblick schließen"},
     "typing": "{{name}} schreibt",
     "nextHeading": "Du könntest sagen",
     "followUps": {

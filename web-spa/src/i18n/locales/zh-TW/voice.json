@@ -208,6 +208,7 @@
     "challengeUnavailable": "安全驗證無法載入或完成，請再按一次送出。"
   },
   "textChat": {
+    "learning": {"checkButton": "我說得對嗎？", "checkQuestion": "我這句說得自然嗎？", "better": "更自然：", "summaryTitle": "今天學到的 3 個說法", "dismiss": "收起學習小結"},
     "typing": "{{name}} 正在輸入",
     "nextHeading": "接下來可以說",
     "followUps": {

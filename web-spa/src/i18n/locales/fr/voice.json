@@ -208,6 +208,7 @@
     "challengeUnavailable": "La vérification de sécurité n’a pas pu se charger ou aboutir. Appuyez de nouveau sur Envoyer."
   },
   "textChat": {
+    "learning": {"checkButton": "Je l’ai bien dit ?", "checkQuestion": "Est-ce que cette phrase est naturelle ?", "better": "Plus naturel :", "summaryTitle": "3 expressions du jour", "dismiss": "Masquer le récapitulatif"},
     "typing": "{{name}} écrit",
     "nextHeading": "Tu peux dire",
     "followUps": {
