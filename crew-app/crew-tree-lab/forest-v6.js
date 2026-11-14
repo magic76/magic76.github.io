@@ -7,12 +7,12 @@
  */
 (function(root){'use strict';
 const W=780,H=1120,TAU=Math.PI*2,MAX=16,MAX_RETIRED=18;
-// Flat slots (from the approved flat prototype): the flat canopies are
-// wider than the glow canopies, so the slots sit further in and smaller
-// than the glow layout, or the front trees clip off the canvas edges.
+// Art slots: the art images are wider than the procedural trees, so the
+// back row sits further toward the centre and the front row toward the
+// edges, or the back row would hide entirely behind the front row.
 // (Layout only — the garden data in `empty/restore/complete` is untouched.)
-const slots=[{x:180,y:928,s:.42,a:.75},{x:600,y:928,s:.42,a:.75},
- {x:130,y:962,s:.52,a:.90},{x:650,y:962,s:.52,a:.90}];
+const slots=[{x:235,y:905,s:.36,a:.70},{x:545,y:905,s:.36,a:.70},
+ {x:105,y:965,s:.46,a:.90},{x:675,y:965,s:.46,a:.90}];
 const forms=[
  {id:'constellation',name:'星空樹',icon:'✦',note:'每片枝梢都連成星座。'},
  {id:'crystal',name:'水晶樹',icon:'💎',note:'冰藍晶簇順著枝幹向天空生長。'},
@@ -34,6 +34,136 @@ const FLAT_FORMS={
  constellation:{back:'#8a7bb8',mid:'#c9b8e8',front:'#ffe9a8',gold:'#fff7e0'},
  crystal:{back:'#5a7bb8',mid:'#7cc8ff',front:'#bfe9ff',gold:'#ffffff'},
  petal:{back:'#c97ba8',mid:'#f6a1d3',front:'#ffb5cc',gold:'#ffe7f7'}};
+// AI evolution art (Digimon-style): every growth stage is a generated
+// image, one per (line, stage). A line is a form (seed%4); a stage is
+// seed/sprout/sapling/island/final. Adding a line = 5 images + one entry
+// in ART_LINES; no other code changes. The procedural painter stays as
+// the fallback (and is what the Node tests exercise, since Image does
+// not exist there).
+const ART_DIR='./art/evolution/';
+const ART_STAGES=['seed','sprout','sapling','island','final'];
+// Per-stage placement, in design units (canvas 780x1120, island line y=940):
+//  base = fraction of the image height where the subject's base sits
+//  subj = fraction of the image height that is the subject's height
+//  target = subject height as a fraction of the canvas height at scale 1
+// The image is scaled so the subject hits `target` and positioned so its
+// base lands on the anchor point. Measured from the generated images:
+// sprouts run small (subj ~.13) and saplings sit low (base ~.98); the
+// scale and offset below absorb both, so a new image only needs its
+// base/subj measured. The sapling target is .70 because the active
+// tree's growth scale (.5-.7) multiplies it to .35-.49.
+const ART_STAGE={
+ seed:{base:.85,subj:.12,target:.12},
+ sprout:{base:.90,subj:.13,target:.30},
+ sapling:{base:.98,subj:.63,target:.70},
+ island:{base:.90,subj:.60,target:.65},
+ final:{base:.85,subj:.80,target:.85}};
+const ART_LINES={
+ constellation:{seed:'constellation-seed.webp',sprout:'constellation-sprout.webp',sapling:'constellation-sapling.webp',island:'constellation-island.webp',final:'constellation-final.webp'},
+ crystal:{seed:'crystal-seed.webp',sprout:'crystal-sprout.webp',sapling:'crystal-sapling.webp',island:'crystal-island.webp',final:'crystal-final.webp'},
+ lantern:{seed:'lantern-seed.webp',sprout:'lantern-sprout.webp',sapling:'lantern-sapling.webp',island:'lantern-island.webp',final:'lantern-final.webp'},
+ petal:{seed:'petal-cherry-seed.webp',sprout:'petal-cherry-sprout.webp',sapling:'petal-cherry-sapling.webp',island:'petal-cherry-island.webp',final:'petal-cherry-final.webp'}};
+const artCache=new Map();
+function artImage(line,stageName){
+ if(typeof Image!=='function')return null;
+ const key=line+'|'+stageName;
+ if(artCache.has(key))return artCache.get(key);
+ const file=ART_LINES[line]&&ART_LINES[line][stageName];
+ if(!file){artCache.set(key,null);return null;}
+ const img=new Image();
+ img.src=ART_DIR+file;
+ artCache.set(key,img);
+ return img;
+}
+function artReady(img){return !!(img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0);}
+// Feathered art: the generated images have an opaque watercolor sky, so a
+// small stage's image would read as a hard-edged card pasted on the game's
+// night. Each image is copied once to an offscreen canvas with its edges
+// faded to transparent (destination-in gradients), so the sky melts into
+// the game's night and only the subject stays solid. Cached per image.
+const featherCache=new Map();
+function featheredArt(img){
+ const key=img.src;
+ if(featherCache.has(key))return featherCache.get(key);
+ let out=img;
+ if(typeof document!=='undefined'&&document.createElement){
+  try{
+   const cv=document.createElement('canvas');
+   cv.width=img.naturalWidth;cv.height=img.naturalHeight;
+   const c=cv.getContext('2d');
+   if(c){
+    c.drawImage(img,0,0);
+    const w=cv.width,h=cv.height;
+    c.globalCompositeOperation='destination-in';
+    const gx=c.createLinearGradient(0,0,w,0);
+    gx.addColorStop(0,'rgba(0,0,0,0)');
+    gx.addColorStop(.06,'rgba(0,0,0,1)');
+    gx.addColorStop(.94,'rgba(0,0,0,1)');
+    gx.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=gx;c.fillRect(0,0,w,h);
+    const gy=c.createLinearGradient(0,0,0,h);
+    gy.addColorStop(0,'rgba(0,0,0,0)');
+    gy.addColorStop(.06,'rgba(0,0,0,1)');
+    gy.addColorStop(.96,'rgba(0,0,0,1)');
+    gy.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=gy;c.fillRect(0,0,w,h);
+    out=cv;
+   }
+  }catch(e){out=img;}
+ }
+ featherCache.set(key,out);
+ return out;
+}
+// Draw one evolution image, anchored so the subject's base sits at (x,y)
+// and the subject is `target` of the canvas height tall at scale 1.
+// `scale` multiplies the subject size (growth scale for the active tree,
+// the slot scale for forest trees). Returns true when an image was drawn.
+function drawArt(c,line,stageName,x,y,scale,alpha){
+ const spec=ART_STAGE[stageName];if(!spec)return false;
+ const img=artImage(line,stageName);
+ if(!artReady(img))return false;
+ const src=featheredArt(img);
+ const iw=img.naturalWidth,ih=img.naturalHeight;
+ if(!iw||!ih)return false;
+ const targetH=spec.target*H*scale;
+ const s=targetH/(spec.subj*ih);
+ const dw=iw*s,dh=ih*s;
+ const dx=x-(iw/2)*s,dy=y-(spec.base*ih)*s;
+ c.save();c.globalAlpha*=alpha;
+ c.drawImage(src,dx,dy,dw,dh);
+ c.restore();
+ return true;
+}
+// Per-sentence topic marks on the art: small glowing dots scattered on
+// the canopy at deterministic positions (seeded by the tree's seed), so
+// every sentence still leaves a visible trace while a stage's image
+// stays the same. Same colors as the procedural marks.
+function artMarks(c,x,y,scale,stageName,seedNum,marks,time){
+ if(!Array.isArray(marks)||!marks.length)return;
+ const spec=ART_STAGE[stageName];if(!spec)return;
+ const targetH=spec.target*H*scale;
+ const top=y-targetH,canopyH=targetH*.65,halfW=targetH*.38;
+ const r=rng(seedNum);
+ const shown=Math.min(marks.length,16);
+ for(let i=0;i<shown;i++){
+  const px=x+(r()*2-1)*halfW,py=top+r()*canopyH;
+  const col=topicColors[marks[i]]||topicColors.daily,latest=i===shown-1;
+  glow(c,px,py,latest?26:16,col,latest?.75:.4);
+  ellipse(c,px,py,3.8,3.8,'#ffffff');
+  ellipse(c,px+1,py,2.6,2.6,col);
+ }
+}
+// Try the evolution art first; fall back to the procedural painter when
+// the image is not loaded yet (or Image does not exist, as in tests).
+function drawTree(c,tree,n,x,y,scale,alpha,time,still,marks){
+ if(!tree||!goodSeed(tree.seed)){shape(c,tree,n,x,y,scale,alpha,time,still,marks);return;}
+ const line=form(tree.seed).id,st=stage(n);
+ if(drawArt(c,line,st,x,y,scale,alpha)){
+  artMarks(c,x,y,scale,st,tree.seed,marks,time);
+  return;
+ }
+ shape(c,tree,n,x,y,scale,alpha,time,still,marks);
+}
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 function rng(seed){let x=seed>>>0;return ()=>{x=(x+0x6d2b79f5)>>>0;let t=x;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
 function stage(n){return n===0?'seed':n<3?'sprout':n<8?'sapling':n<16?'island':'final';}
@@ -617,11 +747,6 @@ function paint(canvas,g,active,time=0,opts={}){
  const display=opts.reveal?.tree||active;
  const showN=opts.reveal?16:n;
  night(c,time,display?.seed||314159,g.totalCompleted,still);
- for(let i=0;i<g.slots.length;i++){
-  const slot=slots[i],tree=g.slots[i];
-  if(!slot||!tree)continue;
-  shape(c,tree,16,slot.x,slot.y,slot.s,slot.a,time,still,tree.topics);
- }
  const current=display&&goodSeed(display.seed)?display:{seed:314159,growth:[]};
  const p=opts.motion&&!still?clamp((time-opts.motion.start)/1250,0,1):1;
  const prev=opts.motion?opts.motion.fromTurns:n;
@@ -632,9 +757,21 @@ function paint(canvas,g,active,time=0,opts={}){
  // burst sell the transformation, and a 17% wider crown would swallow the
  // trees behind it.
  let growth=st==='seed'||st==='sprout'?1:st==='sapling'?.5+.2*clamp((turns-3)/4,0,1):1;
- if(showN>=8)island(c,940,(1-p)*(opts.motion?.fromTurns<8?86:0));
+ // The art carries its own ground (mound / floating island), so the
+ // procedural island platform is only drawn when the art is not ready.
+ const artActive=artReady(artImage(form(current.seed).id,st));
+ if(showN>=8&&!artActive)island(c,940,(1-p)*(opts.motion?.fromTurns<8?86:0));
  // The foreground tree is anchored in the same place at every age.
- shape(c,current,showN,390,940,growth,1,time,still,current.growth?.map(x=>x.topic));
+ drawTree(c,current,showN,390,940,growth,1,time,still,current.growth?.map(x=>x.topic));
+ // Forest trees are drawn after the active tree: the art images carry
+ // an opaque sky, so a slot drawn first would be hidden behind the
+ // active tree's image. The slots sit at the sides, so they read as
+ // trees flanking the hero, not trees in front of it.
+ for(let i=0;i<g.slots.length;i++){
+  const slot=slots[i],tree=g.slots[i];
+  if(!slot||!tree)continue;
+  drawTree(c,tree,16,slot.x,slot.y,slot.s,slot.a,time,still,tree.topics);
+ }
  if(opts.reveal){
   glow(c,390,553,240,'#ffde9f',.20);
   for(let i=0;i<20;i++){
