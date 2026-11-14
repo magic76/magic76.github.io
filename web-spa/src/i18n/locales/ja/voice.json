@@ -208,6 +208,7 @@
     "challengeUnavailable": "セキュリティ認証を読み込むか完了することができませんでした。もう一度「送信」を押してください。"
   },
   "textChat": {
+    "learning": {"checkButton": "この言い方で合ってる？", "checkQuestion": "この言い方は自然ですか？", "better": "もっと自然：", "summaryTitle": "今日覚えた3つの表現", "dismiss": "学習メモを閉じる"},
     "typing": "{{name}} が入力中",
     "nextHeading": "次はこう言ってみよう",
     "followUps": {

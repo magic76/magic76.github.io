@@ -208,6 +208,7 @@
     "challengeUnavailable": "Verifikasi keamanan gagal dimuat atau diselesaikan. Tekan Kirim lagi."
   },
   "textChat": {
+    "learning": {"checkButton": "Apakah ucapanku sudah tepat?", "checkQuestion": "Apakah kalimat ini terdengar alami?", "better": "Lebih alami:", "summaryTitle": "3 ungkapan hari ini", "dismiss": "Tutup ringkasan"},
     "typing": "{{name}} sedang mengetik",
     "nextHeading": "Kamu bisa bilang",
     "followUps": {

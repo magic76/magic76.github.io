@@ -208,6 +208,7 @@
     "challengeUnavailable": "보안 인증을 불러오거나 완료하지 못했어요. 보내기를 다시 눌러 주세요."
   },
   "textChat": {
+    "learning": {"checkButton": "이렇게 말해도 돼?", "checkQuestion": "이 문장은 자연스러운가요?", "better": "더 자연스럽게:", "summaryTitle": "오늘 배운 표현 3개", "dismiss": "학습 요약 닫기"},
     "typing": "{{name}}님이 입력 중",
     "nextHeading": "다음에 이렇게 말해 보세요",
     "followUps": {

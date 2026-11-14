@@ -208,6 +208,7 @@
     "challengeUnavailable": "Security verification could not load or complete. Press Send to try again."
   },
   "textChat": {
+    "learning": {"checkButton": "Did I say that right?", "checkQuestion": "Does this sentence sound natural?", "better": "More natural:", "summaryTitle": "3 expressions from today", "dismiss": "Dismiss learning recap"},
     "typing": "{{name}} is typing",
     "nextHeading": "You could say",
     "followUps": {
