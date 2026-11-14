@@ -1,7 +1,6 @@
 /* Crew Creature Lab V1.1 — chat with Zoe, collect energy, inject it to evolve
- * a creature. A creature's line is decided by the dominant topic of the
- * conversation (revealed at the first evolution, egg -> baby), or by
- * hatching a specific egg from a gift. Energy is the fuel: one
+ * a creature. First evolution draws a weighted-random species, while
+ * a gift egg always hatches its explicitly chosen species. Energy is the fuel: one
  * sentence = 1 energy; evolution costs 2/4/5/5 (16 total) and only
  * happens when the user taps the evolve button. Every evolution grants
  * a gift; completing a creature grants one more. Gifts hold eggs,
@@ -41,8 +40,22 @@ const CREATURE_LINES={
   note:'金紅色羽毛的小鳳凰，尾羽的火焰光會隨著你的話燃燒。',
   topics:['fire']}};
 const LINE_IDS=Object.keys(CREATURE_LINES);
-const TOPIC_TO_LINE={};
-for(const id of LINE_IDS)for(const t of CREATURE_LINES[id].topics)TOPIC_TO_LINE[t]=id;
+// Mystery-egg hatch odds (percent); gift eggs keep their specified species.
+const CREATURE_WEIGHTS=Object.freeze({
+ cat:18,flowerfairy:17,snowbunny:16,redpanda:14,
+ dolphin:13,moonfox:10,stardragon:8,phoenix:4
+});
+const WEIGHTED_LINES=Object.entries(CREATURE_WEIGHTS);
+const TOTAL_LINE_WEIGHT=WEIGHTED_LINES.reduce((n,[,w])=>n+w,0);
+function rollCreatureLine(rand){
+ const value=typeof rand==='function'?rand():Math.random();
+ let ticket=Math.min(Math.max(Number.isFinite(value)?value:0,0),1-Number.EPSILON)*TOTAL_LINE_WEIGHT;
+ for(const [id,weight] of WEIGHTED_LINES){
+  if(ticket<weight)return id;
+  ticket-=weight;
+ }
+ return WEIGHTED_LINES[WEIGHTED_LINES.length-1][0];
+}
 const ART_DIR='./art/creatures/';
 const artCache=new Map();
 function artImage(line,stageName){
@@ -79,10 +92,6 @@ function dominantTopic(topics){
  let best='daily',bestN=0;
  for(const t of topics){if(counts[t]>bestN){bestN=counts[t];best=t;}}
  return best;
-}
-function lineForTopics(topics){
- const topic=dominantTopic(topics);
- return TOPIC_TO_LINE[topic]||'cat';
 }
 function newCreature(){return {line:null,stage:0,topics:[],sentences:0};}
 function empty(){return {version:1,energy:0,creature:newCreature(),collection:[],gifts:0,giftCollection:{},lastDailyGift:null};}
@@ -128,13 +137,13 @@ function canEvolve(g){
  const cost=evolveCost(g.creature.stage);
  return cost!==null&&(g.energy||0)>=cost;
 }
-function evolve(g){
+function evolve(g,rand){
  if(!canEvolve(g))return null;
  const cost=evolveCost(g.creature.stage);
  g.energy-=cost;
  const c=g.creature;
  c.stage++;
- if(c.stage===1&&!c.line)c.line=lineForTopics(c.topics);
+ if(c.stage===1&&!c.line)c.line=rollCreatureLine(rand);
  const line=c.line;
  const completed=c.stage===4;
  let done=null;
@@ -326,8 +335,8 @@ function paint(canvas,g,time=0,opts={}){
  c.restore();return true;
 }
 root.CrewCreatureV1=Object.freeze({
- W,H,CREATURE_STAGES,EVOLVE_COSTS,CREATURE_LINES,LINE_IDS,TOPIC_TO_LINE,
- evolveCost,dominantTopic,lineForTopics,lineForTopic:t=>TOPIC_TO_LINE[t]||'cat',
+ W,H,CREATURE_STAGES,EVOLVE_COSTS,CREATURE_LINES,LINE_IDS,CREATURE_WEIGHTS,
+ evolveCost,dominantTopic,rollCreatureLine,
  newCreature,empty,restore,gainEnergy,canEvolve,evolve,startNewCreature,hatchEgg,
  giftItems,grantGift,openGift,artImage,artReady,preloadArt,drawArt,drawCompanions,paint
 });
