@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-14",
+  "generatedAt": "2026-11-14T02:44:08.746Z",
+  "edition": "public",
+  "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 6 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
+  "items": [
+    {
+      "id": "aeb91968d9e30da7",
+      "title": "MIRAGE: Misleading Retrieval-Augmented Generation via Black-box and Query-agnostic Poisoning Attacks",
+      "summary": "Retrieval-Augmented Generation (RAG) systems enhance LLMs with external knowledge but introduce a critical attack surface: corpus poisoning. While recent studies have demonstrated the potential of such attacks, they typically rely on impractical assumptions, such as white-box access or known user queries, thereby under",
+      "publishedAt": "2026-11-12T00:00:00Z",
+      "topic": "Context & Memory",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "MIRAGE: Misleading Retrieval-Augmented Generation via Black-box and Query-agnostic Poisoning Attacks",
+          "url": "https://doi.org/10.1145/3830454.3832632",
+          "publishedAt": "2026-11-12T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 97,
+      "body": "Retrieval-Augmented Generation (RAG) systems enhance LLMs with external knowledge but introduce a critical attack surface: corpus poisoning. While recent studies have demonstrated the potential of such attacks, they typically rely on impractical assumptions, such as white-box access or known user queries, thereby under"
+    },
+    {
+      "id": "4c6393a334f55c81",
+      "title": "MemPoison: Bypassing Selective Memory Mechanisms to Plant Backdoors in LLM Agents",
+      "summary": "Large language model (LLM) agents increasingly leverage long-term memory to support persistent and autonomous task execution. However, this capability also introduces a new attack surface: memory poisoning, where adversaries can inject malicious information to influence future behavior. Existing memory poisoning attack",
+      "publishedAt": "2026-11-12T00:00:00Z",
+      "topic": "Context & Memory",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "MemPoison: Bypassing Selective Memory Mechanisms to Plant Backdoors in LLM Agents",
+          "url": "https://doi.org/10.1145/3830454.3846674",
+          "publishedAt": "2026-11-12T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 97,
+      "body": "Large language model (LLM) agents increasingly leverage long-term memory to support persistent and autonomous task execution. However, this capability also introduces a new attack surface: memory poisoning, where adversaries can inject malicious information to influence future behavior. Existing memory poisoning attack"
+    },
+    {
+      "id": "5aaaf5b5fff8a04a",
+      "title": "AI Agents and Agentic AI in Medicine: An Autonomy-Centred Scoping Review and Research Agenda",
+      "summary": "Abstract Artificial intelligence agents—software systems that perceive, reason, plan and act over multiple steps with limited human intervention—are moving from research prototypes towards clinical deployment. Recent reviews map what has been built; this one asks what would have to hold for such systems to be deployed",
+      "publishedAt": "2026-11-11T00:00:00Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "AI Agents and Agentic AI in Medicine: An Autonomy-Centred Scoping Review and Research Agenda",
+          "url": "https://doi.org/10.21203/rs.3.rs-10652827/v1",
+          "publishedAt": "2026-11-11T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 95,
+      "body": "Abstract Artificial intelligence agents—software systems that perceive, reason, plan and act over multiple steps with limited human intervention—are moving from research prototypes towards clinical deployment. Recent reviews map what has been built; this one asks what would have to hold for such systems to be deployed"
+    },
+    {
+      "id": "45402fb9d67b00c1",
+      "title": "LiveKit Agents AI agent update: You can recover caller answers that GPT-Live transcribes but never delegates. After a quiet grace period, a detector checks missed",
+      "summary": "You can recover caller answers that GPT-Live transcribes but never delegates. After a quiet grace period, a detector checks missed turns and starts backend delegation when needed, with a note for answers spoken over the agent. GPTLiveModel(delegation_recovery=True) - **xAI**: `xai/stt-2` through Inference, with word alignment for adaptive interruption. - **Google**: Gemini 4 Carbon, Gemini 4 Hydro",
+      "publishedAt": "2026-11-13T17:37:40Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "LiveKit Agents livekit-agents@1.8.12",
+          "url": "https://github.com/livekit/agents/releases/tag/livekit-agents%401.8.12",
+          "publishedAt": "2026-11-13T17:37:40Z",
+          "kind": "官方產品更新"
+        }
+      ],
+      "score": 90,
+      "body": "You can recover caller answers that GPT-Live transcribes but never delegates. After a quiet grace period, a detector checks missed turns and starts backend delegation when needed, with a note for answers spoken over the agent. GPTLiveModel(delegation_recovery=True) - **xAI**: `xai/stt-2` through Inference, with word alignment for adaptive interruption. - **Google**: Gemini 4 Carbon, Gemini 4 Hydrogen (also through Inference), and `gemini-decision-1` through the Decisions API."
+    },
+    {
+      "id": "971c3d9593dac9ae",
+      "title": "Multimodal Resource-Exhaustion Attacks on Vision-Language Models via Joint Pixel-Prompt Optimization",
+      "summary": "Resource-exhaustion attacks against autoregressive vision-language models (VLMs) typically assume unimodal threat models, treating the image branch as the primary optimization surface while holding user-visible prompts fixed. Even recent loop-centric variants remain confined to this single-channel paradigm, leaving the",
+      "publishedAt": "2026-11-12T00:00:00Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Multimodal Resource-Exhaustion Attacks on Vision-Language Models via Joint Pixel-Prompt Optimization",
+          "url": "https://doi.org/10.1145/3830454.3846595",
+          "publishedAt": "2026-11-12T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 89,
+      "body": "Resource-exhaustion attacks against autoregressive vision-language models (VLMs) typically assume unimodal threat models, treating the image branch as the primary optimization surface while holding user-visible prompts fixed. Even recent loop-centric variants remain confined to this single-channel paradigm, leaving the"
+    },
+    {
+      "id": "b2016a69e01bd34b",
+      "title": "Do Hackers Dream of Electric Teachers?: A Large-Scale, In-Situ Measurement of Cybersecurity Student Behaviors and Educational Performance with AI Tutors",
+      "summary": "To meet the ever-increasing demands of the cybersecurity workforce, AI tutors have been proposed for personalized, scalable education. But, while AI tutors have shown promise in introductory programming courses, no work has evaluated their use in hands-on exploration and exploitation exercises (e.g., \"Capture the Flag\"",
+      "publishedAt": "2026-11-12T00:00:00Z",
+      "topic": "AI Learning",
+      "projects": [
+        "Crew Teacher"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Do Hackers Dream of Electric Teachers?: A Large-Scale, In-Situ Measurement of Cybersecurity Student Behaviors and Educational Performance with AI Tutors",
+          "url": "https://doi.org/10.1145/3830454.3846694",
+          "publishedAt": "2026-11-12T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 87,
+      "body": "To meet the ever-increasing demands of the cybersecurity workforce, AI tutors have been proposed for personalized, scalable education. But, while AI tutors have shown promise in introductory programming courses, no work has evaluated their use in hands-on exploration and exploitation exercises (e.g., \"Capture the Flag\""
+    }
+  ]
+}
