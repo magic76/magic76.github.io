@@ -94,19 +94,29 @@ test('cannot evolve without enough energy, can with enough and energy is deducte
  assert.equal(qa.canEvolve(),false);
  assert.equal(qa.state().creature.stage,1);
 });
-test('first evolution line is decided by the dominant topic',()=>{
+test('first evolution uses weighted random odds, not the chat topic',()=>{
  const {qa}=boot();
  qa.post('我昨天夢到在月亮上散步');
  qa.post('晚上睡覺一直做夢');
- const res=qa.evolve();
- assert.equal(res.line,'moonfox');
- assert.equal(qa.state().creature.line,'moonfox');
+ assert.equal(qa.evolve(()=>0).line,'cat');
+ assert.equal(qa.state().creature.line,'cat');
  const {qa:qa2}=boot();
  qa2.post('我家貓咪今天又偷吃我的魚');
  qa2.post('貓咪真的超可愛');
- const res2=qa2.evolve();
- assert.equal(res2.line,'cat');
- assert.equal(qa2.state().creature.line,'cat');
+ assert.equal(qa2.evolve(()=>0.99).line,'phoenix');
+});
+
+test('weighted random odds cover all eight species and total 100%',()=>{
+ const {qa}=boot();
+ assert.deepEqual(Object.entries(qa.weights()),[
+  ['cat',18],['flowerfairy',17],['snowbunny',16],['redpanda',14],
+  ['dolphin',13],['moonfox',10],['stardragon',8],['phoenix',4]
+ ]);
+ assert.equal(Object.values(qa.weights()).reduce((sum,n)=>sum+n,0),100);
+ for(const [r,id] of [[0,'cat'],[0.18,'flowerfairy'],[0.35,'snowbunny'],
+  [0.51,'redpanda'],[0.65,'dolphin'],[0.78,'moonfox'],
+  [0.88,'stardragon'],[0.96,'phoenix'],[0.999,'phoenix']
+ ])assert.equal(qa.rollLine(()=>r),id,'weighted ticket '+r);
 });
 test('every evolution grants a gift: a finished creature is 5 gifts + 1 daily',()=>{
  const {qa}=boot();
@@ -216,6 +226,8 @@ test('hatching an owned egg sets the creature line and spends the egg',()=>{
  assert.equal(qa.giftCollection()['egg-cat'],1);
  assert.equal(qa.hatch('cat'),true);
  assert.equal(qa.state().creature.line,'cat');
+ qa.post('鳳凰浴火重生');qa.post('鳳凰浴火重生');
+ assert.equal(qa.evolve(()=>0.999).line,'cat','gift egg is always fixed');
  assert.equal(qa.giftCollection()['egg-cat'],undefined);
  assert.equal(qa.hatch('bogus'),false);
 });
@@ -332,7 +344,7 @@ test('v1.2: every chat sentence makes the creature react (bubble, not chat log)'
  const {qa:qa2}=boot();
  qa2.post('我昨天夢到在月亮上散步');
  qa2.post('晚上睡覺一直做夢');
- qa2.evolve();
+ qa2.evolve(()=>0.83);
  qa2.post('月亮好美');
  assert.equal(qa2.reactBubble().text,'月狐開心地搖了搖尾巴。');
 });
@@ -388,42 +400,38 @@ test('v1.2: evolution changes state synchronously while the ceremony runs',()=>{
  assert.equal(qa.evolving(),true,'the visual ceremony is in progress');
  assert.equal(qa.gifts(),2,'daily 1 + evolve 1, unchanged by the ceremony');
 });
-test('v1.3: the four new topics decide the four new lines',()=>{
- const cases=[
-  ['我喜歡下雪天去滑雪','snowbunny'],
-  ['竹林裡的熊貓好可愛','redpanda'],
-  ['夏天去海邊游泳衝浪','dolphin'],
-  ['鳳凰浴火重生','phoenix']];
- for(const [msg,line] of cases){
+test('v1.3: newer topics classify but do not control species',()=>{
+ for(const [msg,topic] of [
+  ['我喜歡下雪天去滑雪','snow'],['竹林裡的熊貓好可愛','bamboo'],
+  ['夏天去海邊游泳衝浪','ocean'],['鳳凰浴火重生','fire']
+ ]){
   const {qa}=boot();
+  assert.equal(qa.classify(msg).topic,topic,msg);
   qa.post(msg);qa.post(msg);
-  const res=qa.evolve();
-  assert.equal(res.line,line,msg);
-  assert.equal(qa.state().creature.line,line,msg);
+  assert.equal(qa.evolve(()=>0.715).line,'dolphin');
  }
 });
-test('v1.3: the old topic mappings are unchanged',()=>{
- const cases=[
-  ['我昨天夢到在月亮上散步','moonfox'],
-  ['我們去日本旅行','stardragon'],
-  ['我想吃蛋糕','flowerfairy'],
-  ['我家貓咪今天又偷吃我的魚','cat']];
- for(const [msg,line] of cases){
+test('v1.3: older topics still classify but do not control species',()=>{
+ for(const msg of [
+  '我昨天夢到在月亮上散步','我們去日本旅行',
+  '我想吃蛋糕','我家貓咪今天又偷吃我的魚'
+ ]){
   const {qa}=boot();
+  assert.notEqual(qa.classify(msg).topic,'daily');
   qa.post(msg);qa.post(msg);
-  assert.equal(qa.evolve().line,line,msg);
+  assert.equal(qa.evolve(()=>0.715).line,'dolphin');
  }
 });
 test('v1.3: the four new lines have their own reaction lines',()=>{
  const cases=[
-  ['我喜歡下雪天去滑雪','雪兔抖了抖長耳朵，雪花都亮了。'],
-  ['竹林裡的熊貓好可愛','小熊貓抱著尾巴，開心地晃了晃。'],
-  ['夏天去海邊游泳衝浪','海豚躍出水面，濺起發光的水花。'],
-  ['鳳凰浴火重生','鳳凰抖了抖羽毛，火光都亮了。']];
- for(const [msg,react] of cases){
+  ['我喜歡下雪天去滑雪','雪兔抖了抖長耳朵，雪花都亮了。',0.43],
+  ['竹林裡的熊貓好可愛','小熊貓抱著尾巴，開心地晃了晃。',0.58],
+  ['夏天去海邊游泳衝浪','海豚躍出水面，濺起發光的水花。',0.715],
+  ['鳳凰浴火重生','鳳凰抖了抖羽毛，火光都亮了。',0.98]];
+ for(const [msg,react,ticket] of cases){
   const {qa}=boot();
   qa.post(msg);qa.post(msg);
-  qa.evolve();
+  qa.evolve(()=>ticket);
   qa.post('再說一句');
   assert.equal(qa.reactBubble().text,react,msg);
  }
@@ -527,10 +535,12 @@ test('v1.4: first screen shows the whole animal (taller canvas, capped desktop)'
  assert.match(css,/\.line-grid/);
  assert.match(css,/\.line-card/);
 });
-test('creature lab is mirrored byte-identically in crew-app',()=>{
+test('creature lab mirrors crew-app except intended HTML cache versions',()=>{
  for(const name of ['creature.js','index.html','creature.css','creature-v6.js']){
-  assert.equal(fs.readFileSync(path.join(dir,name),'utf8'),
-   fs.readFileSync(path.join(__dirname,'../crew-app/crew-creature-lab',name),'utf8'));
+  const site=fs.readFileSync(path.join(dir,name),'utf8');
+  const app=fs.readFileSync(path.join(__dirname,'../crew-app/crew-creature-lab',name),'utf8');
+  const normalize=value=>name==='index.html'?value.replace(/\?v=(?:__CREW_COMMIT__|[0-9a-f]{8})/g,'?v=HASH'):value;
+  assert.equal(normalize(site),normalize(app),name);
  }
  for(const name of fs.readdirSync(path.join(dir,'art/creatures'))){
   assert.deepEqual(fs.readFileSync(path.join(dir,'art/creatures',name)),

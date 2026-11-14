@@ -282,7 +282,7 @@ function renderLinePreview(){
   const line=CRE.CREATURE_LINES[id];if(!line)return '';
   const done=!!raised[id];
   const img='./art/creatures/'+id+(done?'-final.webp':'-egg.webp');
-  const small=previewNoteLine===id?line.note:(done?'✓ 已養成':'還沒遇過');
+  const small=previewNoteLine===id?line.note:(done?'✓ 已養成':'還沒遇過')+' · '+CRE.CREATURE_WEIGHTS[id]+'%';
   return '<button type="button" class="line-card'+(done?' owned':' locked')+'" data-line="'+id+'" style="--lc:'+line.color+'" title="'+line.note+'">'
    +'<span class="line-thumb"><img src="'+img+'" alt="'+line.name+(done?' 完全體':'的蛋')+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
    +'<span class="line-icon" style="display:none">'+line.icon+'</span></span>'
@@ -374,14 +374,14 @@ function hatchEggLine(lineId){
  popToast('🥚 '+CRE.CREATURE_LINES[lineId].name+' 開始孵化了！');
  return true;
 }
-function doEvolve(){
+function doEvolve(rand){
  // v1.2 ceremony: the STATE changes immediately (energy deducted, stage
  // advanced, gifts granted, collection updated) so the QA hook stays
  // synchronous, but the VISUAL swap waits for the glow phase. The canvas
  // keeps painting the pre-evolution form (via evolvePending) for ~450ms,
  // then the new form is revealed with a flash and a scale-in.
  const before={line:state.creature.line,stage:state.creature.stage};
- const res=CRE.evolve(state);
+ const res=CRE.evolve(state,typeof rand==='function'?rand:undefined);
  if(!res)return null;
  // v1.1: every evolution grants a gift; completing a creature grants
  // one more. A full creature is 4 evolves + 1 complete = 5 gifts.
@@ -621,7 +621,8 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
   giftItems:()=>CRE.giftItems(),
   gifts:()=>state.gifts,
   giftCollection:()=>JSON.parse(JSON.stringify(state.giftCollection)),
-  lineForTopics:t=>CRE.lineForTopics(t),
+  rollLine:rand=>CRE.rollCreatureLine(rand),
+  weights:()=>({...CRE.CREATURE_WEIGHTS}),
   dominantTopic:t=>CRE.dominantTopic(t),
   lines:()=>Object.keys(CRE.CREATURE_LINES),
   stages:()=>CRE.CREATURE_STAGES.slice(),
