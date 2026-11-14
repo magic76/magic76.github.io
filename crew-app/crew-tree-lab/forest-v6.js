@@ -40,35 +40,60 @@ const FLAT_FORMS={
 // in ART_LINES; no other code changes. The procedural painter stays as
 // the fallback (and is what the Node tests exercise, since Image does
 // not exist there).
+// The images are generated on a flat solid background and chroma-keyed
+// to transparent, so the game's own night is the only sky — several
+// trees side by side share one background and there is no seam between
+// images. No feathering is needed (and it would eat the canopy edge).
 const ART_DIR='./art/evolution/';
 const ART_STAGES=['seed','sprout','sapling','island','final'];
-// Per-stage placement, in design units (canvas 780x1120, island line y=940):
-//  base = fraction of the image height where the subject's base sits
-//  subj = fraction of the image height that is the subject's height
-//  target = subject height as a fraction of the canvas height at scale 1
-// The image is scaled so the subject hits `target` and positioned so its
-// base lands on the anchor point. Measured from the generated images:
-// sprouts run small (subj ~.13) and saplings sit low (base ~.98); the
-// scale and offset below absorb both, so a new image only needs its
-// base/subj measured. The sapling target is .70 because the active
-// tree's growth scale (.5-.7) multiplies it to .35-.49.
+// Per-stage target: subject height as a fraction of the canvas height
+// at scale 1. The image is scaled so the subject hits `target` and
+// positioned so its base lands on the anchor point. The sapling target
+// is .70 because the active tree's growth scale (.5-.7) multiplies it
+// to .35-.49.
 const ART_STAGE={
- seed:{base:.85,subj:.12,target:.12},
- sprout:{base:.90,subj:.13,target:.30},
- sapling:{base:.98,subj:.63,target:.70},
- island:{base:.90,subj:.60,target:.65},
- final:{base:.85,subj:.80,target:.85}};
+ seed:{target:.12},
+ sprout:{target:.30},
+ sapling:{target:.70},
+ island:{target:.65},
+ final:{target:.85}};
+// Per-image placement, measured from the chroma-keyed images
+// (largest connected opaque component): base = fraction of the image
+// height where the subject's base sits, subj = fraction of the image
+// height that is the subject's height. A new image only needs its
+// base/subj measured and added here.
 const ART_LINES={
- constellation:{seed:'constellation-seed.webp',sprout:'constellation-sprout.webp',sapling:'constellation-sapling.webp',island:'constellation-island.webp',final:'constellation-final.webp'},
- crystal:{seed:'crystal-seed.webp',sprout:'crystal-sprout.webp',sapling:'crystal-sapling.webp',island:'crystal-island.webp',final:'crystal-final.webp'},
- lantern:{seed:'lantern-seed.webp',sprout:'lantern-sprout.webp',sapling:'lantern-sapling.webp',island:'lantern-island.webp',final:'lantern-final.webp'},
- petal:{seed:'petal-cherry-seed.webp',sprout:'petal-cherry-sprout.webp',sapling:'petal-cherry-sapling.webp',island:'petal-cherry-island.webp',final:'petal-cherry-final.webp'}};
+ constellation:{
+  seed:{file:'constellation-seed.webp',base:.925,subj:.180},
+  sprout:{file:'constellation-sprout.webp',base:.938,subj:.253},
+  sapling:{file:'constellation-sapling.webp',base:.899,subj:.746},
+  island:{file:'constellation-island.webp',base:.885,subj:.760},
+  final:{file:'constellation-final.webp',base:.884,subj:.775}},
+ crystal:{
+  seed:{file:'crystal-seed.webp',base:.917,subj:.196},
+  sprout:{file:'crystal-sprout.webp',base:.982,subj:.375},
+  sapling:{file:'crystal-sapling.webp',base:.925,subj:.850},
+  island:{file:'crystal-island.webp',base:.915,subj:.836},
+  final:{file:'crystal-final.webp',base:.963,subj:.923}},
+ lantern:{
+  seed:{file:'lantern-seed.webp',base:.828,subj:.217},
+  sprout:{file:'lantern-sprout.webp',base:.899,subj:.318},
+  sapling:{file:'lantern-sapling.webp',base:.907,subj:.816},
+  island:{file:'lantern-island.webp',base:.813,subj:.623},
+  final:{file:'lantern-final.webp',base:.944,subj:.901}},
+ petal:{
+  seed:{file:'petal-cherry-seed.webp',base:.979,subj:.164},
+  sprout:{file:'petal-cherry-sprout.webp',base:.941,subj:.313},
+  sapling:{file:'petal-cherry-sapling.webp',base:.896,subj:.666},
+  island:{file:'petal-cherry-island.webp',base:.825,subj:.648},
+  final:{file:'petal-cherry-final.webp',base:.916,subj:.830}}};
 const artCache=new Map();
 function artImage(line,stageName){
  if(typeof Image!=='function')return null;
  const key=line+'|'+stageName;
  if(artCache.has(key))return artCache.get(key);
- const file=ART_LINES[line]&&ART_LINES[line][stageName];
+ const entry=ART_LINES[line]&&ART_LINES[line][stageName];
+ const file=entry&&entry.file;
  if(!file){artCache.set(key,null);return null;}
  const img=new Image();
  img.src=ART_DIR+file;
@@ -76,61 +101,25 @@ function artImage(line,stageName){
  return img;
 }
 function artReady(img){return !!(img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0);}
-// Feathered art: the generated images have an opaque watercolor sky, so a
-// small stage's image would read as a hard-edged card pasted on the game's
-// night. Each image is copied once to an offscreen canvas with its edges
-// faded to transparent (destination-in gradients), so the sky melts into
-// the game's night and only the subject stays solid. Cached per image.
-const featherCache=new Map();
-function featheredArt(img){
- const key=img.src;
- if(featherCache.has(key))return featherCache.get(key);
- let out=img;
- if(typeof document!=='undefined'&&document.createElement){
-  try{
-   const cv=document.createElement('canvas');
-   cv.width=img.naturalWidth;cv.height=img.naturalHeight;
-   const c=cv.getContext('2d');
-   if(c){
-    c.drawImage(img,0,0);
-    const w=cv.width,h=cv.height;
-    c.globalCompositeOperation='destination-in';
-    const gx=c.createLinearGradient(0,0,w,0);
-    gx.addColorStop(0,'rgba(0,0,0,0)');
-    gx.addColorStop(.06,'rgba(0,0,0,1)');
-    gx.addColorStop(.94,'rgba(0,0,0,1)');
-    gx.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=gx;c.fillRect(0,0,w,h);
-    const gy=c.createLinearGradient(0,0,0,h);
-    gy.addColorStop(0,'rgba(0,0,0,0)');
-    gy.addColorStop(.06,'rgba(0,0,0,1)');
-    gy.addColorStop(.96,'rgba(0,0,0,1)');
-    gy.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=gy;c.fillRect(0,0,w,h);
-    out=cv;
-   }
-  }catch(e){out=img;}
- }
- featherCache.set(key,out);
- return out;
-}
 // Draw one evolution image, anchored so the subject's base sits at (x,y)
 // and the subject is `target` of the canvas height tall at scale 1.
 // `scale` multiplies the subject size (growth scale for the active tree,
-// the slot scale for forest trees). Returns true when an image was drawn.
+// the slot scale for forest trees). The image is already transparent,
+// so it is drawn directly. Returns true when an image was drawn.
 function drawArt(c,line,stageName,x,y,scale,alpha){
- const spec=ART_STAGE[stageName];if(!spec)return false;
+ const entry=ART_LINES[line]&&ART_LINES[line][stageName];
+ const spec=ART_STAGE[stageName];
+ if(!entry||!spec)return false;
  const img=artImage(line,stageName);
  if(!artReady(img))return false;
- const src=featheredArt(img);
  const iw=img.naturalWidth,ih=img.naturalHeight;
  if(!iw||!ih)return false;
  const targetH=spec.target*H*scale;
- const s=targetH/(spec.subj*ih);
+ const s=targetH/(entry.subj*ih);
  const dw=iw*s,dh=ih*s;
- const dx=x-(iw/2)*s,dy=y-(spec.base*ih)*s;
+ const dx=x-(iw/2)*s,dy=y-(entry.base*ih)*s;
  c.save();c.globalAlpha*=alpha;
- c.drawImage(src,dx,dy,dw,dh);
+ c.drawImage(img,dx,dy,dw,dh);
  c.restore();
  return true;
 }
