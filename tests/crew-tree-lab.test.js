@@ -231,7 +231,7 @@ test('gallery renders real mini tree canvases and recreates the exact seed after
 });
 
 test('botanical renderer is loaded before chat and keeps an independent geometry contract',()=>{
- const a=html.indexOf('src="./botany.js?v=4-20261112"'),
+ const a=html.search(/src="\.\/botany\.js\?v=[^"]+"/),
   g=html.search(/src="\.\/forest-v6\.js\?v=[^"]+"/),
   b=html.search(/src="\.\/tree\.js\?v=[^"]+"/);
  assert.ok(g>a&&b>g,'forest renderer must load after botany and before tree controller');
@@ -306,7 +306,7 @@ test('V4 uses author-drawn botanical sprites instead of glossy bubbles or scatte
  assert.match(html,/V5 圓冠魔法樹/);
  assert.match(html,/V5 高聳魔法樹/);
  assert.match(html,/id="treeArtVersion"/);
- assert.match(html,/family-art\.js\?v=5-20261112/);
+ assert.match(html,/family-art\.js\?v=[^"]+/);
  assert.match(botany,/function drawPaintedWood\(/);
  assert.match(botany,/function drawSprig\(/);
  assert.match(botany,/drawImage\(/);
@@ -322,7 +322,7 @@ test('V4 uses author-drawn botanical sprites instead of glossy bubbles or scatte
 });
 test('review wall covers eight seeds x three stages without touching personal forest data',()=>{
  assert.match(artWall,/24 棵/);
- assert.match(artWall,/art-review\.js\?v=5-20261112/);
+ assert.match(artWall,/art-review\.js\?v=[^"]+/);
  assert.match(artWallScript,/stages=\[3,8,16\]/);
  assert.match(artWallScript,/seeds=\[103,241\]/);assert.match(artWall,/data-family="twin"/);assert.match(artWall,/matureCompare/);
  assert.match(artWallScript,/window\.CrewTreeV5\.paint\(/);

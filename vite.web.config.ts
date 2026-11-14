@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
@@ -59,20 +59,27 @@ export default defineConfig(({ command }) => {
   };
   // Tree Lab pages are static files in public/, so their script URLs carry a
   // manual ?v= query. Browsers cached the pre-art forest-v6.js for hours
-  // because that query never changed. Stamp the current commit into the
-  // built copy so every deploy busts the cache automatically; the source
-  // keeps the __CREW_COMMIT__ placeholder.
+  // because that query never changed. Stamp the current commit into every
+  // built HTML file so each deploy busts the cache automatically; the
+  // sources keep the __CREW_COMMIT__ placeholder.
   const treeLabVersion: Plugin = {
     name: "crew-tree-lab-version",
     apply: "build",
     writeBundle(options) {
       const commit = buildInfo.commit?.slice(0, 8) || "dev";
       const outDir = options.dir || resolve(process.cwd(), isCloudflareBuild ? "../dist" : "../crew-app");
-      const file = resolve(outDir, "crew-tree-lab", "index.html");
-      if (!existsSync(file)) return;
-      const text = readFileSync(file, "utf8");
-      if (!text.includes("__CREW_COMMIT__")) return;
-      writeFileSync(file, text.replaceAll("__CREW_COMMIT__", commit));
+      const walk = (dir: string): string[] => {
+        if (!existsSync(dir)) return [];
+        return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+          const p = resolve(dir, e.name);
+          return e.isDirectory() ? walk(p) : e.name.endsWith(".html") ? [p] : [];
+        });
+      };
+      for (const file of walk(outDir)) {
+        const text = readFileSync(file, "utf8");
+        if (!text.includes("__CREW_COMMIT__")) continue;
+        writeFileSync(file, text.replaceAll("__CREW_COMMIT__", commit));
+      }
     }
   };
   return {

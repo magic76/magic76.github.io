@@ -101,6 +101,14 @@ function artImage(line,stageName){
  return img;
 }
 function artReady(img){return !!(img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0);}
+// Preload every evolution image up front so a stage change never shows the
+// procedural fallback while the new stage's image is still downloading.
+// Without this the tree flickers between the painter and the image as it
+// grows. Safe in tests: artImage returns null when Image does not exist.
+function preloadArt(){
+ for(const line of Object.keys(ART_LINES))
+  for(const st of ART_STAGES)artImage(line,st);
+}
 // Draw one evolution image, anchored so the subject's base sits at (x,y)
 // and the subject is `target` of the canvas height tall at scale 1.
 // `scale` multiplies the subject size (growth scale for the active tree,
@@ -847,8 +855,9 @@ function poster(canvas,g,active,now,opts={}){
  return true;
 }
 
+preloadArt();
 root.CrewGlowForestV6=Object.freeze({
  W,H,MAX,forms,slots,topicColors,stage,form,rarity,empty,restore,snapshot,complete,progress,
- paint,poster,forestLevel,leafQuotes,latestTopic
+ paint,poster,forestLevel,leafQuotes,latestTopic,preloadArt
 });
 })(typeof window!=='undefined'?window:globalThis);
