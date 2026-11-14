@@ -43,7 +43,19 @@ self.addEventListener("fetch",event=>{
   const cache=await caches.open(STATIC_CACHE);
   const cached=await cache.match(request);
   if(cached)return cached;
-  const response=await fetch(request);
+  let response=await fetch(request);
+  // A CDN can return its cached SPA index.html with HTTP 200 for a JS/CSS
+  // module. Retry the SAME asset with a fresh query before letting the browser
+  // see an invalid MIME type (also fixes nested static imports).
+  const mime=(response.headers?.get("content-type")||"").toLowerCase();
+  if(/\.(?:js|css)$/.test(url.pathname)&&/^text\/html(?:;|$)/.test(mime)){
+   try{
+    const bust=new URL(request.url);
+    bust.searchParams.set("__crew_asset_retry",Date.now().toString(36));
+    const repaired=await fetch(bust.toString(),{cache:"no-store",credentials:"same-origin"});
+    if(isValidAssetResponse(url,repaired))response=repaired;
+   }catch{/* Original response remains uncached and reports a MIME failure. */}
+  }
   if(isValidAssetResponse(url,response)){
    try{
     await cache.put(request,response.clone());
