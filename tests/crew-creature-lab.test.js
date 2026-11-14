@@ -441,6 +441,92 @@ test('v1.3: the egg picker lists all 8 line eggs with their art',()=>{
  assert.match(list,/海豚的蛋/);
  assert.match(list,/鳳凰的蛋/);
 });
+test('v1.4: eight opening chips cover all eight lines',()=>{
+ assert.equal((html.match(/data-say="/g)||[]).length,8,'eight chips');
+ assert.match(html,/id="linePreview"/);
+ assert.match(html,/8 種生物/);
+ const {qa}=boot();
+ const cases=[
+  ['今天下雪了，好想堆一個雪人！','snow'],
+  ['我在竹林裡散步，聽到竹葉沙沙響。','bamboo'],
+  ['夏天就想去海邊游泳、看海豚！','ocean'],
+  ['聽說鳳凰會在火焰裡重生，好神奇！','fire']];
+ for(const [msg,topic] of cases){
+  assert.ok(html.includes(msg),msg);
+  assert.equal(qa.classify(msg).topic,topic,msg);
+ }
+});
+test('v1.4: the 8-line preview shows every line, owned ones as final art',()=>{
+ const {get}=boot();
+ const preview=get('linePreview').innerHTML;
+ for(const name of ['月狐','星龍','花妖精','小貓咪','雪兔','小熊貓','海豚','鳳凰'])assert.match(preview,new RegExp(name));
+ for(const id of ['moonfox','stardragon','flowerfairy','cat','snowbunny','redpanda','dolphin','phoenix'])assert.match(preview,new RegExp(id+'-egg\\.webp'));
+ assert.match(preview,/還沒遇過/);
+ const saved=JSON.stringify({version:1,energy:0,creature:{line:null,stage:0,topics:[],sentences:0},collection:[{line:'moonfox',topics:['dream'],stage:4}],gifts:0,giftCollection:{},lastDailyGift:null});
+ const {get:get2}=boot({storage:{'crew-creature-lab-v1':saved}});
+ const preview2=get2('linePreview').innerHTML;
+ assert.match(preview2,/moonfox-final\.webp/);
+ assert.match(preview2,/已養成/);
+ assert.match(preview2,/snowbunny-egg\.webp/,'other lines still show eggs');
+});
+test('v1.4: exportImage downloads a 780x1730 postcard with a text band',()=>{
+ const {qa,paint}=boot();
+ assert.equal(qa.exportImage(),true);
+ assert.ok(paint.canvasSizes.some(s=>s[0]===780&&s[1]===1730),'postcard canvas is 780x1730');
+ assert.equal(paint.downloads,1);
+ const texts=paint.texts.map(t=>String(t.text));
+ assert.ok(texts.some(t=>t.includes('神秘的蛋')),'creature name + stage');
+ assert.ok(texts.some(t=>t.includes('聊了 0 句')&&t.includes('能量 0')),'sentence + energy count');
+ assert.ok(texts.some(t=>t.includes('Crew · 3sssi.com')),'date + Crew');
+ assert.match(script,/a\.download='crew-creature-'/);
+ // A final-form postcard names the creature and stage.
+ const {qa:qa2,paint:paint2}=boot();
+ for(let i=0;i<16;i++)qa2.post('天空好漂亮');
+ qa2.evolve();qa2.evolve();qa2.evolve();qa2.evolve();
+ assert.equal(qa2.exportImage(),true);
+ const texts2=paint2.texts.map(t=>String(t.text));
+ assert.ok(texts2.some(t=>t.includes('完全體')),'final-form postcard names the stage');
+ assert.ok(texts2.some(t=>t.includes('聊了 16 句')),'final-form postcard counts sentences');
+});
+test('v1.4: the loading fallback is a gradient + egg, never a flat black board',()=>{
+ const {qa,paint}=boot();
+ assert.equal(qa.draw(),true);
+ assert.ok(!paint.rects.some(r=>r.color==='#12101C'&&r.w===780&&r.h===1560),'no flat #12101C full-canvas fill');
+ assert.ok(paint.texts.some(t=>String(t.text).includes('圖片載入中')));
+ assert.ok(paint.texts.some(t=>String(t.text).includes('生物正在孵化')));
+});
+test('v1.4: chat history is saved and restored across reloads',()=>{
+ const {qa,memory}=boot();
+ qa.post('我昨天夢到在月亮上散步');
+ qa.post('星星宇宙');
+ const saved=memory.get('crew-creature-lab-v1-chat');
+ assert.ok(saved,'chat is saved to localStorage');
+ const log=JSON.parse(saved);
+ assert.equal(log.length,4,'two posts = 4 messages');
+ assert.equal(log[0].who,'you');
+ assert.equal(log[0].text,'我昨天夢到在月亮上散步');
+ assert.equal(log[1].who,'zoe');
+ assert.equal(qa.messages().length,4);
+ // Reload with the saved chat: messages come back, and the stored value is not rewritten.
+ const {qa:qa2,get,memory:mem2}=boot({storage:{'crew-creature-lab-v1-chat':saved}});
+ assert.equal(qa2.messages().length,4);
+ assert.equal(qa2.messages()[0].text,'我昨天夢到在月亮上散步');
+ assert.equal(get('messages').children.length,4,'restored messages show in the DOM');
+ assert.equal(mem2.get('crew-creature-lab-v1-chat'),saved,'restore does not rewrite the log');
+ // The log caps at the most recent 30 messages.
+ const {qa:qa3,memory:mem3}=boot();
+ for(let i=0;i<16;i++)qa3.post('天空好漂亮');
+ assert.equal(qa3.messages().length,30,'32 messages capped to 30');
+ assert.equal(JSON.parse(mem3.get('crew-creature-lab-v1-chat')).length,30,'stored log capped to 30');
+});
+test('v1.4: first screen shows the whole animal (taller canvas, capped desktop)',()=>{
+ assert.match(css,/54dvh/,'mobile canvas raised to 54dvh');
+ assert.match(css,/78vh/,'desktop canvas capped at 78vh');
+ assert.match(css,/min-height:100dvh/,'mobile layout uses min-height so the composer is reachable');
+ assert.match(css,/object-fit:contain/,'contain keeps the whole animal visible');
+ assert.match(css,/\.line-grid/);
+ assert.match(css,/\.line-card/);
+});
 test('creature lab is mirrored byte-identically in crew-app',()=>{
  for(const name of ['creature.js','index.html','creature.css','creature-v6.js']){
   assert.equal(fs.readFileSync(path.join(dir,name),'utf8'),

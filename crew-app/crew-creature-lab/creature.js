@@ -6,6 +6,9 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const CRE=window.CrewCreatureV1;
 const STAGE_NAMES=['蛋','幼體','成長體','成熟體','完全體'];
 let state=CRE.empty(),reveal=null,toastTimer=0,surpriseTimer=0,renderTime=0,lastFrame=0,reduceMotion=false,sessionMessages=0;
+// v1.4: which line's note is expanded in the 8-line preview (tapping a
+// card swaps its status line for the creature's note; re-render keeps it).
+let previewNoteLine=null;
 // v1.2 ceremony state. evolvePending holds the pre-evolution form so the
 // canvas keeps showing it during the glow phase; evolving only drives the
 // button's disabled state (never blocks doEvolve itself, so the QA hook
@@ -25,6 +28,28 @@ function loadState(){
 }
 function writeState(){
  try{localStorage.setItem(STATE_KEY,JSON.stringify(state));}catch{}
+}
+// v1.4: chat history lives in its own key (NOT inside the game state —
+// CRE.restore() is whitelist-based and would drop an extra chat field).
+// Last 30 messages, {who:'you'|'zoe', text}. Bubbles and toasts are not saved.
+const CHAT_KEY='crew-creature-lab-v1-chat';
+let chatLog=[];
+function loadChat(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(CHAT_KEY)||'null');
+  chatLog=Array.isArray(raw)
+   ?raw.filter(m=>m&&typeof m.text==='string'&&(m.who==='you'||m.who==='zoe')).slice(-30)
+   :[];
+ }catch{chatLog=[];}
+}
+function writeChat(){
+ try{localStorage.setItem(CHAT_KEY,JSON.stringify(chatLog.slice(-30)));}catch{}
+}
+function restoreChat(){
+ if(!chatLog.length)return false;
+ $('messages').innerHTML='';
+ for(const m of chatLog)appendMessage(m.who==='you'?'me':'zoe',m.text,{restore:true});
+ return true;
 }
 // Topic classifier: same word lists as the tree lab (the chat side is
 // shared), but every reply is about the creature, energy and evolution.
@@ -215,7 +240,7 @@ function updateUI(){
   '進化要 '+cost+' 能量，聊一句 +1，能量夠了按下去就進化。每次進化都有禮物！';
  const next=$('nextBtn');
  if(next)next.hidden=c.stage!==4;
- updateGiftUI();renderCollection();renderGiftCodex();
+ updateGiftUI();renderCollection();renderLinePreview();renderGiftCodex();
 }
 function updateGiftUI(){
  const n=state.gifts||0;
@@ -241,6 +266,28 @@ function renderCollection(){
    +'<span class="creature-icon" style="display:none;--lc:'+line.color+'">'+line.icon+'</span></span>'
    +'<strong>'+line.name+'</strong>'
    +'<small>主導話題：'+(TOPICS[topic]?TOPICS[topic].label:topic)+' · '+STAGE_NAMES[4]+'</small></div>';
+ }).join('');
+}
+// v1.4: "8 種生物" preview — every line is visible to a new user, not
+// just the ones already raised. Raised lines (stage 4 in the collection)
+// show their real final-form art in colour with a "raised" mark; the
+// rest show the egg, greyed out, with "not met yet". Tapping a card
+// shows that creature's note in place of the status line (display only;
+// the real collection logic in renderCollection is untouched).
+function renderLinePreview(){
+ const grid=$('linePreview');if(!grid)return;
+ const raised={};
+ for(const c of state.collection)if(c.line)raised[c.line]=true;
+ grid.innerHTML=CRE.LINE_IDS.map(id=>{
+  const line=CRE.CREATURE_LINES[id];if(!line)return '';
+  const done=!!raised[id];
+  const img='./art/creatures/'+id+(done?'-final.webp':'-egg.webp');
+  const small=previewNoteLine===id?line.note:(done?'✓ 已養成':'還沒遇過');
+  return '<button type="button" class="line-card'+(done?' owned':' locked')+'" data-line="'+id+'" style="--lc:'+line.color+'" title="'+line.note+'">'
+   +'<span class="line-thumb"><img src="'+img+'" alt="'+line.name+(done?' 完全體':'的蛋')+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
+   +'<span class="line-icon" style="display:none">'+line.icon+'</span></span>'
+   +'<strong>'+line.name+'</strong>'
+   +'<small class="'+(done?'line-status':'')+'">'+small+'</small></button>';
  }).join('');
 }
 function renderGiftCodex(){
@@ -383,13 +430,20 @@ function doStartNext(){
  popToast('🥚 新的蛋準備好了！');
  return true;
 }
-function appendMessage(who,message){
+function appendMessage(who,message,opts){
+ opts=opts||{};
  const outer=document.createElement('div');outer.className='message '+(who==='me'?'me':'zoe');
  const label=document.createElement('span');label.className='sender';label.textContent=who==='me'?'你':'Zoe';
  const p=document.createElement('p');p.textContent=message;
  outer.append(label,p);$('messages').appendChild(outer);
  $('messages').scrollTop=$('messages').scrollHeight;
  while($('messages').children.length>45)$('messages').removeChild($('messages').firstChild);
+ // v1.4: persist the chat (not on restore, or it would rewrite itself).
+ if(!opts.restore){
+  chatLog.push({who:who==='me'?'you':'zoe',text:String(message)});
+  if(chatLog.length>30)chatLog=chatLog.slice(-30);
+  writeChat();
+ }
 }
 function postMessage(raw){
  const text=String(raw||'').trim();
@@ -415,6 +469,7 @@ function postMessage(raw){
  return {topic:signal.topic,turn,energy:state.energy,sentences:state.creature.sentences,canEvolve:CRE.canEvolve(state),reply};
 }
 function resetChat(who,text){
+ chatLog=[];
  $('messages').innerHTML='';
  appendMessage(who,text);
 }
@@ -426,14 +481,51 @@ function resetLab(){
  updateUI();draw(0);
  return true;
 }
+function postcardDateStr(){
+ const d=new Date();
+ return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
+}
+// v1.4: the download is a postcard, not the bare canvas — the creature
+// art on top (780x1560, companions included since paint drew them) plus
+// a dark band underneath with the creature name, sentence/energy count
+// and the date. The band sits below the art, never on top of it. If the
+// art has not loaded yet the canvas still holds the paint fallback
+// (gradient + egg), so the postcard is never all black.
+function buildPostcardDataURL(){
+ const BAND=170,W2=780,H2=1560;
+ const pc=document.createElement('canvas');
+ pc.width=W2;pc.height=H2+BAND;
+ const p=pc.getContext('2d');
+ if(!p)return null;
+ // Repaint once so the postcard uses the current frame — but with the
+ // evolution reveal flash suppressed: draw(0) would re-trigger it
+ // (0 - reveal.started is negative, hence < 260) and wash the art out.
+ try{const savedReveal=reveal;reveal=null;try{draw(0);}finally{reveal=savedReveal;}}catch{}
+ try{
+  p.drawImage(canvas,0,0,W2,H2);
+ }catch{
+  p.fillStyle='#1d1533';p.fillRect(0,0,W2,H2);
+  p.fillStyle='#F7F7F4';p.font='120px system-ui';p.textAlign='center';
+  p.fillText('🥚',W2/2,H2/2);
+ }
+ p.fillStyle='#12101C';p.fillRect(0,H2,W2,BAND);
+ p.textAlign='center';
+ p.fillStyle='#F7F7F4';p.font='700 44px system-ui';
+ p.fillText(creatureName(),W2/2,H2+62);
+ p.fillStyle='#b9b3c9';p.font='400 30px system-ui';
+ p.fillText('聊了 '+state.creature.sentences+' 句 · 能量 '+state.energy,W2/2,H2+108);
+ p.font='400 26px system-ui';
+ p.fillText(postcardDateStr()+' · Crew · 3sssi.com',W2/2,H2+148);
+ return pc.toDataURL('image/png');
+}
 function exportImage(){
  try{
-  const png=canvas.toDataURL('image/png');
-  if(!png.startsWith('data:image/png'))throw Error('PNG encoding unsupported');
+  const png=buildPostcardDataURL();
+  if(!png||!png.startsWith('data:image/png'))throw Error('PNG encoding unsupported');
   const a=document.createElement('a');a.href=png;
   a.download='crew-creature-'+(state.creature.line||'egg')+'-'+state.creature.stage+'.png';
   document.body.appendChild(a);a.click();a.remove();
-  popToast('已下載生物圖片 · PNG');
+  popToast('已下載生物明信片 · PNG');
   return true;
  }catch{
   popToast('這個瀏覽器暫時無法下載 PNG，請稍後再試。');
@@ -455,12 +547,34 @@ function render(now=0){
  draw(now);
  window.requestAnimationFrame?.(render);
 }
+// v1.4: short poll for the current art (default moonfox egg). Stops as
+// soon as the image is ready, or after ~5s — the fallback is already
+// showing, so a slow image just means a later repaint, never a black board.
+let artWaitTries=0;
+function waitForArt(){
+ const line=state.creature.line||'moonfox';
+ const stageName=CRE.CREATURE_STAGES[state.creature.stage]||'egg';
+ if(CRE.artReady(CRE.artImage(line,stageName)))return;
+ if(++artWaitTries>40)return;
+ setTimeout(()=>{
+  if(CRE.artReady(CRE.artImage(line,stageName)))draw(0);
+  else waitForArt();
+ },120);
+}
 function init(){
  document.body.classList.add('creature-v1');
  reduceMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
  loadState();
+ loadChat();
+ // v1.4: preload the default egg art before the first paint, so the
+ // first thing the user sees is not a black board. The paint fallback
+ // is a gradient + egg anyway; waitForArt repaints once the real art
+ // is ready (the render loop repaints every frame regardless).
  if(state.creature.line)CRE.preloadArt(state.creature.line);
+ else CRE.preloadArt('moonfox');
  draw(0);updateUI();
+ restoreChat();
+ waitForArt();
  $('chatForm').addEventListener('submit',ev=>{ev.preventDefault();const input=$('chatInput');
   const text=input.value.trim();if(postMessage(text))input.value='';
  });
@@ -485,6 +599,13 @@ function init(){
  $('saveBtn').addEventListener('click',exportImage);
  $('quickSave').addEventListener('click',exportImage);
  $('resetBtn').addEventListener('click',resetLab);
+ // v1.4: tap a line-preview card to show / hide that creature's note.
+ const preview=$('linePreview');
+ if(preview)preview.addEventListener('click',ev=>{
+  const t=ev.target.closest?.('button[data-line]');if(!t)return;
+  previewNoteLine=previewNoteLine===t.dataset.line?null:t.dataset.line;
+  renderLinePreview();
+ });
  window.requestAnimationFrame?.(render);
 }
 if(new URLSearchParams(location.search).get('qa')==='1'){
@@ -506,6 +627,9 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
   stages:()=>CRE.CREATURE_STAGES.slice(),
   reset:resetLab,
   exportImage,draw:()=>draw(0),
+  // v1.4 test hooks: saved chat history, and the postcard data URL.
+  messages:()=>chatLog.map(m=>({who:m.who,text:m.text})),
+  postcardDataURL:()=>buildPostcardDataURL(),
   // v1.2 test hooks for the new UI: egg list, reaction bubble, pet, ceremony flags.
   eggList:()=>{askHatch();return $('eggList').innerHTML;},
   reactBubble:()=>({text:$('reactBubble').textContent,hidden:$('reactBubble').hidden}),

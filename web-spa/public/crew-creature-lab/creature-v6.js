@@ -307,11 +307,17 @@ function paint(canvas,g,time=0,opts={}){
  const st=CREATURE_STAGES[cur.stage]||'egg';
  const shown=drawArt(c,line,st,1);
  if(!shown){
-  c.fillStyle='#12101C';c.fillRect(0,0,W,H);
-  c.fillStyle='#F7F7F4';c.font='700 44px system-ui';c.textAlign='center';
-  c.fillText('🥚',W/2,H/2-20);
+  // v1.4: never a flat black board while the art loads — a night-sky
+  // gradient with a big egg and a loading line instead.
+  const g2=c.createLinearGradient(0,0,0,H);
+  g2.addColorStop(0,'#2b2144');g2.addColorStop(.55,'#1d1533');g2.addColorStop(1,'#14101f');
+  c.fillStyle=g2;c.fillRect(0,0,W,H);
+  c.fillStyle='#F7F7F4';c.font='120px system-ui';c.textAlign='center';
+  c.fillText('🥚',W/2,H/2-40);
   c.font='500 28px system-ui';
-  c.fillText('生物正在孵化…',W/2,H/2+40);
+  c.fillText('生物正在孵化…',W/2,H/2+60);
+  c.fillStyle='#b9b3c9';c.font='400 22px system-ui';
+  c.fillText('圖片載入中，稍等一下',W/2,H/2+100);
  }
  drawCompanions(c,g&&g.giftCollection?g.giftCollection:{},time,!!opts.still);
  if(opts.reveal&&opts.reveal.started&&time-opts.reveal.started<260&&!opts.still){

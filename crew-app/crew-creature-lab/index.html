@@ -7,9 +7,9 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="和 Zoe 聊天，蒐集能量，孵出你的生物。能量夠了，親手注入，看牠進化。">
 <title>和 Zoe 孵生物 · Crew Creature Lab</title>
-<link rel="stylesheet" href="./creature.css?v=ed4427c1">
-<script src="./creature-v6.js?v=ed4427c1" defer></script>
-<script src="./creature.js?v=ed4427c1" defer></script>
+<link rel="stylesheet" href="./creature.css?v=__CREW_COMMIT__">
+<script src="./creature-v6.js?v=__CREW_COMMIT__" defer></script>
+<script src="./creature.js?v=__CREW_COMMIT__" defer></script>
 </head>
 <body>
 <main class="page">
@@ -26,7 +26,7 @@
       <div class="creature-top"><div><span class="overline">YOUR CREATURE LAB</span><h2 id="creatureName">🥚 神秘的蛋</h2></div><span class="stage-pill" id="stageBadge">蛋 · 0 句</span></div>
       <div class="canvas-wrap" id="canvasWrap">
         <div class="canvas-breathe" id="canvasBreathe">
-          <canvas id="creatureCanvas" width="780" height="1560" role="img" aria-label="生物：從蛋進化成月狐、星龍、花妖精或小貓咪"></canvas>
+          <canvas id="creatureCanvas" width="780" height="1560" role="img" aria-label="生物：從蛋進化成月狐、星龍、花妖精、小貓咪、雪兔、小熊貓、海豚或鳳凰"></canvas>
         </div>
         <div class="canvas-glow" id="canvasGlow" aria-hidden="true"></div>
         <span class="twinkle" style="left:12%;top:16%;animation-delay:0s" aria-hidden="true">✦</span>
@@ -69,12 +69,20 @@
           <button data-say="如果我們一起去宇宙旅行，會看到什麼？" type="button">🚀 宇宙冒險</button>
           <button data-say="我家貓咪今天又偷吃我的魚！" type="button">🐱 貓咪日常</button>
           <button data-say="我今天看到一朵超美的花，想種一整片！" type="button">🌸 花草自然</button>
+          <button data-say="今天下雪了，好想堆一個雪人！" type="button">❄️ 雪地冬天</button>
+          <button data-say="我在竹林裡散步，聽到竹葉沙沙響。" type="button">🎋 竹林散步</button>
+          <button data-say="夏天就想去海邊游泳、看海豚！" type="button">🌊 海邊游泳</button>
+          <button data-say="聽說鳳凰會在火焰裡重生，好神奇！" type="button">🔥 鳳凰重生</button>
         </div>
         <form id="chatForm" class="composer"><label class="sr-only" for="chatInput">對 Zoe 說話</label><input id="chatInput" autocomplete="off" maxlength="240" placeholder="跟 Zoe 說點什麼…"><button type="submit" id="sendBtn" aria-label="傳送訊息">↑</button></form>
-        <p class="chat-notice">目前是<span>本地聊天互動原型</span>，不是 Gemini 即時對話。輸入不會傳到伺服器，收藏只保存話題特徵，不存聊天原文。</p>
+        <p class="chat-notice">目前是<span>本地聊天互動原型</span>，不是 Gemini 即時對話。輸入不會傳到伺服器，聊天紀錄只保存在這台裝置上；收藏只保存話題特徵。</p>
       </div>
     </section>
   </div>
+  <section class="collection line-preview" aria-label="8 種生物一覽">
+    <div class="collection-head"><div><p class="overline">8 CREATURE LINES</p><h2>8 種生物</h2></div><span>聊不同話題，會孵出不同生物</span></div>
+    <div id="linePreview" class="line-grid"></div>
+  </section>
   <section class="collection" aria-label="我的生物收藏">
     <div class="collection-head"><div><p class="overline">YOUR CREATURES</p><h2>我的生物 <span id="collectionCount">0</span></h2></div><span>養到完全體的生物會住進這裡</span></div>
     <div id="gallery" class="gallery"><p class="empty-forest">還沒有完全體。把第一隻生物養到完全體，牠就會住進這裡。</p></div>
