@@ -1,12 +1,18 @@
-/* Crew Glow Forest V6 — independent Canvas 2D garden scene and pure garden model.
- * Adapted from the supplied 780×1120 glow-forest prototype. It never reads
- * chat messages, touches the backend, uses WebGL or adds a dependency.
- * Four final botanical forms are determined by seed; nothing is pre-revealed.
+/* Crew Flat Forest V6 — independent Canvas 2D garden scene and pure garden model.
+ * Flat vector redesign (style C): dense pre-rendered leaf sprites in three
+ * layers, warm brown bark trunk, horizontal spreading limbs, faceted island.
+ * It never reads chat messages, touches the backend, uses WebGL or adds a
+ * dependency. Four final botanical forms are determined by seed; nothing is
+ * pre-revealed.
  */
 (function(root){'use strict';
 const W=780,H=1120,TAU=Math.PI*2,MAX=16,MAX_RETIRED=18;
-const slots=[{x:170,y:930,s:.46,a:.62},{x:610,y:930,s:.46,a:.62},
- {x:125,y:962,s:.60,a:.80},{x:655,y:962,s:.60,a:.80}];
+// Flat slots (from the approved flat prototype): the flat canopies are
+// wider than the glow canopies, so the slots sit further in and smaller
+// than the glow layout, or the front trees clip off the canvas edges.
+// (Layout only — the garden data in `empty/restore/complete` is untouched.)
+const slots=[{x:180,y:928,s:.42,a:.75},{x:600,y:928,s:.42,a:.75},
+ {x:130,y:962,s:.52,a:.90},{x:650,y:962,s:.52,a:.90}];
 const forms=[
  {id:'constellation',name:'星空樹',icon:'✦',note:'每片枝梢都連成星座。'},
  {id:'crystal',name:'水晶樹',icon:'💎',note:'冰藍晶簇順著枝幹向天空生長。'},
@@ -16,6 +22,18 @@ const topicColors={food:'#ffc978',cosmos:'#6ee7ff',travel:'#ffb37e',animals:'#ff
  music:'#c5b8ff',daily:'#7fe7c4',tech:'#9bf3e7',love:'#ffb5cc',
  weather:'#9fd8ff',nature:'#7fe7c4',dream:'#c5b8ff',stress:'#ffc978',play:'#ffdf91'};
 const colorFamilies=['#7fe7c4','#6ee7ff','#ffc978'];
+// Flat palettes (style C): back (large, dark), mid, front (family color),
+// gold accents. Indexed by seed%3 so the same seed always looks the same.
+// The final forms override the palette; lantern has no override and keeps
+// its family palette with the lanterns as the accent.
+const FLAT_PALETTES=[
+ {back:'#5b4390',mid:'#2e9d8f',front:'#7fe7c4',gold:'#ffd98f'},
+ {back:'#4a3670',mid:'#3a86c8',front:'#6ee7ff',gold:'#ffe9a8'},
+ {back:'#6b4a8f',mid:'#c98a4a',front:'#ffc978',gold:'#fff3c3'}];
+const FLAT_FORMS={
+ constellation:{back:'#8a7bb8',mid:'#c9b8e8',front:'#ffe9a8',gold:'#fff7e0'},
+ crystal:{back:'#5a7bb8',mid:'#7cc8ff',front:'#bfe9ff',gold:'#ffffff'},
+ petal:{back:'#c97ba8',mid:'#f6a1d3',front:'#ffb5cc',gold:'#ffe7f7'}};
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 function rng(seed){let x=seed>>>0;return ()=>{x=(x+0x6d2b79f5)>>>0;let t=x;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
 function stage(n){return n===0?'seed':n<3?'sprout':n<8?'sapling':n<16?'island':'final';}
@@ -66,21 +84,48 @@ function progress(g,n){return {
 const shapeCache=new Map();
 function bones(seed){
  if(shapeCache.has(seed))return shapeCache.get(seed);
- const r=rng(seed^0x9F7A113),branches=[],tips=[];
- function walk(x,y,a,len,w,d){
-  if(d>5||len<11)return;
+ const r=rng(seed^0x9F7A113),branches=[],tips=[],fruits=[];
+ const lean=(r()-.5)*.5;
+ function branch(x,y,a,len,w,d){
+  if(d>5||len<10)return;
   const x1=x+Math.cos(a)*len,y1=y+Math.sin(a)*len;
   branches.push({x,y,x1,y1,w,d});
-  if(d>=4)tips.push({x:x1,y:y1,phase:r()*TAU,size:2.2+r()*3.2});
-  if(d===5)return;
-  const n=d===0?3:r()<.76?2:3;
+  if(d>=4)tips.push({x:x1,y:y1,phase:r()*TAU,size:2.2+r()*3.2,a});
+  if(d>=5)return;
+  if(d===3&&r()<.4)fruits.push({x:x1,y:y1,phase:r()*TAU});
+  // Tip fork (sympodial, the spreading-broadleaf pattern): the branch
+  // splits into 2-3 children at the tip. The children always span the
+  // same total angle (±baseSpread) no matter how many there are, so the
+  // crown's width does not depend on the child count. The main limbs
+  // leave the trunk almost horizontally (up to ~80°), then each
+  // generation curves back toward the light (depth-dependent pull).
+  const pull=[.02,.08,.12,.15,.18][Math.min(d,4)];
+  const baseSpread=[1.30,.95,.70,.50,.35][Math.min(d,4)];
+  const n=d===0?3:r()<.72?2:3;
   for(let i=0;i<n;i++){
-   const spread=(i-(n-1)/2)*(.42+r()*.15)+(r()-.5)*.40;
-   walk(x1,y1,a+spread,len*(.65+r()*.14),Math.max(1.1,w*.65),d+1);
+   const frac=n===1?0:(i/(n-1))*2-1;
+   let na=a+frac*baseSpread+(r()-.5)*.3;
+   na+=(-Math.PI/2-na)*pull;
+   branch(x1,y1,na,len*(.70+r()*.12),Math.max(1.2,w*.66),d+1);
+  }
+  // Laterals along the segment (density): a short branch from a point
+  // part-way along this segment, filling the interior so the crown is
+  // not a hollow fan. Fewer higher up (density falloff).
+  const nLat=d===0?1:d===1?r()<.6?1:0:d===2?r()<.4?1:0:0;
+  for(let k=0;k<nLat;k++){
+   const t=.6+r()*.2;
+   const px=x+Math.cos(a)*len*t,py=y+Math.sin(a)*len*t;
+   const side=r()<.5?-1:1;
+   let na=a+side*baseSpread*.9+(r()-.5)*.3;
+   na+=(-Math.PI/2-na)*pull;
+   branch(px,py,na,len*(.5+r()*.1),Math.max(1.2,w*.6),d+1);
   }
  }
- walk(390,940,-Math.PI/2+(r()-.5)*.23,163,13.5,0);
- const obj={branches,tips};
+ // Trunk 105: the branches start low, like a broadleaf tree, but not so
+ // low the tree turns squat and flat-topped. Base (390,940) is the game's
+ // island anchor; the trunk base sits 18px below the island top.
+ branch(390,940,-Math.PI/2+lean,105,13,0);
+ const obj={branches,tips,fruits};
  if(shapeCache.size>110)shapeCache.delete(shapeCache.keys().next().value);
  shapeCache.set(seed,obj);return obj;
 }
@@ -121,6 +166,99 @@ function stampGlow(c,x,y,size,color,alpha){
   c.drawImage(s,x-size,y-size,size*2,size*2);c.restore();return;
  }
  glow(c,x,y,size,color,alpha);
+}
+// Flat leaf sprites (style C): each leaf is pre-rendered once to an
+// offscreen canvas (gradient from a darker base to a lighter tip, central
+// vein, side veins, edge highlight) and stamped with drawImage. Three
+// shapes break the uniform "blob" look. Falls back to a simple painted
+// leaf when there is no document (bare Node in tests).
+function shadeHex(hex,amt){
+ const n=parseInt(hex.slice(1),16);
+ let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+ const t=amt<0?0:255,p=Math.abs(amt);
+ r=Math.round(r+(t-r)*p);g=Math.round(g+(t-g)*p);b=Math.round(b+(t-b)*p);
+ return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+const leafSpriteCache=new Map();
+function leafSprite(color,variant){
+ const key=color+'|'+variant;
+ if(leafSpriteCache.has(key))return leafSpriteCache.get(key);
+ let cv=null;
+ if(typeof document!=='undefined'&&document.createElement){
+  try{
+   cv=document.createElement('canvas');cv.width=64;cv.height=96;
+   const g=cv.getContext('2d');
+   if(g){
+    const cx=32,top=5,bot=91,len=bot-top;
+    const grad=g.createLinearGradient(0,bot,0,top);
+    grad.addColorStop(0,shadeHex(color,-.28));
+    grad.addColorStop(.6,color);
+    grad.addColorStop(1,shadeHex(color,.24));
+    g.fillStyle=grad;g.beginPath();
+    if(variant===0){
+     g.moveTo(cx,top);
+     g.bezierCurveTo(cx+22,top+len*.25,cx+20,top+len*.65,cx,bot);
+     g.bezierCurveTo(cx-20,top+len*.65,cx-22,top+len*.25,cx,top);
+    }else if(variant===1){
+     g.moveTo(cx,top);
+     g.bezierCurveTo(cx+27,top+len*.2,cx+27,top+len*.75,cx,bot);
+     g.bezierCurveTo(cx-27,top+len*.75,cx-27,top+len*.2,cx,top);
+    }else{
+     g.moveTo(cx,top);
+     g.bezierCurveTo(cx+14,top+len*.3,cx+15,top+len*.7,cx,bot);
+     g.bezierCurveTo(cx-15,top+len*.7,cx-14,top+len*.3,cx,top);
+    }
+    g.fill();
+    g.strokeStyle='rgba(255,255,255,0.30)';g.lineWidth=2;g.lineCap='round';
+    g.beginPath();g.moveTo(cx,bot-4);g.lineTo(cx,top+6);g.stroke();
+    g.strokeStyle='rgba(255,255,255,0.16)';g.lineWidth=1.4;
+    for(const t of [.3,.5,.7]){
+     const y=top+len*t;
+     g.beginPath();g.moveTo(cx,y);g.lineTo(cx+13,y+8);g.stroke();
+     g.beginPath();g.moveTo(cx,y);g.lineTo(cx-13,y+8);g.stroke();
+    }
+    g.strokeStyle='rgba(255,255,255,0.22)';g.lineWidth=2;
+    g.beginPath();g.moveTo(cx,top);
+    g.bezierCurveTo(cx-20,top+len*.3,cx-18,top+len*.65,cx,bot);g.stroke();
+   }
+  }catch(e){cv=null;}
+ }
+ leafSpriteCache.set(key,cv);return cv;
+}
+function drawLeafSprite(c,sprite,x,y,len,angle,color){
+ const wid=len*.62;
+ if(sprite&&typeof c.drawImage==='function'){
+  c.save();c.translate(x,y);c.rotate(angle);
+  c.drawImage(sprite,-wid/2,-len/2,wid,len);c.restore();return;
+ }
+ // No sprite (bare Node): a simple flat leaf so the shape still reads.
+ c.save();c.translate(x,y);c.rotate(angle);
+ c.fillStyle=color||'#7fe7c4';
+ c.beginPath();c.moveTo(0,-len/2);
+ c.bezierCurveTo(wid/2,-len*.2,wid/2,len*.3,0,len/2);
+ c.bezierCurveTo(-wid/2,len*.3,-wid/2,-len*.2,0,-len/2);
+ c.fill();c.restore();
+}
+function flatSparkle(c,x,y,r,color){
+ c.fillStyle=color;c.beginPath();
+ c.moveTo(x,y-r);c.quadraticCurveTo(x,y,x+r,y);c.quadraticCurveTo(x,y,x,y+r);
+ c.quadraticCurveTo(x,y,x-r,y);c.quadraticCurveTo(x,y,x,y-r);c.fill();
+}
+// One three-layer leaf cluster: back (large, dark), mid, front (family
+// color). Coordinates are tree/design units; the caller (shape) already
+// has the canvas scale applied through paint().
+function flatLeafAt(c,pal,x,y,a,size,phase){
+ const variant=Math.abs(Math.floor(((phase||0)/TAU)*3))%3;
+ const layers=[
+  {col:pal.back,size:1.80,off:-6,rot:-.35},
+  {col:pal.mid,size:1.15,off:0,rot:.12},
+  {col:pal.front,size:.95,off:6,rot:.38}];
+ for(const L of layers){
+  const ox=Math.cos(a)*L.off,oy=Math.sin(a)*L.off;
+  const len=size*8*L.size;
+  const wob=Math.sin(phase||0)*.5;
+  drawLeafSprite(c,leafSprite(L.col,variant),x+ox,y+oy,len,a+Math.PI/2+L.rot+wob,L.col);
+ }
 }
 function stroke(c,x,y,xx,yy,color,w){
  c.strokeStyle=color;c.lineWidth=w;c.lineCap='round';c.beginPath();
@@ -176,35 +314,44 @@ function night(c,time,seed,count,still){
  }
 }
 function island(c,y,lift=0){
- // The prototype's island: a soft rounded mound, not a flat table. Top edge
- // is a gentle upward curve, bottom a soft point; three short curved cracks
- // near the bottom, one small cyan crystal accent. No straight rim line
- // across the top, no vertical legs.
+ // Flat faceted island (style C): a low-poly rock with a flat grass top,
+ // a glowing pond and tiny geometric bushes. No soft mound, no legs.
  const top=y-18+lift;
- glow(c,390,top+18,165,'#59dabf',.19);
- const g=c.createLinearGradient(0,top,0,top+80);
- g.addColorStop(0,'#2b2140');g.addColorStop(1,'#14101f');
- c.fillStyle=g;c.beginPath();
- c.moveTo(240,top);
- c.quadraticCurveTo(270,top+70,390,top+80);
- c.quadraticCurveTo(510,top+70,540,top);
- c.quadraticCurveTo(390,top-14,240,top);
- c.closePath();c.fill();
- c.strokeStyle='rgba(127,231,196,.4)';c.lineWidth=2;
- c.beginPath();c.moveTo(240,top);
- c.quadraticCurveTo(390,top-14,540,top);c.stroke();
- c.strokeStyle='#0d0b14';c.lineWidth=2;
- for(const vx of [-70,-20,45]){
-  c.beginPath();c.moveTo(390+vx,top+58);
-  c.quadraticCurveTo(390+vx+8,top+88,390+vx-4,top+110);c.stroke();
- }
+ const X=dx=>390+dx,Y=dy=>top+dy;
+ c.fillStyle='#3a2f5e';
+ c.beginPath();
+ c.moveTo(X(-150),Y(0));c.lineTo(X(-90),Y(-12));c.lineTo(X(0),Y(-14));
+ c.lineTo(X(90),Y(-12));c.lineTo(X(150),Y(0));c.lineTo(X(110),Y(48));
+ c.lineTo(X(0),Y(80));c.lineTo(X(-110),Y(48));c.closePath();c.fill();
+ c.fillStyle='#4a3f7a';
+ c.beginPath();c.moveTo(X(-150),Y(0));c.lineTo(X(0),Y(-14));c.lineTo(X(0),Y(80));c.closePath();c.fill();
+ c.fillStyle='#2e4a6b';
+ c.beginPath();c.moveTo(X(150),Y(0));c.lineTo(X(0),Y(-14));c.lineTo(X(0),Y(80));c.closePath();c.fill();
+ c.fillStyle='#2a2140';
+ c.beginPath();c.moveTo(X(-110),Y(48));c.lineTo(X(110),Y(48));c.lineTo(X(0),Y(80));c.closePath();c.fill();
+ c.fillStyle='#5ec8a8';
+ c.beginPath();
+ c.moveTo(X(-150),Y(0));c.lineTo(X(-90),Y(-12));c.lineTo(X(0),Y(-14));
+ c.lineTo(X(90),Y(-12));c.lineTo(X(150),Y(0));c.lineTo(X(150),Y(7));
+ c.lineTo(X(-150),Y(7));c.closePath();c.fill();
+ c.strokeStyle='#8fe8c6';c.lineWidth=1.6;
+ c.beginPath();
+ c.moveTo(X(-150),Y(0));c.lineTo(X(-90),Y(-12));c.lineTo(X(0),Y(-14));
+ c.lineTo(X(90),Y(-12));c.lineTo(X(150),Y(0));c.stroke();
  c.fillStyle='#6ee7ff';
- c.beginPath();c.moveTo(478,top+64);c.lineTo(486,top+84);c.lineTo(470,top+84);c.closePath();c.fill();
- stampGlow(c,478,top+76,18,'#6ee7ff',.6);
- for(let i=0;i<4;i++){
-  const x=311+i*50;glow(c,x,top-7,15,'#86ffe5',.56);
-  ellipse(c,x,top-9,6,3.8,'#d6ffe6');stroke(c,x,top-4,x,top+3,'#e2f6d8',1.5);
+ c.beginPath();c.ellipse(X(52),Y(1),52,9,0,0,TAU);c.fill();
+ c.strokeStyle='rgba(255,255,255,0.75)';c.lineWidth=1.4;
+ c.beginPath();c.ellipse(X(52),Y(0),38,5,0,Math.PI*1.15,Math.PI*1.85);c.stroke();
+ for(const [bx,s2] of [[-108,1],[118,.8]]){
+  c.fillStyle='#7fe7c4';
+  c.beginPath();
+  c.moveTo(X(bx-12*s2),Y(0));c.lineTo(X(bx),Y(-14*s2));c.lineTo(X(bx+12*s2),Y(0));
+  c.closePath();c.fill();
  }
+ c.fillStyle='#bfe9ff';
+ c.beginPath();
+ c.moveTo(X(-32),Y(-16));c.lineTo(X(-26),Y(-2));c.lineTo(X(-38),Y(-2));
+ c.closePath();c.fill();
 }
 function seed(c,s,time,topic){
  const pulse=.85+(time?Math.sin(time*.002)*.10:0),y=950;
@@ -226,160 +373,100 @@ function seed(c,s,time,topic){
   glow(c,390,y-h,35,topic||'#7fe7c4',.65);
  }
 }
-function paintGeneric(c,tips,time,seedNum,color,s,n){
- // Prototype canopy: every visible tip gets a wide halo stamp and a bright
- // core with a white heart. The overlapping stamps merge into a single
- // luminous cloud instead of a set of hard dots. No flat wash behind it:
- // the prototype has none, and a wash flattens the crown into haze.
- const visible=Math.min(tips.length,Math.ceil(tips.length*n/16));
- for(let i=0;i<visible;i++){
-  const tip=tips[i];
-  stampGlow(c,tip.x-6,tip.y-10,tip.size*5.5,color,.26);
+function paintLeaves(c,shape,pal,time,n,shown){
+ // Flat canopy: real leaf clusters in three layers at every visible tip,
+ // plus clusters at depth-2/3 branch ends and at depth-1/2 branch
+ // midpoints, so the crown is a solid mass, not a hollow shell. No flat
+ // wash behind it and no glow stamps for the tree body: the back layer
+ // of big leaves IS the mass.
+ const tips=shape.tips;
+ const tipCount=Math.floor(tips.length*Math.min(1,n/16));
+ for(let i=0;i<tipCount;i++){
+  const tp=tips[i];
+  flatLeafAt(c,pal,tp.x,tp.y,(tp.a!==undefined?tp.a:-Math.PI/2),tp.size,tp.phase);
  }
- for(let i=0;i<visible;i++){
-  const tip=tips[i],p=.75+.25*Math.sin(time*.002+tip.phase);
-  stampGlow(c,tip.x,tip.y,tip.size*3.4,color,.85*p);
-  c.fillStyle='#ffffff';
-  c.beginPath();c.arc(tip.x,tip.y,Math.max(1,tip.size*.45),0,TAU);c.fill();
+ for(const b of shown){
+  if(b.d!==3&&b.d!==2)continue;
+  const a=Math.atan2(b.y1-b.y,b.x1-b.x);
+  // Leaf clusters follow the branches and taper outward: depth-3 ends get
+  // full leaves, depth-2 ends get smaller ones, so the crown fills from
+  // the inside out instead of being a shell.
+  flatLeafAt(c,pal,b.x1,b.y1,a,b.d===3?3.4:2.5,b.x1);
+ }
+ // Fill the middle: leaf clusters along the inner branches, not just at
+ // their ends. Without this the trunk and the bare limbs show through
+ // the middle of the crown and it reads as a ring with a hole in it.
+ for(const b of shown){
+  if(b.d!==1&&b.d!==2)continue;
+  const a=Math.atan2(b.y1-b.y,b.x1-b.x);
+  flatLeafAt(c,pal,(b.x+b.x1)/2,(b.y+b.y1)/2,a,b.d===1?3.0:2.5,(b.x+b.x1)/2);
+ }
+ // A few gold accent leaves.
+ for(let i=0;i<tipCount;i+=6){
+  const tp=tips[i],a=(tp.a!==undefined?tp.a:-Math.PI/2);
+  const variant=Math.abs(Math.floor(((tp.phase||0)/TAU)*3))%3;
+  drawLeafSprite(c,leafSprite(pal.gold,variant),tp.x,tp.y,tp.size*4.5,a+Math.PI/2+.5,pal.gold);
+ }
+ // Golden geometric fruits from 8 turns on.
+ if(n>=8){
+  for(const f of (shape.fruits||[])){
+   const pulse=.7+.3*Math.sin(time*.0016+f.phase);
+   const r=4.5;
+   c.save();c.globalAlpha*=pulse;c.fillStyle='#ffd98f';
+   c.beginPath();c.moveTo(f.x,f.y-r);c.lineTo(f.x+r,f.y);c.lineTo(f.x,f.y+r);c.lineTo(f.x-r,f.y);c.closePath();c.fill();c.restore();
+  }
  }
 }
 function stars(c,tips,time){
- // Constellation tree: a large orbital crown growing from the same trunk,
- // cyan-white stellar nodes and connected constellations, not recolored leaves.
- c.save();c.globalCompositeOperation='screen';
- glow(c,390,533,235,'#4a95ff',.20);
- for(let ring=0;ring<3;ring++){
-  // Faint orbital accent only: the dense cloud underneath is the tree, so
-  // the rings stay thin and dim instead of caging the crown in wire.
-  c.strokeStyle=ring===0?'#84eafa59':ring===1?'#c5ccff40':'#b4eeff2e';
-  c.lineWidth=ring===0?2:1.2;c.setLineDash(ring===0?[]:[7,14]);
-  c.beginPath();c.ellipse(390,520,178-ring*16,130+ring*11,ring*.11,0,TAU);c.stroke();
+ // Flat constellation: star sparkles at every third tip. No connecting
+ // lines — with the wide horizontal limbs the tips are far apart, and
+ // lines across the gaps read as stray strings.
+ for(let i=0;i<tips.length;i+=3){
+  const p=tips[i];
+  flatSparkle(c,p.x,p.y,10,'#fff7e0');
+  flatSparkle(c,p.x,p.y,5,'#ffffff');
  }
- c.setLineDash([]);
- const nodes=[];
- for(let i=0;i<13;i++){
-  const angle=i*TAU/13-.65,rx=180+Math.sin(i*3)*11,ry=140+Math.cos(i*2)*12;
-  nodes.push({x:390+Math.cos(angle)*rx,y:516+Math.sin(angle)*ry});
- }
- for(let i=0;i<nodes.length;i++){
-  const p=nodes[i],next=nodes[(i+5)%nodes.length];
-  if(i%2===0)stroke(c,p.x,p.y,next.x,next.y,'#8de9ff51',1.2);
-  // Light connects to an actual branch, not just a floating ornament.
-  if(i%3===0)stroke(c,390,695,p.x,p.y,'#60cde240',1.2);
-  glow(c,p.x,p.y,33,i%3?'#a8efff':'#fff4d8',.55+.25*Math.sin(time*.002+i*1.7));
-  c.strokeStyle='#f9ffff';c.lineWidth=2.4;c.beginPath();
-  c.moveTo(p.x-12,p.y);c.lineTo(p.x+12,p.y);
-  c.moveTo(p.x,p.y-12);c.lineTo(p.x,p.y+12);c.stroke();
-  ellipse(c,p.x,p.y,3.6,3.6,'#fff');
- }
- for(let i=0;i<tips.length;i+=7){
-  const p=tips[i];glow(c,p.x,p.y,17,'#9fe5ff',.65);
-  ellipse(c,p.x,p.y,2.8,2.8,'#fff');
- }
- c.restore();
+ void time;
 }
 function crystals(c,tips){
- // Crystal tree: unmistakable angular, jagged ice crown. Wide faceted
- // blades emerge from actual botanical branches around the central trunk.
- c.save();c.globalCompositeOperation='screen';
- glow(c,390,533,240,'#72beff',.19);
- const offsets=[-167,-128,-89,-52,-6,33,78,119,159];
- for(let i=0;i<offsets.length;i++){
-  const x=390+offsets[i],tall=108+(i%3)*47;
-  const base=660+(i%2)*25,apex=base-tall-62-(i%2)*27;
-  stroke(c,390,727,x,base,'#6dc7eb88',4);
-  const fill=c.createLinearGradient(x-27,base,x+19,apex);
-  fill.addColorStop(0,'#346eaddd');fill.addColorStop(.54,i%2?'#a1f2ffdd':'#83b4ffdf');
-  fill.addColorStop(1,'#e6feffff');
-  c.fillStyle=fill;c.strokeStyle='#dcfbff';c.lineWidth=2.4;
-  c.beginPath();c.moveTo(x,apex);c.lineTo(x+22,base-39);
-  c.lineTo(x+14,base+19);c.lineTo(x-24,base-29);c.closePath();c.fill();c.stroke();
-  c.fillStyle='#e9fbffc2';c.beginPath();c.moveTo(x,apex);
-  c.lineTo(x+4,base-21);c.lineTo(x-23,base-29);c.closePath();c.fill();
-  stroke(c,x,apex,x+4,base-20,'#ffffffcc',2);
-  glow(c,x,apex,34,'#b0edff',.71);
-  if(i%3===2){
-   c.strokeStyle='#ffffff';c.lineWidth=1.6;c.beginPath();
-   c.moveTo(x-8,apex);c.lineTo(x+8,apex);c.moveTo(x,apex-8);c.lineTo(x,apex+8);c.stroke();
-  }
+ // Flat crystal: small faceted ice shards at every third tip.
+ for(let i=0;i<tips.length;i+=3){
+  const p=tips[i],h=26,w=9;
+  const g=c.createLinearGradient(p.x,p.y-h,p.x,p.y);
+  g.addColorStop(0,'#e8f7ff');g.addColorStop(.55,'#7cc8ff');g.addColorStop(1,'#3a86c8');
+  c.fillStyle=g;
+  c.beginPath();c.moveTo(p.x,p.y-h);c.lineTo(p.x+w,p.y+2);c.lineTo(p.x-w,p.y+2);c.closePath();c.fill();
+  c.strokeStyle='rgba(255,255,255,0.7)';c.lineWidth=1;
+  c.beginPath();c.moveTo(p.x,p.y-h);c.lineTo(p.x,p.y+2);c.stroke();
  }
- for(let i=0;i<tips.length;i+=4){
-  const p=tips[i],j=12+i%3*8;
-  c.fillStyle='#c5efff';c.beginPath();c.moveTo(p.x,p.y-j);
-  c.lineTo(p.x+7,p.y+5);c.lineTo(p.x-7,p.y+5);c.closePath();c.fill();
- }
- c.restore();
 }
 function lanterns(c,tips,time){
- // Lantern tree: a wide architectural arch of real boughs supports hanging
- // paper lanterns; amber-red light is visibly different from the ice crown.
- c.save();
- glow(c,390,561,210,'#ffb56d',.21);
- const xPositions=[195,242,288,335,390,445,492,538,585];
- c.strokeStyle='#78566a';c.lineWidth=8;c.lineCap='round';
- for(let i=0;i<xPositions.length;i++){
-  const x=xPositions[i],y=473+Math.abs(i-4)*24;
-  c.beginPath();c.moveTo(390,710);c.quadraticCurveTo((390+x)/2,y-87,x,y);c.stroke();
-  c.strokeStyle='#c0a16d';c.lineWidth=2;
-  c.beginPath();c.moveTo(390,710);c.quadraticCurveTo((390+x)/2,y-87,x,y);c.stroke();
-  c.strokeStyle='#78566a';c.lineWidth=8;
+ // Flat lantern: warm paper lanterns hanging at every fifth tip.
+ for(let i=0;i<tips.length;i+=5){
+  const p=tips[i];
+  const wiggle=Math.sin(time*.0015+i)*3;
+  const x=p.x+wiggle,y=p.y+12;
+  stampGlow(c,x,y,24,'#ffc978',.55);
+  const lg=c.createLinearGradient(x,y-13,x,y+13);
+  lg.addColorStop(0,'#ffe7a6');lg.addColorStop(.45,'#ffad69');lg.addColorStop(1,'#e07856');
+  c.fillStyle=lg;
+  c.beginPath();c.ellipse(x,y,11,13,0,0,TAU);c.fill();
+  c.strokeStyle='rgba(255,241,195,0.8)';c.lineWidth=1.2;
+  c.beginPath();c.moveTo(x,y-13);c.lineTo(x,y+13);c.stroke();
+  c.strokeStyle='#f9c49d';c.lineWidth=1.5;
+  c.beginPath();c.moveTo(x,y+13);c.lineTo(x,y+20);c.stroke();
+  c.fillStyle='#fff5d0';
+  c.beginPath();c.arc(x,y,3,0,TAU);c.fill();
  }
- for(let i=0;i<xPositions.length;i++){
-  const x=xPositions[i],hook=485+Math.abs(i-4)*23;
-  const wiggle=Math.sin(time*.0015+i)*3,y=hook+38+(i%2)*22;
-  stroke(c,x,hook,x+wiggle,y-21,'#e3b77a',2.2);
-  glow(c,x+wiggle,y,67,'#ffb45d',.82);
-  const g=c.createLinearGradient(x,y-24,x,y+25);
-  g.addColorStop(0,'#ffe7a6');g.addColorStop(.45,'#ffad69');
-  g.addColorStop(1,'#bb4961');
-  ellipse(c,x+wiggle,y,20,25,g);
-  c.strokeStyle='#fff1c3';c.lineWidth=1.8;
-  c.beginPath();c.ellipse(x+wiggle,y,20,25,0,0,TAU);c.stroke();
-  stroke(c,x+wiggle-17,y-6,x+wiggle+17,y-6,'#fff3c3bb',2);
-  stroke(c,x+wiggle,y-21,x+wiggle,y+25,'#fff3c355',1.2);
-  stroke(c,x+wiggle,y+25,x+wiggle,y+38,'#f9c49d',2);
-  ellipse(c,x+wiggle,y,4.5,10,'#fff5d0');
- }
- // A few small lights climb the trunk so the arch does not sit on a bare stick.
- for(const ly of [762,818,876]){
-  glow(c,390+(ly%2?5:-5),ly,20,'#ffb45d',.5);
-  ellipse(c,390+(ly%2?5:-5),ly,2.6,2.6,'#ffe9b8');
- }
- c.restore();void tips;
 }
 function petals(c,tips,time){
- // Blossom waterfall: immense rose canopy and long, asymmetric draping
- // floral curtains. Unlike other forms it has NO star or lantern crown.
- c.save();c.globalCompositeOperation='screen';
- glow(c,390,530,260,'#ff93d2',.16);
- const canopy=c.createRadialGradient(390,505,18,390,505,132);
- canopy.addColorStop(0,'#ffe0f48b');canopy.addColorStop(.5,'#f3a1d58c');
- canopy.addColorStop(1,'#d364a300');
- c.fillStyle=canopy;c.beginPath();c.ellipse(390,511,200,112,0,0,TAU);c.fill();
- for(let i=0;i<50;i++){
-  const angle=i*2.39996,x=390+Math.cos(angle)*(i%7*29+26),y=506+Math.sin(angle)*(i%5*19+13);
-  glow(c,x,y,26,'#f5a6e1',.35);
-  for(let k=0;k<3;k++){
-   const a=k*TAU/3+i*.37;
-   ellipse(c,x+Math.cos(a)*8,y+Math.sin(a)*8,11,5,
-    k===0?'#ffe7f7':'#f6a1d3',a);
-  }
- }
- for(let i=0;i<24;i++){
-  const x=200+i*16,anchor=535+Math.sin(i*1.6)*46;
-  const fall=107+(i%5)*30;
-  stroke(c,x,anchor,x+Math.sin(i)*18,anchor+fall,'#f4a2d8a8',2);
-  for(let j=0;j<4;j++){
-   const py=anchor+j*fall/4,px=x+Math.sin(i+j)*10;
-   glow(c,px,py,16,'#ffb2df',.35);
-   ellipse(c,px,py,8,4,j%2?'#f4a0ca':'#fff0f4',j*.6);
-  }
- }
+ // Flat petal: the pink palette already makes the canopy a blossom fall;
+ // this adds only the drifting petals below the crown.
  for(let i=0;i<34;i++){
   const x=200+(i*53)%380,y=635+(i*61+(time*.012||0))%245;
   ellipse(c,x+Math.sin(i)*7,y,5,2.5,'#ffd0e8',i*.85);
  }
- c.restore();void tips;
+ void tips;
 }
 function shape(c,tree,n,x,y,scale,alpha,time,staticMode,marks){
  if(!tree||!goodSeed(tree.seed))return;
@@ -392,39 +479,74 @@ function shape(c,tree,n,x,y,scale,alpha,time,staticMode,marks){
  const vis=Math.ceil(shape.branches.length*clamp(n/16,.2,1)),tips=shape.tips;
  const end=stageNow==='final';
  // Branches stay one quiet dark stroke each, prototype-thin (b.w, never
- // thicker): the twigs disappear into the glow instead of reading as wire.
- // Slot trees get their branches dimmed further so their glow, not their
- // skeleton, is what shows through the tree in front of them.
+ // thicker): warm dark wood rather than near-black, so they read as
+ // branches, not black sticks. Slot trees get their branches dimmed
+ // further so their leaves, not their skeleton, are what shows through
+ // the tree in front of them.
  c.save();
  if(alpha<1)c.globalAlpha*=.62;
  for(let i=0;i<vis;i++){
   const b=shape.branches[i],sway=staticMode?0:Math.sin(time*.0012+seedNum*.01)*Math.max(0,(5-b.d))*1.1;
-  c.lineCap='round';c.strokeStyle='#0e1027';c.lineWidth=Math.max(1,b.w);
+  c.lineCap='round';c.strokeStyle='#2e2118';c.lineWidth=Math.max(1,b.w);
   c.beginPath();c.moveTo(b.x,b.y);c.lineTo(b.x1+sway,b.y1);c.stroke();
-  if(i===0){
-   c.strokeStyle='rgba(127,231,196,.30)';c.lineWidth=1.4;
-   c.beginPath();c.moveTo(b.x-4,b.y);c.lineTo(b.x1-4+sway,b.y1);c.stroke();
+ }
+ // Warm brown bark trunk: a gradient quad over the first branch, with
+ // wavy bark ridges, a knot and moss. The thin dark branch stroke
+ // underneath reads as a bark edge.
+ if(vis>0){
+  const b0=shape.branches[0];
+  const sway0=staticMode?0:Math.sin(time*.0012+seedNum*.01)*5.5;
+  const dx=b0.x1+sway0-b0.x,dy=b0.y1-b0.y,len=Math.hypot(dx,dy)||1;
+  const ux=dx/len,uy=dy/len,px=-uy,py=ux;
+  const w0=8,w1=4.5;
+  const g=c.createLinearGradient(b0.x,b0.y,b0.x1+sway0,b0.y1);
+  g.addColorStop(0,'#7a4e2d');g.addColorStop(1,'#a9714b');
+  c.fillStyle=g;
+  c.beginPath();
+  c.moveTo(b0.x+px*w0,b0.y+py*w0);
+  c.lineTo(b0.x1+sway0+px*w1,b0.y1+py*w1);
+  c.lineTo(b0.x1+sway0-px*w1,b0.y1-py*w1);
+  c.lineTo(b0.x-px*w0,b0.y-py*w0);
+  c.closePath();c.fill();
+  c.fillStyle='rgba(200,150,100,0.5)';
+  c.beginPath();
+  c.moveTo(b0.x+px*w0,b0.y+py*w0);
+  c.lineTo(b0.x1+sway0+px*w1,b0.y1+py*w1);
+  c.lineTo(b0.x1+sway0+px*w1*.15,b0.y1+py*w1*.15);
+  c.lineTo(b0.x+px*w0*.15,b0.y+py*w0*.15);
+  c.closePath();c.fill();
+  c.strokeStyle='rgba(60,35,15,0.4)';c.lineWidth=1.4;c.lineCap='round';
+  for(const off of [-.55,0,.55]){
+   const bx0=b0.x+px*w0*off,by0=b0.y+py*w0*off;
+   const bx1=b0.x1+sway0+px*w1*off,by1=b0.y1+py*w1*off;
+   const mxp=(bx0+bx1)/2+px*3*off,myp=(by0+by1)/2+py*3*off;
+   c.beginPath();c.moveTo(bx0,by0);
+   c.quadraticCurveTo(mxp,myp,bx1,by1);c.stroke();
   }
+  const kx=b0.x+dx*.55,ky=b0.y+dy*.55;
+  c.fillStyle='rgba(60,35,15,0.45)';
+  c.beginPath();c.ellipse(kx,ky,3.2,4.5,0,0,TAU);c.fill();
+  c.strokeStyle='rgba(45,25,10,0.5)';c.lineWidth=1;
+  c.beginPath();c.ellipse(kx,ky,4.6,6.5,0,0,TAU);c.stroke();
+  c.fillStyle='rgba(127,231,196,0.75)';
+  c.beginPath();c.ellipse(b0.x+dx*.3+px*w0*.5,b0.y+dy*.3,3,2,0,0,TAU);c.fill();
+  c.beginPath();c.ellipse(b0.x+dx*.72-px*w0*.4,b0.y+dy*.72,2.4,1.8,0,0,TAU);c.fill();
  }
  c.restore();
- // The canopy cloud is the tree itself. Every stage from sapling on draws
- // the dense glowing tips first (the prototype's look); the final form is
- // an accent laid on top of the cloud, never a replacement for it. That is
- // what the port got wrong: the final forms used to skip the cloud and draw
- // only their own sparse geometry, so the tree read as a wire diagram.
+ // The leaf canopy is the tree itself. Every stage from sapling on draws
+ // the dense flat leaves first; the final form is a palette change plus
+ // a small accent laid on top of the canopy, never a replacement for it.
  const formId=form(seedNum).id;
- paintGeneric(c,tips,time,seedNum,end&&formId==='petal'?'#ffb5cc':palette,scale,n);
+ const pal=end&&FLAT_FORMS[formId]?FLAT_FORMS[formId]:FLAT_PALETTES[seedNum%3];
+ const shown=shape.branches.slice(0,vis);
+ paintLeaves(c,shape,pal,time,n,shown);
  if(stageNow==='sapling'){
-  // A young tree needs a crown, not a bare twig: a few soft puffs with
-  // tiny leaves gather around the highest visible tips.
-  const shown=tips.slice(0,Math.max(1,Math.ceil(tips.length*n/16)));
-  const top=shown.slice().sort((a,b)=>a.y-b.y).slice(0,4);
+  // A young tree needs a crown, not a bare twig: small flat leaf
+  // clusters gather around the highest visible tips.
+  const shownTips=tips.slice(0,Math.max(1,Math.ceil(tips.length*n/16)));
+  const top=shownTips.slice().sort((a,b)=>a.y-b.y).slice(0,4);
   for(const tp of top){
-   stampGlow(c,tp.x,tp.y,30,palette,.5);
-   for(let k=0;k<3;k++){
-    const a=k*TAU/3+tp.phase;
-    ellipse(c,tp.x+Math.cos(a)*9,tp.y+Math.sin(a)*7,7,3.5,k===0?'#eafff5':palette,a);
-   }
+   flatLeafAt(c,pal,tp.x,tp.y,(tp.a!==undefined?tp.a:-Math.PI/2),3,tp.phase);
   }
  }
  if(end){
