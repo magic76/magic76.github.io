@@ -251,12 +251,17 @@ test('chatting the first sentence of the day grants a daily gift',()=>{
  assert.equal(qa.gifts(),1,'second chat the same day grants nothing more');
  assert.equal(get('giftBtn').textContent,'🎁 禮物 ×1');
 });
-test('creature UI is wired: energy bar, evolve button, next button, modals, codex, QA hook',()=>{
+test('creature UI is wired: energy orbs, evolve button, next button, modals, codex, QA hook',()=>{
  assert.match(html,/id="evolveBtn"/);
  assert.match(html,/id="nextBtn"/);
- assert.match(html,/id="energyFill"/);
+ assert.match(html,/id="energyOrbs"/);
  assert.match(html,/id="energyText"/);
+ assert.match(html,/id="reactBubble"/);
+ assert.match(html,/id="canvasBreathe"/);
+ assert.match(html,/id="canvasGlow"/);
+ assert.match(html,/class="twinkle"/);
  assert.match(html,/id="giftModal"/);
+ assert.match(html,/id="giftFlash"/);
  assert.match(html,/id="eggModal"/);
  assert.match(html,/id="gallery"/);
  assert.match(html,/id="giftGrid"/);
@@ -264,6 +269,8 @@ test('creature UI is wired: energy bar, evolve button, next button, modals, code
  assert.match(html,/creature-v6\.js\?v=__CREW_COMMIT__/);
  assert.match(html,/creature\.js\?v=__CREW_COMMIT__/);
  assert.doesNotMatch(html,/botany\.js|family-art\.js|art-studies/);
+ assert.doesNotMatch(html,/id="energyFill"/);
+ assert.doesNotMatch(html,/class="energy-track"/);
  assert.doesNotMatch(html,/盲盒|boxBtn|boxModal|boxGrid/);
  assert.match(html,/禮物收藏/);
  assert.match(html,/開始養下一隻/);
@@ -276,15 +283,101 @@ test('creature UI is wired: energy bar, evolve button, next button, modals, code
  assert.match(script,/CRE\.grantGift\(state,'daily'/);
  assert.match(script,/CRE\.openGift\(state\)/);
  assert.match(script,/stage===4/);
+ assert.match(script,/reactToChat\(\)/);
+ assert.match(script,/petCreature/);
+ assert.match(script,/giftOpening/);
+ assert.match(script,/evolvePending/);
+ assert.match(script,/REACT_LINES/);
  assert.match(script,/__CREATURE_QA__/);
  assert.match(script,/crew-creature-lab-v1/);
  assert.match(script,/toDataURL\('image\/png'\)/);
  assert.match(css,/\.evolve-btn/);
  assert.match(css,/\.evolve-btn\.ready/);
  assert.match(css,/\.next-btn/);
- assert.match(css,/\.energy-track/);
+ assert.match(css,/\.energy-orbs/);
+ assert.match(css,/\.orb\.filled/);
+ assert.match(css,/\.canvas-breathe/);
+ assert.match(css,/@keyframes breathe/);
+ assert.match(css,/@keyframes canvasBounce/);
+ assert.match(css,/@keyframes revealIn/);
+ assert.match(css,/@keyframes twinkle/);
+ assert.match(css,/@keyframes sparklePop/);
+ assert.match(css,/@keyframes heartFloat/);
+ assert.match(css,/@keyframes giftShake/);
+ assert.match(css,/@keyframes giftFlash/);
+ assert.match(css,/100dvh/);
+ assert.match(css,/\.creature-thumb/);
+ assert.match(css,/\.seed-pick-egg/);
  assert.match(css,/#12101C/);
  assert.match(css,/#6257E7/);
+});
+test('v1.2: every chat sentence makes the creature react (bubble, not chat log)',()=>{
+ const {qa,get}=boot();
+ qa.post('我昨天夢到在月亮上散步');
+ const r=qa.reactBubble();
+ assert.equal(r.hidden,false);
+ assert.equal(r.text,'蛋輕輕晃了一下。');
+ // The reaction is not written to the chat log (only the 2 messages:
+ // my sentence + Zoe's reply; the greeting lives in the real HTML).
+ assert.equal(get('messages').children.length,2,'my sentence + Zoe reply only');
+ const {qa:qa2}=boot();
+ qa2.post('我昨天夢到在月亮上散步');
+ qa2.post('晚上睡覺一直做夢');
+ qa2.evolve();
+ qa2.post('月亮好美');
+ assert.equal(qa2.reactBubble().text,'月狐開心地搖了搖尾巴。');
+});
+test('v1.2: energy orbs match the evolve cost and fill as energy arrives',()=>{
+ const {qa,get}=boot();
+ const orbs=()=>get('energyOrbs').innerHTML;
+ assert.equal((orbs().match(/class="orb/g)||[]).length,2,'cost 2 -> 2 orbs');
+ assert.equal((orbs().match(/class="orb filled"/g)||[]).length,0);
+ qa.post('天空好漂亮');
+ assert.equal((orbs().match(/class="orb filled"/g)||[]).length,1);
+ qa.post('星星宇宙');
+ assert.equal((orbs().match(/class="orb filled"/g)||[]).length,2,'both filled');
+ assert.equal(get('energyText').textContent,'⚡ 能量 2 / 2');
+});
+test('v1.2: the creature codex shows the real final-form art with an emoji fallback',()=>{
+ const saved=JSON.stringify({version:1,energy:0,creature:{line:null,stage:0,topics:[],sentences:0},collection:[{line:'moonfox',topics:['dream','love'],stage:4}],gifts:0,giftCollection:{},lastDailyGift:null});
+ const {get}=boot({storage:{'crew-creature-lab-v1':saved}});
+ const html=get('gallery').innerHTML;
+ assert.match(html,/moonfox-final\.webp/);
+ assert.match(html,/onerror/);
+ assert.match(html,/月狐/);
+ assert.match(html,/夢境/);
+});
+test('v1.2: egg choices show the egg art',()=>{
+ const saved=JSON.stringify({version:1,energy:0,creature:{line:null,stage:0,topics:[],sentences:0},collection:[],gifts:0,giftCollection:{'egg-cat':2,'egg-moonfox':1},lastDailyGift:null});
+ const {qa}=boot({storage:{'crew-creature-lab-v1':saved}});
+ const list=qa.eggList();
+ assert.match(list,/cat-egg\.webp/);
+ assert.match(list,/moonfox-egg\.webp/);
+ assert.match(list,/小貓咪的蛋/);
+ assert.match(list,/×2/);
+});
+test('v1.2: petting the creature floats a heart and gives no energy',()=>{
+ const {qa,get}=boot();
+ assert.equal(get('canvasWrap').children.length,0);
+ qa.pet(195,200);
+ assert.equal(get('canvasWrap').children.length,1);
+ const heart=get('canvasWrap').children[0];
+ assert.equal(heart.className,'pet-heart');
+ assert.equal(heart.textContent,'💗');
+ assert.equal(qa.energy(),0,'petting is just for fun');
+ qa.pet(100,300);
+ assert.equal(get('canvasWrap').children.length,2,'tapping again floats another heart');
+ assert.equal(qa.energy(),0);
+});
+test('v1.2: evolution changes state synchronously while the ceremony runs',()=>{
+ const {qa}=boot();
+ qa.post('我昨天夢到在月亮上散步');
+ qa.post('晚上睡覺一直做夢');
+ const res=qa.evolve();
+ assert.equal(res.stage,1,'QA evolve still returns the result synchronously');
+ assert.equal(qa.state().creature.stage,1,'state advanced immediately');
+ assert.equal(qa.evolving(),true,'the visual ceremony is in progress');
+ assert.equal(qa.gifts(),2,'daily 1 + evolve 1, unchanged by the ceremony');
 });
 test('creature lab is mirrored byte-identically in crew-app',()=>{
  for(const name of ['creature.js','index.html','creature.css','creature-v6.js']){

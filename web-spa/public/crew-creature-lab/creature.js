@@ -6,6 +6,11 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const CRE=window.CrewCreatureV1;
 const STAGE_NAMES=['蛋','幼體','成長體','成熟體','完全體'];
 let state=CRE.empty(),reveal=null,toastTimer=0,surpriseTimer=0,renderTime=0,lastFrame=0,reduceMotion=false,sessionMessages=0;
+// v1.2 ceremony state. evolvePending holds the pre-evolution form so the
+// canvas keeps showing it during the glow phase; evolving only drives the
+// button's disabled state (never blocks doEvolve itself, so the QA hook
+// stays synchronous). giftOpening guards the gift ceremony.
+let evolvePending=null,evolving=false,evolveSeq=0,reactTimer=0,giftOpening=false;
 function rng32(seed){let a=seed>>>0;return ()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
 function todayStr(){
  const d=new Date();
@@ -87,6 +92,63 @@ function popToast(message){
  void el.offsetWidth;el.classList.add('show');
  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),1800);
 }
+// v1.2: a burst of sparkles over the canvas (chat reactions, evolution).
+// DOM spans with a CSS pop animation; each removes itself when done.
+function burstStars(n){
+ const wrap=$('canvasWrap');if(!wrap||!wrap.appendChild)return;
+ for(let i=0;i<n;i++){
+  const s=document.createElement('span');
+  s.className='sparkle';s.textContent='✨';
+  s.style.left=(12+Math.random()*72)+'%';
+  s.style.top=(14+Math.random()*58)+'%';
+  s.style.animationDelay=(Math.random()*0.15)+'s';
+  wrap.appendChild(s);
+  setTimeout(()=>{if(s.remove)s.remove();},1200);
+ }
+}
+function bounceCanvas(){
+ const el=$('creatureCanvas');if(!el)return;
+ el.classList.remove('bounce');void el.offsetWidth;el.classList.add('bounce');
+ setTimeout(()=>{el.classList.remove('bounce');},550);
+}
+// v1.2: every chat sentence makes the creature react — a bounce, a few
+// sparkles, and one reaction line in a bubble (never written to the chat
+// log; it lives only in the creature area for 2 seconds).
+const REACT_LINES={
+ moonfox:'月狐開心地搖了搖尾巴。',
+ stardragon:'星龍興奮地拍了拍小翅膀。',
+ flowerfairy:'花妖精灑出一點發光花粉。',
+ cat:'小貓咪滿足地呼嚕了一聲。',
+ egg:'蛋輕輕晃了一下。'};
+function reactToChat(){
+ bounceCanvas();
+ burstStars(5);
+ const line=state.creature.line||'egg';
+ const bubble=$('reactBubble');if(!bubble)return;
+ bubble.textContent=REACT_LINES[line]||REACT_LINES.egg;
+ bubble.hidden=false;
+ bubble.classList.remove('show');void bubble.offsetWidth;bubble.classList.add('show');
+ clearTimeout(reactTimer);
+ reactTimer=setTimeout(()=>{bubble.classList.remove('show');bubble.hidden=true;},2000);
+}
+// v1.2: tap the creature to pet it — a bounce and a heart floating up
+// from where you tapped. No energy, just for fun. Works while the final
+// form is on display too.
+function petCreature(ev){
+ const wrap=$('canvasWrap');if(!wrap||!ev)return;
+ if(ev.target&&ev.target.closest&&ev.target.closest('button'))return;
+ bounceCanvas();
+ const rect=wrap.getBoundingClientRect?wrap.getBoundingClientRect():{left:0,top:0,width:390,height:600};
+ const w=rect.width||390,h=rect.height||600;
+ const x=clamp(((ev.clientX-(rect.left||0))/w)*100,4,96);
+ const y=clamp(((ev.clientY-(rect.top||0))/h)*100,4,96);
+ const heart=document.createElement('span');
+ heart.className='pet-heart';heart.textContent='💗';
+ heart.style.left=(x+(Math.random()*6-3))+'%';
+ heart.style.top=(y+(Math.random()*4-2))+'%';
+ wrap.appendChild(heart);
+ setTimeout(()=>{if(heart.remove)heart.remove();},1050);
+}
 function clearSurprise(){
  clearTimeout(surpriseTimer);surpriseTimer=0;
  const moment=$('surpriseMoment');
@@ -118,10 +180,20 @@ function updateUI(){
   '第 '+c.sentences+' 句 · 能量 '+state.energy+'。'+(c.line?CRE.CREATURE_LINES[c.line].note:'');
  const cost=CRE.evolveCost(c.stage);
  $('energyText').textContent=cost===null?'完全體 · 能量 '+state.energy:'⚡ 能量 '+state.energy+' / '+cost;
- $('energyFill').style.width=cost===null?'100%':Math.min(100,state.energy/cost*100)+'%';
+ // v1.2: energy orbs instead of a progress bar — one orb per energy the
+ // next evolution costs, filled as energy arrives. A finished creature
+ // shows a full glowing set of five.
+ const orbs=$('energyOrbs');
+ if(orbs){
+  const orbCount=cost===null?5:cost;
+  const filled=cost===null?5:Math.min(state.energy,cost);
+  let html='';
+  for(let i=0;i<orbCount;i++)html+='<span class="orb'+(i<filled?' filled':'')+'"></span>';
+  orbs.innerHTML=html;
+ }
  const btn=$('evolveBtn'),can=CRE.canEvolve(state);
- btn.disabled=!can;
- btn.classList.toggle('ready',can);
+ btn.disabled=!can||evolving;
+ btn.classList.toggle('ready',can&&!evolving);
  btn.textContent=can?'⚡ 注入能量，進化！':cost===null?'已是完全體':'還需要 '+(cost-state.energy)+' 能量';
  $('evolveHint').textContent=cost===null?'這隻已經是完全體了！先存圖留念，再按「開始養下一隻」繼續。':
   '進化要 '+cost+' 能量，聊一句 +1，能量夠了按下去就進化。每次進化都有禮物！';
@@ -145,7 +217,12 @@ function renderCollection(){
  grid.innerHTML=state.collection.map(c=>{
   const line=CRE.CREATURE_LINES[c.line];if(!line)return '';
   const topic=CRE.dominantTopic(c.topics||[]);
-  return '<div class="creature-card"><span class="creature-icon" style="--lc:'+line.color+'">'+line.icon+'</span>'
+  // v1.2: the card shows the creature's real final-form art (not just an
+  // emoji). If the image fails to load, the emoji shows instead.
+  const img='./art/creatures/'+c.line+'-final.webp';
+  return '<div class="creature-card"><span class="creature-thumb" style="--lc:'+line.color+'">'
+   +'<img src="'+img+'" alt="'+line.name+' 完全體" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
+   +'<span class="creature-icon" style="display:none;--lc:'+line.color+'">'+line.icon+'</span></span>'
    +'<strong>'+line.name+'</strong>'
    +'<small>主導話題：'+(TOPICS[topic]?TOPICS[topic].label:topic)+' · '+STAGE_NAMES[4]+'</small></div>';
  }).join('');
@@ -172,22 +249,38 @@ function openGiftModal(){
  $('giftModal').hidden=false;resetGiftModal();
 }
 function closeGiftModal(){
+ if(giftOpening)return;
  $('giftModal').hidden=true;
  updateGiftUI();renderGiftCodex();
 }
 function doOpenGift(){
+ if(giftOpening)return;
+ // v1.2 ceremony: the gift is deducted (and the item rolled) right away
+ // so a double tap cannot open twice, but the reveal waits for the shake
+ // and flash. The item stays secret until the reveal.
  const item=CRE.openGift(state);
  if(!item){closeGiftModal();return;}
- writeState();updateUI();
- $('giftClosed').hidden=true;
- $('giftReveal').hidden=false;
- $('giftItemIcon').textContent=item.icon;
- $('giftItemName').textContent=item.name;
- const rt=$('giftItemRarity');rt.textContent=item.rarityName+' · '+(item.kind==='egg'?'蛋':item.kind==='companion'?'夥伴':'能量');rt.style.color=item.rarityColor;
- $('giftItemNote').textContent=item.note+(item.kind==='energy'?' 目前能量 '+state.energy+'。':'');
- $('giftOpenBtn').hidden=true;
- $('giftAgainBtn').hidden=!(state.gifts>0);
- renderGiftCodex();
+ giftOpening=true;
+ writeState();
+ $('giftOpenBtn').hidden=true;$('giftAgainBtn').hidden=true;
+ $('giftClosed').hidden=false;$('giftReveal').hidden=true;
+ $('giftClosed').classList.add('shaking');
+ const delay=reduceMotion?0:900;
+ setTimeout(()=>{
+  $('giftClosed').classList.remove('shaking');
+  const flash=$('giftFlash');
+  if(flash){flash.classList.remove('go');void flash.offsetWidth;flash.classList.add('go');}
+  $('giftClosed').hidden=true;
+  $('giftReveal').hidden=false;
+  $('giftItemIcon').textContent=item.icon;
+  $('giftItemName').textContent=item.name;
+  const rt=$('giftItemRarity');rt.textContent=item.rarityName+' · '+(item.kind==='egg'?'蛋':item.kind==='companion'?'夥伴':'能量');rt.style.color=item.rarityColor;
+  $('giftItemNote').textContent=item.note+(item.kind==='energy'?' 目前能量 '+state.energy+'。':'');
+  $('giftReveal').classList.remove('pop');void $('giftReveal').offsetWidth;$('giftReveal').classList.add('pop');
+  $('giftAgainBtn').hidden=!(state.gifts>0);
+  giftOpening=false;
+  updateUI();
+ },delay);
 }
 function ownedEggs(){
  return CRE.giftItems().filter(x=>x.kind==='egg'&&(state.giftCollection[x.id]||0)>0);
@@ -195,7 +288,15 @@ function ownedEggs(){
 function askHatch(){
  const eggs=ownedEggs();
  if(!eggs.length){popToast('還沒有蛋，開禮物拿蛋！');return;}
- $('eggList').innerHTML=eggs.map(x=>'<button type="button" data-line="'+x.line+'" class="seed-pick"><span>'+x.icon+' '+x.name+'</span><span>×'+(state.giftCollection[x.id]||0)+'</span></button>').join('');
+ $('eggList').innerHTML=eggs.map(x=>{
+  // v1.2: each choice shows the line's egg art (with the emoji behind it
+  // as a fallback if the image fails to load).
+  const img='./art/creatures/'+x.line+'-egg.webp';
+  return '<button type="button" data-line="'+x.line+'" class="seed-pick">'
+   +'<span class="seed-pick-egg"><img src="'+img+'" alt="'+x.name+'" loading="lazy" onerror="this.style.display=\'none\'"><span class="seed-pick-ic">'+x.icon+'</span></span>'
+   +'<span class="seed-pick-nm">'+x.name+'</span>'
+   +'<span>×'+(state.giftCollection[x.id]||0)+'</span></button>';
+ }).join('');
  $('eggNote').textContent=state.creature.sentences>0?
   '現在這隻還在養，換蛋會放棄牠的進度。':'新的蛋等著孵化，選一顆開始養。';
  $('eggModal').hidden=false;
@@ -211,6 +312,12 @@ function hatchEggLine(lineId){
  return true;
 }
 function doEvolve(){
+ // v1.2 ceremony: the STATE changes immediately (energy deducted, stage
+ // advanced, gifts granted, collection updated) so the QA hook stays
+ // synchronous, but the VISUAL swap waits for the glow phase. The canvas
+ // keeps painting the pre-evolution form (via evolvePending) for ~450ms,
+ // then the new form is revealed with a flash and a scale-in.
+ const before={line:state.creature.line,stage:state.creature.stage};
  const res=CRE.evolve(state);
  if(!res)return null;
  // v1.1: every evolution grants a gift; completing a creature grants
@@ -219,7 +326,12 @@ function doEvolve(){
  if(res.completed)CRE.grantGift(state,'complete');
  writeState();
  if(res.line)CRE.preloadArt(res.line);
- reveal={started:renderTime};
+ const token=++evolveSeq;
+ evolving=true;evolvePending=before;
+ const wrap=$('canvasWrap');
+ wrap.classList.add('evolving');
+ if(res.completed)wrap.classList.add('evolving-complete');
+ burstStars(10);
  if(res.completed){
   const line=CRE.CREATURE_LINES[res.line];
   cueSurprise({emoji:line.icon,title:'🎉 '+line.name+' 完全體誕生了！',detail:'牠住進了你的圖鑑。先存圖留念，再按「開始養下一隻」繼續。🎁 禮物 +2！'});
@@ -234,6 +346,16 @@ function doEvolve(){
   popToast('🎁 禮物 +1！');
  }
  updateUI();draw(0);
+ const delay=reduceMotion?0:450;
+ setTimeout(()=>{
+  if(token!==evolveSeq)return;
+  evolvePending=null;evolving=false;
+  reveal={started:renderTime};
+  wrap.classList.remove('evolving','evolving-complete');
+  wrap.classList.add('evolve-reveal');
+  draw(0);updateUI();
+  setTimeout(()=>{wrap.classList.remove('evolve-reveal');},650);
+ },delay);
  return res;
 }
 function doStartNext(){
@@ -272,6 +394,7 @@ function postMessage(raw){
  if(CRE.grantGift(state,'daily',todayStr())){writeState();updateGiftUI();popToast('🎁 今日禮物 +1！明天再來領一個。');}
  writeState();
  updateUI();draw(0);
+ reactToChat();
  if(CRE.canEvolve(state))popToast('⚡ 能量夠了，按「注入能量，進化！」');
  return {topic:signal.topic,turn,energy:state.energy,sentences:state.creature.sentences,canEvolve:CRE.canEvolve(state),reply};
 }
@@ -304,7 +427,10 @@ function exportImage(){
 function draw(now=0){
  renderTime=now;
  if(!ctx)return false;
- return CRE.paint(canvas,state,now,{width:780,height:1560,dpr:1,still:reduceMotion,
+ // v1.2: during the evolution glow phase, paint the pre-evolution form
+ // (evolvePending) even though the state already advanced.
+ const g=evolvePending?Object.assign({},state,{creature:{line:evolvePending.line,stage:evolvePending.stage,topics:[],sentences:0}}):state;
+ return CRE.paint(canvas,g,now,{width:780,height:1560,dpr:1,still:reduceMotion,
   reveal:reveal&&now-reveal.started<1000?reveal:null});
 }
 function render(now=0){
@@ -328,10 +454,11 @@ function init(){
  });
  $('evolveBtn').addEventListener('click',doEvolve);
  $('nextBtn').addEventListener('click',doStartNext);
+ $('canvasWrap').addEventListener('click',petCreature);
  $('hatchBtn').addEventListener('click',askHatch);
  $('giftBtn').addEventListener('click',openGiftModal);
  $('giftOpenBtn').addEventListener('click',doOpenGift);
- $('giftAgainBtn').addEventListener('click',resetGiftModal);
+ $('giftAgainBtn').addEventListener('click',doOpenGift);
  $('giftCloseBtn').addEventListener('click',closeGiftModal);
  $('giftModal').addEventListener('click',ev=>{if(ev.target===$('giftModal'))closeGiftModal();});
  $('eggList').addEventListener('click',ev=>{
@@ -363,6 +490,12 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
   stages:()=>CRE.CREATURE_STAGES.slice(),
   reset:resetLab,
   exportImage,draw:()=>draw(0),
+  // v1.2 test hooks for the new UI: egg list, reaction bubble, pet, ceremony flags.
+  eggList:()=>{askHatch();return $('eggList').innerHTML;},
+  reactBubble:()=>({text:$('reactBubble').textContent,hidden:$('reactBubble').hidden}),
+  pet:(x,y)=>petCreature({target:{closest:()=>null},clientX:x===undefined?195:x,clientY:y===undefined?200:y}),
+  evolving:()=>evolving,
+  giftOpening:()=>giftOpening,
   allTopics:Object.keys(TOPICS)
  }});
 }
