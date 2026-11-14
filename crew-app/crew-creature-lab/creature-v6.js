@@ -93,15 +93,20 @@ function dominantTopic(topics){
  for(const t of topics){if(counts[t]>bestN){bestN=counts[t];best=t;}}
  return best;
 }
-function newCreature(){return {line:null,stage:0,topics:[],sentences:0};}
-function empty(){return {version:1,energy:0,creature:newCreature(),collection:[],gifts:0,giftCollection:{},lastDailyGift:null};}
+function newCreature(){return {line:null,stage:0,topics:[],sentences:0,memories:[]};}
+function empty(){return {version:1,energy:0,creature:newCreature(),collection:[],encountered:{},gifts:0,giftCollection:{},giftSeen:{},lastDailyGift:null};}
 const goodLine=id=>!!CREATURE_LINES[id];
 function cleanCreature(c){
  if(!c||typeof c!=='object')return null;
  if(!Number.isSafeInteger(c.stage)||c.stage<0||c.stage>4)return null;
  if(c.line!==null&&!goodLine(c.line))return null;
  if(!Array.isArray(c.topics))return null;
- return {line:c.line,stage:c.stage,topics:c.topics.slice(0,64).filter(x=>typeof x==='string'),sentences:Number.isSafeInteger(c.sentences)?Math.max(0,c.sentences):0};
+ const memories=Array.isArray(c.memories)?c.memories.slice(-30).filter(m=>m&&typeof m==='object'
+   &&/^\d{4}-\d{2}-\d{2}$/.test(m.date)&&typeof m.text==='string').map(m=>({
+    date:m.date,text:m.text.slice(0,160),topic:typeof m.topic==='string'?m.topic.slice(0,32):'daily'
+   })):[];
+  return {line:c.line,stage:c.stage,topics:c.topics.slice(0,64).filter(x=>typeof x==='string'),
+   sentences:Number.isSafeInteger(c.sentences)?Math.max(0,c.sentences):0,memories};
 }
 function restore(raw){
  const base=empty();
@@ -109,8 +114,12 @@ function restore(raw){
  if(Number.isSafeInteger(raw.energy)&&raw.energy>=0)base.energy=Math.min(raw.energy,9999);
  const cur=cleanCreature(raw.creature);
  if(cur)base.creature=cur;
+ if(raw.encountered&&typeof raw.encountered==='object')
+  for(const line of LINE_IDS)if(raw.encountered[line]===true)base.encountered[line]=true;
+ if(base.creature.line&&base.creature.stage>=1)base.encountered[base.creature.line]=true;
  if(Array.isArray(raw.collection))
   base.collection=raw.collection.slice(0,64).map(cleanCreature).filter(x=>x&&x.line&&x.stage===4);
+ for(const c of base.collection)base.encountered[c.line]=true;
  // v1.1 rename: gifts / giftCollection / lastDailyGift. Accept the old
  // v1 field names (boxes / boxCollection / lastDailyBox) and migrate them
  // so an existing save keeps its gifts instead of resetting to zero.
@@ -121,9 +130,15 @@ function restore(raw){
  if(oldCollection)
   for(const item of GIFT_ITEMS){
    const n=oldCollection[item.id];
-   if(Number.isSafeInteger(n)&&n>0)base.giftCollection[item.id]=Math.min(n,99);
+   if(Number.isSafeInteger(n)&&n>0){
+     base.giftCollection[item.id]=Math.min(n,99);
+     // Older inventory proves possession but not spent energy or golden eggs.
+     base.giftSeen[item.id]=true;
+    }
   }
- const lastDaily=typeof raw.lastDailyGift==='string'?raw.lastDailyGift:raw.lastDailyBox;
+ if(raw.giftSeen&&typeof raw.giftSeen==='object')
+   for(const item of GIFT_ITEMS)if(raw.giftSeen[item.id]===true)base.giftSeen[item.id]=true;
+  const lastDaily=typeof raw.lastDailyGift==='string'?raw.lastDailyGift:raw.lastDailyBox;
  if(typeof lastDaily==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(lastDaily))base.lastDailyGift=lastDaily;
  return base;
 }
@@ -144,6 +159,7 @@ function evolve(g,rand){
  const c=g.creature;
  c.stage++;
  if(c.stage===1&&!c.line)c.line=rollCreatureLine(rand);
+ if(c.stage===1){if(!g.encountered)g.encountered={};g.encountered[c.line]=true;}
  const line=c.line;
  const completed=c.stage===4;
  let done=null;
@@ -152,7 +168,7 @@ function evolve(g,rand){
   // can see the final form and save it. The UI calls startNewCreature()
   // when the user taps "start the next one"; only then is the creature
   // reset to a fresh egg.
-  done={line,topics:c.topics.slice(),stage:4};
+  done={line,topics:c.topics.slice(),stage:4,memories:(c.memories||[]).slice()};
   g.collection.unshift(done);
   g.collection=g.collection.slice(0,64);
  }
@@ -219,6 +235,9 @@ function openGift(g,rand){
  if(!g||typeof g!=='object'||!(g.gifts>0))return null;
  g.gifts--;
  let item=rollGiftItem(rand,GIFT_ITEMS);
+ if(!g.giftSeen)g.giftSeen={};
+ // Preserve the original gift, even for immediately-used packs and golden eggs.
+ g.giftSeen[item.id]=true;
  if(item.id==='egg-golden'){
   const gl=(typeof rand==='function'?rand():Math.random())<0.5?'moonfox':'stardragon';
   item={...item,line:gl,name:'金蛋 · '+(gl==='moonfox'?'月狐':'星龍')};
@@ -230,6 +249,7 @@ function openGift(g,rand){
   // wasting the gift (same idea as the tree lab's duplicate rule).
   const eggs=GIFT_ITEMS.filter(x=>x.kind==='egg'&&x.line);
   item=rollGiftItem(rand,eggs);
+   g.giftSeen[item.id]=true;
   rerolled=true;
  }
  if(item.kind==='energy'){
