@@ -180,8 +180,8 @@ footer{font-size:11px;color:#7fa89a;line-height:1.8;margin-top:22px;text-align:c
 @media(max-width:790px){
  .play-grid{display:flex;flex-direction:column;height:100vh;height:100dvh;gap:0}
  .creature-panel{flex:0 0 auto;display:flex;flex-direction:column;overflow:hidden}
- .canvas-wrap{height:clamp(220px,32dvh,300px);aspect-ratio:auto;flex:none}
- #creatureCanvas{object-fit:cover;object-position:center 35%}
+ .canvas-wrap{height:clamp(340px,46dvh,480px);aspect-ratio:auto;flex:none}
+ #creatureCanvas{object-fit:contain;object-position:center}
  .chat-panel{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
  .messages{flex:1 1 auto;min-height:0;height:auto;max-height:none;overflow-y:auto}
  .chat-bottom{flex:0 0 auto}
