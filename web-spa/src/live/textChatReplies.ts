@@ -41,17 +41,19 @@ export function parseFriendReply(raw:string):{text:string;replies:string[]|null}
   return{text,replies:null};
  return{text,replies};
 }
-/** Stay under the Worker system limit, preserving Shorts handoff and language tail. */
+/** Stay under the Worker system limit, preserving Shorts / fortune handoffs and language tail. */
 export function friendGuestSystem(system:string):string{
  const max=6000-FRIEND_TEXT_INSTRUCTIONS.length;
  if(system.length<=max)return system+FRIEND_TEXT_INSTRUCTIONS;
  const marker="\n[EARLIER FRIEND BACKGROUND SHORTENED FOR TEXT CHAT]\n";
  // Shorts' verified post and final language directive are protected tail content.
  const shortsAt=system.indexOf("\n[SHORTS TEXT HANDOFF — FIRST REPLY]");
- if(shortsAt>=0){
-  const tail=system.slice(shortsAt);
+ const fortuneAt=system.indexOf("\n[ZOE DAILY FORTUNE HANDOFF — FIRST REPLY]");
+ const protectedAt=shortsAt>=0?shortsAt:fortuneAt;
+ if(protectedAt>=0){
+  const tail=system.slice(protectedAt);
   if(tail.length+marker.length<max){
-   const prefix=system.slice(0,shortsAt);
+   const prefix=system.slice(0,protectedAt);
    const budget=max-tail.length-marker.length;
    const head=Math.min(450,Math.floor(budget/2));
    return prefix.slice(0,head)+marker+prefix.slice(head).slice(-(budget-head))+tail+FRIEND_TEXT_INSTRUCTIONS;

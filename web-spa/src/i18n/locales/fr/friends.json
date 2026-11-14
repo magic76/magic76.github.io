@@ -136,6 +136,7 @@
   }
 ,
   "dailyQuoteStarter": "La pensée du jour : « {{quote}} » J’aimerais en parler.",
+  "dailyFortuneContinue": "J’aimerais poursuivre notre discussion sur l’interprétation du jour que tu viens de me donner. Quel est le point essentiel ?",
   "dailyFortuneStarter": "Aide-moi à comprendre ma fortune du jour",
   "dailyFortuneStarters": {
     "goodFor": "Qu’est-ce qui serait bon pour moi aujourd’hui ?",

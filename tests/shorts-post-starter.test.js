@@ -23,7 +23,7 @@ async function social(){
 }
 const generic={id:"hugo-20261112",friendId:"hugo",caption:"I brought yesterday's pickles to lunch. The one I liked least turns out to be excellent with a very boring egg."};
 const craft={id:"ada-20261107",friendId:"ada",caption:"Those sharpened scissors have their first job: a padded pouch. I've cut the lining slightly bigger so it can stop escaping."};
-function renderStarter({post=generic,query="q=0",lang="zh-TW",dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter},module){
+function renderStarter({post=generic,query="q=0",lang="zh-TW",dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter,fortuneContinue},module){
  const params=new URLSearchParams(query);
  const ui=home(lang),catalog=voice(lang);
  const t=(key)=>{
@@ -35,7 +35,7 @@ function renderStarter({post=generic,query="q=0",lang="zh-TW",dailyFortuneStarte
   throw Error("unexpected translation: "+key);
  };
  const scope={shortsPost:post,params,urlHook:params.get("hook"),isShortsHook:module.isShortsHook,
-  shortsSelectedQuestion:module.shortsSelectedQuestion,t,dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter};
+  shortsSelectedQuestion:module.shortsSelectedQuestion,t,dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter,fortuneContinue};
  script.runInNewContext(scope);
  return scope.result;
 }
@@ -84,6 +84,7 @@ test("non-Shorts, missing posts and daily/quote/topic entrants never receive the
  const cases=[
   {query:"",expected:undefined},
   {query:"quote=daily&chart="+"a".repeat(64),dailyFortuneStarter:"MY DAILY FORTUNE",expected:"MY DAILY FORTUNE"},
+  {query:"from=fortune&quote=daily&chart="+"a".repeat(64),fortuneContinue:"CONTINUE FORTUNE",dailyFortuneStarter:"MY DAILY FORTUNE",expected:"CONTINUE FORTUNE"},
   {query:"quote=quote-1",dailyQuoteStarter:"MY DAILY QUOTE",expected:"MY DAILY QUOTE"},
   {query:"topic=topic-1",dailyTopicStarter:"MY DAILY TOPIC",expected:"MY DAILY TOPIC"},
   {query:"q=0&hook=details",expected:undefined},
@@ -99,7 +100,7 @@ test("non-Shorts, missing posts and daily/quote/topic entrants never receive the
  assert.match(friend,/const dailyTopic=!shortsPost&&friend\.id==="zoe"/);
  assert.match(friend,/const selectedQuote=!shortsPost&&friend\.id==="zoe"/);
  assert.match(friend,/const personalChartHash=!shortsPost&&friend\.id==="zoe"/);
- assert.match(friend,/firstStarter=\{shortsStarter\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/firstStarter=\{shortsStarter\|\|fortuneContinue\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
 });
 test("11 voice translations have the same nonblank, interpolation-free, safe post starter key",()=>{
  for(const lang of langs){
@@ -121,5 +122,5 @@ test("starter is opt-in and uses the unchanged verified first-send path",()=>{
  assert.doesNotMatch(friend,/sendMessage\(shortsStarter\)|setDraft\(shortsStarter\)/);
  assert.match(friend,/starters=\{dailyEntry\?\[t\("dailyFortuneStarters\.goodFor"\),t\("dailyFortuneStarters\.watchOut"\)\]:undefined\}/);
  assert.match(starters,/\["cafe","intro","smalltalk"\]/);
- assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)\}/);
+ assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
 });

@@ -24,7 +24,7 @@ export function FortuneZoeReading({card,hash,locale,scrollOnOpen}:Props){
  const fallback=t("zoeReading.fallback",{kind:t(card.kind),headline:card.headline,theme:card.theme,
   do:card.do[0],avoid:card.avoid,color:card.luckyColor.name});
  const activeEntry=entry?.source==="ai"?entry:{text:fallback,source:"fallback" as const,at:Date.now(),followups:entry?.followups||[]};
- const friendHref="/friend/live?id=zoe&from=home&chat=text&quote=daily&chart="+hash;
+ const friendHref="/friend/live?id=zoe&from=fortune&chat=text&quote=daily&chart="+hash+"&kind="+card.kind;
  const returnTo="/fortune?daily=1&chart="+hash+"&kind="+card.kind+"&zoe=1";
  useEffect(()=>{
   const changed=()=>{retryZoeDaily(slot);setKeyRevision(v=>v+1)};

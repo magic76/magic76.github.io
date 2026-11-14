@@ -136,6 +136,7 @@
   }
 ,
   "dailyQuoteStarter": "今天的小語：「{{quote}}」想跟你聊聊這句。",
+  "dailyFortuneContinue": "我想繼續問剛才這份今日運勢解讀，從你提到的重點聊起。",
   "dailyFortuneStarter": "幫我解讀今天的運勢",
   "dailyFortuneStarters": {
     "goodFor": "今天適合做什麼？",

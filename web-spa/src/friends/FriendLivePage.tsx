@@ -81,19 +81,25 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const personalChartHash=!shortsPost&&friend.id==="zoe"&&textMode&&params.get("quote")==="daily"?params.get("chart"):null;
  const validDailyHash=Boolean(personalChartHash&&/^[a-f0-9]{64}$/.test(personalChartHash));
  const dailyEntry=validDailyHash;
- const dailyLookupKey=validDailyHash?locale.language+":"+personalChartHash:"";
- const [dailyLookup,setDailyLookup]=useState<{key:string;context:string;hash:string}|null>(null);
+ const dailyHandoff=Boolean(dailyEntry&&params.get("from")==="fortune");
+ const dailyKind=params.get("kind")==="bazi"||params.get("kind")==="numerology"?params.get("kind") as "bazi"|"numerology":null;
+ const dailyLocale=locale.resolvedLanguage||locale.language;
+ const dailyLookupKey=validDailyHash?dailyLocale+":"+personalChartHash+":"+String(dailyKind)+":"+String(dailyHandoff):"";
+ const [dailyLookup,setDailyLookup]=useState<{key:string;context:string;hash:string;handoff?:string}|null>(null);
  useEffect(()=>{
   if(!dailyLookupKey)return;
   let active=true;
   setDailyLookup(null);
   void Promise.all([import("../pages/personalDailyLine"),import("../pages/dailyFortuneReader")])
    .then(async ([{personalDailyLine},{buildDailyFortuneContext}])=>{
-    const line=await personalDailyLine(locale.language,undefined,personalChartHash);
-    if(active)setDailyLookup({key:dailyLookupKey,hash:line?.hash||"",context:line?buildDailyFortuneContext(line.card):""});
+    const line=await personalDailyLine(dailyLocale,undefined,personalChartHash).catch(()=>null);
+    const matching=!!line&&(!dailyHandoff||!dailyKind||line.card.kind===dailyKind);
+    const handoff=dailyHandoff?(await import("../fortune/fortuneChatHandoff")).buildFortuneChatHandoff(matching?line!.card:null,personalChartHash!,dailyKind,dailyLocale,locale.language):null;
+    const handoffContext=handoff?await handoff:"";
+    if(active)setDailyLookup({key:dailyLookupKey,hash:line?.hash||"",context:matching?buildDailyFortuneContext(line!.card):"",handoff:handoffContext});
    }).catch(()=>{if(active)setDailyLookup({key:dailyLookupKey,hash:"",context:""})});
   return()=>{active=false};
- },[dailyLookupKey,personalChartHash,locale.language]);
+ },[dailyLookupKey,personalChartHash,dailyLocale,locale.language,dailyHandoff,dailyKind]);
  const dailyFortune=dailyLookup?.key===dailyLookupKey&&dailyLookup.hash===personalChartHash&&dailyLookup.context?dailyLookup:null;
  const dailyLookupPending=Boolean(dailyLookupKey&&dailyLookup?.key!==dailyLookupKey);
  const [quoteText,setQuoteText]=useState<{id:string;language:string;text:string}|null>(null);
@@ -109,6 +115,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const dailyQuoteStarter=selectedQuote&&quoteText?.id===selectedQuote.id&&quoteText.language===locale.language
   ?t("dailyQuoteStarter",{quote:quoteText.text}):undefined;
  const dailyFortuneStarter=dailyFortune?t("dailyFortuneStarter"):undefined;
+ const fortuneContinue=dailyHandoff?t("dailyFortuneContinue"):undefined;
+ const fortuneReplies=dailyHandoff?[t("dailyFortuneStarters.goodFor"),t("dailyFortuneStarters.watchOut")]:undefined;
+ const day=new Date(),dayKey=[day.getFullYear(),String(day.getMonth()+1).padStart(2,"0"),String(day.getDate()).padStart(2,"0")].join("-");
+ const fortuneSystem=dailyHandoff?(dailyLookup?.handoff||"[ZOE DAILY FORTUNE HANDOFF — FIRST REPLY]\nContinue discussing TODAY fortune with the user; do not greet or switch topics. Ask fortune follow-ups only.\n[/ZOE DAILY FORTUNE HANDOFF]"):"";
  const shortsReturnTo=shortsPost?"/teacher/shorts?post="+encodeURIComponent(shortsPost.id):null;
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
@@ -248,10 +258,11 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
-    {textMode?(dailyLookupPending?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:dailyFortune?":daily:"+dailyFortune.hash:"")} searchEnabled={!shortsPost} system={system+(dailyFortune?"\n"+dailyFortune.context:"")+"\n"+languageDirective+(beginnerTextStart?"\n"+beginnerTextStart:"")} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
-     firstStarter={shortsStarter||dailyFortuneStarter||dailyQuoteStarter||dailyTopicStarter}
+    {textMode?(dailyLookupPending?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:dailyHandoff?":fortune:"+dailyKind+":"+personalChartHash+":"+dayKey:dailyFortune?":daily:"+dailyFortune.hash:"")} searchEnabled={!shortsPost} system={system+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+"\n"+languageDirective+(beginnerTextStart?"\n"+beginnerTextStart:"")} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
+     firstStarter={shortsStarter||fortuneContinue||dailyFortuneStarter||dailyQuoteStarter||dailyTopicStarter}
+     autoStarter={fortuneContinue} replyFallback={fortuneReplies}
      starters={dailyEntry?[t("dailyFortuneStarters.goodFor"),t("dailyFortuneStarters.watchOut")]:undefined}
-     showStarterWithHistory={Boolean(dailyFortuneStarter||dailyQuoteStarter)}
+     showStarterWithHistory={Boolean(dailyFortuneStarter||dailyQuoteStarter)&&!dailyHandoff}
      onExchange={shortsPost?()=>{if(usageSentRef.current)return;usageSentRef.current=true;trackUsageEvent("friend_conversation");trackUsageEvent("shorts_conversation");rememberShortsConversation(shortsPost)}:undefined}/>):<>
     {!shortsPost&&!homeFirstAction?voiceStart:null}
     {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}

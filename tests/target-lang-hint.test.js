@@ -106,13 +106,13 @@ test("page appends beginner instruction at the very end of text panel system, ex
  const panelCall=friend.slice(friend.indexOf("<TextChatPanel "),friend.indexOf(" firstStarter=",friend.indexOf("<TextChatPanel ")));
  assert.match(friend,/const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry\?friendBeginnerTextStart\(language,detectNativeLanguage\(locale\.language\),friendChatMode\):""/);
  assert.match(friend,/detectNativeLanguage\(locale\.language\)/,"gloss follows UI locale, not saved nativeLanguage");
- assert.match(panelCall,/system=\{system\+\(dailyFortune\?"\\n"\+dailyFortune\.context:""\)\+"\\n"\+languageDirective\+\(beginnerTextStart\?"\\n"\+beginnerTextStart:""\)\}/);
+ assert.match(panelCall,/system=\{system\+\(dailyFortune\?"\\n"\+dailyFortune\.context:""\)\+\(fortuneSystem\?"\\n"\+fortuneSystem:""\)\+"\\n"\+languageDirective\+\(beginnerTextStart\?"\\n"\+beginnerTextStart:""\)\}/);
  const elsewhere=friend.replace(panelCall,"");
  assert.equal((elsewhere.match(/friendBeginnerTextStart\(/g)||[]).length,1,"only the isolated text rule declaration may call the helper");
  assert.match(friend,/openingPrompt:languageDirective/);
  assert.match(friend,/sendText\(languageDirective/);
  assert.match(friend,/starters=\{dailyEntry\?\[t\("dailyFortuneStarters.goodFor"\),t\("dailyFortuneStarters.watchOut"\)\]:undefined\}/);
- assert.match(friend,/firstStarter=\{shortsStarter\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/firstStarter=\{shortsStarter\|\|fortuneContinue\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
  assert.ok(Buffer.byteLength(friend)<26000);
 });
 test("new starter text has accessible size, contrast, wrap; buttons remain 44px",()=>{

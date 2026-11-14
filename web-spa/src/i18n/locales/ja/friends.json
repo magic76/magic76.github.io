@@ -136,6 +136,7 @@
   }
 ,
   "dailyQuoteStarter": "今日のひとこと「{{quote}}」について話してみたいな。",
+  "dailyFortuneContinue": "さっきの今日の運勢の解説について、もう少し聞きたい。大切なポイントから教えて。",
   "dailyFortuneStarter": "今日の運勢を読み解いて",
   "dailyFortuneStarters": {
     "goodFor": "今日は何をするとよさそう？",

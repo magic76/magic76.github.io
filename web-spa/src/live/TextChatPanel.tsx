@@ -23,7 +23,7 @@ import type {TeachingMode} from "../store/teacherStore";
 import "./TextChatPanel.css";
 
 type Message={role:"user"|"assistant";text:string;sources?:GroundingSource[];searchSuggestions?:string};
-type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;starters?:string[];showStarterWithHistory?:boolean;shortsContext?:string;onExchange?:()=>void};
+type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;starters?:string[];showStarterWithHistory?:boolean;autoStarter?:string;replyFallback?:string[];shortsContext?:string;onExchange?:()=>void};
 type GuestPhase="checking"|"ready"|"starting"|"active"|"unavailable"|"error"|"exhausted"|"paused";
 const GUEST_TEXT_ENDPOINT="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/text";
 const SESSION_STORAGE_KEY="crew_guest_text_session_v1";
@@ -37,7 +37,7 @@ function getSavedGuestSession(){
  return "";
 }
 /** No microphone: BYOK connects to Gemini Live; guests use metered Worker text. */
-export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,starters,showStarterWithHistory=false,shortsContext,onExchange}:Props){
+export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,starters,showStarterWithHistory=false,autoStarter,replyFallback,shortsContext,onExchange}:Props){
  const shortsSystems=shortsContext?buildShortsTextSystems(baseSystem,shortsContext):null;
  const system=shortsSystems?.live||baseSystem;
  const [messages,setMessages]=useState<Message[]>([]);
@@ -75,6 +75,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const guestMode=useGuest||!hasKey;
  const {host,requested:challengeRequested,waitForChallenge}=useGuestTextChallenge(guestMode,guestPhase,siteKey);
  const phaseRef=useRef(guestPhase);phaseRef.current=guestPhase;
+ const autoSent=useRef("");
  useEffect(()=>{mounted.current=true;return()=>{
   mounted.current=false;
  }},[]);
@@ -92,7 +93,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     :english?"Your previous message wasn't sent. Press Send to retry.":"上一則訊息尚未送出，按「送出」即可重試。");
   }
   latestMessages.current=saved;
-  setNextReplies(isFriend&&!pending&&!dangling&&saved.at(-1)?.role==="assistant"?"fallback":null);
+  setNextReplies(isFriend&&!pending&&!dangling&&saved.at(-1)?.role==="assistant"?(replyFallback||"fallback"):null);
   setMessages(saved);setHistoryReady(true);
  },[sessionScope]);
  latestMessages.current=messages;
@@ -205,8 +206,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    if(!visible)return;
    setMessages(previous=>[...previous.slice(0,answerIndex),{role:"assistant",text:visible}]);
   };
-  // Both Live and free REST replies reveal progressively; only Live supplies real partial chunks.
-  const reveal=createTypingReveal(updateLiveAnswer);
+   const reveal=createTypingReveal(updateLiveAnswer);
   typingRef.current=reveal;
   setDraft("");setBusy(true);setRequestSent(false);setError("");setGuestFailure(null);
   setGuestStatus(guestMode
@@ -231,7 +231,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     reply=answer.text;sources=answer.sources;searchSuggestions=answer.searchSuggestions;
    }else{
     // Keep the beginning and the language directives at the end of long personas.
-    const guestBase=shortsSystems?.guest??(system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system);
+    const guestBase=shortsSystems?.guest??(isFriend?system:system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system);
     const guestSystem=isFriend?friendGuestSystem(guestBase):guestBase;
     const data=await sendGuestTextWithRenewal({
      token:guestPhase==="active"||guestPhase==="checking"?guestToken:"",
@@ -278,7 +278,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     clearPendingTextDraft(sessionScope);
     pendingSend.current=null;
     setMessages(complete);
-    setNextReplies(isFriend?(parsed?.replies||"fallback"):null);
+    setNextReplies(isFriend?(replyFallback||parsed?.replies||"fallback"):null);
     try{onExchange?.()}catch{/* Usage tracking must not roll back a successful reply. */}
    }
   }catch(reason){
@@ -316,6 +316,11 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    if(mounted.current){setBusy(false);setRequestSent(false)}
   }
  }
+ // Explicit fortune-page handoff only. Never send on ordinary friend or Shorts entry.
+ useEffect(()=>{
+  if(!historyReady||!autoStarter||autoSent.current===sessionScope||messages.length||draft.trim()||readPendingTextDraft(sessionScope))return;
+  autoSent.current=sessionScope;void sendMessage(autoStarter);
+ },[historyReady,sessionScope,autoStarter,messages.length,draft]);
  return <section ref={chatRoot} className={"crew-text-chat"+(messages.length||busy||guestPhase==="active"?" is-chatting":"")} aria-label={english?"Text chat":"文字聊天"}>
   {hasKey&&<div className="crew-text-mode-choice">
    <span>{guestMode?(english?"Free text practice":"免費文字練習"):(english?"Using your Gemini key":"使用自己的 Gemini Key")}</span>
