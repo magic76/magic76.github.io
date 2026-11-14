@@ -17,7 +17,7 @@ function showMoment(finished,done){
  // image must still contain the exact completed tree and forest state.
  momentCapture={garden:JSON.parse(JSON.stringify(garden)),
   tree:validateTree(JSON.parse(JSON.stringify(finished))),
-  topic:finished.growth.at(-1)?.topic||'daily',forestEvent:done.forestEvent||null};
+  topic:finished.growth.at(-1)?.topic||'daily'};
  const box=$('momentSave');if(!box)return;
  box.hidden=false;
  $('momentSaveLabel').textContent=done.forestEvent?
@@ -41,7 +41,7 @@ function momentPosterArgs(){
   // Only a completed 16th turn reveals the final species. Intermediate
   // postcards must preserve their real 3/8-turn silhouette and sentence count.
   options:{...(momentCapture.tree.growth.length>=16?
-   {reveal:{tree:momentCapture.tree}}:{}),topic:momentCapture.topic,forestEvent:momentCapture.forestEvent||null}
+   {reveal:{tree:momentCapture.tree}}:{}),topic:momentCapture.topic}
  }:{garden,active:current,options:{topic:GLOW.latestTopic(garden,current)}};
 }
 function loadGarden(){
@@ -112,17 +112,14 @@ function syncGardenUI(){
  $('nextSurprise').textContent=$('gardenNext').textContent;
  $('worldName').textContent='夜光森林 · 每句話都有顏色';
  $('growthHint').textContent='每棵長滿 16 句會留在森林。森林長大後，有菇路、池塘和極光。';
- const visibleTree=reveal?.tree||current;
- const topic=topTopic(visibleTree);
  $('traitRow').innerHTML=[
   '✦ '+name,
-  '🎨 '+TOPICS[topic].label,
-  '🌿 '+visibleTree.mutations.length+' 種突變',
+  '🌿 '+current.mutations.length+' 種突變',
   '🌙 夜光森林'
  ].map(x=>'<span>'+x+'</span>').join('');
  $('treeSubtitle').textContent=n===0?'從第一句開始，每句都讓森林多一點光。':
   n===16?'最終形態：'+name+' · '+GLOW.rarity(reveal?reveal.tree.seed:current.seed).name:
-  '第 '+n+' 句，保留了話題色彩。最終形態還是祕密。';
+  '第 '+n+' 句，樹又長大了一點。最終形態還是祕密。';
 }
 function finishGardenTree(){
  const finished=validateTree(JSON.parse(JSON.stringify(current)));
@@ -427,11 +424,11 @@ function stageLabel(tree){
  return n===0?'剛發芽':n<3?'小嫩芽':n<6?'新枝亂長':n<10?'枝繁葉茂':n<16?'怪樹成形':'傳說歪樹';
 }
 function updateTreeUI(){
- const n=current.growth.length,topic=topTopic();
+ const n=current.growth.length;
  $('treeName').textContent=current.name;
  $('stageBadge').textContent=stageLabel(current)+' · '+n+' 句';
  $('treeSubtitle').textContent=n===0?'你和 Zoe 的故事，才剛要開始。':
-  '最近聊了'+TOPICS[topic].label+' · '+current.mutations.length+' 種奇怪突變';
+  '第 '+n+' 句 · '+current.mutations.length+' 種奇怪突變';
  const kind=KIND_LABELS[current.visualKind]||'圓冠魔法樹';
  $('kindSelect').value=current.visualKind;$('worldSelect').value=current.world;
  $('worldName').textContent='世界：'+WORLD_LABELS[resolvedWorld(current)];
@@ -441,14 +438,13 @@ function updateTreeUI(){
  const traits=[
   '🌳 '+kind,
   '🍃 '+LEAVES[current.genome.leaf],
-  TOPICS[topic].icon+' '+TOPICS[topic].label,
  '🌌 '+WORLD_LABELS[resolvedWorld(current)]
  ];
  if(current.mutations.length)traits.push(MUTATIONS.find(m=>m.key===current.mutations.at(-1)).icon+' '+MUTATIONS.find(m=>m.key===current.mutations.at(-1)).name);
  $('traitRow').innerHTML=traits.map(x=>'<span>'+x+'</span>').join('');
  $('growthHint').textContent=n===0?'試著聊「咖啡、宇宙、旅行、貓咪」，看看會發生什麼。':
   n<3?'再聊幾句，樹冠就會開始亂長！':
-  '改聊另一個話題，枝葉的形狀和裝飾可能突然變異。';
+  '繼續聊，枝葉的形狀和裝飾可能突然變異。';
  if(useV6)syncGardenUI();
 }
 function appendMessage(who,message){
@@ -479,7 +475,7 @@ function postMessage(raw){
  updateTreeUI();
  const age=current.growth.length;
  const surprise=useV6?({
-  3:{emoji:'🌱',title:'種子破殼了！',detail:'嫩芽長成小樹，留下第一抹話題顏色。'},
+  3:{emoji:'🌱',title:'種子破殼了！',detail:'嫩芽長成小樹，多了一抹新顏色。'},
   8:{emoji:'🏝️',title:'整棵樹浮起來了！',detail:'一座小島托著樹升上發光的夜空。'}
  })[age]||null:(milestone[current.visualKind]||milestone.botanical)[age]||null;
  if(useV6&&age===16){
@@ -494,7 +490,7 @@ function postMessage(raw){
  $('watchGrowthBtn').textContent=surprise?surprise.emoji+' '+surprise.title+' · 看驚喜':
   '🌱 第 '+current.growth.length+' 句，樹又長大了 · 看一眼';
  if(surprise){cueSurprise(surprise);if(useV6)showProgressMoment(age);}
- else popToast(mutation?'✨ 突變！'+MUTATIONS.find(m=>m.key===mutation).name:'🌱 '+TOPICS[signal.topic].label+'長出新枝！');
+ else popToast(mutation?'✨ 突變！'+MUTATIONS.find(m=>m.key===mutation).name:'🌱 樹又長大了！');
  sparkle();
  return {topic:signal.topic,mutation,turn,count:current.growth.length,reply,surprise:surprise?.title||null};
 }
@@ -603,7 +599,7 @@ function drawTree(c,tree,geometry,ox,oy,factor,clock){
 }
 function scene(c,width,height,tree,geometry,clock,card=false){
  if(useV6&&c===ctx&&!card){
-  GLOW.paint(canvas,reveal?window.CrewForestPostcardV6.sceneGarden(garden,reveal.tree):garden,tree,clock,{width,height,dpr,still:reduceMotion,
+  GLOW.paint(canvas,garden,tree,clock,{width,height,dpr,still:reduceMotion,
    motion:growthMotion,reveal:reveal&&Date.now()<reveal.until?reveal:null});
   if(growthMotion&&Date.now()-growthMotion.start>=1250)growthMotion=null;
   return;
