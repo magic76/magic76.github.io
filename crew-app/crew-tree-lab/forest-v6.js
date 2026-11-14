@@ -93,12 +93,16 @@ function artImage(line,stageName){
  return img;
 }
 function artReady(img){return !!(img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0);}
-// Preload every evolution image up front so a stage change never shows the
-// procedural fallback while the new stage's image is still downloading.
-// Without this the tree flickers between the painter and the image as it
-// grows. Safe in tests: artImage returns null when Image does not exist.
-function preloadArt(){
- for(const line of Object.keys(ART_LINES))
+// Preload evolution images. With no argument, preloads every line (the
+// old behaviour, kept as a fallback). With a line id, preloads only
+// that line's 5 stages — a tree only ever shows its own line, so
+// preloading all four lines on first load wastes ~7MB on mobile. The
+// caller (tree.js) preloads the lines actually in use: the active
+// tree's line plus the lines of the completed trees in the gallery.
+// Safe in tests: artImage returns null when Image does not exist.
+function preloadArt(lineId){
+ const lines=lineId&&ART_LINES[lineId]?[lineId]:Object.keys(ART_LINES);
+ for(const line of lines)
   for(const st of ART_STAGES)artImage(line,st);
 }
 // Draw one evolution image full-bleed: the original textured-sky image
@@ -846,7 +850,6 @@ function poster(canvas,g,active,now,opts={}){
  return true;
 }
 
-preloadArt();
 root.CrewGlowForestV6=Object.freeze({
  W,H,MAX,forms,topicColors,stage,form,rarity,empty,restore,snapshot,complete,progress,
  paint,poster,forestLevel,leafQuotes,latestTopic,preloadArt

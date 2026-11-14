@@ -44,6 +44,14 @@ function momentPosterArgs(){
    {reveal:{tree:momentCapture.tree}}:{}),topic:momentCapture.topic}
  }:{garden,active:current,options:{topic:GLOW.latestTopic(garden,current)}};
 }
+function preloadUsedLines(){
+ if(!useV6||!GLOW.preloadArt)return;
+ const lines=new Set();
+ if(current&&GLOW.form)lines.add(GLOW.form(current.seed).id);
+ for(const t of [...(garden?.slots||[]),...(garden?.retired||[])])
+  if(t&&GLOW.form)lines.add(GLOW.form(t.seed).id);
+ for(const id of lines)GLOW.preloadArt(id);
+}
 function loadGarden(){
  if(!useV6)return;
  try{garden=GLOW.restore(JSON.parse(localStorage.getItem(GARDEN_KEY)||'null'));}
@@ -58,7 +66,7 @@ function resetGarden(){
  if(!useV6)return false;
  clearTimeout(forestBannerTimer);clearSurprise();
  garden=GLOW.empty();reveal=null;growthMotion=null;clearMoment();
- current=makeTree();geom=buildGeometry(current);writeStorage();writeGarden();
+ current=makeTree();preloadUsedLines();geom=buildGeometry(current);writeStorage();writeGarden();
  $('watchGrowthBtn').hidden=true;
  resetChat('Zoe','新的森林開始了。從一顆發光種子慢慢長出你的世界。');
  updateTreeUI();renderRetired();renderGallery();return true;
@@ -510,7 +518,7 @@ function saveTree(silent=false){
 }
 function createNewTree(){
  if(current.growth.length>0)saveTree(true);
- current=makeTree();geom=buildGeometry(current);growthMotion=null;reveal=null;clearMoment();clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
+ current=makeTree();preloadUsedLines();geom=buildGeometry(current);growthMotion=null;reveal=null;clearMoment();clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','新的一顆樹苗來啦！這次要把它聊成什麼怪樣子？🌱');
  updateTreeUI();popToast('新的小樹苗準備好了！');
 }
@@ -523,7 +531,7 @@ function openSaved(seed){
  if(!selected)return false;
  if(current.growth.length>0&&current.seed!==selected.seed)saveTree(true);
  current=validateTree(JSON.parse(JSON.stringify(selected)));
- geom=buildGeometry(current);growthMotion=null;reveal=null;clearMoment();clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
+ preloadUsedLines();geom=buildGeometry(current);growthMotion=null;reveal=null;clearMoment();clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','啊，這是我們之前的「'+current.name+'」！繼續聊天，它還能長出新東西喔。');
  updateTreeUI();popToast('🌿 找到這棵歪樹了！');
  window.scrollTo?.({top:0,behavior:'smooth'});
@@ -688,7 +696,7 @@ function exportImage(){
 function init(){
  if(useV6)document.body.classList.add('glow-v6');
  reduceMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
- readStorage();loadGarden();geom=buildGeometry(current);resize();renderGallery();updateTreeUI();renderRetired();
+ readStorage();loadGarden();preloadUsedLines();geom=buildGeometry(current);resize();renderGallery();updateTreeUI();renderRetired();
  $('chatForm').addEventListener('submit',ev=>{ev.preventDefault();const input=$('chatInput');
   const text=input.value.trim();if(postMessage(text))input.value='';
  });
