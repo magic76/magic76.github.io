@@ -61,6 +61,75 @@ function writeGarden(){
  if(!useV6)return;
  try{localStorage.setItem(GARDEN_KEY,JSON.stringify(garden));}catch{}
 }
+// Blind box UI (v1). Boxes are granted by GLOW.grantBox (first chat of the
+// day, tree completion); opening and planting go through GLOW.openBox /
+// GLOW.plantSeed. The modal and the collection grid live in index.html.
+function todayStr(){
+ const d=new Date();
+ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function updateBoxUI(){
+ if(!useV6)return;
+ const n=garden?.boxes||0;
+ const btn=$('boxBtn');if(btn){btn.textContent='🎁 盲盒 ×'+n;btn.disabled=n<=0;}
+ const count=$('boxCollectionCount');
+ if(count){const owned=GLOW.boxItems().filter(x=>(garden.collection[x.id]||0)>0).length;count.textContent=owned+'/'+GLOW.boxItems().length;}
+}
+function renderCollection(){
+ if(!useV6)return;
+ const grid=$('boxGrid');if(!grid)return;
+ grid.innerHTML=GLOW.boxItems().map(x=>{
+  const n=garden.collection[x.id]||0,owned=n>0;
+  return '<div class="box-item'+(owned?' owned':' locked')+'" style="--rc:'+x.rarityColor+'">'
+   +'<span class="box-item-ic">'+(owned?x.icon:'?')+'</span>'
+   +'<span class="box-item-nm">'+(owned?x.name:'???')+'</span>'
+   +'<span class="box-item-rt" style="color:'+(owned?x.rarityColor:'#8b8496')+'">'+(owned?x.rarityName:'未開出')+'</span>'
+   +(x.kind==='seed'&&owned?'<span class="box-item-ct">×'+n+'</span>':'')
+   +'</div>';
+ }).join('');
+}
+function resetBoxModal(){
+ $('boxClosed').hidden=false;$('boxReveal').hidden=true;
+ $('boxOpenBtn').hidden=false;$('boxAgainBtn').hidden=true;
+}
+function openBoxModal(){
+ if(!useV6||!(garden.boxes>0))return;
+ $('boxModal').hidden=false;resetBoxModal();
+}
+function closeBoxModal(){
+ $('boxModal').hidden=true;
+ updateBoxUI();renderCollection();
+}
+function doOpenBox(){
+ const item=GLOW.openBox(garden);
+ if(!item){closeBoxModal();return;}
+ writeGarden();updateBoxUI();
+ $('boxClosed').hidden=true;
+ $('boxReveal').hidden=false;
+ $('boxItemIcon').textContent=item.icon;
+ $('boxItemName').textContent=item.name;
+ const rt=$('boxItemRarity');rt.textContent=item.rarityName+' · '+(item.kind==='seed'?'種子':item.kind==='animal'?'動物居民':'裝飾');rt.style.color=item.rarityColor;
+ $('boxItemNote').textContent=item.note;
+ $('boxOpenBtn').hidden=true;
+ $('boxAgainBtn').hidden=!(garden.boxes>0);
+ renderCollection();
+}
+function ownedSeeds(){
+ return GLOW.boxItems().filter(x=>x.kind==='seed'&&(garden.collection[x.id]||0)>0);
+}
+function askNewTree(){
+ const seeds=ownedSeeds();
+ if(!seeds.length){createNewTree();return;}
+ $('seedList').innerHTML=seeds.map(x=>'<button type="button" data-line="'+x.line+'" class="seed-pick"><span>'+x.icon+' '+x.name+'</span><span>×'+(garden.collection[x.id]||0)+'</span></button>').join('');
+ $('seedModal').hidden=false;
+}
+function plantChosenSeed(lineId){
+ const seed=GLOW.plantSeed(garden,lineId);
+ writeGarden();
+ $('seedModal').hidden=true;
+ if(seed==null){createNewTree();return;}
+ createNewTree(seed);
+}
 function visibleGrowAge(){return reveal?16:current.growth.length;}
 function resetGarden(){
  if(!useV6)return false;
@@ -139,11 +208,12 @@ function finishGardenTree(){
  saveTree(true);
  const done=GLOW.complete(garden,finished);
  if(!done)return null;
+ GLOW.grantBox(garden,'complete');
  reveal={tree:finished,started:renderTime,until:Date.now()+3800};
  current=makeTree();geom=buildGeometry(current);growthMotion=null;
- writeStorage();writeGarden();renderRetired();
+ writeStorage();writeGarden();renderRetired();updateBoxUI();
  const event={emoji:done.form.icon,title:'最終形態：'+done.form.name+'！',
-  detail:done.form.note+' 稀有度：'+done.rarity.name+'。新種子已經種下。'};
+  detail:done.form.note+' 稀有度：'+done.rarity.name+'。新種子已經種下，🎁 盲盒 +1！'};
  cueSurprise(event);
  clearTimeout(forestBannerTimer);
  if(done.forestEvent)forestBannerTimer=setTimeout(()=>popToast(done.forestEvent),4100);
@@ -484,6 +554,7 @@ function postMessage(raw){
  const reply=sayZoe(signal,turn);
  appendMessage('zoe',reply);
  sessionMessages++;
+ if(useV6&&GLOW.grantBox(garden,'daily',todayStr())){writeGarden();updateBoxUI();popToast('🎁 今日盲盒 +1！明天再來領一個。');}
  updateTreeUI();
  const age=current.growth.length;
  const surprise=useV6?({
@@ -516,9 +587,9 @@ function saveTree(silent=false){
  if(!silent)popToast('✦ 收進歪樹森林了！');
  return true;
 }
-function createNewTree(){
+function createNewTree(seed){
  if(current.growth.length>0)saveTree(true);
- current=makeTree();preloadUsedLines();geom=buildGeometry(current);growthMotion=null;reveal=null;clearMoment();clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
+ current=makeTree(seed);preloadUsedLines();geom=buildGeometry(current);growthMotion=null;reveal=null;clearMoment();clearSurprise();$('watchGrowthBtn').hidden=true;writeStorage();
  resetChat('Zoe','新的一顆樹苗來啦！這次要把它聊成什麼怪樣子？🌱');
  updateTreeUI();popToast('新的小樹苗準備好了！');
 }
@@ -696,7 +767,7 @@ function exportImage(){
 function init(){
  if(useV6)document.body.classList.add('glow-v6');
  reduceMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
- readStorage();loadGarden();preloadUsedLines();geom=buildGeometry(current);resize();renderGallery();updateTreeUI();renderRetired();
+ readStorage();loadGarden();preloadUsedLines();geom=buildGeometry(current);resize();renderGallery();updateTreeUI();renderRetired();updateBoxUI();renderCollection();
  $('chatForm').addEventListener('submit',ev=>{ev.preventDefault();const input=$('chatInput');
   const text=input.value.trim();if(postMessage(text))input.value='';
  });
@@ -705,7 +776,18 @@ function init(){
   if(target)postMessage(target.dataset.say);
  });
  $('saveBtn').addEventListener('click',()=>saveTree(false));
- $('newBtn').addEventListener('click',createNewTree);
+ $('newBtn').addEventListener('click',askNewTree);
+ $('boxBtn').addEventListener('click',openBoxModal);
+ $('boxOpenBtn').addEventListener('click',doOpenBox);
+ $('boxAgainBtn').addEventListener('click',resetBoxModal);
+ $('boxCloseBtn').addEventListener('click',closeBoxModal);
+ $('boxModal').addEventListener('click',ev=>{if(ev.target===$('boxModal'))closeBoxModal();});
+ $('seedList').addEventListener('click',ev=>{
+  const t=ev.target.closest?.('button[data-line]');if(t)plantChosenSeed(t.dataset.line);
+ });
+ $('seedRandomBtn').addEventListener('click',()=>{$('seedModal').hidden=true;createNewTree();});
+ $('seedCancelBtn').addEventListener('click',()=>{$('seedModal').hidden=true;});
+ $('seedModal').addEventListener('click',ev=>{if(ev.target===$('seedModal'))$('seedModal').hidden=true;});
  $('resetGardenBtn').addEventListener('click',()=>{if(!window.confirm||window.confirm('確定重新開始這座森林？已退休的樹也會從目前場景清除。'))resetGarden();});
  $('shareBtn').addEventListener('click',exportImage);
  $('quickForestSave').addEventListener('click',exportImage);
@@ -735,6 +817,11 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
    age:visibleGrowAge(),reveal:reveal?{form:GLOW.form(reveal.tree.seed).id,rarity:GLOW.rarity(reveal.tree.seed).key}:null}:null,
   glowStage:n=>GLOW?.stage(n),glowForm:seed=>GLOW?.form(seed),glowRarity:seed=>GLOW?.rarity(seed),
   glowSeed:seedForQA,glowReset:resetGarden,
+  glowBoxItems:()=>GLOW?.boxItems(),glowBoxes:()=>garden?.boxes||0,
+  glowCollection:()=>garden?JSON.parse(JSON.stringify(garden.collection)):null,
+  glowGrantBox:(reason,today)=>GLOW?.grantBox(garden,reason,today),
+  glowOpenBox:rand=>GLOW?.openBox(garden,rand),
+  glowPlantSeed:(lineId,rand)=>GLOW?.plantSeed(garden,lineId,rand),
   glowPoster:()=>useV6?momentPosterArgs():null,glowClearMoment:clearMoment,
   open:openSaved,exportImage,allTopics:Object.keys(TOPICS),mutations:MUTATIONS.map(m=>m.key),
   getRendererVersion:()=>window.CrewTreeV5.modelVersion,

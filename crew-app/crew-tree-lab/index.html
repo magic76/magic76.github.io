@@ -7,21 +7,21 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="和 Zoe 聊天，種出只有你們才有的奇怪樹。每句話，都會讓樹長得不一樣。">
 <title>和 Zoe 種歪樹 · Crew Tree Lab</title>
-<link rel="stylesheet" href="./tree.css?v=045db544">
-<script src="./botany.js?v=045db544" defer></script>
-<script src="./family-art.js?v=045db544" defer></script>
-<script src="./art-studies/character-paint.js?v=045db544" defer></script>
-<script src="./art-studies/v3-art.js?v=045db544" defer></script>
-<script src="./art-studies/v4-art.js?v=045db544" defer></script>
-<script src="./art-studies/v5-art.js?v=045db544" defer></script>
-<script src="./art-studies/v6-art.js?v=045db544" defer></script>
-<script src="./art-studies/v7-art.js?v=045db544" defer></script>
-<script src="./art-studies/v8-art.js?v=045db544" defer></script>
-<script src="./art-studies/v9-art.js?v=045db544" defer></script>
-<script src="./art-studies/study.js?v=045db544" defer></script>
-<script src="./forest-v6.js?v=045db544" defer></script>
-<script src="./postcard-v6.js?v=045db544" defer></script>
-<script src="./tree.js?v=045db544" defer></script>
+<link rel="stylesheet" href="./tree.css?v=__CREW_COMMIT__">
+<script src="./botany.js?v=__CREW_COMMIT__" defer></script>
+<script src="./family-art.js?v=__CREW_COMMIT__" defer></script>
+<script src="./art-studies/character-paint.js?v=__CREW_COMMIT__" defer></script>
+<script src="./art-studies/v3-art.js?v=__CREW_COMMIT__" defer></script>
+<script src="./art-studies/v4-art.js?v=__CREW_COMMIT__" defer></script>
+<script src="./art-studies/v5-art.js?v=__CREW_COMMIT__" defer></script>
+<script src="./art-studies/v6-art.js?v=__CREW_COMMIT__" defer></script>
+<script src="./art-studies/v7-art.js?v=__CREW_COMMIT__" defer></script>
+<script src="./art-studies/v8-art.js?v=__CREW_COMMIT__" defer></script>
+<script src="./art-studies/v9-art.js?v=__CREW_COMMIT__" defer></script>
+<script src="./art-studies/study.js?v=__CREW_COMMIT__" defer></script>
+<script src="./forest-v6.js?v=__CREW_COMMIT__" defer></script>
+<script src="./postcard-v6.js?v=__CREW_COMMIT__" defer></script>
+<script src="./tree.js?v=__CREW_COMMIT__" defer></script>
 </head>
 <body>
 <main class="page">
@@ -95,6 +95,7 @@
         <button id="saveBtn" class="action-btn primary-action" type="button">✦ 收藏這棵樹</button>
         <button id="shareBtn" class="action-btn" type="button">↗ 保存森林分享圖</button>
         <button id="newBtn" class="action-btn" type="button">↻ 新種一棵</button>
+        <button id="boxBtn" class="action-btn box-btn" type="button" disabled>🎁 盲盒 ×0</button>
       </div>
       <div class="next-surprise" id="nextSurprise" aria-live="polite">再聊 3 句，解鎖下一個驚喜</div>
       <div class="micro-help" id="growthHint">試著聊「咖啡、宇宙、旅行、貓咪」，看看會發生什麼。</div>
@@ -125,6 +126,38 @@
     <p>森林住滿後，最老的樹會移到這裡。這些已完成的樹仍保留最終形態。</p>
     <div id="retiredGallery" class="retired-gallery"></div>
   </section>
+  <section class="box-collection" aria-label="盲盒圖鑑">
+    <div class="collection-head"><div><p class="overline">BLIND BOX CODEX</p><h2>🎁 盲盒圖鑑 <span id="boxCollectionCount">0/10</span></h2></div><span>種滿一棵樹、每天第一次聊天，都能拿到盲盒</span></div>
+    <p class="box-collection-note">開出種子可以指定下一棵樹的樹種；動物和裝飾開出來就住進你的森林。</p>
+    <div id="boxGrid" class="box-grid"></div>
+  </section>
+  <div class="box-modal" id="boxModal" hidden role="dialog" aria-label="打開盲盒">
+    <div class="box-modal-card">
+      <div class="box-closed" id="boxClosed"><span class="box-gift">🎁</span><p>一個盲盒，裡面有什麼？</p></div>
+      <div class="box-reveal" id="boxReveal" hidden>
+        <span class="box-item-icon" id="boxItemIcon">🌸</span>
+        <strong class="box-item-name" id="boxItemName">花瀑種子</strong>
+        <span class="box-item-rarity" id="boxItemRarity">普通 · 種子</span>
+        <p class="box-item-note" id="boxItemNote"></p>
+      </div>
+      <div class="box-modal-actions">
+        <button id="boxOpenBtn" class="action-btn primary-action" type="button">打開盲盒</button>
+        <button id="boxAgainBtn" class="action-btn primary-action" type="button" hidden>再開一個</button>
+        <button id="boxCloseBtn" class="action-btn" type="button">收下</button>
+      </div>
+    </div>
+  </div>
+  <div class="box-modal" id="seedModal" hidden role="dialog" aria-label="選一顆種子種下">
+    <div class="box-modal-card">
+      <h3 class="seed-title">選一顆種子種下</h3>
+      <p class="seed-note">用開出來的種子，指定下一棵樹的樹種。</p>
+      <div id="seedList" class="seed-list"></div>
+      <div class="box-modal-actions">
+        <button id="seedRandomBtn" class="action-btn" type="button">隨機種子</button>
+        <button id="seedCancelBtn" class="action-btn" type="button">取消</button>
+      </div>
+    </div>
+  </div>
   <footer>一棵樹，可能有幾百種枝葉組合。沒有標準答案，歪得有趣就好。 · <a href="./art-review.html">樹木美術驗收牆（24 棵）</a> · Crew Tree Lab</footer>
 </main>
 </body>

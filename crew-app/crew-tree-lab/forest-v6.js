@@ -156,6 +156,73 @@ function drawTree(c,tree,n,x,y,scale,alpha,time,still,marks){
  }
  shape(c,tree,n,x,y,scale,alpha,time,still,marks);
 }
+// Blind-box residents and decorations, drawn procedurally on the night
+// scene once collected (garden.collection[id] > 0). All glow-in-the-dark
+// vector shapes — no images — so they also render in the Node tests.
+// Positions are tuned to the single-tree composition: canopy centre
+// (390,770), island anchor (390,1310). still freezes every motion.
+function drawResidents(c,collection,time,still){
+ if(!collection||typeof collection!=='object')return;
+ const t=still?0:time;
+ c.save();
+ if(collection['animal-firefly']>0){
+  for(let i=0;i<5;i++){
+   const ph=i*1.2566,ang=t*.0006+ph,rad=200+Math.sin(t*.0009+ph*2)*38;
+   const x=390+Math.cos(ang)*rad,y=770+Math.sin(ang)*rad*.8;
+   const a=.55+.45*Math.sin(t*.004+ph*3);
+   glow(c,x,y,16,'#ffe98a',.5*a+.2);
+   ellipse(c,x,y,3.2,3.2,'#fff7c0');
+  }
+ }
+ if(collection['animal-butterfly']>0){
+  const a=t*.0008,bx=390+Math.sin(a)*150,by=720+Math.sin(a*2)*60;
+  const flap=.6+.4*Math.sin(t*.02);
+  glow(c,bx,by,26,'#c5b8ff',.35);
+  ellipse(c,bx-9*flap,by,9*flap,5,'#c5b8ff',-.5);
+  ellipse(c,bx+9*flap,by,9*flap,5,'#d9d2ff',.5);
+  ellipse(c,bx,by,2.5,6,'#5b4390');
+ }
+ if(collection['animal-frog']>0){
+  const jump=Math.pow(Math.max(0,Math.sin(t*.0011)),8)*14;
+  const fy=1290-jump;
+  glow(c,300,fy,30,'#7fe7a8',.3);
+  ellipse(c,300,fy,26,19,'#6fce8f');
+  ellipse(c,288,fy-16,7,7,'#6fce8f');
+  ellipse(c,312,fy-16,7,7,'#6fce8f');
+  ellipse(c,288,fy-16,3.4,3.4,'#12101c');
+  ellipse(c,312,fy-16,3.4,3.4,'#12101c');
+ }
+ if(collection['animal-fox']>0){
+  const wag=still?0:Math.sin(t*.0016)*.12;
+  glow(c,500,1310,64,'#ffb35c',.25);
+  ellipse(c,542,1342,30,12,'#c07a45',-.5+wag);
+  ellipse(c,556,1336,13,7,'#e8b07a',-.5+wag);
+  ellipse(c,500,1330,26,33,'#b06a3b');
+  ellipse(c,500,1288,17,15,'#b06a3b');
+  c.fillStyle='#b06a3b';c.beginPath();
+  c.moveTo(488,1278);c.lineTo(484,1256);c.lineTo(497,1272);c.closePath();c.fill();
+  c.beginPath();
+  c.moveTo(512,1278);c.lineTo(516,1256);c.lineTo(503,1272);c.closePath();c.fill();
+ }
+ if(collection['deco-mushroom']>0){
+  const caps=[[255,1342,10],[290,1346,14],[325,1342,9]];
+  for(const [mx,my,mr] of caps){
+   glow(c,mx,my-6,20,'#b48cff',.5);
+   ellipse(c,mx,my,5,9,'#f2e8d5');
+   c.fillStyle='#b48cff';c.beginPath();c.arc(mx,my-6,mr,Math.PI,TAU);c.fill();
+  }
+  ellipse(c,290,1336,3,3,'#ffffff');
+ }
+ if(collection['deco-lantern']>0){
+  const sw=still?0:Math.sin(t*.0012)*8,lx=520+sw;
+  c.fillStyle='#8a6a4a';c.beginPath();
+  c.moveTo(520,905);c.lineTo(lx,930);c.lineTo(lx+1,930);c.lineTo(521,905);c.closePath();c.fill();
+  glow(c,lx,950,46,'#ffd98f',.55);
+  ellipse(c,lx,950,16,20,'#ffd98f');
+  c.fillStyle='#c98a4a';c.fillRect(lx-7,928,14,5);c.fillRect(lx-7,967,14,5);
+ }
+ c.restore();
+}
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 function rng(seed){let x=seed>>>0;return ()=>{x=(x+0x6d2b79f5)>>>0;let t=x;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
 function stage(n){return n===0?'seed':n<3?'sprout':n<8?'sapling':n<16?'island':'final';}
@@ -164,7 +231,7 @@ function rarity(seed){const v=(seed>>>0)%100;return v<2?{key:'legend',name:'傳�
  v<12?{key:'epic',name:'史詩',color:'#c5b8ff'}:
  v<40?{key:'rare',name:'稀有',color:'#6ee7ff'}:
  {key:'common',name:'普通',color:'#b9b3c9'};}
-function empty(){return {version:6,totalCompleted:0,slots:[],retired:[]};}
+function empty(){return {version:6,totalCompleted:0,slots:[],retired:[],boxes:0,collection:{},lastDailyBox:null};}
 const goodSeed=n=>Number.isSafeInteger(n)&&n>=0&&n<=4294967295;
 const topicNames=Object.keys(topicColors);
 function snapshot(tree){
@@ -184,7 +251,80 @@ function restore(raw){
  base.slots=cleaned(raw.slots,4);
  base.retired=cleaned(raw.retired,MAX_RETIRED);
  base.totalCompleted=Math.max(raw.totalCompleted,base.slots.length+base.retired.length);
+ if(Number.isSafeInteger(raw.boxes)&&raw.boxes>=0)base.boxes=Math.min(raw.boxes,999);
+ if(raw.collection&&typeof raw.collection==='object')
+  for(const item of BOX_ITEMS){
+   const n=raw.collection[item.id];
+   if(Number.isSafeInteger(n)&&n>0)base.collection[item.id]=item.kind==='seed'?Math.min(n,99):1;
+  }
+ if(typeof raw.lastDailyBox==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(raw.lastDailyBox))base.lastDailyBox=raw.lastDailyBox;
  return base;
+}
+// Blind box (盲盒) v1. Boxes are earned by finishing a tree (16 sentences)
+// or by the first chat of the day; opening one reveals a seed (consumable,
+// plants a chosen line next time), an animal resident or a decoration
+// (permanent, drawn into the scene by paint). The loot table is the
+// collection: 10 items, weighted so seeds are common and the fox is the
+// one legendary pull. A duplicate permanent re-rolls into a seed, so a
+// box never feels wasted.
+const BOX_RARITY={
+ common:{name:'普通',color:'#b9b3c9'},
+ rare:{name:'稀有',color:'#6ee7ff'},
+ epic:{name:'史詩',color:'#c5b8ff'},
+ legend:{name:'傳說',color:'#ffd76a'}};
+const BOX_ITEMS=[
+ {id:'seed-petal',kind:'seed',line:'petal',name:'花瀑種子',icon:'🌸',rarity:'common',weight:30,note:'種下它，長出粉色花瀑樹。'},
+ {id:'seed-constellation',kind:'seed',line:'constellation',name:'星空種子',icon:'✦',rarity:'common',weight:25,note:'種下它，長出星空樹。'},
+ {id:'seed-crystal',kind:'seed',line:'crystal',name:'水晶種子',icon:'💎',rarity:'rare',weight:15,note:'種下它，長出水晶樹。'},
+ {id:'seed-lantern',kind:'seed',line:'lantern',name:'燈籠種子',icon:'🏮',rarity:'rare',weight:12,note:'種下它，長出燈籠樹。'},
+ {id:'animal-firefly',kind:'animal',name:'螢火蟲',icon:'✨',rarity:'common',weight:8,note:'夜裡在樹邊飛舞發光。'},
+ {id:'animal-butterfly',kind:'animal',name:'蝴蝶',icon:'🦋',rarity:'rare',weight:6,note:'在樹邊翩翩起舞。'},
+ {id:'deco-mushroom',kind:'deco',name:'螢光菇',icon:'🍄',rarity:'common',weight:5,note:'長在樹根旁，發出柔光。'},
+ {id:'deco-lantern',kind:'deco',name:'小燈籠',icon:'🏮',rarity:'rare',weight:4,note:'掛在枝頭，夜裡輕輕搖晃。'},
+ {id:'animal-frog',kind:'animal',name:'青蛙',icon:'🐸',rarity:'epic',weight:3,note:'住在小池塘邊，偶爾呱呱叫。'},
+ {id:'animal-fox',kind:'animal',name:'狐狸',icon:'🦊',rarity:'legend',weight:1,note:'傳說中的居民，只在極光之夜出現。'}];
+function boxItems(){return BOX_ITEMS.map(x=>({...x,rarityName:BOX_RARITY[x.rarity].name,rarityColor:BOX_RARITY[x.rarity].color}));}
+function grantBox(g,reason,today){
+ if(!g||typeof g!=='object')return false;
+ if(reason==='daily'){
+  if(typeof today!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(today))return false;
+  if(g.lastDailyBox===today)return false;
+  g.lastDailyBox=today;
+ }else if(reason!=='complete')return false;
+ g.boxes=Math.min((g.boxes||0)+1,999);
+ return true;
+}
+function rollBoxItem(rand,pool){
+ const total=pool.reduce((s,x)=>s+x.weight,0);
+ let r=(typeof rand==='function'?rand():Math.random())*total;
+ for(const x of pool){r-=x.weight;if(r<0)return x;}
+ return pool[pool.length-1];
+}
+function openBox(g,rand){
+ if(!g||typeof g!=='object'||!(g.boxes>0))return null;
+ g.boxes--;
+ let item=rollBoxItem(rand,BOX_ITEMS);
+ if(item.kind!=='seed'&&(g.collection[item.id]||0)>0)
+  item=rollBoxItem(rand,BOX_ITEMS.filter(x=>x.kind==='seed'));
+ if(!g.collection)g.collection={};
+ g.collection[item.id]=item.kind==='seed'?Math.min((g.collection[item.id]||0)+1,99):1;
+ return {...item,rarityName:BOX_RARITY[item.rarity].name,rarityColor:BOX_RARITY[item.rarity].color};
+}
+// Spend one seed of the given line and return a tree seed whose
+// form() is that line (seed%4 == the line's index in forms). Returns
+// null when the collection has no such seed. The caller passes the
+// returned seed to makeTree(seed).
+function plantSeed(g,lineId,rand){
+ const lineIdx=forms.findIndex(f=>f.id===lineId);
+ if(lineIdx<0)return null;
+ const itemId='seed-'+lineId;
+ if(!g||typeof g!=='object'||!(g.collection&&g.collection[itemId]>0))return null;
+ g.collection[itemId]--;
+ if(g.collection[itemId]<=0)delete g.collection[itemId];
+ const r=typeof rand==='function'?rand():Math.random();
+ let seed=(Math.floor(r*1073741824)*4+lineIdx)>>>0;
+ if(!seed)seed=4+lineIdx;
+ return seed;
 }
 function complete(g,tree){
  const done=snapshot(tree);
@@ -760,6 +900,7 @@ function paint(canvas,g,active,time=0,opts={}){
  // The active tree, alone, full-bleed. Completed trees are not drawn
  // here any more; they live in the collection gallery below.
  drawTree(c,current,showN,390,1310,growth,1,time,still,current.growth?.map(x=>x.topic));
+ drawResidents(c,g.collection,time,still);
  if(opts.reveal){
   glow(c,390,770,334,'#ffde9f',.20);
   for(let i=0;i<20;i++){
@@ -852,6 +993,7 @@ function poster(canvas,g,active,now,opts={}){
 
 root.CrewGlowForestV6=Object.freeze({
  W,H,MAX,forms,topicColors,stage,form,rarity,empty,restore,snapshot,complete,progress,
- paint,poster,forestLevel,leafQuotes,latestTopic,preloadArt
+ paint,poster,forestLevel,leafQuotes,latestTopic,preloadArt,
+ boxItems,grantBox,openBox,plantSeed
 });
 })(typeof window!=='undefined'?window:globalThis);
