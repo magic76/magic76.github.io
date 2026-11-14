@@ -11,8 +11,8 @@ const W=780,H=1120,TAU=Math.PI*2,MAX=16,MAX_RETIRED=18;
 // back row sits further toward the centre and the front row toward the
 // edges, or the back row would hide entirely behind the front row.
 // (Layout only — the garden data in `empty/restore/complete` is untouched.)
-const slots=[{x:235,y:905,s:.36,a:.70},{x:545,y:905,s:.36,a:.70},
- {x:105,y:965,s:.46,a:.90},{x:675,y:965,s:.46,a:.90}];
+const slots=[{x:235,y:905,s:.24,a:.55},{x:545,y:905,s:.24,a:.55},
+ {x:105,y:965,s:.30,a:.72},{x:675,y:965,s:.30,a:.72}];
 const forms=[
  {id:'constellation',name:'星空樹',icon:'✦',note:'每片枝梢都連成星座。'},
  {id:'crystal',name:'水晶樹',icon:'💎',note:'冰藍晶簇順著枝幹向天空生長。'},
@@ -440,11 +440,12 @@ function night(c,time,seed,count,still){
   ellipse(c,302,1025,15,6,'#63bc87');
  }
 }
-function island(c,y,lift=0){
+function island(c,x,y,s=1,lift=0){
  // Flat faceted island (style C): a low-poly rock with a flat grass top,
  // a glowing pond and tiny geometric bushes. No soft mound, no legs.
- const top=y-18+lift;
- const X=dx=>390+dx,Y=dy=>top+dy;
+ // s scales the island so a small slot tree gets a small island under it.
+ const top=y-18*s+lift;
+ const X=dx=>x+dx*s,Y=dy=>top+dy*s;
  c.fillStyle='#3a2f5e';
  c.beginPath();
  c.moveTo(X(-150),Y(0));c.lineTo(X(-90),Y(-12));c.lineTo(X(0),Y(-14));
@@ -466,9 +467,9 @@ function island(c,y,lift=0){
  c.moveTo(X(-150),Y(0));c.lineTo(X(-90),Y(-12));c.lineTo(X(0),Y(-14));
  c.lineTo(X(90),Y(-12));c.lineTo(X(150),Y(0));c.stroke();
  c.fillStyle='#6ee7ff';
- c.beginPath();c.ellipse(X(52),Y(1),52,9,0,0,TAU);c.fill();
+ c.beginPath();c.ellipse(X(52),Y(1),52*s,9*s,0,0,TAU);c.fill();
  c.strokeStyle='rgba(255,255,255,0.75)';c.lineWidth=1.4;
- c.beginPath();c.ellipse(X(52),Y(0),38,5,0,Math.PI*1.15,Math.PI*1.85);c.stroke();
+ c.beginPath();c.ellipse(X(52),Y(0),38*s,5*s,0,Math.PI*1.15,Math.PI*1.85);c.stroke();
  for(const [bx,s2] of [[-108,1],[118,.8]]){
   c.fillStyle='#7fe7c4';
   c.beginPath();
@@ -757,16 +758,19 @@ function paint(canvas,g,active,time=0,opts={}){
  // The art carries its own ground (mound / floating island), so the
  // procedural island platform is only drawn when the art is not ready.
  const artActive=artReady(artImage(form(current.seed).id,st));
- if(showN>=8&&!artActive)island(c,940,(1-p)*(opts.motion?.fromTurns<8?86:0));
+ if(showN>=8&&!artActive)island(c,390,940,1,(1-p)*(opts.motion?.fromTurns<8?86:0));
  // The foreground tree is anchored in the same place at every age.
  drawTree(c,current,showN,390,940,growth,1,time,still,current.growth?.map(x=>x.topic));
  // Forest trees are drawn after the active tree: the art images carry
  // an opaque sky, so a slot drawn first would be hidden behind the
  // active tree's image. The slots sit at the sides, so they read as
- // trees flanking the hero, not trees in front of it.
+ // trees flanking the hero, not trees in front of it. A final-form
+ // image carries no ground of its own, so each slot gets a small
+ // procedural island to stand on, drawn first so the tree sits on it.
  for(let i=0;i<g.slots.length;i++){
   const slot=slots[i],tree=g.slots[i];
   if(!slot||!tree)continue;
+  c.save();c.globalAlpha=slot.a;island(c,slot.x,slot.y,slot.s*1.3);c.restore();
   drawTree(c,tree,16,slot.x,slot.y,slot.s,slot.a,time,still,tree.topics);
  }
  if(opts.reveal){
