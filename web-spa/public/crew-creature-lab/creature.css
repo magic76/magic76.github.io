@@ -367,3 +367,13 @@ footer{font-size:11px;color:#7fa89a;line-height:1.8;margin-top:22px;text-align:c
  .canvas-wrap.mood-pet .canvas-breathe,.canvas-wrap.mood-comfort .canvas-breathe,
  .canvas-wrap.mood-rest .canvas-breathe,.mood-sticker{animation:none!important}
 }
+
+
+/* Full-grown creatures gain a subtle halo; no additional sprite or render loop. */
+.canvas-wrap.mature-glow::before{content:'';position:absolute;z-index:2;inset:0;pointer-events:none;border:2px solid #ffe89a42;border-radius:18px;box-shadow:inset 0 0 28px #ffd76a20,0 0 20px #ffd76a18}
+@media(min-width:791px){#ideaToggle{display:none}}
+@media(max-width:790px){
+ .react-bubble{left:50%;right:auto;bottom:14px;max-width:calc(100% - 12px);width:calc(100% - 12px);white-space:normal;text-overflow:clip;font-size:10px;line-height:1.3;border-radius:12px;padding:7px;text-align:center}
+ .mood-sticker{top:16%;right:9%;font-size:23px}
+ .lab-settings-actions{flex-wrap:wrap}
+}
