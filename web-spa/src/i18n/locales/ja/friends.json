@@ -131,7 +131,21 @@
       "play-rematch": "Hi {{name}}! Imagine we just finished a game. Would you play again?",
       "play-wildcard": "Hey {{name}}! Have you ever seen a surprising comeback in a game?",
       "fortune-lucky": "Hi {{name}}! For fun, what lucky sign would you give me today?",
-      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?"
+      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?",
+      "game-play": "{{name}}、ゲームで遊んでいるよ。この対局について話そう。",
+      "game-connect4": "{{name}}、四目並べをしたよ。さっきの手を一緒に振り返ろう。",
+      "game-reversi": "{{name}}、リバーシをしているよ。次の一手を考えよう。",
+      "game-gomoku": "{{name}}、五目並べをしているよ。一緒に作戦を考えよう。",
+      "game-1a2b": "{{name}}、1A2Bをしたよ。数字の推理のコツを教えて。",
+      "game-number-bomb": "{{name}}、数字当てゲームをしたよ。もっと早く絞るには？",
+      "game-memory": "{{name}}、神経衰弱をしているよ。カードを覚えるコツは？",
+      "game-taboo": "{{name}}、タブーゲームをしているよ。ヒントの出し方を練習しよう。",
+      "guide-ai-english-speaking": "{{name}}、AI英会話ガイドを読んだよ。短い会話を練習したい。",
+      "guide-ai-conversation-partner": "{{name}}、AI英会話の相手を探しているよ。自然な話し始め方を練習しよう。",
+      "guide-travel-english-dialogues": "{{name}}、旅行英語の記事を読んだよ。空港で荷物を紛失した場面を練習しよう。",
+      "guide-english-pronunciation": "{{name}}、英語の発音を練習したい。簡単な一文から始めよう。",
+      "guide-gemini-key-for-ai-practice": "{{name}}、Gemini Keyのガイドを読んだよ。設定方法を簡単に教えて。",
+      "research-article": "{{name}}、研究記事を読んだよ。大切なポイントを一緒に整理したい。"
     }
   }
 ,
@@ -141,5 +155,10 @@
   "dailyFortuneStarters": {
     "goodFor": "今日は何をするとよさそう？",
     "watchOut": "今日は何に気をつけたらいい？"
+  },
+  "contentChat": {
+    "gameText": "Zoeと文字で話す",
+    "articleText": "この記事をZoeと話す",
+    "todayFortune": "今日の運勢を見る"
   }
 }

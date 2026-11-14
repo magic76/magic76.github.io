@@ -9,7 +9,7 @@ const url=(slug:GuideSlug)=>"/guides/"+slug;
 
 export function GuidePage(){
  const {slug}=useParams();
- const {i18n}=useTranslation();
+ const {t,i18n}=useTranslation("friends");
  const locale=getLocale(i18n.language),english=locale==="en";
  const guide=getGuide(slug,locale);
  useEffect(()=>{if(guide)document.title=guide.title},[guide]);
@@ -58,7 +58,11 @@ export function GuidePage(){
     <section className="crew-guide-end">
      <h2>{english?"Ready to try it yourself?":"想自己試試看？"}</h2>
      <p>{english?"Choose the Crew experience that fits your goal. No separate Crew account is required.":"選擇適合自己的 Crew 練習方式；不需要另外註冊 Crew 帳號。"}</p>
-     <Link className="btn" to={guide.target}>{guide.cta} →</Link>
+     <div className="crew-guide-chat-actions">
+      <Link className="crew-guide-chat-primary" to={"/friend/live?id=zoe&chat=text&topic=guide-"+slug}>{t("contentChat.articleText")}</Link>
+      <Link className="crew-guide-chat-secondary" to="/fortune?daily=1">{t("contentChat.todayFortune")}</Link>
+     </div>
+     <Link className="btn secondary" to={guide.target}>{guide.cta} →</Link>
     </section>
    </div>
    <aside className="crew-guide-aside" aria-label={english?"Other useful guides":"其他指南"}>

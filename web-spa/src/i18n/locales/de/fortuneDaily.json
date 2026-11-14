@@ -291,6 +291,7 @@
     "fallback": "Also, {{kind}} gibt heute den Hinweis „{{headline}}“. Klingt groß, aber wichtig ist: {{theme}}\n\nProbier zuerst {{do}}. Bei {{avoid}} lieber einen Gang zurückschalten. Deine Glücksfarbe ist {{color}} – als kleine Erinnerung, nicht als Zaubertrick.",
     "needKey": "Für eine neue KI-Deutung von Zoe brauchst du einen Gemini Key. Diese Version geht ohne.",
     "continueChat": "Mit Zoe im Chat weiterreden",
+    "keyMore": "Persönliche Live-Deutung gewünscht? Gemini Key einrichten",
     "ask": "Zoe zur Tagesdeutung fragen",
     "placeholder": "Was möchtest du genauer wissen?",
     "send": "Zoe fragen",

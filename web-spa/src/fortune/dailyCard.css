@@ -90,6 +90,10 @@
 .fortune-zoe-reading-followup button:disabled{opacity:.6;cursor:default}
 .fortune-zoe-reading-turn{border-top:1px solid #e4dce9;padding-top:8px;font-size:14px;overflow-wrap:anywhere}
 .fortune-zoe-reading-turn p{white-space:pre-line;margin:4px 0 0}
-.fortune-zoe-reading-chat{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:14px;padding:10px 12px;border:1px solid #6b508d;border-radius:12px;color:#49316c;background:#fff;text-decoration:none;text-align:center;font-size:14px;font-weight:750;overflow-wrap:anywhere}
+.fortune-zoe-reading-chat{display:flex;align-items:center;justify-content:center;min-height:44px;margin:14px 0;padding:10px 12px;border:1px solid #563c91;border-radius:12px;color:#fff;background:#563c91;text-decoration:none;text-align:center;font-size:14px;font-weight:750;overflow-wrap:anywhere}
+.fortune-zoe-reading-key-more{margin-top:18px;border-top:1px solid #e4dce9;padding-top:12px}
+.fortune-zoe-reading-key-more summary{display:list-item;min-height:44px;padding:10px 2px;cursor:pointer;font-size:13px;font-weight:700;color:#49316c}
+.fortune-zoe-reading-key-more>div{margin-top:8px}
+.fortune-zoe-reading-key-more summary:focus-visible{outline:3px solid #6d58b2;outline-offset:3px}
 .fortune-zoe-reading button:focus-visible,.fortune-zoe-reading textarea:focus-visible,.fortune-zoe-reading-chat:focus-visible{outline:3px solid #6d58b2;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.fortune-zoe-reading,.fortune-zoe-reading *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

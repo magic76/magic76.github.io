@@ -165,7 +165,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
      </div>
     </div>
    </div>
-   {/^[a-f0-9]{64}$/.test(profileHash)&&<Link className="fortune-daily-zoe" to={"/fortune?daily=1&chart="+profileHash+"&kind="+kind+"&zoe=1"}>{t("dailyQuote.chatRead",{ns:"home"})}</Link>}
+   {/^[a-f0-9]{64}$/.test(profileHash)&&searchParams.get("zoe")!=="1"&&<Link className="fortune-daily-zoe" to={"/fortune?daily=1&chart="+profileHash+"&kind="+kind+"&zoe=1"}>{t("dailyQuote.chatRead",{ns:"home"})}</Link>}
    {/^[a-f0-9]{64}$/.test(profileHash)&&searchParams.get("zoe")==="1"&&<FortuneZoeReading key={date+":"+kind+":"+profileHash+":"+locale} card={full} hash={profileHash} locale={locale} scrollOnOpen/>}
    <div className="fortune-daily-week"><span>{t("recentDays")}</span>
     <div className="fortune-daily-week-dots">{days.map(item=><span key={item.date} title={item.date} className={item.completed?"done":""} aria-label={item.date+" · "+t(item.completed?"completed":"notCompleted")}>{item.completed?"✦":"·"}</span>)}</div>

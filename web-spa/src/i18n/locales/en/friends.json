@@ -131,7 +131,21 @@
       "play-rematch": "Hi {{name}}! Imagine we just finished a game. Would you play again?",
       "play-wildcard": "Hey {{name}}! Have you ever seen a surprising comeback in a game?",
       "fortune-lucky": "Hi {{name}}! For fun, what lucky sign would you give me today?",
-      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?"
+      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?",
+      "game-play": "Hi {{name}}, I’m playing a game. Can we talk about this round?",
+      "game-connect4": "Hi {{name}}, I just played Connect Four. Can we review my moves?",
+      "game-reversi": "Hi {{name}}, I’m playing Reversi. Can we discuss my next move?",
+      "game-gomoku": "Hi {{name}}, I’m playing Gomoku. Can we think through a strategy?",
+      "game-1a2b": "Hi {{name}}, I just played 1A2B. Can we work out a better guessing strategy?",
+      "game-number-bomb": "Hi {{name}}, I played Number Bomb. How can I narrow down guesses faster?",
+      "game-memory": "Hi {{name}}, I’m playing a memory matching game. Any tips for remembering cards?",
+      "game-taboo": "Hi {{name}}, I’m playing Taboo. Can we practice describing clues?",
+      "guide-ai-english-speaking": "Hi {{name}}, I read the AI English speaking guide. Could we try a short dialogue?",
+      "guide-ai-conversation-partner": "Hi {{name}}, I’m looking for an AI English conversation partner. Can we practice an opening?",
+      "guide-travel-english-dialogues": "Hi {{name}}, I read the travel English guide. Can we role-play lost luggage at the airport?",
+      "guide-english-pronunciation": "Hi {{name}}, I’d like to practice English pronunciation, starting with one common sentence.",
+      "guide-gemini-key-for-ai-practice": "Hi {{name}}, I read the Gemini Key guide. Can you explain the setup simply?",
+      "research-article": "Hi {{name}}, I just read a research article. Can we discuss its main ideas?"
     }
   }
 ,
@@ -141,5 +155,10 @@
   "dailyFortuneStarters": {
     "goodFor": "What would be good for me to do today?",
     "watchOut": "What should I watch out for today?"
+  },
+  "contentChat": {
+    "gameText": "Text chat with Zoe",
+    "articleText": "Chat with Zoe about this",
+    "todayFortune": "See today’s fortune"
   }
 }

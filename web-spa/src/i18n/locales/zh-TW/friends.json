@@ -131,7 +131,21 @@
       "play-rematch": "Hi {{name}}! Imagine we just finished a game. Would you play again?",
       "play-wildcard": "Hey {{name}}! Have you ever seen a surprising comeback in a game?",
       "fortune-lucky": "Hi {{name}}! For fun, what lucky sign would you give me today?",
-      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?"
+      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?",
+      "game-play": "{{name}}，我正在玩遊戲，想跟你聊聊這局。",
+      "game-connect4": "{{name}}，我剛玩四子棋，可以一起回顧剛才的棋步嗎？",
+      "game-reversi": "{{name}}，我正在玩黑白棋，想跟你討論下一步。",
+      "game-gomoku": "{{name}}，我正在玩五子棋，想和你一起想策略。",
+      "game-1a2b": "{{name}}，我剛玩 1A2B，陪我分析猜數字的方法吧。",
+      "game-number-bomb": "{{name}}，我玩了終極密碼，想聊聊怎麼猜比較快。",
+      "game-memory": "{{name}}，我正在玩翻牌記憶遊戲，陪我想記牌技巧。",
+      "game-taboo": "{{name}}，我正在玩禁語遊戲，陪我想想怎麼描述。",
+      "guide-ai-english-speaking": "{{name}}，我剛讀完 AI 英文口說指南，陪我練第一段對話好嗎？",
+      "guide-ai-conversation-partner": "{{name}}，我想找 AI 英文聊天夥伴，幫我練習自然開場吧。",
+      "guide-travel-english-dialogues": "{{name}}，我剛讀完旅遊英文指南，我們來演機場行李遺失的對話好嗎？",
+      "guide-english-pronunciation": "{{name}}，我想練英文發音，可以陪我從一個常見句子開始嗎？",
+      "guide-gemini-key-for-ai-practice": "{{name}}，我剛讀完 Gemini Key 指南，能用簡單的話解釋怎麼設定嗎？",
+      "research-article": "{{name}}，我剛讀完一篇研究文章，想跟你聊聊該怎麼理解重點。"
     }
   }
 ,
@@ -141,5 +155,10 @@
   "dailyFortuneStarters": {
     "goodFor": "今天適合做什麼？",
     "watchOut": "今天要注意什麼？"
+  },
+  "contentChat": {
+    "gameText": "跟 Zoe 用打字聊",
+    "articleText": "跟 Zoe 聊這篇",
+    "todayFortune": "看今日運勢"
   }
 }
