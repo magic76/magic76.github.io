@@ -291,6 +291,7 @@
     "fallback": "Alors, {{kind}} nous souffle ceci aujourd’hui : « {{headline}} ». Ça semble grandiose, mais retenons surtout : {{theme}}\n\nCommencez par {{do}}. Pour {{avoid}}, allez-y doucement. Votre couleur porte-bonheur est {{color}} : un petit rappel, pas une promesse magique.",
     "needKey": "Une clé Gemini est nécessaire pour une nouvelle lecture IA. Celle-ci est accessible sans clé.",
     "continueChat": "Continuer avec Zoe dans le chat",
+    "keyMore": "Envie d’une lecture personnalisée ? Configurer Gemini Key",
     "ask": "Poser une question à Zoe",
     "placeholder": "Que souhaitez-vous approfondir ?",
     "send": "Demander",

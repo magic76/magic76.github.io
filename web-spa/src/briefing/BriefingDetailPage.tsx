@@ -1,6 +1,7 @@
 import {useEffect,useState} from "react";
 import {trackUsageEvent} from "../analytics/usage";
 import {Link,useParams} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 import {fetchDay} from "./data";
 import {getStatus,readReviews,updateReview} from "./storage";
 import type {BriefingItem,LocalReview} from "./types";
@@ -12,6 +13,7 @@ function safeSource(url:string){
 }
 function sourceDate(value:string){const t=Date.parse(value);return Number.isFinite(t)?(()=>{const d=new Date(t);return d.getUTCFullYear()+"年"+(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日"})():""}
 export function BriefingDetailPage(){
+ const {t}=useTranslation("friends");
  const {date="",id=""}=useParams();
  const seed=usePublicResearchSeed();
  const initial=seed?.day?.date===date&&seed.article?.id===id?seed.article:null;
@@ -72,6 +74,12 @@ export function BriefingDetailPage(){
      const href=safeSource(source.url);
      return <div className="briefing-source" key={i}>{href?<a href={href} target="_blank" rel="noopener noreferrer" onClick={()=>trackUsageEvent("research_source_open")}>{source.title} ↗</a>:<span>{source.title}</span>}<small>{source.publishedAt||""}{source.kind?" · "+source.kind:""}</small></div>
     }):<p className="meta">目前沒有可驗證的原始來源。</p>}
+   </section>
+   <section className="briefing-section briefing-content-chat">
+    <div className="briefing-content-chat-actions">
+     <Link className="briefing-content-chat-primary" to="/friend/live?id=zoe&chat=text&topic=research-article">{t("contentChat.articleText")}</Link>
+     <Link className="briefing-content-chat-secondary" to="/fortune?daily=1">{t("contentChat.todayFortune")}</Link>
+    </div>
    </section>
    <ResearchDiscovery item={item} related={related}/>
   </main>

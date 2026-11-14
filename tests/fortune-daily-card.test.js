@@ -354,8 +354,8 @@ test("D12 daily fortune offers one safe, profile-bound Zoe interpretation route 
  const links=[...full.matchAll(/<Link className="fortune-daily-zoe"[^>]*>[^<]*<\/Link>/g)];
  assert.equal(links.length,1,"only one Zoe action on a full card");
  const zoe=links[0][0];
- assert.match(full,/\{\/\^\[a-f0-9\]\{64\}\$\/\.test\(profileHash\)&&<Link className="fortune-daily-zoe"/,
-  "the continuation must require a 64-digit hex profile hash");
+ assert.match(full,/\{\/\^\[a-f0-9\]\{64\}\$\/\.test\(profileHash\)&&searchParams\.get\("zoe"\)!=="1"&&<Link className="fortune-daily-zoe"/,
+  "the action needs a valid hash and must disappear while Zoe reading is open");
  assert.match(zoe,/to=\{"\/fortune\?daily=1&chart="\+profileHash\+"&kind="\+kind\+"&zoe=1"\}/);
  assert.match(home,/chatHref=isPersonal&&\/\^\[a-f0-9\]\{64\}\$\/\.test\(personal!\.hash\)\?fortuneHref\+"&zoe=1":""/);
  assert.match(home,/fortuneHref=isPersonal\?"\/fortune\?daily=1&chart="\+personal!\.hash\+"&kind="\+personal!\.kind/);

@@ -131,7 +131,21 @@
       "play-rematch": "Hi {{name}}! Imagine we just finished a game. Would you play again?",
       "play-wildcard": "Hey {{name}}! Have you ever seen a surprising comeback in a game?",
       "fortune-lucky": "Hi {{name}}! For fun, what lucky sign would you give me today?",
-      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?"
+      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?",
+      "game-play": "Hallo {{name}}, ich spiele gerade ein Spiel. Können wir über diese Runde reden?",
+      "game-connect4": "Hallo {{name}}, ich habe Vier gewinnt gespielt. Schauen wir uns meine Züge an?",
+      "game-reversi": "Hallo {{name}}, ich spiele Reversi. Können wir meinen nächsten Zug besprechen?",
+      "game-gomoku": "Hallo {{name}}, ich spiele Gomoku. Überlegen wir uns eine Strategie?",
+      "game-1a2b": "Hallo {{name}}, ich habe 1A2B gespielt. Wie könnte ich besser raten?",
+      "game-number-bomb": "Hallo {{name}}, ich habe Zahlenbombe gespielt. Wie grenze ich die Zahl schneller ein?",
+      "game-memory": "Hallo {{name}}, ich spiele ein Memory-Spiel. Hast du Tipps zum Merken der Karten?",
+      "game-taboo": "Hallo {{name}}, ich spiele Tabu. Können wir Hinweise umschreiben üben?",
+      "guide-ai-english-speaking": "Hallo {{name}}, ich habe den Leitfaden zum Englischsprechen gelesen. Üben wir einen Dialog?",
+      "guide-ai-conversation-partner": "Hallo {{name}}, ich suche einen KI-Partner für englische Gespräche. Üben wir einen Einstieg?",
+      "guide-travel-english-dialogues": "Hallo {{name}}, ich habe den Reiseenglisch-Leitfaden gelesen. Spielen wir verlorenes Gepäck am Flughafen durch?",
+      "guide-english-pronunciation": "Hallo {{name}}, ich möchte meine englische Aussprache mit einem einfachen Satz üben.",
+      "guide-gemini-key-for-ai-practice": "Hallo {{name}}, ich habe den Gemini-Key-Leitfaden gelesen. Kannst du die Einrichtung erklären?",
+      "research-article": "Hallo {{name}}, ich habe einen Forschungsartikel gelesen. Besprechen wir die wichtigsten Punkte?"
     }
   }
 ,
@@ -141,5 +155,10 @@
   "dailyFortuneStarters": {
     "goodFor": "Was wäre heute gut für mich?",
     "watchOut": "Worauf sollte ich heute achten?"
+  },
+  "contentChat": {
+    "gameText": "Mit Zoe schreiben",
+    "articleText": "Mit Zoe über diesen Artikel chatten",
+    "todayFortune": "Heutiges Horoskop ansehen"
   }
 }

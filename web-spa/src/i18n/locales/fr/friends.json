@@ -131,7 +131,21 @@
       "play-rematch": "Hi {{name}}! Imagine we just finished a game. Would you play again?",
       "play-wildcard": "Hey {{name}}! Have you ever seen a surprising comeback in a game?",
       "fortune-lucky": "Hi {{name}}! For fun, what lucky sign would you give me today?",
-      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?"
+      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?",
+      "game-play": "Salut {{name}}, je joue à un jeu. On peut parler de cette partie ?",
+      "game-connect4": "Salut {{name}}, je viens de jouer à Puissance 4. On revoit mes coups ?",
+      "game-reversi": "Salut {{name}}, je joue au Reversi. On discute du prochain coup ?",
+      "game-gomoku": "Salut {{name}}, je joue au Gomoku. On cherche une stratégie ?",
+      "game-1a2b": "Salut {{name}}, je viens de jouer à 1A2B. Comment mieux deviner ?",
+      "game-number-bomb": "Salut {{name}}, j’ai joué à la bombe numérique. Comment trouver le nombre plus vite ?",
+      "game-memory": "Salut {{name}}, je joue à un jeu de mémoire. Des astuces pour retenir les cartes ?",
+      "game-taboo": "Salut {{name}}, je joue au Tabou. On s’entraîne à décrire sans dire le mot ?",
+      "guide-ai-english-speaking": "Salut {{name}}, j’ai lu le guide pour parler anglais avec une IA. On pratique un dialogue ?",
+      "guide-ai-conversation-partner": "Salut {{name}}, je cherche un partenaire IA pour discuter en anglais. On s’entraîne à commencer ?",
+      "guide-travel-english-dialogues": "Salut {{name}}, j’ai lu le guide d’anglais de voyage. On simule un bagage perdu à l’aéroport ?",
+      "guide-english-pronunciation": "Salut {{name}}, je veux pratiquer la prononciation anglaise avec une phrase simple.",
+      "guide-gemini-key-for-ai-practice": "Salut {{name}}, j’ai lu le guide de clé Gemini. Tu peux expliquer la configuration ?",
+      "research-article": "Salut {{name}}, je viens de lire un article de recherche. On en discute les idées principales ?"
     }
   }
 ,
@@ -141,5 +155,10 @@
   "dailyFortuneStarters": {
     "goodFor": "Qu’est-ce qui serait bon pour moi aujourd’hui ?",
     "watchOut": "À quoi devrais-je faire attention aujourd’hui ?"
+  },
+  "contentChat": {
+    "gameText": "Écrire à Zoe",
+    "articleText": "Parler de cet article avec Zoe",
+    "todayFortune": "Voir la fortune du jour"
   }
 }

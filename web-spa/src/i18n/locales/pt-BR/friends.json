@@ -131,7 +131,21 @@
       "play-rematch": "Hi {{name}}! Imagine we just finished a game. Would you play again?",
       "play-wildcard": "Hey {{name}}! Have you ever seen a surprising comeback in a game?",
       "fortune-lucky": "Hi {{name}}! For fun, what lucky sign would you give me today?",
-      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?"
+      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?",
+      "game-play": "Oi {{name}}, estou jogando. Podemos conversar sobre esta partida?",
+      "game-connect4": "Oi {{name}}, acabei de jogar Lig 4. Vamos rever minhas jogadas?",
+      "game-reversi": "Oi {{name}}, estou jogando Reversi. Podemos pensar na próxima jogada?",
+      "game-gomoku": "Oi {{name}}, estou jogando Gomoku. Vamos bolar uma estratégia?",
+      "game-1a2b": "Oi {{name}}, joguei 1A2B. Como posso melhorar meus palpites?",
+      "game-number-bomb": "Oi {{name}}, joguei Bomba Numérica. Como descobrir o número mais rápido?",
+      "game-memory": "Oi {{name}}, estou jogando memória. Tem dicas para lembrar as cartas?",
+      "game-taboo": "Oi {{name}}, estou jogando Tabu. Vamos praticar como dar pistas?",
+      "guide-ai-english-speaking": "Oi {{name}}, li o guia de conversação em inglês com IA. Podemos praticar um diálogo?",
+      "guide-ai-conversation-partner": "Oi {{name}}, procuro uma IA para conversar em inglês. Vamos praticar como começar?",
+      "guide-travel-english-dialogues": "Oi {{name}}, li o guia de inglês para viagens. Vamos simular bagagem perdida no aeroporto?",
+      "guide-english-pronunciation": "Oi {{name}}, quero praticar pronúncia em inglês com uma frase simples.",
+      "guide-gemini-key-for-ai-practice": "Oi {{name}}, li o guia da chave Gemini. Pode explicar como configurar?",
+      "research-article": "Oi {{name}}, acabei de ler um artigo de pesquisa. Vamos conversar sobre os pontos principais?"
     }
   }
 ,
@@ -141,5 +155,10 @@
   "dailyFortuneStarters": {
     "goodFor": "O que seria bom eu fazer hoje?",
     "watchOut": "Com o que devo tomar cuidado hoje?"
+  },
+  "contentChat": {
+    "gameText": "Conversar por texto com Zoe",
+    "articleText": "Conversar com Zoe sobre este artigo",
+    "todayFortune": "Ver a sorte de hoje"
   }
 }

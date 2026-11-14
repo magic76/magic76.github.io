@@ -131,7 +131,21 @@
       "play-rematch": "Hi {{name}}! Imagine we just finished a game. Would you play again?",
       "play-wildcard": "Hey {{name}}! Have you ever seen a surprising comeback in a game?",
       "fortune-lucky": "Hi {{name}}! For fun, what lucky sign would you give me today?",
-      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?"
+      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?",
+      "game-play": "Hola {{name}}, estoy jugando. ¿Podemos hablar de esta partida?",
+      "game-connect4": "Hola {{name}}, acabo de jugar Conecta 4. ¿Revisamos mis movimientos?",
+      "game-reversi": "Hola {{name}}, estoy jugando Reversi. ¿Qué movimiento me conviene ahora?",
+      "game-gomoku": "Hola {{name}}, estoy jugando Gomoku. ¿Pensamos en una estrategia?",
+      "game-1a2b": "Hola {{name}}, jugué a 1A2B. ¿Cómo puedo adivinar mejor?",
+      "game-number-bomb": "Hola {{name}}, jugué a la bomba numérica. ¿Cómo reduzco las opciones?",
+      "game-memory": "Hola {{name}}, estoy jugando a las parejas. ¿Cómo memorizo mejor las cartas?",
+      "game-taboo": "Hola {{name}}, estoy jugando a Tabú. ¿Practicamos cómo dar pistas?",
+      "guide-ai-english-speaking": "Hola {{name}}, leí la guía para hablar inglés con IA. ¿Practicamos un diálogo?",
+      "guide-ai-conversation-partner": "Hola {{name}}, busco un compañero de conversación en inglés. ¿Practicamos cómo empezar?",
+      "guide-travel-english-dialogues": "Hola {{name}}, leí la guía de inglés para viajar. ¿Simulamos una maleta perdida en el aeropuerto?",
+      "guide-english-pronunciation": "Hola {{name}}, quiero practicar pronunciación en inglés con una frase sencilla.",
+      "guide-gemini-key-for-ai-practice": "Hola {{name}}, leí la guía de la clave de Gemini. ¿Me explicas cómo configurarla?",
+      "research-article": "Hola {{name}}, acabo de leer un artículo de investigación. ¿Comentamos sus ideas principales?"
     }
   }
 ,
@@ -141,5 +155,10 @@
   "dailyFortuneStarters": {
     "goodFor": "¿Qué me conviene hacer hoy?",
     "watchOut": "¿A qué debería prestar atención hoy?"
+  },
+  "contentChat": {
+    "gameText": "Chatear por texto con Zoe",
+    "articleText": "Hablar con Zoe de este artículo",
+    "todayFortune": "Ver la fortuna de hoy"
   }
 }

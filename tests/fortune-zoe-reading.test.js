@@ -62,7 +62,7 @@ test("Zoe renders only for explicit intent, supports static fallback and never s
  assert.match(card,/\^\[a-f0-9\]\{64\}\$/);
  assert.match(panel,/cached\?\.source==="ai"\|\|!hasKey/);
  assert.match(panel,/zoeReading\.fallback/);assert.match(panel,/card\.do\[0\]/);
- assert.match(panel,/card\.luckyColor\.name/);assert.match(panel,/!hasKey&&<>/);
+ assert.match(panel,/card\.luckyColor\.name/);assert.match(panel,/!hasKey&&<details className="fortune-zoe-reading-key-more"/);
  assert.match(panel,/GeminiSetupNotice/);
  assert.match(panel,/friend\/live\?id=zoe&from=fortune&chat=text&quote=daily&chart=/);
  assert.match(panel,/"&kind="\+card.kind/);

@@ -131,7 +131,21 @@
       "play-rematch": "Hi {{name}}! Imagine we just finished a game. Would you play again?",
       "play-wildcard": "Hey {{name}}! Have you ever seen a surprising comeback in a game?",
       "fortune-lucky": "Hi {{name}}! For fun, what lucky sign would you give me today?",
-      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?"
+      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?",
+      "game-play": "Hai {{name}}, aku sedang bermain gim. Boleh kita bahas ronde ini?",
+      "game-connect4": "Hai {{name}}, aku baru main Connect Four. Ayo bahas langkahku.",
+      "game-reversi": "Hai {{name}}, aku sedang main Reversi. Ayo pikirkan langkah berikutnya.",
+      "game-gomoku": "Hai {{name}}, aku sedang main Gomoku. Bantu aku menyusun strategi.",
+      "game-1a2b": "Hai {{name}}, aku baru main 1A2B. Bagaimana cara menebak lebih baik?",
+      "game-number-bomb": "Hai {{name}}, aku main Tebak Angka. Bagaimana mempersempit tebakan?",
+      "game-memory": "Hai {{name}}, aku sedang main mencocokkan kartu. Ada tips mengingat kartu?",
+      "game-taboo": "Hai {{name}}, aku sedang main Taboo. Ayo latihan memberi petunjuk.",
+      "guide-ai-english-speaking": "Hai {{name}}, aku membaca panduan bicara bahasa Inggris dengan AI. Bisa latihan dialog?",
+      "guide-ai-conversation-partner": "Hai {{name}}, aku mencari teman ngobrol bahasa Inggris dengan AI. Ayo latihan pembuka.",
+      "guide-travel-english-dialogues": "Hai {{name}}, aku membaca panduan Inggris untuk perjalanan. Ayo main peran bagasi hilang di bandara.",
+      "guide-english-pronunciation": "Hai {{name}}, aku ingin latihan pelafalan bahasa Inggris dari satu kalimat.",
+      "guide-gemini-key-for-ai-practice": "Hai {{name}}, aku membaca panduan Gemini Key. Bisa jelaskan cara mengaturnya?",
+      "research-article": "Hai {{name}}, aku baru membaca artikel riset. Ayo bahas gagasan utamanya."
     }
   }
 ,
@@ -141,5 +155,10 @@
   "dailyFortuneStarters": {
     "goodFor": "Apa yang baik untuk kulakukan hari ini?",
     "watchOut": "Apa yang perlu kuwaspadai hari ini?"
+  },
+  "contentChat": {
+    "gameText": "Chat teks dengan Zoe",
+    "articleText": "Bahas artikel ini dengan Zoe",
+    "todayFortune": "Lihat ramalan hari ini"
   }
 }

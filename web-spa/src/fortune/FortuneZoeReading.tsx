@@ -74,7 +74,7 @@ export function FortuneZoeReading({card,hash,locale,scrollOnOpen}:Props){
   {busy&&<p className="fortune-zoe-reading-status" role="status">{t("zoeReading.loading")}</p>}
   {!busy&&activeEntry.source==="fallback"&&<p className="fortune-zoe-reading-status">{t("zoeReading.staticNote")}</p>}
   {error&&<div className="fortune-zoe-reading-status" role="alert">{t("zoeReading."+error)}{hasKey&&<button type="button" onClick={retry}>{t("zoeReading.retry")}</button>}</div>}
-  {!hasKey&&<><p className="fortune-zoe-reading-status">{t("zoeReading.needKey")}</p><GeminiSetupNotice returnTo={returnTo}/></>}
+  <Link className="fortune-zoe-reading-chat" to={friendHref}>{t("zoeReading.continueChat")}</Link>
   {hasKey&&error==="key"&&<GeminiSetupNotice force returnTo={returnTo}/>}
   {hasKey&&<form className="fortune-zoe-reading-followup" onSubmit={e=>{e.preventDefault();void ask()}}>
    {(activeEntry.followups||[]).map((turn,i)=><div className="fortune-zoe-reading-turn" key={i}><strong>{turn.q}</strong><p>{turn.a}</p></div>)}
@@ -83,6 +83,9 @@ export function FortuneZoeReading({card,hash,locale,scrollOnOpen}:Props){
    <button type="submit" disabled={asking||!question.trim()}>{asking?t("zoeReading.sending"):t("zoeReading.send")}</button>
    {askError&&<p role="alert">{t("zoeReading."+askError)}</p>}
   </form>}
-  <Link className="fortune-zoe-reading-chat" to={friendHref}>{t("zoeReading.continueChat")}</Link>
+  {!hasKey&&<details className="fortune-zoe-reading-key-more">
+   <summary>{t("zoeReading.keyMore")}</summary>
+   <div><p className="fortune-zoe-reading-status">{t("zoeReading.needKey")}</p><GeminiSetupNotice returnTo={returnTo}/></div>
+  </details>}
  </section>;
 }

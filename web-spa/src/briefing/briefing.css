@@ -186,3 +186,10 @@
 .briefing-discovery-group li small{font-size:10px;color:var(--brief-muted)}
 .briefing-discovery-products{display:flex;flex-wrap:wrap;gap:9px}
 .briefing-discovery-products a{border:1px solid var(--brief-border);background:var(--surface-alt);padding:10px 12px;border-radius:11px;font-size:12px;font-weight:700}
+
+/* Public article follow-up, visible in static (SSG) HTML as well as the SPA. */
+.briefing-content-chat-actions{display:flex;flex-wrap:wrap;gap:9px}
+.briefing-content-chat-actions a{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:0;padding:10px 14px;border:1px solid #887aad;border-radius:12px;color:#463878;background:var(--surface,#fff);font-size:14px;font-weight:750;text-decoration:none;text-align:center}
+.briefing-content-chat-actions .briefing-content-chat-primary{color:#fff;border-color:#51418f;background:#51418f}
+.briefing-content-chat-actions a:focus-visible{outline:3px solid #51418f;outline-offset:3px}
+@media(max-width:580px){.briefing-content-chat-actions{display:grid;grid-template-columns:minmax(0,1fr)}}
