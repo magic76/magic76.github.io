@@ -71,14 +71,18 @@ function seedForQA(value){
 function renderRetired(){
  const box=$('retiredForest');
  if(!useV6||!box)return;
- box.hidden=garden.retired.length===0;
- $('retiredCount').textContent=String(garden.retired.length);
+ // The main scene shows one tree only now, so every completed tree
+ // (the 4 most recent in slots plus the older retired ones) is shown
+ // here in the collection gallery, each as its own full painting.
+ const all=[...garden.slots,...garden.retired];
+ box.hidden=all.length===0;
+ $('retiredCount').textContent=String(all.length);
  const row=$('retiredGallery');row.innerHTML='';
- for(const data of garden.retired){
+ for(const data of all){
   const entry=document.createElement('div');entry.className='retired-tree';
-  const cv=document.createElement('canvas');cv.width=130;cv.height=188;
+  const cv=document.createElement('canvas');cv.width=130;cv.height=260;
   const growth=Array.from({length:16},(_,i)=>({topic:data.topics[i]||'daily'}));
-  GLOW.paint(cv,GLOW.empty(),{seed:data.seed,growth},0,{width:130,height:188,still:true});
+  GLOW.paint(cv,GLOW.empty(),{seed:data.seed,growth},0,{width:130,height:260,still:true});
   const label=document.createElement('span');
   label.textContent=GLOW.form(data.seed).name+' · '+GLOW.rarity(data.seed).name;
   entry.append(cv,label);row.appendChild(entry);

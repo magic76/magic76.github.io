@@ -78,7 +78,7 @@ body.glow-v6 .intro p:not(.overline),body.glow-v6 .tree-top .overline{color:#b9b
 body.glow-v6 .world-picker{display:none!important}
 body.glow-v6 .stage-pill{background:#2a2146;border-color:#65548a;color:#d6c9f5}
 body.glow-v6 .canvas-wrap{
- background:#12101c;aspect-ratio:780 / 1120;height:auto;min-height:0;
+ background:#12101c;aspect-ratio:780 / 1560;height:auto;min-height:0;
  border:1px solid #45335a;box-shadow:0 10px 35px #05040d88;
 }
 body.glow-v6 .tree-art-version{
@@ -161,7 +161,7 @@ body.glow-v6 button:focus-visible,body.glow-v6 input:focus-visible{
 }
 @media(max-width:510px){
  body.glow-v6 .page{padding:12px 8px 28px}
- body.glow-v6 .canvas-wrap{aspect-ratio:780 / 1120;height:auto;margin:0 8px}
+ body.glow-v6 .canvas-wrap{aspect-ratio:780 / 1560;height:auto;margin:0 8px}
  body.glow-v6 .garden-summary{margin:0 8px 9px;padding:6px 9px}
  body.glow-v6 .garden-progress{padding:10px 9px 4px}
  body.glow-v6 .garden-milestones{gap:5px}

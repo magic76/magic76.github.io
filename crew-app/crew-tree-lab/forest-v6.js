@@ -6,13 +6,13 @@
  * pre-revealed.
  */
 (function(root){'use strict';
-const W=780,H=1120,TAU=Math.PI*2,MAX=16,MAX_RETIRED=18;
-// Art slots: the art images are wider than the procedural trees, so the
-// back row sits further toward the centre and the front row toward the
-// edges, or the back row would hide entirely behind the front row.
-// (Layout only — the garden data in `empty/restore/complete` is untouched.)
-const slots=[{x:235,y:905,s:.36,a:.70},{x:545,y:905,s:.36,a:.70},
- {x:105,y:965,s:.46,a:.90},{x:675,y:965,s:.46,a:.90}];
+const W=780,H=1560,TAU=Math.PI*2,MAX=16,MAX_RETIRED=18;
+// Single-tree scene: the active tree is shown alone, full-bleed, as one
+// complete painting (the original textured-sky image). Completed trees
+// are not composited into this scene any more — they live in the
+// collection gallery below (tree.js renderRetired). So there is no slot
+// layout here; the garden data model (empty/restore/complete, slots +
+// retired) is untouched, only the drawing changed.
 const forms=[
  {id:'constellation',name:'星空樹',icon:'✦',note:'每片枝梢都連成星座。'},
  {id:'crystal',name:'水晶樹',icon:'💎',note:'冰藍晶簇順著枝幹向天空生長。'},
@@ -46,22 +46,14 @@ const FLAT_FORMS={
 // images. No feathering is needed (and it would eat the canopy edge).
 const ART_DIR='./art/evolution/';
 const ART_STAGES=['seed','sprout','sapling','island','final'];
-// Per-stage target: subject height as a fraction of the canvas height
-// at scale 1. The image is scaled so the subject hits `target` and
-// positioned so its base lands on the anchor point. The sapling target
-// is .70 because the active tree's growth scale (.5-.7) multiplies it
-// to .35-.49.
-const ART_STAGE={
- seed:{target:.12},
- sprout:{target:.30},
- sapling:{target:.70},
- island:{target:.65},
- final:{target:.85}};
-// Per-image placement, measured from the chroma-keyed images
+// Per-image placement, measured from the flat-background set
 // (largest connected opaque component): base = fraction of the image
 // height where the subject's base sits, subj = fraction of the image
-// height that is the subject's height. A new image only needs its
-// base/subj measured and added here.
+// height that is the subject's height. Only used to place the
+// per-sentence topic dots on the canopy; the textured image itself is
+// drawn full-bleed, so its tree sits where the painter put it. A new
+// image only needs its file added here (base/subj can be copied from
+// the matching flat-background measurement).
 const ART_LINES={
  constellation:{
   seed:{file:'constellation-seed.webp',base:.925,subj:.180},
@@ -109,41 +101,40 @@ function preloadArt(){
  for(const line of Object.keys(ART_LINES))
   for(const st of ART_STAGES)artImage(line,st);
 }
-// Draw one evolution image, anchored so the subject's base sits at (x,y)
-// and the subject is `target` of the canvas height tall at scale 1.
-// `scale` multiplies the subject size (growth scale for the active tree,
-// the slot scale for forest trees). The image is already transparent,
-// so it is drawn directly. Returns true when an image was drawn.
-function drawArt(c,line,stageName,x,y,scale,alpha){
+// Draw one evolution image full-bleed: the original textured-sky image
+// is a complete painting (its own night sky), so it fills the whole
+// W×H canvas exactly — the canvas aspect (780/1560) matches the image
+// aspect (1120/2240). No base/subj positioning: the tree sits where the
+// painter put it. Returns true when an image was drawn.
+function drawArt(c,line,stageName,alpha){
  const entry=ART_LINES[line]&&ART_LINES[line][stageName];
- const spec=ART_STAGE[stageName];
- if(!entry||!spec)return false;
+ if(!entry)return false;
  const img=artImage(line,stageName);
  if(!artReady(img))return false;
  const iw=img.naturalWidth,ih=img.naturalHeight;
  if(!iw||!ih)return false;
- const targetH=spec.target*H*scale;
- const s=targetH/(entry.subj*ih);
- const dw=iw*s,dh=ih*s;
- const dx=x-(iw/2)*s,dy=y-(entry.base*ih)*s;
  c.save();c.globalAlpha*=alpha;
- c.drawImage(img,dx,dy,dw,dh);
+ c.drawImage(img,0,0,W,H);
  c.restore();
  return true;
 }
 // Per-sentence topic marks on the art: small glowing dots scattered on
 // the canopy at deterministic positions (seeded by the tree's seed), so
 // every sentence still leaves a visible trace while a stage's image
-// stays the same. Same colors as the procedural marks.
-function artMarks(c,x,y,scale,stageName,seedNum,marks,time){
+// stays the same. The canopy region is approximated from the entry's
+// base/subj (measured on the flat-background set; the textured set was
+// painted from the same composition prompt, so the tree sits in the
+// same place). Same colors as the procedural marks.
+function artMarks(c,line,stageName,seedNum,marks,time){
  if(!Array.isArray(marks)||!marks.length)return;
- const spec=ART_STAGE[stageName];if(!spec)return;
- const targetH=spec.target*H*scale;
- const top=y-targetH,canopyH=targetH*.65,halfW=targetH*.38;
+ const entry=ART_LINES[line]&&ART_LINES[line][stageName];
+ if(!entry)return;
+ const treeH=entry.subj*H,treeTop=(entry.base-entry.subj)*H;
+ const canopyH=treeH*.65,halfW=treeH*.38;
  const r=rng(seedNum);
  const shown=Math.min(marks.length,16);
  for(let i=0;i<shown;i++){
-  const px=x+(r()*2-1)*halfW,py=top+r()*canopyH;
+  const px=W/2+(r()*2-1)*halfW,py=treeTop+r()*canopyH;
   const col=topicColors[marks[i]]||topicColors.daily,latest=i===shown-1;
   glow(c,px,py,latest?26:16,col,latest?.75:.4);
   ellipse(c,px,py,3.8,3.8,'#ffffff');
@@ -155,8 +146,8 @@ function artMarks(c,x,y,scale,stageName,seedNum,marks,time){
 function drawTree(c,tree,n,x,y,scale,alpha,time,still,marks){
  if(!tree||!goodSeed(tree.seed)){shape(c,tree,n,x,y,scale,alpha,time,still,marks);return;}
  const line=form(tree.seed).id,st=stage(n);
- if(drawArt(c,line,st,x,y,scale,alpha)){
-  artMarks(c,x,y,scale,st,tree.seed,marks,time);
+ if(drawArt(c,line,st,alpha)){
+  artMarks(c,line,st,tree.seed,marks,time);
   return;
  }
  shape(c,tree,n,x,y,scale,alpha,time,still,marks);
@@ -440,11 +431,12 @@ function night(c,time,seed,count,still){
   ellipse(c,302,1025,15,6,'#63bc87');
  }
 }
-function island(c,y,lift=0){
+function island(c,x,y,s=1,lift=0){
  // Flat faceted island (style C): a low-poly rock with a flat grass top,
  // a glowing pond and tiny geometric bushes. No soft mound, no legs.
- const top=y-18+lift;
- const X=dx=>390+dx,Y=dy=>top+dy;
+ // s scales the island so a small slot tree gets a small island under it.
+ const top=y-18*s+lift;
+ const X=dx=>x+dx*s,Y=dy=>top+dy*s;
  c.fillStyle='#3a2f5e';
  c.beginPath();
  c.moveTo(X(-150),Y(0));c.lineTo(X(-90),Y(-12));c.lineTo(X(0),Y(-14));
@@ -466,9 +458,9 @@ function island(c,y,lift=0){
  c.moveTo(X(-150),Y(0));c.lineTo(X(-90),Y(-12));c.lineTo(X(0),Y(-14));
  c.lineTo(X(90),Y(-12));c.lineTo(X(150),Y(0));c.stroke();
  c.fillStyle='#6ee7ff';
- c.beginPath();c.ellipse(X(52),Y(1),52,9,0,0,TAU);c.fill();
+ c.beginPath();c.ellipse(X(52),Y(1),52*s,9*s,0,0,TAU);c.fill();
  c.strokeStyle='rgba(255,255,255,0.75)';c.lineWidth=1.4;
- c.beginPath();c.ellipse(X(52),Y(0),38,5,0,Math.PI*1.15,Math.PI*1.85);c.stroke();
+ c.beginPath();c.ellipse(X(52),Y(0),38*s,5*s,0,Math.PI*1.15,Math.PI*1.85);c.stroke();
  for(const [bx,s2] of [[-108,1],[118,.8]]){
   c.fillStyle='#7fe7c4';
   c.beginPath();
@@ -743,7 +735,6 @@ function paint(canvas,g,active,time=0,opts={}){
  const n=clamp(Number(active?.growth?.length)||0,0,16);
  const display=opts.reveal?.tree||active;
  const showN=opts.reveal?16:n;
- night(c,time,display?.seed||314159,g.totalCompleted,still);
  const current=display&&goodSeed(display.seed)?display:{seed:314159,growth:[]};
  const p=opts.motion&&!still?clamp((time-opts.motion.start)/1250,0,1):1;
  const prev=opts.motion?opts.motion.fromTurns:n;
@@ -754,26 +745,22 @@ function paint(canvas,g,active,time=0,opts={}){
  // burst sell the transformation, and a 17% wider crown would swallow the
  // trees behind it.
  let growth=st==='seed'||st==='sprout'?1:st==='sapling'?.5+.2*clamp((turns-3)/4,0,1):1;
- // The art carries its own ground (mound / floating island), so the
- // procedural island platform is only drawn when the art is not ready.
+ // Single-tree scene. When the textured image is ready it fills the
+ // canvas on its own (it carries its own sky and ground), so the
+ // procedural night is skipped. When it is not ready (or Image does not
+ // exist, as in tests) the procedural painter runs instead, on the
+ // night sky, with its island platform from the island stage on.
  const artActive=artReady(artImage(form(current.seed).id,st));
- if(showN>=8&&!artActive)island(c,940,(1-p)*(opts.motion?.fromTurns<8?86:0));
- // The foreground tree is anchored in the same place at every age.
- drawTree(c,current,showN,390,940,growth,1,time,still,current.growth?.map(x=>x.topic));
- // Forest trees are drawn after the active tree: the art images carry
- // an opaque sky, so a slot drawn first would be hidden behind the
- // active tree's image. The slots sit at the sides, so they read as
- // trees flanking the hero, not trees in front of it.
- for(let i=0;i<g.slots.length;i++){
-  const slot=slots[i],tree=g.slots[i];
-  if(!slot||!tree)continue;
-  drawTree(c,tree,16,slot.x,slot.y,slot.s,slot.a,time,still,tree.topics);
- }
+ if(!artActive)night(c,time,display?.seed||314159,g.totalCompleted,still);
+ if(showN>=8&&!artActive)island(c,390,1310,1,(1-p)*(opts.motion?.fromTurns<8?86:0));
+ // The active tree, alone, full-bleed. Completed trees are not drawn
+ // here any more; they live in the collection gallery below.
+ drawTree(c,current,showN,390,1310,growth,1,time,still,current.growth?.map(x=>x.topic));
  if(opts.reveal){
-  glow(c,390,553,240,'#ffde9f',.20);
+  glow(c,390,770,334,'#ffde9f',.20);
   for(let i=0;i<20;i++){
-   const angle=i*2.39996,rad=32+i*9;
-   const x=390+Math.cos(angle)*rad,y=560+Math.sin(angle)*rad;
+   const angle=i*2.39996,rad=(32+i*9)*1.393;
+   const x=390+Math.cos(angle)*rad,y=780+Math.sin(angle)*rad;
    glow(c,x,y,12,i%3?'#7fe7c4':'#ffeab6',.76);
   }
   if(opts.reveal.started&&time-opts.reveal.started<260&&!still){
@@ -781,8 +768,8 @@ function paint(canvas,g,active,time=0,opts={}){
   }
  }
  for(let i=0;i<Math.min(3+g.totalCompleted*2,15);i++){
-  const a=i*2.29+current.seed*.001,x=390+Math.sin(a)*250,
-   y=680+Math.cos(a)*220+(still?0:Math.sin(time*.001+i)*10);
+  const a=i*2.29+current.seed*.001,x=390+Math.sin(a)*348,
+   y=947+Math.cos(a)*306+(still?0:Math.sin(time*.001+i)*10);
   glow(c,x,y,15,i%2?'#7fe7c4':'#ffe9a8',.59);
  }
  c.restore();return true;
@@ -823,12 +810,16 @@ function poster(canvas,g,active,now,opts={}){
  if(!canvas||!g)return false;
  canvas.width=1080;canvas.height=1920;
  const c=canvas.getContext('2d');if(!c)return false;
+ // The scene is 780×1560 (1:2), so the art canvas matches that aspect
+ // to avoid stretching. It is drawn onto the 1080×1920 postcard
+ // cropped 120px top and bottom; the bottom text band then covers the
+ // lower trunk and ground, as before.
  const art=document.createElement('canvas');
- art.width=1080;art.height=1440;
- if(!paint(art,g,active,now,{width:1080,height:1440,still:true,reveal:opts.reveal||null}))return false;
+ art.width=1080;art.height=2160;
+ if(!paint(art,g,active,now,{width:1080,height:2160,still:true,reveal:opts.reveal||null}))return false;
  c.setTransform(1,0,0,1,0,0);
  c.fillStyle='#12101C';c.fillRect(0,0,1080,1920);
- c.drawImage(art,0,0,1080,1440);
+ c.drawImage(art,0,120,1080,1920,0,0,1080,1920);
  // Exactly the bottom quarter of the poster is the information zone.
  c.fillStyle='#12101C';c.fillRect(0,1440,1080,480);
  c.fillStyle='#6257E7';c.fillRect(0,1440,1080,8);
@@ -857,7 +848,7 @@ function poster(canvas,g,active,now,opts={}){
 
 preloadArt();
 root.CrewGlowForestV6=Object.freeze({
- W,H,MAX,forms,slots,topicColors,stage,form,rarity,empty,restore,snapshot,complete,progress,
+ W,H,MAX,forms,topicColors,stage,form,rarity,empty,restore,snapshot,complete,progress,
  paint,poster,forestLevel,leafQuotes,latestTopic,preloadArt
 });
 })(typeof window!=='undefined'?window:globalThis);

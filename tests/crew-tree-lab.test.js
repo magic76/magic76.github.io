@@ -635,7 +635,7 @@ test('V6 persistent five-tree garden unlocks mushroom path, pond, aurora then re
  const end=qa.glow();
  assert.equal(end.garden.retired[0].seed,200,'oldest completed tree retired');
  assert.equal(end.garden.slots[0].seed,201);
- assert.equal(get('retiredCount').textContent,'1');
+ assert.equal(get('retiredCount').textContent,'5');
  assert.equal(get('retiredForest').hidden,false);
  assert.ok(paint.paths>30,'five tree canvases are drawn with Canvas 2D');
  assert.ok(qa.exportImage(),'forest poster exported even while current seed has 0 turns');
@@ -647,7 +647,7 @@ test('V6 persistent five-tree garden unlocks mushroom path, pond, aurora then re
  assert.equal(reload.qa.glow().garden.totalCompleted,5);
  assert.equal(reload.qa.glow().garden.slots.length,4);
  assert.equal(reload.qa.glow().garden.retired[0].seed,200);
- assert.equal(reload.get('retiredCount').textContent,'1');
+ assert.equal(reload.get('retiredCount').textContent,'5');
  assert.equal(reload.qa.glowReset(),true);
  assert.equal(reload.qa.glow().garden.totalCompleted,0);
  assert.equal(reload.qa.glow().stage,'seed');
@@ -673,7 +673,7 @@ test('V6 replica, no new dependencies or backend, responsive milestones and 1080
  assert.match(html,/id="gardenM16"/);
  assert.match(html,/id="retiredForest"/);
  assert.match(html,/id="resetGardenBtn"/);
- assert.match(css,/aspect-ratio:780 \/ 1120/);
+ assert.match(css,/aspect-ratio:780 \/ 1560/);
  assert.match(forest,/canvas\.width=1080;canvas\.height=1920/);
  assert.match(forest,/colorFamilies/);
  assert.doesNotMatch(forest,/\bWebGL\b.*(?:createContext|getContext\('webgl)/);
