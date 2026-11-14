@@ -28,7 +28,7 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
    await page.screenshot({path:path.join(OUT,'after-first-visit-'+name+'.png')});
    assert.equal(await page.locator('#hatchBtn').isVisible(),false);
    const first=page.locator('#hatchIdeas button').first(),second=page.locator('#hatchIdeas button').last();
-   if(viewport.width<=390){
+   {
     const rect=await first.boundingBox();
     assert.ok(rect&&rect.y+rect.height<=viewport.height+1,
       name+' first-hatch topic should be visible without scrolling: '+JSON.stringify(rect));

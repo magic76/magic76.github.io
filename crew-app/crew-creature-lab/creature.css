@@ -252,3 +252,16 @@ footer{font-size:11px;color:#7fa89a;line-height:1.8;margin-top:22px;text-align:c
  .creature-actions{padding:5px 8px}
  .action-btn{min-height:40px;padding:7px 5px}
 }
+
+/* Desktop first glance: keep the large egg visible and put its two
+   conversation actions alongside it instead of below the fold. */
+@media(min-width:791px){
+ .creature-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(245px,44%);grid-template-rows:auto auto auto auto;align-content:start}
+ .creature-top{grid-column:1/-1}
+ .creature-panel .canvas-wrap{grid-column:1;grid-row:2;margin:10px auto 0}
+ .creature-panel .energy-panel{grid-column:2;grid-row:2;margin:10px 12px 0 0;align-self:center;min-width:0}
+ .creature-panel .surprise-moment{grid-column:1/-1}
+ .creature-panel .creature-actions{grid-column:1/-1}
+ .creature-panel .micro-help{grid-column:1/-1}
+ .creature-panel .evolve-btn{min-width:0;width:100%}
+}
