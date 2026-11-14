@@ -31,7 +31,7 @@ test("a missing optional route-independent lazy chunk never kills the entire PWA
  assert.match(app,/<RouteErrorBoundary key=\{pathname\}>/);
 });
 
-test("Service Worker never caches HTML SPA fallback as a missing hashed JS or CSS asset",async()=>{
+test("Service Worker repairs an HTML SPA fallback with one cache-busted refetch and caches only JS",async()=>{
  const src=read("web-spa/public/sw.js");
  assert.match(src,/STATIC_CACHE="crew-pwa-static-v2"/);
  const listeners={};
@@ -46,11 +46,11 @@ test("Service Worker never caches HTML SPA fallback as a missing hashed JS or CS
   {ok:true,type:"basic",headers:{get:()=>"text/html; charset=utf-8"},clone(){return this;}},
   {ok:true,type:"basic",headers:{get:()=>"text/javascript; charset=utf-8"},clone(){return this;}}
  ];
- let count=0;
+ const requests=[];
  vm.runInNewContext(src,{
   self:{location:{origin:"https://www.3sssi.com"},addEventListener:(name,fn)=>{listeners[name]=fn;}},
   caches:{open:async()=>cache,match:async()=>null,keys:async()=>[]},
-  URL,Response,fetch:async()=>responses[Math.min(count++,responses.length-1)]
+  URL,Response,fetch:async(request,opts)=>{requests.push({request,opts});return responses[Math.min(requests.length-1,1)];}
  });
  const request={url:"https://www.3sssi.com/assets/build/fortune-old.js",mode:"cors",method:"GET"};
  function fetchAsset(){
@@ -59,13 +59,29 @@ test("Service Worker never caches HTML SPA fallback as a missing hashed JS or CS
   return answer;
  }
  const first=await fetchAsset();
- assert.equal(first.headers.get("content-type"),"text/html; charset=utf-8");
- assert.equal(put.length,0,"HTML response must never be persisted under an asset URL");
- const second=await fetchAsset();
- assert.equal(second.headers.get("content-type"),"text/javascript; charset=utf-8");
- assert.equal(put.length,1,"valid JavaScript can be cached");
+ assert.equal(first.headers.get("content-type"),"text/javascript; charset=utf-8");
+ assert.equal(requests.length,2,"one original and exactly one cache-busted request");
+ assert.match(requests[1].request,/fortune-old\.js\?__crew_asset_retry=/);
+ assert.equal(requests[1].opts.cache,"no-store");
+ assert.deepEqual(put,[request.url],"only verified JS may be cached at the original URL");
  await fetchAsset();
- assert.equal(count,2,"valid cached JS should be reused");
+ assert.equal(requests.length,2,"subsequent fetch uses repaired cache entry");
+});
+
+test("Service Worker cannot persist HTML when a cache-busted retry also returns HTML",async()=>{
+ const src=read("web-spa/public/sw.js");
+ const listeners={},calls=[];let saved=0;
+ const html={ok:true,type:"basic",headers:{get:()=>"text/html; charset=utf-8"},clone(){return this;}};
+ vm.runInNewContext(src,{
+  self:{location:{origin:"https://www.3sssi.com"},addEventListener:(name,fn)=>{listeners[name]=fn;}},
+  caches:{open:async()=>({match:async()=>null,put:async()=>{saved++;},keys:async()=>[]}),match:async()=>null,keys:async()=>[]},
+  URL,Response,fetch:async(request)=>{calls.push(request);return html;}
+ });
+ let result;
+ listeners.fetch({request:{url:"https://www.3sssi.com/assets/build/broken.css",mode:"cors",method:"GET"},respondWith:answer=>{result=answer;}});
+ assert.equal(await result,html);
+ assert.equal(calls.length,2,"retry once only");
+ assert.equal(saved,0,"no HTML cache poisoning");
 });
 
 test("Fortune failures and update failures are distinguishable without exposing route or user data",()=>{
