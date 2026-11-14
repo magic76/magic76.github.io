@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0912">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="和 Zoe 聊天，蒐集能量，孵出你的生物。能量夠了，親手注入，看牠進化。">
+<title>和 Zoe 孵生物 · Crew Creature Lab</title>
+<link rel="stylesheet" href="./creature.css?v=__CREW_COMMIT__">
+<script src="./creature-v6.js?v=__CREW_COMMIT__" defer></script>
+<script src="./creature.js?v=__CREW_COMMIT__" defer></script>
+</head>
+<body>
+<main class="page">
+  <header class="top">
+    <a class="brand" href="/" aria-label="返回 Crew 首頁"><span class="brand-mark">🥚</span><span><strong>Crew Creature Lab</strong><small>和 Zoe 孵生物</small></span></a>
+    <span class="tagline">聊天蒐集能量，注入能量進化 <span class="live-dot"></span></span>
+  </header>
+  <section class="intro">
+    <div><p class="overline">A LITTLE LAB OF CONVERSATIONS</p><h1>和 Zoe，<br><em>孵出你的生物。</em></h1><p>聊一句話，蒐集 1 點能量。能量夠了，親手注入，看著牠從蛋進化成完全體。聊什麼，決定牠會變成誰。</p></div>
+    <div class="tag-pair"><span>⚡ 聊天集能量</span><span>✦ 親手按進化</span></div>
+  </section>
+  <div class="play-grid">
+    <section class="creature-panel" aria-label="生物畫布">
+      <div class="creature-top"><div><span class="overline">YOUR CREATURE LAB</span><h2 id="creatureName">🥚 神秘的蛋</h2></div><span class="stage-pill" id="stageBadge">蛋 · 0 句</span></div>
+      <div class="energy-panel" aria-label="能量與進化">
+        <div class="energy-top"><span>⚡ 能量</span><span id="energyText">⚡ 能量 0 / 2</span></div>
+        <div class="energy-track"><i id="energyFill"></i></div>
+        <button id="evolveBtn" class="evolve-btn" type="button" disabled>還需要 2 能量</button>
+        <p class="evolve-hint" id="evolveHint">進化要 2 能量，聊一句 +1，能量夠了按下去就進化。</p>
+      </div>
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="creatureCanvas" width="780" height="1560" role="img" aria-label="生物：從蛋進化成月狐、星龍、花妖精或小貓咪"></canvas><span class="creature-art-version" id="creatureArtVersion">✨ Creature V1</span>
+        <button id="quickSave" class="quick-save" type="button" aria-label="下載目前生物的 PNG 圖片" title="下載生物圖片 PNG"> <span aria-hidden="true">↓</span> 下載 PNG</button>
+        <span class="floating-note" id="growthToast" aria-live="polite"></span>
+        <span class="ground-label" id="creatureSubtitle">從第一句開始，蒐集能量，準備孵化。</span>
+      </div>
+      <div class="surprise-moment" id="surpriseMoment" role="status" aria-live="polite" hidden>
+        <span class="surprise-icon" id="surpriseIcon" aria-hidden="true">🥚</span>
+        <strong id="surpriseTitle">驚喜正在發生</strong>
+        <span id="surpriseDetail">生物正在進化</span>
+      </div>
+      <div class="creature-actions">
+        <button id="hatchBtn" class="action-btn" type="button">🥚 孵蛋</button>
+        <button id="saveBtn" class="action-btn" type="button">↓ 存圖片</button>
+        <button id="boxBtn" class="action-btn box-btn" type="button" disabled>🎁 盲盒 ×0</button>
+        <button id="resetBtn" class="action-btn" type="button">↻ 重新開始</button>
+      </div>
+      <div class="micro-help" id="growthHint">試著聊「月亮、旅行、貓咪」，看看蛋會孵出什麼。聊得最多的話題，決定牠是誰。</div>
+    </section>
+    <section class="chat-panel" aria-label="和 Zoe 一起聊天">
+      <div class="chat-top"><div class="avatar">Z</div><div class="chat-head"><strong>Zoe</strong><span>陪你聊天、陪生物長大</span></div><span class="local-label">本地回應</span></div>
+      <div class="messages" id="messages" role="log" aria-live="polite" aria-label="你和 Zoe 的聊天紀錄"><div class="message zoe"><span class="sender">Zoe</span><p>來！我們孵一顆蛋 🥚<br>聊聊天，蒐集能量，看看牠會變成誰？</p></div></div>
+      <div class="chat-bottom">
+        <div class="idea-title">不知道聊什麼？點一個試試</div>
+        <div class="idea-chips" id="ideaChips">
+          <button data-say="我昨天夢到在月亮上散步，超美的！" type="button">🌙 月亮夢境</button>
+          <button data-say="如果我們一起去宇宙旅行，會看到什麼？" type="button">🚀 宇宙冒險</button>
+          <button data-say="我家貓咪今天又偷吃我的魚！" type="button">🐱 貓咪日常</button>
+          <button data-say="我今天看到一朵超美的花，想種一整片！" type="button">🌸 花草自然</button>
+        </div>
+        <form id="chatForm" class="composer"><label class="sr-only" for="chatInput">對 Zoe 說話</label><input id="chatInput" autocomplete="off" maxlength="240" placeholder="跟 Zoe 說點什麼…"><button type="submit" id="sendBtn" aria-label="傳送訊息">↑</button></form>
+        <p class="chat-notice">目前是<span>本地聊天互動原型</span>，不是 Gemini 即時對話。輸入不會傳到伺服器，收藏只保存話題特徵，不存聊天原文。</p>
+      </div>
+    </section>
+  </div>
+  <section class="collection" aria-label="我的生物收藏">
+    <div class="collection-head"><div><p class="overline">YOUR CREATURES</p><h2>我的生物 <span id="collectionCount">0</span></h2></div><span>養到完全體的生物會住進這裡</span></div>
+    <div id="gallery" class="gallery"><p class="empty-forest">還沒有完全體。把第一隻生物養到完全體，牠就會住進這裡。</p></div>
+  </section>
+  <section class="box-collection" aria-label="盲盒圖鑑">
+    <div class="collection-head"><div><p class="overline">BLIND BOX CODEX</p><h2>🎁 盲盒圖鑑 <span id="boxCollectionCount">0/7</span></h2></div><span>養滿一隻生物、每天第一次聊天，都能拿到盲盒</span></div>
+    <p class="box-collection-note">開出蛋可以孵出指定生物；能量包直接補能量。</p>
+    <div id="boxGrid" class="box-grid"></div>
+  </section>
+  <div class="box-modal" id="boxModal" hidden role="dialog" aria-label="打開盲盒">
+    <div class="box-modal-card">
+      <div class="box-closed" id="boxClosed"><span class="box-gift">🎁</span><p>一個盲盒，裡面有什麼？</p></div>
+      <div class="box-reveal" id="boxReveal" hidden>
+        <span class="box-item-icon" id="boxItemIcon">🥚</span>
+        <strong class="box-item-name" id="boxItemName">小貓咪的蛋</strong>
+        <span class="box-item-rarity" id="boxItemRarity">普通 · 蛋</span>
+        <p class="box-item-note" id="boxItemNote"></p>
+      </div>
+      <div class="box-modal-actions">
+        <button id="boxOpenBtn" class="action-btn primary-action" type="button">打開盲盒</button>
+        <button id="boxAgainBtn" class="action-btn primary-action" type="button" hidden>再開一個</button>
+        <button id="boxCloseBtn" class="action-btn" type="button">收下</button>
+      </div>
+    </div>
+  </div>
+  <div class="box-modal" id="eggModal" hidden role="dialog" aria-label="選一顆蛋孵化">
+    <div class="box-modal-card">
+      <h3 class="seed-title">選一顆蛋孵化</h3>
+      <p class="seed-note" id="eggNote">新的蛋等著孵化，選一顆開始養。</p>
+      <div id="eggList" class="seed-list"></div>
+      <div class="box-modal-actions">
+        <button id="eggCloseBtn" class="action-btn" type="button">取消</button>
+      </div>
+    </div>
+  </div>
+  <footer>聊一句，存一點能量；按一下，看牠進化。每一隻生物，都是你說過的話長成的。 · Crew Creature Lab</footer>
+</main>
+</body>
+</html>
