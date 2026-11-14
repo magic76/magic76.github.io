@@ -108,111 +108,180 @@ test('first evolution line is decided by the dominant topic',()=>{
  assert.equal(res2.line,'cat');
  assert.equal(qa2.state().creature.line,'cat');
 });
-test('evolving to final enters the collection and a fresh egg follows',()=>{
+test('every evolution grants a gift: a finished creature is 5 gifts + 1 daily',()=>{
  const {qa}=boot();
  for(let i=0;i<16;i++)qa.post('天空好漂亮');
  assert.equal(qa.energy(),16);
+ assert.equal(qa.gifts(),1,'only the daily gift so far');
  let res;
- res=qa.evolve();assert.equal(res.stage,1);assert.equal(qa.energy(),14);
- res=qa.evolve();assert.equal(res.stage,2);assert.equal(qa.energy(),10);
- res=qa.evolve();assert.equal(res.stage,3);assert.equal(qa.energy(),5);
+ res=qa.evolve();assert.equal(res.stage,1);assert.equal(qa.energy(),14);assert.equal(qa.gifts(),2,'evolve 1 grants a gift');
+ res=qa.evolve();assert.equal(res.stage,2);assert.equal(qa.energy(),10);assert.equal(qa.gifts(),3,'evolve 2 grants a gift');
+ res=qa.evolve();assert.equal(res.stage,3);assert.equal(qa.energy(),5);assert.equal(qa.gifts(),4,'evolve 3 grants a gift');
  res=qa.evolve();assert.equal(res.stage,4);assert.equal(res.completed,true);assert.equal(qa.energy(),0);
+ assert.equal(qa.gifts(),6,'evolve 4 grants a gift and completion grants one more (4+1), plus daily 1');
  const st=qa.state();
  assert.equal(st.collection.length,1);
  assert.equal(st.collection[0].stage,4);
  assert.ok(st.collection[0].line);
- assert.equal(st.creature.stage,0);
- assert.equal(st.creature.line,null);
- assert.equal(st.creature.sentences,0);
- assert.equal(qa.boxes(),2,'daily box + completion box');
 });
-test('blind box daily grant is deduped and opening yields an egg or energy',()=>{
- const {qa:qa0}=boot();
- assert.equal(qa0.openBox(()=>0),null,'no boxes, nothing to open');
+test('the final form stays on screen until startNext, and chatting is blocked meanwhile',()=>{
+ const {qa,get}=boot();
+ for(let i=0;i<16;i++)qa.post('天空好漂亮');
+ qa.evolve();qa.evolve();qa.evolve();qa.evolve();
+ const st=qa.state();
+ assert.equal(st.creature.stage,4,'final form stays as the current creature');
+ assert.ok(st.creature.line);
+ assert.equal(st.collection.length,1);
+ assert.equal(get('nextBtn').hidden,false,'the start-next button is shown');
+ assert.equal(qa.post('再聊一句'),false,'chatting is blocked while celebrating');
+ assert.equal(qa.state().creature.sentences,16,'no sentence lands on the finished creature');
+ assert.equal(qa.startNext(),true);
+ const st2=qa.state();
+ assert.equal(st2.creature.stage,0,'a fresh egg follows');
+ assert.equal(st2.creature.line,null);
+ assert.equal(st2.creature.sentences,0);
+ assert.equal(get('nextBtn').hidden,true,'the button hides again');
+ assert.notEqual(qa.post('新的開始'),false,'chatting works again');
+ assert.equal(qa.state().creature.sentences,1);
+});
+test('gift pool has 12 items (weights sum 117) including 5 permanent companions',()=>{
  const {qa}=boot();
- assert.equal(qa.grantBox('daily','2026-11-14'),true);
- assert.equal(qa.boxes(),1);
- assert.equal(qa.grantBox('daily','2026-11-14'),false);
- assert.equal(qa.boxes(),1);
- assert.equal(qa.grantBox('daily','2026-11-15'),true);
- assert.equal(qa.grantBox('complete'),true);
- assert.equal(qa.boxes(),3);
- const egg=qa.openBox(()=>0);
+ const items=qa.giftItems();
+ assert.equal(items.length,12);
+ assert.equal(items.reduce((s,x)=>s+x.weight,0),117);
+ const companions=items.filter(x=>x.kind==='companion');
+ assert.deepEqual([...companions.map(x=>x.id)].sort(),
+  ['companion-butterfly','companion-firefly','companion-lantern','companion-mushroom','companion-star']);
+ assert.equal(items.filter(x=>x.kind==='egg').length,5,'4 line eggs + golden egg');
+ assert.equal(items.filter(x=>x.kind==='energy').length,2);
+});
+test('gift daily grant is deduped and opening yields eggs, energy, companions, golden egg',()=>{
+ const {qa:qa0}=boot();
+ assert.equal(qa0.openGift(()=>0),null,'no gifts, nothing to open');
+ const {qa}=boot();
+ assert.equal(qa.grantGift('daily','2026-11-14'),true);
+ assert.equal(qa.gifts(),1);
+ assert.equal(qa.grantGift('daily','2026-11-14'),false);
+ assert.equal(qa.gifts(),1);
+ assert.equal(qa.grantGift('daily','2026-11-15'),true);
+ assert.equal(qa.grantGift('evolve'),true);
+ assert.equal(qa.grantGift('complete'),true);
+ assert.equal(qa.grantGift('bogus'),false);
+ assert.equal(qa.gifts(),4);
+ const egg=qa.openGift(()=>0);
  assert.equal(egg.id,'egg-cat');
- assert.equal(qa.boxCollection()['egg-cat'],1);
- assert.equal(qa.boxes(),2);
- const pack=qa.openBox(()=>0.8);
+ assert.equal(qa.giftCollection()['egg-cat'],1);
+ assert.equal(qa.gifts(),3);
+ const pack=qa.openGift(()=>0.7);
  assert.equal(pack.kind,'energy');
  assert.equal(pack.id,'energy-small');
  assert.equal(qa.energy(),3);
- const golden=qa.openBox(()=>0.99);
+ assert.equal(qa.gifts(),2);
+ const buddy=qa.openGift(()=>0.89);
+ assert.equal(buddy.kind,'companion');
+ assert.equal(buddy.id,'companion-butterfly');
+ assert.equal(qa.giftCollection()['companion-butterfly'],1);
+ assert.equal(qa.gifts(),1);
+ const golden=qa.openGift(()=>0.999);
  assert.equal(golden.id,'egg-stardragon');
- assert.equal(qa.boxCollection()['egg-stardragon'],1);
- assert.equal(qa.boxes(),0);
+ assert.equal(qa.giftCollection()['egg-stardragon'],1);
+ assert.equal(qa.gifts(),0);
+});
+test('a duplicate companion re-rolls into a random egg instead of being wasted',()=>{
+ const saved=JSON.stringify({version:1,energy:0,creature:{line:null,stage:0,topics:[],sentences:0},collection:[],gifts:1,giftCollection:{'companion-firefly':1},lastDailyGift:null});
+ const {qa}=boot({storage:{'crew-creature-lab-v1':saved}});
+ assert.equal(qa.giftCollection()['companion-firefly'],1);
+ // rand 0.80 rolls companion-firefly again (weight band 90-98 of 117).
+ const item=qa.openGift(()=>0.80);
+ assert.equal(item.rerolled,true);
+ assert.equal(item.kind,'egg');
+ assert.equal(item.id,'egg-moonfox');
+ assert.equal(qa.giftCollection()['companion-firefly'],1,'companion count unchanged');
+ assert.equal(qa.giftCollection()['egg-moonfox'],1,'an egg lands instead');
+ assert.equal(qa.gifts(),0);
 });
 test('hatching an owned egg sets the creature line and spends the egg',()=>{
  const {qa}=boot();
  assert.equal(qa.hatch('cat'),false);
- qa.grantBox('complete');
- qa.openBox(()=>0);
- assert.equal(qa.boxCollection()['egg-cat'],1);
+ qa.grantGift('evolve');
+ qa.openGift(()=>0);
+ assert.equal(qa.giftCollection()['egg-cat'],1);
  assert.equal(qa.hatch('cat'),true);
  assert.equal(qa.state().creature.line,'cat');
- assert.equal(qa.boxCollection()['egg-cat'],undefined);
+ assert.equal(qa.giftCollection()['egg-cat'],undefined);
  assert.equal(qa.hatch('bogus'),false);
 });
-test('restore keeps valid saves and gives safe defaults to old or corrupt ones',()=>{
- const saved=JSON.stringify({version:1,energy:5,creature:{line:'cat',stage:2,topics:['animals','daily'],sentences:6},collection:[{line:'moonfox',topics:['dream'],stage:4}],boxes:2,boxCollection:{'egg-cat':1},lastDailyBox:'2026-11-14'});
+test('restore keeps valid saves, migrates old v1 box fields, and gives safe defaults',()=>{
+ const saved=JSON.stringify({version:1,energy:5,creature:{line:'cat',stage:2,topics:['animals','daily'],sentences:6},collection:[{line:'moonfox',topics:['dream'],stage:4}],gifts:2,giftCollection:{'egg-cat':1},lastDailyGift:'2026-11-14'});
  const {qa}=boot({storage:{'crew-creature-lab-v1':saved}});
  assert.equal(qa.energy(),5);
  assert.equal(qa.state().creature.line,'cat');
  assert.equal(qa.state().creature.stage,2);
  assert.equal(qa.state().collection.length,1);
- assert.equal(qa.boxes(),2);
- assert.equal(qa.boxCollection()['egg-cat'],1);
- assert.equal(qa.state().lastDailyBox,'2026-11-14');
+ assert.equal(qa.gifts(),2);
+ assert.equal(qa.giftCollection()['egg-cat'],1);
+ assert.equal(qa.state().lastDailyGift,'2026-11-14');
+ // Old v1 save (boxes / boxCollection / lastDailyBox) migrates, nothing is lost.
+ const old=JSON.stringify({version:1,energy:3,creature:{line:null,stage:0,topics:[],sentences:0},collection:[],boxes:2,boxCollection:{'egg-cat':1,'energy-small':2},lastDailyBox:'2026-11-13'});
+ const {qa:qaOld}=boot({storage:{'crew-creature-lab-v1':old}});
+ assert.equal(qaOld.gifts(),2,'old boxes count carries over');
+ assert.equal(qaOld.giftCollection()['egg-cat'],1);
+ assert.equal(qaOld.giftCollection()['energy-small'],2);
+ assert.equal(qaOld.state().lastDailyGift,'2026-11-13');
  const {qa:qa2}=boot({storage:{'crew-creature-lab-v1':JSON.stringify({version:0})}});
  assert.equal(qa2.energy(),0);
  assert.equal(qa2.state().creature.stage,0);
  assert.equal(qa2.state().creature.line,null);
- assert.equal(qa2.boxes(),0);
- const bad=JSON.stringify({version:1,energy:-5,creature:{line:'bogus',stage:9,topics:'nope',sentences:-1},collection:[{line:'cat',topics:[],stage:2}],boxes:-1,boxCollection:{'bogus':3},lastDailyBox:'yesterday'});
+ assert.equal(qa2.gifts(),0);
+ const bad=JSON.stringify({version:1,energy:-5,creature:{line:'bogus',stage:9,topics:'nope',sentences:-1},collection:[{line:'cat',topics:[],stage:2}],gifts:-1,giftCollection:{'bogus':3},lastDailyGift:'yesterday'});
  const {qa:qa3}=boot({storage:{'crew-creature-lab-v1':bad}});
  assert.equal(qa3.energy(),0);
  assert.equal(qa3.state().creature.stage,0);
  assert.equal(qa3.state().collection.length,0);
- assert.equal(qa3.boxes(),0);
- assert.equal(Object.keys(qa3.boxCollection()).length,0);
- assert.equal(qa3.state().lastDailyBox,null);
+ assert.equal(qa3.gifts(),0);
+ assert.equal(Object.keys(qa3.giftCollection()).length,0);
+ assert.equal(qa3.state().lastDailyGift,null);
 });
-test('chatting the first sentence of the day grants a daily box',()=>{
+test('chatting the first sentence of the day grants a daily gift',()=>{
  const {qa,get}=boot();
- assert.equal(qa.boxes(),0);
+ assert.equal(qa.gifts(),0);
  qa.post('我喜歡喝咖啡');
- assert.equal(qa.boxes(),1);
+ assert.equal(qa.gifts(),1);
  qa.post('星星宇宙');
- assert.equal(qa.boxes(),1,'second chat the same day grants nothing more');
- assert.equal(get('boxBtn').textContent,'🎁 盲盒 ×1');
+ assert.equal(qa.gifts(),1,'second chat the same day grants nothing more');
+ assert.equal(get('giftBtn').textContent,'🎁 禮物 ×1');
 });
-test('creature UI is wired: energy bar, evolve button, modals, codex, QA hook',()=>{
+test('creature UI is wired: energy bar, evolve button, next button, modals, codex, QA hook',()=>{
  assert.match(html,/id="evolveBtn"/);
+ assert.match(html,/id="nextBtn"/);
  assert.match(html,/id="energyFill"/);
  assert.match(html,/id="energyText"/);
- assert.match(html,/id="boxModal"/);
+ assert.match(html,/id="giftModal"/);
  assert.match(html,/id="eggModal"/);
  assert.match(html,/id="gallery"/);
+ assert.match(html,/id="giftGrid"/);
  assert.match(html,/id="creatureCanvas"/);
  assert.match(html,/creature-v6\.js\?v=__CREW_COMMIT__/);
  assert.match(html,/creature\.js\?v=__CREW_COMMIT__/);
  assert.doesNotMatch(html,/botany\.js|family-art\.js|art-studies/);
+ assert.doesNotMatch(html,/盲盒|boxBtn|boxModal|boxGrid/);
+ assert.match(html,/禮物收藏/);
+ assert.match(html,/開始養下一隻/);
  assert.match(script,/CRE\.gainEnergy\(state\)/);
  assert.match(script,/CRE\.canEvolve\(state\)/);
  assert.match(script,/CRE\.hatchEgg\(state,lineId\)/);
+ assert.match(script,/CRE\.startNewCreature\(state\)/);
+ assert.match(script,/CRE\.grantGift\(state,'evolve'\)/);
+ assert.match(script,/CRE\.grantGift\(state,'complete'\)/);
+ assert.match(script,/CRE\.grantGift\(state,'daily'/);
+ assert.match(script,/CRE\.openGift\(state\)/);
+ assert.match(script,/stage===4/);
  assert.match(script,/__CREATURE_QA__/);
  assert.match(script,/crew-creature-lab-v1/);
  assert.match(script,/toDataURL\('image\/png'\)/);
  assert.match(css,/\.evolve-btn/);
  assert.match(css,/\.evolve-btn\.ready/);
+ assert.match(css,/\.next-btn/);
  assert.match(css,/\.energy-track/);
  assert.match(css,/#12101C/);
  assert.match(css,/#6257E7/);
@@ -221,5 +290,9 @@ test('creature lab is mirrored byte-identically in crew-app',()=>{
  for(const name of ['creature.js','index.html','creature.css','creature-v6.js']){
   assert.equal(fs.readFileSync(path.join(dir,name),'utf8'),
    fs.readFileSync(path.join(__dirname,'../crew-app/crew-creature-lab',name),'utf8'));
+ }
+ for(const name of fs.readdirSync(path.join(dir,'art/creatures'))){
+  assert.deepEqual(fs.readFileSync(path.join(dir,'art/creatures',name)),
+   fs.readFileSync(path.join(__dirname,'../crew-app/crew-creature-lab/art/creatures',name)));
  }
 });

@@ -18,7 +18,7 @@
     <span class="tagline">聊天蒐集能量，注入能量進化 <span class="live-dot"></span></span>
   </header>
   <section class="intro">
-    <div><p class="overline">A LITTLE LAB OF CONVERSATIONS</p><h1>和 Zoe，<br><em>孵出你的生物。</em></h1><p>聊一句話，蒐集 1 點能量。能量夠了，親手注入，看著牠從蛋進化成完全體。聊什麼，決定牠會變成誰。</p></div>
+    <div><p class="overline">A LITTLE LAB OF CONVERSATIONS</p><h1>和 Zoe，<br><em>孵出你的生物。</em></h1><p>聊一句話，蒐集 1 點能量。能量夠了，親手注入，看著牠從蛋進化成完全體。每次進化都有一份禮物，聊什麼，決定牠會變成誰。</p></div>
     <div class="tag-pair"><span>⚡ 聊天集能量</span><span>✦ 親手按進化</span></div>
   </section>
   <div class="play-grid">
@@ -28,7 +28,8 @@
         <div class="energy-top"><span>⚡ 能量</span><span id="energyText">⚡ 能量 0 / 2</span></div>
         <div class="energy-track"><i id="energyFill"></i></div>
         <button id="evolveBtn" class="evolve-btn" type="button" disabled>還需要 2 能量</button>
-        <p class="evolve-hint" id="evolveHint">進化要 2 能量，聊一句 +1，能量夠了按下去就進化。</p>
+        <button id="nextBtn" class="evolve-btn next-btn" type="button" hidden>🥚 開始養下一隻</button>
+        <p class="evolve-hint" id="evolveHint">進化要 2 能量，聊一句 +1，能量夠了按下去就進化。每次進化都有禮物！</p>
       </div>
       <div class="canvas-wrap" id="canvasWrap">
         <canvas id="creatureCanvas" width="780" height="1560" role="img" aria-label="生物：從蛋進化成月狐、星龍、花妖精或小貓咪"></canvas><span class="creature-art-version" id="creatureArtVersion">✨ Creature V1</span>
@@ -44,7 +45,7 @@
       <div class="creature-actions">
         <button id="hatchBtn" class="action-btn" type="button">🥚 孵蛋</button>
         <button id="saveBtn" class="action-btn" type="button">↓ 存圖片</button>
-        <button id="boxBtn" class="action-btn box-btn" type="button" disabled>🎁 盲盒 ×0</button>
+        <button id="giftBtn" class="action-btn gift-btn" type="button" disabled>🎁 禮物 ×0</button>
         <button id="resetBtn" class="action-btn" type="button">↻ 重新開始</button>
       </div>
       <div class="micro-help" id="growthHint">試著聊「月亮、旅行、貓咪」，看看蛋會孵出什麼。聊得最多的話題，決定牠是誰。</div>
@@ -69,33 +70,33 @@
     <div class="collection-head"><div><p class="overline">YOUR CREATURES</p><h2>我的生物 <span id="collectionCount">0</span></h2></div><span>養到完全體的生物會住進這裡</span></div>
     <div id="gallery" class="gallery"><p class="empty-forest">還沒有完全體。把第一隻生物養到完全體，牠就會住進這裡。</p></div>
   </section>
-  <section class="box-collection" aria-label="盲盒圖鑑">
-    <div class="collection-head"><div><p class="overline">BLIND BOX CODEX</p><h2>🎁 盲盒圖鑑 <span id="boxCollectionCount">0/7</span></h2></div><span>養滿一隻生物、每天第一次聊天，都能拿到盲盒</span></div>
-    <p class="box-collection-note">開出蛋可以孵出指定生物；能量包直接補能量。</p>
-    <div id="boxGrid" class="box-grid"></div>
+  <section class="gift-collection" aria-label="禮物收藏">
+    <div class="collection-head"><div><p class="overline">GIFT CODEX</p><h2>🎁 禮物收藏 <span id="giftCollectionCount">0/12</span></h2></div><span>每次進化、每天第一次聊天，都能拿到禮物</span></div>
+    <p class="gift-collection-note">開出蛋可以孵出指定生物；能量包直接補能量；夥伴會永久住進場景，陪著你的生物。</p>
+    <div id="giftGrid" class="gift-grid"></div>
   </section>
-  <div class="box-modal" id="boxModal" hidden role="dialog" aria-label="打開盲盒">
-    <div class="box-modal-card">
-      <div class="box-closed" id="boxClosed"><span class="box-gift">🎁</span><p>一個盲盒，裡面有什麼？</p></div>
-      <div class="box-reveal" id="boxReveal" hidden>
-        <span class="box-item-icon" id="boxItemIcon">🥚</span>
-        <strong class="box-item-name" id="boxItemName">小貓咪的蛋</strong>
-        <span class="box-item-rarity" id="boxItemRarity">普通 · 蛋</span>
-        <p class="box-item-note" id="boxItemNote"></p>
+  <div class="gift-modal" id="giftModal" hidden role="dialog" aria-label="打開禮物">
+    <div class="gift-modal-card">
+      <div class="gift-closed" id="giftClosed"><span class="gift-gift">🎁</span><p>一個禮物，裡面有什麼？</p></div>
+      <div class="gift-reveal" id="giftReveal" hidden>
+        <span class="gift-item-icon" id="giftItemIcon">🥚</span>
+        <strong class="gift-item-name" id="giftItemName">小貓咪的蛋</strong>
+        <span class="gift-item-rarity" id="giftItemRarity">普通 · 蛋</span>
+        <p class="gift-item-note" id="giftItemNote"></p>
       </div>
-      <div class="box-modal-actions">
-        <button id="boxOpenBtn" class="action-btn primary-action" type="button">打開盲盒</button>
-        <button id="boxAgainBtn" class="action-btn primary-action" type="button" hidden>再開一個</button>
-        <button id="boxCloseBtn" class="action-btn" type="button">收下</button>
+      <div class="gift-modal-actions">
+        <button id="giftOpenBtn" class="action-btn primary-action" type="button">打開禮物</button>
+        <button id="giftAgainBtn" class="action-btn primary-action" type="button" hidden>再開一個</button>
+        <button id="giftCloseBtn" class="action-btn" type="button">收下</button>
       </div>
     </div>
   </div>
-  <div class="box-modal" id="eggModal" hidden role="dialog" aria-label="選一顆蛋孵化">
-    <div class="box-modal-card">
+  <div class="gift-modal" id="eggModal" hidden role="dialog" aria-label="選一顆蛋孵化">
+    <div class="gift-modal-card">
       <h3 class="seed-title">選一顆蛋孵化</h3>
       <p class="seed-note" id="eggNote">新的蛋等著孵化，選一顆開始養。</p>
       <div id="eggList" class="seed-list"></div>
-      <div class="box-modal-actions">
+      <div class="gift-modal-actions">
         <button id="eggCloseBtn" class="action-btn" type="button">取消</button>
       </div>
     </div>

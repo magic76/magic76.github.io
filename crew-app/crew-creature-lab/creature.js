@@ -14,13 +14,9 @@ function todayStr(){
 function loadState(){
  try{state=CRE.restore(JSON.parse(localStorage.getItem(STATE_KEY)||'null'));}
  catch{state=CRE.empty();}
- // A stage-4 current creature can only come from a hand-edited save;
- // evolve() normally resets it, so finish it here instead of stranding it.
- if(state.creature&&state.creature.stage===4){
-  state.collection.unshift({line:state.creature.line,topics:state.creature.topics.slice(),stage:4});
-  state.collection=state.collection.slice(0,64);
-  state.creature=CRE.newCreature();
- }
+ // v1.1: a stage-4 current creature is the normal "showing the final
+ // form" state (evolve() no longer resets it), so leave it alone here.
+ // The user taps "start the next one" to open a fresh egg.
 }
 function writeState(){
  try{localStorage.setItem(STATE_KEY,JSON.stringify(state));}catch{}
@@ -93,18 +89,18 @@ function popToast(message){
 }
 function clearSurprise(){
  clearTimeout(surpriseTimer);surpriseTimer=0;
- const box=$('surpriseMoment');
- if(box){box.hidden=true;box.classList.remove('enter');}
+ const moment=$('surpriseMoment');
+ if(moment){moment.hidden=true;moment.classList.remove('enter');}
 }
 function cueSurprise(event){
  if(!event)return;
  clearTimeout(toastTimer);toastTimer=0;
  $('growthToast').classList.remove('show');
  clearSurprise();
- const box=$('surpriseMoment');box.hidden=false;
+ const moment=$('surpriseMoment');moment.hidden=false;
  $('surpriseIcon').textContent=event.emoji;
  $('surpriseTitle').textContent=event.title;$('surpriseDetail').textContent=event.detail;
- box.classList.remove('enter');void box.offsetWidth;box.classList.add('enter');
+ moment.classList.remove('enter');void moment.offsetWidth;moment.classList.add('enter');
  surpriseTimer=setTimeout(clearSurprise,3300);
 }
 function creatureName(){
@@ -127,15 +123,17 @@ function updateUI(){
  btn.disabled=!can;
  btn.classList.toggle('ready',can);
  btn.textContent=can?'⚡ 注入能量，進化！':cost===null?'已是完全體':'還需要 '+(cost-state.energy)+' 能量';
- $('evolveHint').textContent=cost===null?'這隻已經是完全體，住進圖鑑後會有新的蛋。':
-  '進化要 '+cost+' 能量，聊一句 +1，能量夠了按下去就進化。';
- updateBoxUI();renderCollection();renderBoxCodex();
+ $('evolveHint').textContent=cost===null?'這隻已經是完全體了！先存圖留念，再按「開始養下一隻」繼續。':
+  '進化要 '+cost+' 能量，聊一句 +1，能量夠了按下去就進化。每次進化都有禮物！';
+ const next=$('nextBtn');
+ if(next)next.hidden=c.stage!==4;
+ updateGiftUI();renderCollection();renderGiftCodex();
 }
-function updateBoxUI(){
- const n=state.boxes||0;
- const btn=$('boxBtn');if(btn){btn.textContent='🎁 盲盒 ×'+n;btn.disabled=n<=0;}
- const count=$('boxCollectionCount');
- if(count){const owned=CRE.boxItems().filter(x=>(state.boxCollection[x.id]||0)>0).length;count.textContent=owned+'/'+CRE.boxItems().length;}
+function updateGiftUI(){
+ const n=state.gifts||0;
+ const btn=$('giftBtn');if(btn){btn.textContent='🎁 禮物 ×'+n;btn.disabled=n<=0;}
+ const count=$('giftCollectionCount');
+ if(count){const owned=CRE.giftItems().filter(x=>(state.giftCollection[x.id]||0)>0).length;count.textContent=owned+'/'+CRE.giftItems().length;}
  const cc=$('collectionCount');if(cc)cc.textContent=String(state.collection.length);
 }
 function renderCollection(){
@@ -152,52 +150,52 @@ function renderCollection(){
    +'<small>主導話題：'+(TOPICS[topic]?TOPICS[topic].label:topic)+' · '+STAGE_NAMES[4]+'</small></div>';
  }).join('');
 }
-function renderBoxCodex(){
- const grid=$('boxGrid');if(!grid)return;
- grid.innerHTML=CRE.boxItems().map(x=>{
-  const n=state.boxCollection[x.id]||0,owned=n>0;
-  const kind=x.kind==='egg'?'蛋':'能量';
-  return '<div class="box-item'+(owned?' owned':' locked')+'" style="--rc:'+x.rarityColor+'">'
-   +'<span class="box-item-ic">'+(owned?x.icon:'?')+'</span>'
-   +'<span class="box-item-nm">'+(owned?x.name:'???')+'</span>'
-   +'<span class="box-item-rt" style="color:'+(owned?x.rarityColor:'#8b8496')+'">'+(owned?x.rarityName:'未開出')+'</span>'
-   +(owned?'<span class="box-item-ct">×'+n+' · '+kind+'</span>':'')
+function renderGiftCodex(){
+ const grid=$('giftGrid');if(!grid)return;
+ grid.innerHTML=CRE.giftItems().map(x=>{
+  const n=state.giftCollection[x.id]||0,owned=n>0;
+  const kind=x.kind==='egg'?'蛋':x.kind==='companion'?'夥伴':'能量';
+  return '<div class="gift-item'+(owned?' owned':' locked')+'" style="--rc:'+x.rarityColor+'">'
+   +'<span class="gift-item-ic">'+(owned?x.icon:'?')+'</span>'
+   +'<span class="gift-item-nm">'+(owned?x.name:'???')+'</span>'
+   +'<span class="gift-item-rt" style="color:'+(owned?x.rarityColor:'#8b8496')+'">'+(owned?x.rarityName:'未開出')+'</span>'
+   +(owned?'<span class="gift-item-ct">×'+n+' · '+kind+'</span>':'')
    +'</div>';
  }).join('');
 }
-function resetBoxModal(){
- $('boxClosed').hidden=false;$('boxReveal').hidden=true;
- $('boxOpenBtn').hidden=false;$('boxAgainBtn').hidden=true;
+function resetGiftModal(){
+ $('giftClosed').hidden=false;$('giftReveal').hidden=true;
+ $('giftOpenBtn').hidden=false;$('giftAgainBtn').hidden=true;
 }
-function openBoxModal(){
- if(!(state.boxes>0))return;
- $('boxModal').hidden=false;resetBoxModal();
+function openGiftModal(){
+ if(!(state.gifts>0))return;
+ $('giftModal').hidden=false;resetGiftModal();
 }
-function closeBoxModal(){
- $('boxModal').hidden=true;
- updateBoxUI();renderBoxCodex();
+function closeGiftModal(){
+ $('giftModal').hidden=true;
+ updateGiftUI();renderGiftCodex();
 }
-function doOpenBox(){
- const item=CRE.openBox(state);
- if(!item){closeBoxModal();return;}
+function doOpenGift(){
+ const item=CRE.openGift(state);
+ if(!item){closeGiftModal();return;}
  writeState();updateUI();
- $('boxClosed').hidden=true;
- $('boxReveal').hidden=false;
- $('boxItemIcon').textContent=item.icon;
- $('boxItemName').textContent=item.name;
- const rt=$('boxItemRarity');rt.textContent=item.rarityName+' · '+(item.kind==='egg'?'蛋':'能量');rt.style.color=item.rarityColor;
- $('boxItemNote').textContent=item.note+(item.kind==='energy'?' 目前能量 '+state.energy+'。':'');
- $('boxOpenBtn').hidden=true;
- $('boxAgainBtn').hidden=!(state.boxes>0);
- renderBoxCodex();
+ $('giftClosed').hidden=true;
+ $('giftReveal').hidden=false;
+ $('giftItemIcon').textContent=item.icon;
+ $('giftItemName').textContent=item.name;
+ const rt=$('giftItemRarity');rt.textContent=item.rarityName+' · '+(item.kind==='egg'?'蛋':item.kind==='companion'?'夥伴':'能量');rt.style.color=item.rarityColor;
+ $('giftItemNote').textContent=item.note+(item.kind==='energy'?' 目前能量 '+state.energy+'。':'');
+ $('giftOpenBtn').hidden=true;
+ $('giftAgainBtn').hidden=!(state.gifts>0);
+ renderGiftCodex();
 }
 function ownedEggs(){
- return CRE.boxItems().filter(x=>x.kind==='egg'&&(state.boxCollection[x.id]||0)>0);
+ return CRE.giftItems().filter(x=>x.kind==='egg'&&(state.giftCollection[x.id]||0)>0);
 }
 function askHatch(){
  const eggs=ownedEggs();
- if(!eggs.length){popToast('還沒有蛋，開盲盒拿蛋！');return;}
- $('eggList').innerHTML=eggs.map(x=>'<button type="button" data-line="'+x.line+'" class="seed-pick"><span>'+x.icon+' '+x.name+'</span><span>×'+(state.boxCollection[x.id]||0)+'</span></button>').join('');
+ if(!eggs.length){popToast('還沒有蛋，開禮物拿蛋！');return;}
+ $('eggList').innerHTML=eggs.map(x=>'<button type="button" data-line="'+x.line+'" class="seed-pick"><span>'+x.icon+' '+x.name+'</span><span>×'+(state.giftCollection[x.id]||0)+'</span></button>').join('');
  $('eggNote').textContent=state.creature.sentences>0?
   '現在這隻還在養，換蛋會放棄牠的進度。':'新的蛋等著孵化，選一顆開始養。';
  $('eggModal').hidden=false;
@@ -215,24 +213,37 @@ function hatchEggLine(lineId){
 function doEvolve(){
  const res=CRE.evolve(state);
  if(!res)return null;
+ // v1.1: every evolution grants a gift; completing a creature grants
+ // one more. A full creature is 4 evolves + 1 complete = 5 gifts.
+ CRE.grantGift(state,'evolve');
+ if(res.completed)CRE.grantGift(state,'complete');
  writeState();
  if(res.line)CRE.preloadArt(res.line);
  reveal={started:renderTime};
  if(res.completed){
-  CRE.grantBox(state,'complete');
-  writeState();
   const line=CRE.CREATURE_LINES[res.line];
-  cueSurprise({emoji:line.icon,title:'🎉 '+line.name+' 完全體誕生了！',detail:'牠住進了你的圖鑑，新的蛋已經準備好。🎁 盲盒 +1！'});
-  popToast('🎁 盲盒 +1！');
+  cueSurprise({emoji:line.icon,title:'🎉 '+line.name+' 完全體誕生了！',detail:'牠住進了你的圖鑑。先存圖留念，再按「開始養下一隻」繼續。🎁 禮物 +2！'});
+  popToast('🎁 禮物 +2！');
  }else if(res.stage===1){
   const line=CRE.CREATURE_LINES[res.line];
   cueSurprise({emoji:line.icon,title:'🥚 蛋孵化了！是'+line.name+'！',detail:line.note});
+  popToast('🎁 禮物 +1！');
  }else{
   const line=CRE.CREATURE_LINES[res.line];
   cueSurprise({emoji:line.icon,title:'✨ 進化！'+line.name+' 長大了！',detail:'階段：'+STAGE_NAMES[res.stage]+'。'});
+  popToast('🎁 禮物 +1！');
  }
  updateUI();draw(0);
  return res;
+}
+function doStartNext(){
+ if(state.creature.stage!==4)return false;
+ CRE.startNewCreature(state);
+ writeState();
+ resetChat('Zoe','新的蛋來了！聊聊天，蒐集能量，把牠孵出來。');
+ updateUI();draw(0);
+ popToast('🥚 新的蛋準備好了！');
+ return true;
 }
 function appendMessage(who,message){
  const outer=document.createElement('div');outer.className='message '+(who==='me'?'me':'zoe');
@@ -246,6 +257,9 @@ function postMessage(raw){
  const text=String(raw||'').trim();
  if(!text)return false;
  if(text.length>240)return false;
+ // v1.1: while the final form is on display, chatting is paused so no
+ // sentence lands on an already-finished creature.
+ if(state.creature.stage===4){popToast('這隻已經是完全體了，按「開始養下一隻」繼續。');return false;}
  appendMessage('me',text);
  const signal=classify(text);
  const turn=state.creature.sentences+1;
@@ -255,7 +269,7 @@ function postMessage(raw){
  const reply=sayZoe(signal,turn);
  appendMessage('zoe',reply);
  sessionMessages++;
- if(CRE.grantBox(state,'daily',todayStr())){writeState();updateBoxUI();popToast('🎁 今日盲盒 +1！明天再來領一個。');}
+ if(CRE.grantGift(state,'daily',todayStr())){writeState();updateGiftUI();popToast('🎁 今日禮物 +1！明天再來領一個。');}
  writeState();
  updateUI();draw(0);
  if(CRE.canEvolve(state))popToast('⚡ 能量夠了，按「注入能量，進化！」');
@@ -313,12 +327,13 @@ function init(){
   if(target)postMessage(target.dataset.say);
  });
  $('evolveBtn').addEventListener('click',doEvolve);
+ $('nextBtn').addEventListener('click',doStartNext);
  $('hatchBtn').addEventListener('click',askHatch);
- $('boxBtn').addEventListener('click',openBoxModal);
- $('boxOpenBtn').addEventListener('click',doOpenBox);
- $('boxAgainBtn').addEventListener('click',resetBoxModal);
- $('boxCloseBtn').addEventListener('click',closeBoxModal);
- $('boxModal').addEventListener('click',ev=>{if(ev.target===$('boxModal'))closeBoxModal();});
+ $('giftBtn').addEventListener('click',openGiftModal);
+ $('giftOpenBtn').addEventListener('click',doOpenGift);
+ $('giftAgainBtn').addEventListener('click',resetGiftModal);
+ $('giftCloseBtn').addEventListener('click',closeGiftModal);
+ $('giftModal').addEventListener('click',ev=>{if(ev.target===$('giftModal'))closeGiftModal();});
  $('eggList').addEventListener('click',ev=>{
   const t=ev.target.closest?.('button[data-line]');if(t)hatchEggLine(t.dataset.line);
  });
@@ -331,17 +346,17 @@ function init(){
 }
 if(new URLSearchParams(location.search).get('qa')==='1'){
  Object.defineProperty(window,'__CREATURE_QA__',{value:{
-  classify,post:postMessage,evolve:doEvolve,hatch:hatchEggLine,
+  classify,post:postMessage,evolve:doEvolve,hatch:hatchEggLine,startNext:doStartNext,
   state:()=>JSON.parse(JSON.stringify(state)),
   energy:()=>state.energy,
   canEvolve:()=>CRE.canEvolve(state),
   evolveCost:n=>CRE.evolveCost(n),
   gainEnergy:()=>{const e=CRE.gainEnergy(state);writeState();return e;},
-  grantBox:(reason,today)=>CRE.grantBox(state,reason,today),
-  openBox:rand=>CRE.openBox(state,rand),
-  boxItems:()=>CRE.boxItems(),
-  boxes:()=>state.boxes,
-  boxCollection:()=>JSON.parse(JSON.stringify(state.boxCollection)),
+  grantGift:(reason,today)=>CRE.grantGift(state,reason,today),
+  openGift:rand=>CRE.openGift(state,rand),
+  giftItems:()=>CRE.giftItems(),
+  gifts:()=>state.gifts,
+  giftCollection:()=>JSON.parse(JSON.stringify(state.giftCollection)),
   lineForTopics:t=>CRE.lineForTopics(t),
   dominantTopic:t=>CRE.dominantTopic(t),
   lines:()=>Object.keys(CRE.CREATURE_LINES),
