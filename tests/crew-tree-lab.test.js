@@ -3,6 +3,8 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const dir=path.join(__dirname,'../web-spa/public/crew-tree-lab');
 const script=fs.readFileSync(path.join(dir,'tree.js'),'utf8');
+const glowScript=fs.readFileSync(path.join(dir,'forest-v6.js'),'utf8');
+const postcardScript=fs.readFileSync(path.join(dir,'postcard-v6.js'),'utf8');
 const botany=fs.readFileSync(path.join(dir,'botany.js'),'utf8');
 const familyBotany=fs.readFileSync(path.join(dir,'family-art.js'),'utf8');
 const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
@@ -11,14 +13,15 @@ const artWall=fs.readFileSync(path.join(dir,'art-review.html'),'utf8');
 const artWallScript=fs.readFileSync(path.join(dir,'art-review.js'),'utf8');
 const artFiles=['foliage-olive.svg','foliage-sage.svg','foliage-sunlit.svg','foliage-teal.svg','detail-bloom.svg','detail-fruit.svg','detail-star.svg'];
 function boot(options={}){
- const nodes=new Map(),memory=new Map(),timers=new Map(),paint={paths:0,ellipses:0,lines:0,frames:0,downloads:0,foliageGradients:0};
+ const nodes=new Map(),memory=new Map(),timers=new Map(),paint={paths:0,ellipses:0,lines:0,frames:0,downloads:0,foliageGradients:0,texts:[],rects:[],canvasSizes:[]};
  let timerId=0;
  if(options.storage)for(const [k,v] of Object.entries(options.storage))memory.set(k,v);
  const gradient=()=>({addColorStop(){}});
  const context2D=new Proxy({
   beginPath(){paint.paths++},ellipse(){paint.ellipses++},lineTo(){paint.lines++},
   createLinearGradient:gradient,
-  fillText(){paint.frames++},
+  fillText(text,x,y){paint.frames++;paint.texts.push({text,x,y,color:this.fillStyle})},
+  fillRect(x,y,w,h){paint.rects.push({x,y,w,h,color:this.fillStyle})},
   setTransform(){},clearRect(){}
  },{
   get:(o,k)=>o[k]||(
@@ -28,10 +31,10 @@ function boot(options={}){
  });
  function element(tag='div'){
   const value={tagName:tag.toUpperCase(),dataset:{},style:{},hidden:false,
-   className:'',textContent:'',value:'',scrollTop:0,scrollHeight:240,
+   className:'',textContent:'',value:'',scrollTop:0,scrollHeight:240,listeners:{},
    childNodes:[],classList:{add(){},remove(){},toggle(){}},
-   addEventListener(){},setAttribute(){},getBoundingClientRect(){return {width:390,height:386}},
-   getContext(){return context2D},toDataURL(){return 'data:image/png;base64,ZmFrZQ=='},
+   addEventListener(k,fn){this.listeners[k]=fn},setAttribute(){},getBoundingClientRect(){return {width:390,height:386}},
+   getContext(){return context2D},toDataURL(){paint.canvasSizes.push([this.width,this.height]);return 'data:image/png;base64,ZmFrZQ=='},
    click(){paint.downloads++},remove(){},
    append(...children){this.childNodes.push(...children)},
    appendChild(child){this.childNodes.push(child)},removeChild(child){this.childNodes.splice(this.childNodes.indexOf(child),1)},
@@ -54,10 +57,10 @@ function boot(options={}){
  const c={document,window,location:{search:'?qa=1'},URLSearchParams,localStorage:{
   getItem:key=>memory.get(key)||null,setItem:(key,v)=>memory.set(key,v)
  },setTimeout(fn){const id=++timerId;timers.set(id,fn);return id},clearTimeout(id){timers.delete(id)},Date,Math,console,Number,String,Array,Set,Map};
- vm.createContext(c);vm.runInContext(botany,c,{timeout:10000});vm.runInContext(familyBotany,c,{timeout:10000});vm.runInContext(script,c,{timeout:10000});
+ vm.createContext(c);vm.runInContext(botany,c,{timeout:10000});vm.runInContext(familyBotany,c,{timeout:10000});if(options.glow){vm.runInContext(glowScript,c,{timeout:10000});vm.runInContext(postcardScript,c,{timeout:10000});}vm.runInContext(script,c,{timeout:10000});
  const qa=window.__TREE_QA__;
  assert.ok(qa,'QA interface is exposed only behind ?qa=1');
- return {qa,memory,get,paint,document,fantasyCalls,timers};
+ return {qa,memory,get,paint,document,window,fantasyCalls,timers};
 }
 test('the garden is a small responsive chat toy, not a fake Gemini conversation',()=>{
  assert.match(html,/和 Zoe 種歪樹/);
@@ -228,7 +231,10 @@ test('gallery renders real mini tree canvases and recreates the exact seed after
 });
 
 test('botanical renderer is loaded before chat and keeps an independent geometry contract',()=>{
- const a=html.indexOf('src="./botany.js?v=4-20261112"'),b=html.indexOf('src="./tree.js?v=game-1-20261113"');
+ const a=html.indexOf('src="./botany.js?v=4-20261112"'),
+  g=html.indexOf('src="./forest-v6.js?v=glow-v6-20261113"'),
+  b=html.indexOf('src="./tree.js?v=glow-postcard-fixes-20261114"');
+ assert.ok(g>a&&b>g,'forest renderer must load after botany and before tree controller');
  assert.ok(a>=0&&b>a,'botany must be available before the tree controller');
  const {qa}=boot();
  assert.equal(qa.getRendererVersion(),5);
@@ -550,4 +556,264 @@ test('Game V1 monotonically scales all chat turns without stage-based resets',()
  for(let i=1;i<nums.length;i++)assert.ok(nums[i]>=nums[i-1],
   'growth scale must never shrink at stage thresholds, '+nums.join(','));
  assert.ok(nums[5]>nums[4]&&nums[8]>nums[7]);
+});
+
+test('V6 glow forest starts with a seed, cracks on 1-2, grows at 3, rises on 8 and hides 16 until revelation',()=>{
+ const {qa,get}=boot({glow:true});
+ assert.deepEqual([0,1,2,3,7,8,15,16].map(qa.glowStage),
+  ['seed','sprout','sprout','sapling','sapling','island','island','final']);
+ assert.equal(qa.glow().stage,'seed');
+ assert.match(get('gardenM16').textContent,/？？？/);
+ assert.equal(get('gardenRarity').hidden,true);
+ assert.ok(qa.glowSeed(100));
+ const first=qa.post('我喜歡喝咖啡和蛋糕');
+ assert.equal(first.count,1);
+ assert.equal(qa.glow().stage,'sprout');
+ assert.equal(qa.state().current.growth[0].topic,'food');
+ qa.post('星星宇宙');
+ assert.equal(qa.glow().stage,'sprout');
+ qa.post('旅行冒險');
+ assert.equal(qa.glow().stage,'sapling');
+ assert.equal(get('surpriseMoment').hidden,false);
+ assert.match(get('surpriseTitle').textContent,/破殼/);
+ for(let n=4;n<=7;n++)qa.post('我喜歡貓咪');
+ assert.equal(qa.glow().stage,'sapling');
+ qa.post('一首音樂');
+ assert.equal(qa.glow().stage,'island');
+ assert.match(get('surpriseTitle').textContent,/浮起來/);
+ for(let n=9;n<=15;n++)qa.post('天空好漂亮');
+ assert.equal(qa.glow().stage,'island');
+ assert.match(get('gardenM16').textContent,/？？？/);
+ assert.equal(get('gardenRarity').hidden,true);
+ const done=qa.post('我想和你一起看星空');
+ assert.equal(done.count,16);
+ assert.equal(done.form,'constellation');
+ assert.equal(done.rarity,'legend');
+ assert.equal(qa.glow().stage,'final');
+ assert.equal(qa.glow().garden.totalCompleted,1);
+ assert.equal(qa.glow().garden.slots.length,1);
+ assert.equal(qa.state().current.growth.length,0,'new seed ready automatically');
+ assert.match(get('surpriseTitle').textContent,/星空樹/);
+ assert.match(get('gardenM16').textContent,/星空樹/);
+ assert.match(get('gardenRarity').textContent,/傳說/);
+ assert.equal(qa.glowForm(101).id,'crystal');
+ assert.equal(qa.glowForm(102).id,'lantern');
+ assert.equal(qa.glowForm(103).id,'petal');
+});
+test('V6 four forms, exact rarity bands and first topic shades are deterministic from seed',()=>{
+ const {qa}=boot({glow:true});
+ assert.deepEqual([100,101,102,103].map(n=>qa.glowForm(n).id),
+  ['constellation','crystal','lantern','petal']);
+ assert.deepEqual([100,101,111,112,139,140,199].map(n=>qa.glowRarity(n).key),
+  ['legend','legend','epic','rare','rare','common','common']);
+ // The user supplied six topic colors are deterministic while existing 12 topic
+ // classifier and 12 mutations retain their original behavior.
+ assert.equal(qa.classify('咖啡蛋糕').topic,'food');
+ assert.equal(qa.classify('宇宙星球').topic,'cosmos');
+ assert.equal(qa.classify('旅行飛機').topic,'travel');
+ assert.equal(qa.classify('貓咪小狗').topic,'animals');
+ assert.equal(qa.classify('音樂唱歌').topic,'music');
+ assert.equal(qa.mutations.length,12);
+ assert.equal(qa.allTopics.length,13,'12 named topics + daily');
+});
+test('V6 persistent five-tree garden unlocks mushroom path, pond, aurora then retires oldest',()=>{
+ const {qa,memory,get,paint}=boot({glow:true});
+ const expected=['constellation','crystal','lantern','petal','constellation'];
+ for(let i=0;i<5;i++){
+  assert.equal(qa.glowSeed(200+i),true);
+  let last;
+  for(let n=0;n<16;n++)last=qa.post(['宇宙星球','咖啡蛋糕','音樂唱歌','貓咪旅遊'][n%4]);
+  assert.equal(last.count,16);
+  assert.equal(last.form,expected[i]);
+  assert.equal(qa.glow().garden.totalCompleted,i+1);
+  assert.equal(qa.glow().garden.slots.length,Math.min(i+1,4));
+  assert.equal(qa.glow().garden.retired.length,Math.max(0,i-3));
+  if(i===2){assert.match(last.forestEvent,/菇/);assert.match(get('forestUnlocks').textContent,/菇路/);}
+  if(i===3){assert.match(last.forestEvent,/池塘/);assert.match(get('forestUnlocks').textContent,/池塘/);}
+  if(i===4){assert.match(last.forestEvent,/極光/);assert.match(get('forestUnlocks').textContent,/極光/);}
+ }
+ const end=qa.glow();
+ assert.equal(end.garden.retired[0].seed,200,'oldest completed tree retired');
+ assert.equal(end.garden.slots[0].seed,201);
+ assert.equal(get('retiredCount').textContent,'1');
+ assert.equal(get('retiredForest').hidden,false);
+ assert.ok(paint.paths>30,'five tree canvases are drawn with Canvas 2D');
+ assert.ok(qa.exportImage(),'forest poster exported even while current seed has 0 turns');
+ assert.ok(paint.downloads>0);
+ const gardenPayload=memory.get('crew-tree-glow-forest-v6');
+ for(const secret of ['宇宙星球','咖啡蛋糕','音樂唱歌','貓咪旅遊'])
+  assert.equal(gardenPayload.includes(secret),false,'forest storage must not contain raw messages');
+ const reload=boot({glow:true,storage:Object.fromEntries(memory)});
+ assert.equal(reload.qa.glow().garden.totalCompleted,5);
+ assert.equal(reload.qa.glow().garden.slots.length,4);
+ assert.equal(reload.qa.glow().garden.retired[0].seed,200);
+ assert.equal(reload.get('retiredCount').textContent,'1');
+ assert.equal(reload.qa.glowReset(),true);
+ assert.equal(reload.qa.glow().garden.totalCompleted,0);
+ assert.equal(reload.qa.glow().stage,'seed');
+ assert.equal(reload.qa.state().forest.length,5,'independent old tree collection remains intact');
+});
+test('V6 replica, no new dependencies or backend, responsive milestones and 1080x1920 poster',()=>{
+ const second=fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab/forest-v6.js'),'utf8');
+ const forest=fs.readFileSync(path.join(dir,'forest-v6.js'),'utf8');
+ assert.equal(second,forest,'identical new engine in actual and mirrored directories');
+ for(const name of ['tree.js','index.html','tree.css']){
+  assert.equal(fs.readFileSync(path.join(dir,name),'utf8'),
+   fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab',name),'utf8'),
+   name+' mirrored exactly');
+ }
+ assert.match(html,/forest-v6\.js/);
+ assert.match(html,/id="gardenTotal"/);
+ assert.match(html,/id="gardenM3"/);
+ assert.match(html,/id="gardenM8"/);
+ assert.match(html,/id="gardenM16"/);
+ assert.match(html,/id="retiredForest"/);
+ assert.match(html,/id="resetGardenBtn"/);
+ assert.match(css,/aspect-ratio:780 \/ 1120/);
+ assert.match(forest,/canvas\.width=1080;canvas\.height=1920/);
+ assert.match(forest,/colorFamilies/);
+ assert.doesNotMatch(forest,/\bWebGL\b.*(?:createContext|getContext\('webgl)/);
+ assert.doesNotMatch(script+forest,/\bfetch\s*\(|XMLHttpRequest|WebSocket\s*\(/);
+});
+
+test('V6 1080×1920 postcard reserves a 480px branded bottom quarter with level, sentence and privacy-safe daily line',()=>{
+ const {qa,get,paint,memory}=boot({glow:true});
+ assert.equal(qa.glowSeed(100),true);
+ for(let i=1;i<=16;i++)qa.post('宇宙星球太空');
+ assert.equal(qa.glow().garden.totalCompleted,1);
+ assert.equal(get('momentSave').hidden,false,'16th turn offers save this moment');
+ assert.match(get('momentSaveLabel').textContent,/星空樹/);
+ const snap=qa.glowPoster();
+ assert.equal(snap.active.seed,100,'snapshot must retain finished seed after automatic new sprout');
+ assert.equal(snap.active.growth.length,16);
+ assert.equal(snap.garden.totalCompleted,1);
+ assert.equal(snap.options.topic,'cosmos');
+ assert.equal(qa.exportImage(),true);
+ assert.equal(paint.downloads,1);
+ assert.ok(paint.canvasSizes.some(([w,h])=>w===1080&&h===1920),'exact 1080×1920 PNG');
+ assert.ok(paint.rects.some(r=>r.x===0&&r.y===1440&&r.w===1080&&r.h===480&&r.color==='#12101C'),
+   'bottom information panel is exactly one quarter height');
+ assert.ok(paint.rects.some(r=>r.y===1440&&r.color==='#6257E7'),'purple rule uses #6257E7');
+ for(const fragment of ['共種了 1 棵樹','森林最新的成長','森林長出了一棵星空樹','3sssi.com','森林奇景待解鎖']){
+  assert.ok(paint.texts.some(line=>String(line.text).includes(fragment)),fragment);
+ }
+ assert.ok(paint.texts.some(line=>line.color==='#F7F7F4'));
+ assert.equal(paint.texts.some(line=>String(line.text).includes('宇宙星球太空')),false,
+  'actual private user sentence must not be included in share PNG');
+ get('quickForestSave').listeners.click();
+ get('captureMilestoneBtn').listeners.click();
+ assert.equal(paint.downloads,3,'both buttons use the same PNG exporter');
+ qa.post('咖啡甜點');
+ assert.equal(get('momentSave').hidden,true,'next turn closes stale moment CTA');
+ assert.equal(qa.glowPoster().active.growth.length,1,'after new chat share uses new active tree');
+ assert.equal(memory.get('crew-tree-glow-forest-v6').includes('宇宙星球太空'),false);
+});
+test('V6 3/4/5 forests all surface persistent save-this-moment CTA and level changes',()=>{
+ const {qa,get}=boot({glow:true});
+ for(let i=0;i<5;i++){
+  qa.glowSeed(300+i);
+  for(let n=0;n<16;n++)qa.post('音樂唱歌');
+  assert.equal(get('momentSave').hidden,false);
+  assert.match(get('momentSaveLabel').textContent,/存下這一刻/);
+  const photo=qa.glowPoster();
+  assert.equal(photo.garden.totalCompleted,i+1);
+  assert.equal(photo.active.seed,300+i);
+  assert.equal(photo.active.growth.length,16);
+  if(i===2)assert.match(get('momentSaveLabel').textContent,/螢光菇/);
+  if(i===3)assert.match(get('momentSaveLabel').textContent,/池塘/);
+  if(i===4)assert.match(get('momentSaveLabel').textContent,/極光/);
+ }
+ assert.equal(get('gardenTotal').textContent,'5');
+ assert.match(glowScript,/const forestLevels=/);
+ assert.match(postcardScript,/inForest\?0:Math\.min/);
+ assert.match(glowScript,/function forestLevel\(n\)/);
+ assert.match(glowScript,/at:3,name:'螢菇森林'/);
+ assert.match(glowScript,/at:4,name:'月池森林'/);
+ assert.match(glowScript,/at:5,name:'極光森林'/);
+});
+test('V6 each sentence adds a persistent topic-tinted pair of leaves to its branch and both copies stay identical',()=>{
+ assert.match(glowScript,/Persistent leaf geometry for every sentence/);
+ assert.match(glowScript,/Math\.ceil\(shape\.branches\.length\*\(i\+1\)\/16\)-1/);
+ assert.match(glowScript,/const col=topicColors\[topic\]\|\|topicColors\.daily/);
+ for(const id of ['quickForestSave','captureMilestoneBtn','momentSaveLabel'])assert.ok(html.includes('id="'+id+'"'));
+ assert.match(css,/body\.glow-v6 \.quick-forest-save\{display:flex;position:absolute/);
+ assert.match(css,/body\.glow-v6 \.moment-save\[hidden\]\{display:none!important\}/);
+ for(const name of ['forest-v6.js','tree.js','tree.css','index.html']){
+  const local=fs.readFileSync(path.join(dir,name),'utf8');
+  const mirrored=fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab',name),'utf8');
+  assert.equal(local,mirrored,'replica content must match '+name);
+ }
+});
+
+test('V6 postcard fixes date, unlocks, event, retired count, deduplicated reveal, HUD',()=>{
+ const {qa,get,paint,document,window}=boot({glow:true});
+ const card=window.CrewForestPostcardV6;
+ assert.equal(card.forestLabel(0).name,'森林奇景待解鎖');
+ assert.equal([3,4,5].map(n=>card.forestLabel(n).name).join(','),'螢光菇小路,小池塘,極光');
+ for(let i=0;i<5;i++){
+  const seed=200+i;
+  assert.equal(qa.glowSeed(seed),true);
+  for(let n=0;n<16;n++)qa.post('宇宙星球太空');
+  const args=qa.glowPoster(),scene=card.sceneGarden(args.garden,args.active);
+  assert.equal(scene.slots.length,args.garden.slots.length);
+  assert.equal(scene.slots.filter(Boolean).length,Math.min(i,3),'one final tree foreground');
+  assert.equal(scene.slots.some(s=>s?.seed===seed),false,'no duplicate foreground tree');
+  assert.equal(args.garden.slots.at(-1).seed,seed,'persistent state not changed');
+  assert.match(get('traitRow').innerHTML,/宇宙/,'HUD describes completed tree');
+  assert.doesNotMatch(get('traitRow').innerHTML,/日常.+0 種突變/);
+  const at=paint.texts.length;
+  assert.equal(card.render(document.createElement('canvas'),args.garden,args.active,1000,
+   {...args.options,date:new Date(2026,10,14)}),true);
+  const text=paint.texts.slice(at).map(x=>String(x.text));
+  for(const value of ['2026.11.14 · Crew 種樹','共種了 '+(i+1)+' 棵樹',
+   '森林現有 '+Math.min(i+1,4)+' 棵',card.forestLabel(i+1).name])
+   assert.ok(text.some(s=>s.includes(value)),value);
+  const events=['森林長出了一棵星空樹','森林長出了一棵水晶樹',
+   '螢光菇小路出現了','森林長出一座小池塘','極光點亮森林'];
+  assert.ok(text.some(s=>s.includes(events[i])),events[i]);
+  assert.equal(text.some(s=>s.includes('剛剛那顆星')),false);
+  if(i===4)assert.ok(text.some(s=>s.includes('1 棵已退休')));
+ }
+ assert.match(css,/body\.glow-v6 #shareBtn\{display:none!important\}/);
+ assert.match(script,/sceneGarden\(garden,reveal\.tree\)/);
+});
+test('V6 postcard module shares current 3/8/16 milestones without touching forest drawing',()=>{
+ const {qa,get,paint}=boot({glow:true});
+ assert.equal(qa.glowSeed(101),true);
+ for(let n=1;n<=3;n++)qa.post('宇宙星球');
+ assert.equal(get('momentSave').hidden,false);
+ assert.match(get('momentSaveLabel').textContent,/破殼.+存下這一刻/);
+ assert.equal(qa.glowPoster().active.growth.length,3);
+ assert.equal(qa.glowPoster().options.reveal,undefined,'3 turns must not show 16-turn final');
+ assert.ok(qa.exportImage());
+ assert.ok(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 3 句')));
+ qa.post('貓咪');
+ assert.equal(get('momentSave').hidden,true,'new chat clears the stale postcard');
+ for(let n=5;n<=8;n++)qa.post('音樂');
+ assert.match(get('momentSaveLabel').textContent,/浮島.+存下這一刻/);
+ assert.equal(qa.glowPoster().active.growth.length,8);
+ assert.equal(qa.glowPoster().options.reveal,undefined,'8 turns must not reveal final form');
+ assert.ok(qa.exportImage());
+ assert.ok(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 8 句')));
+ for(let n=9;n<=16;n++)qa.post('旅行');
+ assert.match(get('momentSaveLabel').textContent,/存下這一刻/);
+ assert.equal(qa.glowPoster().active.growth.length,16);
+ assert.ok(qa.glowPoster().options.reveal,'16 turns freezes final reveal');
+ assert.ok(qa.exportImage());
+ assert.ok(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 16 句')),
+  '16th-turn card must not double-count the completed tree as 32');
+ assert.equal(paint.texts.some(t=>String(t.text).includes('和 Zoe 聊了 32 句')),false);
+ assert.equal(paint.downloads,3);
+});
+test('V6 postcard is a separate, mirrored presentation adapter and the painting engine is not edited',()=>{
+ assert.match(html,/postcard-v6\.js/);
+ assert.match(script,/CrewForestPostcardV6\?\.render/);
+ assert.match(postcardScript,/ART_HEIGHT=1440,FOOTER=480/);
+ assert.match(postcardScript,/strokeRect\(24,24/);
+ assert.match(postcardScript,/forestEvent\(engine,garden,active,options\)/);
+ assert.doesNotMatch(postcardScript,/\bfetch\s*\(|WebGL|XMLHttpRequest/);
+ assert.equal(fs.readFileSync(path.join(dir,'postcard-v6.js'),'utf8'),
+  fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab/postcard-v6.js'),'utf8'));
+ assert.equal(fs.readFileSync(path.join(dir,'forest-v6.js'),'utf8'),
+  fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab/forest-v6.js'),'utf8'));
 });

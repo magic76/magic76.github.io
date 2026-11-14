@@ -30,7 +30,7 @@ async function preview(page,label){
    const failures=[];
    page.on('pageerror',error=>failures.push(error.message));
    page.on('response',r=>{if(r.status()>=400)failures.push('HTTP '+r.status()+' '+r.url())});
-   await page.goto(ROOT+'?qa=1',{waitUntil:'networkidle',timeout:40000});
+   await page.goto(ROOT+'?qa=1&legacy=1',{waitUntil:'networkidle',timeout:40000});
    await page.waitForFunction(()=>window.CrewTreeV5?.assetStatus()?.allLoaded&&window.__TREE_QA__?.artStatus()?.allLoaded&&window.CrewFantasyGameArt?.assetsReady(),{timeout:20000});
    await page.evaluate(()=>{window.__TREE_QA__.chooseKind('island');window.__TREE_QA__.chooseWorld('cosmos');});
    assert.equal(await page.locator('.tree-art-version').innerText(),'✨ Art V9 · 活的幻想樹');
@@ -134,7 +134,7 @@ async function preview(page,label){
   }
   // Check desktop 1440px aspect ratio rather than only mobile crop.
   const wideCtx=await browser.newContext({viewport:{width:1440,height:900},deviceScaleFactor:1,reducedMotion:'reduce'});
-  const wide=await wideCtx.newPage();await wide.goto(ROOT+'?qa=1',{waitUntil:'networkidle'});
+  const wide=await wideCtx.newPage();await wide.goto(ROOT+'?qa=1&legacy=1',{waitUntil:'networkidle'});
   const wideFit=await wide.evaluate(()=>{
    const b=document.getElementById('treeCanvas').getBoundingClientRect(),ratio=b.width*820/800;
    return{width:b.width,height:b.height,expected:ratio,blank:Math.abs(b.height-ratio),
@@ -147,7 +147,7 @@ async function preview(page,label){
   await wideCtx.close();
   // Real V5 1.25-second live growth (not a static after-state) at 390px.
   const animCtx=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'no-preference'});
-  const anim=await animCtx.newPage();await anim.goto(ROOT+'?qa=1',{waitUntil:'networkidle'});
+  const anim=await animCtx.newPage();await anim.goto(ROOT+'?qa=1&legacy=1',{waitUntil:'networkidle'});
   await anim.waitForFunction(()=>window.CrewFantasyGameArt?.assetsReady());
   await anim.evaluate(()=>{window.__TREE_QA__.chooseKind('island');window.__TREE_QA__.chooseWorld('travel');});
   for(let n=1;n<=2;n++)await anim.evaluate(text=>window.__TREE_QA__.post(text),messages[n-1]);
@@ -247,5 +247,155 @@ async function preview(page,label){
   assert.ok(await mobile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+2));
   await mobile.screenshot({path:path.join(OUT,'v5-review-390px.png'),fullPage:true});
   await mobileWall.close();
+
+  // Crew Glow Forest V6 is the real default tree lab. Keep the old V5/V9
+  // acceptance above accessible only via explicit ?legacy=1.
+  const glowCtx=await browser.newContext({
+   viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce',acceptDownloads:true
+  });
+  const glow=await glowCtx.newPage();
+  const issues=[];
+  glow.on('pageerror',e=>issues.push(e.message));
+  glow.on('response',res=>{if(res.status()>=400)issues.push(res.status()+' '+res.url());});
+  await glow.goto(ROOT+'?qa=1',{waitUntil:'networkidle',timeout:45000});
+  await glow.waitForFunction(()=>window.CrewGlowForestV6&&document.body.classList.contains('glow-v6'));
+  const layout=await glow.evaluate(()=>{
+   const x=document.getElementById('treeCanvas').getBoundingClientRect();
+   return {width:x.width,height:x.height,expected:x.width*1120/780,
+    scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+  });
+  assert.ok(layout.scroll<=layout.viewport+2,'V6 390px must not scroll horizontally '+JSON.stringify(layout));
+  assert.ok(Math.abs(layout.height-layout.expected)<2,'new art must use 780:1120 portrait ratio');
+  console.log('GLOW_V6_390_LAYOUT='+JSON.stringify(layout));
+  assert.equal(await glow.locator('#quickForestSave').isVisible(),true);
+  const quick=await glow.locator('#quickForestSave').boundingBox();
+  const canvasBox=await glow.locator('#canvasWrap').boundingBox();
+  assert.ok(quick&&canvasBox&&quick.x>canvasBox.x+canvasBox.width/2,
+   'persistent PNG button must be in upper-right of the night-stage');
+  assert.ok(quick.height>=44,'390px quick download should have 44px touch height');
+  const stillSnapshots=[];
+  const staticFrame=()=>glow.evaluate(()=>{
+   const canvas=document.createElement('canvas');canvas.width=390;canvas.height=560;
+   const qa=window.__TREE_QA__;
+   window.CrewGlowForestV6.paint(canvas,qa.glow().garden,qa.state().current,1000,
+     {width:390,height:560,still:true});
+   return canvas.toDataURL('image/png');
+  });
+  for(let i=0;i<5;i++){
+   const seed=200+i;
+   assert.equal(await glow.evaluate(seed=>window.__TREE_QA__.glowSeed(seed),seed),true);
+   if(i===0){
+    await glow.waitForTimeout(70);
+    await glow.locator('#canvasWrap').screenshot({path:path.join(OUT,'V6-mobile-0-seed.png')});
+    stillSnapshots.push({n:0,url:await staticFrame()});
+   }
+   for(let n=1;n<=16;n++){
+    const res=await glow.evaluate((({turn,seed})=>
+     window.__TREE_QA__.post(['我今天想喝咖啡','我們去宇宙旅行','我家貓咪很好玩','我要聽音樂唱歌'][turn%4])),{turn:n,seed});
+    assert.equal(res.count,n);
+    if(i===0&&n<=15){
+     const url=await staticFrame();
+     assert.notEqual(url,stillSnapshots[stillSnapshots.length-1].url,
+       'every chat turn must change visible pixels, including non-milestones: '+n);
+     stillSnapshots.push({n,url});
+    }
+    if(i===0&&[1,2,3,8,16].includes(n)){
+     const state=await glow.evaluate(()=>window.__TREE_QA__.glow());
+     const expected=n===1||n===2?'sprout':n===3?'sapling':n===8?'island':'final';
+     assert.equal(state.stage,expected);
+     if(n<16)assert.match(await glow.locator('#gardenM16').innerText(),/？？？/);
+     await glow.waitForTimeout(75);
+     await glow.locator('.tree-panel').screenshot({path:path.join(OUT,'V6-mobile-'+n+'-stage.png')});
+    }
+    if(n===16){
+     const state=await glow.evaluate(()=>window.__TREE_QA__.glow());
+     assert.equal(state.garden.totalCompleted,i+1);
+     assert.equal(state.garden.slots.length,Math.min(i+1,4));
+     assert.equal(state.garden.retired.length,Math.max(0,i-3));
+     assert.equal(state.reveal.form,['constellation','crystal','lantern','petal','constellation'][i]);
+     const formName=['星空樹','水晶樹','燈籠樹','花瀑樹','星空樹'][i];
+     assert.match(await glow.locator('#surpriseTitle').innerText(),new RegExp(formName));
+     await glow.waitForTimeout(100);
+     await glow.locator('.tree-panel').screenshot({path:path.join(OUT,'V6-mobile-final-'+formName+'.png')});
+     assert.equal(await glow.locator('#momentSave').isVisible(),true,
+       'all 16th turns offer save-this-moment before the new seed appears');
+     assert.match(await glow.locator('#captureMilestoneBtn').innerText(),/存下這一刻/);
+      assert.doesNotMatch(await glow.locator('#traitRow').innerText(),/日常.*0 種突變/,
+       'the HUD must still show the completed tree');
+     if(i>=2)await glow.locator('.tree-panel').screenshot({
+      path:path.join(OUT,'V6-mobile-forest-'+(i+1)+'-save-moment.png')
+     });
+     if(i===2)assert.match(await glow.locator('#forestUnlocks').innerText(),/菇路/);
+     if(i===3)assert.match(await glow.locator('#forestUnlocks').innerText(),/池塘/);
+     if(i===4)assert.match(await glow.locator('#forestUnlocks').innerText(),/極光/);
+    }
+   }
+  }
+  await glow.locator('.tree-panel').screenshot({path:path.join(OUT,'V6-mobile-5-forest-before-seed.png')});
+  assert.equal(await glow.locator('#retiredCount').innerText(),'1');
+  // Retire the oldest from four occupied slots; reveal eventually yields the
+  // new seed in front of four grown completed trees.
+  const five=await glow.evaluate(()=>window.__TREE_QA__.glow());
+  assert.equal(five.garden.retired[0].seed,200);
+  assert.deepEqual(five.garden.slots.map(t=>t.seed),[201,202,203,204]);
+  const d=glow.waitForEvent('download');
+  await glow.locator('#quickForestSave').click();
+  const download=await d;
+  assert.match(download.suggestedFilename(),/^crew-forest-5-trees\.png$/);
+  const posterFile=path.join(OUT,'V6-5-trees-postcard-1080x1920.png');
+  await download.saveAs(posterFile);
+  const png=fs.readFileSync(posterFile);
+  assert.equal(png.readUInt32BE(16),1080,'PNG width');
+  assert.equal(png.readUInt32BE(20),1920,'PNG height');
+  const sampled=await glow.evaluate(()=>{
+   const q=window.__TREE_QA__.glowPoster(),out=document.createElement('canvas');
+   window.CrewForestPostcardV6.render(out,q.garden,q.active,1000,q.options);
+   const c=out.getContext('2d');
+   return {width:out.width,height:out.height,
+    black:[...c.getImageData(5,1500,1,1).data],
+    purple:[...c.getImageData(5,1444,1,1).data],
+    level:window.CrewForestPostcardV6.forestLabel(q.garden.totalCompleted).name,
+     duplicateFree:window.CrewForestPostcardV6.sceneGarden(q.garden,q.active).slots.filter(Boolean).length};
+  });
+  assert.deepEqual(sampled.black.slice(0,3),[18,16,28]);
+  assert.deepEqual(sampled.purple.slice(0,3),[98,87,231]);
+  assert.equal(sampled.level,'極光');
+   assert.equal(sampled.duplicateFree,3,'3 slotted trees plus 1 revealed tree');
+   assert.equal(await glow.locator('#shareBtn').isVisible(),false,'no duplicated action-row share');
+  const secondDownload=glow.waitForEvent('download');
+  await glow.locator('#captureMilestoneBtn').click();
+  assert.match((await secondDownload).suggestedFilename(),/crew-forest-5-trees\.png$/);
+  console.log('GLOW_V6_POSTCARD_OK '+JSON.stringify(sampled));
+  // 0 to 15 turn-by-turn fixed-time screenshots in one inspection sheet.
+  const sheetBase64=await glow.evaluate(async captures=>{
+   const out=document.createElement('canvas');out.width=4*195;out.height=4*290;
+   const c=out.getContext('2d');c.fillStyle='#12101c';c.fillRect(0,0,out.width,out.height);
+   for(let i=0;i<captures.length;i++){
+    const shot=captures[i],im=new Image();im.src=shot.url;await im.decode();
+    const col=i%4,row=Math.floor(i/4),x=col*195,y=row*290;
+    c.drawImage(im,x+4,y+4,187,265);
+    c.fillStyle='#F7F7F4';c.font='bold 16px system-ui';c.textAlign='center';
+    c.fillText(shot.n+' 句',x+97,y+284);
+   }
+   return out.toDataURL('image/png').split(',')[1];
+  },stillSnapshots);
+  fs.writeFileSync(path.join(OUT,'V6-every-turn-0-to-15-contact.png'),
+   Buffer.from(sheetBase64,'base64'));
+  console.log('GLOW_V6_EVERY_TURN_OK 16 unique static Canvas frames, one per conversation state');
+  await glow.waitForTimeout(3850);
+  await glow.locator('#canvasWrap').screenshot({path:path.join(OUT,'V6-mobile-5-trees-new-seed.png')});
+  assert.equal((await glow.evaluate(()=>window.__TREE_QA__.glow())).stage,'seed');
+   assert.match(await glow.locator('#traitRow').innerText(),/日常/,
+    'HUD switches to the new seed after reveal');
+  await glow.screenshot({path:path.join(OUT,'V6-mobile-five-forest-full-page.png'),fullPage:true});
+  await glow.reload({waitUntil:'networkidle'});
+  const savedGarden=await glow.evaluate(()=>window.__TREE_QA__.glow());
+  assert.equal(savedGarden.garden.totalCompleted,5);
+  assert.equal(savedGarden.garden.slots.length,4);
+  assert.equal(savedGarden.garden.retired[0].seed,200);
+  assert.equal(issues.length,0,JSON.stringify(issues));
+  console.log('GLOW_V6_BROWSER_OK 390px 0/1/2/3/8/16, four distinct final forms, 3/4/5 forest, retirement, 1080x1920 share, reload; 0 page errors');
+  await glowCtx.close();
+
  }finally{await browser.close()}
 })().catch(err=>{console.error(err);process.exit(1)});
