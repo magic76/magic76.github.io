@@ -212,6 +212,45 @@ function creatureName(){
  const line=CRE.CREATURE_LINES[c.line];
  return line.icon+' '+line.name+' · '+STAGE_NAMES[c.stage];
 }
+// The local Zoe prototype reuses the previous conversation topic for a
+// creature-specific, tappable next-day invitation. No server or new endpoint.
+const CARE_SCENES={
+ ocean:{place:'海邊',options:['撿貝殼','看夕陽'],reactions:['把一顆漂亮的貝殼珍藏起來。','在晚霞下開心地轉了一圈。']},
+ travel:{place:'旅行',options:['去探險','看地圖'],reactions:['勇敢地往前走了幾步。','用爪子在地圖上畫了一顆星星。']},
+ cosmos:{place:'星空',options:['數星星','追流星'],reactions:['數到第三顆星就開心地跳了起來。','看著流星許了一個小願望。']},
+ animals:{place:'小動物',options:['交朋友','玩捉迷藏'],reactions:['跟新朋友輕輕碰了碰鼻子。','從樹後探出頭跟你眨了眨眼。']},
+ nature:{place:'花園',options:['澆花','找蝴蝶'],reactions:['替一朵小花澆了水。','跟著蝴蝶慢慢轉了一圈。']},
+ snow:{place:'雪地',options:['堆雪人','踩腳印'],reactions:['替雪人戴上一片葉子。','在雪上留下了一串小腳印。']},
+ bamboo:{place:'竹林',options:['聽竹葉','找小徑'],reactions:['閉上眼聽竹葉沙沙響。','發現了一條藏在竹林裡的小路。']},
+ fire:{place:'火光',options:['看火花','許願望'],reactions:['輕輕接住了一顆溫暖的火花。','對著光點悄悄許了願。']},
+ music:{place:'音樂',options:['一起唱歌','跳個舞'],reactions:['開心地哼起了小曲。','踏著節拍轉了一圈。']},
+ food:{place:'甜點',options:['分享點心','烤餅乾'],reactions:['把最甜的一小口留給你。','聞著餅乾香氣開心地搖搖頭。']},
+ weather:{place:'天氣',options:['聽雨聲','看彩虹'],reactions:['安靜地聽著雨點打拍子。','抬頭看見一道七彩的光。']},
+ dream:{place:'夢境',options:['追月光','說個故事'],reactions:['追著地上的月光輕輕跑。','窩在你身邊聽完了一個故事。']},
+ play:{place:'遊戲',options:['玩躲貓貓','一起跳舞'],reactions:['偷偷躲起來又馬上笑出聲。','跟著你一起轉圈圈。']},
+ love:{place:'陪伴',options:['抱抱牠','一起散步'],reactions:['舒服地靠在你身上。','慢慢地陪你走了一小段路。']},
+ stress:{place:'心事',options:['散散心','看看天空'],reactions:['安靜地陪你走過一條小路。','和你一起看著天空發呆。']},
+ daily:{place:'日常',options:['一起散步','說悄悄話'],reactions:['高興地陪你走了一圈。','認真聽完後輕輕點點頭。']}
+};
+function careContext(){
+ const c=state.creature;
+ const recent=(c.memories||[]).slice(-1)[0];
+ const lastTopic=(recent&&recent.topic)||(c.topics||[]).slice(-1)[0]||'daily';
+ const scene=CARE_SCENES[lastTopic]||CARE_SCENES.daily;
+ const line=CRE.CREATURE_LINES[c.line];
+ const who=line?line.name:'小生物';
+ const lead=recent?(recent.date===todayStr()?'剛剛':'上次'):'之前';
+ return {topic:lastTopic,scene,who,lead,prompt:lead+'你和'+who+'聊到'+scene.place+'，今天想'+scene.options[0]+'，還是'+scene.options[1]+'？'};
+}
+function rememberCare(text,topic){
+ const c=state.creature;
+ if(!Array.isArray(c.memories))c.memories=[];
+ c.memories.push({date:todayStr(),text:String(text).slice(0,160),topic:CARE_SCENES[topic]?topic:'daily'});
+ c.memories=c.memories.slice(-30);
+ // The newest completed entry is this same creature, not a new hatch.
+ if(state.collection[0]&&state.collection[0].line===c.line&&state.collection[0].stage===4)
+  state.collection[0].memories=c.memories.slice();
+}
 function updateUI(){
  const c=state.creature;
  $('creatureName').textContent=creatureName();
@@ -234,20 +273,49 @@ function updateUI(){
  }
  const btn=$('evolveBtn'),can=CRE.canEvolve(state);
  btn.disabled=!can||evolving;
+ btn.hidden=c.stage===4;
  btn.classList.toggle('ready',can&&!evolving);
- btn.textContent=can?'⚡ 注入能量，進化！':cost===null?'已是完全體':'還需要 '+(cost-state.energy)+' 能量';
- $('evolveHint').textContent=cost===null?'這隻已經是完全體了！先存圖留念，再按「開始養下一隻」繼續。':
+ btn.textContent=c.stage===0?(can?'🥚 孵出我的生物':'還需要 '+(cost-state.energy)+' 能量'):
+  (can?'⚡ 注入能量，進化！':cost===null?'已是完全體':'還需要 '+(cost-state.energy)+' 能量');
+ $('evolveHint').textContent=c.stage===0?
+  (can?'能量集滿了！親手按下按鈕，看看 8 種生物會孵出哪一隻。':c.sentences===1?'再聊 1 句，牠就要破殼了！':'點下面的話題，聊兩句就能孵出第一隻。'):
+  cost===null?'牠會一直在這裡陪你。每天聊一句都有一份首聊禮物；想養下一隻時再決定。':
   '進化要 '+cost+' 能量，聊一句 +1，能量夠了按下去就進化。每次進化都有禮物！';
  const next=$('nextBtn');
  if(next)next.hidden=c.stage!==4;
- updateGiftUI();renderCollection();renderLinePreview();renderGiftCodex();
+ const hatchGuide=$('hatchGuide');
+ if(hatchGuide)hatchGuide.hidden=c.stage!==0;
+ const hatchIdeas=$('hatchIdeas');
+ if(hatchIdeas)hatchIdeas.hidden=c.stage!==0||can;
+ const hatchPrompt=$('hatchPrompt');
+ if(hatchPrompt)hatchPrompt.textContent=c.sentences===0?'先選一句話和 Zoe 聊聊，蛋就會有能量。':
+  can?'✨ 牠準備破殼了，這次由你按下孵化！':'再聊 1 句，牠就要破殼了！';
+ renderCare();updateGiftUI();renderCollection();renderLinePreview();renderGiftCodex();
 }
 function updateGiftUI(){
  const n=state.gifts||0;
  const btn=$('giftBtn');if(btn){btn.textContent='🎁 禮物 ×'+n;btn.disabled=n<=0;}
  const count=$('giftCollectionCount');
- if(count){const owned=CRE.giftItems().filter(x=>(state.giftCollection[x.id]||0)>0).length;count.textContent=owned+'/'+CRE.giftItems().length;}
+ if(count){const seen=CRE.giftItems().filter(x=>state.giftSeen&&state.giftSeen[x.id]).length;count.textContent=seen+'/'+CRE.giftItems().length;}
  const cc=$('collectionCount');if(cc)cc.textContent=String(state.collection.length);
+ const switchEgg=$('hatchBtn');
+ if(switchEgg){switchEgg.hidden=!ownedEggs().length;switchEgg.textContent='🥚 換一顆蛋';}
+}
+function renderCare(){
+ const panel=$('carePanel'),c=state.creature;
+ if(!panel)return;
+ panel.hidden=c.stage!==4;
+ if(c.stage!==4)return;
+ const info=careContext();
+ $('carePrompt').textContent='Zoe：'+info.prompt;
+ const choices=$('careChoices');
+ choices.innerHTML=info.scene.options.map((name,i)=>'<button type="button" data-care="'+i+'">'+name+'</button>').join('');
+ const last=(c.memories||[]).slice(-1)[0];
+ const memo=$('careMemory');
+ memo.hidden=!last;
+ if(last)memo.textContent='📖 '+last.date+' · '+last.text;
+ $('careStatus').textContent=last&&last.date===todayStr()?'今天的回憶已收藏 · 還能繼續陪牠聊天':
+  '今天陪牠做個小選擇，留下屬於你們的回憶';
 }
 function renderCollection(){
  const grid=$('gallery');if(!grid)return;
@@ -280,26 +348,29 @@ function renderLinePreview(){
  for(const c of state.collection)if(c.line)raised[c.line]=true;
  grid.innerHTML=CRE.LINE_IDS.map(id=>{
   const line=CRE.CREATURE_LINES[id];if(!line)return '';
-  const done=!!raised[id];
-  const img='./art/creatures/'+id+(done?'-final.webp':'-egg.webp');
-  const small=previewNoteLine===id?line.note:(done?'✓ 已養成':'還沒遇過')+' · '+CRE.CREATURE_WEIGHTS[id]+'%';
-  return '<button type="button" class="line-card'+(done?' owned':' locked')+'" data-line="'+id+'" style="--lc:'+line.color+'" title="'+line.note+'">'
-   +'<span class="line-thumb"><img src="'+img+'" alt="'+line.name+(done?' 完全體':'的蛋')+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
+  const done=!!raised[id],seen=done||!!(state.encountered&&state.encountered[id]);
+  const stage=done?'final':seen?'baby':'egg';
+  const img='./art/creatures/'+id+'-'+stage+'.webp';
+  const status=done?'✓ 已養成':seen?'✓ 已遇見':'還沒遇過';
+  const small=previewNoteLine===id?line.note:status+' · '+CRE.CREATURE_WEIGHTS[id]+'%';
+  return '<button type="button" class="line-card'+(seen?' owned':' locked')+'" data-line="'+id+'" style="--lc:'+line.color+'" title="'+line.note+'">'
+   +'<span class="line-thumb"><img src="'+img+'" alt="'+line.name+' '+STAGE_NAMES[done?4:seen?1:0]+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
    +'<span class="line-icon" style="display:none">'+line.icon+'</span></span>'
    +'<strong>'+line.name+'</strong>'
-   +'<small class="'+(done?'line-status':'')+'">'+small+'</small></button>';
+   +'<small class="'+(seen?'line-status':'')+'">'+small+'</small></button>';
  }).join('');
 }
 function renderGiftCodex(){
  const grid=$('giftGrid');if(!grid)return;
  grid.innerHTML=CRE.giftItems().map(x=>{
-  const n=state.giftCollection[x.id]||0,owned=n>0;
+  const n=state.giftCollection[x.id]||0,seen=!!(state.giftSeen&&state.giftSeen[x.id]);
   const kind=x.kind==='egg'?'蛋':x.kind==='companion'?'夥伴':'能量';
-  return '<div class="gift-item'+(owned?' owned':' locked')+'" style="--rc:'+x.rarityColor+'">'
-   +'<span class="gift-item-ic">'+(owned?x.icon:'?')+'</span>'
-   +'<span class="gift-item-nm">'+(owned?x.name:'???')+'</span>'
-   +'<span class="gift-item-rt" style="color:'+(owned?x.rarityColor:'#8b8496')+'">'+(owned?x.rarityName:'未開出')+'</span>'
-   +(owned?'<span class="gift-item-ct">×'+n+' · '+kind+'</span>':'')
+  const status=n>0?'目前持有 ×'+n:(x.id==='egg-golden'?'已轉成物種蛋':x.kind==='energy'?'已使用':'目前沒有');
+  return '<div class="gift-item'+(seen?' owned':' locked')+'" style="--rc:'+x.rarityColor+'">'
+   +'<span class="gift-item-ic">'+(seen?x.icon:'?')+'</span>'
+   +'<span class="gift-item-nm">'+(seen?x.name:'???')+'</span>'
+   +'<span class="gift-item-rt" style="color:'+(seen?x.rarityColor:'#8b8496')+'">'+(seen?x.rarityName:'未開出')+'</span>'
+   +(seen?'<span class="gift-item-ct">✓ 曾開過 · '+status+' · '+kind+'</span>':'')
    +'</div>';
  }).join('');
 }
@@ -354,7 +425,7 @@ function askHatch(){
  $('eggList').innerHTML=eggs.map(x=>{
   // v1.2: each choice shows the line's egg art (with the emoji behind it
   // as a fallback if the image fails to load).
-  const img='./art/creatures/'+x.line+'-egg.webp';
+  const img='./art/creatures/'+(x.line||'moonfox')+'-egg.webp';
   return '<button type="button" data-line="'+x.line+'" class="seed-pick">'
    +'<span class="seed-pick-egg"><img src="'+img+'" alt="'+x.name+'" loading="lazy" onerror="this.style.display=\'none\'"><span class="seed-pick-ic">'+x.icon+'</span></span>'
    +'<span class="seed-pick-nm">'+x.name+'</span>'
@@ -365,7 +436,8 @@ function askHatch(){
  $('eggModal').hidden=false;
 }
 function hatchEggLine(lineId){
- if(state.creature.sentences>0&&window.confirm&&!window.confirm('現在這隻還沒長大，換蛋會放棄牠的進度，確定嗎？'))return false;
+ if(state.creature.sentences>0&&window.confirm&&!window.confirm(
+  state.creature.stage===4?'換蛋後，這隻完全體會留在收藏，但不能繼續陪伴牠。確定嗎？':'這隻正在成長，換蛋會放棄牠的進度，確定嗎？'))return false;
  if(!CRE.hatchEgg(state,lineId))return false;
  writeState();
  $('eggModal').hidden=true;
@@ -397,7 +469,7 @@ function doEvolve(rand){
  burstStars(10);
  if(res.completed){
   const line=CRE.CREATURE_LINES[res.line];
-  cueSurprise({emoji:line.icon,title:'🎉 '+line.name+' 完全體誕生了！',detail:'牠住進了你的圖鑑。先存圖留念，再按「開始養下一隻」繼續。🎁 禮物 +2！'});
+  cueSurprise({emoji:line.icon,title:'🎉 '+line.name+' 完全體誕生了！',detail:'牠住進了你的圖鑑！你可以繼續陪伴牠、每天聊一句拿禮物，也能自行選擇養下一隻。🎁 禮物 +2！'});
   popToast('🎁 禮物 +2！');
  }else if(res.stage===1){
   const line=CRE.CREATURE_LINES[res.line];
@@ -445,28 +517,40 @@ function appendMessage(who,message,opts){
   writeChat();
  }
 }
-function postMessage(raw){
+function postMessage(raw,careChoice){
  const text=String(raw||'').trim();
- if(!text)return false;
- if(text.length>240)return false;
- // v1.1: while the final form is on display, chatting is paused so no
- // sentence lands on an already-finished creature.
- if(state.creature.stage===4){popToast('這隻已經是完全體了，按「開始養下一隻」繼續。');return false;}
+ if(!text||text.length>240)return false;
+ const isFinal=state.creature.stage===4;
+ const info=isFinal?careContext():null;
+ const idx=careChoice===0||careChoice===1?careChoice:null;
  appendMessage('me',text);
  const signal=classify(text);
+ if(isFinal&&idx!==null)signal.topic=info.topic;
  const turn=state.creature.sentences+1;
  CRE.gainEnergy(state);
  state.creature.topics.push(signal.topic);
+ state.creature.topics=state.creature.topics.slice(-64);
  state.creature.sentences++;
- const reply=sayZoe(signal,turn);
+ let reply,remembered='';
+ if(isFinal){
+  const line=CRE.CREATURE_LINES[state.creature.line];
+  const reaction=idx!==null?info.scene.reactions[idx]:'認真聽你說完，輕輕靠近了你。';
+  const activity=idx!==null?info.scene.options[idx]:'聊了「'+text.slice(0,40)+'」';
+  remembered=line.name+'和你一起'+activity+'，'+reaction;
+  rememberCare(remembered,signal.topic);
+  reply=line.icon+' '+line.name+reaction+' Zoe 幫你們把這段回憶收藏起來了。';
+ }else{
+  reply=sayZoe(signal,turn);
+ }
  appendMessage('zoe',reply);
  sessionMessages++;
- if(CRE.grantGift(state,'daily',todayStr())){writeState();updateGiftUI();popToast('🎁 今日禮物 +1！明天再來領一個。');}
- writeState();
- updateUI();draw(0);
+ const daily=CRE.grantGift(state,'daily',todayStr());
+ writeState();updateUI();draw(0);
  reactToChat();
- if(CRE.canEvolve(state))popToast('⚡ 能量夠了，按「注入能量，進化！」');
- return {topic:signal.topic,turn,energy:state.energy,sentences:state.creature.sentences,canEvolve:CRE.canEvolve(state),reply};
+ if(isFinal){$('reactBubble').textContent=remembered;burstStars(5);}
+ if(daily)popToast('🎁 今日禮物 +1！明天再來領一個。');
+ else if(!isFinal&&CRE.canEvolve(state))popToast(state.creature.stage===0?'🥚 能量夠了！按「孵出我的生物」':'⚡ 能量夠了！可以進化了');
+ return {topic:signal.topic,turn,energy:state.energy,sentences:state.creature.sentences,canEvolve:CRE.canEvolve(state),reply,remembered};
 }
 function resetChat(who,text){
  chatLog=[];
@@ -578,6 +662,15 @@ function init(){
  $('chatForm').addEventListener('submit',ev=>{ev.preventDefault();const input=$('chatInput');
   const text=input.value.trim();if(postMessage(text))input.value='';
  });
+ $('hatchIdeas').addEventListener('click',ev=>{
+  const target=ev.target.closest?.('button[data-say]');if(target)postMessage(target.dataset.say);
+ });
+ $('careChoices').addEventListener('click',ev=>{
+  const target=ev.target.closest?.('button[data-care]');
+  if(!target||state.creature.stage!==4)return;
+  const i=Number(target.dataset.care),info=careContext();
+  if(i===0||i===1)postMessage('我想和'+info.who+'一起'+info.scene.options[i]+'！',i);
+ });
  $('ideaChips').addEventListener('click',ev=>{
   const target=ev.target.closest?.('button[data-say]');
   if(target)postMessage(target.dataset.say);
@@ -616,11 +709,15 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
   canEvolve:()=>CRE.canEvolve(state),
   evolveCost:n=>CRE.evolveCost(n),
   gainEnergy:()=>{const e=CRE.gainEnergy(state);writeState();return e;},
-  grantGift:(reason,today)=>CRE.grantGift(state,reason,today),
-  openGift:rand=>CRE.openGift(state,rand),
+  grantGift:(reason,today)=>{const v=CRE.grantGift(state,reason,today);writeState();updateUI();return v;},
+  openGift:rand=>{const item=CRE.openGift(state,rand);writeState();updateUI();return item;},
   giftItems:()=>CRE.giftItems(),
   gifts:()=>state.gifts,
   giftCollection:()=>JSON.parse(JSON.stringify(state.giftCollection)),
+ giftSeen:()=>JSON.parse(JSON.stringify(state.giftSeen)),
+ carePrompt:()=>state.creature.stage===4?careContext().prompt:null,
+ careSelect:i=>{const info=careContext();return state.creature.stage===4&&(i===0||i===1)?
+  postMessage('我想和'+info.who+'一起'+info.scene.options[i]+'！',i):false;},
   rollLine:rand=>CRE.rollCreatureLine(rand),
   weights:()=>({...CRE.CREATURE_WEIGHTS}),
   dominantTopic:t=>CRE.dominantTopic(t),
