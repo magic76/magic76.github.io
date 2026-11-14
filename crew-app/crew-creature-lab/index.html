@@ -42,7 +42,21 @@
       </div>
       <div class="energy-panel" aria-label="能量與進化">
         <div class="energy-row"><div class="energy-orbs" id="energyOrbs" aria-label="能量珠"></div><span id="energyText">⚡ 能量 0 / 2</span></div>
-        <button id="evolveBtn" class="evolve-btn" type="button" disabled>還需要 2 能量</button>
+        <div class="hatch-guide" id="hatchGuide" aria-label="第一隻生物孵化引導">
+           <strong id="hatchPrompt" aria-live="polite">先選一句話和 Zoe 聊聊，蛋就會有能量。</strong>
+           <div class="hatch-ideas" id="hatchIdeas">
+             <button type="button" data-say="我想帶你去海邊看夕陽！">🌊 去海邊</button>
+             <button type="button" data-say="今晚我們一起看星星，好嗎？">✨ 看星星</button>
+           </div>
+         </div>
+         <div class="care-panel" id="carePanel" hidden aria-label="繼續陪伴這隻生物">
+           <strong class="care-heading">💕 今天繼續陪牠</strong>
+           <p id="carePrompt">Zoe 想邀你陪牠玩一會兒。</p>
+           <div class="care-choices" id="careChoices"></div>
+           <small id="careStatus"></small>
+           <p class="care-memory" id="careMemory" hidden></p>
+         </div>
+         <button id="evolveBtn" class="evolve-btn" type="button" disabled>還需要 2 能量</button>
         <button id="nextBtn" class="evolve-btn next-btn" type="button" hidden>🥚 開始養下一隻</button>
         <p class="evolve-hint" id="evolveHint">進化要 2 能量，聊一句 +1，能量夠了按下去就進化。每次進化都有禮物！</p>
       </div>
@@ -52,7 +66,7 @@
         <span id="surpriseDetail">生物正在進化</span>
       </div>
       <div class="creature-actions">
-        <button id="hatchBtn" class="action-btn" type="button">🥚 孵蛋</button>
+        <button id="hatchBtn" class="action-btn" type="button" hidden>🥚 換一顆蛋</button>
         <button id="saveBtn" class="action-btn" type="button">↓ 存圖片</button>
         <button id="giftBtn" class="action-btn gift-btn" type="button" disabled>🎁 禮物 ×0</button>
         <button id="resetBtn" class="action-btn" type="button">↻ 重新開始</button>
@@ -80,16 +94,16 @@
     </section>
   </div>
   <section class="collection line-preview" aria-label="8 種生物一覽">
-    <div class="collection-head"><div><p class="overline">8 CREATURE LINES</p><h2>8 種生物</h2></div><span>首次進化依不同機率隨機孵出，禮物蛋可指定物種</span></div>
+    <div class="collection-head"><div><p class="overline">8 CREATURE LINES</p><h2>8 種生物</h2></div><span>破殼就會標記「已遇見」；養到完全體標記「已養成」</span></div>
     <div id="linePreview" class="line-grid"></div>
   </section>
   <section class="collection" aria-label="我的生物收藏">
-    <div class="collection-head"><div><p class="overline">YOUR CREATURES</p><h2>我的生物 <span id="collectionCount">0</span></h2></div><span>養到完全體的生物會住進這裡</span></div>
+    <div class="collection-head"><div><p class="overline">YOUR CREATURES</p><h2>我的生物 <span id="collectionCount">0</span></h2></div><span>完全體會留下來；你也能繼續陪牠聊天、收藏回憶</span></div>
     <div id="gallery" class="gallery"><p class="empty-forest">還沒有完全體。把第一隻生物養到完全體，牠就會住進這裡。</p></div>
   </section>
   <section class="gift-collection" aria-label="禮物收藏">
-    <div class="collection-head"><div><p class="overline">GIFT CODEX</p><h2>🎁 禮物收藏 <span id="giftCollectionCount">0/16</span></h2></div><span>每次進化、每天第一次聊天，都能拿到禮物</span></div>
-    <p class="gift-collection-note">開出蛋可以孵出指定生物；能量包直接補能量；夥伴會永久住進場景，陪著你的生物。</p>
+    <div class="collection-head"><div><p class="overline">GIFT CODEX</p><h2>🎁 禮物收藏 <span id="giftCollectionCount">0/16</span></h2></div><span>記錄曾經開過的禮物；用完也不會失去發現紀錄</span></div>
+    <p class="gift-collection-note">「曾開過」永久保留；「目前持有」會隨使用改變。開出蛋可換成指定生物；能量包立即使用；金蛋會轉成物種蛋。</p>
     <div id="giftGrid" class="gift-grid"></div>
   </section>
   <div class="gift-modal" id="giftModal" hidden role="dialog" aria-label="打開禮物">
