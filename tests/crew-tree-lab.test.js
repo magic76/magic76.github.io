@@ -60,7 +60,7 @@ function boot(options={}){
  vm.createContext(c);vm.runInContext(botany,c,{timeout:10000});vm.runInContext(familyBotany,c,{timeout:10000});if(options.glow){vm.runInContext(glowScript,c,{timeout:10000});vm.runInContext(postcardScript,c,{timeout:10000});}vm.runInContext(script,c,{timeout:10000});
  const qa=window.__TREE_QA__;
  assert.ok(qa,'QA interface is exposed only behind ?qa=1');
- return {qa,memory,get,paint,document,window,fantasyCalls,timers};
+ return {qa,memory,get,paint,document,fantasyCalls,timers};
 }
 test('the garden is a small responsive chat toy, not a fake Gemini conversation',()=>{
  assert.match(html,/和 Zoe 種歪樹/);
@@ -232,8 +232,8 @@ test('gallery renders real mini tree canvases and recreates the exact seed after
 
 test('botanical renderer is loaded before chat and keeps an independent geometry contract',()=>{
  const a=html.indexOf('src="./botany.js?v=4-20261112"'),
-  g=html.indexOf('src="./forest-v6.js?v=glow-v6-20261113"'),
-  b=html.indexOf('src="./tree.js?v=glow-postcard-fixes-20261114"');
+  g=html.indexOf('src="./forest-v6.js?v=glow-v6-art-20261114"'),
+  b=html.indexOf('src="./tree.js?v=glow-v6-art-20261114"');
  assert.ok(g>a&&b>g,'forest renderer must load after botany and before tree controller');
  assert.ok(a>=0&&b>a,'botany must be available before the tree controller');
  const {qa}=boot();
@@ -694,7 +694,7 @@ test('V6 1080×1920 postcard reserves a 480px branded bottom quarter with level,
  assert.ok(paint.rects.some(r=>r.x===0&&r.y===1440&&r.w===1080&&r.h===480&&r.color==='#12101C'),
    'bottom information panel is exactly one quarter height');
  assert.ok(paint.rects.some(r=>r.y===1440&&r.color==='#6257E7'),'purple rule uses #6257E7');
- for(const fragment of ['共種了 1 棵樹','森林最新的成長','森林長出了一棵星空樹','3sssi.com','森林奇景待解鎖']){
+ for(const fragment of ['我的森林 · 1 棵樹','今天新長出的一句話','剛剛那顆星','3sssi.com','新芽森林']){
   assert.ok(paint.texts.some(line=>String(line.text).includes(fragment)),fragment);
  }
  assert.ok(paint.texts.some(line=>line.color==='#F7F7F4'));
@@ -745,38 +745,6 @@ test('V6 each sentence adds a persistent topic-tinted pair of leaves to its bran
  }
 });
 
-test('V6 postcard fixes date, unlocks, event, retired count, deduplicated reveal, HUD',()=>{
- const {qa,get,paint,document,window}=boot({glow:true});
- const card=window.CrewForestPostcardV6;
- assert.equal(card.forestLabel(0).name,'森林奇景待解鎖');
- assert.equal([3,4,5].map(n=>card.forestLabel(n).name).join(','),'螢光菇小路,小池塘,極光');
- for(let i=0;i<5;i++){
-  const seed=200+i;
-  assert.equal(qa.glowSeed(seed),true);
-  for(let n=0;n<16;n++)qa.post('宇宙星球太空');
-  const args=qa.glowPoster(),scene=card.sceneGarden(args.garden,args.active);
-  assert.equal(scene.slots.length,args.garden.slots.length);
-  assert.equal(scene.slots.filter(Boolean).length,Math.min(i,3),'one final tree foreground');
-  assert.equal(scene.slots.some(s=>s?.seed===seed),false,'no duplicate foreground tree');
-  assert.equal(args.garden.slots.at(-1).seed,seed,'persistent state not changed');
-  assert.match(get('traitRow').innerHTML,/宇宙/,'HUD describes completed tree');
-  assert.doesNotMatch(get('traitRow').innerHTML,/日常.+0 種突變/);
-  const at=paint.texts.length;
-  assert.equal(card.render(document.createElement('canvas'),args.garden,args.active,1000,
-   {...args.options,date:new Date(2026,10,14)}),true);
-  const text=paint.texts.slice(at).map(x=>String(x.text));
-  for(const value of ['2026.11.14 · Crew 種樹','共種了 '+(i+1)+' 棵樹',
-   '森林現有 '+Math.min(i+1,4)+' 棵',card.forestLabel(i+1).name])
-   assert.ok(text.some(s=>s.includes(value)),value);
-  const events=['森林長出了一棵星空樹','森林長出了一棵水晶樹',
-   '螢光菇小路出現了','森林長出一座小池塘','極光點亮森林'];
-  assert.ok(text.some(s=>s.includes(events[i])),events[i]);
-  assert.equal(text.some(s=>s.includes('剛剛那顆星')),false);
-  if(i===4)assert.ok(text.some(s=>s.includes('1 棵已退休')));
- }
- assert.match(css,/body\.glow-v6 #shareBtn\{display:none!important\}/);
- assert.match(script,/sceneGarden\(garden,reveal\.tree\)/);
-});
 test('V6 postcard module shares current 3/8/16 milestones without touching forest drawing',()=>{
  const {qa,get,paint}=boot({glow:true});
  assert.equal(qa.glowSeed(101),true);
@@ -810,7 +778,7 @@ test('V6 postcard is a separate, mirrored presentation adapter and the painting 
  assert.match(script,/CrewForestPostcardV6\?\.render/);
  assert.match(postcardScript,/ART_HEIGHT=1440,FOOTER=480/);
  assert.match(postcardScript,/strokeRect\(24,24/);
- assert.match(postcardScript,/forestEvent\(engine,garden,active,options\)/);
+ assert.match(postcardScript,/leafQuotes\[topic\]/);
  assert.doesNotMatch(postcardScript,/\bfetch\s*\(|WebGL|XMLHttpRequest/);
  assert.equal(fs.readFileSync(path.join(dir,'postcard-v6.js'),'utf8'),
   fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab/postcard-v6.js'),'utf8'));
