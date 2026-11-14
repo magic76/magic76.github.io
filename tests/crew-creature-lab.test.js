@@ -56,7 +56,7 @@ test('creature lab boots and paints the egg fallback without images',()=>{
  assert.ok(qa);
  assert.equal(qa.draw(),true);
  assert.ok(paint.texts.some(t=>String(t.text).includes('生物正在孵化')));
- assert.deepEqual([...qa.lines()],['moonfox','stardragon','flowerfairy','cat']);
+ assert.deepEqual([...qa.lines()],['moonfox','stardragon','flowerfairy','cat','snowbunny','redpanda','dolphin','phoenix']);
  assert.deepEqual([...qa.stages()],['egg','baby','growing','mature','final']);
  assert.equal(qa.energy(),0);
  assert.equal(qa.state().creature.stage,0);
@@ -144,16 +144,20 @@ test('the final form stays on screen until startNext, and chatting is blocked me
  assert.notEqual(qa.post('新的開始'),false,'chatting works again');
  assert.equal(qa.state().creature.sentences,1);
 });
-test('gift pool has 12 items (weights sum 117) including 5 permanent companions',()=>{
+test('gift pool has 16 items (weights sum 173) including 5 permanent companions',()=>{
  const {qa}=boot();
  const items=qa.giftItems();
- assert.equal(items.length,12);
- assert.equal(items.reduce((s,x)=>s+x.weight,0),117);
+ assert.equal(items.length,16);
+ assert.equal(items.reduce((s,x)=>s+x.weight,0),173);
  const companions=items.filter(x=>x.kind==='companion');
  assert.deepEqual([...companions.map(x=>x.id)].sort(),
   ['companion-butterfly','companion-firefly','companion-lantern','companion-mushroom','companion-star']);
- assert.equal(items.filter(x=>x.kind==='egg').length,5,'4 line eggs + golden egg');
+ assert.equal(items.filter(x=>x.kind==='egg').length,9,'8 line eggs + golden egg');
  assert.equal(items.filter(x=>x.kind==='energy').length,2);
+ // The 4 new line eggs are in the pool with the specified weights.
+ assert.deepEqual([...items.filter(x=>x.kind==='egg'&&x.line).map(x=>[x.id,x.weight])],
+  [['egg-cat',25],['egg-flowerfairy',22],['egg-moonfox',12],['egg-stardragon',10],
+   ['egg-snowbunny',18],['egg-redpanda',16],['egg-dolphin',14],['egg-phoenix',8]]);
 });
 test('gift daily grant is deduped and opening yields eggs, energy, companions, golden egg',()=>{
  const {qa:qa0}=boot();
@@ -172,12 +176,14 @@ test('gift daily grant is deduped and opening yields eggs, energy, companions, g
  assert.equal(egg.id,'egg-cat');
  assert.equal(qa.giftCollection()['egg-cat'],1);
  assert.equal(qa.gifts(),3);
- const pack=qa.openGift(()=>0.7);
+ // Weight bands of 173: energy-small is 125-140, so rand 0.75 lands there.
+ const pack=qa.openGift(()=>0.75);
  assert.equal(pack.kind,'energy');
  assert.equal(pack.id,'energy-small');
  assert.equal(qa.energy(),3);
  assert.equal(qa.gifts(),2);
- const buddy=qa.openGift(()=>0.89);
+ // companion-butterfly is 159-163 of 173, so rand 0.93 lands there.
+ const buddy=qa.openGift(()=>0.93);
  assert.equal(buddy.kind,'companion');
  assert.equal(buddy.id,'companion-butterfly');
  assert.equal(qa.giftCollection()['companion-butterfly'],1);
@@ -191,13 +197,15 @@ test('a duplicate companion re-rolls into a random egg instead of being wasted',
  const saved=JSON.stringify({version:1,energy:0,creature:{line:null,stage:0,topics:[],sentences:0},collection:[],gifts:1,giftCollection:{'companion-firefly':1},lastDailyGift:null});
  const {qa}=boot({storage:{'crew-creature-lab-v1':saved}});
  assert.equal(qa.giftCollection()['companion-firefly'],1);
- // rand 0.80 rolls companion-firefly again (weight band 90-98 of 117).
- const item=qa.openGift(()=>0.80);
+ // rand 0.87 rolls companion-firefly again (weight band 146-154 of 173).
+ const item=qa.openGift(()=>0.87);
  assert.equal(item.rerolled,true);
  assert.equal(item.kind,'egg');
- assert.equal(item.id,'egg-moonfox');
+ // The re-roll draws from the 8 line eggs (total weight 125); 0.87 lands
+ // on the dolphin band (103-117), so the egg is a dolphin egg.
+ assert.equal(item.id,'egg-dolphin');
  assert.equal(qa.giftCollection()['companion-firefly'],1,'companion count unchanged');
- assert.equal(qa.giftCollection()['egg-moonfox'],1,'an egg lands instead');
+ assert.equal(qa.giftCollection()['egg-dolphin'],1,'an egg lands instead');
  assert.equal(qa.gifts(),0);
 });
 test('hatching an owned egg sets the creature line and spends the egg',()=>{
@@ -273,6 +281,7 @@ test('creature UI is wired: energy orbs, evolve button, next button, modals, cod
  assert.doesNotMatch(html,/class="energy-track"/);
  assert.doesNotMatch(html,/盲盒|boxBtn|boxModal|boxGrid/);
  assert.match(html,/禮物收藏/);
+ assert.match(html,/0\/16/);
  assert.match(html,/開始養下一隻/);
  assert.match(script,/CRE\.gainEnergy\(state\)/);
  assert.match(script,/CRE\.canEvolve\(state\)/);
@@ -378,6 +387,59 @@ test('v1.2: evolution changes state synchronously while the ceremony runs',()=>{
  assert.equal(qa.state().creature.stage,1,'state advanced immediately');
  assert.equal(qa.evolving(),true,'the visual ceremony is in progress');
  assert.equal(qa.gifts(),2,'daily 1 + evolve 1, unchanged by the ceremony');
+});
+test('v1.3: the four new topics decide the four new lines',()=>{
+ const cases=[
+  ['我喜歡下雪天去滑雪','snowbunny'],
+  ['竹林裡的熊貓好可愛','redpanda'],
+  ['夏天去海邊游泳衝浪','dolphin'],
+  ['鳳凰浴火重生','phoenix']];
+ for(const [msg,line] of cases){
+  const {qa}=boot();
+  qa.post(msg);qa.post(msg);
+  const res=qa.evolve();
+  assert.equal(res.line,line,msg);
+  assert.equal(qa.state().creature.line,line,msg);
+ }
+});
+test('v1.3: the old topic mappings are unchanged',()=>{
+ const cases=[
+  ['我昨天夢到在月亮上散步','moonfox'],
+  ['我們去日本旅行','stardragon'],
+  ['我想吃蛋糕','flowerfairy'],
+  ['我家貓咪今天又偷吃我的魚','cat']];
+ for(const [msg,line] of cases){
+  const {qa}=boot();
+  qa.post(msg);qa.post(msg);
+  assert.equal(qa.evolve().line,line,msg);
+ }
+});
+test('v1.3: the four new lines have their own reaction lines',()=>{
+ const cases=[
+  ['我喜歡下雪天去滑雪','雪兔抖了抖長耳朵，雪花都亮了。'],
+  ['竹林裡的熊貓好可愛','小熊貓抱著尾巴，開心地晃了晃。'],
+  ['夏天去海邊游泳衝浪','海豚躍出水面，濺起發光的水花。'],
+  ['鳳凰浴火重生','鳳凰抖了抖羽毛，火光都亮了。']];
+ for(const [msg,react] of cases){
+  const {qa}=boot();
+  qa.post(msg);qa.post(msg);
+  qa.evolve();
+  qa.post('再說一句');
+  assert.equal(qa.reactBubble().text,react,msg);
+ }
+});
+test('v1.3: the egg picker lists all 8 line eggs with their art',()=>{
+ const saved=JSON.stringify({version:1,energy:0,creature:{line:null,stage:0,topics:[],sentences:0},collection:[],gifts:0,giftCollection:{'egg-snowbunny':1,'egg-redpanda':1,'egg-dolphin':1,'egg-phoenix':1},lastDailyGift:null});
+ const {qa}=boot({storage:{'crew-creature-lab-v1':saved}});
+ const list=qa.eggList();
+ assert.match(list,/snowbunny-egg\.webp/);
+ assert.match(list,/redpanda-egg\.webp/);
+ assert.match(list,/dolphin-egg\.webp/);
+ assert.match(list,/phoenix-egg\.webp/);
+ assert.match(list,/雪兔的蛋/);
+ assert.match(list,/小熊貓的蛋/);
+ assert.match(list,/海豚的蛋/);
+ assert.match(list,/鳳凰的蛋/);
 });
 test('creature lab is mirrored byte-identically in crew-app',()=>{
  for(const name of ['creature.js','index.html','creature.css','creature-v6.js']){

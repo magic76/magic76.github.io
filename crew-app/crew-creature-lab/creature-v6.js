@@ -27,7 +27,19 @@ const CREATURE_LINES={
   topics:['nature','food','music']},
  cat:{id:'cat',name:'小貓咪',icon:'🐱',color:'#ffc978',
   note:'圓圓胖胖的奶油橘貓，最喜歡待在你身邊。',
-  topics:['animals','daily','weather','stress']}};
+  topics:['animals','daily','weather','stress']},
+ snowbunny:{id:'snowbunny',name:'雪兔',icon:'🐰',color:'#a8d8ff',
+  note:'月光雪地裡的小白兔，耳朵尖端的冰藍光會隨著你的話發亮。',
+  topics:['snow']},
+ redpanda:{id:'redpanda',name:'小熊貓',icon:'🦝',color:'#ff9e7a',
+  note:'竹林裡的紅褐色小傢伙，條紋尾巴總是翹得高高的。',
+  topics:['bamboo']},
+ dolphin:{id:'dolphin',name:'海豚',icon:'🐬',color:'#5aa8ff',
+  note:'星空下躍出海面的小海豚，笑起來像一道彎彎的月亮。',
+  topics:['ocean']},
+ phoenix:{id:'phoenix',name:'鳳凰',icon:'🦅',color:'#ffb84d',
+  note:'金紅色羽毛的小鳳凰，尾羽的火焰光會隨著你的話燃燒。',
+  topics:['fire']}};
 const LINE_IDS=Object.keys(CREATURE_LINES);
 const TOPIC_TO_LINE={};
 for(const id of LINE_IDS)for(const t of CREATURE_LINES[id].topics)TOPIC_TO_LINE[t]=id;
@@ -152,7 +164,7 @@ function hatchEgg(g,lineId){
  g.creature.line=lineId;
  return true;
 }
-// Gift pool v1.1 (12 items, weights sum 117): eggs hatch a chosen line;
+// Gift pool v1.3 (16 items, weights sum 173): eggs hatch a chosen line;
 // energy packs top up the meter; companions are permanent and are drawn
 // into the scene. A duplicate companion re-rolls into a random egg.
 const GIFT_RARITY={
@@ -165,6 +177,10 @@ const GIFT_ITEMS=[
  {id:'egg-flowerfairy',kind:'egg',line:'flowerfairy',name:'花妖精的蛋',icon:'🧚',rarity:'common',weight:22,note:'孵出花妖精。'},
  {id:'egg-moonfox',kind:'egg',line:'moonfox',name:'月狐的蛋',icon:'🦊',rarity:'rare',weight:12,note:'孵出月狐。'},
  {id:'egg-stardragon',kind:'egg',line:'stardragon',name:'星龍的蛋',icon:'🐉',rarity:'rare',weight:10,note:'孵出星龍。'},
+ {id:'egg-snowbunny',kind:'egg',line:'snowbunny',name:'雪兔的蛋',icon:'🐰',rarity:'common',weight:18,note:'孵出雪兔。'},
+ {id:'egg-redpanda',kind:'egg',line:'redpanda',name:'小熊貓的蛋',icon:'🦝',rarity:'common',weight:16,note:'孵出小熊貓。'},
+ {id:'egg-dolphin',kind:'egg',line:'dolphin',name:'海豚的蛋',icon:'🐬',rarity:'common',weight:14,note:'孵出海豚。'},
+ {id:'egg-phoenix',kind:'egg',line:'phoenix',name:'鳳凰的蛋',icon:'🦅',rarity:'rare',weight:8,note:'孵出鳳凰。'},
  {id:'energy-small',kind:'energy',amount:3,name:'小能量包',icon:'⚡',rarity:'common',weight:15,note:'能量 +3。'},
  {id:'energy-large',kind:'energy',amount:8,name:'大能量包',icon:'🌟',rarity:'epic',weight:6,note:'能量 +8。'},
  {id:'companion-firefly',kind:'companion',name:'螢火蟲',icon:'✨',rarity:'common',weight:8,note:'螢火蟲住進來了，夜裡會繞著你的生物飛舞。'},
