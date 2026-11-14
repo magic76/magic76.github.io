@@ -232,8 +232,8 @@ test('gallery renders real mini tree canvases and recreates the exact seed after
 
 test('botanical renderer is loaded before chat and keeps an independent geometry contract',()=>{
  const a=html.indexOf('src="./botany.js?v=4-20261112"'),
-  g=html.indexOf('src="./forest-v6.js?v=glow-v6-art-20261114"'),
-  b=html.indexOf('src="./tree.js?v=glow-v6-art-20261114"');
+  g=html.search(/src="\.\/forest-v6\.js\?v=[^"]+"/),
+  b=html.search(/src="\.\/tree\.js\?v=[^"]+"/);
  assert.ok(g>a&&b>g,'forest renderer must load after botany and before tree controller');
  assert.ok(a>=0&&b>a,'botany must be available before the tree controller');
  const {qa}=boot();
@@ -658,8 +658,12 @@ test('V6 replica, no new dependencies or backend, responsive milestones and 1080
  const forest=fs.readFileSync(path.join(dir,'forest-v6.js'),'utf8');
  assert.equal(second,forest,'identical new engine in actual and mirrored directories');
  for(const name of ['tree.js','index.html','tree.css']){
-  assert.equal(fs.readFileSync(path.join(dir,name),'utf8'),
-   fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab',name),'utf8'),
+  // The built copy stamps the commit SHA into ?v= (see vite.web.config.ts
+  // treeLabVersion); the source keeps the __CREW_COMMIT__ placeholder.
+  // Compare everything except that version value.
+  const norm=(s)=>s.replace(/\?v=(?:__CREW_COMMIT__|[0-9a-f]{7,40})/g,'?v=VERSION');
+  assert.equal(norm(fs.readFileSync(path.join(dir,name),'utf8')),
+   norm(fs.readFileSync(path.join(__dirname,'../crew-app/crew-tree-lab',name),'utf8')),
    name+' mirrored exactly');
  }
  assert.match(html,/forest-v6\.js/);
