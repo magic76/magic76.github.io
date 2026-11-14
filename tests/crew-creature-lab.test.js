@@ -45,7 +45,7 @@ function boot(options={}){
   ResizeObserver:class{observe(){}},matchMedia(){return {matches:false}},scrollTo(){}};
  const c={document,window,location:{search:'?qa=1'},URLSearchParams,localStorage:{
   getItem:key=>memory.get(key)||null,setItem:(key,v)=>memory.set(key,v)
- },setTimeout(fn){const id=++timerId;timers.set(id,fn);return id},clearTimeout(id){timers.delete(id)},Date,Math,console,Number,String,Array,Set,Map};
+ },setTimeout(fn){const id=++timerId;timers.set(id,fn);return id},clearTimeout(id){timers.delete(id)},Date:options.Date||Date,Math,console,Number,String,Array,Set,Map};
  vm.createContext(c);vm.runInContext(modelScript,c,{timeout:10000});vm.runInContext(script,c,{timeout:10000});
  const qa=window.__CREATURE_QA__;
  assert.ok(qa,'QA interface is exposed only behind ?qa=1');
@@ -134,25 +134,28 @@ test('every evolution grants a gift: a finished creature is 5 gifts + 1 daily',(
  assert.equal(st.collection[0].stage,4);
  assert.ok(st.collection[0].line);
 });
-test('the final form stays on screen until startNext, and chatting is blocked meanwhile',()=>{
+test('the final form stays on screen and chatting now saves its own memory',()=>{
  const {qa,get}=boot();
  for(let i=0;i<16;i++)qa.post('天空好漂亮');
  qa.evolve();qa.evolve();qa.evolve();qa.evolve();
- const st=qa.state();
- assert.equal(st.creature.stage,4,'final form stays as the current creature');
- assert.ok(st.creature.line);
- assert.equal(st.collection.length,1);
- assert.equal(get('nextBtn').hidden,false,'the start-next button is shown');
- assert.equal(qa.post('再聊一句'),false,'chatting is blocked while celebrating');
- assert.equal(qa.state().creature.sentences,16,'no sentence lands on the finished creature');
+ const before=qa.state();
+ assert.equal(before.creature.stage,4);
+ assert.equal(before.collection.length,1);
+ assert.equal(get('nextBtn').hidden,false);
+ assert.equal(get('carePanel').hidden,false);
+ const reply=qa.post('再聊一句');
+ assert.ok(reply);
+ assert.match(reply.remembered,/一起聊了/);
+ assert.equal(qa.state().creature.line,before.creature.line);
+ assert.equal(qa.state().creature.stage,4);
+ assert.equal(qa.state().creature.memories.length,1);
+ assert.equal(qa.state().collection[0].memories.length,1);
  assert.equal(qa.startNext(),true);
- const st2=qa.state();
- assert.equal(st2.creature.stage,0,'a fresh egg follows');
- assert.equal(st2.creature.line,null);
- assert.equal(st2.creature.sentences,0);
- assert.equal(get('nextBtn').hidden,true,'the button hides again');
- assert.notEqual(qa.post('新的開始'),false,'chatting works again');
- assert.equal(qa.state().creature.sentences,1);
+ assert.equal(qa.state().creature.stage,0);
+ assert.equal(qa.state().creature.memories.length,0);
+ assert.equal(qa.state().collection[0].memories.length,1,'previous creature kept its memory');
+ assert.equal(get('carePanel').hidden,true);
+ assert.notEqual(qa.post('新的開始'),false);
 });
 test('gift pool has 16 items (weights sum 173) including 5 permanent companions',()=>{
  const {qa}=boot();
@@ -450,7 +453,7 @@ test('v1.3: the egg picker lists all 8 line eggs with their art',()=>{
  assert.match(list,/鳳凰的蛋/);
 });
 test('v1.4: eight opening chips cover all eight lines',()=>{
- assert.equal((html.match(/data-say="/g)||[]).length,8,'eight chips');
+ assert.equal((html.match(/data-say="/g)||[]).length,10,'eight chat chips + two first-hatch chips');
  assert.match(html,/id="linePreview"/);
  assert.match(html,/8 種生物/);
  const {qa}=boot();
@@ -528,7 +531,8 @@ test('v1.4: chat history is saved and restored across reloads',()=>{
  assert.equal(JSON.parse(mem3.get('crew-creature-lab-v1-chat')).length,30,'stored log capped to 30');
 });
 test('v1.4: first screen shows the whole animal (taller canvas, capped desktop)',()=>{
- assert.match(css,/54dvh/,'mobile canvas raised to 54dvh');
+ assert.match(css,/34dvh/,'mobile egg and its direct conversation choices stay closer together');
+ assert.match(css,/30dvh/,'short phones show the first-hatch controls sooner');
  assert.match(css,/78vh/,'desktop canvas capped at 78vh');
  assert.match(css,/min-height:100dvh/,'mobile layout uses min-height so the composer is reachable');
  assert.match(css,/object-fit:contain/,'contain keeps the whole animal visible');
@@ -546,4 +550,104 @@ test('creature lab mirrors crew-app except intended HTML cache versions',()=>{
   assert.deepEqual(fs.readFileSync(path.join(dir,'art/creatures',name)),
    fs.readFileSync(path.join(__dirname,'../crew-app/crew-creature-lab/art/creatures',name)));
  }
+});
+
+function fixedClock(iso){
+ return class TestDate extends Date{constructor(...args){super(...(args.length?args:[iso]));}};
+}
+test('first egg guides two actual chat turns, reveals the chosen species only after a tap, and survives reload',()=>{
+ const {qa,get,memory}=boot();
+ assert.equal(get('hatchGuide').hidden,false);
+ assert.equal(get('hatchIdeas').hidden,false);
+ assert.equal(get('hatchBtn').hidden,true,'no egg inventory = no misleading picker');
+ qa.post('我想帶你去海邊看夕陽！');
+ assert.match(get('hatchPrompt').textContent,/再聊 1 句/);
+ assert.equal(qa.canEvolve(),false);
+ qa.post('今晚一起看星星');
+ assert.equal(get('hatchIdeas').hidden,true);
+ assert.equal(get('evolveBtn').textContent,'🥚 孵出我的生物');
+ assert.equal(qa.state().creature.stage,0,'two turns do not auto-hatch');
+ qa.evolve(()=>0);
+ assert.equal(qa.state().creature.stage,1);
+ assert.equal(qa.state().creature.line,'cat');
+ assert.match(get('linePreview').innerHTML,/cat-baby\.webp/);
+ assert.match(get('linePreview').innerHTML,/已遇見/);
+ const {qa:after,get:afterGet}=boot({storage:Object.fromEntries(memory)});
+ assert.equal(after.state().creature.line,'cat');
+ assert.equal(after.state().creature.stage,1);
+ assert.equal(after.state().encountered.cat,true);
+ assert.match(afterGet('linePreview').innerHTML,/已遇見/);
+ assert.equal(afterGet('hatchGuide').hidden,true);
+});
+test('every one of 16 original gifts stays discovered after immediate use, golden conversion and last egg consumption',()=>{
+ const {qa,get,memory}=boot();
+ const items=qa.giftItems(),total=items.reduce((n,x)=>n+x.weight,0);
+ let before=0;
+ for(const item of items){
+  assert.equal(qa.grantGift('evolve'),true);
+  const roll=(before+item.weight/3)/total;
+  const result=qa.openGift(()=>roll);
+  assert.ok(result);
+  before+=item.weight;
+ }
+ assert.equal(Object.keys(qa.giftSeen()).length,16);
+ assert.equal(get('giftCollectionCount').textContent,'16/16');
+ assert.equal(qa.giftCollection()['energy-small'],undefined);
+ assert.equal(qa.giftCollection()['energy-large'],undefined);
+ assert.equal(qa.giftCollection()['egg-golden'],undefined);
+ assert.equal(qa.giftSeen()['energy-small'],true);
+ assert.equal(qa.giftSeen()['energy-large'],true);
+ assert.equal(qa.giftSeen()['egg-golden'],true);
+ assert.equal(qa.hatch('cat'),true,'consume final cat egg');
+ assert.equal(qa.giftCollection()['egg-cat'],undefined);
+ assert.equal(get('giftCollectionCount').textContent,'16/16');
+ const {qa:reloaded,get:nextGet}=boot({storage:Object.fromEntries(memory)});
+ assert.equal(nextGet('giftCollectionCount').textContent,'16/16');
+ assert.equal(reloaded.giftSeen()['egg-cat'],true);
+});
+test('legacy save repairs only provable species and gift discoveries',()=>{
+ const saved=JSON.stringify({
+  version:1,energy:6,creature:{line:'cat',stage:1,topics:['animals'],sentences:3},
+  collection:[{line:'moonfox',stage:4,topics:['dream'],sentences:16}],
+  gifts:0,giftCollection:{'egg-cat':1,'companion-star':1},lastDailyGift:null
+ });
+ const {qa}=boot({storage:{'crew-creature-lab-v1':saved}});
+ assert.equal(qa.state().encountered.cat,true);
+ assert.equal(qa.state().encountered.moonfox,true);
+ assert.equal(qa.state().encountered.phoenix,undefined);
+ assert.equal(qa.giftSeen()['egg-cat'],true);
+ assert.equal(qa.giftSeen()['companion-star'],true);
+ assert.equal(qa.giftSeen()['energy-small'],undefined,'spent packs cannot be reconstructed from old saves');
+ assert.equal(qa.giftSeen()['egg-golden'],undefined,'converted gold cannot be inferred');
+});
+test('completed creature reacts and remembers same-day choices; a new day gives one new gift without replacing it',()=>{
+ const day1=fixedClock('2026-11-14T10:00:00+08:00');
+ const day2=fixedClock('2026-11-15T10:00:00+08:00');
+ const {qa,get,memory}=boot({Date:day1});
+ for(let i=0;i<16;i++)qa.post('我們去海邊看海豚');
+ qa.evolve(()=>0);qa.evolve();qa.evolve();qa.evolve();
+ const first=qa.state().creature.line,firstGifts=qa.gifts();
+ assert.match(qa.carePrompt(),/海邊/);
+ const firstChoice=qa.careSelect(0);
+ assert.match(firstChoice.remembered,/撿貝殼/);
+ assert.match(get('careMemory').textContent,/撿貝殼/);
+ assert.match(qa.reactBubble().text,/撿貝殼/);
+ assert.equal(qa.gifts(),firstGifts,'first daily gift was already claimed');
+ assert.equal(qa.state().creature.stage,4);
+ assert.equal(qa.state().creature.line,first);
+ const {qa:same,get:sameGet,memory:reloadMemory}=boot({Date:day1,storage:Object.fromEntries(memory)});
+ assert.match(sameGet('careMemory').textContent,/撿貝殼/);
+ same.careSelect(1);
+ assert.equal(same.gifts(),firstGifts,'same day refresh and extra care do not repeat the gift');
+ const {qa:tomorrow,get:tomorrowGet}=boot({Date:day2,storage:Object.fromEntries(reloadMemory)});
+ assert.equal(tomorrow.state().creature.line,first);
+ assert.equal(tomorrow.state().creature.stage,4);
+ assert.match(tomorrow.carePrompt(),/海邊/);
+ tomorrow.careSelect(1);
+ assert.equal(tomorrow.gifts(),firstGifts+1);
+ tomorrow.careSelect(0);
+ assert.equal(tomorrow.gifts(),firstGifts+1,'only once on the new day');
+ assert.equal(tomorrow.state().creature.line,first);
+ assert.equal(tomorrow.state().creature.memories.length,4);
+ assert.match(tomorrowGet('careMemory').textContent,/2026-11-15/);
 });
