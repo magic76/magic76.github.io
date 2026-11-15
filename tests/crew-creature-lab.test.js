@@ -532,8 +532,8 @@ test('v1.4: chat history is saved and restored across reloads',()=>{
  assert.equal(JSON.parse(mem3.get('crew-creature-lab-v1-chat')).length,30,'stored log capped to 30');
 });
 test('v1.4: first screen shows the whole animal (taller canvas, capped desktop)',()=>{
- assert.match(css,/height:clamp\(238px,36dvh,318px\)/,'mobile creature art is no longer a thumbnail');
- assert.match(css,/height:clamp\(230px,36dvh,260px\)/,'small screens keep the creature readable, even if page scrolls');
+ assert.match(css,/clamp\(155px,45vw,200px\)/,'mobile portrait retains visible width');
+ assert.match(css,/clamp\(145px,42vw,180px\)/,'short-phone portrait keeps true ratio');
  assert.match(css,/78vh/,'desktop canvas capped at 78vh');
  assert.match(css,/min-height:100dvh/,'mobile layout uses min-height so the composer is reachable');
  assert.match(css,/object-fit:contain/,'contain keeps the whole animal visible');
@@ -662,7 +662,7 @@ test('completed creature reacts and remembers same-day choices; a new day gives 
 
 test('mobile layout keeps egg, hatch actions and chat close on short and tall phones',()=>{
  assert.match(css,/grid-template-columns:minmax\(0,60%\) minmax\(0,40%\)/);
- assert.match(css,/\.canvas-wrap\{height:clamp\(230px,36dvh,260px\)/);
+ assert.match(css,/\.canvas-wrap\{width:min\(calc\(100% - 15px\),clamp\(145px,42vw,180px\)\);height:auto;aspect-ratio:1 \/ 2/);
  assert.match(css,/\.idea-chips:not\(\.expanded\) button:nth-child\(n\+3\)/);
  assert.match(css,/\.composer input\{font-size:16px/);
  assert.match(css,/\.composer button\{width:44px;height:44px/);
