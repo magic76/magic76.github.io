@@ -540,6 +540,13 @@ test('v1.4: first screen shows the whole animal (taller canvas, capped desktop)'
  assert.match(css,/\.line-grid/);
  assert.match(css,/\.line-card/);
 });
+test('mobile artwork keeps the real 1:2 portrait ratio rather than filling a wide box',()=>{
+ assert.match(css,/\.creature-panel \.canvas-wrap\{grid-column:1;grid-row:2;width:min\(/);
+ assert.match(css,/aspect-ratio:1 \/ 2;align-self:start/);
+ assert.match(css,/\.creature-panel #creatureCanvas\{object-fit:contain/);
+ assert.doesNotMatch(css,/\.creature-panel #creatureCanvas\{object-fit:fill/);
+ assert.match(css,/@media\(max-width:790px\) and \(max-height:700px\)\{[\s\S]*?aspect-ratio:1 \/ 2/);
+});
 test('creature lab mirrors crew-app except intended HTML cache versions',()=>{
  for(const name of ['creature.js','index.html','creature.css','creature-v6.js']){
   const site=fs.readFileSync(path.join(dir,name),'utf8');
