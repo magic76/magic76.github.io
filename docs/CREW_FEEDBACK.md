@@ -9,7 +9,7 @@ Visitors can submit problem reports, feature suggestions, and general feedback a
 3. Variable name **`CREW_FEEDBACK_DB`** (exact spelling); choose the newly created `crew-feedback` database from the dropdown. This is a **binding**, not a text Value or Secret.
 4. Redeploy the Pages project so the new binding is active. If using Preview separately, configure its D1 binding as appropriate.
 
-No SQL console step is needed: the API creates the `crew_feedback` and `crew_feedback_limit` tables on the first POST. No GitHub PAT, Turnstile keys, or email fallback. The form is disabled before the binding is available, **not** redirected to a different submission service.
+No SQL console step is needed: the API creates the `crew_feedback` and `crew_feedback_limit` tables on the first POST. No GitHub PAT, Turnstile keys, or email fallback. The submit button is always clickable so input errors can be explained. When D1 is missing or unavailable, the API returns a real error and the form keeps the draft; it **never** silently succeeds or redirects to a different service.
 
 ## Reading submissions
 
