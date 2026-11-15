@@ -91,7 +91,10 @@
            <p id="carePrompt">Zoe 想邀你陪牠玩一會兒。</p>
            <div class="care-choices" id="careChoices"></div>
            <small id="careStatus"></small>
-           <p class="care-memory" id="careMemory" hidden></p>
+           <details class="care-memory-details" id="careMemoryDetails" hidden>
+             <summary id="careMemorySummary">📖 上次的回憶</summary>
+             <p class="care-memory" id="careMemory"></p>
+           </details>
          </div>
         <div class="idea-title"><span>不知道聊什麼？點一個試試</span><button id="ideaToggle" type="button" aria-expanded="false" aria-controls="ideaChips">更多話題 <span aria-hidden="true">▾</span></button></div>
         <div class="idea-chips" id="ideaChips">
