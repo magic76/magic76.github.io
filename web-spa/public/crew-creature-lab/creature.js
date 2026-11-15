@@ -305,7 +305,7 @@ function updateUI(){
   (c.line?'這顆蛋已經知道自己是誰了，聊聊看，存能量孵化牠。':'從第一句開始，蒐集能量，準備孵化。'):
   '第 '+c.sentences+' 句 · 能量 '+state.energy+'。'+(c.line?CRE.CREATURE_LINES[c.line].note:'');
  const cost=CRE.evolveCost(c.stage);
- $('energyText').textContent=cost===null?'完全體 · 能量 '+state.energy:'⚡ 能量 '+state.energy+' / '+cost;
+ $('energyText').textContent=cost===null?'⚡ 能量 '+state.energy:'⚡ 能量 '+state.energy+' / '+cost;
  // v1.2: energy orbs instead of a progress bar — one orb per energy the
  // next evolution costs, filled as energy arrives. A finished creature
  // shows a full glowing set of five.
@@ -374,13 +374,16 @@ function renderCare(){
  panel.hidden=c.stage!==4;
  if(c.stage!==4)return;
  const info=careContext();
- $('carePrompt').textContent='Zoe：'+info.prompt;
+ $('carePrompt').textContent=info.prompt;
  const choices=$('careChoices');
  choices.innerHTML=info.scene.options.map((name,i)=>'<button type="button" data-care="'+i+'">'+name+'</button>').join('');
  const last=(c.memories||[]).slice(-1)[0];
- const memo=$('careMemory');
- memo.hidden=!last;
- if(last)memo.textContent='📖 '+last.date+' · '+last.text;
+ const memo=$('careMemory'),details=$('careMemoryDetails');
+ details.hidden=!last;
+ if(last){
+  $('careMemorySummary').textContent='📖 '+(last.date===todayStr()?'今天的回憶已收藏':last.date+' 的回憶')+' · 查看';
+  memo.textContent=last.date+' · '+last.text;
+ }
  $('careStatus').textContent=last&&last.date===todayStr()?'今天的回憶已收藏 · 還能繼續陪牠聊天':
   '今天陪牠做個小選擇，留下屬於你們的回憶';
 }
