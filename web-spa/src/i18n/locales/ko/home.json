@@ -1,4 +1,24 @@
 {
+  "creatureLab": {
+    "discover": "Zoe와 함께 생물 부화시키기",
+    "intro": "Zoe에게 메시지를 두 번 보내고 첫 생물을 부화시켜 보세요. 번체 중국어로 진행해요.",
+    "egg": "알 돌보기 계속하기",
+    "care": "{{name}} 만나러 가기",
+    "needed": "다음 단계까지 필요한 에너지 {{energy}}",
+    "hatch": "알이 부화할 준비가 됐어요. 누가 나올지 확인해 보세요.",
+    "evolve": "진화에 필요한 에너지가 모였어요.",
+    "memory": "오늘 함께 할 일을 고르고 추억을 남겨 보세요.",
+    "species": {
+      "moonfox": "달여우",
+      "stardragon": "별의 용",
+      "flowerfairy": "꽃의 요정",
+      "cat": "아기 고양이",
+      "snowbunny": "눈토끼",
+      "redpanda": "레서판다",
+      "dolphin": "돌고래",
+      "phoenix": "불사조"
+    }
+  },
   "eyebrow": "나만의 CREW 공간",
   "headline": "Crew와 대화하고, 놀고, 배우세요",
   "intro": "AI 친구와 채팅하고 게임을 즐기며 언어를 연습하고 이야기를 만나보세요.",

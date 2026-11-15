@@ -1,0 +1,25 @@
+.creature-voice-embed-body{
+ min-height:0;
+ background:#f8f7fb;
+}
+.creature-live-embed{
+ width:100%;
+ max-width:640px;
+ margin:0 auto;
+ padding:12px;
+ display:grid;
+ gap:10px;
+ color:#252136;
+ font-size:14px;
+}
+.creature-live-embed-heading{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+}
+.creature-live-embed-heading span{color:#5c526d;font-size:13px}
+.creature-live-embed .guest-live-entry{margin:0}
+.creature-live-embed .live-transcript{margin:0}
+.creature-live-embed .live-line{overflow-wrap:anywhere}
+.creature-live-embed .crew-voice-dock{position:static}

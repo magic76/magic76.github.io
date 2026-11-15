@@ -9,6 +9,9 @@ import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {detectNativeLanguage} from "../teacher/teacherLocale";
 import {useLiveSession} from "../live/useLiveSession";
+import {useCreatureStageSync,useCreatureVoiceBridge} from "./useCreatureVoiceBridge";
+import {creatureVoiceInstruction} from "./creatureVoiceBridge.mjs";
+import {CreatureVoicePanel} from "./CreatureVoicePanel";
 import {LiveControls} from "../live/LiveControls";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
 import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";
@@ -60,6 +63,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
  const [params]=useSearchParams();
  const textMode=params.get("chat")==="text";
+ const creatureEmbed=!textMode&&params.get("id")==="zoe"&&params.get("from")==="creature"&&params.get("embed")==="1"&&window.parent!==window;
+ const creatureBridge=useCreatureVoiceBridge(creatureEmbed);
+ const creatureContext=creatureBridge.creature?"\n"+creatureVoiceInstruction(creatureBridge.creature):"";
  const textStage=useRef<HTMLElement|null>(null);
  const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
  const friend=getCrewFriend(params.get("id"));
@@ -133,13 +139,15 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
-  system:system+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":""),languageDirective,
+   system:system+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
   openingPrompt:languageDirective+"\n"+(shortsPost
    ?"[FRIEND POST REACTION] You are continuing your own Crew Shorts fictional photo story. Start with a short, casual comment about the caption from the post context (not a generic greeting). Don't say you saw a real-world photo or claim this happened to the learner. Use one language per reply."+shortsOpeningHint(shortsHook)+shortsQuestionOpeningHint(selectedQuestion)
    :"[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
-    " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+(lifeOpening||conversationOpening(intent,"friend"))+"\n"+conversationOpening(intent,"friend"))+"\n"+languageDirective,
+     " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+(lifeOpening||conversationOpening(intent,"friend"))+"\n"+conversationOpening(intent,"friend"))+creatureContext+"\n"+languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
+  onObservedExchange:creatureEmbed?creatureBridge.reportTurn:undefined,
+  onRecovered:creatureEmbed?creatureBridge.onRecovered:undefined,
   onTurnComplete:(_turn,completedTurns)=>{
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("friend_conversation");
@@ -164,6 +172,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
   }
  });
+ creatureBridge.bind(live);
+ useCreatureStageSync(creatureEmbed,creatureBridge.creature,live.sendControl);
  // Guest trials intentionally skip onTurnComplete to avoid memory side effects.
  // Observe rendered turns instead, so BYOK and guests share the same conversion metric.
  useEffect(()=>{
@@ -180,8 +190,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  };
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry)trackUsageEvent("home_live_bubble_connected")}},[live.state]);
  // Start once after mounting, without double-starting under React StrictMode.
- useEffect(()=>{if(textMode||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost]);
- useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
+ useEffect(()=>{if(textMode||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost,creatureEmbed]);
+ useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page"+(creatureEmbed?" creature-voice-embed-body":"");return()=>{document.body.className=""}},[creatureEmbed]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
@@ -218,6 +228,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const alternateHref="/friend/live?"+alternateParams.toString();
  // A Shorts referral puts the only required second gesture before optional mode
  // choices. The original guest-trial gate remains responsible for eligibility.
+ if(creatureEmbed)return <CreatureVoicePanel live={live} ready={!!creatureBridge.creature} status={friendVoiceStatus} guestStarted={guestStarted} setGuestStarted={setGuestStarted}/>;
  const voiceStart=<>
   {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
   {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" focusStartOnVerified={homeFirstAction} textFallback={{href:alternateHref,name:friend.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
@@ -293,3 +304,4 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   </main>
  </>;
 }
+

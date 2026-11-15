@@ -15,6 +15,9 @@
  .crew-mobile-home{display:block;max-width:540px;margin:auto;padding:5px 18px 0;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC",system-ui,sans-serif;color:#343649}
  .crew-mobile-home *{box-sizing:border-box}
  .crew-mobile-home a{text-decoration:none}
+ .crew-mobile-home>.crew-creature-resume{margin:12px 0;padding:10px 12px;grid-template-columns:48px minmax(0,1fr) 18px;gap:12px;min-height:68px;border-radius:16px}
+ .crew-mobile-home .crew-creature-resume .crew-home-recent-art{width:48px;height:48px;border-radius:11px}
+ .crew-mobile-home .crew-creature-resume .crew-home-recent-copy :is(strong,small){white-space:normal;overflow:visible}
  .crew-mobile-home :is(a,button):focus-visible{outline:3px solid #6267c4;outline-offset:3px}
  /* Lightweight motion: one composited track, moving radial glow, 4 small sparkle layers. */
  .cmh-carousel{position:relative;min-width:0}

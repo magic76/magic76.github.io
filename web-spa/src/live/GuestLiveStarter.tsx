@@ -12,9 +12,10 @@ type WidgetApi={
 };
 const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
-export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFallback}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";focusStartOnVerified?:boolean;textFallback?:{href:string;name:string}}){
+export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFallback,linksInNewTab=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";focusStartOnVerified?:boolean;textFallback?:{href:string;name:string};linksInNewTab?:boolean}){
  const {t}=useTranslation("common");
  const navigate=useNavigate();
+ const linkTarget=linksInNewTab?{target:"_blank",rel:"noopener noreferrer"}:{};
  const [micUnavailable,setMicUnavailable]=useState(false);
  const [micPermissionDenied,setMicPermissionDenied]=useState(false);
  const microphoneHelp=()=>{
@@ -197,17 +198,18 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
     <button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{t("guestTrial.start")}</button></>}
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
-    <Link className="btn" to="/account">{t("guestTrial.signInAction")}</Link></>}
+    <Link className="btn" to="/account" {...linkTarget}>{t("guestTrial.signInAction")}</Link></>}
    {phase==="exhausted"&&<><strong>{t("guestTrial.usedUpTitle")}</strong><p role="status">{memberSignedIn?(quotaLimit!==null?t("guestTrial.usedMember",{limit:quotaLimit}):t("guestTrial.usedMemberNoCount")):t("guestTrial.used")}</p></>}
    {phase==="full"&&<p role="status">{t("guestTrial.limit")}</p>}
    {(phase==="exhausted"||phase==="full")&&<>
-    <Link className="btn" to="/account#settings-gemini">{t("guestTrial.continueKey")}</Link>
-    <Link className="btn secondary" to="/games/1a2b">{t("guestTrial.free1a2b")}</Link></>}
+    <Link className="btn" to="/account#settings-gemini" {...linkTarget}>{t("guestTrial.continueKey")}</Link>
+    <Link className="btn secondary" to="/games/1a2b" {...linkTarget}>{t("guestTrial.free1a2b")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role={phase==="error"&&micPermissionDenied?"alert":"status"}>{message||t("guestTrial.unavailable")}</p>}
    {phase==="error"&&textFallback&&<Link className="btn" to={textFallback.href}>{t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}
    {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{clearGuestChallengeHandoff();setChallenge("");setMicPermissionDenied(false);setMicUnavailable(false);setPhase("ready")}}>{t(micPermissionDenied?"guestTrial.retryMic":"guestTrial.retry")}</button>}
    {phase==="error"&&micPermissionDenied&&<p style={{fontSize:13,lineHeight:1.6,margin:0,overflowWrap:"anywhere"}}>{microphoneHelp()}</p>}
-   {(phase==="error"||phase==="unavailable")&&<Link className="guest-live-key-link" style={{minHeight:44,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:13,lineHeight:1.5,textDecoration:"underline"}} to="/account#settings-gemini">{t("guestTrial.keySettingsLink")}</Link>}
+   {(phase==="error"||phase==="unavailable")&&<Link className="guest-live-key-link" style={{minHeight:44,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:13,lineHeight:1.5,textDecoration:"underline"}} to="/account#settings-gemini" {...linkTarget}>{t("guestTrial.keySettingsLink")}</Link>}
   </div>
  </div>;
 }
+

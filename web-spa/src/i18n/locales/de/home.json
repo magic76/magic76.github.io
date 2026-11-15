@@ -1,4 +1,24 @@
 {
+  "creatureLab": {
+    "discover": "Mit Zoe ein Wesen ausbrüten",
+    "intro": "Schreib Zoe zwei Nachrichten und lass dein erstes Wesen schlüpfen. Auf traditionellem Chinesisch.",
+    "egg": "Dein Ei weiter ausbrüten",
+    "care": "Dein Wesen besuchen · {{name}}",
+    "needed": "Bis zur nächsten Stufe fehlen noch {{energy}} Energiepunkte.",
+    "hatch": "Dein Ei ist bereit. Schau, wer darin steckt.",
+    "evolve": "Dein Wesen hat genug Energie für die nächste Stufe.",
+    "memory": "Wähle eine gemeinsame Aktivität und halte die Erinnerung fest.",
+    "species": {
+      "moonfox": "Mondfuchs",
+      "stardragon": "Sternendrache",
+      "flowerfairy": "Blumenfee",
+      "cat": "Kätzchen",
+      "snowbunny": "Schneehase",
+      "redpanda": "Kleiner Panda",
+      "dolphin": "Delfin",
+      "phoenix": "Phönix"
+    }
+  },
   "eyebrow": "DEIN CREW-BEREICH",
   "headline": "Reden, spielen und lernen mit Crew",
   "intro": "Chatte mit KI-Freunden, spiele, übe Sprachen und entdecke Geschichten.",

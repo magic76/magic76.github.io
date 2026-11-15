@@ -6,6 +6,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const CRE=window.CrewCreatureV1;
 const STAGE_NAMES=['蛋','幼體','成長體','成熟體','完全體'];
 let state=CRE.empty(),reveal=null,toastTimer=0,surpriseTimer=0,renderTime=0,lastFrame=0,reduceMotion=false,sessionMessages=0;
+let voiceBridge=null;
 // v1.4: which line's note is expanded in the 8-line preview (tapping a
 // card swaps its status line for the creature's note; re-render keeps it).
 let previewNoteLine=null;
@@ -291,6 +292,7 @@ function updateUI(){
  if(hatchPrompt)hatchPrompt.textContent=c.sentences===0?'先選一句話和 Zoe 聊聊，蛋就會有能量。':
   can?'✨ 牠準備破殼了，這次由你按下孵化！':'再聊 1 句，牠就要破殼了！';
  renderCare();updateGiftUI();renderCollection();renderLinePreview();renderGiftCodex();
+ voiceBridge?.sync();
 }
 function updateGiftUI(){
  const n=state.gifts||0;
@@ -438,13 +440,15 @@ function askHatch(){
 function hatchEggLine(lineId){
  if(state.creature.sentences>0&&window.confirm&&!window.confirm(
   state.creature.stage===4?'換蛋後，這隻完全體會留在收藏，但不能繼續陪伴牠。確定嗎？':'這隻正在成長，換蛋會放棄牠的進度，確定嗎？'))return false;
- if(!CRE.hatchEgg(state,lineId))return false;
- writeState();
- $('eggModal').hidden=true;
- CRE.preloadArt(lineId);
- updateUI();draw(0);
- popToast('🥚 '+CRE.CREATURE_LINES[lineId].name+' 開始孵化了！');
- return true;
+ return afterVoiceStops(()=>{
+  if(!CRE.hatchEgg(state,lineId))return false;
+  writeState();
+  $('eggModal').hidden=true;
+  CRE.preloadArt(lineId);
+  updateUI();draw(0);
+  popToast('🥚 '+CRE.CREATURE_LINES[lineId].name+' 開始孵化了！');
+  return true;
+ });
 }
 function doEvolve(rand){
  // v1.2 ceremony: the STATE changes immediately (energy deducted, stage
@@ -495,12 +499,14 @@ function doEvolve(rand){
 }
 function doStartNext(){
  if(state.creature.stage!==4)return false;
- CRE.startNewCreature(state);
- writeState();
- resetChat('Zoe','新的蛋來了！聊聊天，蒐集能量，把牠孵出來。');
- updateUI();draw(0);
- popToast('🥚 新的蛋準備好了！');
- return true;
+ return afterVoiceStops(()=>{
+  CRE.startNewCreature(state);
+  writeState();
+  resetChat('Zoe','新的蛋來了！聊聊天，蒐集能量，把牠孵出來。');
+  updateUI();draw(0);
+  popToast('🥚 新的蛋準備好了！');
+  return true;
+ });
 }
 function appendMessage(who,message,opts){
  opts=opts||{};
@@ -517,6 +523,42 @@ function appendMessage(who,message,opts){
   writeChat();
  }
 }
+function afterVoiceStops(action){
+ return voiceBridge?voiceBridge.afterStop(action):action();
+}
+function voiceContext(){
+ const c=state.creature,last=c.topics[c.topics.length-1];
+ return {line:CRE.LINE_IDS.includes(c.line)?c.line:null,
+  stage:c.stage,energy:state.energy,topic:Object.hasOwn(TOPICS,last)?last:'daily'};
+}
+function growFromTurn(topic){
+ CRE.gainEnergy(state);
+ state.creature.topics.push(topic);
+ state.creature.topics=state.creature.topics.slice(-64);
+ state.creature.sentences++;
+ sessionMessages++;
+ return CRE.grantGift(state,'daily',todayStr());
+}
+function finishTurn(daily,remembered){
+ writeState();updateUI();draw(0);
+ reactToChat();
+ if(remembered){$('reactBubble').textContent=remembered;burstStars(5);}
+ if(daily)popToast('🎁 今日禮物 +1！明天再來領一個。');
+ else if(CRE.canEvolve(state))popToast(state.creature.stage===0?'🥚 能量夠了！按「孵出我的生物」':'⚡ 能量夠了！可以進化了');
+}
+function recordVoiceTurn(input){
+ // Use speech only to select an existing topic. The lab never copies the
+ // transcript, the real Zoe reply, or an excerpt into either storage key.
+ const topic=classify(input.slice(0,1600)).topic;
+ const daily=growFromTurn(topic);
+ let remembered='';
+ if(state.creature.stage===4){
+  const who=CRE.CREATURE_LINES[state.creature.line]?.name||'小生物';
+  remembered=who+'陪你和 Zoe 聊了'+TOPICS[topic].label+'，開心地靠了過來。';
+  rememberCare(remembered,topic);
+ }
+ finishTurn(daily,remembered);
+}
 function postMessage(raw,careChoice){
  const text=String(raw||'').trim();
  if(!text||text.length>240)return false;
@@ -526,11 +568,8 @@ function postMessage(raw,careChoice){
  appendMessage('me',text);
  const signal=classify(text);
  if(isFinal&&idx!==null)signal.topic=info.topic;
- const turn=state.creature.sentences+1;
- CRE.gainEnergy(state);
- state.creature.topics.push(signal.topic);
- state.creature.topics=state.creature.topics.slice(-64);
- state.creature.sentences++;
+ const daily=growFromTurn(signal.topic);
+ const turn=state.creature.sentences;
  let reply,remembered='';
  if(isFinal){
   const line=CRE.CREATURE_LINES[state.creature.line];
@@ -543,13 +582,7 @@ function postMessage(raw,careChoice){
   reply=sayZoe(signal,turn);
  }
  appendMessage('zoe',reply);
- sessionMessages++;
- const daily=CRE.grantGift(state,'daily',todayStr());
- writeState();updateUI();draw(0);
- reactToChat();
- if(isFinal){$('reactBubble').textContent=remembered;burstStars(5);}
- if(daily)popToast('🎁 今日禮物 +1！明天再來領一個。');
- else if(!isFinal&&CRE.canEvolve(state))popToast(state.creature.stage===0?'🥚 能量夠了！按「孵出我的生物」':'⚡ 能量夠了！可以進化了');
+ finishTurn(daily,remembered);
  return {topic:signal.topic,turn,energy:state.energy,sentences:state.creature.sentences,canEvolve:CRE.canEvolve(state),reply,remembered};
 }
 function resetChat(who,text){
@@ -559,11 +592,13 @@ function resetChat(who,text){
 }
 function resetLab(){
  if(window.confirm&&!window.confirm('確定重新開始？已養成的生物和能量都會清除。'))return false;
- state=CRE.empty();
- writeState();
- resetChat('Zoe','新的蛋來了！聊聊天，蒐集能量，把牠孵出來。');
- updateUI();draw(0);
- return true;
+ return afterVoiceStops(()=>{
+  state=CRE.empty();
+  writeState();
+  resetChat('Zoe','新的蛋來了！聊聊天，蒐集能量，把牠孵出來。');
+  updateUI();draw(0);
+  return true;
+ });
 }
 function postcardDateStr(){
  const d=new Date();
@@ -650,6 +685,8 @@ function init(){
  reduceMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
  loadState();
  loadChat();
+ if($('openVoice')&&window.CrewCreatureVoice)
+  voiceBridge=window.CrewCreatureVoice.mount({getContext:voiceContext,recordTurn:recordVoiceTurn,evolve:doEvolve});
  // v1.4: preload the default egg art before the first paint, so the
  // first thing the user sees is not a black board. The paint fallback
  // is a gradient + egg anyway; waitForArt repaints once the real art

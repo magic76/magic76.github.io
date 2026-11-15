@@ -1,4 +1,24 @@
 {
+  "creatureLab": {
+    "discover": "Tetaskan makhluk bersama Zoe",
+    "intro": "Kirim dua pesan ke Zoe untuk menetaskan makhluk pertamamu. Dalam bahasa Mandarin tradisional.",
+    "egg": "Lanjutkan menetaskan telur",
+    "care": "Kunjungi makhlukmu · {{name}}",
+    "needed": "Energi yang dibutuhkan untuk tahap berikutnya: {{energy}}",
+    "hatch": "Telurmu siap menetas. Lihat siapa yang ada di dalamnya.",
+    "evolve": "Energi makhlukmu sudah cukup untuk berevolusi.",
+    "memory": "Pilih kegiatan untuk dilakukan bersama dan simpan kenangannya.",
+    "species": {
+      "moonfox": "Rubah Bulan",
+      "stardragon": "Naga Bintang",
+      "flowerfairy": "Peri Bunga",
+      "cat": "Anak Kucing",
+      "snowbunny": "Kelinci Salju",
+      "redpanda": "Panda Merah",
+      "dolphin": "Lumba-lumba",
+      "phoenix": "Feniks"
+    }
+  },
   "eyebrow": "RUANG CREW ANDA",
   "headline": "Mengobrol, bermain, dan belajar bersama Crew",
   "intro": "Mengobrol dengan teman AI, bermain, berlatih bahasa, dan menemukan cerita.",
