@@ -34,7 +34,7 @@ export function FeedbackInboxPage(){
  const epoch=useRef(0);
  useEffect(()=>{
   let active=true;const run=++epoch.current;
-  setLoading(true);setItems([]);setHasMore(false);setError("");setNotice("");
+  setLoading(true);setItems([]);setHasMore(false);setError("");
   const params=new URLSearchParams({view:"feedback",kind,status});
   void fetch("/api/usage/report?"+params.toString(),{credentials:"same-origin",cache:"no-store"})
    .then(async response=>{
@@ -99,12 +99,12 @@ export function FeedbackInboxPage(){
   </section>}
   <section className="panel section crew-inbox-filters" aria-label="篩選回饋">
    <label>類別
-    <select value={kind} onChange={e=>setKind(e.target.value as Kind)}>
+    <select value={kind} onChange={e=>{setNotice("");setKind(e.target.value as Kind)}}>
      {kinds.map(option=><option key={option.key} value={option.key}>{option.label}</option>)}
     </select>
    </label>
    <label>處理狀態
-    <select value={status} onChange={e=>setStatus(e.target.value as Status)}>
+    <select value={status} onChange={e=>{setNotice("");setStatus(e.target.value as Status)}}>
      {statuses.map(option=><option key={option.key} value={option.key}>{option.label}</option>)}
     </select>
    </label>
