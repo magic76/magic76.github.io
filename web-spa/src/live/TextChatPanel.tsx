@@ -1,4 +1,5 @@
 import {LiveTextConversation} from "./liveTextChat";
+import {GuestKeyRecovery} from "./GuestKeyRecovery";
 import {textChatByokMessage} from "./textChatByokMessage";
 import {useFriendTextLearning,FriendLearningCheck,FriendLearningTip,FriendLearningSummary} from "./TextChatLearning";
 import {buildShortsTextSystems} from "./shortsTextContext";
@@ -341,8 +342,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {guestPhase==="paused"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.restart")}</button>}
    {guestPhase==="unavailable"&&<small role="status">{english?"Free text chat is temporarily unavailable.":"免費文字聊天暫時無法使用。"}</small>}
    {guestPhase==="exhausted"&&<small role="status">{english?"Today's free messages have been used.":"今天的免費文字訊息已用完。"}</small>}
-   {(guestPhase==="unavailable"||guestPhase==="exhausted")&&
-    <Link className="btn secondary small" to="/account#settings-gemini">{t("guestText.useKey")}</Link>}
+   {(guestPhase==="unavailable"||guestPhase==="exhausted")&&<GuestKeyRecovery exhausted={guestPhase==="exhausted"} hasKey={hasKey}/>}
   </div>}
   <div ref={history} className="crew-text-chat-history" role="log" aria-label={english?"Conversation":"對話內容"} aria-live="polite" aria-relevant="additions">
    {!messages.length&&!firstStarter&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}

@@ -83,11 +83,33 @@ test("new guest failure messages and buttons exist as strings in all 11 voice na
   assert.ok(group,locale);
   const now=Object.keys(group).sort();
   if(!keys)keys=now;else assert.deepEqual(now,keys,locale);
-  assert.equal(keys.length,22);
+  assert.equal(keys.length,25);
   for(const value of Object.values(group))assert.equal(typeof value,"string",locale);
  }
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
  assert.match(panel,/useTranslation\("voice"\)/);
  const css=read("web-spa/src/live/TextChatPanel.css");
  assert.match(css,/\.crew-text-chat-error \.btn\{min-height:44px/);
+});
+
+test("quota recovery promotes free key creation and returns to the same conversation",()=>{
+ const panel=read("web-spa/src/live/TextChatPanel.tsx");
+ const recovery=read("web-spa/src/live/GuestKeyRecovery.tsx");
+ const css=read("web-spa/src/live/TextChatPanel.css");
+ assert.ok(panel.includes('<GuestKeyRecovery exhausted={guestPhase==="exhausted"} hasKey={hasKey}/>'));
+ assert.ok(recovery.includes('encodeURIComponent(location.pathname+location.search)'));
+ assert.ok(recovery.includes('"#settings-gemini"'));
+ assert.ok(recovery.includes('exhausted&&!hasKey&&<p>{t("guestText.nextDayHint")}</p>'));
+ assert.ok(recovery.includes('hasKey?t("guestText.useKey"):t("guestText.applyKey")'));
+ assert.ok(recovery.includes('!hasKey&&<small>{t("guestText.keyApplyNote")}</small>'));
+ assert.match(css,/\\.crew-text-guest \\.crew-text-key-recovery \\.btn\\{[^}]*min-height:44px/);
+ assert.match(css,/\\.crew-text-chat\\.is-chatting \\.crew-text-guest \\.crew-text-key-recovery p\\{display:block\\}/);
+ for(const locale of ["zh-TW","en","ja","ko","es","fr","de","pt-BR","id","vi","th"]){
+  const strings=JSON.parse(read(`web-spa/src/i18n/locales/${locale}/voice.json`)).guestText;
+  for(const key of ["nextDayHint","applyKey","keyApplyNote"])assert.ok(strings[key]?.trim(),locale+" "+key);
+ }
+ const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/voice.json")).guestText;
+ assert.match(zh.nextDayHint,/明天/);
+ assert.match(zh.applyKey,/免費申請/);
+ assert.match(zh.keyApplyNote,/額度/);
 });
