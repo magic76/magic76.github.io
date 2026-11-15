@@ -5,6 +5,11 @@ on:
       - 'web-spa/public/crew-creature-lab/**'
       - 'crew-app/crew-creature-lab/**'
       - 'tests/crew-creature-lab.test.js'
+      - 'tests/crew-creature-chat-rewards.test.mjs'
+      - 'web-spa/src/pages/creatureChatRewards.*'
+      - 'web-spa/src/live/TextChatPanel.tsx'
+      - 'web-spa/src/friends/FriendLivePage.tsx'
+      - 'web-spa/src/teacher/LivePage.tsx'
       - 'tests/crew-creature-retention.visual.cjs'
       - '.github/workflows/crew-creature-retention.yml'
 permissions:
@@ -21,7 +26,7 @@ jobs:
         with:
           node-version: '22'
       - name: Run save migration and progression regressions
-        run: node --test tests/crew-creature-lab.test.js
+        run: node --test tests/crew-creature-lab.test.js tests/crew-creature-chat-rewards.test.mjs
       - name: Install isolated Playwright for real viewport tests
         run: |
           npm install --prefix /tmp/crew-creature-qa playwright@1.56.1 --no-audit --no-fund --silent

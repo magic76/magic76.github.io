@@ -1,4 +1,5 @@
 import {LiveTextConversation} from "./liveTextChat";
+import {awardCreatureChatEnergy} from "../pages/creatureChatRewards.mjs";
 import {GuestKeyRecovery} from "./GuestKeyRecovery";
 import {textChatByokMessage} from "./textChatByokMessage";
 import {useFriendTextLearning,FriendLearningCheck,FriendLearningTip,FriendLearningSummary} from "./TextChatLearning";
@@ -55,6 +56,9 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const backendFailureCount=useRef(0);
  const {t}=useTranslation("voice");
  const isFriend=sessionScope.startsWith("friend:");
+ // A private browser-local turn token; never use a transcript, name or account ID.
+ const creatureRewardSession=useRef("s"+Date.now().toString(36)+Math.random().toString(36).slice(2));
+ const creatureRewardTurn=useRef(0);
  const learning=useFriendTextLearning(system,sessionScope);
  const fallbackReplies=useFriendNextReplyFallback(system);
  const [nextReplies,setNextReplies]=useState<string[]|"fallback"|null>(null);
@@ -284,6 +288,10 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     pendingSend.current=null;
     setMessages(complete);
     setNextReplies(isFriend?(replyFallback||parsed?.replies||"fallback"):null);
+    // Award only after a complete, saved model reply. Retry/failure/partial frames
+    // never earn energy; a unique turn token prevents callback replays.
+    try{awardCreatureChatEnergy(isFriend?"friend-text":"teacher-text",
+      creatureRewardSession.current+":"+(++creatureRewardTurn.current))}catch{}
     try{onExchange?.()}catch{/* Usage tracking must not roll back a successful reply. */}
    }
   }catch(reason){

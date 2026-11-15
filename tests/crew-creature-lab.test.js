@@ -41,7 +41,7 @@ function boot(options={}){
  }
  const get=id=>{if(!nodes.has(id))nodes.set(id,element(id));return nodes.get(id)};
  const document={getElementById:get,createElement:element,body:element('body')};
- const window={addEventListener(){},requestAnimationFrame(){return 1},devicePixelRatio:3,
+ const window={listeners:{},addEventListener(k,fn){this.listeners[k]=fn},requestAnimationFrame(){return 1},devicePixelRatio:3,
   ResizeObserver:class{observe(){}},matchMedia(){return {matches:false}},scrollTo(){},
   confirm:options.confirm};
  const c={document,window,location:{search:'?qa=1'},URLSearchParams,localStorage:{
@@ -50,7 +50,7 @@ function boot(options={}){
  vm.createContext(c);vm.runInContext(modelScript,c,{timeout:10000});vm.runInContext(script,c,{timeout:10000});
  const qa=window.__CREATURE_QA__;
  assert.ok(qa,'QA interface is exposed only behind ?qa=1');
- return {qa,memory,get,paint,document,timers};
+ return {qa,memory,get,paint,document,timers,window};
 }
 test('creature lab boots and paints the egg fallback without images',()=>{
  const {qa,paint}=boot();
@@ -752,9 +752,9 @@ test('mobile first-fold uses one stage-aware creature card and puts conversation
  assert.match(css,/\.composer input\{font-size:16px;min-height:44px/);
  const {qa,get}=boot();
  assert.match(get('stageBadge').textContent,/準備孵化/);
- assert.match(get('progressHint').textContent,/再聊 2 句/);
+ assert.match(get('progressHint').textContent,/還差 2 能量/);
  qa.post('今天想看星星');
- assert.match(get('progressHint').textContent,/再聊 1 句/);
+ assert.match(get('progressHint').textContent,/還差 1 能量/);
  qa.post('一起探索宇宙');
  assert.match(get('progressHint').textContent,/已集滿/);
  qa.evolve(()=>.1);
@@ -792,4 +792,53 @@ test('creature and chat readability override previous first-fold squeezing, with
  assert.equal(get('careMemoryDetails').hidden,false);
  assert.match(get('careMemorySummary').textContent,/回憶已收藏/);
  assert.match(get('careMemory').textContent,/一起/);
+});
+
+test('outside chat energy imports once, preserves spend, and leaves lab sentences alone',()=>{
+ const key='crew-creature-chat-rewards-v1';
+ const ledger=total=>JSON.stringify({version:1,total,day:'2026-11-15',todayCount:total,seen:[]});
+ const {qa,memory,get}=boot({storage:{[key]:ledger(3)}});
+ assert.equal(qa.state().energy,3);
+ assert.equal(qa.state().externalEnergyClaimed,3);
+ assert.equal(qa.state().creature.sentences,0);
+ assert.match(get('progressHint').textContent,/已集滿/);
+ const after=boot({storage:Object.fromEntries(memory)});
+ assert.equal(after.qa.state().energy,3,'reload must not double credit');
+ assert.equal(after.qa.evolve(()=>0).stage,1);
+ assert.equal(after.qa.state().energy,1);
+ const spent=boot({storage:Object.fromEntries(after.memory)});
+ assert.equal(spent.qa.state().energy,1,'spent energy must not return on reload');
+ assert.equal(spent.qa.state().externalEnergyClaimed,3);
+});
+
+test('new rewards synchronize across tabs and reset cannot resurrect claimed energy',()=>{
+ const key='crew-creature-chat-rewards-v1';
+ const ledger=(total,count)=>JSON.stringify({version:1,total,day:'2026-11-15',todayCount:count,seen:[]});
+ const {qa,memory,window,get}=boot({confirm:()=>true,storage:{[key]:ledger(2,2)}});
+ assert.equal(qa.state().energy,2);
+ memory.set(key,ledger(5,5));
+ window.listeners.storage({key});
+ assert.equal(qa.state().energy,5);
+ assert.match(get('energyText').textContent,/5/);
+ assert.equal(qa.reset(),true);
+ assert.equal(qa.state().energy,0);
+ assert.equal(qa.state().externalEnergyClaimed,5);
+ const after=boot({storage:Object.fromEntries(memory)});
+ assert.equal(after.qa.state().energy,0,'reset should not reclaim old awards');
+ after.memory.set(key,ledger(7,7));
+ after.window.listeners.storage({key});
+ assert.equal(after.qa.state().energy,2,'new outside chat rewards still work after reset');
+});
+
+test('legacy save keeps creature, gifts and collection when importing external chat energy',()=>{
+ const key='crew-creature-chat-rewards-v1';
+ const save=JSON.stringify({version:1,energy:4,creature:{line:'cat',stage:2,topics:['animals'],sentences:6},collection:[{line:'moonfox',stage:4,topics:['dream'],sentences:16}],gifts:2,giftCollection:{},lastDailyGift:null});
+ const ledger=JSON.stringify({version:1,total:2,day:'2026-11-15',todayCount:2,seen:[]});
+ const {qa}=boot({storage:{'crew-creature-lab-v1':save,[key]:ledger}});
+ assert.equal(qa.state().energy,6);
+ assert.equal(qa.state().externalEnergyClaimed,2);
+ assert.equal(qa.state().creature.stage,2);
+ assert.equal(qa.state().creature.line,'cat');
+ assert.equal(qa.state().collection[0].line,'moonfox');
+ assert.equal(qa.state().gifts,2);
 });
