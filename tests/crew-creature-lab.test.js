@@ -729,3 +729,41 @@ test('full data reset requires two explicit confirmations and never wipes by def
  assert.equal(yes.state().collection.length,0);
 });
 
+test('mobile first-fold uses one stage-aware creature card and puts conversation choices beside Zoe',()=>{
+ const chat=html.indexOf('<div class="chat-bottom">');
+ const hatch=html.indexOf('id="hatchGuide"'),care=html.indexOf('id="carePanel"');
+ const topics=html.indexOf('id="ideaChips"'),composer=html.indexOf('id="chatForm"');
+ assert.ok(chat>0&&hatch>chat&&care>chat&&topics>care&&composer>topics,'hatch, care and mid-growth chips are part of Zoe conversation');
+ const tools=html.indexOf('<details class="lab-settings" id="labSettings">');
+ assert.ok(tools>0&&html.indexOf('id="giftBtn"')>tools&&html.indexOf('id="hatchBtn"')>tools);
+ assert.ok(html.indexOf('id="nextBtn"')>tools,'voluntary next creature stays in secondary actions');
+ assert.match(html,/id="petQuickBtn"[^>]*aria-label="摸摸目前的生物"/);
+ assert.match(css,/grid-template-columns:minmax\(0,37%\) minmax\(0,63%\)/);
+ assert.match(css,/\.chat-bottom\{margin-top:0;position:sticky;bottom:0/);
+ assert.match(css,/#localChatPanel\{flex:0 0 auto\}/,'mobile chat panel must shrink to content');
+ assert.match(css,/\.energy-panel \.evolve-btn:disabled\{display:none\}/);
+ assert.match(css,/\.composer input\{font-size:16px;min-height:44px/);
+ const {qa,get}=boot();
+ assert.match(get('stageBadge').textContent,/準備孵化/);
+ assert.match(get('progressHint').textContent,/再聊 2 句/);
+ qa.post('今天想看星星');
+ assert.match(get('progressHint').textContent,/再聊 1 句/);
+ qa.post('一起探索宇宙');
+ assert.match(get('progressHint').textContent,/已集滿/);
+ qa.evolve(()=>.1);
+ assert.match(get('stageBadge').textContent,/成長中/);
+ assert.doesNotMatch(get('stageBadge').textContent,/0 句/);
+ assert.match(get('toolCount').textContent,/🎁/);
+});
+
+test('a single old egg greeting is repaired for growing creatures without erasing real chat history',()=>{
+ const saved=JSON.stringify({version:1,energy:1,creature:{line:'stardragon',stage:2,topics:['cosmos'],sentences:0},collection:[],gifts:0,giftCollection:{}});
+ const base={'crew-creature-lab-v1':saved};
+ const stale=JSON.stringify([{who:'zoe',text:'新的蛋來了！聊聊天，蒐集能量，把牠孵出來。'}]);
+ const {qa,get}=boot({storage:{...base,'crew-creature-lab-v1-chat':stale}});
+ assert.match(qa.messages()[0].text,/星龍正在長大/);
+ assert.equal(get('messages').children.length,1);
+ const valid=JSON.stringify([{who:'you',text:'一起看星星'},{who:'zoe',text:'這顆蛋準備好了'}]);
+ const {qa:another}=boot({storage:{...base,'crew-creature-lab-v1-chat':valid}});
+ assert.equal(another.messages()[0].text,'一起看星星','real conversations remain unchanged');
+});
