@@ -45,7 +45,8 @@
   },
   "contact": {
     "label": "Contato",
-    "region": "Informações de contato"
+    "region": "Informações de contato",
+    "feedback": "Feedback"
   },
   "seo": {
     "home": "Crew | Aprenda idiomas conversando e jogando com amigos de IA",
@@ -119,7 +120,7 @@
     "verification": "Falha na verificação. Tente de novo.",
     "tempUnavailable": "Teste temporariamente indisponível.",
     "remaining": "Testes gratuitos de voz restantes: {{count}} / {{limit}}",
-     "memberRemaining": "Testes grátis restantes hoje: {{count}} / {{limit}}",
+    "memberRemaining": "Testes grátis restantes hoje: {{count}} / {{limit}}",
     "usedUpTitle": "Seu teste grátis acabou",
     "free1a2b": "Jogar 1A2B (grátis)",
     "freeVocabulary": "Palavra do dia",

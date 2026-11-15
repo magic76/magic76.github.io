@@ -45,7 +45,8 @@
   },
   "contact": {
     "label": "Liên hệ",
-    "region": "Thông tin liên hệ"
+    "region": "Thông tin liên hệ",
+    "feedback": "Góp ý"
   },
   "seo": {
     "home": "Crew | Học ngoại ngữ cùng bạn AI qua trò chuyện và trò chơi",
@@ -119,7 +120,7 @@
     "verification": "Xác minh không thành công. Vui lòng thử lại.",
     "tempUnavailable": "Hiện không thể dùng thử.",
     "remaining": "Lượt dùng thử giọng nói AI miễn phí còn lại: {{count}} / {{limit}}",
-     "memberRemaining": "Lượt miễn phí còn lại hôm nay: {{count}} / {{limit}}",
+    "memberRemaining": "Lượt miễn phí còn lại hôm nay: {{count}} / {{limit}}",
     "usedUpTitle": "Đã hết lượt dùng thử miễn phí",
     "free1a2b": "Chơi 1A2B (miễn phí)",
     "freeVocabulary": "Từ vựng hôm nay",
