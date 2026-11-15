@@ -177,3 +177,13 @@ The owner-only `/usage` screen now displays a five-stage **non-cohort** journey 
 **Interpretation:** These are not sequential events for the *same* visitors; do not calculate stage-to-stage conversion or next-day retention from them. Visitors can arrive directly at deep links, start an activity without clicking an instrumented CTA, or use Crew before the reporting window. Stage counts can increase between steps. Privacy opt-out / DNT / GPC remain in effect. Missing historical events cannot be backfilled. The existing Cloudflare Access JWT verification and 7/30-day bounds remain unchanged; no extra setup is required.
 
 See `tests/crew-safe-update-journey.test.js` and `tests/crew-usage.test.js`.
+
+## Platform-specific Web events (November 15, 2026)
+
+- Every consent-eligible first-party event includes the fixed enum `platform: web | pwa | android_shell`, independently of the semantic `detail`. Neither raw UA nor private content, IP, or a device identifier is sent. Analytics Engine stores it as `blob5`. Old clients can omit `platform` and are stored as `legacy`.
+- Classification priority: known `CrewAndroidShell/1` WebView marker, then standalone PWA display-mode or iOS `navigator.standalone`, then ordinary browser. This is client-observed context, not authenticated App identity or proof of installation.
+- `/usage` queries period-wide distinct anonymous browsers by platform for opens, effective use, completed two-sided chats, game completion and cross-day return. Existing 7/30-day headline totals remain intact; platform counts cannot be added to infer distinct humans or a real retention cohort.
+- **Old events have no platform label; they are not backfilled or assumed to be ordinary Web.** The panel only reflects events after rollout.
+- The Android App column reports **only first-party WebView events reaching the Web endpoint**. Android Firebase native analytics remain a separate data source, not joined or added to `/usage`. A zero does not mean nobody used the Android App. GA4 `crew_platform=web` continues to indicate the Web stream, not this launch surface.
+- JSON export and copied summary include the strict platform aggregate allowlist. CSV retains its event-row schema and excludes platform rows; use JSON for the breakdown.
+- Opt-out, GPC/DNT, Developer Test Mode, production restrictions and Cloudflare Access checks remain unchanged.
