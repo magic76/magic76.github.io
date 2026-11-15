@@ -740,6 +740,7 @@ test('mobile first-fold uses one stage-aware creature card and puts conversation
  assert.match(html,/id="petQuickBtn"[^>]*aria-label="摸摸目前的生物"/);
  assert.match(css,/grid-template-columns:minmax\(0,37%\) minmax\(0,63%\)/);
  assert.match(css,/\.chat-bottom\{margin-top:0;position:sticky;bottom:0/);
+ assert.match(css,/#localChatPanel\{flex:0 0 auto\}/,'mobile chat panel must shrink to content');
  assert.match(css,/\.energy-panel \.evolve-btn:disabled\{display:none\}/);
  assert.match(css,/\.composer input\{font-size:16px;min-height:44px/);
  const {qa,get}=boot();
