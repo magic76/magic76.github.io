@@ -67,3 +67,14 @@
 .usage-toolbar .usage-export:focus-visible{outline:3px solid #1268c9;outline-offset:3px}
 .usage-toolbar .usage-export:disabled{opacity:.65;cursor:not-allowed}
 .usage-export-feedback{font-size:12px;color:var(--text,#172338);line-height:1.5}
+
+/* Platform breakdown: responsive cards remain legible at phone widths. */
+.usage-platform-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.usage-platform-card{border:1px solid var(--border,#d5d7df);border-radius:14px;padding:15px;min-width:0}
+.usage-platform-card h3{font-size:15px;margin:0 0 12px}
+.usage-platform-card dl{margin:0}
+.usage-platform-card dl>div{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding:8px 0;border-top:1px solid var(--border,#e5e7ef)}
+.usage-platform-card dt{font-size:12px;color:var(--text-muted,#627088)}
+.usage-platform-card dd{margin:0;font-size:17px;font-weight:650;font-variant-numeric:tabular-nums}
+@media(max-width:750px){.usage-platform-grid{grid-template-columns:1fr}.usage-platform-card dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 15px}}
+@media(max-width:400px){.usage-platform-card{padding:12px}}
