@@ -136,6 +136,8 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
   await page.screenshot({path:path.join(OUT,'after-complete-care-390x844.png')});
   await page.locator('#localChatPanel').screenshot({path:path.join(OUT,'chat-expanded-history-390x844.png')});
   await page.reload();
+  assert.equal(await page.locator('#careMemoryDetails').isVisible(),true,'memory remains available after reload');
+  await page.locator('#careMemorySummary').click();
   assert.match(await page.locator('#careMemory').innerText(),/撿貝殼/);
   await page.locator('#careChoices button').last().click();
   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.gifts()),first.gifts);
