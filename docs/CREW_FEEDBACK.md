@@ -41,3 +41,19 @@ The owner opens **`/usage/feedback`** from the private `/usage` dashboard. It us
 The owner can filter kind and review status (待處理 `new`, 處理中 `working`, 已完成 `done`), read 30 submissions per page and update status. Review status lives in an auto-created `crew_feedback_review` D1 table (no migration for existing records); missing status is `new`. GET and POST both require a signed owner JWT; POST additionally verifies Origin and JSON input. Public `/api/feedback` continues to accept anonymous submissions only.
 
 Private data, including optional email, is served with `Cache-Control: no-store` and is not linked from the public form. Verify: when signed out, both `/usage/feedback` and `/api/usage/report?view=feedback` deny access; when signed in, filtering, paging and status updates work. If the Cloudflare Access UI uses a non-wildcard `/usage` path, extend it to `/usage*` to protect the new page.
+
+## Optional Telegram notifications (owner only)
+
+The submission API can send a **best-effort Telegram Bot message after a successful D1 insert**. It contains **only** the FB reference number, category label, and private inbox link. It never includes the visitor's message, optional email, source path, IP, credentials, or any URLs from the visitor. Telegram is a third-party service; keeping user-submitted content out of notifications limits external data sharing. Notification failures do not turn a stored feedback into an error, do not retry automatically, and do not claim delivery to the visitor. Failures log only the feedback reference to server-side Cloudflare logs. No new D1 tables or public endpoints are required.
+
+1. In Telegram, open the verified **@BotFather** and send `/newbot`. Copy the generated Bot Token. **Never paste the Token into a GitHub issue, client bundle, chat, or frontend configuration.**
+2. Open the newly created bot's chat and press **Start**, or send `/start`. Bots cannot message users who have not started them.
+3. Find your numeric personal `chat.id` with the official Telegram `getUpdates` API after sending a message to the bot (e.g. use a private terminal): `curl -s 'https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates'`. In the response look for `result[].message.chat.id`. Keep the URL containing your Token out of browser histories and screenshots; replace `<YOUR_TOKEN>` locally, not in the repo. If a webhook is already set for the bot, `getUpdates` cannot be used until the webhook is removed.
+4. In the **same** Cloudflare Pages project > **Settings > Variables and Secrets > Production**, add:
+   - `CREW_FEEDBACK_TG_BOT_TOKEN` — **Secret**: BotFather token.
+   - `CREW_FEEDBACK_TG_CHAT_ID` — **Secret**: your numeric personal chat ID (string of digits, potentially negative for groups).
+5. Redeploy **Production** so the new secrets are available. Test a legitimate submission at `/feedback`; expect a normal FB receipt and one Telegram message with a link to `/usage/feedback`. Ensure the Access policy covers `/usage*` and that the inbox itself stays private.
+
+If either secret is missing/invalid, or the runtime does not supply `context.waitUntil`, notifications remain disabled and feedback submission still succeeds. Notification HTTP failures are visible only in Cloudflare runtime logs. **Do not add either secret to `VITE_*`, GitHub source, localStorage, or a public /api response.**
+
+Tests: `node --test tests/crew-feedback-telegram.test.js`.

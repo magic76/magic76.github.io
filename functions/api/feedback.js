@@ -6,10 +6,34 @@ const configured=env=>Boolean(env?.CREW_FEEDBACK_DB&&typeof env.CREW_FEEDBACK_DB
 const limited=(value,max)=>typeof value==="string"&&value.trim().length<=max?value.trim():null;
 const feedbackTable="CREATE TABLE IF NOT EXISTS crew_feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, message TEXT NOT NULL, contact TEXT NOT NULL DEFAULT '', page TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)";
 const limitsTable="CREATE TABLE IF NOT EXISTS crew_feedback_limit (rate_key TEXT PRIMARY KEY, hour INTEGER NOT NULL, hits INTEGER NOT NULL)";
+// Optional owner-only notification. The public submission response never depends on Telegram.
+// Send only fixed metadata: NEVER send message, contact, page, raw IP or secrets to Telegram.
+const telegramKinds={bug:"問題回報",idea:"功能建議",other:"其他意見"};
+function telegramSettings(env){
+ const token=typeof env?.CREW_FEEDBACK_TG_BOT_TOKEN==="string"?env.CREW_FEEDBACK_TG_BOT_TOKEN.trim():"";
+ const chatId=typeof env?.CREW_FEEDBACK_TG_CHAT_ID==="string"?env.CREW_FEEDBACK_TG_CHAT_ID.trim():"";
+ return /^[0-9]{5,12}:[A-Za-z0-9_-]{25,}$/.test(token)&&/^-?[0-9]{1,20}$/.test(chatId)?{token,chatId}:null;
+}
+async function sendTelegramNotification({token,chatId},id,kind){
+ try{
+  const nl=String.fromCharCode(10);
+  const text="🔔 Crew 收到新回饋"+nl+"編號：FB-"+id+nl+"類別："+telegramKinds[kind]+nl+"查看：https://www.3sssi.com/usage/feedback";
+  const result=await fetch("https://api.telegram.org/bot"+token+"/sendMessage",{
+   method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({chat_id:chatId,text,link_preview_options:{is_disabled:true}})
+  });
+  const body=result.ok?await result.json():null;
+  if(!result.ok||body?.ok!==true)console.warn("Crew feedback Telegram notification unsuccessful for FB-"+id);
+ }catch{
+  // Never log the Bot Token, Chat ID, raw response, or visitor-supplied content.
+  console.warn("Crew feedback Telegram notification unsuccessful for FB-"+id);
+ }
+}
 export async function onRequestGet({env}){
  return reply({enabled:configured(env)});
 }
-export async function onRequestPost({request,env}){
+export async function onRequestPost(context){
+ const {request,env}=context;
  if(!configured(env))return reply({error:"NOT_CONFIGURED"},503);
  const url=new URL(request.url);
  if(request.headers.get("origin")!==url.origin||request.headers.get("sec-fetch-site")==="cross-site")return reply({error:"ORIGIN_REJECTED"},403);
@@ -46,6 +70,12 @@ export async function onRequestPost({request,env}){
   const result=await db.prepare("INSERT INTO crew_feedback (kind,message,contact,page) VALUES (?, ?, ?, ?)").bind(kind,message,contact,page).run();
   const id=result?.meta?.last_row_id;
   if(!result?.success||!Number.isSafeInteger(id)||id<=0)return reply({error:"SUBMISSION_UNAVAILABLE"},503);
+  // Cloudflare keeps the job alive after response; Telegram failure cannot roll back D1.
+  const tg=telegramSettings(env);
+  if(tg&&typeof context.waitUntil==="function"){
+   try{context.waitUntil(sendTelegramNotification(tg,id,kind))}
+   catch{console.warn("Crew feedback Telegram scheduling unsuccessful for FB-"+id)}
+  }
   return reply({ok:true,reference:"FB-"+id},201);
  }catch{return reply({error:"SUBMISSION_UNAVAILABLE"},503)}
 }
