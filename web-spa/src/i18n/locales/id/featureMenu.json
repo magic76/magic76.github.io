@@ -137,6 +137,10 @@
     "fortuneHistory": {
       "title": "Riwayat ramalan",
       "desc": "Lihat bagan sebelumnya"
+    },
+    "feedback": {
+      "title": "Masukan",
+      "desc": "Laporkan masalah atau beri saran"
     }
   },
   "featureCount": "fitur"
