@@ -12,11 +12,12 @@ const telegramKinds={bug:"問題回報",idea:"功能建議",other:"其他意見"
 function telegramSettings(env){
  const token=typeof env?.CREW_FEEDBACK_TG_BOT_TOKEN==="string"?env.CREW_FEEDBACK_TG_BOT_TOKEN.trim():"";
  const chatId=typeof env?.CREW_FEEDBACK_TG_CHAT_ID==="string"?env.CREW_FEEDBACK_TG_CHAT_ID.trim():"";
- return /^\\d{5,12}:[A-Za-z0-9_-]{25,}$/.test(token)&&/^-?\\d{1,20}$/.test(chatId)?{token,chatId}:null;
+ return /^[0-9]{5,12}:[A-Za-z0-9_-]{25,}$/.test(token)&&/^-?[0-9]{1,20}$/.test(chatId)?{token,chatId}:null;
 }
 async function sendTelegramNotification({token,chatId},id,kind){
  try{
-  const text="🔔 Crew 收到新回饋\\n編號：FB-"+id+"\\n類別："+telegramKinds[kind]+"\\n查看：https://www.3sssi.com/usage/feedback";
+  const nl=String.fromCharCode(10);
+  const text="🔔 Crew 收到新回饋"+nl+"編號：FB-"+id+nl+"類別："+telegramKinds[kind]+nl+"查看：https://www.3sssi.com/usage/feedback";
   const result=await fetch("https://api.telegram.org/bot"+token+"/sendMessage",{
    method:"POST",headers:{"Content-Type":"application/json"},
    body:JSON.stringify({chat_id:chatId,text,link_preview_options:{is_disabled:true}})
