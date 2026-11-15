@@ -74,5 +74,5 @@ test("submit stays clickable and explains invalid fields without a readiness GET
  assert.match(source,/response\.status===503/);
  assert.match(source,/role="alert"/);
  const adapter=fs.readFileSync(path.join(__dirname,"../scripts/prepare-cloudflare.mjs"),"utf8");
- assert.match(adapter,/\/settings","\/account","\/privacy","\/usage","\/feedback"/);
+ assert.match(adapter,/\/settings","\/account","\/privacy","\/usage","\/usage\/feedback","\/feedback"/);
 });

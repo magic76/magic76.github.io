@@ -87,6 +87,8 @@ jobs:
         run: node --test tests/crew-usage.test.js
       - name: Validate secure Cloudflare D1 feedback submission
         run: node --test tests/crew-feedback.test.js
+      - name: Validate private feedback inbox authentication and D1 review actions
+        run: node --test tests/crew-feedback-admin.test.js
       # Quick homepage widget contract; always run for PRs and main to prevent regressions.
       - name: Validate home Live bubble
         run: node --test tests/crew-home-live-bubble.test.js

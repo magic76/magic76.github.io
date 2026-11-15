@@ -116,6 +116,7 @@ export function UsageDashboardPage(){
     <button type="button" aria-pressed={days===7} onClick={()=>setDays(7)}>最近 7 天</button>
     <button type="button" aria-pressed={days===30} onClick={()=>setDays(30)}>最近 30 天</button>
     <a href="#guest-trial-stats" className="usage-jump">免費試用統計</a>
+    <a href="/usage/feedback" className="usage-jump">意見回饋管理</a>
     <UsageExportControls data={data} days={days} category={selected} bars={bars} categoryEventTotal={totalMany(rows,selected.events)} disabled={loading||!!error||!data||data.days!==days}/>
     <span className="usage-source">資料來源：Cloudflare Web 事件（Android Firebase 另計）</span>
    </div>
