@@ -770,6 +770,7 @@ test('a single old egg greeting is repaired for growing creatures without erasin
 
 test('creature and chat readability override previous first-fold squeezing, with opt-in memory details',()=>{
  assert.match(css,/height:clamp\(228px,35dvh,334px\);min-height:228px/,'conversation can show multiple messages');
+ assert.match(css,/body\[data-creature-stage="0"\] #localChatPanel \.messages\{height:clamp\(112px,16dvh,146px\)/,'new egg does not show a tall empty chat area');
  assert.match(css,/\.message p\{font-size:14px;line-height:1\.6/,'mobile dialogue is legible');
  assert.match(html,/<details class="care-memory-details" id="careMemoryDetails" hidden>/);
  assert.match(html,/id="careMemorySummary"/);
