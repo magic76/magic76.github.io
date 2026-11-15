@@ -1,4 +1,24 @@
 {
+  "creatureLab": {
+    "discover": "Fais éclore un œuf avec Zoe",
+    "intro": "Envoie deux messages à Zoe pour faire naître ta première créature. En chinois traditionnel.",
+    "egg": "Continue à couver ton œuf",
+    "care": "Retrouve ta créature · {{name}}",
+    "needed": "Énergie à gagner pour la prochaine étape : {{energy}}",
+    "hatch": "Ton œuf est prêt à éclore. Découvre qui s’y cache.",
+    "evolve": "Ta créature a assez d’énergie pour évoluer.",
+    "memory": "Choisis une activité à faire ensemble et garde ce souvenir.",
+    "species": {
+      "moonfox": "Renard lunaire",
+      "stardragon": "Dragon des étoiles",
+      "flowerfairy": "Fée des fleurs",
+      "cat": "Chaton",
+      "snowbunny": "Lapin des neiges",
+      "redpanda": "Panda roux",
+      "dolphin": "Dauphin",
+      "phoenix": "Phénix"
+    }
+  },
   "eyebrow": "VOTRE ESPACE CREW",
   "headline": "Discutez, jouez et apprenez avec Crew",
   "intro": "Discutez avec des amis IA, jouez, pratiquez les langues et découvrez des histoires.",

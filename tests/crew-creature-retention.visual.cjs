@@ -10,7 +10,7 @@ const BASE='http://127.0.0.1:8788/crew-creature-lab/';
 fs.mkdirSync(OUT,{recursive:true});
 const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844}],['1280x800',{width:1280,height:800}]];
 (async()=>{
- const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+ const browser=await chromium.launch({headless:true,executablePath:process.env.CREW_CHROMIUM_PATH||undefined,args:['--no-sandbox','--disable-dev-shm-usage']});
  try{
   for(const [name,viewport] of cases){
    const context=await browser.newContext({viewport,deviceScaleFactor:1,reducedMotion:'reduce'});
@@ -126,5 +126,54 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
   await page.screenshot({path:path.join(OUT,'after-next-day-revisit-390x844.png')});
   await context.close();
   console.log('CREATURE_FULLY_GROWN_REVISIT_OK');
+
+  // Exercise the same-origin message bridge in a real browser. The child
+  // simulates a completed Zoe exchange; it does not request a microphone.
+  const voiceContext=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'});
+  await voiceContext.route(url=>url.pathname==='/friend/live',route=>route.fulfill({
+   status:200,contentType:'text/html',body:`<!doctype html><html><body>
+    <button id="exchange" disabled>Simulate completed exchange</button>
+    <script>
+     let channel='';
+     window.addEventListener('message',event=>{
+      if(event.origin!==location.origin||event.source!==parent)return;
+      if(event.data.type==='CREW_CREATURE_VOICE_CONTEXT'){
+       channel=event.data.channelId;
+       document.getElementById('exchange').disabled=false;
+       document.body.dataset.stage=String(event.data.creature.stage);
+      }
+      if(event.data.type==='CREW_CREATURE_VOICE_STOP'&&event.data.channelId===channel){
+       parent.postMessage({type:'CREW_CREATURE_VOICE_STOPPED',channelId:channel},location.origin);
+      }
+     });
+     document.getElementById('exchange').addEventListener('click',()=>{
+      const event={type:'CREW_CREATURE_VOICE_TURN',channelId:channel,turnId:'voice-turn-1',input:'一起去海邊',output:'好，我們去看海！'};
+      parent.postMessage(event,location.origin);
+      parent.postMessage(event,location.origin);
+     });
+     parent.postMessage({type:'CREW_CREATURE_VOICE_READY'},location.origin);
+    </script></body></html>`
+  }));
+  const voicePage=await voiceContext.newPage();
+  const voiceErrors=[];
+  voicePage.on('pageerror',error=>voiceErrors.push(error.message));
+  await voicePage.goto(ROOT+'?qa=1',{waitUntil:'domcontentloaded'});
+  await voicePage.waitForFunction(()=>!!window.__CREATURE_QA__);
+  await voicePage.locator('#openVoice').click();
+  const child=voicePage.frameLocator('#voiceFrameHost iframe');
+  const exchange=child.locator('#exchange');
+  await exchange.waitFor({state:'visible'});
+  await voicePage.waitForFunction(()=>document.querySelector('#voiceFrameHost iframe')?.contentDocument?.body.dataset.stage==='0');
+  assert.equal(await exchange.isEnabled(),true,'READY receives the initial creature context');
+  await exchange.click();
+  await voicePage.waitForFunction(()=>window.__CREATURE_QA__.energy()===1);
+  assert.equal(await voicePage.evaluate(()=>window.__CREATURE_QA__.state().creature.sentences),1,'duplicate turn counts once');
+  await voicePage.locator('#closeVoice').click();
+  await voicePage.waitForFunction(()=>!document.querySelector('#voiceFrameHost iframe'));
+  assert.equal(await voicePage.locator('#localChatPanel').isVisible(),true);
+  assert.equal(await voicePage.evaluate(()=>window.__CREATURE_QA__.energy()),1);
+  assert.deepEqual(voiceErrors,[],'voice bridge browser exceptions');
+  await voiceContext.close();
+  console.log('CREATURE_VOICE_FRAME_BRIDGE_OK');
  }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});

@@ -19,6 +19,8 @@ type Config={
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
  onConfirmedTranscript?:(turn:LiveTurn)=>void; // optional board observer, read-only; no transport changes
+ // Opt-in observer for a completed two-sided exchange, including guest trials.
+ onObservedExchange?:(turn:LiveTurn)=>void;
  tools?:Array<{functionDeclarations:Array<Record<string,unknown>>}|{googleSearch:Record<string,never>}>;
  onToolCall?:(call:{id?:string;name:string;args?:unknown})=>Record<string,unknown>;
  onToolsUnavailable?:()=>void;
@@ -354,6 +356,10 @@ export function useLiveSession(config:Config){
        guestEffectiveReportedRef.current=true;
        trackUsageEvent(guestRole()==="friend"?"friend_conversation":"teacher_conversation");
       }
+       const observed=turnsRef.current.at(-1);
+       if(turn.hasValidOutput&&turn.input?.trim()&&turn.output?.trim()&&observed){
+        try{configRef.current.onObservedExchange?.(observed)}catch{/* An observer must not interrupt the Live session. */}
+       }
       if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
      },
     onError:e=>{recordGuestFailure();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
@@ -434,3 +440,4 @@ export function useLiveSession(config:Config){
  },[snapshot]);
  return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
+

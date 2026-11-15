@@ -11,6 +11,8 @@ import {formatResumePreview} from "./formatResumePreview";
 import {GuideHub} from "../guides/GuideHub";
 import {useClientReady} from "../lib/useClientReady";
 import {DailyTopicCards} from "./DailyTopicCards";
+import {CreatureLabResume} from "./CreatureLabResume";
+import type {CreatureLabProgress} from "./creatureLabProgress";
 import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
 import {geminiKey} from "../lib/runtime";
 import {GUEST_TEXT_DAILY_TURNS} from "../live/guestAllowance";
@@ -38,7 +40,7 @@ const APPS:readonly App[]=[
 ];
 
 /** Mobile-only, first-party home. Client state loads after hydration; SSG has a stable first-visit card. */
-export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|null;shortsStatus:"loading"|"ready"|"error"}){
+export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{shortsFeed:ShortFeed|null;shortsStatus:"loading"|"ready"|"error";creatureProgress:CreatureLabProgress|null}){
  const {i18n,t}=useTranslation("home");
  const ready=useClientReady();
  const hasKey=ready&&Boolean(geminiKey());
@@ -241,6 +243,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
    </Link>)}</div>
   </section>
   <div className="cmh-shorts"><HomeShortsPreview maxPosts={8} sharedFeed={shortsFeed} sharedStatus={shortsStatus}/></div>
+  {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
   <section className="cmh-seo" aria-labelledby="cmh-seo-heading">
    <h2 id="cmh-seo-heading">{copy("Crew：AI 朋友聊天、語言學習、互動遊戲與故事創作","Crew: AI Friends, Language Practice, Games and Stories")}</h2>
    <p>{copy("在 Crew，你可以和不同個性的 AI 朋友自然聊天、用 Crew Teacher 練習外語口說、一起玩猜數字或棋盤遊戲，也能探索命理、創作及閱讀故事。","Talk to AI friends, practice languages, play interactive games, explore fortune readings and create stories together.")}</p>

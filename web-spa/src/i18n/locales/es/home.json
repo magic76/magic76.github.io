@@ -1,4 +1,24 @@
 {
+  "creatureLab": {
+    "discover": "Incuba una criatura con Zoe",
+    "intro": "Envía dos mensajes a Zoe y haz que nazca tu primera criatura. En chino tradicional.",
+    "egg": "Sigue incubando tu huevo",
+    "care": "Visita a tu criatura · {{name}}",
+    "needed": "Energía para la próxima etapa: {{energy}}",
+    "hatch": "Tu huevo está listo. Descubre quién hay dentro.",
+    "evolve": "Tu criatura tiene suficiente energía para evolucionar.",
+    "memory": "Elige algo que hacer juntos y guarda el recuerdo.",
+    "species": {
+      "moonfox": "Zorro lunar",
+      "stardragon": "Dragón estelar",
+      "flowerfairy": "Hada de las flores",
+      "cat": "Gatito",
+      "snowbunny": "Conejo de las nieves",
+      "redpanda": "Panda rojo",
+      "dolphin": "Delfín",
+      "phoenix": "Fénix"
+    }
+  },
   "eyebrow": "TU ESPACIO CREW",
   "headline": "Habla, juega y aprende con Crew",
   "intro": "Conversa con amigos de IA, juega, practica idiomas y descubre historias.",

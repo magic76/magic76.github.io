@@ -1,4 +1,24 @@
 {
+  "creatureLab": {
+    "discover": "Cùng Zoe ấp trứng",
+    "intro": "Gửi hai tin nhắn cho Zoe để sinh vật đầu tiên của bạn nở từ trứng. Trải nghiệm bằng tiếng Trung phồn thể.",
+    "egg": "Tiếp tục ấp trứng",
+    "care": "Ghé thăm {{name}}",
+    "needed": "Cần thêm {{energy}} năng lượng để sang giai đoạn tiếp theo.",
+    "hatch": "Trứng đã sẵn sàng nở. Xem ai đang ở bên trong nhé.",
+    "evolve": "Sinh vật của bạn đã đủ năng lượng để tiến hóa.",
+    "memory": "Chọn một việc để làm cùng nhau và lưu lại kỷ niệm.",
+    "species": {
+      "moonfox": "Cáo Mặt Trăng",
+      "stardragon": "Rồng Sao",
+      "flowerfairy": "Tiên Hoa",
+      "cat": "Mèo Con",
+      "snowbunny": "Thỏ Tuyết",
+      "redpanda": "Gấu Trúc Đỏ",
+      "dolphin": "Cá Heo",
+      "phoenix": "Phượng Hoàng"
+    }
+  },
   "eyebrow": "KHÔNG GIAN CREW CỦA BẠN",
   "headline": "Trò chuyện, chơi và học cùng Crew",
   "intro": "Trò chuyện với bạn AI, chơi trò chơi, luyện ngoại ngữ và khám phá các câu chuyện.",

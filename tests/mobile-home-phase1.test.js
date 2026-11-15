@@ -11,7 +11,7 @@ test("mobile homepage is a separate responsive presentation; desktop keeps its p
  assert.match(home,/className="crew-home"/);
  assert.match(home,/<HomePortal shortsFeed=\{shortsFeed\}\/>/);
  assert.match(home,/<HomeLiveBubble\/>/);
- assert.match(home,/<MobileHomePage shortsFeed=\{shortsFeed\} shortsStatus=\{shortsStatus\}\/>/);
+ assert.match(home,/<MobileHomePage shortsFeed=\{shortsFeed\} shortsStatus=\{shortsStatus\} creatureProgress=\{creatureProgress\}\/>/);
  assert.match(css,/\.crew-mobile-home\{display:none\}/);
  assert.match(css,/@media\(max-width:767px\)/);
  assert.match(css,/\.crew-home-legacy\{display:none!important\}/);
