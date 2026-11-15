@@ -94,7 +94,7 @@ function dominantTopic(topics){
  return best;
 }
 function newCreature(){return {line:null,stage:0,topics:[],sentences:0,memories:[]};}
-function empty(){return {version:1,energy:0,creature:newCreature(),collection:[],encountered:{},gifts:0,giftCollection:{},giftSeen:{},lastDailyGift:null};}
+function empty(){return {version:1,energy:0,externalEnergyClaimed:0,creature:newCreature(),collection:[],encountered:{},gifts:0,giftCollection:{},giftSeen:{},lastDailyGift:null};}
 const goodLine=id=>!!CREATURE_LINES[id];
 function cleanCreature(c){
  if(!c||typeof c!=='object')return null;
@@ -112,6 +112,9 @@ function restore(raw){
  const base=empty();
  if(!raw||raw.version!==1)return base;
  if(Number.isSafeInteger(raw.energy)&&raw.energy>=0)base.energy=Math.min(raw.energy,9999);
+ // Lifetime external awards already applied. Keep this marker on every save/restore
+ // so a spent energy point cannot be minted again when reopening the lab.
+ if(Number.isSafeInteger(raw.externalEnergyClaimed)&&raw.externalEnergyClaimed>=0)base.externalEnergyClaimed=Math.min(raw.externalEnergyClaimed,9999);
  const cur=cleanCreature(raw.creature);
  if(cur)base.creature=cur;
  if(raw.encountered&&typeof raw.encountered==='object')

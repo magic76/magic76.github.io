@@ -1,6 +1,7 @@
 import {GroundingSources} from "../live/GroundingSources";
 import {LiveSearchAction} from "../live/LiveSearchAction";
 import {buildAccentPrompt} from "../teacher/teacherAccent";
+import {awardCreatureChatEnergy} from "../pages/creatureChatRewards.mjs";
 import {trackUsageEvent,sessionDurationDetail} from "../analytics/usage";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {useEffect,useMemo,useRef,useState} from "react";
@@ -60,6 +61,7 @@ export function FriendLivePage(){
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
  const [guestStarted,setGuestStarted]=useState(false);
  const bubbleEffectiveRef=useRef(false);
+ const creatureRewardSession=useRef("v"+Date.now().toString(36)+Math.random().toString(36).slice(2));
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
  const [params]=useSearchParams();
  const textMode=params.get("chat")==="text";
@@ -146,7 +148,11 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+(lifeOpening||conversationOpening(intent,"friend"))+"\n"+conversationOpening(intent,"friend"))+creatureContext+"\n"+languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
-  onObservedExchange:creatureEmbed?creatureBridge.reportTurn:undefined,
+  onObservedExchange:turn=>{
+   // Embedded creature voice already awards via its parent; count it once only.
+   if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
+   if(turn.id)try{awardCreatureChatEnergy("friend-voice",creatureRewardSession.current+":"+turn.id)}catch{}
+  },
   onRecovered:creatureEmbed?creatureBridge.onRecovered:undefined,
   onTurnComplete:(_turn,completedTurns)=>{
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){

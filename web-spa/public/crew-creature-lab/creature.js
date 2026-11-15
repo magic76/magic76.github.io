@@ -2,6 +2,15 @@
 const $=id=>document.getElementById(id);
 const canvas=$('creatureCanvas'),ctx=canvas.getContext('2d');
 const STATE_KEY='crew-creature-lab-v1',TAU=Math.PI*2;
+const EXTERNAL_CHAT_REWARDS_KEY='crew-creature-chat-rewards-v1';
+// External transcript content never enters the creature's save.
+function externalChatRewardTotal(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(EXTERNAL_CHAT_REWARDS_KEY)||'null');
+  return raw&&raw.version===1&&Number.isSafeInteger(raw.total)&&raw.total>=0&&raw.total<=9999
+   ?raw.total:null;
+ }catch{return null;}
+}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const CRE=window.CrewCreatureV1;
 const STAGE_NAMES=['蛋','幼體','成長體','成熟體','完全體'];
@@ -21,14 +30,23 @@ function todayStr(){
  const d=new Date();
  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
+function claimExternalChatRewards(){
+ const total=externalChatRewardTotal();
+ if(total===null||total<=state.externalEnergyClaimed)return false;
+ const delta=total-state.externalEnergyClaimed;
+ state.energy=Math.min(9999,state.energy+delta);
+ state.externalEnergyClaimed=total;
+ return true;
+}
 function loadState(){
  try{state=CRE.restore(JSON.parse(localStorage.getItem(STATE_KEY)||'null'));}
  catch{state=CRE.empty();}
- // v1.1: a stage-4 current creature is the normal "showing the final
- // form" state (evolve() no longer resets it), so leave it alone here.
- // The user taps "start the next one" to open a fresh egg.
+ // The final creature remains on screen until a user chooses the next egg.
+ if(claimExternalChatRewards())writeState();
 }
 function writeState(){
+ // Another tab can earn energy before the Lab makes a new save.
+ claimExternalChatRewards();
  try{localStorage.setItem(STATE_KEY,JSON.stringify(state));}catch{}
 }
 // v1.4: chat history lives in its own key (NOT inside the game state —
@@ -320,7 +338,7 @@ function updateUI(){
  const progress=$('progressHint');
  if(progress)progress.textContent=c.stage===4?'每天都能和牠留下新回憶':
   CRE.canEvolve(state)?(c.stage===0?'✨ 能量已集滿，按下孵化！':'✨ 可以進化了！'):
-  '再聊 '+Math.max(0,cost-state.energy)+' 句'+(c.stage===0?'，牠就能破殼':'，解鎖下一次進化');
+  '還差 '+Math.max(0,cost-state.energy)+' 能量'+(c.stage===0?'，牠就能破殼':'，解鎖下一次進化');
  const btn=$('evolveBtn'),can=CRE.canEvolve(state);
  btn.disabled=!can||evolving;
  btn.hidden=c.stage===4;
@@ -328,9 +346,9 @@ function updateUI(){
  btn.textContent=c.stage===0?(can?'🥚 孵出我的生物':'還需要 '+(cost-state.energy)+' 能量'):
   (can?'⚡ 注入能量，進化！':cost===null?'已是完全體':'還需要 '+(cost-state.energy)+' 能量');
  $('evolveHint').textContent=c.stage===0?
-  (can?'能量集滿了！親手按下按鈕，看看 8 種生物會孵出哪一隻。':c.sentences===1?'再聊 1 句，牠就要破殼了！':'點下面的話題，聊兩句就能孵出第一隻。'):
+  (can?'能量集滿了！親手按下按鈕，看看 8 種生物會孵出哪一隻。':'和 Crew 朋友或老師對話，也能蒐集孵化能量。'):
   cost===null?'牠會一直在這裡陪你。每天聊一句都有一份首聊禮物；想養下一隻時再決定。':
-  '進化要 '+cost+' 能量，聊一句 +1，能量夠了按下去就進化。每次進化都有禮物！';
+  '進化要 '+cost+' 能量；朋友或老師完成對話也能獲得。能量夠了再親手進化，每次都有禮物！';
  const storyTitle=$('growthStoryTitle'),storyDetail=$('growthStoryDetail');
  if(storyTitle&&storyDetail){
   const who=c.line&&CRE.CREATURE_LINES[c.line]?CRE.CREATURE_LINES[c.line].name:'神秘生物';
@@ -687,6 +705,8 @@ function resetLab(){
  if(!window.confirm('最後確認：真的要清空這台裝置的整個生物實驗室嗎？'))return false;
  return afterVoiceStops(()=>{
   state=CRE.empty();
+  // Reset must not grant previously earned outside energy all over again.
+  state.externalEnergyClaimed=externalChatRewardTotal()||0;
   setCreatureMood('idle');
   writeState();
   resetChat('Zoe','新的蛋來了！聊聊天，蒐集能量，把牠孵出來。');
@@ -779,6 +799,13 @@ function init(){
  document.body.classList.add('creature-v1');
  reduceMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
  loadState();
+ window.addEventListener?.('storage',event=>{
+  if(event.key!==EXTERNAL_CHAT_REWARDS_KEY)return;
+  if(claimExternalChatRewards()){writeState();updateUI();draw(0);}
+ });
+ window.addEventListener?.('pageshow',()=>{
+  if(claimExternalChatRewards()){writeState();updateUI();draw(0);}
+ });
  loadChat();
  if($('openVoice')&&window.CrewCreatureVoice)
   voiceBridge=window.CrewCreatureVoice.mount({getContext:voiceContext,recordTurn:recordVoiceTurn,evolve:doEvolve});
