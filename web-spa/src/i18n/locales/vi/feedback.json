@@ -24,5 +24,6 @@
   "required": "Nhập ít nhất 10 ký tự.",
   "back": "Quay lại Crew",
   "loading": "Đang kiểm tra dịch vụ…",
-  "rateLimited": "Gửi quá nhiều lần. Vui lòng thử lại sau."
+  "rateLimited": "Gửi quá nhiều lần. Vui lòng thử lại sau.",
+  "invalidEmail": "Nhập địa chỉ email hợp lệ hoặc để trống trường này."
 }

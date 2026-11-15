@@ -24,5 +24,6 @@
   "required": "請至少填寫 10 個字。",
   "back": "返回 Crew",
   "loading": "正在確認回饋服務…",
-  "rateLimited": "送出次數太頻繁，請稍後再試。"
+  "rateLimited": "送出次數太頻繁，請稍後再試。",
+  "invalidEmail": "Email 格式不正確，請修正或留空。"
 }
