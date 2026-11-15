@@ -532,8 +532,8 @@ test('v1.4: chat history is saved and restored across reloads',()=>{
  assert.equal(JSON.parse(mem3.get('crew-creature-lab-v1-chat')).length,30,'stored log capped to 30');
 });
 test('v1.4: first screen shows the whole animal (taller canvas, capped desktop)',()=>{
- assert.match(css,/34dvh/,'mobile egg and its direct conversation choices stay closer together');
- assert.match(css,/30dvh/,'short phones show the first-hatch controls sooner');
+ assert.match(css,/height:clamp\(238px,36dvh,318px\)/,'mobile creature art is no longer a thumbnail');
+ assert.match(css,/height:clamp\(230px,36dvh,260px\)/,'small screens keep the creature readable, even if page scrolls');
  assert.match(css,/78vh/,'desktop canvas capped at 78vh');
  assert.match(css,/min-height:100dvh/,'mobile layout uses min-height so the composer is reachable');
  assert.match(css,/object-fit:contain/,'contain keeps the whole animal visible');
@@ -654,8 +654,8 @@ test('completed creature reacts and remembers same-day choices; a new day gives 
 });
 
 test('mobile layout keeps egg, hatch actions and chat close on short and tall phones',()=>{
- assert.match(css,/grid-template-columns:minmax\(0,38%\) minmax\(0,62%\)/);
- assert.match(css,/\.canvas-wrap\{height:clamp\(122px,20dvh,155px\)/);
+ assert.match(css,/grid-template-columns:minmax\(0,60%\) minmax\(0,40%\)/);
+ assert.match(css,/\.canvas-wrap\{height:clamp\(230px,36dvh,260px\)/);
  assert.match(css,/\.idea-chips:not\(\.expanded\) button:nth-child\(n\+3\)/);
  assert.match(css,/\.composer input\{font-size:16px/);
  assert.match(css,/\.composer button\{width:44px;height:44px/);
@@ -738,8 +738,8 @@ test('mobile first-fold uses one stage-aware creature card and puts conversation
  assert.ok(tools>0&&html.indexOf('id="giftBtn"')>tools&&html.indexOf('id="hatchBtn"')>tools);
  assert.ok(html.indexOf('id="nextBtn"')>tools,'voluntary next creature stays in secondary actions');
  assert.match(html,/id="petQuickBtn"[^>]*aria-label="摸摸目前的生物"/);
- assert.match(css,/grid-template-columns:minmax\(0,37%\) minmax\(0,63%\)/);
- assert.match(css,/\.chat-bottom\{margin-top:0;position:sticky;bottom:0/);
+ assert.match(css,/grid-template-columns:minmax\(0,60%\) minmax\(0,40%\)/);
+ assert.match(css,/\.chat-bottom\{margin-top:0;position:relative;z-index:4/);
  assert.match(css,/#localChatPanel\{flex:0 0 auto\}/,'mobile chat panel must shrink to content');
  assert.match(css,/\.energy-panel \.evolve-btn:disabled\{display:none\}/);
  assert.match(css,/\.composer input\{font-size:16px;min-height:44px/);
@@ -766,4 +766,22 @@ test('a single old egg greeting is repaired for growing creatures without erasin
  const valid=JSON.stringify([{who:'you',text:'一起看星星'},{who:'zoe',text:'這顆蛋準備好了'}]);
  const {qa:another}=boot({storage:{...base,'crew-creature-lab-v1-chat':valid}});
  assert.equal(another.messages()[0].text,'一起看星星','real conversations remain unchanged');
+});
+
+test('creature and chat readability override previous first-fold squeezing, with opt-in memory details',()=>{
+ assert.match(css,/height:clamp\(228px,35dvh,334px\);min-height:228px/,'conversation can show multiple messages');
+ assert.match(css,/\.message p\{font-size:14px;line-height:1\.6/,'mobile dialogue is legible');
+ assert.match(html,/<details class="care-memory-details" id="careMemoryDetails" hidden>/);
+ assert.match(html,/id="careMemorySummary"/);
+ const {qa,get}=boot();
+ for(let i=0;i<16;i++)qa.post('我們一起看星星');
+ qa.evolve(()=>0.5);qa.evolve();qa.evolve();qa.evolve();
+ assert.equal(qa.state().creature.stage,4);
+ assert.equal(get('careMemoryDetails').hidden,true,'no previous memory does not create a blank row');
+ assert.match(get('energyText').textContent,/⚡ 能量/);
+ assert.doesNotMatch(get('energyText').textContent,/完全體 ·/,'title and energy are not repeated');
+ qa.careSelect(0);
+ assert.equal(get('careMemoryDetails').hidden,false);
+ assert.match(get('careMemorySummary').textContent,/回憶已收藏/);
+ assert.match(get('careMemory').textContent,/一起/);
 });
