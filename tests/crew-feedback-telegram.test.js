@@ -66,8 +66,9 @@ test("Telegram includes full multiline message and source path after successful 
 });
 test("Telegram preserves full 1,500-character plain text including markup-like content",async()=>{
  const api=await load(),db=fakeDb(),jobs=[],calls=[],old=globalThis.fetch;
- const full="&<> * [hello] (https://example.invalid) @someone \\n"+("測".repeat(1450));
- assert.ok(full.length<=1500);
+ const prefix="&<> * [hello] (https://example.invalid) @someone "+String.fromCharCode(10);
+ const full=prefix+("測".repeat(1500-prefix.length));
+ assert.equal(full.length,1500);
  globalThis.fetch=async(url,options)=>{calls.push(JSON.parse(options.body));return new Response(JSON.stringify({ok:true}),{status:200})};
  try{
   const response=await api.onRequestPost({request:request({...payload,kind:"idea",message:full,page:"/en/games"}),env:config(db),waitUntil:task=>jobs.push(task)});
