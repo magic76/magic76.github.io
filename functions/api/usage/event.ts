@@ -42,6 +42,7 @@ const details=new Set(["","bazi","tarot","vedic","bazi_yes","bazi_partly","bazi_
   "android_app_google_play",
   "voice","demo","live","person","object","place","manual","render_error","unsupported",
   "nonsense","crazy-court","taboo","1a2b","number-bomb","memory","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
+const platforms=new Set(["web","pwa","android_shell"]);
 const identifier=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const json=(body:unknown,status:number)=>new Response(JSON.stringify(body),{
   status,headers:{"Content-Type":"application/json","Cache-Control":"no-store"}
@@ -70,12 +71,14 @@ export async function onRequestPost({request,env}:Context):Promise<Response>{
   if(typeof value.event!=="string"||!events.has(value.event)||
      typeof value.visitorId!=="string"||!identifier.test(value.visitorId)||
      typeof value.sessionId!=="string"||!identifier.test(value.sessionId)||
-     typeof value.detail!=="string"||!details.has(value.detail)){
+     typeof value.detail!=="string"||!details.has(value.detail)||
+     (value.platform!==undefined&&(typeof value.platform!=="string"||!platforms.has(value.platform)))){
     return json({error:"Invalid event"},400);
   }
   env.ANALYTICS_ENGINE.writeDataPoint({
     indexes:[value.visitorId],
-    blobs:[value.event,value.visitorId,value.detail,value.sessionId],
+    // blob5 is optional for compatibility with pre-deploy clients. Never infer legacy rows.
+    blobs:[value.event,value.visitorId,value.detail,value.sessionId,value.platform||"legacy"],
     doubles:[1]
   });
   return new Response(null,{status:204,headers:{"Cache-Control":"no-store"}});
