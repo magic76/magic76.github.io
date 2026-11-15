@@ -13,7 +13,7 @@
   "emailLabel": "E-mail de contato (opcional)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "Página de origem",
-  "privacy": "Apenas sua mensagem e o caminho da página são armazenados no banco de dados privado do Crew.",
+  "privacy": "O Crew armazena sua mensagem, e-mail opcional e caminho da página em um banco privado. Se as notificações do Telegram estiverem ativas, a mensagem e o caminho serão enviados ao administrador pelo Telegram, mas não o campo separado de e-mail. Não inclua dados sensíveis.",
   "send": "Enviar feedback",
   "sending": "Enviando…",
   "successTitle": "Obrigado por ajudar o Crew!",

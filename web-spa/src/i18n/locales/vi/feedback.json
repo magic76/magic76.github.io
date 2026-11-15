@@ -13,7 +13,7 @@
   "emailLabel": "Email liên hệ (không bắt buộc)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "Trang nguồn",
-  "privacy": "Chỉ nội dung bạn nhập và đường dẫn trang được lưu trong cơ sở dữ liệu riêng của Crew.",
+  "privacy": "Crew lưu nội dung góp ý, email tùy chọn và đường dẫn trang trong cơ sở dữ liệu riêng. Nếu bật thông báo Telegram, nội dung và đường dẫn trang sẽ được gửi cho quản trị viên qua Telegram, nhưng không gồm ô email liên hệ riêng. Đừng nhập thông tin nhạy cảm.",
   "send": "Gửi góp ý",
   "sending": "Đang gửi…",
   "successTitle": "Cảm ơn bạn đã giúp Crew tốt hơn!",

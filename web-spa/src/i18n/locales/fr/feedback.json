@@ -13,7 +13,7 @@
   "emailLabel": "E-mail de contact (facultatif)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "Page d'origine",
-  "privacy": "Seuls votre message et le chemin de la page sont stockés dans la base privée de Crew.",
+  "privacy": "Crew conserve votre message, votre e-mail facultatif et le chemin de la page dans une base privée. Si les notifications Telegram sont activées, le message et le chemin sont envoyés à l’administrateur via Telegram, mais pas le champ e-mail distinct. N’indiquez aucune donnée sensible.",
   "send": "Envoyer",
   "sending": "Envoi…",
   "successTitle": "Merci d'aider Crew !",
