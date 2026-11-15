@@ -26,6 +26,15 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
    await page.waitForFunction(()=>!!window.__CREATURE_QA__);
    await page.waitForTimeout(500);
    await page.screenshot({path:path.join(OUT,'after-first-visit-'+name+'.png')});
+   if(viewport.width<=390){
+    const input=await page.locator('#chatInput').boundingBox();
+    assert.ok(input&&input.y+input.height<=viewport.height+1,
+      name+' text input should be available without scrolling: '+JSON.stringify(input));
+    const sizes=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));
+    assert.ok(sizes.scroll<=sizes.viewport+1,name+' no horizontal overflow: '+JSON.stringify(sizes));
+    assert.equal(await page.locator('#progressHint').isVisible(),true);
+    assert.equal(await page.locator('#ideaChips').isVisible(),false,'new egg has only two first-hatch choices');
+   }
    assert.equal(await page.locator('#hatchBtn').isVisible(),false);
    const first=page.locator('#hatchIdeas button').first(),second=page.locator('#hatchIdeas button').last();
    {
@@ -50,6 +59,14 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
    assert.match(await page.locator('#linePreview').innerText(),/已遇見/);
    await page.waitForTimeout(350);
    await page.screenshot({path:path.join(OUT,'after-hatch-'+name+'.png')});
+   assert.equal(await page.locator('#hatchGuide').isVisible(),false);
+   assert.equal(await page.locator('#ideaChips').isVisible(),true,'growing creature uses conversation topics');
+   if(viewport.width<=390){
+    assert.equal(await page.locator('#labSettings').getAttribute('open'),null,'bag tools start collapsed');
+    await page.locator('#labSettings summary').click();
+    assert.equal(await page.locator('#giftBtn').isVisible(),true,'gift remains reachable via bag');
+    await page.locator('#labSettings summary').click();
+   }
    const gift=await page.evaluate(()=>{
     const qa=window.__CREATURE_QA__,items=qa.giftItems();
     const sum=items.reduce((s,item)=>s+item.weight,0);let before=0;
