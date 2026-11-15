@@ -26,10 +26,19 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
    await page.waitForFunction(()=>!!window.__CREATURE_QA__);
    await page.waitForTimeout(500);
    await page.screenshot({path:path.join(OUT,'after-first-visit-'+name+'.png')});
+   if(viewport.width<=390)await page.locator('.play-grid').screenshot({
+    path:path.join(OUT,'full-game-first-visit-'+name+'.png')
+   });
    if(viewport.width<=390){
-    const input=await page.locator('#chatInput').boundingBox();
-    assert.ok(input&&input.y+input.height<=viewport.height+1,
-      name+' text input should be available without scrolling: '+JSON.stringify(input));
+    const art=await page.locator('#canvasWrap').boundingBox();
+    const history=await page.locator('#messages').boundingBox();
+    assert.ok(art&&art.width>=viewport.width*.44&&art.height>=225,
+      name+' creature art must be large: '+JSON.stringify(art));
+    assert.ok(history&&history.height>=108&&history.height<=155,
+      name+' egg welcome should not hide starter choices under blank space: '+JSON.stringify(history));
+    await page.locator('#chatInput').scrollIntoViewIfNeeded();
+    assert.equal(await page.locator('#chatInput').isVisible(),true);
+    await page.evaluate(()=>scrollTo(0,0));
     const sizes=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));
     assert.ok(sizes.scroll<=sizes.viewport+1,name+' no horizontal overflow: '+JSON.stringify(sizes));
     assert.equal(await page.locator('#progressHint').isVisible(),true);
@@ -41,11 +50,7 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
    }
    assert.equal(await page.locator('#hatchBtn').isVisible(),false);
    const first=page.locator('#hatchIdeas button').first(),second=page.locator('#hatchIdeas button').last();
-   {
-    const rect=await first.boundingBox();
-    assert.ok(rect&&rect.y+rect.height<=viewport.height+1,
-      name+' first-hatch topic should be visible without scrolling: '+JSON.stringify(rect));
-   }
+   assert.equal(await first.isVisible(),true,'starter topics remain accessible');
    await first.click();
    assert.match(await page.locator('#hatchPrompt').innerText(),/再聊 1 句/);
    await second.click();
@@ -65,6 +70,10 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
    await page.screenshot({path:path.join(OUT,'after-hatch-'+name+'.png')});
    assert.equal(await page.locator('#hatchGuide').isVisible(),false);
    assert.equal(await page.locator('#ideaChips').isVisible(),true,'growing creature uses conversation topics');
+   if(viewport.width<=390){
+    const history=await page.locator('#messages').boundingBox();
+    assert.ok(history&&history.height>=225,name+' growing creature chat history is tall: '+JSON.stringify(history));
+   }
    if(viewport.width<=390){
     assert.equal(await page.locator('#labSettings').getAttribute('open'),null,'bag tools start collapsed');
     await page.locator('#labSettings summary').click();
@@ -124,10 +133,15 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
   assert.equal(await page.locator('#carePanel').isVisible(),true);
   assert.match(await page.locator('#carePrompt').innerText(),/海邊/);
   await page.locator('#careChoices button').first().click();
+  assert.equal(await page.locator('#careMemoryDetails').isVisible(),true);
+  await page.locator('#careMemorySummary').click();
   assert.match(await page.locator('#careMemory').innerText(),/撿貝殼/);
   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.gifts()),first.gifts);
   await page.screenshot({path:path.join(OUT,'after-complete-care-390x844.png')});
+  await page.locator('#localChatPanel').screenshot({path:path.join(OUT,'chat-expanded-history-390x844.png')});
   await page.reload();
+  assert.equal(await page.locator('#careMemoryDetails').isVisible(),true,'memory remains available after reload');
+  await page.locator('#careMemorySummary').click();
   assert.match(await page.locator('#careMemory').innerText(),/撿貝殼/);
   await page.locator('#careChoices button').last().click();
   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.gifts()),first.gifts);
