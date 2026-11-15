@@ -39,7 +39,7 @@ async function verifyAccess(request:Request,env:Context["env"]):Promise<boolean>
   return crypto.subtle.verify("RSASSA-PKCS1-v1_5",key,decode(parts[2]),new TextEncoder().encode(parts[0]+"."+parts[1]));
  }catch{return false}
 }
-type Row={day?:string;event?:string;detail?:string;count?:number|string;users?:number|string};
+type Row={day?:string;event?:string;detail?:string;platform?:string;count?:number|string;users?:number|string};
 async function sql(env:Context["env"],query:string){
  const url="https://api.cloudflare.com/client/v4/accounts/"+env.CREW_USAGE_ACCOUNT_ID+"/analytics_engine/sql";
  const reply=await fetch(url,{method:"POST",headers:{
@@ -65,11 +65,12 @@ export async function onRequestGet({request,env}:Context){
  // Period-wide distinct browsers per stage; no joins, raw IDs or new DB.
  const journeyClickEvents="'home_entry_click','explore_entry_click','shorts_chat_click','guest_trial_start_click'";
  const journeyStartEvents="'teacher_conversation_start','friend_conversation_start','timeline_conversation_start','game_started','textbook_study','mate_handoff_started','magic_voice_connected','souls_live_connected','story_narration'";
+ const platformBound=" AND blob5 IN ('web','pwa','android_shell')";
  const previous="timestamp >= NOW() - INTERVAL '"+(days*2)+"' DAY AND timestamp < NOW() - INTERVAL '"+days+"' DAY";
  try{
   // Browser identity is deduplicated ACROSS the entire reporting period by SQL.
   // Never sum the per-day distinct counts to infer unique browsers.
-  const [daily,active,eventUsers,chat,previousActive,previousChat,journeyClicks,journeyStarts]=await Promise.all([
+  const [daily,active,eventUsers,chat,previousActive,previousChat,journeyClicks,journeyStarts,platformOpens,platformActive,platformChat,platformReturn,platformGames]=await Promise.all([
    sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Etc/UTC') AS day, blob1 AS event, blob3 AS detail, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event, detail ORDER BY day ASC, event ASC LIMIT 5000"),
    sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+activeEvents+")"),
    sql(env,"SELECT blob1 AS event, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY event LIMIT 100"),
@@ -77,7 +78,13 @@ export async function onRequestGet({request,env}:Context){
    sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+previous+" AND blob1 IN ("+activeEvents+")"),
    sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+previous+" AND blob1 IN ("+chatEvents+")"),
    sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+journeyClickEvents+")"),
-   sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+journeyStartEvents+")")
+   sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+journeyStartEvents+")"),
+   // Period-wide anonymous browsers grouped by fixed launch-surface enum (not Firebase).
+   sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 = 'app_opened' GROUP BY platform LIMIT 10"),
+   sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 IN ("+activeEvents+") GROUP BY platform LIMIT 10"),
+   sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 IN ("+chatEvents+") GROUP BY platform LIMIT 10"),
+   sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 = 'user_returned' GROUP BY platform LIMIT 10"),
+   sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 = 'game_completed' GROUP BY platform LIMIT 10")
   ]);
   const rows=daily.map(row=>({day:String(row.day||""),event:String(row.event||""),detail:String(row.detail||""),
     count:Number(row.count||0),users:Number(row.users||0)}));
@@ -93,6 +100,11 @@ export async function onRequestGet({request,env}:Context){
     engaged:Number(active[0]?.users||0),
     returned:Number(eventUsers.find(row=>row.event==="user_returned")?.users||0)
    },
+   platformBreakdown:["web","pwa","android_shell"].map(platform=>{
+    const get=(results:Row[])=>Number(results.find(row=>row.platform===platform)?.users||0);
+    return {platform,opened:get(platformOpens),active:get(platformActive),chat:get(platformChat),
+      returned:get(platformReturn),gamesCompleted:get(platformGames)};
+   }),
    rows,generatedAt:new Date().toISOString()
   });
  }catch{
