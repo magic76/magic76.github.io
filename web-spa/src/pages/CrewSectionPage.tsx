@@ -6,6 +6,7 @@ import {Icon,type IconName} from "../components/Icon";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import type {CrewSection} from "./crewNavigation";
 import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
+import {creatureLabHref} from "./creatureLabProgress";
 import {CurrentTeacherCard} from "../teacher/CurrentTeacherCard";
 import {LearningFocusCard} from "../teacher/LearningFocusCard";
 import {LearnHubExtras} from "./LearnHubExtras";
@@ -234,6 +235,11 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>)}
+    <a className="crew-explore-tile" data-kind="creature" href={creatureLabHref()} onClick={()=>trackUsageEvent("explore_entry_click","play")}>
+     <div className="crew-explore-art" aria-hidden="true"><img className="crew-explore-creature-art" src={creatureLabHref()+"art/creatures/moonfox-egg.webp"} width="180" height="240" alt="" loading="lazy" decoding="async"/></div>
+     <span className="crew-explore-text"><strong>{t("creatureLab.discover")}</strong><small>{t("creatureLab.intro")}</small></span>
+     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+    </a>
     <Link className="crew-explore-tile crew-explore-mate" data-kind="mate" onClick={()=>trackUsageEvent("explore_entry_click","mate")} to="/mate">
      <div className="crew-explore-art"><ExploreArtwork kind="mate"/></div>
      <span className="crew-explore-text">

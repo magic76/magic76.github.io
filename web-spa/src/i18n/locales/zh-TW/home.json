@@ -1,4 +1,24 @@
 {
+  "creatureLab": {
+    "discover": "和 Zoe 孵生物",
+    "intro": "和 Zoe 聊兩句，親手孵出你的第一隻生物。",
+    "egg": "繼續孵蛋",
+    "care": "繼續照顧{{name}}",
+    "needed": "下一階段還差 {{energy}} 點能量",
+    "hatch": "蛋準備好了，去看看會孵出什麼。",
+    "evolve": "能量集滿了，牠可以進化了。",
+    "memory": "今天陪牠做個小選擇，留下一段回憶。",
+    "species": {
+      "moonfox": "月狐",
+      "stardragon": "星龍",
+      "flowerfairy": "花妖精",
+      "cat": "小貓咪",
+      "snowbunny": "雪兔",
+      "redpanda": "小熊貓",
+      "dolphin": "海豚",
+      "phoenix": "鳳凰"
+    }
+  },
   "eyebrow": "YOUR CREW SPACE",
   "headline": "和 Crew 朋友聊聊吧",
   "intro": "和有個性的 AI 朋友聊天、玩遊戲，也可以學語言、一起聽故事。",

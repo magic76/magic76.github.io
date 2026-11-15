@@ -17,6 +17,8 @@
 .crew-explore-tile[data-kind="story"]{--art:#eaf1fb;--art-2:#dce8f5;--art-ink:#567aa4;--art-border:#dce6f2}
 .crew-explore-tile[data-kind="research"]{--art:#e8f1f0;--art-2:#dce9ed;--art-ink:#4a8089;--art-border:#d9e8eb}
 .crew-explore-tile[data-kind="circle"]{--art:#f9edf1;--art-2:#f0dce6;--art-ink:#a46d8b;--art-border:#efdee6}
+.crew-explore-tile[data-kind="creature"] .crew-explore-art{background:#26203f}
+.crew-explore-creature-art{display:block;height:100%;width:100%;object-fit:cover;object-position:50% 51%;position:relative;z-index:1}
 .crew-explore-art{
  height:148px;position:relative;display:flex;align-items:center;justify-content:center;
  overflow:hidden;color:var(--art-ink);

@@ -1,4 +1,4 @@
-export type LiveTurn={input?:string;output?:string};
+export type LiveTurn={id?:string;input?:string;output?:string};
 export type LiveSessionOptions={
  guestAccessToken?:string; // one-use, memory-only v1beta credential
  textOnly?:boolean; // Gemini Live text input with transcribed output, no microphone or playback
@@ -15,7 +15,7 @@ export type LiveSessionOptions={
  onMicHealth?:(status:{captureMode:string;trackState:string;muted:boolean;rms:number;dbfs:number;lastFrameAt:number;lastVoiceAt:number;setupBufferedMs:number})=>void;
  onOutputLevel?:(level:number)=>void; // optional output-only PCM envelope
  onMicMuted?:()=>void;onInputTranscript?:(text:string)=>void;onOutputTranscript?:(text:string)=>void;
- onTranscriptTurn?:(turn:LiveTurn,turns:LiveTurn[])=>void;onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
+ onTranscriptTurn?:(turn:LiveTurn,turns:LiveTurn[])=>void;onTurnComplete?:(turn:{hasValidOutput?:boolean;input?:string;output?:string})=>void;
  onGenerationComplete?:(output:string)=>void;
  onError?:(error:Error)=>void;onTerminal?:(info?:{status?:string;state?:string})=>void;onRecovered?:(event:{model:string;resumed:boolean})=>void;
 };
@@ -79,3 +79,4 @@ export function addHistory(name:string,item:any){const id=item.id||Date.now(),li
 export function lastLive(name:string){try{return JSON.parse(localStorage.getItem("crew_live_last_"+name)||"null")}catch{return null}}
 export function saveLive(name:string,item:any){localStorage.setItem("crew_live_last_"+name,JSON.stringify(item));addHistory(name,item)}
 export function vocabularyLevel(){const s=Number(localStorage.getItem("crew_vocab_score")||50);return s<=20?"Pre-A1":s<=40?"A1":s<=60?"A2":s<=80?"B1":"B2+"}
+

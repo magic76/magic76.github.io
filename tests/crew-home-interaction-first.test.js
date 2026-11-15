@@ -43,7 +43,7 @@ test("Recent game and friend navigation is recorded without message content",()=
  assert.match(home,/readLatestFriendResume\(\)/);
  assert.match(home,/&from=home&chat=text/);
  assert.match(home,/resume-1a2b/);
- assert.match(home,/recents\.length\?<section className="crew-home-continue"/);
+ assert.match(home,/recents\.length\|\|creatureProgress\?<section className="crew-home-continue"/);
  assert.ok(home.indexOf('<HomePortal shortsFeed={shortsFeed}/>')<home.indexOf('className="crew-home-continue"'));
  assert.doesNotMatch(home,/localStorage\.setItem\(LAST_ACTIVITY_KEY[^\n]*(transcript|messages|turns)/i);
  assert.doesNotMatch(app,/localStorage\.setItem\("crew_home_last_activity_v1"[^\n]*(transcript|messages|turns)/i);

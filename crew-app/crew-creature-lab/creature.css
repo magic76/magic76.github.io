@@ -266,6 +266,24 @@ footer{font-size:11px;color:#7fa89a;line-height:1.8;margin-top:22px;text-align:c
  .creature-panel .evolve-btn{min-width:0;width:100%}
 }
 
+.voice-open-btn{display:block;width:100%;min-height:44px;margin:10px auto 0;padding:9px 12px;border:1px solid #8b7ec0;border-radius:14px;background:#2b2247;color:#f4ecff;font-size:13px;font-weight:750}
+.voice-open-btn:hover{background:#3c305b}
+.voice-open-btn[hidden],.chat-panel[hidden],.voice-toolbar button[hidden],.voice-notice[hidden]{display:none}
+.creature-voice-panel{background:#191426;align-self:start;width:100%;min-width:0;overflow:visible;scroll-margin-top:8px}
+.voice-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px;background:#241b38;border-radius:18px 18px 0 0}
+.voice-identity{flex:1 1 125px;min-width:0}
+.voice-identity h2,.voice-identity p{margin:0}
+.voice-identity h2{font-size:15px;color:#f8f2ff}
+.voice-identity p{margin-top:3px;font-size:12px;color:#d5cce6;line-height:1.4}
+.voice-toolbar .action-btn{flex:0 0 auto;min-height:44px;padding:8px 12px}
+#voiceEvolve{background:#174738;border-color:#a5ebce;color:#e8fff5}
+.voice-notice{margin:0;padding:5px 13px;color:#d5cce6;font-size:12px;line-height:1.55}
+#voiceFrameHost iframe{display:block;width:100%;height:clamp(300px,60dvh,620px);border:0;border-radius:0 0 18px 18px;background:#181425}
+@media(max-width:790px){
+ .voice-toolbar{position:sticky;top:0;z-index:4;row-gap:4px;padding:8px;box-shadow:0 3px 12px #100b1b66}
+ .voice-toolbar .action-btn{padding:8px;font-size:12px}
+ #voiceFrameHost iframe{height:clamp(220px,calc(100dvh - 160px),620px)}
+}
 
 /* Creature Lab UX: visible creature reactions without extra image assets. */
 .mood-sticker{position:absolute;z-index:7;right:12%;top:27%;pointer-events:none;font-size:clamp(22px,3vw,35px);text-shadow:0 2px 12px #0009;animation:moodPop .45s ease-out both}
@@ -377,3 +395,4 @@ footer{font-size:11px;color:#7fa89a;line-height:1.8;margin-top:22px;text-align:c
  .mood-sticker{top:16%;right:9%;font-size:23px}
  .lab-settings-actions{flex-wrap:wrap}
 }
+

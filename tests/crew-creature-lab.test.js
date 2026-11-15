@@ -728,3 +728,4 @@ test('full data reset requires two explicit confirmations and never wipes by def
  assert.equal(yes.state().creature.sentences,0);
  assert.equal(yes.state().collection.length,0);
 });
+

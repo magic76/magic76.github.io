@@ -1,4 +1,24 @@
 {
+  "creatureLab": {
+    "discover": "Choque um ovo com Zoe",
+    "intro": "Envie duas mensagens para Zoe e veja sua primeira criatura nascer. Em chinês tradicional.",
+    "egg": "Continue chocando seu ovo",
+    "care": "Visite sua criatura · {{name}}",
+    "needed": "Energia para a próxima fase: {{energy}}",
+    "hatch": "Seu ovo está pronto. Descubra quem está lá dentro.",
+    "evolve": "Sua criatura já tem energia para evoluir.",
+    "memory": "Escolha algo para fazerem juntos e guarde essa lembrança.",
+    "species": {
+      "moonfox": "Raposa lunar",
+      "stardragon": "Dragão estelar",
+      "flowerfairy": "Fada das flores",
+      "cat": "Gatinho",
+      "snowbunny": "Coelho da neve",
+      "redpanda": "Panda-vermelho",
+      "dolphin": "Golfinho",
+      "phoenix": "Fênix"
+    }
+  },
   "eyebrow": "SEU ESPAÇO CREW",
   "headline": "Converse, jogue e aprenda com o Crew",
   "intro": "Converse com amigos de IA, jogue, pratique idiomas e descubra histórias.",

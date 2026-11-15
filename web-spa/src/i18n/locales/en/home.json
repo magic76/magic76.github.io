@@ -1,4 +1,24 @@
 {
+  "creatureLab": {
+    "discover": "Hatch a creature with Zoe",
+    "intro": "Send Zoe two messages and hatch your first creature. In Traditional Chinese.",
+    "egg": "Keep hatching your egg",
+    "care": "Visit your {{name}}",
+    "needed": "Energy to the next stage: {{energy}}",
+    "hatch": "Your egg is ready to hatch. See who’s inside.",
+    "evolve": "Your creature has enough energy to evolve.",
+    "memory": "Choose something to do together and make a memory.",
+    "species": {
+      "moonfox": "Moon Fox",
+      "stardragon": "Star Dragon",
+      "flowerfairy": "Flower Fairy",
+      "cat": "Kitten",
+      "snowbunny": "Snow Bunny",
+      "redpanda": "Red Panda",
+      "dolphin": "Dolphin",
+      "phoenix": "Phoenix"
+    }
+  },
   "eyebrow": "YOUR CREW SPACE",
   "headline": "Talk, play, and learn with Crew",
   "intro": "Chat with AI friends, play games, practice languages, and discover stories.",
