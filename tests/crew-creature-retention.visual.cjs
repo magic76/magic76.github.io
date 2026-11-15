@@ -32,8 +32,10 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
    if(viewport.width<=390){
     const art=await page.locator('#canvasWrap').boundingBox();
     const history=await page.locator('#messages').boundingBox();
-    assert.ok(art&&art.width>=viewport.width*.44&&art.height>=225,
+    assert.ok(art&&art.width>=viewport.width*.40&&art.height>=225,
       name+' creature art must be large: '+JSON.stringify(art));
+    assert.ok(Math.abs(art.height/art.width-2)<0.03,
+      name+' portrait must keep its 1:2 source ratio: '+JSON.stringify(art));
     assert.ok(history&&history.height>=108&&history.height<=155,
       name+' egg welcome should not hide starter choices under blank space: '+JSON.stringify(history));
     await page.locator('#chatInput').scrollIntoViewIfNeeded();
