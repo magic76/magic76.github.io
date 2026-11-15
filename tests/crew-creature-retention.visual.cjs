@@ -33,6 +33,10 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
     const sizes=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));
     assert.ok(sizes.scroll<=sizes.viewport+1,name+' no horizontal overflow: '+JSON.stringify(sizes));
     assert.equal(await page.locator('#progressHint').isVisible(),true);
+    const chat=await page.locator('#localChatPanel').boundingBox();
+    const form=await page.locator('#chatForm').boundingBox();
+    assert.ok(chat&&form&&chat.y+chat.height-(form.y+form.height)<=25,
+      name+' no empty panel beneath composer: '+JSON.stringify({chat,form}));
     assert.equal(await page.locator('#ideaChips').isVisible(),false,'new egg has only two first-hatch choices');
    }
    assert.equal(await page.locator('#hatchBtn').isVisible(),false);
