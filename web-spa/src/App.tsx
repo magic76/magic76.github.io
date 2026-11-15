@@ -29,6 +29,7 @@ const StoryLayout=lazy(()=>import("./story/StoryLayout").then(m=>({default:m.Sto
 const FortuneLayout=lazy(()=>import("./fortune/FortuneLayout").then(m=>({default:m.FortuneLayout})));const FortuneHomePage=lazy(()=>import("./fortune/HomePage").then(m=>({default:m.FortuneHomePage})));const FortuneHistoryPage=lazy(()=>import("./fortune/HistoryPage").then(m=>({default:m.FortuneHistoryPage})));const FortuneReadingPage=lazy(()=>import("./fortune/ReadingPage").then(m=>({default:m.FortuneReadingPage})));const FortuneLivePage=lazy(()=>withNamespace("voice",import("./fortune/LivePage")).then(m=>({default:m.FortuneLivePage})));
 const VoiceLabPage=lazy(()=>import("./teacher/VoiceLabPage").then(m=>({default:m.VoiceLabPage})));
 const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(m=>({default:m.UsageDashboardPage})));
+const FeedbackInboxPage=lazy(()=>import("./analytics/FeedbackInboxPage").then(m=>({default:m.FeedbackInboxPage})));
 const AccountPage=lazy(()=>import("./pages/AccountPage").then(m=>({default:m.AccountPage})));
 const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:m.TimelinePage})));
 
@@ -98,6 +99,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/privacy" element={<AppChrome product="settings"><PrivacyPage/></AppChrome>}/>
 <Route path="/guides/:slug" element={<AppChrome product="teacher"><GuidePage/></AppChrome>}/>
 <Route path="/usage" element={<AppChrome product="briefing"><UsageDashboardPage/></AppChrome>}/>
+<Route path="/usage/feedback" element={<AppChrome product="briefing"><FeedbackInboxPage/></AppChrome>}/>
 <Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="fortune" element={<TeacherFortunePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="friends" element={<Navigate to="/teacher/roles?mode=friends" replace/>}/><Route path="roles" element={<RolesPage/>}/><Route path="learn" element={<Navigate to="/learn" replace/>}/><Route path="tutor" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<VocabularyPage/>}/><Route path="course" element={<CoursePage/>}/><Route path="course/:slug" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<PhrasebookPage/>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
 <Route path="/circle" element={<BooksPage/>}/>
 <Route path="/play" element={<Navigate to="/games" replace/>}/>

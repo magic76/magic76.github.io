@@ -33,3 +33,11 @@ When D1 is not bound or cannot write, the form retains the user's draft and show
 ## Checks
 
 `node --test tests/crew-feedback.test.js`, `npm run check:web`, `npm run check:i18n`, `npm run build:cloudflare`. After deployment, test a normal submission, 4th same-IP hourly submission, missing DB binding, Android WebView, 390px mobile, and SQL console retrieval.
+
+## Private owner inbox (same Cloudflare Access as /usage)
+
+The owner opens **`/usage/feedback`** from the private `/usage` dashboard. It uses the existing Cloudflare Access application on `www.3sssi.com/usage*`. **Verify this wildcard includes `/usage/feedback` in your Access policy**; do not publish the inbox without edge protection. Existing Access-protected `/api/usage/report?view=feedback` handles D1 reads/updates after independently verifying the JWT's issuer, audience, expiration, signature and owner email, just like the analytics report. No extra Token, Secret, or Access application is needed if `/usage*` already works.
+
+The owner can filter kind and review status (待處理 `new`, 處理中 `working`, 已完成 `done`), read 30 submissions per page and update status. Review status lives in an auto-created `crew_feedback_review` D1 table (no migration for existing records); missing status is `new`. GET and POST both require a signed owner JWT; POST additionally verifies Origin and JSON input. Public `/api/feedback` continues to accept anonymous submissions only.
+
+Private data, including optional email, is served with `Cache-Control: no-store` and is not linked from the public form. Verify: when signed out, both `/usage/feedback` and `/api/usage/report?view=feedback` deny access; when signed in, filtering, paging and status updates work. If the Cloudflare Access UI uses a non-wildcard `/usage` path, extend it to `/usage*` to protect the new page.

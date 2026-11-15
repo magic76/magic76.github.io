@@ -115,7 +115,7 @@ async function updateFeedback(request:Request,env:Context["env"]):Promise<Respon
  }catch{return respond({error:"Invalid JSON"},400)}
  if(!body||typeof body!=="object"||Array.isArray(body))return respond({error:"Invalid update"},400);
  const input=body as Record<string,unknown>;
- if(!Number.isSafeInteger(input.id)||Number(input.id)<=0||!feedbackStatuses.has(String(input.status)))
+ if(typeof input.id!=="number"||!Number.isSafeInteger(input.id)||input.id<=0||!feedbackStatuses.has(String(input.status)))
   return respond({error:"Invalid update"},400);
  try{
   await ensureFeedbackTables(db);
