@@ -11,7 +11,7 @@ const metrics=[
  {key:"returned",label:"跨日回訪"}
 ] as const;
 export function PlatformUsagePanel({rows}:{rows?:PlatformUsage[]}){
- const known=new Map((rows||[]).filter(row=>Object.prototype.hasOwnProperty.call(names,row.platform)).map(row=>[row.platform,row]));
+ const known=new Map<PlatformUsage["platform"],PlatformUsage>((rows||[]).filter(row=>Object.prototype.hasOwnProperty.call(names,row.platform)).map(row=>[row.platform,row] as const));
  return <section className="panel section usage-platform-section" aria-label="使用平台分布">
   <div className="section-head"><h2>使用平台</h2><small>最近期間 · 匿名瀏覽器去重估計</small></div>
   <div className="usage-platform-grid">
