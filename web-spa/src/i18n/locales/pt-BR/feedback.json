@@ -24,5 +24,6 @@
   "required": "Digite pelo menos 10 caracteres.",
   "back": "Voltar ao Crew",
   "loading": "Verificando o serviço…",
-  "rateLimited": "Muitas tentativas. Tente novamente mais tarde."
+  "rateLimited": "Muitas tentativas. Tente novamente mais tarde.",
+  "invalidEmail": "Digite um e-mail válido ou deixe este campo em branco."
 }

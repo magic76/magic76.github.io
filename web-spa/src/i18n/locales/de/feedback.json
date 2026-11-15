@@ -24,5 +24,6 @@
   "required": "Bitte mindestens 10 Zeichen eingeben.",
   "back": "Zurück zu Crew",
   "loading": "Feedback-Dienst wird geprüft…",
-  "rateLimited": "Zu viele Einsendungen. Bitte später erneut versuchen."
+  "rateLimited": "Zu viele Einsendungen. Bitte später erneut versuchen.",
+  "invalidEmail": "Bitte eine gültige E-Mail-Adresse eingeben oder das Feld leer lassen."
 }

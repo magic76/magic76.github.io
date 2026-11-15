@@ -24,5 +24,6 @@
   "required": "Please enter at least 10 characters.",
   "back": "Back to Crew",
   "loading": "Checking feedback service…",
-  "rateLimited": "Too many submissions. Please try again later."
+  "rateLimited": "Too many submissions. Please try again later.",
+  "invalidEmail": "Enter a valid email address, or leave this field blank."
 }

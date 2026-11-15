@@ -24,5 +24,6 @@
   "required": "Tulis setidaknya 10 karakter.",
   "back": "Kembali ke Crew",
   "loading": "Memeriksa layanan masukan…",
-  "rateLimited": "Terlalu banyak kiriman. Coba lagi nanti."
+  "rateLimited": "Terlalu banyak kiriman. Coba lagi nanti.",
+  "invalidEmail": "Masukkan alamat email yang valid atau biarkan kolom ini kosong."
 }

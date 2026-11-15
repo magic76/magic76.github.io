@@ -24,5 +24,6 @@
   "required": "Escribe al menos 10 caracteres.",
   "back": "Volver a Crew",
   "loading": "Comprobando el servicio…",
-  "rateLimited": "Demasiados envíos. Inténtalo más tarde."
+  "rateLimited": "Demasiados envíos. Inténtalo más tarde.",
+  "invalidEmail": "Introduce un correo electrónico válido o deja este campo vacío."
 }

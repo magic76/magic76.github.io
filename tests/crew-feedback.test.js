@@ -62,3 +62,17 @@ test("frontend has no Turnstile or email fallback and retains its draft on error
  assert.match(source,/setStatus\("error"\)/);
  assert.match(source,/RATE_LIMITED/);
 });
+
+test("submit stays clickable and explains invalid fields without a readiness GET gate",()=>{
+ const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/pages/FeedbackPage.tsx"),"utf8");
+ assert.doesNotMatch(source,/availability!==|availability==="ready"|fetch\("\/api\/feedback",\{cache:/);
+ assert.match(source,/type="submit" disabled=\{status==="sending"\}/);
+ assert.match(source,/setErrorCode\("required"\)/);
+ assert.match(source,/setErrorCode\("invalidEmail"\)/);
+ assert.match(source,/messageRef\.current\?\.focus\(\)/);
+ assert.match(source,/emailRef\.current\?\.focus\(\)/);
+ assert.match(source,/response\.status===503/);
+ assert.match(source,/role="alert"/);
+ const adapter=fs.readFileSync(path.join(__dirname,"../scripts/prepare-cloudflare.mjs"),"utf8");
+ assert.match(adapter,/\/settings","\/account","\/privacy","\/usage","\/feedback"/);
+});
