@@ -13,7 +13,7 @@
   "emailLabel": "Contact email (optional)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "From page",
-  "privacy": "Your message and source page path are stored in Crew's private database. We never attach chats, recordings or API keys.",
+  "privacy": "Your feedback, optional email, and source page path are stored privately by Crew. If Telegram notifications are enabled, your feedback text and page path are sent to the site owner via Telegram, but the separate contact email field is excluded. Do not include sensitive information.",
   "send": "Send feedback",
   "sending": "Sending…",
   "successTitle": "Thanks for helping Crew improve!",

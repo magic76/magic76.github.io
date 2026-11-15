@@ -7,17 +7,23 @@ const limited=(value,max)=>typeof value==="string"&&value.trim().length<=max?val
 const feedbackTable="CREATE TABLE IF NOT EXISTS crew_feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, message TEXT NOT NULL, contact TEXT NOT NULL DEFAULT '', page TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)";
 const limitsTable="CREATE TABLE IF NOT EXISTS crew_feedback_limit (rate_key TEXT PRIMARY KEY, hour INTEGER NOT NULL, hits INTEGER NOT NULL)";
 // Optional owner-only notification. The public submission response never depends on Telegram.
-// Send only fixed metadata: NEVER send message, contact, page, raw IP or secrets to Telegram.
+// Send the submitted message and source path to the owner's private Telegram chat.
+// NEVER send the separate contact email field, raw IP, user-agent or secrets.
 const telegramKinds={bug:"問題回報",idea:"功能建議",other:"其他意見"};
 function telegramSettings(env){
  const token=typeof env?.CREW_FEEDBACK_TG_BOT_TOKEN==="string"?env.CREW_FEEDBACK_TG_BOT_TOKEN.trim():"";
  const chatId=typeof env?.CREW_FEEDBACK_TG_CHAT_ID==="string"?env.CREW_FEEDBACK_TG_CHAT_ID.trim():"";
  return /^[0-9]{5,12}:[A-Za-z0-9_-]{25,}$/.test(token)&&/^-?[0-9]{1,20}$/.test(chatId)?{token,chatId}:null;
 }
-async function sendTelegramNotification({token,chatId},id,kind){
+async function sendTelegramNotification({token,chatId},id,kind,message,page){
  try{
   const nl=String.fromCharCode(10);
-  const text="🔔 Crew 收到新回饋"+nl+"編號：FB-"+id+nl+"類別："+telegramKinds[kind]+nl+"查看：https://www.3sssi.com/usage/feedback";
+  // Telegram uses plain text (no Markdown/HTML parsing), preserving line breaks and special characters.
+  // The API already validates message <=1,500 UTF-16 units and a safe pathname <=160 chars.
+  const text="🔔 Crew 收到新回饋"+nl+"編號：FB-"+id+nl+"類別："+telegramKinds[kind]
+   +nl+nl+"使用者留言："+nl+message
+   +(page?nl+nl+"來源頁面："+page:"")
+   +nl+nl+"查看：https://www.3sssi.com/usage/feedback";
   const result=await fetch("https://api.telegram.org/bot"+token+"/sendMessage",{
    method:"POST",headers:{"Content-Type":"application/json"},
    body:JSON.stringify({chat_id:chatId,text,link_preview_options:{is_disabled:true}})
@@ -73,7 +79,7 @@ export async function onRequestPost(context){
   // Cloudflare keeps the job alive after response; Telegram failure cannot roll back D1.
   const tg=telegramSettings(env);
   if(tg&&typeof context.waitUntil==="function"){
-   try{context.waitUntil(sendTelegramNotification(tg,id,kind))}
+   try{context.waitUntil(sendTelegramNotification(tg,id,kind,message,page))}
    catch{console.warn("Crew feedback Telegram scheduling unsuccessful for FB-"+id)}
   }
   return reply({ok:true,reference:"FB-"+id},201);

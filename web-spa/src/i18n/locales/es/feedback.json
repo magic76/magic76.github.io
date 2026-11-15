@@ -13,7 +13,7 @@
   "emailLabel": "Correo de contacto (opcional)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "Página de origen",
-  "privacy": "Solo guardamos tu mensaje y la ruta de la página en la base de datos privada de Crew.",
+  "privacy": "Crew guarda tu mensaje, correo opcional y ruta de página en una base de datos privada. Si las notificaciones de Telegram están activadas, el mensaje y la ruta se envían al administrador por Telegram, pero no el campo de correo. No incluyas datos sensibles.",
   "send": "Enviar",
   "sending": "Enviando…",
   "successTitle": "¡Gracias por mejorar Crew!",

@@ -13,7 +13,7 @@
   "emailLabel": "Kontakt-E-Mail (optional)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "Ausgangsseite",
-  "privacy": "Nur deine Nachricht und der Seitenpfad werden in der privaten Crew-Datenbank gespeichert.",
+  "privacy": "Deine Rückmeldung, die optionale E-Mail und der Seitenpfad werden privat bei Crew gespeichert. Falls Telegram-Benachrichtigungen aktiviert sind, werden Nachricht und Seitenpfad über Telegram an den Betreiber gesendet, nicht aber das separate E-Mail-Feld. Bitte keine sensiblen Daten eingeben.",
   "send": "Feedback senden",
   "sending": "Wird gesendet…",
   "successTitle": "Danke, dass du Crew verbesserst!",

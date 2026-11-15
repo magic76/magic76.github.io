@@ -13,7 +13,7 @@
   "emailLabel": "연락 이메일(선택)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "출처 페이지",
-  "privacy": "입력한 내용과 페이지 경로만 Crew의 비공개 데이터베이스에 저장합니다. 채팅, 녹음 및 API 키는 전송하지 않습니다.",
+  "privacy": "피드백 내용, 선택 이메일, 페이지 경로는 Crew의 비공개 데이터베이스에 저장됩니다. Telegram 알림이 켜져 있으면 피드백 내용과 페이지 경로가 Telegram을 통해 관리자에게 전송되지만 별도로 입력한 이메일은 포함되지 않습니다. 민감한 정보는 입력하지 마세요.",
   "send": "의견 보내기",
   "sending": "전송 중…",
   "successTitle": "Crew 개선에 도움을 주셔서 감사합니다!",
