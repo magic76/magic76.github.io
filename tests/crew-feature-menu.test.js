@@ -9,14 +9,14 @@ const menuFile="web-spa/src/components/CrewFeatureMenu.tsx";
 const menu=read(menuFile)+"\n"+read("web-spa/src/components/CrewFeatureMenuPanel.tsx");
 const css=read("web-spa/src/components/crewFeatureMenu.css");
 
-test("all 32 feature destinations are direct, existing Crew routes",()=>{
+test("all 33 feature destinations are direct, existing Crew routes",()=>{
  const targets=[...menu.matchAll(/\{id:"([a-zA-Z0-9]+)",to:"([^"]+)"/g)];
- assert.equal(targets.length,32,"the directory should expose all 32 verified experiences");
- assert.equal(new Set(targets.map(item=>item[1])).size,32,"unique feature keys");
- assert.equal(new Set(targets.map(item=>item[2])).size,32,"unique deep links");
+ assert.equal(targets.length,33,"the directory should expose all 33 verified destinations");
+ assert.equal(new Set(targets.map(item=>item[1])).size,33,"unique feature keys");
+ assert.equal(new Set(targets.map(item=>item[2])).size,33,"unique deep links");
  for(const [,id,to] of targets)assert.ok(to.startsWith("/")&&!to.startsWith("//"),id+" must be an internal route");
  const app=read("web-spa/src/App.tsx");
- for(const route of ["/games","/souls","/mate","/story","/fortune","/timeline","/town","/magic","/discover","/research","/me","/settings"]){
+ for(const route of ["/games","/souls","/mate","/story","/fortune","/timeline","/town","/magic","/discover","/research","/me","/settings","/feedback"]){
   assert.ok(app.includes('path="'+route+'"'),route+" must have a routed page");
  }
  assert.ok(app.includes('path="roles"'),"teacher/friend picker exists");

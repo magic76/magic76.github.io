@@ -45,7 +45,8 @@
   },
   "contact": {
     "label": "Hubungi kami",
-    "region": "Informasi kontak"
+    "region": "Informasi kontak",
+    "feedback": "Masukan"
   },
   "seo": {
     "home": "Crew | Belajar bahasa sambil bermain bersama teman AI",
@@ -119,7 +120,7 @@
     "verification": "Verifikasi gagal. Coba lagi.",
     "tempUnavailable": "Uji coba tidak tersedia sementara.",
     "remaining": "Sisa percobaan suara AI gratis: {{count}} / {{limit}}",
-     "memberRemaining": "Sisa uji coba gratis hari ini: {{count}} / {{limit}}",
+    "memberRemaining": "Sisa uji coba gratis hari ini: {{count}} / {{limit}}",
     "usedUpTitle": "Uji coba gratis sudah habis",
     "free1a2b": "Main 1A2B (gratis)",
     "freeVocabulary": "Kata hari ini",

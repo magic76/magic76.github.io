@@ -137,6 +137,10 @@
     "fortuneHistory": {
       "title": "Fortune history",
       "desc": "View past charts"
+    },
+    "feedback": {
+      "title": "Feedback",
+      "desc": "Report a problem or share an idea"
     }
   },
   "featureCount": "features"

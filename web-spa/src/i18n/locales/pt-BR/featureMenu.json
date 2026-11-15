@@ -137,6 +137,10 @@
     "fortuneHistory": {
       "title": "Histórico de fortuna",
       "desc": "Veja mapas anteriores"
+    },
+    "feedback": {
+      "title": "Feedback",
+      "desc": "Relate problemas ou sugira melhorias"
     }
   },
   "featureCount": "recursos"

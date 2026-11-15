@@ -19,6 +19,6 @@ export function sectionForRoute(pathname:string,search=""):CrewSection{
  if(pathname==="/story/me"||pathname==="/fortune/history")return "me";
  if(root==="town"||root==="magic"||root==="discover"||root==="orb"||root==="guides")return "explore";
  if(["fortune","timeline","games","story","research","briefing","circle","books","mate","souls"].includes(root))return "explore";
- if(["settings","account","privacy","usage"].includes(root))return "me";
+ if(["settings","account","privacy","usage","feedback"].includes(root))return "me";
  return "home";
 }

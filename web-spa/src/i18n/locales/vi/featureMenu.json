@@ -137,6 +137,10 @@
     "fortuneHistory": {
       "title": "Lịch sử vận mệnh",
       "desc": "Xem lá số đã tạo"
+    },
+    "feedback": {
+      "title": "Góp ý",
+      "desc": "Báo lỗi hoặc đề xuất cải tiến"
     }
   },
   "featureCount": "tính năng"

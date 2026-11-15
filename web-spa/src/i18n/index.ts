@@ -39,8 +39,8 @@ const loadingLocales=new Map<string,Promise<void>>();
 // Route-scoped catalogs (every locale, zh-TW and en included) stay out of the
 // entry bundle. Routes await loadUiNamespace() inside their lazy() import, so
 // the strings exist before the first render and raw keys never flash.
-const routeNamespaceImports=import.meta.glob("./locales/*/{games,mate,lesson,voice,magic,fortuneReport,fortuneDaily}.json",{import:"default"});
-export type RouteNamespace="games"|"mate"|"lesson"|"voice"|"magic"|"fortuneReport"|"fortuneDaily";
+const routeNamespaceImports=import.meta.glob("./locales/*/{games,mate,lesson,voice,magic,fortuneReport,fortuneDaily,feedback}.json",{import:"default"});
+export type RouteNamespace="games"|"mate"|"lesson"|"voice"|"magic"|"fortuneReport"|"fortuneDaily"|"feedback";
 const wantedRouteNamespaces=new Set<RouteNamespace>();
 const loadingRouteNamespaces=new Map<string,Promise<void>>();
 function loadRouteBundle(locale:string,namespace:RouteNamespace):Promise<void>{

@@ -137,6 +137,10 @@
     "fortuneHistory": {
       "title": "命盤紀錄",
       "desc": "查看歷史命盤"
+    },
+    "feedback": {
+      "title": "意見回饋",
+      "desc": "回報問題或分享新點子"
     }
   },
   "featureCount": "個功能"
