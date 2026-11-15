@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from "react";
+import {PlatformUsagePanel,type PlatformUsage} from "./PlatformUsagePanel";
 import "./usage-dashboard.css";
 import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
 import {SoulsUsagePanel,SOULS_USAGE_EVENTS,SOULS_USAGE_NAMES} from "./SoulsUsagePanel";
@@ -6,7 +7,7 @@ import {UsageExportControls} from "./UsageExportControls";
 import {num,total,totalMany,comparison,type Row,type EventUsers} from "./usageExport";
 
 type Report={
- days:number;activeUsers:number;chatUsers:number;
+ days:number;activeUsers:number;chatUsers:number;platformBreakdown?:PlatformUsage[];
  previousActiveUsers:number;previousChatUsers:number;
  eventUsers:EventUsers[];rows:Row[];generatedAt:string;
  journey?:JourneyCounts
@@ -116,7 +117,7 @@ export function UsageDashboardPage(){
     <button type="button" aria-pressed={days===30} onClick={()=>setDays(30)}>最近 30 天</button>
     <a href="#guest-trial-stats" className="usage-jump">免費試用統計</a>
     <UsageExportControls data={data} days={days} category={selected} bars={bars} categoryEventTotal={totalMany(rows,selected.events)} disabled={loading||!!error||!data||data.days!==days}/>
-    <span className="usage-source">資料來源：Web · Cloudflare（不含 Android）</span>
+    <span className="usage-source">資料來源：Cloudflare Web 事件（Android Firebase 另計）</span>
    </div>
   </section>
   {loading?<section className="panel section" role="status">正在讀取匿名使用事件…</section>:
@@ -128,6 +129,7 @@ export function UsageDashboardPage(){
      <article className="panel"><small>有效對話次數</small><strong>{num(totalMany(rows,chatEffective))}</strong><span>老師＋朋友＋Timeline＋Souls，雙方都有發言</span></article>
      <article className="panel"><small>網站開啟次數</small><strong>{num(total(rows,"app_opened"))}</strong><span>每分頁工作階段最多一次，不是獨立人數</span></article>
     </section>
+    <PlatformUsagePanel rows={data.platformBreakdown}/>
     <UsageJourneySection days={days} journey={data.journey}/>
     <SoulsUsagePanel rows={rows} unique={unique}/>
     <section className="panel section">
@@ -295,7 +297,7 @@ export function UsageDashboardPage(){
       <p className="usage-explain">跨日回訪數是事件次數，並非整段期間的回訪人數。缺少 Key 不代表聊天失敗。</p>
      </section>
     </div>
-    <p className="usage-note">這是匿名瀏覽器統計，不是可識別的真人數，也不包含 Android Firebase 的使用者。無法區分同一人在不同裝置的瀏覽器，亦不會記錄已選擇退出或使用 GPC／DNT 的訪客。Cloudflare Analytics Engine 可能抽樣，去重數為近似值。過去缺失的事件不會回填；資料最長保留約三個月。更新：{new Date(data.generatedAt).toLocaleString("zh-TW")}。</p>
+    <p className="usage-note">這是匿名瀏覽器統計，不是可識別的真人數，也不包含 Android Firebase 的原生事件。無法區分同一人在不同裝置的瀏覽器，亦不會記錄已選擇退出或使用 GPC／DNT 的訪客。Cloudflare Analytics Engine 可能抽樣，去重數為近似值。過去缺失的事件不會回填；資料最長保留約三個月。更新：{new Date(data.generatedAt).toLocaleString("zh-TW")}。</p>
    </>}
  </main>;
 }

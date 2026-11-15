@@ -1,3 +1,5 @@
+import {usagePlatform} from "./usagePlatform";
+
 /**
  * Minimal first-party analytics. Never send user speech, prompts, Gemini keys,
  * story titles, birth details, profile IDs, or full URLs.
@@ -123,7 +125,7 @@ export function trackUsageEvent(event:UsageEvent,detail:Detail=""){
  recent.set(key,now);
  const pathname=location.pathname;
  withGa4(ga=>ga.sendGa4Event(event,detail,pathname));
- const payload={event,detail,visitorId:visitor(),sessionId:session()};
+ const payload={event,detail,visitorId:visitor(),sessionId:session(),platform:usagePlatform()};
  try{void fetch("/api/usage/event",{
    method:"POST",headers:{"Content-Type":"application/json"},
    body:JSON.stringify(payload),keepalive:true,credentials:"same-origin"

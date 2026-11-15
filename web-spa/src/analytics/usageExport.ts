@@ -1,10 +1,11 @@
 /** Pure, strict projection of private /usage aggregates. Never serialize API objects. */
 export type Row={day:string;event:string;detail?:string;count:number;users:number};
 export type EventUsers={event:string;users:number};
+export type PlatformUsage={platform:"web"|"pwa"|"android_shell";opened:number;active:number;chat:number;returned:number;gamesCompleted:number};
 export type UsageReport={
  days:number;activeUsers:number;chatUsers:number;
  previousActiveUsers:number;previousChatUsers:number;
- eventUsers:EventUsers[];rows:Row[];generatedAt:string;
+ eventUsers:EventUsers[];rows:Row[];generatedAt:string;platformBreakdown?:PlatformUsage[];
  journey?:{opened:number;clicked:number;started:number;engaged:number;returned:number};
 };
 export type UsageBar={day:string;count:number};
@@ -26,7 +27,8 @@ const JOURNEY_STAGES=["opened","clicked","started","engaged","returned"] as cons
 
 export const USAGE_CAVEATS=[
  "統計是匿名瀏覽器的去重估計，不是可識別真人數或跨裝置獨立人數。",
- "不含 Android Firebase；選擇退出瀏覽器統計的訪客不會計入。",
+ "Android App 只計 Crew WebView 的 Web 事件，不含 Android Firebase；選擇退出瀏覽器統計的訪客不會計入。",
+ "平台分布僅含新版追蹤上線後資料，舊紀錄不回填；跨平台瀏覽器不能相加成真人數。CSV 保持原始事件彙總格式，平台分類請使用 JSON 或複製摘要。",
  "Cloudflare Analytics Engine 可能抽樣，去重數為近似值；不可把每日 users 加總當成期間使用者數。",
  "類別篩選只影響每日長條；主卡、journey、聊天漏斗和 rows 都是所選期間的完整聚合。",
  "語音 vs 打字的完成對話未分開追蹤。home_entry_click 的 voice 是入口點擊，friend 混含文字和語音入口，不是兩種聊天模式的使用量或完成數對照。",
@@ -82,6 +84,11 @@ export function buildUsageExport(data:UsageReport,days:7|30,category:UsageCatego
    effectiveConversations:sumMany(rows,CHAT_EFFECTIVE),appOpened:sum(rows,"app_opened")
   },
   journey,
+  platforms:(data.platformBreakdown||[]).filter(row=>row&&
+   ["web","pwa","android_shell"].includes(row.platform)).map(row=>({
+   platform:row.platform,opened:count(row.opened),active:count(row.active),
+   chat:count(row.chat),returned:count(row.returned),gamesCompleted:count(row.gamesCompleted)
+  })),
   chatFunnel,
   entryClicks:{home_entry_click:Object.fromEntries(Object.entries(entryClicks).sort(([a],[b])=>a.localeCompare(b)))},
   categoryBars:bars.filter(item=>safeDay(item.day)).map(item=>({day:item.day,count:count(item.count)})),
@@ -111,6 +118,7 @@ export function usageExportSummary(payload:ReturnType<typeof buildUsageExport>){
   `有效使用瀏覽器：${h.activeUsers}（前期 ${h.previousActiveUsers}）；真的聊過天：${h.chatUsers}（前期 ${h.previousChatUsers}）`,
   `有效對話次數：${h.effectiveConversations}；網站開啟次數：${h.appOpened}`,
   `Journey：${JOURNEY_STAGES.map(stage=>`${stage}=${payload.journey[stage]}`).join("、")}`,
+  `平台分布（新版 Web 事件）：${payload.platforms.length?payload.platforms.map(row=>`${row.platform}: 開啟 ${row.opened}／有效 ${row.active}／聊天 ${row.chat}／遊戲 ${row.gamesCompleted}／回訪 ${row.returned}`).join("；"):"尚無可辨識的新資料"}`,
   `聊天漏斗：${payload.chatFunnel.map(stage=>`${stage.label}=${stage.count}`).join("、")}`,
   `home_entry_click：${Object.entries(payload.entryClicks.home_entry_click).map(([detail,value])=>`${detail||"(空白)"}=${value}`).join("、")}`,
   `篩選類別每日長條：${payload.categoryBars.map(bar=>`${bar.day}:${bar.count}`).join("、")}；總計 ${payload.categoryEventTotal} 次`,

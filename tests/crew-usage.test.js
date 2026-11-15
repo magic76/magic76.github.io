@@ -43,11 +43,11 @@ test("event handler rejects unconfigured deployment and invalid or spoofed event
  const valid=await onRequestPost({request:request(),env});
  assert.equal(valid.status,204);
  assert.equal(points.length,1);
- assert.deepEqual(points[0].blobs,[payload.event,payload.visitorId,"",payload.sessionId]);
+ assert.deepEqual(points[0].blobs,[payload.event,payload.visitorId,"",payload.sessionId,"legacy"]);
  assert.deepEqual(points[0].indexes,[payload.visitorId]);
  const bucket=await onRequestPost({request:request({...payload,event:"teacher_session_end",detail:"from_3_to_10m"}),env});
  assert.equal(bucket.status,204);
- assert.deepEqual(points[1].blobs,["teacher_session_end",payload.visitorId,"from_3_to_10m",payload.sessionId]);
+ assert.deepEqual(points[1].blobs,["teacher_session_end",payload.visitorId,"from_3_to_10m",payload.sessionId,"legacy"]);
  assert.equal((await onRequestPost({request:request({...payload,event:"teacher_session_end",detail:"private transcript"}),env})).status,400);
  assert.equal((await onRequestPost({request:request({...payload,event:"vocabulary_practice"}),env})).status,204);
 });
@@ -229,4 +229,28 @@ test("Souls anonymous funnel allows only fixed event/category combinations, incl
  assert.match(report,/souls_live_connected/);
  assert.match(report,/souls_conversation/);
  assert.match(report,/const chatEvents=.*souls_conversation/);
+});
+
+test("platform labels are strictly allowlisted; legacy clients remain compatible",async()=>{
+ const {onRequestPost}=compile("functions/api/usage/event.ts");
+ const points=[],env={ANALYTICS_ENGINE:{writeDataPoint:p=>points.push(p)}};
+ for(const platform of ["web","pwa","android_shell"]){
+  const response=await onRequestPost({request:request({...payload,platform}),env});
+  assert.equal(response.status,204);
+  assert.equal(points.at(-1).blobs[4],platform);
+ }
+ for(const platform of ["private-user","android",null,5]){
+  const response=await onRequestPost({request:request({...payload,platform}),env});
+  assert.equal(response.status,400);
+ }
+ assert.equal(points.length,3);
+ const usage=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
+ const client=fs.readFileSync(path.join(root,"web-spa/src/analytics/usagePlatform.ts"),"utf8");
+ const report=fs.readFileSync(path.join(root,"functions/api/usage/report.ts"),"utf8");
+ assert.match(usage,/platform:usagePlatform\(\)/);
+ assert.match(client,/isCrewAndroidShell\(\)/);
+ assert.match(client,/display-mode: standalone/);
+ assert.match(report,/COUNT\(DISTINCT blob2\)/);
+ assert.match(report,/blob5 IN/);
+ assert.match(report,/platformBreakdown:/);
 });

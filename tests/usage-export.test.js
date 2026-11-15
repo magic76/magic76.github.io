@@ -35,6 +35,7 @@ function fixture(){
  const data={days:7,activeUsers:30,chatUsers:12,previousActiveUsers:20,previousChatUsers:6,
   journey:{opened:50,clicked:35,started:25,engaged:30,returned:11,...secrets},
   generatedAt:"2026-11-13T04:00:00.000Z",rows,
+  platformBreakdown:[{platform:"android_shell",opened:4,active:2,chat:1,returned:1,gamesCompleted:0,...secrets},{platform:"POISON",opened:2,active:2,chat:2,returned:2,gamesCompleted:2}],
   eventUsers:[{event:"app_opened",users:32,...secrets},{event:"LEAK_AUTH",users:3}],...secrets,
   headlines:secrets,entryClicks:secrets,chatFunnel:secrets};
  return {data,secrets};
@@ -45,12 +46,13 @@ test("export uses a strict aggregate allowlist and strips sensitive keys and poi
  const payload=buildUsageExport(data,7,{id:"chat",label:"老師／朋友／Souls 聊天"},[
   {day:"2026-11-11",count:2,token:"LEAK_BARS"},{day:"2026-11-12",count:10}
  ],12,new Date("2026-11-13T05:00:00.000Z"));
- assert.deepEqual(Object.keys(payload),["exportedAt","source","days","category","generatedAt","headlines","journey","chatFunnel","entryClicks","categoryBars","categoryEventTotal","eventUsers","rows","caveats"]);
+ assert.deepEqual(Object.keys(payload),["exportedAt","source","days","category","generatedAt","headlines","journey","platforms","chatFunnel","entryClicks","categoryBars","categoryEventTotal","eventUsers","rows","caveats"]);
  assert.deepEqual(Object.keys(payload.headlines),["activeUsers","previousActiveUsers","chatUsers","previousChatUsers","effectiveConversations","appOpened"]);
  assert.deepEqual(Object.keys(payload.rows[0]),["day","event","detail","count","users"]);
  assert.deepEqual(Object.keys(payload.categoryBars[0]),["day","count"]);
  assert.deepEqual(Object.keys(payload.eventUsers[0]),["event","users"]);
  assert.equal(payload.source,"https://www.3sssi.com/usage");
+ assert.deepEqual(payload.platforms,[{platform:"android_shell",opened:4,active:2,chat:1,returned:1,gamesCompleted:0}]);
  assert.equal(payload.rows.length,9);
  assert.equal(payload.eventUsers.length,1);
  const serialized=JSON.stringify(payload);
@@ -80,7 +82,7 @@ test("copy summary includes every requested aggregate, both entry clicks and tra
  const {data,secrets}=fixture();
  const payload=buildUsageExport(data,7,{id:"all",label:"所有有效互動"},[{day:"2026-11-12",count:12}],12);
  const summary=usageExportSummary(payload);
- for(const text of ["最近 7 天","產生時間","有效使用瀏覽器","真的聊過天","有效對話次數","網站開啟次數","Journey","opened=50","returned=11","聊天漏斗","完成有效雙向對話=12","home_entry_click","voice=12","friend=20","2026-11-12:12","未分開追蹤","一般文字聊天","不含 Android","類別篩選"]){assert.ok(summary.includes(text),text)}
+ for(const text of ["最近 7 天","產生時間","有效使用瀏覽器","真的聊過天","有效對話次數","網站開啟次數","Journey","opened=50","returned=11","聊天漏斗","完成有效雙向對話=12","home_entry_click","voice=12","friend=20","2026-11-12:12","未分開追蹤","一般文字聊天","不含 Android","類別篩選","平台分布","android_shell"]){assert.ok(summary.includes(text),text)}
  for(const leak of Object.values(secrets)){assert.ok(!summary.includes(leak),leak)}
 });
 
