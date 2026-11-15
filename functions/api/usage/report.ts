@@ -6,6 +6,7 @@
 type Context={request:Request;env:{
   CREW_USAGE_ACCESS_ISS?:string;CREW_USAGE_ACCESS_AUD?:string;
   CREW_USAGE_ADMIN_EMAIL?:string;CREW_USAGE_ACCOUNT_ID?:string;CREW_USAGE_SQL_TOKEN?:string;
+  CREW_FEEDBACK_DB?:FeedbackDb;
 }};
 const respond=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{
  "Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"
@@ -51,8 +52,87 @@ async function sql(env:Context["env"],query:string){
  if(!Array.isArray(result.data))throw new Error("Invalid query response");
  return result.data;
 }
+
+/** Owner inbox shares this EXACT Cloudflare Access-protected report path and JWT verifier.
+ * Avoid a new public /api/* data endpoint or a second Zero Trust application/AUD.
+ */
+type FeedbackStatement={
+ bind(...values:(string|number)[]):FeedbackStatement;
+ run():Promise<{success:boolean;meta?:{changes?:number}}>;
+ all<T>():Promise<{success:boolean;results:T[]}>;
+ first<T>():Promise<T|null>;
+};
+type FeedbackDb={prepare(sql:string):FeedbackStatement};
+type FeedbackRow={
+ id:number;kind:"bug"|"idea"|"other";message:string;contact:string;page:string;created_at:string;
+ status:"new"|"working"|"done";reviewed_at:string|null
+};
+const feedbackStatuses=new Set(["new","working","done"]);
+const feedbackKinds=new Set(["all","bug","idea","other"]);
+const feedbackFilters=new Set(["all","new","working","done"]);
+async function ensureFeedbackTables(db:FeedbackDb){
+ // Matches the public POST bootstrap: the inbox can be opened before anyone submits.
+ await db.prepare("CREATE TABLE IF NOT EXISTS crew_feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, message TEXT NOT NULL, contact TEXT NOT NULL DEFAULT '', page TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+ // Separate review table means existing feedback rows work without an ALTER TABLE migration.
+ await db.prepare("CREATE TABLE IF NOT EXISTS crew_feedback_review (feedback_id INTEGER PRIMARY KEY, status TEXT NOT NULL CHECK(status IN ('new','working','done')), updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+}
+async function listFeedback(request:Request,env:Context["env"]):Promise<Response>{
+ const db=env.CREW_FEEDBACK_DB;
+ if(!db||typeof db.prepare!=="function")return respond({error:"Feedback D1 binding unavailable"},503);
+ const params=new URL(request.url).searchParams;
+ const kind=params.get("kind")||"all",status=params.get("status")||"all",beforeRaw=params.get("before");
+ if(!feedbackKinds.has(kind)||!feedbackFilters.has(status)||
+    (beforeRaw!==null&&(!/^[1-9][0-9]{0,14}$/.test(beforeRaw)||!Number.isSafeInteger(Number(beforeRaw)))))
+    return respond({error:"Invalid filter"},400);
+ const before=beforeRaw?Number(beforeRaw):Number.MAX_SAFE_INTEGER;
+ try{
+  await ensureFeedbackTables(db);
+  const summary=await db.prepare("SELECT COUNT(*) AS total, SUM(CASE WHEN COALESCE(r.status,'new')='new' THEN 1 ELSE 0 END) AS newCount, SUM(CASE WHEN r.status='working' THEN 1 ELSE 0 END) AS workingCount, SUM(CASE WHEN r.status='done' THEN 1 ELSE 0 END) AS doneCount FROM crew_feedback f LEFT JOIN crew_feedback_review r ON r.feedback_id=f.id").first<{total:number;newCount:number;workingCount:number;doneCount:number}>();
+  const result=await db.prepare("SELECT f.id,f.kind,f.message,f.contact,f.page,f.created_at,COALESCE(r.status,'new') AS status,r.updated_at AS reviewed_at FROM crew_feedback f LEFT JOIN crew_feedback_review r ON r.feedback_id=f.id WHERE (?='all' OR f.kind=?) AND (?='all' OR COALESCE(r.status,'new')=?) AND f.id < ? ORDER BY f.id DESC LIMIT 31")
+   .bind(kind,kind,status,status,before).all<FeedbackRow>();
+  if(!result.success||!Array.isArray(result.results))throw Error("DB query failed");
+  const items=result.results.slice(0,30);
+  return respond({items,hasMore:result.results.length>30,summary:{
+   total:Number(summary?.total||0),new:Number(summary?.newCount||0),
+   working:Number(summary?.workingCount||0),done:Number(summary?.doneCount||0)
+  }});
+ }catch{return respond({error:"Feedback data unavailable"},502)}
+}
+async function updateFeedback(request:Request,env:Context["env"]):Promise<Response>{
+ const db=env.CREW_FEEDBACK_DB;
+ if(!db||typeof db.prepare!=="function")return respond({error:"Feedback D1 binding unavailable"},503);
+ const origin=new URL(request.url).origin;
+ if(request.headers.get("origin")!==origin||request.headers.get("sec-fetch-site")==="cross-site")
+  return respond({error:"Origin rejected"},403);
+ if(!/^application\/json(?:\s*;|$)/i.test(request.headers.get("content-type")||""))
+  return respond({error:"JSON required"},415);
+ if(Number(request.headers.get("content-length")||"0")>512)return respond({error:"Too large"},413);
+ let body:unknown;
+ try{
+  const raw=await request.text();
+  if(raw.length>512)return respond({error:"Too large"},413);
+  body=JSON.parse(raw);
+ }catch{return respond({error:"Invalid JSON"},400)}
+ if(!body||typeof body!=="object"||Array.isArray(body))return respond({error:"Invalid update"},400);
+ const input=body as Record<string,unknown>;
+ if(!Number.isSafeInteger(input.id)||Number(input.id)<=0||!feedbackStatuses.has(String(input.status)))
+  return respond({error:"Invalid update"},400);
+ try{
+  await ensureFeedbackTables(db);
+  const present=await db.prepare("SELECT id FROM crew_feedback WHERE id=?").bind(Number(input.id)).first<{id:number}>();
+  if(!present)return respond({error:"Feedback not found"},404);
+  const updated=await db.prepare("INSERT INTO crew_feedback_review (feedback_id,status,updated_at) VALUES (?,?,CURRENT_TIMESTAMP) ON CONFLICT(feedback_id) DO UPDATE SET status=excluded.status,updated_at=CURRENT_TIMESTAMP")
+   .bind(Number(input.id),String(input.status)).run();
+  if(!updated.success)return respond({error:"Feedback update failed"},502);
+  return respond({ok:true,id:Number(input.id),status:String(input.status)});
+ }catch{return respond({error:"Feedback update failed"},502)}
+}
+
 export async function onRequestGet({request,env}:Context){
  if(!await verifyAccess(request,env))return respond({error:"Access denied or not configured"},403);
+ const view=new URL(request.url).searchParams.get("view");
+ if(view==="feedback")return listFeedback(request,env);
+ if(view!==null)return respond({error:"Invalid report view"},400);
  if(!/^[0-9a-f]{32}$/i.test(env.CREW_USAGE_ACCOUNT_ID||"")||!env.CREW_USAGE_SQL_TOKEN){
   return respond({error:"Analytics query credentials not configured"},503);
  }
@@ -111,6 +191,11 @@ export async function onRequestGet({request,env}:Context){
   return respond({error:"Analytics data is unavailable. Check the binding, dataset and read token."},502);
  }
 }
+export async function onRequestPost({request,env}:Context){
+ if(!await verifyAccess(request,env))return respond({error:"Access denied or not configured"},403);
+ if(new URL(request.url).searchParams.get("view")!=="feedback")return respond({error:"Invalid report view"},400);
+ return updateFeedback(request,env);
+}
 export async function onRequest(){
- return new Response(null,{status:405,headers:{Allow:"GET","Cache-Control":"no-store"}});
+ return new Response(null,{status:405,headers:{Allow:"GET, POST","Cache-Control":"no-store"}});
 }
