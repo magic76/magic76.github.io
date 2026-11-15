@@ -42,7 +42,8 @@ function boot(options={}){
  const get=id=>{if(!nodes.has(id))nodes.set(id,element(id));return nodes.get(id)};
  const document={getElementById:get,createElement:element,body:element('body')};
  const window={addEventListener(){},requestAnimationFrame(){return 1},devicePixelRatio:3,
-  ResizeObserver:class{observe(){}},matchMedia(){return {matches:false}},scrollTo(){}};
+  ResizeObserver:class{observe(){}},matchMedia(){return {matches:false}},scrollTo(){},
+  confirm:options.confirm};
  const c={document,window,location:{search:'?qa=1'},URLSearchParams,localStorage:{
   getItem:key=>memory.get(key)||null,setItem:(key,v)=>memory.set(key,v)
  },setTimeout(fn){const id=++timerId;timers.set(id,fn);return id},clearTimeout(id){timers.delete(id)},Date:options.Date||Date,Math,console,Number,String,Array,Set,Map};
@@ -651,3 +652,80 @@ test('completed creature reacts and remembers same-day choices; a new day gives 
  assert.equal(tomorrow.state().creature.memories.length,4);
  assert.match(tomorrowGet('careMemory').textContent,/2026-11-15/);
 });
+
+test('mobile layout keeps egg, hatch actions and chat close on short and tall phones',()=>{
+ assert.match(css,/grid-template-columns:minmax\(0,38%\) minmax\(0,62%\)/);
+ assert.match(css,/\.canvas-wrap\{height:clamp\(122px,20dvh,155px\)/);
+ assert.match(css,/\.idea-chips:not\(\.expanded\) button:nth-child\(n\+3\)/);
+ assert.match(css,/\.composer input\{font-size:16px/);
+ assert.match(css,/\.composer button\{width:44px;height:44px/);
+ assert.match(html,/id="ideaToggle"[^>]*aria-expanded="false"/);
+ assert.match(html,/id="petBtn"/);
+ assert.match(html,/id="growthStory"/);
+ assert.match(html,/id="moodSticker"/);
+ const actions=html.slice(html.indexOf('<div class="creature-actions">'),html.indexOf('</div>',html.indexOf('<div class="creature-actions">')));
+ assert.doesNotMatch(actions,/id="resetBtn"/,'destructive control must not be a primary action');
+ assert.match(html,/<details class="lab-settings" id="labSettings">/);
+});
+test('creature reacts to happy, tired, petting and rest without adding energy',()=>{
+ const {qa,get}=boot();
+ assert.equal(qa.mood(),'idle');
+ qa.post('今天真開心！');
+ assert.equal(qa.mood(),'happy');
+ assert.equal(get('moodSticker').textContent,'✨');
+ qa.pet();
+ assert.equal(qa.mood(),'pet');
+ assert.match(qa.reactBubble().text,/暖暖地動了一下/);
+ const before=qa.energy();
+ qa.rest();
+ assert.equal(qa.mood(),'rest');
+ assert.equal(qa.energy(),before,'petting and rest do not mint energy');
+ qa.post('今天很累，壓力好大');
+ assert.equal(qa.mood(),'comfort');
+});
+test('species abilities and four distinct story milestones appear during growth',()=>{
+ const {qa,get}=boot();
+ assert.match(get('growthStoryTitle').textContent,/準備孵化/);
+ for(let i=0;i<16;i++)qa.post('晚上的星星亮亮的');
+ qa.evolve(()=>0.99);
+ assert.match(get('growthStoryTitle').textContent,/第一次相遇.*鳳凰/);
+ qa.evolve();
+ assert.match(get('growthStoryTitle').textContent,/解鎖專屬能力.*微光重生/);
+ assert.equal(qa.skill('phoenix'),'微光重生');
+ qa.evolve();
+ assert.match(get('growthStoryTitle').textContent,/發光成長/);
+ qa.evolve();
+ assert.match(get('growthStoryTitle').textContent,/完全體/);
+ const before=qa.state();
+ assert.equal(qa.startNext(),true);
+ assert.match(get('growthStoryTitle').textContent,/準備孵化/);
+ assert.equal(qa.state().collection.length,before.collection.length,'collection survives next creature');
+});
+test('extra topics expand and collapse without sending any message',()=>{
+ const {qa,get}=boot();
+ const before=qa.state().creature.sentences;
+ assert.equal(qa.topicsExpanded(),false);
+ get('ideaToggle').listeners.click();
+ assert.equal(qa.topicsExpanded(),true);
+ get('ideaToggle').listeners.click();
+ assert.equal(qa.topicsExpanded(),false);
+ assert.equal(qa.state().creature.sentences,before);
+});
+test('full data reset requires two explicit confirmations and never wipes by default',()=>{
+ const {qa}=boot();
+ qa.post('準備要收藏這隻');
+ assert.equal(qa.reset(),false,'dialog API absent => fail closed');
+ assert.equal(qa.state().creature.sentences,1);
+ let answers=[true,false],calls=0;
+ const {qa:cancel}=boot({confirm:()=>{calls++;return answers.shift();}});
+ cancel.post('已經養了');
+ assert.equal(cancel.reset(),false,'second rejection cancels the reset');
+ assert.equal(calls,2);
+ assert.equal(cancel.state().creature.sentences,1);
+ const {qa:yes}=boot({confirm:()=>true});
+ yes.post('重新開始');
+ assert.equal(yes.reset(),true);
+ assert.equal(yes.state().creature.sentences,0);
+ assert.equal(yes.state().collection.length,0);
+});
+

@@ -15,6 +15,7 @@ let previewNoteLine=null;
 // button's disabled state (never blocks doEvolve itself, so the QA hook
 // stays synchronous). giftOpening guards the gift ceremony.
 let evolvePending=null,evolving=false,evolveSeq=0,reactTimer=0,giftOpening=false;
+let moodTimer=0,restTimer=0,creatureMood='idle',lastChatSignal=null,topicsExpanded=false;
 function rng32(seed){let a=seed>>>0;return ()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
 function todayStr(){
  const d=new Date();
@@ -162,16 +163,55 @@ const REACT_LINES={
  dolphin:'海豚躍出水面，濺起發光的水花。',
  phoenix:'鳳凰抖了抖羽毛，火光都亮了。',
  egg:'蛋輕輕晃了一下。'};
-function reactToChat(){
- bounceCanvas();
- burstStars(5);
- const line=state.creature.line||'egg';
+const PET_LINES={
+ moonfox:'月狐親暱地用尾巴碰碰你的手。',
+ stardragon:'星龍繞著你的手指興奮地轉圈。',
+ flowerfairy:'花妖精在你的手心撒下一片花瓣。',
+ cat:'小貓咪舒服地瞇起眼睛呼嚕呼嚕。',
+ snowbunny:'雪兔把長耳朵輕輕靠向你。',
+ redpanda:'小熊貓抱住你的手，翹起尾巴。',
+ dolphin:'海豚開心地朝你噴出一道小水花。',
+ phoenix:'鳳凰用暖暖的羽毛蹭蹭你的手。',
+ egg:'蛋暖暖地動了一下，像在回應你的手。'
+};
+const CREATURE_SKILLS={
+ moonfox:'月光守護',stardragon:'星河探險',flowerfairy:'花粉魔法',
+ cat:'暖心呼嚕',snowbunny:'冰晶跳躍',redpanda:'竹葉旋舞',
+ dolphin:'海浪嬉戲',phoenix:'微光重生'
+};
+const MOOD_ICONS={happy:'✨',play:'🎶',comfort:'💗',pet:'💕',rest:'💤'};
+function setCreatureMood(mood){
+ const wrap=$('canvasWrap'),sticker=$('moodSticker');
+ if(!wrap||!sticker)return;
+ clearTimeout(moodTimer);clearTimeout(restTimer);
+ for(const type of Object.keys(MOOD_ICONS))wrap.classList.remove('mood-'+type);
+ creatureMood=mood;
+ sticker.hidden=mood==='idle';
+ if(mood!=='idle'){
+  wrap.classList.add('mood-'+mood);
+  sticker.textContent=MOOD_ICONS[mood]||'✨';
+ }
+ // No permanent animation timers: rest is a one-shot state until interaction.
+ if(mood==='idle')restTimer=setTimeout(()=>{if(!document.hidden&&!evolving)setCreatureMood('rest');},18000);
+ else if(mood!=='rest')moodTimer=setTimeout(()=>setCreatureMood('idle'),2300);
+}
+function showReaction(text){
  const bubble=$('reactBubble');if(!bubble)return;
- bubble.textContent=REACT_LINES[line]||REACT_LINES.egg;
+ bubble.textContent=text;
  bubble.hidden=false;
  bubble.classList.remove('show');void bubble.offsetWidth;bubble.classList.add('show');
  clearTimeout(reactTimer);
  reactTimer=setTimeout(()=>{bubble.classList.remove('show');bubble.hidden=true;},2000);
+}
+function reactToChat(){
+ bounceCanvas();
+ burstStars(5);
+ const mood=lastChatSignal&&lastChatSignal.mood<-.3?'comfort':
+  lastChatSignal&&lastChatSignal.mood>.3?'happy':
+  state.creature.sentences%2?'play':'happy';
+ setCreatureMood(mood);
+ const line=state.creature.line||'egg';
+ showReaction(REACT_LINES[line]||REACT_LINES.egg);
 }
 // v1.2: tap the creature to pet it — a bounce and a heart floating up
 // from where you tapped. No energy, just for fun. Works while the final
@@ -180,6 +220,9 @@ function petCreature(ev){
  const wrap=$('canvasWrap');if(!wrap||!ev)return;
  if(ev.target&&ev.target.closest&&ev.target.closest('button'))return;
  bounceCanvas();
+ setCreatureMood('pet');
+ const line=state.creature.line||'egg';
+ showReaction(PET_LINES[line]||PET_LINES.egg);
  const rect=wrap.getBoundingClientRect?wrap.getBoundingClientRect():{left:0,top:0,width:390,height:600};
  const w=rect.width||390,h=rect.height||600;
  const x=clamp(((ev.clientX-(rect.left||0))/w)*100,4,96);
@@ -282,6 +325,21 @@ function updateUI(){
   (can?'能量集滿了！親手按下按鈕，看看 8 種生物會孵出哪一隻。':c.sentences===1?'再聊 1 句，牠就要破殼了！':'點下面的話題，聊兩句就能孵出第一隻。'):
   cost===null?'牠會一直在這裡陪你。每天聊一句都有一份首聊禮物；想養下一隻時再決定。':
   '進化要 '+cost+' 能量，聊一句 +1，能量夠了按下去就進化。每次進化都有禮物！';
+ const storyTitle=$('growthStoryTitle'),storyDetail=$('growthStoryDetail');
+ if(storyTitle&&storyDetail){
+  const who=c.line&&CRE.CREATURE_LINES[c.line]?CRE.CREATURE_LINES[c.line].name:'神秘生物';
+  const skill=CREATURE_SKILLS[c.line]||'神奇力量';
+  const moments=[
+   ['🥚 神秘蛋 · 準備孵化','收集兩點能量，按下孵化才會揭曉物種。'],
+   ['🌱 第一次相遇 · '+who,'牠從蛋裡探出頭，還收到了第一份成長禮物。'],
+   ['✨ 解鎖專屬能力 · '+skill,who+'的'+skill+'醒來了！'],
+   ['🌟 發光成長 · '+who,skill+'變得更耀眼，距離完全體只差一步。'],
+   ['🎉 完全體 · '+who,'牠留在收藏裡，今天也能陪牠玩；想養第二隻再按下方按鈕。']
+  ];
+  storyTitle.textContent=moments[c.stage][0];
+  storyDetail.textContent=moments[c.stage][1];
+ }
+ $('canvasWrap').classList.toggle('mature-glow',c.stage>=3);
  const next=$('nextBtn');
  if(next)next.hidden=c.stage!==4;
  const hatchGuide=$('hatchGuide');
@@ -471,6 +529,7 @@ function doEvolve(rand){
  wrap.classList.add('evolving');
  if(res.completed)wrap.classList.add('evolving-complete');
  burstStars(10);
+ setCreatureMood('happy');
  if(res.completed){
   const line=CRE.CREATURE_LINES[res.line];
   cueSurprise({emoji:line.icon,title:'🎉 '+line.name+' 完全體誕生了！',detail:'牠住進了你的圖鑑！你可以繼續陪伴牠、每天聊一句拿禮物，也能自行選擇養下一隻。🎁 禮物 +2！'});
@@ -481,7 +540,10 @@ function doEvolve(rand){
   popToast('🎁 禮物 +1！');
  }else{
   const line=CRE.CREATURE_LINES[res.line];
-  cueSurprise({emoji:line.icon,title:'✨ 進化！'+line.name+' 長大了！',detail:'階段：'+STAGE_NAMES[res.stage]+'。'});
+  const skill=CREATURE_SKILLS[res.line];
+  cueSurprise(res.stage===2?
+   {emoji:line.icon,title:'✨ '+line.name+'解鎖'+skill+'！',detail:'牠有自己的新本領了！🎁 禮物 +1！'}:
+   {emoji:line.icon,title:'🌟 '+line.name+'的力量變亮了！',detail:skill+'正在成長，下一次進化就能成為完全體。🎁 禮物 +1！'});
   popToast('🎁 禮物 +1！');
  }
  updateUI();draw(0);
@@ -501,6 +563,7 @@ function doStartNext(){
  if(state.creature.stage!==4)return false;
  return afterVoiceStops(()=>{
   CRE.startNewCreature(state);
+  setCreatureMood('idle');
   writeState();
   resetChat('Zoe','新的蛋來了！聊聊天，蒐集能量，把牠孵出來。');
   updateUI();draw(0);
@@ -549,7 +612,8 @@ function finishTurn(daily,remembered){
 function recordVoiceTurn(input){
  // Use speech only to select an existing topic. The lab never copies the
  // transcript, the real Zoe reply, or an excerpt into either storage key.
- const topic=classify(input.slice(0,1600)).topic;
+ lastChatSignal=classify(input.slice(0,1600));
+ const topic=lastChatSignal.topic;
  const daily=growFromTurn(topic);
  let remembered='';
  if(state.creature.stage===4){
@@ -567,6 +631,7 @@ function postMessage(raw,careChoice){
  const idx=careChoice===0||careChoice===1?careChoice:null;
  appendMessage('me',text);
  const signal=classify(text);
+ lastChatSignal=signal;
  if(isFinal&&idx!==null)signal.topic=info.topic;
  const daily=growFromTurn(signal.topic);
  const turn=state.creature.sentences;
@@ -591,11 +656,15 @@ function resetChat(who,text){
  appendMessage(who,text);
 }
 function resetLab(){
- if(window.confirm&&!window.confirm('確定重新開始？已養成的生物和能量都會清除。'))return false;
+ if(typeof window.confirm!=='function')return false;
+ if(!window.confirm('這會永久刪除所有已養成生物、禮物、能量與聊天紀錄，無法復原。確定要清除嗎？'))return false;
+ if(!window.confirm('最後確認：真的要清空這台裝置的整個生物實驗室嗎？'))return false;
  return afterVoiceStops(()=>{
   state=CRE.empty();
+  setCreatureMood('idle');
   writeState();
   resetChat('Zoe','新的蛋來了！聊聊天，蒐集能量，把牠孵出來。');
+  $('labSettings').open=false;
   updateUI();draw(0);
   return true;
  });
@@ -694,6 +763,7 @@ function init(){
  if(state.creature.line)CRE.preloadArt(state.creature.line);
  else CRE.preloadArt('moonfox');
  draw(0);updateUI();
+ setCreatureMood('idle');
  restoreChat();
  waitForArt();
  $('chatForm').addEventListener('submit',ev=>{ev.preventDefault();const input=$('chatInput');
@@ -712,9 +782,20 @@ function init(){
   const target=ev.target.closest?.('button[data-say]');
   if(target)postMessage(target.dataset.say);
  });
+ $('ideaToggle').addEventListener('click',()=>{
+  topicsExpanded=!topicsExpanded;
+  $('ideaChips').classList.toggle('expanded',topicsExpanded);
+  $('ideaToggle').setAttribute('aria-expanded',String(topicsExpanded));
+  $('ideaToggle').textContent=topicsExpanded?'收合話題 ▴':'更多話題 ▾';
+ });
  $('evolveBtn').addEventListener('click',doEvolve);
  $('nextBtn').addEventListener('click',doStartNext);
  $('canvasWrap').addEventListener('click',petCreature);
+ $('petBtn').addEventListener('click',ev=>{
+  if(ev&&ev.stopPropagation)ev.stopPropagation();
+  const r=$('canvasWrap').getBoundingClientRect();
+  petCreature({target:null,clientX:(r.left||0)+r.width*.5,clientY:(r.top||0)+r.height*.55});
+ });
  $('hatchBtn').addEventListener('click',askHatch);
  $('giftBtn').addEventListener('click',openGiftModal);
  $('giftOpenBtn').addEventListener('click',doOpenGift);
@@ -769,6 +850,8 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
   eggList:()=>{askHatch();return $('eggList').innerHTML;},
   reactBubble:()=>({text:$('reactBubble').textContent,hidden:$('reactBubble').hidden}),
   pet:(x,y)=>petCreature({target:{closest:()=>null},clientX:x===undefined?195:x,clientY:y===undefined?200:y}),
+  mood:()=>creatureMood,rest:()=>setCreatureMood('rest'),
+  skill:id=>CREATURE_SKILLS[id],topicsExpanded:()=>topicsExpanded,
   evolving:()=>evolving,
   giftOpening:()=>giftOpening,
   allTopics:Object.keys(TOPICS)
@@ -776,3 +859,4 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
 }
 init();
 })();
+

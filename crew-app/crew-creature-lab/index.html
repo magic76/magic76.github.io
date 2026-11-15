@@ -38,7 +38,8 @@
         <span class="creature-art-version" id="creatureArtVersion">✨ Creature V1</span>
         <button id="quickSave" class="quick-save" type="button" aria-label="下載目前生物的 PNG 圖片" title="下載生物圖片 PNG"> <span aria-hidden="true">↓</span> 下載 PNG</button>
         <span class="floating-note" id="growthToast" aria-live="polite"></span>
-        <span class="react-bubble" id="reactBubble" hidden></span>
+        <span class="react-bubble" id="reactBubble" role="status" aria-live="polite" hidden></span>
+        <span id="moodSticker" class="mood-sticker" aria-hidden="true" hidden>✨</span>
         <span class="ground-label" id="creatureSubtitle">從第一句開始，蒐集能量，準備孵化。</span>
       </div>
       <div class="energy-panel" aria-label="能量與進化">
@@ -61,6 +62,10 @@
         <button id="nextBtn" class="evolve-btn next-btn" type="button" hidden>🥚 開始養下一隻</button>
         <p class="evolve-hint" id="evolveHint">進化要 2 能量，聊一句 +1，能量夠了按下去就進化。每次進化都有禮物！</p>
         <button id="openVoice" class="voice-open-btn" aria-expanded="false" aria-controls="voicePanel" type="button" hidden>和 Zoe 語音聊天</button>
+        <div class="growth-story" id="growthStory" aria-label="生物成長故事">
+          <strong id="growthStoryTitle">🥚 神秘蛋 · 準備孵化</strong>
+          <span id="growthStoryDetail">收集兩點能量後，由你親手孵出牠。</span>
+        </div>
       </div>
       <div class="surprise-moment" id="surpriseMoment" role="status" aria-live="polite" hidden>
         <span class="surprise-icon" id="surpriseIcon" aria-hidden="true">🥚</span>
@@ -68,18 +73,25 @@
         <span id="surpriseDetail">生物正在進化</span>
       </div>
       <div class="creature-actions">
+        <button id="petBtn" class="action-btn pet-action" type="button">💕 摸摸牠</button>
         <button id="hatchBtn" class="action-btn" type="button" hidden>🥚 換一顆蛋</button>
-        <button id="saveBtn" class="action-btn" type="button">↓ 存圖片</button>
         <button id="giftBtn" class="action-btn gift-btn" type="button" disabled>🎁 禮物 ×0</button>
-        <button id="resetBtn" class="action-btn" type="button">↻ 重新開始</button>
       </div>
+      <details class="lab-settings" id="labSettings">
+        <summary>更多操作與資料設定</summary>
+        <div class="lab-settings-actions">
+          <button id="saveBtn" class="action-btn" type="button">↓ 儲存生物明信片</button>
+          <button id="resetBtn" class="action-btn danger-action" type="button">清除所有遊戲資料</button>
+        </div>
+        <p>清除會永久移除本機的能量、生物圖鑑、禮物與聊天紀錄；想養下一隻請使用完全體的「開始養下一隻」。</p>
+      </details>
       <div class="micro-help" id="growthHint">隨便聊聊就能蒐集能量！第一次進化會隨機決定生物，圖鑑可以查看各種出現機率。</div>
     </section>
     <section class="chat-panel" id="localChatPanel" aria-label="和 Zoe 本地文字聊天">
       <div class="chat-top"><div class="avatar">Z</div><div class="chat-head"><strong>Zoe</strong><span>陪你聊天、陪生物長大</span></div><span class="local-label">本地回應</span></div>
       <div class="messages" id="messages" role="log" aria-live="polite" aria-label="你和 Zoe 的聊天紀錄"><div class="message zoe"><span class="sender">Zoe</span><p>來！我們孵一顆蛋 🥚<br>聊聊天，蒐集能量，看看牠會變成誰？</p></div></div>
       <div class="chat-bottom">
-        <div class="idea-title">不知道聊什麼？點一個試試</div>
+        <div class="idea-title"><span>不知道聊什麼？點一個試試</span><button id="ideaToggle" type="button" aria-expanded="false" aria-controls="ideaChips">更多話題 <span aria-hidden="true">▾</span></button></div>
         <div class="idea-chips" id="ideaChips">
           <button data-say="我昨天夢到在月亮上散步，超美的！" type="button">🌙 月亮夢境</button>
           <button data-say="如果我們一起去宇宙旅行，會看到什麼？" type="button">🚀 宇宙冒險</button>
@@ -149,3 +161,4 @@
 </main>
 </body>
 </html>
+
