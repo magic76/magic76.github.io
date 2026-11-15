@@ -40,7 +40,8 @@ test("Telegram is sent once after committed D1 feedback with only safe metadata"
  try{
   const response=await api.onRequestPost({request:request(),env:config(db),waitUntil:task=>jobs.push(task)});
   assert.equal(response.status,201);
-  assert.deepEqual(await response.json(),{ok:true,reference:"FB-201"});
+  const receipt=await response.json();
+  assert.deepEqual(receipt,{ok:true,reference:"FB-201"});
   assert.equal(db.rows.length,1);
   assert.equal(jobs.length,1);
   await Promise.all(jobs);
@@ -58,7 +59,7 @@ test("Telegram is sent once after committed D1 feedback with only safe metadata"
   assert.ok(!sent.text.includes(payload.message));
   assert.ok(!sent.text.includes(payload.contact));
   assert.ok(!sent.text.includes(payload.page));
-  assert.ok(!JSON.stringify(await response.json()).includes(token));
+  assert.ok(!JSON.stringify(receipt).includes(token));
  }finally{globalThis.fetch=old}
 });
 test("missing/invalid secrets or absent waitUntil never call Telegram and never block D1",async()=>{
