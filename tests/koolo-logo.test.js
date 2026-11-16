@@ -36,11 +36,12 @@ test("all headers keep 44px tappable brand and the <=410px teacher suffix stays 
  assert.match(shared,/a\.app-brand\{min-height:44px;/);
  assert.match(shared,/\.app-wordmark\{[^}]*height:31px/);
  assert.match(menu,/@media\(max-width:410px\)/);
- assert.match(menu,/\.app-header \.app-wordmark\{width:80px;height:24px\}/);
+ assert.match(shared,/@media\(max-width:767px\)\{\s*\.app-header \.inner\{height:52px\}\s*\.app-header \.app-wordmark\{width:88px;height:26px\}\s*\}/);
+ assert.doesNotMatch(menu,/\.app-header \.app-wordmark\{/);
  assert.doesNotMatch(menu,/\.app-header \.app-title strong\{[^}]*max-width:76px/);
  assert.doesNotMatch(menu,/\.app-header \.app-title strong\{[^}]*text-overflow:ellipsis/);
  assert.match(menu,/\.app-header \.app-title strong\{font-size:12px;white-space:normal\}/);
- assert.match(mobile,/\.app-header \.app-wordmark\{width:100px;height:30px\}/);
+ assert.doesNotMatch(mobile,/\.app-header \.(?:inner|app-wordmark)\{/);
  assert.match(mobile,/\.app-header \.app-title\{display:none\}/);
  assert.doesNotMatch(mobile,/\.app-header \.app-title strong\{font-size:23px/);
  // No new sub-12px text was introduced by brand-related CSS declarations.
