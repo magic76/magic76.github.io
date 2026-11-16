@@ -50,3 +50,10 @@
 .daily-quote-action--updated{border-color:#9471be;background:#f1e6ff;color:#472e67;box-shadow:inset 0 0 0 1px #b59ad6}
 .daily-quote--desktop .daily-quote-updated{background:#f1defa;color:#342041}
 .daily-quote--desktop .daily-quote-action--updated{background:#f1defa;border-color:#f1defa;color:#342041}
+
+/* Mobile: daily fortune precedes shortcuts, with tight but readable spacing. */
+@media(max-width:767px){
+ .daily-quote--mobile{margin-top:10px}
+ .daily-quote--mobile .daily-quote-card{padding:7px 10px;gap:2px}
+ .daily-quote--mobile .daily-quote-body{gap:1px}
+}
