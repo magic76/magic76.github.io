@@ -24,6 +24,112 @@ check("Cloudflare build uses clean React routes and avoids a 404 SPA fallback bl
  const settings=fs.readFileSync(path.join(ROOT,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
  assert.ok(settings.includes("<BuildVersion/>"),"BuildVersion must be rendered within Settings");
 });
+check("Pages nearest 404 isolates missing hashed bundles while keeping SPA deep links",()=>{
+ const notFoundPath="assets/build/404.html";
+ const notFoundFile=path.join(DIST,notFoundPath);
+ assert.ok(fs.existsSync(notFoundFile),"build must emit the nested Pages 404 page");
+ assert.ok(!fs.existsSync(path.join(DIST,"404.html")),"top-level 404 would disable SPA fallback");
+ assert.ok(!fs.existsSync(path.join(DIST,"assets","404.html")),"unversioned images must retain SPA fallback");
+ assert.ok(fs.statSync(notFoundFile).size>0&&fs.statSync(notFoundFile).size<2048,"asset 404 must stay tiny");
+ const notFound=read(notFoundPath);
+ assert.match(notFound,/<title>404<\/title>/);
+ assert.doesNotMatch(notFound,/<script\b|<link\b|\/assets\/|\bmodule\b|\.js\b|\.css\b/i,"404 must not load any app assets");
+ const index=read("index.html");
+ assert.notEqual(notFound,index,"nested 404 must not be the SPA index");
+
+ // Pages merges ALL matching _headers blocks in file order. `! Cache-Control`
+ // removes prior matches; a later Cache-Control then replaces immutable.
+ function userCacheControl(requestPath){
+  let values=[];
+  for(const block of read("_headers").split(/\r?\n\s*\r?\n/)){
+   const lines=block.split(/\r?\n/).map(line=>line.trim()).filter(line=>line&&!line.startsWith("#"));
+   if(!lines.length)continue;
+   const [pattern,...directives]=lines;
+   if(!pattern.startsWith("/"))continue; // Preview-host rules do not match www.
+   const match=new RegExp("^"+pattern.split("*").map(part=>part.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join(".*")+"$");
+   if(!match.test(requestPath))continue;
+   for(const directive of directives){
+    if(/^!\s+Cache-Control$/i.test(directive))values=[];
+    const set=directive.match(/^Cache-Control:\s*(.+)$/i);
+    if(set)values.push(set[1]);
+   }
+  }
+  return values.join(", ");
+ }
+ // Pure-node emulation of OSS Pages handler.ts: exact asset first, nearest
+ // ancestor 404.html next, root /index.html SPA fallback only if none exists.
+ // The real handler additionally redirects /404.html to extensionless /404.
+ function pagesLookup(requestPath){
+  assert.match(requestPath,/^\/[a-zA-Z0-9/_\-.]+$/);
+  assert.ok(!requestPath.includes(".."));
+  let asset=requestPath.slice(1),status=200;
+  if(fs.existsSync(path.join(DIST,asset))&&fs.statSync(path.join(DIST,asset)).isFile()){
+   // Exact file.
+  }else if(fs.existsSync(path.join(DIST,asset+".html"))){
+   asset+=".html"; // Extensionless HTML alias.
+  }else{
+   let cwd=requestPath,nearest=null;
+   while(cwd){
+    cwd=cwd.slice(0,cwd.lastIndexOf("/"));
+    const candidate=path.posix.join(cwd,"404.html").replace(/^\//,"");
+    if(fs.existsSync(path.join(DIST,candidate))){nearest=candidate;break;}
+   }
+   if(nearest){status=404;asset=nearest;}
+   else asset="index.html";
+  }
+  // OSS attachHeaders() strips ALL user cache-control on a 404 and sets no-store.
+  const cacheControl=status===404?"no-store":userCacheControl(requestPath);
+  return {status,asset,body:fs.readFileSync(path.join(DIST,asset)),cacheControl};
+ }
+ const missing="/assets/build/does-not-exist-123.js";
+ assert.ok(!fs.existsSync(path.join(DIST,missing.slice(1))),"missing-chunk fixture must not exist in dist");
+ assert.match(userCacheControl(missing),/immutable/,"missing build URLs do match the broad immutable rule before 404 stripping");
+ const fail=pagesLookup(missing);
+ assert.equal(fail.status,404);
+ assert.equal(fail.asset,notFoundPath);
+ assert.equal(fail.body.toString(),notFound);
+ assert.notEqual(fail.body.toString(),index);
+ assert.equal(fail.cacheControl,"no-store","404 must strip immutable, even though its URL matches the wildcard");
+
+ const hashed=index.match(/src="\/(assets\/build\/[^"/]+-[^"/]+\.js)"/);
+ assert.ok(hashed,"must find a real fingerprinted entry script");
+ const real=pagesLookup("/"+hashed[1]);
+ assert.equal(real.status,200);
+ assert.equal(real.asset,hashed[1]);
+ assert.ok(real.body.equals(fs.readFileSync(path.join(DIST,hashed[1]))));
+ assert.equal(real.cacheControl,"public, max-age=31536000, immutable");
+
+ // Some deep links have a generated .html SPA shell (e.g. teacher/roles).
+ // Others rely on the root index.html. Neither may become the nested 404.
+ assert.ok(!fs.existsSync(path.join(DIST,"story/read/x.html")),"story/read/x must exercise the true SPA fallback");
+ for(const route of ["/teacher/roles","/story/read/x"]){
+  const deep=pagesLookup(route);
+  assert.equal(deep.status,200,route);
+  assert.notEqual(deep.asset,notFoundPath,route);
+  assert.notEqual(deep.body.toString(),notFound,route);
+  const htmlAlias=route.slice(1)+".html";
+  const expectedAsset=fs.existsSync(path.join(DIST,htmlAlias))?htmlAlias:"index.html";
+  assert.equal(deep.asset,expectedAsset,route);
+  assert.ok(deep.body.equals(fs.readFileSync(path.join(DIST,expectedAsset))),route);
+ }
+ const missingPhoto="/assets/does-not-exist-character-123.webp";
+ assert.ok(!fs.existsSync(path.join(DIST,missingPhoto.slice(1))));
+ const photo=pagesLookup(missingPhoto);
+ assert.equal(photo.status,200,"unversioned missing photos still SPA-fallback today");
+ assert.equal(photo.asset,"index.html");
+ assert.doesNotMatch(photo.cacheControl,/immutable/);
+
+ // Direct requests to the 404 HTML are NOT 404-status responses: Pages can
+ // redirect /404.html to /404 and serve its HTML as a normal 200 asset.
+ for(const url of ["/assets/build/404.html","/assets/build/404"]){
+  assert.equal(userCacheControl(url),"no-store",url+" must detach immutable before setting no-store");
+ }
+ const direct=pagesLookup("/assets/build/404");
+ assert.equal(direct.status,200);
+ assert.equal(direct.asset,notFoundPath);
+ assert.equal(direct.cacheControl,"no-store");
+});
+
 check("twelve static SEO entry points boot the same functional React bundle",()=>{
  const root=read("index.html");
  const script=root.match(/<script[^>]*src="(\/assets\/[^"]+\.js)"/);

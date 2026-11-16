@@ -460,6 +460,18 @@ writeFileSync(join(oldPath,"index.html"),`<!doctype html>
 })();
 </script></body></html>`);
 if(existsSync(join(out,"404.html")))rmSync(join(out,"404.html"));
+// Pages' asset handler looks upwards for the nearest 404.html before falling
+// back to /index.html. Scope this 404 to hashed assets; keep SPA deep links.
+// On a 404 Pages strips user Cache-Control and sends no-store. Keep this HTML
+// headless so the PWA head injection below does not add app asset references.
+const buildAssetsDir=join(out,"assets","build");
+if(!existsSync(buildAssetsDir))throw Error("Missing Vite build assets directory: "+buildAssetsDir);
+const buildNotFound=join(buildAssetsDir,"404.html");
+const buildNotFoundHtml='<!doctype html><html lang="en"><meta name="robots" content="noindex"><title>404</title><body>Not Found</body></html>\n';
+writeFileSync(buildNotFound,buildNotFoundHtml,{flag:"wx"});
+if(readFileSync(buildNotFound,"utf8")!==buildNotFoundHtml||existsSync(join(out,"404.html"))){
+ throw Error("Cloudflare build 404 must exist only at dist/assets/build/404.html");
+}
 console.log("Prepared Cloudflare Pages: "+(12+GAME_SEO_SLUGS.length*2+guides.size)+" public SSG routes and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), private route noindex shells, no runtime SSR.");
 
 // Crew PWA metadata for every entry point, including SSG, private deep links,
