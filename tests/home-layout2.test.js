@@ -78,9 +78,7 @@ test("Last friend resumes in the first mobile slide and desktop without removing
  assert.match(mobile,/resumeFriend\?\.avatar\|\|zoePhoto/);
  assert.match(mobile,/textDestination=resumeId\?"\/friend\/live\?id="\+encodeURIComponent\(resumeId\)/);
  assert.doesNotMatch(mobile,/className="cmh-other-resume"/);
- assert.match(mobile,/PREVIEW_HIDDEN_KEY/);
- assert.match(mobile,/setPreviewHidden\(next\)/);
- assert.match(mobile,/className="cmh-preview-eye"/);
+ assert.doesNotMatch(mobile,/PREVIEW_HIDDEN_KEY|setPreviewHidden|className="cmh-preview-eye"/);
  assert.match(desktop,/readLatestFriendResume\(\)/);
  assert.match(desktop,/const canResume=Boolean\(resumeId&&!selectedPost/);
  assert.match(desktop,/\(!deepLink.friend\|\|deepLink.friend===resumeId\)/);

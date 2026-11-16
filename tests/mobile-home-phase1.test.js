@@ -26,9 +26,7 @@ test("mobile hero uses last completed friend resume with a Zoe-only first-visit 
  assert.match(page,/resumeFriend\?resume:null/);
  assert.match(page,/resumeFriend\?\.avatar\|\|zoePhoto/);
  assert.match(page,/friendResume\?t\("layout2.resumeTitle",\{name:resumeFriend!/);
- assert.match(page,/formatResumePreview\(friendResume.preview,26\)/);
- assert.match(page,/PREVIEW_HIDDEN_KEY/);
- assert.match(page,/setPreviewHidden\(next\)/);
+ assert.doesNotMatch(page,/cmh-resume-preview-row|PREVIEW_HIDDEN_KEY|setPreviewHidden/);
  assert.doesNotMatch(page,/cmh-other-resume/);
  assert.match(resume,/messages\.at\(-1\)\?\.role!=="assistant"/);
  assert.match(page,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=home&chat=text"/);

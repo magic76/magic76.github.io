@@ -333,36 +333,23 @@
  .cmh-free-allowance{font-size:12px;line-height:1.45;text-align:center;font-weight:600;color:#56465d;margin:0;max-width:100%;overflow-wrap:anywhere;text-wrap:balance}
 }
 
-/* Return banner: full-width single-line preview above CTAs; stickers stay on first visits only. */
+/* Returning members keep the last friend and quick actions, without old transcript text. */
 @media(max-width:767px){
  .cmh-zoe-return .cmh-chat-pop{display:none!important}
- .cmh-resume-preview-row{position:absolute;z-index:8;left:14px;right:14px;bottom:62px;
-  display:flex;align-items:center;gap:5px;min-height:44px;padding-left:10px;
-  border-radius:12px;background:#3d263bdb;color:#fff;box-shadow:0 1px 0 #ffffff35 inset}
- .cmh-resume-preview-row .cmh-zoe-preview{display:block;flex:1;min-width:0;max-width:none;margin:0;
-  font-size:12px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  overflow-wrap:normal;word-break:normal;-webkit-line-clamp:unset;line-clamp:unset;color:#fff}
- .cmh-resume-preview-row .cmh-preview-label{font-weight:800;color:#fff}
- .cmh-preview-eye{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;
-  padding:10px;border:0;border-left:1px solid #ffffff55;border-radius:0 12px 12px 0;
-  background:#ffffff18;color:#fff;cursor:pointer}
- .cmh-preview-eye svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.8;fill:none}
 }
-@media(max-width:380px){.cmh-resume-preview-row{left:12px;right:12px;bottom:60px}}
 
 /* First-screen edition: the hero is a clear chat entry, not a full-screen poster.
-   All four slides retain 44px actions; returning users still get a 44px preview row. */
+   All four slides retain 44px actions and return to the last friend. */
 @media(max-width:767px){
- .cmh-slide{height:210px;min-height:210px;padding:12px 14px 10px}
+ .cmh-slide{height:180px;min-height:180px;padding:10px 14px 9px}
  .cmh-slide .cmh-slide-copy{padding-top:2px}
  .cmh-slide .cmh-slide-copy h1{font-size:22px!important;margin:5px 0 4px}
  .cmh-slide .cmh-slide-copy h2,.cmh-slide-friends .cmh-slide-copy h2{font-size:21px!important;margin:5px 0 4px}
- .cmh-scene{scale:.65;right:4px;top:1px}
+ .cmh-scene{scale:.57;right:4px;top:1px}
  .cmh-zoe-scene{right:3px;top:1px}
  .cmh-friends-art,.cmh-game-art,.cmh-learn-art{right:4px;top:1px}
- .cmh-resume-preview-row{bottom:59px}
 }
 @media(max-width:380px){
- .cmh-slide{height:208px;min-height:208px;padding:11px 12px 10px}
- .cmh-scene{scale:.6;right:3px;top:1px}
+ .cmh-slide{height:176px;min-height:176px;padding:10px 12px 9px}
+ .cmh-scene{scale:.53;right:3px;top:1px}
 }

@@ -7,7 +7,6 @@ import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import type {ShortFeed} from "../teacher/shortsFeed";
 import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscript";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
-import {formatResumePreview} from "./formatResumePreview";
 import {GuideHub} from "../guides/GuideHub";
 import {useClientReady} from "../lib/useClientReady";
 import {DailyTopicCards} from "./DailyTopicCards";
@@ -23,7 +22,6 @@ import "./mobileHomeHeroV3.css";
 
 const ZOE_TEXT="/friend/live?id=zoe&from=home&chat=text";
 const ZOE_VOICE="/friend/live?id=zoe&from=home&entry=bubble";
-const PREVIEW_HIDDEN_KEY="crew_home_hide_message_preview_v1";
 const GAMES=["1a2b","connect4","reversi"] as const;
 const SLIDES=["zoe","friends","game","learn"] as const;
 const CAROUSEL_INTERVAL_MS=11000;
@@ -48,7 +46,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  const zh=i18n.language.startsWith("zh");
  const copy=(z:string,e:string)=>zh?z:e;
  const [resume,setResume]=useState<FriendResume|null>(null);
- const [previewHidden,setPreviewHidden]=useState(false);
  const [featured,setFeatured]=useState<(typeof GAMES)[number]>("1a2b");
  const [activeSlide,setActiveSlide]=useState(0);
  const [carouselPaused,setCarouselPaused]=useState(false);
@@ -57,7 +54,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  const ignoreSwipeClick=useRef(false);
  useEffect(()=>{
   setResume(readLatestFriendResume());
-  try{setPreviewHidden(localStorage.getItem(PREVIEW_HIDDEN_KEY)==="1")}catch{/* Optional privacy choice. */}
   const taipeiDay=Math.floor((Date.now()+8*60*60*1000)/86400000);
   setFeatured(GAMES[taipeiDay%GAMES.length]);
  },[]);
@@ -102,10 +98,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  const resumeId=friendResume?.friendId;
  const textDestination=resumeId?"/friend/live?id="+encodeURIComponent(resumeId)+"&from=home&chat=text":ZOE_TEXT;
  const voiceDestination=resumeId?"/friend/live?id="+encodeURIComponent(resumeId)+"&from=home&entry=bubble":ZOE_VOICE;
- const togglePreview=()=>{
-  const next=!previewHidden;setPreviewHidden(next);
-  try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0")}catch{/* Optional privacy choice. */}
- };
  const track=(detail:App["event"])=>trackUsageEvent("home_entry_click",detail);
  const todayLink="/games/"+featured;
  return <div className="crew-mobile-home">
@@ -138,15 +130,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
        <span className="cmh-chat-pop cmh-chat-pop-last">{copy("聊聊？","Talk?")} <span aria-hidden="true">♥</span></span>
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
-      {friendResume&&<div className="cmh-resume-preview-row">
-       <p className="cmh-zoe-preview" title={previewHidden?undefined:formatResumePreview(friendResume.preview)}>
-        {previewHidden?t("layout2.previewHidden"):<><span className="cmh-preview-label">{t("layout2.previewLabel")}</span> {formatResumePreview(friendResume.preview,26)}</>}
-       </p>
-       <button type="button" tabIndex={activeSlide===0?0:-1} className="cmh-preview-eye" onClick={togglePreview}
-        aria-label={t(previewHidden?"layout2.showPreview":"layout2.hidePreview")} aria-pressed={previewHidden}>
-        <Icon name={previewHidden?"eye":"eye-off"}/>
-       </button>
-      </div>}
       <div className="cmh-zoe-actions">
        <Link to={textDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{friendResume?t("layout2.resumeAction"):copy("文字聊天","Text Zoe")}</Link>
        <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{copy("語音聊天","Voice")}</Link>
@@ -235,13 +218,13 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
       :t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
    </div>}
   </div>
+  <DailyTopicCards variant="mobile"/>
   <section className="cmh-apps" aria-labelledby="cmh-apps-title">
    <div className="cmh-section-heading"><h2 id="cmh-apps-title">{copy("想玩什麼？","What sounds fun?")}</h2></div>
    <div className="cmh-app-grid">{APPS.map(app=><Link to={app.to} key={app.id} className="cmh-app" onClick={()=>track(app.event)}>
     <span className={"cmh-app-icon cmh-app-"+app.id}><Icon name={app.icon}/></span><span className="cmh-app-name">{copy(app.zh,app.en)}</span>
    </Link>)}</div>
   </section>
-  <DailyTopicCards variant="mobile"/>
   <div className="cmh-shorts"><HomeShortsPreview maxPosts={8} sharedFeed={shortsFeed} sharedStatus={shortsStatus}/></div>
   {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
   <section className="cmh-seo" aria-labelledby="cmh-seo-heading">
