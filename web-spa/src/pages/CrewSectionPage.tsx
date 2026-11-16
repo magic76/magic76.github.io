@@ -16,7 +16,7 @@ import {threeMinuteSpeakingPath} from "../teacher/threeMinuteSpeaking";
 import {useClientReady} from "../lib/useClientReady";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
-import {nativeLanguageName} from "../teacher/teacherLocale";
+import {localizedNativeName} from "../teacher/teacherLocale";
 import {teacherLanguageHomeHint} from "../teacher/teacherLanguageUx";
 import {friendSpokenLanguage} from "../friends/friendLanguage";
 import "./crewExplore.css";
@@ -173,6 +173,12 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
  const teachingMode=useTeacherStore(s=>s.teachingMode);
  const learnerSpeakingLevel=useTeacherStore(s=>s.learnerSpeakingLevel);
  const setTargetLanguage=useTeacherStore(s=>s.setTargetLanguage);
+ // Keep the first hydration render aligned with the SSG default values.
+ const shownTarget=clientReady?targetLanguage:"英文",shownNative=clientReady?nativeLanguage:"zh-TW";
+ const uiLanguage=i18n.resolvedLanguage||i18n.language;
+ const shownTargetName=t("friends:languages."+shownTarget,{defaultValue:friendSpokenLanguage(shownTarget)});
+ const shownNativeName=localizedNativeName(shownNative,uiLanguage);
+ const shownHint=section==="learn"?teacherLanguageHomeHint(teachingMode,learnerSpeakingLevel,shownNativeName,shownTargetName,uiLanguage==="en",uiLanguage,key=>t("teacher:languageHint."+key,{native:shownNativeName,target:shownTargetName})):"";
  const en=i18n.language!=="zh-TW";
  const source=en?englishCopy[section]:copy[section];
  // The hero is Fortune; the remaining five cards start at Timeline.
@@ -214,12 +220,12 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     <div className="crew-learn-heading-row">
      <div className="crew-learn-heading-copy"><span className="kicker">{x.eyebrow}</span><h1>{tCommon("nav.learn")}</h1></div>
      <label className="crew-learn-language"><span>{tSettings("group.targetLanguage")}</span>
-      <select aria-label={tSettings("group.targetLanguage")} value={targetLanguage} onChange={event=>setTargetLanguage(event.target.value)}>
+      <select aria-label={tSettings("group.targetLanguage")} value={shownTarget} onChange={event=>setTargetLanguage(event.target.value)}>
        {TARGET_LANGUAGES.map(({value})=><option key={value} value={value}>{t("friends:languages."+value,{defaultValue:value})}</option>)}
       </select>
      </label>
     </div>
-     <p className="meta crew-learn-native-help" role="note">{tSettings("group.nativeLanguage")}：{nativeLanguageName(nativeLanguage)} · {tSettings("group.targetLanguage")}：{t("friends:languages."+targetLanguage,{defaultValue:friendSpokenLanguage(targetLanguage)})}。{teacherLanguageHomeHint(teachingMode,learnerSpeakingLevel,nativeLanguageName(nativeLanguage),friendSpokenLanguage(targetLanguage),i18n.resolvedLanguage==="en",i18n.resolvedLanguage||"en")}</p>
+     <p className="meta crew-learn-native-help" role="note">{tSettings("group.nativeLanguage")}：{shownNativeName} · {tSettings("group.targetLanguage")}：{shownTargetName}。{shownHint}</p>
     </>
     :section==="chat"?<h1>{x.title}</h1>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>

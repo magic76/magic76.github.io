@@ -245,7 +245,10 @@
     },
     "kicker": "Vocabulario"
   },
+  "languageHint": {"immersion":"Inmersión total: práctica y explicaciones solo en {{target}}.","base":"Puedes preguntar por significados o gramática en {{native}}. Tu profesor explica en {{native}} y da ejemplos en {{target}}. ","beginner":"Los principiantes reciben más ayuda en su idioma.","advanced":"En niveles avanzados se practica más {{target}}.","adaptive":"La ayuda se adapta a tu nivel al hablar."},
   "course": {
+    "materialNotice": "Los cursos por situaciones solo tienen material en inglés por ahora. Para practicar {{language}}, usa el chat con tu profesor; puede explicarte en {{native}}.",
+    "nonEnglishNext": "Practicar situaciones cotidianas (lecciones actuales)",
     "nextLesson": "Siguiente lección",
     "continue": "Empezar lección",
     "trackComplete": "Itinerario completado",

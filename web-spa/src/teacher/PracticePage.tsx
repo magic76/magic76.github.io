@@ -39,7 +39,7 @@ export function PracticePage(){
  const selectedFriend=encodeURIComponent((CREW_FRIENDS.find(x=>x.id===friendId)||CREW_FRIENDS[0]).id);
  return <>
  <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>{tToday("learnToday.teachersCourses")}</h1><p>{tToday("learnToday.teacherIntro")}</p></section>
- <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{target}</strong><Link to="/settings#settings-learning">{t("practice.targetChange")}</Link></section>
+ <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{t("friends:languages."+target,{defaultValue:target})}</strong><Link to="/settings#settings-learning">{t("practice.targetChange")}</Link></section>
  <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")} style={!showContinue?{gridTemplateColumns:"minmax(0,1fr)"}:undefined}>
   <Link className="crew-role-entry teacher" to="/teacher/roles?mode=teacher">
    <span className="crew-role-symbol crew-role-portrait"><TeacherAvatar profile={profile}/></span>

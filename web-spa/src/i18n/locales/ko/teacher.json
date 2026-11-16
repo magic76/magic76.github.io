@@ -245,7 +245,10 @@
     },
     "kicker": "단어 연습"
   },
+  "languageHint": {"immersion":"완전 몰입: 연습과 설명 모두 {{target}}로만 진행합니다.","base":"뜻이나 문법은 {{native}}로 질문하세요. 선생님은 {{native}}로 설명하고 {{target}}로 예시를 보여 줍니다. ","beginner":"초급 단계에서는 모국어 도움을 더 제공합니다.","advanced":"상급 단계에서는 {{target}} 연습 비중을 높입니다.","adaptive":"말하기 실력에 맞춰 지원을 조정합니다."},
   "course": {
+    "materialNotice": "상황별 강의 교재는 현재 영어로만 제공됩니다. {{language}} 연습은 선생님 채팅을 이용하세요. 설명은 {{native}}로 들을 수 있습니다.",
+    "nonEnglishNext": "생활 상황 연습 (기존 교재)",
     "nextLesson": "다음 수업",
     "continue": "수업 시작",
     "trackComplete": "과정 완료",

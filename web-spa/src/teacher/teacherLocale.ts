@@ -27,3 +27,13 @@ const REST:Partial<Record<NativeLanguage,Partial<Record<TeacherTextKey,string>>>
 };
 export function teacherText(native:NativeLanguage,key:TeacherTextKey){return REST[native]?.[key]||(native==="zh-TW"?ZH[key]:EN[key])}
 export function nativeLanguageName(value:NativeLanguage){return NATIVE_LANGUAGES.find(x=>x[0]===value)?.[1]||"English"}
+
+/** UI preference follows the actual interface locale until the learner chooses otherwise. */
+export function nativeFromUiLocale(locale:string):NativeLanguage{return detectNativeLanguage(locale)}
+/** Learner-facing labels are translated into the interface language, not prompt language. */
+export function localizedNativeName(value:NativeLanguage,locale:string):string{
+ if(locale==="zh-TW"&&value==="zh-TW")return"繁體中文";
+ if(locale==="zh-TW"&&value==="zh-CN")return"簡體中文";
+ try{return new Intl.DisplayNames([locale],{type:"language"}).of(value)||nativeLanguageName(value)}
+ catch{return nativeLanguageName(value)}
+}

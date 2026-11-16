@@ -245,7 +245,10 @@
     },
     "kicker": "Từ vựng"
   },
+  "languageHint": {"immersion":"Đắm mình hoàn toàn: chỉ luyện tập và giải thích bằng {{target}}.","base":"Bạn có thể hỏi về ý nghĩa hoặc ngữ pháp bằng {{native}}. Giáo viên giải thích bằng {{native}} và làm mẫu bằng {{target}}. ","beginner":"Người mới học được hỗ trợ bằng tiếng mẹ đẻ nhiều hơn.","advanced":"Ở trình độ cao, tăng thời lượng luyện {{target}}.","adaptive":"Hỗ trợ tự điều chỉnh theo khả năng nói của bạn."},
   "course": {
+    "materialNotice": "Các bài học tình huống hiện chỉ có tài liệu tiếng Anh. Để luyện {{language}}, hãy trò chuyện với giáo viên; giáo viên có thể giải thích bằng {{native}}.",
+    "nonEnglishNext": "Luyện tình huống hằng ngày (bài hiện có)",
     "nextLesson": "Bài học tiếp theo",
     "continue": "Bắt đầu bài học",
     "trackComplete": "Hoàn thành lộ trình",

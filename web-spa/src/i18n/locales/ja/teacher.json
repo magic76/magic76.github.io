@@ -245,7 +245,10 @@
     },
     "kicker": "単語練習"
   },
+  "languageHint": {"immersion":"完全イマージョン：練習も説明も{{target}}だけで行います。","base":"意味や文法は{{native}}で質問できます。先生は{{native}}で説明し、{{target}}で練習します。","beginner":"初心者には母語でのサポートを増やします。","advanced":"話す力に合わせて{{target}}の練習を増やします。","adaptive":"話す力に合わせて自動調整します。"},
   "course": {
+    "materialNotice": "シーン別コースの教材は現在英語のみです。{{language}}を練習するには先生とのチャットを利用してください。説明は{{native}}で受けられます。",
+    "nonEnglishNext": "場面別の会話練習（既存教材）",
     "nextLesson": "次のレッスンへ",
     "continue": "レッスン開始",
     "trackComplete": "トラック完了",

@@ -1,5 +1,5 @@
 import{create}from"zustand";import{persist}from"zustand/middleware";
-import{getTeacherProfile,type TeacherProfileId}from"../teacher/teacherProfiles";import{detectNativeLanguage,type NativeLanguage}from"../teacher/teacherLocale";
+import{getTeacherProfile,type TeacherProfileId}from"../teacher/teacherProfiles";import{nativeFromUiLocale,detectNativeLanguage,type NativeLanguage}from"../teacher/teacherLocale";import i18n from"../i18n";
 import{normalizePinyinAidMode,type PinyinAidMode}from"../teacher/pinyinAid";
 export type LiveModel="gemini-3.8-live"|"gemini-3.1-flash-live-preview";
 export const DEFAULT_LIVE_MODEL:LiveModel="gemini-3.8-live";
@@ -20,12 +20,18 @@ const explicitFriendChatMode=():FriendChatLanguageMode=>{
  return selected===null?DEFAULT_FRIEND_CHAT_LANGUAGE_MODE:normalizeFriendChatLanguageMode(selected);
 };
 const initialProfile=(read("profile","emma") as TeacherProfileId);
+// The dedicated key records a deliberate choice. Ignore legacy persisted defaults
+// when the user has never selected a mother tongue.
+const nativePreference=():NativeLanguage=>{
+ const saved=localStorage.getItem("crew_teacher_native_lang");
+ return saved===null?nativeFromUiLocale(i18n.language||detectNativeLanguage()):saved as NativeLanguage;
+};
 export const useTeacherStore=create<S>()(persist(set=>({
  friendChatMode:explicitFriendChatMode(),
  setFriendChatMode:v=>{const mode=normalizeFriendChatLanguageMode(v);write("friendChatMode",mode);set({friendChatMode:mode})},
  learnerSpeakingLevel:normalizeLearnerSpeakingLevel(read("learnerSpeakingLevel","auto")),
  setLearnerSpeakingLevel:v=>{const level=normalizeLearnerSpeakingLevel(v);write("learnerSpeakingLevel",level);set({learnerSpeakingLevel:level})},
- nativeLanguage:read("native_lang",detectNativeLanguage()) as NativeLanguage,
+ nativeLanguage:nativePreference(),
  setNativeLanguage:v=>{write("native_lang",v);set({nativeLanguage:v})},
  targetLanguage:read("lang","英文"),conversationMode:read("chatMode","natural") as ConversationMode,guidance:read("guidance","normal") as Guidance,teachingMode:read("teachingMode","bilingual") as TeachingMode,pronunciationAidMode:normalizePinyinAidMode(read("pinyinAidMode","auto")),voice:read("voice",getTeacherProfile(initialProfile).recommendedVoice),liveModel:validateLiveModel(read("liveModel",DEFAULT_LIVE_MODEL)),languageStyle:read("languageStyle","auto") as LanguageStyle,speakingPace:read("speakingPace","normal") as SpeakingPace,accentStrength:read("accentStrength","natural") as AccentStrength,customAccent:read("customAccent",""),teacherProfile:initialProfile,
  setTargetLanguage:v=>{write("lang",v);if(v!=="英文")write("languageStyle","auto");set({targetLanguage:v,...(v!=="英文"?{languageStyle:"auto" as LanguageStyle}:{})})},
@@ -43,5 +49,12 @@ export const useTeacherStore=create<S>()(persist(set=>({
 }),{
  name:"crew_teacher_spa_state",
  // Explicit friend preference wins over legacy Zustand snapshots on hydration.
- merge:(persisted,current)=>({...current,...(persisted&&typeof persisted==="object"?persisted:{}),friendChatMode:explicitFriendChatMode(),pronunciationAidMode:normalizePinyinAidMode(read("pinyinAidMode","auto"))})
+ merge:(persisted,current)=>({...current,...(persisted&&typeof persisted==="object"?persisted:{}),friendChatMode:explicitFriendChatMode(),nativeLanguage:nativePreference(),pronunciationAidMode:normalizePinyinAidMode(read("pinyinAidMode","auto"))})
 }));
+
+// A UI-language change updates only implicit defaults, never an explicit choice.
+if(typeof window!=="undefined")i18n.on("languageChanged",locale=>{
+ try{if(localStorage.getItem("crew_teacher_native_lang")===null)
+  useTeacherStore.setState({nativeLanguage:nativeFromUiLocale(locale)})}
+ catch{/* Restricted storage must not interrupt switching UI language. */}
+});

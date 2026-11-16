@@ -7,6 +7,7 @@ import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyLearningPlan,type DailyLearningPlan} from "./learningCoordinator";
 import {courseLesson} from "./courseCatalog";
 import {courseDisplayTitle} from "./courseLocale";
+import {localizedNativeName} from "./teacherLocale";
 import {getTeacherProfile} from "./teacherProfiles";
 import {TodayLearningCard} from "./TodayLearningCard";
 
@@ -17,6 +18,7 @@ export function LearningFocusCard(){
  const ready=useClientReady();
  const selectedProfile=useTeacherStore(s=>s.teacherProfile);
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
+ const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const teacher=getTeacherProfile(ready?selectedProfile:"emma");
  const [plan,setPlan]=useState<DailyLearningPlan|null>(null);
  useEffect(()=>{
@@ -30,7 +32,9 @@ export function LearningFocusCard(){
  const chinese=i18n.resolvedLanguage==="zh-TW";
  const lesson=courseLesson(plan?.nextLessonId||"");
  const lessonName=i18n.resolvedLanguage==="ja"&&lesson?courseDisplayTitle(lesson,"ja"):chinese?plan?.nextLessonTitle:plan?.nextLessonTitleEn;
- const title=plan===null?t("learnToday.loading"):
+ const otherCourse=ready&&targetLanguage!=="英文"&&plan?.action==="course";
+ const materialNote=t("teacher:course.materialNotice",{language:t("friends:languages."+targetLanguage,{defaultValue:targetLanguage}),native:localizedNativeName(nativeLanguage,i18n.resolvedLanguage||"en")});
+ const title=otherCourse?t("teacher:course.nonEnglishNext"):plan===null?t("learnToday.loading"):
   plan?.action==="review"?t("learnToday.reviewTitle"):
   plan?.action==="vocabulary"&&targetLanguage==="英文"
   ?plan.warmupVocabulary?t("learnToday.vocabulary"):t("learnToday.due",{count:plan.dueVocabulary})
@@ -44,7 +48,7 @@ export function LearningFocusCard(){
    <p>{plan===null?t("learnToday.loadingNote"):
     plan?.action==="review"?plan.reviewFocus||t("learnToday.reviewFallback"):
     plan?.action==="vocabulary"?t("learnToday.vocabularyNote"):
-    plan?.action==="course"?t("learnToday.courseNote"):
+    plan?.action==="course"?otherCourse?materialNote:t("learnToday.courseNote"):
     t("learnToday.conversationNote")}</p>
    {plan?.learnerGoal&&<p className="crew-learning-goal" title={plan.learnerGoal}><strong>{t("learnToday.goalLabel")}</strong> {plan.learnerGoal}</p>}
   </div>

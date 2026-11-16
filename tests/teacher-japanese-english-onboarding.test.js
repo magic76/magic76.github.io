@@ -29,7 +29,7 @@ test("Japanese-first visitor keeps Japanese UI, Japanese mother tongue and Engli
  const native=fromTeacher("teacherLocale.ts");
  assert.match(ui,/resolveInitialUiLocale/);
  assert.match(uiTests,/visit\("\/",\["ja-JP"\]\),"ja"/);
- assert.match(store,/detectNativeLanguage\(\)/);
+ assert.match(store,/nativeLanguage:nativePreference\(\)/);
  assert.match(store,/targetLanguage:read\("lang","英文"\)/);
  assert.match(native,/\["ja","日本語"\]/);
  assert.match(native,/v\.startsWith\(tag\)/);
@@ -104,7 +104,7 @@ test("teacher selection and study entry disclose Japanese native help without re
  assert.match(tutor,/teacherProfileDisplay\(/);
  assert.match(tutor,/t\("tutor\.speakingLevel"\)/);
  assert.match(hub,/crew-learn-native-help/);
- assert.match(hub,/nativeLanguageName\(nativeLanguage\)/);
+ assert.match(hub,/localizedNativeName\(shownNative/);
  assert.match(hub,/setTargetLanguage\(event\.target\.value\)/);
  assert.doesNotMatch(hub,/setNativeLanguage\(targetLanguage\)/);
  const ux=stripTypeScriptTypes(fromTeacher("teacherLanguageUx.ts"),{mode:"strip"}).replace(/\bexport\s+(?=function|const)/g,"");

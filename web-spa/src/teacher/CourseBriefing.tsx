@@ -2,6 +2,9 @@ import {useTranslation} from "react-i18next";
 import {Link} from "react-router-dom";
 import type {CourseLesson} from "./courseCatalog";
 import {courseDisplayTitle,courseDisplayDescription,courseDisplayMission,courseDisplayWarmupGloss} from "./courseLocale";
+import {useTeacherStore} from "../store/teacherStore";
+import {useClientReady} from "../lib/useClientReady";
+import {localizedNativeName} from "./teacherLocale";
 import "./learningFlow.css";
 
 /** UI language never changes the spoken practice target or mission evaluation. */
@@ -11,6 +14,7 @@ export function CourseBriefing({lesson}:{lesson:CourseLesson}){
  const title=courseDisplayTitle(lesson,locale);
  const warmups=lesson.warmupPhrases||[];
  const chinese=locale==="zh-TW";
+ const ready=useClientReady(),target=useTeacherStore(s=>s.targetLanguage),native=useTeacherStore(s=>s.nativeLanguage);
  return <div className="crew-learning-focus crew-course-briefing">
   <div className="crew-course-briefing-top">
    <Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(lesson.id)} aria-label={t("briefing.back")}>‹ {t("briefing.back")}</Link>
@@ -20,6 +24,7 @@ export function CourseBriefing({lesson}:{lesson:CourseLesson}){
    <span className="kicker">{t("briefing.roleplay")}</span>
    <h1 id="crew-briefing-title">{title}</h1>
    <p className="crew-course-briefing-description">{courseDisplayDescription(lesson,locale)}</p>
+   {ready&&target!=="英文"&&<p className="crew-course-language-note" role="note">{t("course.materialNotice",{language:t("friends:languages."+target,{defaultValue:target}),native:localizedNativeName(native,locale)})}</p>}
    <h2>{t("briefing.goals",{count:lesson.missions.length})}</h2>
    <ol className="crew-course-briefing-missions">
     {lesson.missions.map((mission,index)=><li key={index}>

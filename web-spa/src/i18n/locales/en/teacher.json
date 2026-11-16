@@ -245,7 +245,10 @@
     },
     "kicker": "Vocabulary"
   },
+  "languageHint": {"immersion":"Full immersion: practice and explanations stay in {{target}}.","base":"Ask about meanings, grammar or culture in {{native}}. Your teacher explains in {{native}} and models in {{target}}. ","beginner":"More native-language help at beginner levels.","advanced":"Higher levels use more {{target}}.","adaptive":"Support adapts to your speaking, automatically."},
   "course": {
+    "materialNotice": "Scenario lessons currently use English materials. To practice {{language}}, use Teacher Chat; your teacher can explain in {{native}}.",
+    "nonEnglishNext": "Real-life scenario practice (existing lessons)",
     "nextLesson": "Continue learning",
     "continue": "Start lesson",
     "trackComplete": "Track complete",

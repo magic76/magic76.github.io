@@ -245,7 +245,10 @@
     },
     "kicker": "Vocabulaire"
   },
+  "languageHint": {"immersion":"Immersion totale : pratique et explications uniquement en {{target}}.","base":"Posez vos questions de sens ou de grammaire en {{native}}. Le professeur explique en {{native}} et donne des exemples en {{target}}. ","beginner":"Les débutants reçoivent davantage d’aide dans leur langue maternelle.","advanced":"Aux niveaux avancés, la pratique se fait davantage en {{target}}.","adaptive":"L’aide s’adapte à votre aisance à l’oral."},
   "course": {
+    "materialNotice": "Les cours en situation utilisent actuellement des supports en anglais uniquement. Pour pratiquer {{language}}, discutez avec le professeur ; il peut expliquer en {{native}}.",
+    "nonEnglishNext": "Pratique en situation (cours existants)",
     "nextLesson": "Leçon suivante",
     "continue": "Commencer la leçon",
     "trackComplete": "Parcours terminé",
