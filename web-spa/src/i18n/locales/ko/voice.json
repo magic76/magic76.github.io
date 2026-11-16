@@ -268,5 +268,20 @@
       "socket": "Gemini Live WebSocket 연결이 끊어지거나 거부됐어요. 다시 시도하세요.",
       "service": "Gemini Live 텍스트 연결에 실패했어요. 다시 시도하거나 무료 연습으로 전환하세요."
     }
+  },
+  "callCaptions": {
+    "aria": "이중 언어 통화 자막",
+    "more": "추가 옵션",
+    "showTranslation": "번역 표시",
+    "hideTranslation": "번역 숨기기",
+    "translating": "번역 중…",
+    "needsKey": "Gemini 키 또는 기기 번역 기능이 필요합니다.",
+    "translateFailed": "번역을 사용할 수 없어도 통화는 계속됩니다.",
+    "waitingForFriend": "친구의 답변이 여기에 표시됩니다",
+    "recognized": "인식 완료",
+    "recognizing": "인식 중",
+    "waitingForYou": "말한 내용이 여기에 표시됩니다",
+    "callControls": "통화 제어",
+    "hangUp": "통화 종료"
   }
 }
