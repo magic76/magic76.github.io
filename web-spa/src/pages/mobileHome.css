@@ -149,3 +149,13 @@
   .cmh-app-icon{width:44px;height:44px}
  }
 }
+
+/* First-screen navigation: favor the 4x2 app grid over large decorative cards.
+   Keep every shortcut larger than the 44px minimum touch target. */
+@media(max-width:767px){
+ .cmh-section-heading{margin:10px 0 8px}
+ .cmh-app-grid{gap:8px}
+ .cmh-app{min-height:76px;gap:4px;padding:6px 3px}
+ .cmh-app-icon{width:35px;height:35px;border-radius:11px}
+ .cmh-app-icon svg{width:20px;height:20px}
+}

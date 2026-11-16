@@ -349,3 +349,20 @@
  .cmh-preview-eye svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.8;fill:none}
 }
 @media(max-width:380px){.cmh-resume-preview-row{left:12px;right:12px;bottom:60px}}
+
+/* First-screen edition: the hero is a clear chat entry, not a full-screen poster.
+   All four slides retain 44px actions; returning users still get a 44px preview row. */
+@media(max-width:767px){
+ .cmh-slide{height:210px;min-height:210px;padding:12px 14px 10px}
+ .cmh-slide .cmh-slide-copy{padding-top:2px}
+ .cmh-slide .cmh-slide-copy h1{font-size:22px!important;margin:5px 0 4px}
+ .cmh-slide .cmh-slide-copy h2,.cmh-slide-friends .cmh-slide-copy h2{font-size:21px!important;margin:5px 0 4px}
+ .cmh-scene{scale:.65;right:4px;top:1px}
+ .cmh-zoe-scene{right:3px;top:1px}
+ .cmh-friends-art,.cmh-game-art,.cmh-learn-art{right:4px;top:1px}
+ .cmh-resume-preview-row{bottom:59px}
+}
+@media(max-width:380px){
+ .cmh-slide{height:208px;min-height:208px;padding:11px 12px 10px}
+ .cmh-scene{scale:.6;right:3px;top:1px}
+}
