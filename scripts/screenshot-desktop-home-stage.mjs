@@ -76,40 +76,33 @@ function comparePNGs(aPath,bPath,diffPath){
 try{
  for(const [width,height] of [[1280,800],[1440,900],[1920,1080]]){
   const {page,context,errors}=await newPage(branch.url,width,height);
-  await page.locator(".crew-home-portal").waitFor({state:"visible"});
-  await page.locator(".crew-home-live-bubble").waitFor({state:"visible",timeout:10000});
+  await page.locator(".koolo-desktop-home").waitFor({state:"visible"});
+  await page.locator(".kdh-zoe-actions .kdh-primary").waitFor({state:"visible"});
   const m=await page.evaluate(()=>{
-   const box=sel=>document.querySelector(sel)?.getBoundingClientRect();
-   const extract=el=>el?Object.fromEntries(["left","right","top","bottom","width","height"].map(k=>[k,el[k]])):null;
-   const world=box(".crew-home-world"),content=box(".crew-home-content"),hero=box(".crew-home-portal");
-   const heading=box(".crew-home-world .crew-home-shorts-heading h2"),shorts=box(".crew-home-world .crew-home-short-card,.crew-home-world .crew-home-short-placeholder");
-   const ring=box(".crew-portal-fallback"),kicker=box(".crew-portal-kicker"),nav=box(".global-nav"),bubble=box(".crew-home-live-bubble");
-   const copy=box(".crew-portal-copy"),cta=box(".crew-portal-cta");
-   const lightPanel=box(".crew-home-search-summary");
-   return {world:extract(world),content:extract(content),hero:extract(hero),heading:extract(heading),shorts:extract(shorts),
-    ring:extract(ring),ringVisible:!!ring&&getComputedStyle(document.querySelector(".crew-portal-fallback")).display!=="none",
-    kicker:extract(kicker),nav:extract(nav),bubble:extract(bubble),copy:extract(copy),cta:extract(cta),
-    lightPanel:extract(lightPanel),overflow:document.documentElement.scrollWidth-innerWidth,
-    desktopNavCount:document.querySelectorAll(".global-nav a").length,
+   const rect=selector=>{const el=document.querySelector(selector),r=el?.getBoundingClientRect();return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null};
+   const nav=rect(".global-nav"),hero=rect(".kdh-stage"),zoe=rect(".kdh-zoe"),primary=rect(".kdh-primary"),voice=rect(".kdh-secondary");
+   const shortcuts=rect(".kdh-shortcuts"),moments=rect(".kdh-moments"),logo=rect(".app-wordmark"),language=rect(".app-header-actions");
+   return {nav,hero,zoe,primary,voice,shortcuts,moments,logo,language,
     mobileVisible:getComputedStyle(document.querySelector(".crew-mobile-home")).display!=="none",
-    worldBorder:getComputedStyle(document.querySelector(".crew-home-world")).borderRadius};
+    oldVisible:getComputedStyle(document.querySelector(".crew-home-legacy")).display!=="none",
+    desktopNavCount:document.querySelectorAll(".global-nav a").length,
+    shortcutCount:document.querySelectorAll(".kdh-shortcut").length,
+    featureCount:document.querySelectorAll(".kdh-feature").length,
+    overflow:document.documentElement.scrollWidth-innerWidth,
+    navLabels:[...document.querySelectorAll(".global-nav a")].map(a=>a.textContent.trim())};
   });
   await page.screenshot({path:join(out,width+"-first-screen.png"),fullPage:false,animations:"disabled"});
   await page.screenshot({path:join(out,width+"-full-page.png"),fullPage:true,animations:"disabled"});
   results.desktop.push({width,height,...m});
-  const fail=(why)=>{throw Error(width+" desktop QA "+why+": "+JSON.stringify(m))};
-  if(errors.length)fail("JavaScript errors: "+errors.join(";"));
-  if(m.overflow>2||!m.world||!m.hero||!m.content||m.mobileVisible)fail("layout/overflow");
-  if(m.desktopNavCount!==5)fail("desktop five nav changed");
-  if(Math.abs(m.world.left-m.content.left)>2||Math.abs(m.world.right-m.content.right)>2)fail("dark/light boundary mismatch");
-  if(!m.hero.height||m.hero.height>575||m.hero.height<460)fail("hero height not compact");
-  if(!m.kicker||m.kicker.left<m.world.left+10||m.kicker.right>m.world.right-10
-   ||m.kicker.top<m.hero.top+10||m.kicker.bottom>m.hero.bottom-10)fail("kicker clipped");
-  if(!m.nav||Math.abs(m.nav.right-m.world.left)>20)fail("rail not docked to content");
-  if(!m.bubble||m.bubble.left<m.world.right+2||m.bubble.left>m.world.right+18||m.bubble.right>width-8)fail("voice bubble must sit adjacent to frame without covering Shorts");
-  if(m.copy&&m.copy.right>m.kicker.left-10)fail("copy collides with stage/kicker");
-  if(!m.heading||width===1440&&m.heading.top>height-25)fail("Moments not visible on first desktop screen");
-  if(m.ringVisible&&m.ring&&(m.ring.left<m.world.left-3||m.ring.right>m.world.right+3))fail("halo cut off horizontally");
+  const fail=reason=>{throw Error(width+" Koolo desktop QA "+reason+": "+JSON.stringify(m))};
+  if(errors.length)fail("JavaScript errors "+errors.join(";"));
+  if(m.overflow>2||!m.hero||!m.zoe||m.mobileVisible||m.oldVisible)fail("responsive layout or horizontal overflow");
+  if(m.desktopNavCount!==5||m.featureCount!==3||m.shortcutCount!==8)fail("missing navigation or shortcut links");
+  if(!m.primary||m.primary.height<44||!m.voice||m.voice.height<44)fail("chat action touch target");
+  if(m.hero.top<55||m.hero.width<700||m.hero.height<360)fail("hero shape");
+  if(!m.nav||m.nav.top>2||m.nav.bottom>60)fail("desktop top navigation");
+  if(!m.logo||m.logo.right>m.nav.left-6||!m.language||m.nav.right>m.language.left-6)fail("top navigation overlaps brand or language controls");
+  if(!m.shortcuts||!m.moments||m.moments.top<m.shortcuts.bottom)fail("shortcuts and Moments order");
   await context.close();
  }
  for(const [width,height] of [[390,844],[360,800]]){
@@ -124,14 +117,12 @@ try{
   }
   const diff=comparePNGs(join(out,"master-"+width+"-mobile.png"),join(out,"pr-"+width+"-mobile.png"),join(out,"diff-"+width+"-mobile.png"));
   results.mobile.push({width,height,...diff});
-  // Chromium rasterizes a handful of curved edge pixels with 1–2/255
-  // channel jitter between otherwise identical builds. Reject ANY visible
-  // color change (>4/255) and raw jitter above 0.025% of the viewport.
   if(diff.materialPixels>0||diff.ratio>0.00025)
    throw Error(width+" mobile snapshot visibly differs from master: "+JSON.stringify(diff));
  }
  writeFileSync(join(out,"review-results.json"),JSON.stringify(results,null,2)+"\n");
- console.log("DESKTOP HOME QA PASS "+JSON.stringify({
-  widths:results.desktop.map(x=>({width:x.width,heroHeight:x.hero.height,shortsHeadingTop:x.heading.top,frameWidth:x.world.width})),
-  mobile:results.mobile}));
+ console.log("KO OLO DESKTOP HOME QA PASS "+JSON.stringify({
+  widths:results.desktop.map(x=>({width:x.width,heroHeight:x.hero.height,shortcuts:x.shortcutCount,navTop:x.nav.top})),
+  mobile:results.mobile
+ }));
 }finally{await close()}
