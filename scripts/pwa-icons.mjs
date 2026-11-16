@@ -3,14 +3,13 @@ import {Buffer} from "node:buffer";
 import {deflateSync,inflateSync} from "node:zlib";
 
 /*
- * Crew's PWA identity is the official Crew Teacher Android launcher image,
- * not an independently drawn mascot. Source is a byte-identical copy of
- * magic76/crew-teacher/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png.
+ * Crew's PWA icon uses the approved Koolo C artwork, rasterized at 192px.
+ * Source is byte-identical to reference/brand/koolo-icon-C-192.png.
  *
  * Generate 180/192/512 and maskable icons without extra npm dependencies.
  * The shortcut icons are drawn as real PNG pictograms, never font/emoji glyphs.
  */
-const nativeBytes=readFileSync(new URL("../web-spa/public/icons/crew-teacher-source.png",import.meta.url));
+const nativeBytes=readFileSync(new URL("../web-spa/public/icons/koolo-source.png",import.meta.url));
 const signature=Buffer.from([137,80,78,71,13,10,26,10]);
 const crcTable=Uint32Array.from({length:256},(_,index)=>{
  let value=index;
@@ -45,16 +44,16 @@ function paeth(a,b,c){
  return da<=db&&da<=dc?a:db<=dc?b:c;
 }
 function decodeNativePng(bytes){
- if(!bytes.subarray(0,8).equals(signature))throw Error("Crew Teacher logo is not PNG");
+ if(!bytes.subarray(0,8).equals(signature))throw Error("Koolo icon source is not PNG");
  let cursor=8,w=0,h=0,channels=0,interlace=0;
  const idat=[];
  while(cursor+12<=bytes.length){
   const length=bytes.readUInt32BE(cursor),type=bytes.toString("ascii",cursor+4,cursor+8);
-  if(cursor+length+12>bytes.length)throw Error("Truncated Crew Teacher PNG chunk");
+  if(cursor+length+12>bytes.length)throw Error("Truncated Koolo PNG chunk");
   const body=bytes.subarray(cursor+8,cursor+8+length);
   if(type==="IHDR"){
    w=body.readUInt32BE(0);h=body.readUInt32BE(4);
-   if(body[8]!==8||body[9]!==6||body[10]!==0||body[11]!==0)throw Error("Expected 8-bit RGBA Crew Teacher launcher PNG");
+   if(body[8]!==8||body[9]!==6||body[10]!==0||body[11]!==0)throw Error("Expected 8-bit RGBA Koolo PNG");
    interlace=body[12];channels=4;
   }
   if(type==="IDAT")idat.push(body);
@@ -93,10 +92,10 @@ function renderNative(size,maskable){
  const image=Buffer.alloc(size*size*4);
  const area=maskable?0.72:1;
  // RGB pre-multiplied bilinear resampling avoids dark fringes around the
- // alpha edges of the real Play Store / Android launcher artwork.
+ // alpha edges of the approved Koolo icon.
  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
   const i=(y*size+x)*4;
-  if(maskable){image[i]=9;image[i+1]=13;image[i+2]=22;image[i+3]=255;}
+  if(maskable){image[i]=21;image[i+1]=58;image[i+2]=53;image[i+3]=255;}
   const u=((x+.5)/size-(1-area)/2)/area;
   const v=((y+.5)/size-(1-area)/2)/area;
   if(u<0||u>=1||v<0||v>=1)continue;
@@ -121,7 +120,7 @@ function renderNative(size,maskable){
 }
 export function createCrewPwaIcon(size,maskable=false){
  if(!Number.isInteger(size)||size<16||size>1024)throw Error("Invalid PWA icon size");
- // 192px should be precisely the Android native launcher image, byte for byte.
+ // The approved 192px Koolo PNG is preserved byte for byte.
  if(size===native.width&&!maskable)return Buffer.from(nativeBytes);
  return renderNative(size,maskable);
 }

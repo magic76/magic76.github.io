@@ -717,7 +717,7 @@ test("Crew home no longer embeds Briefing but keeps its route distinct",()=>{
  assert.ok(app.includes('<Route path="/research"'));
  assert.ok(app.includes('<Route path="/research/board"'));
  assert.ok(app.includes('<AppChrome product="briefing"><BriefingPage/>'));
- assert.ok(chrome.includes('briefing:["C","Crew Briefing","每日研發情報"]'));
+ assert.ok(chrome.includes('briefing:"Briefing"'));
 });
 
 test("Live product polish keeps one focal character and secondary tools collapsed",()=>{
