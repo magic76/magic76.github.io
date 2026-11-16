@@ -1,0 +1,29 @@
+/* #56: teacher calls reuse the connected friend call black viewport, header and sheet. */
+.teacher-call-page .teacher-live-stage.friend-phone-stage{min-height:0;gap:12px}
+.teacher-call-page .teacher-live-stage.friend-phone-stage>.live-identity{flex:0 0 auto;margin:0;gap:4px}
+.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-presence-shell{width:84px;height:84px;min-height:0;margin:0 auto}
+.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-live-avatar{width:84px;height:84px;margin:0;box-shadow:none}
+.teacher-call-page .teacher-live-stage.friend-phone-stage .live-identity h1{font-size:18px;line-height:1.4;color:#f5f5f5;margin:0}
+.teacher-call-page .teacher-live-stage.friend-phone-stage>.friend-phone-captions{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.teacher-call-page .teacher-live-stage.friend-phone-stage>.friend-phone-controls{flex:0 0 auto}
+.teacher-call-page .teacher-live-stage.friend-phone-stage .friend-caption-ai{min-height:0}
+.teacher-call-page .teacher-call-caption-avatar{display:inline-block;flex:0 0 36px;width:36px;height:36px;border-radius:50%;overflow:hidden}
+.teacher-call-page .teacher-call-caption-avatar .teacher-avatar-image{display:block;width:100%;height:100%;border-radius:50%}
+.friend-call-menu-panel .teacher-live-entry-actions{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:8px}
+.friend-call-menu-panel .teacher-live-entry-actions button{min-width:44px;min-height:44px;background:#242424;color:#f5f5f5;border:1px solid #777;border-radius:10px;font-size:12px;padding:8px 12px}
+.friend-call-menu-panel .teacher-live-entry-actions button:disabled{opacity:.55}
+.friend-call-menu-panel .teacher-live-quick-actions{margin:0;background:#000;color:#f5f5f5;border:1px solid #555;border-radius:12px}
+.friend-call-menu-panel .teacher-live-quick-actions>summary{display:flex;align-items:center;min-height:44px;padding:8px 12px;font-size:13px;cursor:pointer}
+.friend-call-menu-panel .live-presets button,.friend-call-menu-panel .live-presets a{min-width:44px;min-height:44px;color:#f5f5f5;background:#242424;border:1px solid #777;font-size:12px}
+.friend-call-menu-panel .live-more{border-color:#555;background:#000;color:#f5f5f5}
+.friend-call-menu-panel .live-more>summary{min-height:44px;display:flex;align-items:center;padding:8px 12px;font-size:13px}
+.friend-call-menu-panel .live-more-body,.friend-call-menu-panel .live-config,.friend-call-menu-panel .vision-box{background:#111;color:#f5f5f5;border-color:#555}
+.friend-call-menu-panel .live-config-note,.friend-call-menu-panel .teacher-native-help,.friend-call-menu-panel .teacher-live-language-hint,.friend-call-menu-panel .live-more .label{color:#dce4ee;font-size:12px}
+.friend-call-menu-panel .live-more select,.friend-call-menu-panel .live-more .field{background:#242424;color:#f5f5f5;border:1px solid #777;min-height:44px;font-size:12px}
+.friend-call-menu-panel .vision-actions button,.friend-call-menu-panel .live-teacher-row{min-height:44px;background:#242424;color:#f5f5f5;border-color:#777}
+.friend-call-menu-panel .live-more button:focus-visible,.friend-call-menu-panel .live-more select:focus-visible{outline:3px solid #d4e6ff;outline-offset:2px}
+.teacher-call-page:has(.friend-phone-stage)>.report-card,.teacher-call-page:has(.friend-phone-stage)>.notice{box-shadow:none;border:1px solid #4a4a4a;background:#111;color:#f5f5f5}
+.teacher-call-page:has(.friend-phone-stage) .report-card *,.teacher-call-page:has(.friend-phone-stage)>.notice *{color:#f5f5f5}
+.teacher-call-page:has(.friend-phone-stage) .report-stat,.teacher-call-page:has(.friend-phone-stage) .report-body{background:#191919;border-color:#555}
+@media(max-width:640px){.teacher-call-page .teacher-live-stage.friend-phone-stage{padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px));gap:8px}.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-presence-shell,.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-live-avatar{width:64px;height:64px}}
+@media(prefers-reduced-motion:reduce){.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-presence-orbit,.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-presence-shell{animation:none!important;transition:none!important}}

@@ -279,6 +279,7 @@
     "needsKey": "需要自己的 Gemini Key，或支援裝置翻譯的瀏覽器。",
     "translateFailed": "翻譯暫時無法使用，不影響通話。",
     "waitingForFriend": "朋友的回答會顯示在這裡",
+    "waitingForTeacher": "老師的回答會顯示在這裡",
     "recognized": "已辨識",
     "recognizing": "辨識中",
     "waitingForYou": "你說的話會顯示在這裡",

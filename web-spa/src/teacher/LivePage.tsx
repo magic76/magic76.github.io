@@ -20,13 +20,17 @@ import{teacherLifeBookPrompt,nextTeacherLifeOpening}from"../characters/lifeBook"
 import{buildTeacherSessionPolicy}from"./teacherPolicy";
 import{teacherLanguageLiveHint}from"./teacherLanguageUx";
 import{TeacherLiveTools}from"./TeacherLiveTools";
+import{TeacherLiveResults}from"./TeacherLiveResults";
+import{legacyMissionsJa,legacyMissions}from"./legacyMissions";
+import{FriendCallMenu,FriendCallMenuTrigger}from"../friends/FriendCallMenu";
+import{FriendCallControls}from"../friends/FriendCallControls";
+import{FriendCallCaptions}from"../friends/FriendCallCaptions";
+import{FriendChatHistory}from"../friends/FriendChatHistory";
+import"../friends/friendCall.css";import"./teacherCall.css";
 import{nativeLanguageName}from"./teacherLocale";
 import{friendSpokenLanguage}from"../friends/friendLanguage";
 import{useTranslation}from"react-i18next";import"./boardEntry.css";import{teacherLanguageReminder,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{courseDisplayTitle,courseDisplayMission}from"./courseLocale";
 import{teacherProfileDisplay}from"./teacherProfileLocale";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress,nextUnlockedLesson}from"./courseProgress";
-
-const legacyMissionsJa:any={hotel_checkin:{title:"ホテルのチェックイン",scene:"ホテル",goals:["予約者名を伝える","朝食時間を確認する","チェックアウト時間を尋ねる"]},restaurant_order:{title:"レストランでの注文",scene:"レストラン",goals:["おすすめを尋ねる","食事制限を伝える","会計をお願いする"]},work_meeting:{title:"職場の会議",scene:"ビジネス",goals:["リスクを一つ伝える","代案を提案する","次の担当事項を確認する"]},transport:{title:"道案内と交通",scene:"旅行",goals:["目的地への行き方を尋ねる","乗り場を確認する","この便で合っているか確認する"]}};
-const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goals:["說出訂房姓名","確認早餐時間","詢問退房時間"]},restaurant_order:{title:"餐廳點餐",scene:"餐廳",goals:["詢問推薦菜色","說明飲食限制","請服務生結帳"]},work_meeting:{title:"工作會議",scene:"工作",goals:["表達一個風險","提出替代方案","確認 action item"]},transport:{title:"問路與交通",scene:"旅遊",goals:["問目的地方向","確認月台","確認這班車是否正確"]}};
 
 export function TeacherLivePage(){
  const [guestStarted,setGuestStarted]=useState(false);
@@ -34,7 +38,7 @@ export function TeacherLivePage(){
  const navigate=useNavigate(),endRequestedRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),memoryCheckpointRef=useRef(false);
  const[p]=useSearchParams(),s=useTeacherStore(),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const[endingCourse,setEndingCourse]=useState(false),[changingTeacher,setChangingTeacher]=useState(false),[openingBoard,setOpeningBoard]=useState(false),[teacherSwitchError,setTeacherSwitchError]=useState("");
- const textMode=p.get("chat")==="text";
+ const textMode=p.get("chat")==="text";const [callOptions,setCallOptions]=useState(false);
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=(locale.resolvedLanguage==="ja"?legacyMissionsJa:legacyMissions)[p.get("mission")||""]||null,mission=course?{title:courseDisplayTitle(course,locale.resolvedLanguage||"en"),scene:course.scene,goals:course.missions.map((_,i)=>courseDisplayMission(course,i,locale.resolvedLanguage||"en")),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
  const fortuneKind:FortuneSpeakingKind|null=p.get("fortune")==="reading"?"reading":p.get("fortune")==="daily"?"daily":p.get("fortune")==="culture"?"culture":null;
@@ -218,15 +222,16 @@ export function TeacherLivePage(){
   :live.state==="error"?"error"
   :"idle"));
  const courseTitle=(c:{titleZh:string;titleEn:string})=>zh?c.titleZh:c.titleEn;
- return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={fortuneKind?"/teacher/fortune":"/learn"} onClick={e=>{e.preventDefault();void endAndReturn()}}>‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><span className="status connected" data-setup={live.state==="error"&&live.errorKind==="key"||undefined} data-state={presenceState} role="status" aria-live="polite"><i className="status-dot"/><span>{voiceStatus}</span></span></div></header>
- <main className="session-shell">
+ const missionNotes=<>
  {mission&&<div className="notice live-mission"><div><b>{t("live.missionGoal")}</b><p>{(course&&!zh?course.missions.map(m=>m.titleEn):mission.goals).join(" · ")}</p></div></div>}
  {isReview&&<div className="notice live-mission"><div><b>{t("learnToday.reviewTitle")}</b><p>{reviewFocus||t("learnToday.reviewFallback")}</p></div></div>}
- <div className="desktop-live-workspace teacher-desktop-workspace"><section className="live-stage teacher-live-stage" data-state={live.state} aria-label={t("live.status.idle")}>
-  <div className="live-identity">
-   <div className="teacher-presence-shell" data-state={presenceState}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/><i className="live-presence-dot"/></div></div>
-   <h1>{fortuneKind?t("live.fortuneTitle",{name:profile.name}):course?courseTitle(course):mission?mission.title:t("live.teacherName",{name:profile.name})}</h1>
-    <div className="teacher-live-entry-actions">
+ </>;
+ const modeSwitch=<div className="crew-chat-mode-switch"><span>{textMode?t("live.textChat"):t("live.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("live.useVoice"):t("live.useText")}</Link></div>;
+ const quickActions=<details className="teacher-live-quick-actions"><summary>{t("live.shortcuts")}</summary><div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">{t("live.setMode")}</Link>}{!isRoleplay&&!guestStarted&&<><LiveSearchAction live={live} english={english} label={english?"Learn from news":"新聞學習"}
+   query={"Find one interesting and verifiable recent news event relevant to "+s.targetLanguage+" language learners. Include the published date, event date, and credible source."}
+   instruction={"Teach this verified news to the student in the configured target language: "+s.targetLanguage+". Choose 2-3 suitable vocabulary words and ask one practice question. Stay in the same conversation. "+languageDirective}/><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>{t("live.newTopic")}</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>{t("live.correctMe")}</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>{t("live.slower")}</button></div></details>;
+ const teacherOptions=<>
+ <div className="teacher-live-entry-actions">
      <button type="button" className="teacher-live-change-action" onClick={()=>void changeTeacher()} disabled={changingTeacher||openingBoard||endingCourse}>{changingTeacher?t("live.switching"):t("live.changeTeacher")}</button>
      {!course&&!fortuneKind&&!guestStarted&&<button type="button" className="teacher-live-change-action teacher-live-board-entry" onClick={()=>void openBoard()} disabled={changingTeacher||openingBoard||endingCourse}>{openingBoard?t("board.entryOpening"):t("board.entryAction")} →</button>}
     </div>
@@ -235,23 +240,37 @@ export function TeacherLivePage(){
    {!isRoleplay&&<p className="teacher-native-help teacher-live-language-hint" role="note">{teacherLanguageLiveHint(
     s.teachingMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),
     zh?s.targetLanguage:friendSpokenLanguage(s.targetLanguage),english,locale.resolvedLanguage||"en")}</p>}
+ </>;
+ return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={fortuneKind?"/teacher/fortune":"/learn"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("voice:friendLive.backAria")}>‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><div className="friend-call-header-actions"><span className="status connected" data-setup={live.state==="error"&&live.errorKind==="key"||undefined} data-state={presenceState} role="status" aria-live="polite"><i className="status-dot"/><span>{voiceStatus}</span></span><FriendCallMenuTrigger active={!textMode} open={callOptions} label={t("voice:callCaptions.more")} onToggle={()=>setCallOptions(v=>!v)}/></div></div></header>
+ <main className="session-shell teacher-call-page friend-live-page">
+ {textMode?missionNotes:null}
+ <div className="desktop-live-workspace teacher-desktop-workspace friend-desktop-workspace"><section className={"live-stage teacher-live-stage"+(!textMode?" friend-phone-stage":"")} data-state={live.state} aria-label={t("live.status.idle")}>
+   {!textMode&&<FriendCallMenu inCall open={callOptions} onClose={()=>setCallOptions(false)} title={t("voice:callCaptions.more")} closeLabel={t("voice:callCaptions.closeMenu")}>
+  <div className="friend-call-settings">
+   {missionNotes}{modeSwitch}{teacherOptions}{quickActions}
+   {!guestStarted&&<TeacherLiveTools live={live} store={s} profile={profile} sessionActive={sessionActive} onPickTeacher={()=>setPicker(true)}/>}
   </div>
-  <div className="crew-chat-mode-switch"><span>{textMode?t("live.textChat"):t("live.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("live.useVoice"):t("live.useText")}</Link></div>
+  <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
+  {live.turns.length?<FriendChatHistory turns={live.turns} friendName={profile.name} youLabel={t("voice:friendLive.youLabel")} summary={t("voice:friendLive.historySummary")}/>:null}
+ </FriendCallMenu>}
+<div className="live-identity">
+   <div className="teacher-presence-shell" data-state={presenceState}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/><i className="live-presence-dot"/></div></div>
+   <h1>{fortuneKind?t("live.fortuneTitle",{name:profile.name}):course?courseTitle(course):mission?mission.title:t("live.teacherName",{name:profile.name})}</h1>
+    {textMode?teacherOptions:null}
+  </div>
+  {textMode?modeSwitch:null}
   {textMode?<TextChatPanel searchEnabled={!isRoleplay&&!fortuneKind} system={system+"\n"+languageDirective} speaker={profile.name} english={english} targetLanguage={s.targetLanguage} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode} hint={course?t("live.textHint"):undefined}/>:<>
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?t("live.endingTitleBusy"):t("live.endingTitle")}</b><p>{evaluating?t("live.endingBodyBusy"):t("live.endingBody")}</p>{!evaluating&&(courseResult||evaluationError)&&<button type="button" className="btn secondary small" onClick={()=>void endAndReturn()}>{t("learnToday.backToLearn")}</button>}</div></div>
    :!geminiKey()&&!guestStarted?<GuestLiveStarter role="teacher" textFallback={p.has("fortune")?undefined:{href:alternateHref,name:profile.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
     :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"} name={profile.name}/>
-    :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
+    :sessionActive?<FriendCallControls live={live} onEnd={endAndReturn}/>:<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
    {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
-  <details className="teacher-live-quick-actions"><summary>{t("live.shortcuts")}</summary><div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">{t("live.setMode")}</Link>}{!isRoleplay&&!guestStarted&&<><LiveSearchAction live={live} english={english} label={english?"Learn from news":"新聞學習"}
-   query={"Find one interesting and verifiable recent news event relevant to "+s.targetLanguage+" language learners. Include the published date, event date, and credible source."}
-   instruction={"Teach this verified news to the student in the configured target language: "+s.targetLanguage+". Choose 2-3 suitable vocabulary words and ask one practice question. Stay in the same conversation. "+languageDirective}/><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>{t("live.newTopic")}</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>{t("live.correctMe")}</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>{t("live.slower")}</button></div></details>
-  <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/><div className="live-transcript"><div className={"live-line user "+(live.input?"show":"")}><small>{t("live.youSaid")}</small><span>{live.input}</span></div><div className={"live-line "+(live.output?"show":"")}><small>{profile.name}</small><span>{live.output}</span><PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/></div></div>
+  {textMode?quickActions:null}
+  {sessionActive?<FriendCallCaptions name={profile.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={s.targetLanguage} nativeLanguage={s.nativeLanguage} speaking={live.state==="speaking"} speakerAvatar={<TeacherAvatar profile={profile} decorative/>} waitingText={t("voice:callCaptions.waitingForTeacher")} replyExtra={<PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/>}/>:null}
   </>}
-  {!textMode&&!guestStarted&&<TeacherLiveTools live={live} store={s} profile={profile} sessionActive={sessionActive} onPickTeacher={()=>setPicker(true)}/>}
+
  </section>{!textMode&&<DesktopLivePanel kind="teacher" label={profile.name} language={s.targetLanguage} turns={live.turns} input={live.input} output={live.output} state={live.state} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode}/>}</div>
- {live.report&&<section className="report-card"><div className="row" style={{justifyContent:"space-between"}}><div><span className="kicker">{t("live.report.kicker")}</span><h3>{t("live.report.title")}</h3></div><div className="report-score">{String(live.report.overall_score??"--")}</div></div><div className="report-grid"><div className="report-stat"><b>{String(live.report.fluency_score??"--")}</b><span>{t("live.report.fluency")}</span></div><div className="report-stat"><b>{String(live.report.vocab_score??"--")}</b><span>{t("live.report.vocab")}</span></div><div className="report-stat"><b>{String(live.report.grammar_score??"--")}</b><span>{t("live.report.grammar")}</span></div></div><div className="report-body">{String(live.report.summary??"")}</div></section>}
- {course&&evaluating&&<div className="notice"><div><b>{t("live.evaluating")}</b><p>{t("live.evaluatingBody")}</p></div></div>}{course&&evaluationError&&<div className="notice" role="alert"><div><b>{t("live.evalPending")}</b><p>{evaluationError}</p><div className="actions"><button className="btn secondary small" disabled={evaluating} onClick={()=>{courseSavedRef.current=false;setEvaluationError("");setCourseResult(null);setEvaluating(true);setAssessmentRetry(x=>x+1)}}>{t("live.reevaluate")}</button><Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(course.id)}>{t("live.backToMap")}</Link></div></div></div>}{course&&courseResult&&<section className="report-card course-complete-card"><div className="row" style={{justifyContent:"space-between"}}><div><span className="kicker">{t("live.course.kicker")}</span><h3>{courseTitle(course)}</h3></div><div className="report-score">{courseResult.stars?"★".repeat(courseResult.stars):"—"}</div></div><div className="report-grid"><div className="report-stat"><b>{courseResult.done}/{courseResult.total}</b><span>{t("live.course.tasks")}</span></div><div className="report-stat"><b>{courseResult.score}</b><span>{t("live.course.score")}</span></div><div className="report-stat"><b>{courseResult.stars}</b><span>{t("live.course.stars")}</span></div></div><div className="report-body">{courseResult.stars?t("live.course.done"):t("live.course.notDone")}</div><div className="actions"><Link className="btn secondary small" to="/learn">{t("lesson:learnToday.backToLearn")}</Link><Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(course.id)}>{t("live.course.map")}</Link><Link reloadDocument className="btn secondary small" to={"/teacher/live?mode=course&lesson="+encodeURIComponent(course.id)}>{t("learnToday.retryLesson")}</Link>{courseResult.stars>0&&<Link className="btn primary small" to={"/teacher/course?lesson="+encodeURIComponent(nextUnlockedLesson(course.trackId)?.id||course.id)}>{t("live.course.next")}</Link>}</div></section>}
+ <TeacherLiveResults report={live.report} course={course} evaluating={evaluating} evaluationError={evaluationError} courseResult={courseResult} onRetry={()=>{courseSavedRef.current=false;setEvaluationError("");setCourseResult(null);setEvaluating(true);setAssessmentRetry(x=>x+1)}}/>
  </main>{picker&&<TeacherProfilePicker onClose={()=>setPicker(false)}/>}</>
 }

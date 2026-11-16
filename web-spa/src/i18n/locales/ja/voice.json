@@ -279,6 +279,7 @@
     "needsKey": "Geminiキーまたは端末の翻訳機能が必要です。",
     "translateFailed": "翻訳できませんが、通話は続けられます。",
     "waitingForFriend": "相手の返答がここに表示されます",
+    "waitingForTeacher": "先生の返答がここに表示されます",
     "recognized": "認識済み",
     "recognizing": "認識中",
     "waitingForYou": "話した内容がここに表示されます",

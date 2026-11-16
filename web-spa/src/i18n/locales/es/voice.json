@@ -279,6 +279,7 @@
     "needsKey": "Necesitas una clave Gemini o un navegador con traducción local.",
     "translateFailed": "La traducción no está disponible; la llamada continúa.",
     "waitingForFriend": "La respuesta aparecerá aquí",
+    "waitingForTeacher": "La respuesta de tu profesor aparecerá aquí",
     "recognized": "Reconocido",
     "recognizing": "Reconociendo",
     "waitingForYou": "Lo que digas aparecerá aquí",
