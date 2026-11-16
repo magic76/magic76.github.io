@@ -888,6 +888,7 @@ if(new URLSearchParams(location.search).get('qa')==='1'){
   evolveCost:n=>CRE.evolveCost(n),
   gainEnergy:()=>{const e=CRE.gainEnergy(state);writeState();return e;},
   grantGift:(reason,today)=>{const v=CRE.grantGift(state,reason,today);writeState();updateUI();return v;},
+  dailySupply:claimDailySupply,
   openGift:rand=>{const item=CRE.openGift(state,rand);writeState();updateUI();return item;},
   giftItems:()=>CRE.giftItems(),
   gifts:()=>state.gifts,
