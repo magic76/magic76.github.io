@@ -14,6 +14,8 @@ import {useCreatureStageSync,useCreatureVoiceBridge} from "./useCreatureVoiceBri
 import {creatureVoiceInstruction} from "./creatureVoiceBridge.mjs";
 import {CreatureVoicePanel} from "./CreatureVoicePanel";
 import {LiveControls} from "../live/LiveControls";
+import {FriendCallControls} from "./FriendCallControls";
+import {FriendCallCaptions} from "./FriendCallCaptions";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
 import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";
 import {geminiKey} from "../lib/runtime";
@@ -33,6 +35,7 @@ import {conversationIntent,conversationOpening} from "../teacher/conversationInt
 import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
 import {isShortsHook,shortsOpeningHint,shortsSelectedQuestion,shortsQuestionOpeningHint,rememberShortsConversation} from "../teacher/shortsSocial";
 import "./friends.css";
+import "./friendCall.css";
 
 /**
  * Resolve a Shorts ID against the published feed before opening Live. The URL
@@ -60,6 +63,7 @@ export function FriendLivePage(){
 }
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
  const [guestStarted,setGuestStarted]=useState(false);
+ const [showCallOptions,setShowCallOptions]=useState(false);
  const bubbleEffectiveRef=useRef(false);
  const creatureRewardSession=useRef("v"+Date.now().toString(36)+Math.random().toString(36).slice(2));
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
@@ -239,7 +243,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
   {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" focusStartOnVerified={homeFirstAction} textFallback={{href:alternateHref,name:friend.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
-   :<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}><LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/></div>}
+   :<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}>{active?<FriendCallControls live={live} onEnd={endAndReturn}/>:<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}</div>}
  </>;
  return <>
   <header className="app-header"><div className="shell inner">
@@ -249,7 +253,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    <span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
   </div></header>
   <main className="session-shell friend-live-page">
-   <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(textMode?" friend-text-stage":"")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
+   <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(textMode?" friend-text-stage":active?" friend-phone-stage"+(showCallOptions?" options-open":""):"")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
     <div className="live-identity">
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
@@ -264,6 +268,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      </section>:null}
     {postUnavailable?<p className="friend-live-post-unavailable" role="status">{t("friendLive.postUnavailable")}</p>:null}
     {shortsPost&&!textMode?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
+    <div className="friend-call-settings">
+    {active&&!textMode?<button type="button" className="friend-call-options-toggle" aria-expanded={showCallOptions} onClick={()=>setShowCallOptions(v=>!v)}>{t("callCaptions.more")}</button>:null}
     <div className="friend-language-switch" role="group" aria-label={t("chatModeTitle")}>
      <span className="friend-language-switch-title">{t("chatModeTitle")}</span>
      <div className="friend-language-options">
@@ -275,6 +281,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
+    </div>
     {textMode?(dailyLookupPending?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:dailyHandoff?":fortune:"+dailyKind+":"+personalChartHash+":"+dayKey:dailyFortune?":daily:"+dailyFortune.hash:"")} searchEnabled={!shortsPost} system={system+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+"\n"+languageDirective+(beginnerTextStart?"\n"+beginnerTextStart:"")} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
      firstStarter={shortsStarter||fortuneContinue||dailyFortuneStarter||dailyQuoteStarter||dailyTopicStarter}
      autoStarter={fortuneContinue} replyFallback={fortuneReplies}
@@ -295,10 +302,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
 </>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
     </div>
-    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/><div className="live-transcript" aria-live="polite">
-     <div className={"live-line user "+(live.input?"show":"")}><small>{t("friendLive.youSaid")}</small><span>{live.input}</span></div>
-     <div className={"live-line "+(live.output?"show":"")}><small>{friend.name}</small><span>{live.output}</span></div>
-    </div>
+    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/><FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} speaking={live.state==="speaking"}/>
     {live.turns.length?<details className="friend-chat-history"><summary>{t("friendLive.historySummary")}</summary>
      <div className="friend-chat-history-scroll">{live.turns.map((turn,index)=><div key={index} className="friend-chat-turn">
        {turn.input?<p><strong>{t("friendLive.youLabel")}</strong>{turn.input}</p>:null}
