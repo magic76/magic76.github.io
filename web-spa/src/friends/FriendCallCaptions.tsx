@@ -2,8 +2,6 @@ import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {geminiKey} from "../lib/runtime";
 import type {NativeLanguage} from "../teacher/teacherLocale";
-import {FriendAvatar} from "./FriendAvatar";
-import {CREW_FRIENDS,getCrewFriend} from "./friendProfiles";
 import {callTranslationRows,splitCallSentences} from "./callSentence.mjs";
 import {translateCallSentence} from "./callTranslate";
 type Turn={input?:string;output?:string};
@@ -19,7 +17,6 @@ function browserCode(language:string){return language==="zh-TW"?"zh-Hant":langua
 export function FriendCallCaptions({name,turns,input,output,learningLanguage,nativeLanguage,speaking}:Props){
  const {t}=useTranslation("voice");
  const captionsRef=useRef<HTMLDivElement>(null),replyRef=useRef<HTMLParagraphElement>(null),translationRef=useRef<HTMLDivElement>(null);
- const captionFriend=CREW_FRIENDS.find(friend=>friend.name===name)||getCrewFriend("zoe");
  const [enabled,setEnabled]=useState(initial);
  const [parts,setParts]=useState<Part[]>([]);
  const partsRef=useRef<Part[]>([]),queueRef=useRef<number[]>([]),activeRef=useRef(new Map<number,AbortController>());
@@ -108,7 +105,7 @@ export function FriendCallCaptions({name,turns,input,output,learningLanguage,nat
  },[source,nativeLanguage]);
  // Server interruption usually begins a fresh user transcript before the old AI turn completes.
  useEffect(()=>{const previous=heardInputRef.current;heardInputRef.current=input.trim();if(input.trim()&&input.trim()!==previous&&!speaking&&streamRef.current.raw&&!streamRef.current.final){const stale=currentReply;reset();streamRef.current.suspended=stale}},[input,speaking,currentReply]);
- // Keep Zoe's speaker and original visible; only the long original/translation scroll internally.
+ // Keep the original audio transcript readable; the main call avatar identifies the speaker.
  useEffect(()=>{const el=replyRef.current;if(el)el.scrollTop=el.scrollHeight;const pane=captionsRef.current;if(pane)pane.scrollTop=0},[latestReply,currentReply]);
  useEffect(()=>{const el=translationRef.current;if(el)el.scrollTop=el.scrollHeight},[parts]);
  const toggle=()=>{
@@ -121,7 +118,6 @@ export function FriendCallCaptions({name,turns,input,output,learningLanguage,nat
    {needTranslation?<button type="button" className="friend-caption-toggle" aria-pressed={enabled} onClick={toggle}>{t(enabled?"callCaptions.hideTranslation":"callCaptions.showTranslation")}</button>:null}
   </div>
   <section className="friend-caption-ai" aria-label={name}>
-   <div className="friend-caption-speaker"><FriendAvatar friend={captionFriend} className="friend-caption-avatar" decorative/><small>{name}{speaking?" · "+t("compact.speaking"):""}</small></div>
    <p ref={replyRef} lang={source}>{currentReply||latestReply||t("callCaptions.waitingForFriend")}</p>
    {enabled&&needTranslation&&visibleTranslation.length?<div ref={translationRef} className="friend-caption-translation" lang={nativeLanguage}>
     {visibleTranslation.map((row,i)=><span key={i} className="friend-caption-translation-sentence">{row.kind==="text"?row.value:t(row.value==="needsKey"?"callCaptions.needsKey":row.value==="translateFailed"?"callCaptions.translateFailed":"callCaptions.translating")}</span>)}
