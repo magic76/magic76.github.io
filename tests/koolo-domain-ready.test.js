@@ -43,3 +43,15 @@ test("Guest Worker only responds with exact same-origin CORS for old and Koolo s
   assert.equal(denied.headers.get("access-control-allow-origin"),null);
  }
 });
+
+test("Member guest-ticket accepts only same-origin requests on each approved domain",async()=>{
+ const {onRequestPost}=await import("../functions/api/auth/guest-ticket.js");
+ for(const origin of [OLD,NEW]){
+  const response=await onRequestPost({request:new Request(origin+"/api/auth/guest-ticket",{method:"POST",headers:{Origin:origin}}),env:{}});
+  assert.equal(response.status,503,"valid origin reaches configuration checks");
+ }
+ const mismatch=await onRequestPost({request:new Request(NEW+"/api/auth/guest-ticket",{method:"POST",headers:{Origin:OLD}}),env:{}});
+ assert.equal(mismatch.status,403);
+ const unknown=await onRequestPost({request:new Request("https://evil.example/api/auth/guest-ticket",{method:"POST",headers:{Origin:"https://evil.example"}}),env:{}});
+ assert.equal(unknown.status,404);
+});
