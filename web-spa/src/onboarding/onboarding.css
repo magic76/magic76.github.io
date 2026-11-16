@@ -80,3 +80,6 @@
 .crew-settings-onboarding-replay{display:inline-flex;align-items:center;min-height:44px;padding:9px 14px;border-radius:12px;border:1px solid var(--line,#dce3f0);background:var(--surface,#fff);color:var(--accent,#5368c7);font:inherit;font-size:14px;font-weight:800;cursor:pointer}
 .crew-settings-onboarding-replay:hover{background:var(--surface-alt,#f5f7fc)}
 .crew-settings-onboarding-card .meta{margin:6px 0 0}
+
+/* The voluntarily opened guide keeps the Skip tap target accessible. */
+.crew-onboarding-guide-skip{min-height:44px}

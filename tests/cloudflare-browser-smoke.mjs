@@ -302,33 +302,53 @@ async function run(){
    headless:true,
    args:["--no-sandbox"]
   });
-  // Test onboarding with a genuinely fresh storage context before normal UI checks.
-  const onboardingContext=await browser.newContext({viewport:{width:390,height:844}});
-  try{
-   const first=await onboardingContext.newPage();
-   await first.goto(origin+"/",{waitUntil:"domcontentloaded"});
-   await first.locator(".crew-onboarding-dialog[open]").waitFor({state:"visible",timeout:15000});
-   assert.match(await first.locator("#crew-onboarding-title").textContent()||"",/歡迎來到 Crew/);
-   await first.locator(".crew-onboarding-footer .crew-onboarding-primary").click();
-   assert.equal(await first.locator(".crew-onboarding-tile").count(),4);
-   await first.locator(".crew-onboarding-tile").filter({hasText:"練習外語"}).click();
-   await first.locator(".crew-onboarding-footer .crew-onboarding-primary").click();
-   await first.locator(".crew-onboarding-setting select").selectOption("日文");
-   assert.match(await first.locator(".crew-onboarding-footer .crew-onboarding-primary").textContent()||"",/開始第一堂生活口說/);
-   await first.locator(".crew-onboarding-footer .crew-onboarding-primary").click();
-   await first.waitForURL(url=>url.pathname==="/teacher/live"&&url.searchParams.get("lesson")==="daily_u1_l1");
-   assert.equal(await first.evaluate(()=>localStorage.getItem("crew_onboarding_web_v1")),"completed");
-   assert.equal(await first.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文");
-   await first.goto(origin+"/settings",{waitUntil:"domcontentloaded"});
-   await first.locator(".crew-settings-onboarding-replay").click();
-   await first.locator(".crew-onboarding-dialog[open]").waitFor({state:"visible"});
-   await first.locator(".crew-onboarding-skip").click();
-   assert.equal(await first.evaluate(()=>localStorage.getItem("crew_onboarding_web_v1")),"skipped");
-   await first.goto(origin+"/",{waitUntil:"domcontentloaded"});
-   await first.locator(".crew-home-world .crew-home-portal").waitFor({state:"visible",timeout:15000});
-   assert.equal(await first.locator(".crew-onboarding-dialog[open]").count(),0);
-   process.stdout.write("PASS first-run guide, language setup, skip and replay\n");
-  }finally{await onboardingContext.close();}
+  // Fresh visitors on both phone and desktop must reach Home without any modal.
+  for(const [width,height] of [[390,844],[1280,800]]){
+   const onboardingContext=await browser.newContext({viewport:{width,height},locale:"zh-TW"});
+   try{
+    const first=await onboardingContext.newPage();
+    await first.goto(origin+"/",{waitUntil:"domcontentloaded"});
+    await first.locator("main h1").waitFor({state:"visible",timeout:15000});
+    await first.getByText("今日小語",{exact:true}).first().waitFor({state:"visible",timeout:15000});
+    await first.waitForTimeout(300); // Allow the lazy gate to hydrate before asserting it stays closed.
+    assert.equal(await first.locator(".crew-onboarding-dialog[open]").count(),0,"Fresh Home must not open a guide at "+width);
+    assert.equal(await first.evaluate(()=>localStorage.getItem("crew_onboarding_web_v1")),null,"Home visit is not a completed guide");
+    // The primary path must be clickable without dismissing an overlay.
+    if(width>=768){
+     await first.locator(".crew-home-world .crew-home-portal").waitFor({state:"visible",timeout:15000});
+     await first.locator(".crew-portal-cta").click({timeout:10000});
+    }else{
+     await first.getByText("文字聊天",{exact:true}).first().click({timeout:10000});
+    }
+    await first.waitForURL(url=>url.pathname==="/friend/live"&&url.searchParams.get("chat")==="text",{timeout:15000});
+    await first.goto(origin+"/settings",{waitUntil:"domcontentloaded"});
+    await first.locator(".crew-settings-onboarding-replay").click();
+    await first.locator(".crew-onboarding-dialog[open]").waitFor({state:"visible",timeout:15000});
+    assert.match(await first.locator("#crew-onboarding-title").textContent()||"",/歡迎來到 Crew/);
+    assert.equal(await first.locator(".crew-onboarding-dialog").getByText("免註冊免費體驗 AI 語音 5 分鐘",{exact:false}).count(),0);
+    if(width>=768){
+     // A voluntarily replayed guide still completes its language preference flow.
+     await first.locator(".crew-onboarding-footer .crew-onboarding-primary").click();
+     assert.equal(await first.locator(".crew-onboarding-tile").count(),4);
+     await first.locator(".crew-onboarding-tile").filter({hasText:"練習外語"}).click();
+     await first.locator(".crew-onboarding-footer .crew-onboarding-primary").click();
+     await first.locator(".crew-onboarding-setting select").selectOption("日文");
+     await first.locator(".crew-onboarding-footer .crew-onboarding-primary").click();
+     await first.waitForURL(url=>url.pathname==="/teacher/live"&&url.searchParams.get("lesson")==="daily_u1_l1");
+     assert.equal(await first.evaluate(()=>localStorage.getItem("crew_onboarding_web_v1")),"completed");
+     assert.equal(await first.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文");
+     await first.goto(origin+"/settings",{waitUntil:"domcontentloaded"});
+     await first.locator(".crew-settings-onboarding-replay").click();
+     await first.locator(".crew-onboarding-dialog[open]").waitFor({state:"visible"});
+    }
+    await first.locator(".crew-onboarding-skip").click();
+    assert.equal(await first.evaluate(()=>localStorage.getItem("crew_onboarding_web_v1")),"skipped");
+    await first.goto(origin+"/",{waitUntil:"domcontentloaded"});
+    await first.locator("main h1").waitFor({state:"visible",timeout:15000});
+    assert.equal(await first.locator(".crew-onboarding-dialog[open]").count(),0);
+    process.stdout.write("PASS nonblocking Home, text chat and optional Settings guide "+width+"px\n");
+   }finally{await onboardingContext.close();}
+  }
   await verifyLearningResponsiveLayout(browser);
    const context=await browser.newContext({viewport:{width:1280,height:800}});
   await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));

@@ -115,8 +115,9 @@ test("every ordinary mobile route uses one shared five-tab dock and desktop reta
  assert.match(model,/return "learn";/);
  assert.match(model,/if\(pathname\.startsWith\("\/teacher\/me"\)\|\|pathname\.startsWith\("\/teacher\/memory"\)\)return "me"/);
  assert.doesNotMatch(model,/pathname\.startsWith\("\/teacher\/reports"\)\|\|pathname\.startsWith\("\/teacher\/phrasebook"\)/);
- assert.match(gate,/pathname==="\/"&&window\.matchMedia\("\(max-width:767px\)"\)\.matches\)return/);
- assert.match(gate,/media\.addEventListener\("change",dismiss\)/);
+ assert.match(gate,/if\(pathname!=="\/"\)return/);
+ assert.match(gate,/if\(pathname!=="\/settings"\)return/);
+ assert.doesNotMatch(gate,/window\.matchMedia|media\.addEventListener\("change",dismiss\)/);
 });
 
 test("screenshot acceptance covers first/return at 360/390 and unchanged desktop 1440",()=>{
