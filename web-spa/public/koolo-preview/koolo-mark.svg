@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+<title id="title">Koolo 酷囉</title>
+<rect x="4" y="4" width="120" height="120" rx="36" fill="#153A35"/>
+<path d="M28 46c0-12 10-22 22-22h34c13 0 23 10 23 23v26c0 13-10 23-23 23H64L40 109V93c-7-4-12-11-12-20z" fill="#D9F2B1"/>
+<path d="M53 46v32M76 46 57 63l20 16" fill="none" stroke="#153A35" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="90" cy="42" r="8" fill="#FF9678" stroke="#153A35" stroke-width="4"/>
+</svg>
