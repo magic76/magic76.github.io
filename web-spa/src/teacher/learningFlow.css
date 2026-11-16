@@ -75,7 +75,7 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 .crew-course-lesson-copy small{font-size:12px;color:var(--muted,#667085);line-height:1.5}
 .crew-course-lesson-copy em{font-size:12px;color:#247d4f;font-style:normal}
 .crew-course-lesson-action{font-weight:800;color:#6852ba;text-align:center}
-@media(max-width:480px){.crew-learning-focus{gap:12px}.crew-learning-quiz,.crew-course-resume,.crew-course-map{padding:15px;border-radius:18px}.crew-course-track-tabs button{max-width:176px}.crew-course-track-tabs strong{max-width:99px}.crew-course-resume-header{gap:9px;flex-wrap:wrap}}
+@media(max-width:480px){.crew-learning-focus{gap:12px}.crew-learning-quiz,.crew-course-resume,.crew-course-map{padding:15px;border-radius:18px}.crew-course-track-tabs button{max-width:220px}.crew-course-resume-header{gap:9px;flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.crew-course-unit-chevron,.crew-learning-question .quiz-choice{transition:none}}
 
 

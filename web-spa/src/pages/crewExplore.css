@@ -1,7 +1,7 @@
 /* Crew Explore — nine destinations with image-backed illustrations and unchanged Timeline portraits. */
 .crew-section-explore{max-width:1120px;gap:23px}
 .crew-section-explore .crew-section-heading{padding:8px 2px 0}
-.crew-section-explore .crew-section-heading h1{font-size:clamp(29px,4.5vw,40px)}
+.crew-section-explore .crew-section-heading h1{font-size:clamp(24px,4.5vw,40px)}
 .crew-section-explore .crew-section-heading p{font-size:14px}
 .crew-explore-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .crew-explore-tile{
@@ -61,7 +61,7 @@
  .crew-explore-art{height:128px}
  .crew-explore-text{padding:14px 34px 17px 14px;min-height:102px}
  .crew-explore-text strong{font-size:15px}
- .crew-explore-text small{font-size:11px}
+ .crew-explore-text small{font-size:12px}
  .crew-explore-arrow{right:11px;bottom:16px;width:23px;height:23px}
 }
 @media(max-width:420px){
@@ -73,7 +73,7 @@
  .crew-explore-life img:nth-of-type(2){width:56px;height:79px;border-width:2px;border-radius:12px}
  .crew-explore-text{padding:12px 26px 13px 12px;min-height:112px;gap:5px}
  .crew-explore-text strong{font-size:14px}
- .crew-explore-text small{font-size:11px;line-height:1.5}
+ .crew-explore-text small{font-size:12px;line-height:1.5}
  .crew-explore-arrow{width:19px;height:19px;font-size:14px;bottom:11px;right:8px}
 }
 @media(prefers-reduced-motion:reduce){.crew-explore-tile{transition:none}}
