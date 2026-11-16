@@ -50,7 +50,7 @@ async function createSession(request,env,input,deps,visitor){
  if(typeof input.challengeToken!=="string"||input.challengeToken.length<10||input.challengeToken.length>2048)
   return json({code:"VERIFY_REQUIRED"},400);
  let verified=false;
- try{verified=await deps.verifyCaptcha(input.challengeToken,request.headers.get("cf-connecting-ip"),env.GUEST_TURNSTILE_SECRET,"www.3sssi.com","crew-guest-trial")}
+ try{verified=await deps.verifyCaptcha(input.challengeToken,request.headers.get("cf-connecting-ip"),env.GUEST_TURNSTILE_SECRET,new URL(request.url).hostname,"crew-guest-trial")}
  catch{return json({code:"TEMP_UNAVAILABLE"},503)}
  if(!verified)return json({code:"VERIFY_FAILED"},403);
  const db=env.CREW_AUTH_DB,now=Date.now(),day=taipeiDay(now);
@@ -138,7 +138,8 @@ async function sendText(env,input,deps,visitor){
 }
 /** Inject the existing Turnstile validator and server-side Gemini key selector. */
 export async function onTextRequest(request,env,deps){
- if(request.headers.get("origin")!=="https://www.3sssi.com")return json({code:"ORIGIN_REJECTED"},403);
+ const origin=request.headers.get("origin");
+ if(!["https://www.3sssi.com","https://koolo.app"].includes(origin)||new URL(request.url).origin!==origin)return json({code:"ORIGIN_REJECTED"},403);
  if(request.method==="GET")return json(configured(env)
   ?{enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,dailyLimit:DAILY_TURNS}:{enabled:false});
  if(request.method!=="POST")return json({code:"METHOD_NOT_ALLOWED"},405);

@@ -51,7 +51,7 @@ export async function onRequestPost({request,env}:Context):Promise<Response>{
   // Unconfigured deployments should fail closed, without affecting product workflows.
   if(!env.ANALYTICS_ENGINE)return json({error:"Analytics binding unavailable"},503);
   const url=new URL(request.url);
-  if(!["www.3sssi.com","3sssi.com"].includes(url.hostname))return json({error:"Production only"},403);
+  if(!["www.3sssi.com","3sssi.com","koolo.app"].includes(url.hostname))return json({error:"Production only"},403);
   const origin=request.headers.get("origin");
   if(origin!==url.origin||request.headers.get("sec-fetch-site")==="cross-site")return json({error:"Origin rejected"},403);
   if(!/^application\/json(?:\s*;|$)/i.test(request.headers.get("content-type")||""))return json({error:"JSON required"},415);
