@@ -115,14 +115,14 @@ test("#50 v3: four failed sentences show one error; successful translations stay
  assert.match(captions,/visibleTranslation\.map/);
  assert.doesNotMatch(captions,/parts\.map\(\(part,i\)/);
 });
-test("#50 v3: Zoe original and speaker remain visible while translations scroll inside the card",()=>{
+test("#50 v3: original and translation remain scrollable without a duplicate speaker row",()=>{
  assert.match(captions,/ref=\{replyRef\} lang=\{source\}/);
  assert.match(captions,/ref=\{translationRef\} className="friend-caption-translation"/);
  assert.match(captions,/pane\.scrollTop=0/);
  assert.match(captions,/replyRef\.current/);
  assert.match(captions,/translationRef\.current/);
  assert.match(css,/\.friend-caption-ai\{flex:1 0 154px;min-height:154px;overflow:hidden/);
- assert.match(css,/\.friend-caption-speaker\{flex:none\}/);
+ assert.doesNotMatch(captions,/friend-caption-speaker|friend-caption-avatar/);
  assert.match(css,/\.friend-caption-ai>p\{flex:1 1 0;min-height:3em;overflow-y:auto/);
  assert.match(css,/\.friend-caption-translation\{flex:0 1 auto;max-height:35%;min-height:0;overflow-y:auto/);
 });
