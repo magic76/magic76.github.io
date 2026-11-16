@@ -56,12 +56,12 @@ export function FriendCallCaptions({name,turns,input,output,learningLanguage,nat
   <section className="friend-caption-ai" aria-label={name}>
    <small>{name}{speaking?" · "+t("compact.speaking"):""}</small>
    <p lang={source}>{currentReply||latestReply||t("callCaptions.waitingForFriend")}</p>
-   {enabled&&needTranslation&&!currentReply&&latestReply?<div className="friend-caption-translation" lang={nativeLanguage}>
+   {enabled&&needTranslation&&latestReply&&(!currentReply||currentReply===latestReply)?<div className="friend-caption-translation" lang={nativeLanguage}>
     {translated?.source===latestReply&&translated.language===nativeLanguage?translated.text:working?t("callCaptions.translating"):error==="key"?t("callCaptions.needsKey"):error==="failed"?t("callCaptions.translateFailed"):null}
    </div>:null}
   </section>
   <section className="friend-caption-user" aria-label={t("friendLive.youSaid")}>
-   <small>{t("friendLive.youSaid")} · {input.trim()?t("callCaptions.recognizing"):t("callCaptions.recognized")}</small>
+   <small>{t("friendLive.youSaid")}{input.trim()&&input.trim()!==latestInput?" · "+t("callCaptions.recognizing"):latestInput?" · "+t("callCaptions.recognized"):""}</small>
    <p lang={source}>{input.trim()||latestInput||t("callCaptions.waitingForYou")}</p>
   </section>
  </div>;
