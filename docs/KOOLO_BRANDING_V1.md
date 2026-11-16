@@ -13,7 +13,7 @@ Status: PR-only prototype. Do not merge or attach koolo.app until user acceptanc
 ## Existing functional routes
 - Zoe voice: /friend/live?id=zoe&from=home&entry=bubble
 - Zoe text: /friend/live?id=zoe&from=home&chat=text
-- Both URLs are already used by the current Crew mobile homepage. No new backend, token, microphone request, or API endpoint is introduced.
+- Links on the isolated preview point to the existing www.3sssi.com production app so login/Turnstile/guest trial work without separate PR-preview origin allowlists. These are the same destinations used by the current Crew mobile homepage. No new backend, token, microphone request, or API endpoint is introduced.
 
 ## SEO and deployment boundaries
 - Preview HTML includes noindex,nofollow, no canonical or hreflang; remains deliberately out of the site navigation and sitemap.
