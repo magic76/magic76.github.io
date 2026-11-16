@@ -57,3 +57,8 @@
  .daily-quote--mobile .daily-quote-card{padding:7px 10px;gap:2px}
  .daily-quote--mobile .daily-quote-body{gap:1px}
 }
+
+/* Distance from the carousel pagination row to the daily fortune card. */
+@media(max-width:767px){
+ .daily-quote--mobile{margin-top:16px}
+}
