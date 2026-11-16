@@ -45,15 +45,16 @@ test("both friend text bubbles and typing indicator have 36-40px circular avatar
  assert.match(styleRule(textCss,".crew-text-chat-history .crew-text-ai-row .crew-text-chat-message"),/min-width:0;max-width:calc\(90% - 46px\)/);
  assert.match(styleRule(textCss,".crew-text-chat-history .crew-text-typing-row .crew-text-typing-bubble"),/min-width:0/);
 });
-test("telephone assistant captions, but not user captions, carry FriendAvatar",()=>{
- assert.match(captions,/import \{FriendAvatar\} from "\.\/FriendAvatar"/);
- assert.match(captions,/CREW_FRIENDS\.find\(friend=>friend\.name===name\)/);
+test("call captions rely on the large profile avatar instead of a redundant speaker row",()=>{
  const ai=captions.slice(captions.indexOf('<section className="friend-caption-ai"'),captions.indexOf('<section className="friend-caption-user"'));
- assert.match(ai,/<FriendAvatar friend=\{captionFriend\} className="friend-caption-avatar" decorative\/>/);
- assert.doesNotMatch(captions.slice(captions.indexOf('<section className="friend-caption-user"')),/<FriendAvatar/);
- const a=styleRule(callCss,".friend-phone-stage .friend-caption-ai .crew-friend-avatar.friend-caption-avatar");
- for(const prop of ["width","height"]){const value=px(a,prop);assert.ok(value>=36&&value<=40,prop+"="+value)}
- assert.match(a,/border-radius:50%/);
+ assert.ok(ai.startsWith('<section className="friend-caption-ai" aria-label={name}>'));
+ assert.doesNotMatch(ai,/<FriendAvatar|friend-caption-speaker|friend-caption-avatar|<small/);
+ assert.doesNotMatch(captions,/import \\{FriendAvatar\\}|CREW_FRIENDS\\.find/);
+ assert.match(ai,/<p ref=\\{replyRef\\} lang=\\{source\\}>/);
+ assert.match(ai,/friend-caption-translation/);
+ assert.match(styleRule(callCss,".friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-ai>p"),/font-size:17px;font-weight:500;line-height:1\\.55/);
+ assert.match(styleRule(callCss,".friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-translation"),/font-size:14px;line-height:1\\.55/);
+ assert.doesNotMatch(callCss,/friend-caption-speaker|friend-caption-avatar/);
 });
 test("small components and keyboard-open switches remain within the contract",()=>{
  assert.ok(Buffer.byteLength(text)<26000,`TextChatPanel=${Buffer.byteLength(text)}`);
