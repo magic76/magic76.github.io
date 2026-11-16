@@ -10,12 +10,12 @@ const topics=[
 ] as const;
 
 /** Lightweight internal links: guide articles remain a separate lazy-loaded chunk. */
-export function GuideHub(){
+export function GuideHub({hideGeminiKey=false}:{hideGeminiKey?:boolean}={}){
  const {i18n}=useTranslation();
  const english=i18n.language!=="zh-TW";
  return <section className="crew-guide-hub" aria-label={english?"English learning guides":"英文學習指南"}>
   <h2>{english?"English speaking guides":"英文口說與 AI 練習指南"}</h2>
-  <div className="crew-guide-hub-links">{topics.map(([slug,zh,en])=>
+  <div className="crew-guide-hub-links">{topics.filter(([slug])=>!hideGeminiKey||slug!=="gemini-key-for-ai-practice").map(([slug,zh,en])=>
    <Link key={slug} to={"/guides/"+slug}>{english?en:zh} ↗</Link>
   )}</div>
  </section>;

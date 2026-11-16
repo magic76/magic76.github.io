@@ -12,7 +12,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a friendly barista at a specialty coffee shop. Greet the customer warmly and ask for their drink order, size, and milk preference.",
     "missions": [
       {
-        "titleEn": "向店員點一杯咖啡或茶飲",
+        "titleEn": "Order a coffee or tea from the barista",
         "titleZh": "向店員點一杯咖啡或茶飲",
         "keywords": [
           "latte",
@@ -24,7 +24,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "提出客製化要求（換奶/甜度/冰塊）",
+        "titleEn": "Customize the milk, sweetness, or ice",
         "titleZh": "提出客製化要求（換奶/甜度/冰塊）",
         "keywords": [
           "oat milk",
@@ -38,7 +38,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問結帳方式並完成買單",
+        "titleEn": "Ask how to pay and settle the bill",
         "titleZh": "詢問結帳方式並完成買單",
         "keywords": [
           "pay",
@@ -63,7 +63,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an attentive waiter at an upscale steakhouse. Welcome the guest, introduce today's special, and ask for their steak doneness preference.",
     "missions": [
       {
-        "titleEn": "詢問服務生推薦料理或招牌菜",
+        "titleEn": "Ask the server for a recommended or signature dish",
         "titleZh": "詢問服務生推薦料理或招牌菜",
         "keywords": [
           "recommend",
@@ -73,7 +73,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "點選牛排並指定熟度 (如 medium-rare)",
+        "titleEn": "Order a steak and choose how it is cooked (medium-rare)",
         "titleZh": "點選牛排並指定熟度 (如 medium-rare)",
         "keywords": [
           "medium-rare",
@@ -85,7 +85,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "選擇附餐或詢問醬汁搭配",
+        "titleEn": "Choose sides or ask about sauce pairings",
         "titleZh": "選擇附餐或詢問醬汁搭配",
         "keywords": [
           "sauce",
@@ -110,7 +110,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a polite restaurant manager. Listen to the customer's request carefully, apologize if needed, and assist with bill payment.",
     "missions": [
       {
-        "titleEn": "禮貌反映餐點狀況（如送錯或冷掉）",
+        "titleEn": "Politely report a wrong or cold dish",
         "titleZh": "禮貌反映餐點狀況（如送錯或冷掉）",
         "keywords": [
           "wrong",
@@ -122,7 +122,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "要求索取帳單 (Check / Bill)",
+        "titleEn": "Ask for the check or bill",
         "titleZh": "要求索取帳單 (Check / Bill)",
         "keywords": [
           "bill",
@@ -131,7 +131,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "提出分開結帳 (Split the bill)",
+        "titleEn": "Ask to split the bill",
         "titleZh": "提出分開結帳 (Split the bill)",
         "keywords": [
           "split",
@@ -154,7 +154,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an airline check-in ground agent. Greet the passenger, ask for passport, baggage details, and seat preference.",
     "missions": [
       {
-        "titleEn": "主動出示護照並表明飛往目的地",
+        "titleEn": "Show your passport and state your destination",
         "titleZh": "主動出示護照並表明飛往目的地",
         "keywords": [
           "passport",
@@ -165,7 +165,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "說明行李托運數量 (Check-in luggage)",
+        "titleEn": "Say how many bags you want to check in",
         "titleZh": "說明行李托運數量 (Check-in luggage)",
         "keywords": [
           "luggage",
@@ -177,7 +177,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "要求靠窗或靠走道座位 (Window/Aisle seat)",
+        "titleEn": "Request a window or aisle seat",
         "titleZh": "要求靠窗或靠走道座位 (Window/Aisle seat)",
         "keywords": [
           "window",
@@ -199,7 +199,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an immigration customs officer at border control. Ask the traveler about their visit purpose, duration of stay, and accommodation.",
     "missions": [
       {
-        "titleEn": "說明入境目的（如觀光旅遊/度假）",
+        "titleEn": "Explain your purpose for entering the country",
         "titleZh": "說明入境目的（如觀光旅遊/度假）",
         "keywords": [
           "vacation",
@@ -211,7 +211,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "告知停留天數與住宿飯店名稱",
+        "titleEn": "State how long you will stay and where",
         "titleZh": "告知停留天數與住宿飯店名稱",
         "keywords": [
           "stay",
@@ -222,7 +222,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "表明已訂好回程機票 (Return ticket)",
+        "titleEn": "Confirm that you have a return ticket",
         "titleZh": "表明已訂好回程機票 (Return ticket)",
         "keywords": [
           "return",
@@ -245,7 +245,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a helpful local pedestrian in London/New York. Guide the traveler to their destination clearly.",
     "missions": [
       {
-        "titleEn": "禮貌詢問前往某地/地鐵站的方向",
+        "titleEn": "Politely ask for directions to a place or subway station",
         "titleZh": "禮貌詢問前往某地/地鐵站的方向",
         "keywords": [
           "how do i get",
@@ -257,7 +257,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問步行或搭車大約需要多久 (How long)",
+        "titleEn": "Ask how long it takes on foot or by transit",
         "titleZh": "詢問步行或搭車大約需要多久 (How long)",
         "keywords": [
           "how long",
@@ -268,7 +268,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "致謝並確認方向 (Thank you)",
+        "titleEn": "Thank the person and confirm the directions",
         "titleZh": "致謝並確認方向 (Thank you)",
         "keywords": [
           "thank you",
@@ -291,7 +291,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a helpful baggage claim service staff. Ask the passenger for their baggage claim tag, suitcase color/brand, and delivery address.",
     "missions": [
       {
-        "titleEn": "說明行李未在轉盤出現並出示行李票 (Claim tag)",
+        "titleEn": "Report missing baggage and show your claim tag",
         "titleZh": "說明行李未在轉盤出現並出示行李票 (Claim tag)",
         "keywords": [
           "baggage",
@@ -303,7 +303,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "清晰描述行李箱的顏色與外觀特徵",
+        "titleEn": "Describe the color and appearance of your suitcase",
         "titleZh": "清晰描述行李箱的顏色與外觀特徵",
         "keywords": [
           "black",
@@ -317,7 +317,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "留下飯店地址與聯絡電話要求送達",
+        "titleEn": "Give your hotel address and phone number for delivery",
         "titleZh": "留下飯店地址與聯絡電話要求送達",
         "keywords": [
           "hotel",
@@ -341,7 +341,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a receptionist at a boutique hotel. Welcome the guest, confirm their booking, and assist with room keys.",
     "missions": [
       {
-        "titleEn": "出示預訂並說明入住姓名 (Reservation)",
+        "titleEn": "Confirm your reservation and name at check-in",
         "titleZh": "出示預訂並說明入住姓名 (Reservation)",
         "keywords": [
           "reservation",
@@ -352,7 +352,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "要求高樓層或安靜房間 (High floor / Quiet)",
+        "titleEn": "Request a high-floor or quiet room",
         "titleZh": "要求高樓層或安靜房間 (High floor / Quiet)",
         "keywords": [
           "high floor",
@@ -363,7 +363,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問 Wi-Fi 密碼或早餐時間 (Wi-Fi / Breakfast)",
+        "titleEn": "Ask for the Wi-Fi password or breakfast hours",
         "titleZh": "詢問 Wi-Fi 密碼或早餐時間 (Wi-Fi / Breakfast)",
         "keywords": [
           "wifi",
@@ -387,7 +387,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are the front desk agent on duty. Handle the guest's complaint with empathy and send assistance promptly.",
     "missions": [
       {
-        "titleEn": "表明房號並清楚描述設備故障問題",
+        "titleEn": "State your room number and describe the problem",
         "titleZh": "表明房號並清楚描述設備故障問題",
         "keywords": [
           "room",
@@ -400,7 +400,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "要求派維修人員上樓檢查 (Send someone)",
+        "titleEn": "Ask someone to come and inspect the issue",
         "titleZh": "要求派維修人員上樓檢查 (Send someone)",
         "keywords": [
           "send",
@@ -411,7 +411,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "提出若無法修復希望能更換房間 (Switch room)",
+        "titleEn": "Request a room change if repairs are not possible",
         "titleZh": "提出若無法修復希望能更換房間 (Switch room)",
         "keywords": [
           "switch",
@@ -434,7 +434,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are the front desk cashier. Assist the guest with invoice review, luggage storage tag, and airport taxi reservation.",
     "missions": [
       {
-        "titleEn": "告知房號並辦理退房手續 (Check out)",
+        "titleEn": "Give your room number and check out",
         "titleZh": "告知房號並辦理退房手續 (Check out)",
         "keywords": [
           "check out",
@@ -445,7 +445,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "要求暫存行李至出發時間 (Leave bags / Storage)",
+        "titleEn": "Ask to store your bags until departure",
         "titleZh": "要求暫存行李至出發時間 (Leave bags / Storage)",
         "keywords": [
           "leave",
@@ -457,7 +457,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "請櫃檯幫忙叫計程車或預約接駁 (Call a cab / Taxi)",
+        "titleEn": "Ask the front desk to call a taxi or book a shuttle",
         "titleZh": "請櫃檯幫忙叫計程車或預約接駁 (Call a cab / Taxi)",
         "keywords": [
           "taxi",
@@ -481,7 +481,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an energetic retail fashion sales assistant. Help the shopper find the right fit and suggest colors.",
     "missions": [
       {
-        "titleEn": "詢問試衣間位置並要求試穿 (Try on / Fitting room)",
+        "titleEn": "Ask where the fitting room is and try something on",
         "titleZh": "詢問試衣間位置並要求試穿 (Try on / Fitting room)",
         "keywords": [
           "try on",
@@ -491,7 +491,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "說明尺寸大小並要求更換 (Medium / Large / Small)",
+        "titleEn": "Explain the fit and request another size (S, M, or L)",
         "titleZh": "說明尺寸大小並要求更換 (Medium / Large / Small)",
         "keywords": [
           "size",
@@ -504,7 +504,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認是否有折扣或詢問價錢 (Discount / Price)",
+        "titleEn": "Ask the price or whether a discount is available",
         "titleZh": "確認是否有折扣或詢問價錢 (Discount / Price)",
         "keywords": [
           "discount",
@@ -528,7 +528,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a tax refund officer at a major department store. Check the receipts, passport eligibility, and offer cash or credit card refund.",
     "missions": [
       {
-        "titleEn": "出示護照與購物收據辦理退稅 (Passport & Receipts)",
+        "titleEn": "Show your passport and receipts for a tax refund",
         "titleZh": "出示護照與購物收據辦理退稅 (Passport & Receipts)",
         "keywords": [
           "passport",
@@ -539,7 +539,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "選擇退款方式（現金退款或信用卡退刷）",
+        "titleEn": "Choose a cash or credit-card refund",
         "titleZh": "選擇退款方式（現金退款或信用卡退刷）",
         "keywords": [
           "card",
@@ -549,7 +549,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問海關蓋章或機場投遞流程 (Customs stamp)",
+        "titleEn": "Ask about customs stamps or airport drop-off steps",
         "titleZh": "詢問海關蓋章或機場投遞流程 (Customs stamp)",
         "keywords": [
           "airport",
@@ -573,7 +573,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an empathetic pharmacist. Ask the customer about their symptoms, allergies, and give clear medication instructions.",
     "missions": [
       {
-        "titleEn": "清楚說明身體不適症狀（如頭痛/喉嚨痛/發燒）",
+        "titleEn": "Describe your symptoms, such as a headache or fever",
         "titleZh": "清楚說明身體不適症狀（如頭痛/喉嚨痛/發燒）",
         "keywords": [
           "headache",
@@ -586,7 +586,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問每日服用次數與是否飯後服用 (After meals)",
+        "titleEn": "Ask how often to take the medicine and whether after meals",
         "titleZh": "詢問每日服用次數與是否飯後服用 (After meals)",
         "keywords": [
           "how many",
@@ -598,7 +598,7 @@ export const TRAVEL_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認是否有嗜睡副作用 (Drowsy / Side effects)",
+        "titleEn": "Check for drowsiness or other side effects",
         "titleZh": "確認是否有嗜睡副作用 (Drowsy / Side effects)",
         "keywords": [
           "drowsy",

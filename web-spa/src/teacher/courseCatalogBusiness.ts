@@ -12,7 +12,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are chairing a global sync meeting. Ask the new teammate to introduce themselves and their role.",
     "missions": [
       {
-        "titleEn": "向與會同仁打招呼並說明自己的角色 (Role)",
+        "titleEn": "Greet participants and explain your role",
         "titleZh": "向與會同仁打招呼並說明自己的角色 (Role)",
         "keywords": [
           "morning",
@@ -26,7 +26,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "簡要提及本季或近期負責的主要目標",
+        "titleEn": "Summarize your main goals for this quarter",
         "titleZh": "簡要提及本季或近期負責的主要目標",
         "keywords": [
           "responsible",
@@ -38,7 +38,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "表達期待與團隊合作 (Look forward to)",
+        "titleEn": "Express enthusiasm about working together (look forward to)",
         "titleZh": "表達期待與團隊合作 (Look forward to)",
         "keywords": [
           "look forward",
@@ -62,7 +62,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an agile project manager. Ask the engineer about their sprint progress and any blockers.",
     "missions": [
       {
-        "titleEn": "說明最近已完成的里程碑 (Completed)",
+        "titleEn": "Report a milestone you have completed",
         "titleZh": "說明最近已完成的里程碑 (Completed)",
         "keywords": [
           "completed",
@@ -73,7 +73,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "說明目前進行中的項目 (Currently working on)",
+        "titleEn": "Explain what you are currently working on",
         "titleZh": "說明目前進行中的項目 (Currently working on)",
         "keywords": [
           "currently",
@@ -84,7 +84,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "提出阻礙並尋求跨團隊支援 (Blocker / Need help)",
+        "titleEn": "Raise a blocker and request cross-team support",
         "titleZh": "提出阻礙並尋求跨團隊支援 (Blocker / Need help)",
         "keywords": [
           "blocker",
@@ -109,7 +109,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a product director proposing a tight launch deadline. Listen to the engineer's concerns and find middle ground.",
     "missions": [
       {
-        "titleEn": "肯定對方觀點並委婉切入疑慮 (I see your point, but...)",
+        "titleEn": "Acknowledge a point before expressing concerns (I see your point, but…)",
         "titleZh": "肯定對方觀點並委婉切入疑慮 (I see your point, but...)",
         "keywords": [
           "see your point",
@@ -121,7 +121,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "提出具體替代方案或階段性發布 (Alternative / Phased)",
+        "titleEn": "Propose an alternative or a phased rollout",
         "titleZh": "提出具體替代方案或階段性發布 (Alternative / Phased)",
         "keywords": [
           "what if",
@@ -133,7 +133,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認下一步行動與負責人 (Next steps / Align)",
+        "titleEn": "Confirm next steps and who owns each action",
         "titleZh": "確認下一步行動與負責人 (Next steps / Align)",
         "keywords": [
           "next step",
@@ -157,7 +157,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an exhibitor at a tech conference. Welcome the booth visitor, discuss industry trends, and swap business contacts.",
     "missions": [
       {
-        "titleEn": "主動向展位人員打招呼並詢問產品特色",
+        "titleEn": "Greet booth staff and ask about product features",
         "titleZh": "主動向展位人員打招呼並詢問產品特色",
         "keywords": [
           "booth",
@@ -169,7 +169,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "介紹自己的公司與正在尋找的合作機會",
+        "titleEn": "Introduce your company and potential partnerships",
         "titleZh": "介紹自己的公司與正在尋找的合作機會",
         "keywords": [
           "company",
@@ -181,7 +181,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "提議互換名片或交換聯繫方式 (Exchange cards / LinkedIn)",
+        "titleEn": "Suggest exchanging business cards or LinkedIn contacts",
         "titleZh": "提議互換名片或交換聯繫方式 (Exchange cards / LinkedIn)",
         "keywords": [
           "card",
@@ -206,7 +206,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a foreign business partner visiting the Taipei office for the first time. Express appreciation for the warm hospitality.",
     "missions": [
       {
-        "titleEn": "熱情迎接客戶並關心旅途與時差 (Flight / Jet lag)",
+        "titleEn": "Welcome clients and ask about their flight or jet lag",
         "titleZh": "熱情迎接客戶並關心旅途與時差 (Flight / Jet lag)",
         "keywords": [
           "welcome",
@@ -219,7 +219,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "主動招待茶水或咖啡 (Coffee / Tea / Water)",
+        "titleEn": "Offer coffee, tea, or water",
         "titleZh": "主動招待茶水或咖啡 (Coffee / Tea / Water)",
         "keywords": [
           "coffee",
@@ -231,7 +231,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "引導前往會議室並概述今日議程 (Agenda / Meeting room)",
+        "titleEn": "Guide guests to the meeting room and outline the agenda",
         "titleZh": "引導前往會議室並概述今日議程 (Agenda / Meeting room)",
         "keywords": [
           "conference room",
@@ -256,7 +256,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a foreign client enjoying dinner at a fine restaurant. Share enthusiasm about the joint partnership and local culture.",
     "missions": [
       {
-        "titleEn": "介紹一道在地經典特色美食給客戶",
+        "titleEn": "Introduce a classic local dish to clients",
         "titleZh": "介紹一道在地經典特色美食給客戶",
         "keywords": [
           "dish",
@@ -269,7 +269,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "舉杯祝酒慶祝團隊與未來的合作 (Propose a toast / Cheers)",
+        "titleEn": "Propose a toast to the team and future collaboration (cheers)",
         "titleZh": "舉杯祝酒慶祝團隊與未來的合作 (Propose a toast / Cheers)",
         "keywords": [
           "toast",
@@ -281,7 +281,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "得體結尾並表達對明天行程的期待",
+        "titleEn": "End dinner politely and look ahead to tomorrow",
         "titleZh": "得體結尾並表達對明天行程的期待",
         "keywords": [
           "tomorrow",
@@ -305,7 +305,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an executive interviewer at a global tech firm. Ask the candidate: 'Tell me about yourself and why you are interested in this position.'",
     "missions": [
       {
-        "titleEn": "概述過往經歷與核心專業領域 (Experience & Background)",
+        "titleEn": "Summarize your experience and professional background",
         "titleZh": "概述過往經歷與核心專業領域 (Experience & Background)",
         "keywords": [
           "years",
@@ -318,7 +318,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "具體量化一項過往成果 (Numbers / Growth / Impact)",
+        "titleEn": "Quantify a past achievement with results or impact",
         "titleZh": "具體量化一項過往成果 (Numbers / Growth / Impact)",
         "keywords": [
           "percent",
@@ -332,7 +332,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "說明為何對本公司/職位感興趣 (Why this company)",
+        "titleEn": "Explain why you are interested in this company or role",
         "titleZh": "說明為何對本公司/職位感興趣 (Why this company)",
         "keywords": [
           "excited",
@@ -358,7 +358,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a hiring manager asking: 'Tell me about a time you faced a major technical challenge or deadline crunch.'",
     "missions": [
       {
-        "titleEn": "交代具體挑戰背景與目標任務 (Situation & Task)",
+        "titleEn": "Set out the situation and task (STAR)",
         "titleZh": "交代具體挑戰背景與目標任務 (Situation & Task)",
         "keywords": [
           "situation",
@@ -371,7 +371,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "清晰描述自己採取的行動策略 (Action taken)",
+        "titleEn": "Describe the actions you took",
         "titleZh": "清晰描述自己採取的行動策略 (Action taken)",
         "keywords": [
           "i decided",
@@ -384,7 +384,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "總結最終帶來的具體成效與學習 (Result & Takeaway)",
+        "titleEn": "Summarize the outcome and what you learned",
         "titleZh": "總結最終帶來的具體成效與學習 (Result & Takeaway)",
         "keywords": [
           "result",
@@ -410,7 +410,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a recruiter extending a job offer. Discuss the total compensation package with the candidate.",
     "missions": [
       {
-        "titleEn": "表達對 Offer 的感謝與對職位的熱情 (Appreciate the offer)",
+        "titleEn": "Thank them for the offer and express enthusiasm",
         "titleZh": "表達對 Offer 的感謝與對職位的熱情 (Appreciate the offer)",
         "keywords": [
           "thank you",
@@ -422,7 +422,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "委婉提出期望的薪酬區間或待遇要求 (Target compensation)",
+        "titleEn": "Politely discuss your target compensation range",
         "titleZh": "委婉提出期望的薪酬區間或待遇要求 (Target compensation)",
         "keywords": [
           "salary",
@@ -434,7 +434,7 @@ export const BUSINESS_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認回覆期限與到職日安排 (Start date / Timeline)",
+        "titleEn": "Confirm the response deadline and start date",
         "titleZh": "確認回覆期限與到職日安排 (Start date / Timeline)",
         "keywords": [
           "start date",

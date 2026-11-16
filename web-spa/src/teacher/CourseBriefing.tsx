@@ -24,6 +24,9 @@ export function CourseBriefing({lesson}:{lesson:CourseLesson}){
    <span className="kicker">{t("briefing.roleplay")}</span>
    <h1 id="crew-briefing-title">{title}</h1>
    <p className="crew-course-briefing-description">{courseDisplayDescription(lesson,locale)}</p>
+   <Link className="btn primary crew-learning-full-cta" to={"/teacher/live?mode=course&lesson="+encodeURIComponent(lesson.id)}>
+    {t("briefing.start")} →
+   </Link>
    {ready&&target!=="英文"&&<p className="crew-course-language-note" role="note">{t("course.materialNotice",{language:t("friends:languages."+target,{defaultValue:target}),native:localizedNativeName(native,locale)})}</p>}
    <h2>{t("briefing.goals",{count:lesson.missions.length})}</h2>
    <ol className="crew-course-briefing-missions">
@@ -47,9 +50,6 @@ export function CourseBriefing({lesson}:{lesson:CourseLesson}){
      </div>)}
     </div>
    </details>}
-   <Link className="btn primary crew-learning-full-cta" to={"/teacher/live?mode=course&lesson="+encodeURIComponent(lesson.id)}>
-    {t("briefing.start")} →
-   </Link>
    <p className="crew-course-briefing-footnote">{t("briefing.footnote")}</p>
   </section>
  </div>;

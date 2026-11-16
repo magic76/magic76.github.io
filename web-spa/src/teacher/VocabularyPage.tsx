@@ -146,7 +146,7 @@ export function VocabularyPage(){
   <section className="crew-learning-quiz" aria-label={t("vocabulary.title")}>
    <div className="crew-learning-quiz-top">
     <div><span className="kicker">{t("vocabulary.kicker")}</span><h1>{t("vocabulary.title")}</h1></div>
-    <span className="pill">{placementLabel({...placementState(),score})}</span>
+    <span className="pill">{placementState().attempts<8?t("vocabulary.placementEstimating"):placementLabel({...placementState(),score})}</span>
    </div>
    <div className="crew-learning-quiz-progress">
     <span>{t("vocabulary.progress")}</span>
