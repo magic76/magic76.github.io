@@ -78,7 +78,7 @@ test("Gemini Key is managed once globally, not separately per product",()=>{
  assert.ok(runtime.includes('export function saveGeminiKey('));
  assert.ok(panel.includes("saveGeminiKey(candidate,remember)"));
  assert.ok(settings.includes('t("hero.desc")'));
- assert.ok(JSON.parse(read("i18n/locales/zh-TW/settings.json")).hero.desc.includes("Crew Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key"));
+ assert.ok(JSON.parse(read("i18n/locales/zh-TW/settings.json")).hero.desc.includes("Koolo Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key"));
  assert.ok(create.includes("geminiKey()"),"Story must read the shared key");
  for(const source of [story,fortune]){
   assert.ok(!source.includes("GeminiSetupNotice"),"products should not show a second API-key settings card");

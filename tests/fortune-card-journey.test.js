@@ -138,7 +138,7 @@ test("shared renderer produces 1080x1350 illustrated collectible with no birth f
   const footer=env.calls.filter(x=>x[0]==="text"&&x[3]===1249);
   assert.equal(footer.length,2);
   assert.deepEqual(footer.map(x=>x[2]),[101,982]);
-  assert.ok(env.calls.some(x=>x[1]==="CREW FORTUNE"));
+  assert.ok(env.calls.some(x=>x[1]==="Koolo FORTUNE"));
   assert.ok(env.calls.some(x=>String(x[1]).includes("3sssi.com/fortune")));
   assert.ok(env.calls.some(x=>x[1]==="命格輪廓"));
   assert.ok(env.calls.some(x=>x[1]==="行動線索"));

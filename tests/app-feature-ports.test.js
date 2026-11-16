@@ -544,7 +544,7 @@ test("Story and Fortune use shared global Gemini settings without duplicate Key 
  assert.ok(create.includes('t("create.keyError")'));
  assert.equal(readUiLocale("story").create.keyError,"需要先設定 Gemini Key 才能創作故事。");
  assert.ok(reading.includes('if(!geminiKey()||!window.CrewAI)'));
- assert.ok(readUiLocale("settings").hero.desc.includes("Crew Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key"));
+ assert.ok(readUiLocale("settings").hero.desc.includes("Koolo Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key"));
  assert.ok(panel.includes("https://aistudio.google.com/apikey"));
  assert.ok(readUiLocale("settings").gemini.privacy.includes("Google 專案管理"));
  assert.ok(!story.includes("aistudio.google.com"),"Story should not have separate Key setup");
@@ -575,7 +575,7 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
 test("Crew home prioritizes chat and preserves free play with conditional Gemini onboarding",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/pages/home.css"),"utf8");
- assert.equal(readUiLocale("home").headline,"和 Crew 朋友聊聊吧");
+ assert.equal(readUiLocale("home").headline,"和 Koolo 朋友聊聊吧");
  const portal=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePortal.tsx"),"utf8");
  assert.match(home,/<HomePortal\b/);
  const modeRail=fs.readFileSync(path.join(root,"web-spa/src/pages/HomeModeRail.tsx"),"utf8");
@@ -588,7 +588,7 @@ test("Crew home prioritizes chat and preserves free play with conditional Gemini
  assert.ok(home.includes('t("continue")'));
  assert.equal(readUiLocale("home").continue,"繼續上次");
  assert.ok(home.includes('t("explore")'));
- assert.equal(readUiLocale("home").explore,"探索 Crew");
+ assert.equal(readUiLocale("home").explore,"探索 Koolo");
  assert.ok(home.includes('t("setup.title")'));
  assert.ok(readUiLocale("home").setup.title.includes("免費"));
  assert.ok(home.includes('t("setup.shortDesc")'));
@@ -599,7 +599,7 @@ test("Crew home prioritizes chat and preserves free play with conditional Gemini
  assert.doesNotMatch(home,/crew-home-product-grid|crew-home-products/);
  assert.ok(home.includes('to={"/games/"+featuredGame}'),"daily games are directly playable");
  assert.ok(home.includes('t("product.play")'),"SEO keeps the Play link");
- assert.equal(readUiLocale("home").product.play,"與 Crew 朋友玩遊戲");
+ assert.equal(readUiLocale("home").product.play,"與 Koolo 朋友玩遊戲");
  assert.ok(css.includes("@media(max-width:620px)"));
 });
 
@@ -812,7 +812,8 @@ test("Gemini saved and verified states stay separate with actionable Live recove
  assert.ok(readUiLocale("settings").gemini.initialPending.includes("尚未驗證"));
  assert.ok(settings.includes("setGeminiVerified(true)"));
  assert.ok(!chrome.includes('t("gemini.pending")'),"header no longer duplicates Gemini status");
- assert.ok(chrome.includes('to="/account"'),"account remains accessible from header");
+ const me=fs.readFileSync(path.join(root,"web-spa/src/pages/CrewSectionPage.tsx"),"utf8");
+ assert.ok(chrome.includes('to="/account"')||me.includes('to="/account"'),"account must remain reachable in the header or My menu");
  assert.equal(readUiLocale("common").gemini.pending,"Gemini 待驗證");
  assert.ok(home.includes('t("setup.verify")'));
  assert.equal(readUiLocale("home").setup.verify,"Gemini Key 尚未驗證");
