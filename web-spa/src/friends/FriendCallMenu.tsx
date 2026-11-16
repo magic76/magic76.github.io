@@ -21,7 +21,7 @@ export function FriendCallMenu({inCall,open,onClose,title,closeLabel,children}:{
    if(event.key!=="Tab")return;
    const panel=panelRef.current;
    if(!panel)return;
-   const focusable=Array.from(panel.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),[tabindex]:not([tabindex="-1"])'));
+   const focusable=Array.from(panel.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex]:not([tabindex="-1"])'));
    if(!focusable.length){event.preventDefault();panel.focus();return}
    const first=focusable[0],last=focusable[focusable.length-1];
    if(!panel.contains(document.activeElement)){event.preventDefault();first.focus()}
@@ -33,7 +33,7 @@ export function FriendCallMenu({inCall,open,onClose,title,closeLabel,children}:{
  },[inCall,open]);
  if(!inCall)return <>{children}</>;
  if(!open)return null;
- return createPortal(<div className="friend-call-menu-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)closeRef.current()}}>
+ return createPortal(<div className="friend-call-menu-backdrop" onClick={event=>{if(event.target===event.currentTarget)closeRef.current()}}>
   <div id="friend-call-menu-dialog" ref={panelRef} className="friend-call-menu-panel" role="dialog" aria-modal="true" aria-labelledby="friend-call-menu-title" tabIndex={-1}>
    <div className="friend-call-menu-heading"><h2 id="friend-call-menu-title">{title}</h2><button type="button" className="friend-call-menu-close" aria-label={closeLabel} onClick={()=>closeRef.current()}>×</button></div>
    <div className="friend-call-menu-scroll">{children}</div>
