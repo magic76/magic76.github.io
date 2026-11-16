@@ -28,8 +28,8 @@ test("Koolo and legacy domains each use their own exact OAuth callback and host-
 
 test("Guest Worker only responds with exact same-origin CORS for old and Koolo sites",async()=>{
  const worker=(await import("../workers/guest-trial/worker.mjs")).default;
- const url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
- for(const origin of [OLD,NEW]){
+ const endpoints=["https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token","https://p.koolo.app/api/guest/token"];
+ for(const url of endpoints)for(const origin of [OLD,NEW]){
   const pre=await worker.fetch(new Request(url,{method:"OPTIONS",headers:{Origin:origin}}),{});
   assert.equal(pre.status,204);
   assert.equal(pre.headers.get("access-control-allow-origin"),origin);
@@ -37,11 +37,18 @@ test("Guest Worker only responds with exact same-origin CORS for old and Koolo s
   const get=await worker.fetch(new Request(url,{headers:{Origin:origin}}),{});
   assert.equal(get.headers.get("access-control-allow-origin"),origin);
  }
- for(const origin of ["https://evil.example","https://www.koolo.app","http://koolo.app"]){
+ for(const url of endpoints)for(const origin of ["https://evil.example","https://www.koolo.app","http://koolo.app"]){
   const denied=await worker.fetch(new Request(url,{method:"OPTIONS",headers:{Origin:origin}}),{});
   assert.equal(denied.status,403);
   assert.equal(denied.headers.get("access-control-allow-origin"),null);
  }
+ for(const url of ["https://bad.koolo.app/api/guest/token","https://evil.example/api/guest/token","http://p.koolo.app/api/guest/token"]){
+  const denied=await worker.fetch(new Request(url,{headers:{Origin:NEW}}),{});
+  assert.equal(denied.status,404,"unlisted Worker host must fail closed: "+url);
+ }
+ const config=require("node:fs").readFileSync(require("node:path").join(__dirname,"../workers/guest-trial/wrangler.toml"),"utf8");
+ assert.ok(config.includes('pattern = "p.koolo.app"'+String.fromCharCode(10)+'custom_domain = true'));
+ assert.match(config,/workers_dev = true/);
 });
 
 test("Member guest-ticket accepts only same-origin requests on each approved domain",async()=>{

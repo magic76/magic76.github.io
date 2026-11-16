@@ -6,6 +6,11 @@ compatibility_date = "2026-10-28"
 workers_dev = true
 keep_vars = true
 
+# Dedicated production endpoint; keep workers.dev online for a safe gradual migration.
+[[routes]]
+pattern = "p.koolo.app"
+custom_domain = true
+
 [vars]
 GUEST_TRIAL_ENABLED = "1"
 # Crew Video TTS: max new jobs per UTC day (valid 1–50; invalid/missing -> 20).
