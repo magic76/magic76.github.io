@@ -27,3 +27,7 @@
 .teacher-call-page:has(.friend-phone-stage) .report-stat,.teacher-call-page:has(.friend-phone-stage) .report-body{background:#191919;border-color:#555}
 @media(max-width:640px){.teacher-call-page .teacher-live-stage.friend-phone-stage{padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px));gap:8px}.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-presence-shell,.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-live-avatar{width:64px;height:64px}}
 @media(prefers-reduced-motion:reduce){.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-presence-orbit,.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-presence-shell{animation:none!important;transition:none!important}}
+
+/* Controls follow captions; keep the shared phone dock visible at all viewport heights. */
+.teacher-call-page .teacher-live-stage.friend-phone-stage>.teacher-call-voice-dock{order:5;display:flex;flex:0 0 auto;flex-direction:column;align-items:center;gap:8px;width:100%;min-height:0}
+.teacher-call-page .teacher-call-voice-dock .friend-phone-controls{width:100%;max-width:460px}
