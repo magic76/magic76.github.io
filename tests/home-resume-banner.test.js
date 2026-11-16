@@ -32,7 +32,7 @@ test("first carousel slide uses the last known friend and keeps Zoe for first vi
  assert.match(mobile,/useEffect\(\(\)=>\{\s*setResume\(readLatestFriendResume\(\)\)/);
  assert.match(mobile,/const resumeFriend=resume\?CREW_FRIENDS.find\(friend=>friend.id===resume.friendId\):null/);
  assert.match(mobile,/const friendResume=resumeFriend\?resume:null/);
- assert.match(mobile,/friendResume\?t\("layout2.resumeTitle",\{name:resumeFriend!\.name\}\):copy\("一起聊聊吧！"/);
+ assert.match(mobile,/friendResume\?t\("layout2.resumeTitle",\{name:resumeFriend!\.name\}\):t\("mobileHero.title"/);
  assert.match(mobile,/src=\{resumeFriend\?\.avatar\|\|zoePhoto\}/);
  assert.match(mobile,/textDestination=resumeId\?"\/friend\/live\?id="\+encodeURIComponent\(resumeId\)\+"&from=home&chat=text":ZOE_TEXT/);
  assert.match(mobile,/voiceDestination=resumeId\?"\/friend\/live\?id="\+encodeURIComponent\(resumeId\)\+"&from=home&entry=bubble":ZOE_VOICE/);

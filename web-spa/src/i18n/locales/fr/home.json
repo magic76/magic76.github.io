@@ -96,7 +96,7 @@
     "explore": "Découvrir les autres activités",
     "tap": "Touchez pour ouvrir"
   },
-  "layout2": {"title": "Dis bonjour à {{name}}.","action": "Dire bonjour à {{name}}","description": "Pas besoin de sujet. Dis simplement bonjour.","voice": "Passer au chat vocal","more": "Envie d’autre chose ?","resumeTitle": "Reprendre avec {{name}}",
+  "layout2": {"title": "Les langues avec {{name}}","action": "Dire bonjour à {{name}}","description": "Pas besoin de sujet. Dis simplement bonjour.","voice": "Passer au chat vocal","more": "Envie d’autre chose ?","resumeTitle": "Reprendre avec {{name}}",
     "previewLabel": "Dernier échange :","resumeAction": "Reprendre le chat écrit","chatTitle": "Dis d’abord bonjour","chatDescription": "Discute avec un ami IA et vois où cela mène.","previewHidden": "Dernier message masqué","showPreview": "Afficher le dernier message","hidePreview": "Masquer le dernier message"},
   "world": {
     "freeAllowance": {"full": "Sans inscription · {{count}} messages et {{minutes}} min de voix par jour. À demain", "textOnly": "Sans inscription · {{count}} messages gratuits par jour. À demain", "voiceUsed": "Voix épuisée aujourd’hui · {{count}} messages par jour. À demain"},
@@ -591,6 +591,8 @@
     "soulsDescription": "Donnez la parole à un objet.",
     "learnDescription": "Apprenez une expression étrangère."
   },
+  "mobileHero": {"title": "Langues avec IA", "subtitle": "Commence par bonjour."},
+  "quickEntry": {"heading": "Explorer Crew", "fortune": "Mon horoscope", "shorts": "Voir les Shorts"},
   "liveBubble": {
     "invite": "Coucou, on discute un peu ?",
     "start": "Vocal",

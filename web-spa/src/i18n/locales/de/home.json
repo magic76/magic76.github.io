@@ -96,7 +96,7 @@
     "explore": "Weitere Möglichkeiten entdecken",
     "tap": "Zum Öffnen tippen"
   },
-  "layout2": {"title": "Sag {{name}} einfach Hallo.","action": "Sag {{name}} Hallo","description": "Du brauchst kein Thema. Sag einfach Hallo.","voice": "Stattdessen per Sprache chatten","more": "Lust auf etwas anderes?","resumeTitle": "Mit {{name}} weiterchatten",
+  "layout2": {"title": "Sprachen mit {{name}}","action": "Sag {{name}} Hallo","description": "Du brauchst kein Thema. Sag einfach Hallo.","voice": "Stattdessen per Sprache chatten","more": "Lust auf etwas anderes?","resumeTitle": "Mit {{name}} weiterchatten",
     "previewLabel": "Zuletzt:","resumeAction": "Textchat fortsetzen","chatTitle": "Sag erst mal Hallo","chatDescription": "Sprich mit einem KI-Freund und schau, wohin es führt.","previewHidden": "Letzte Nachricht ausgeblendet","showPreview": "Letzte Nachricht zeigen","hidePreview": "Letzte Nachricht ausblenden"},
   "world": {
     "freeAllowance": {"full": "Ohne Anmeldung · {{count}} Texte + {{minutes}} Min. Sprache täglich. Morgen wieder", "textOnly": "Ohne Anmeldung · {{count}} Gratis-Nachrichten täglich. Morgen wieder", "voiceUsed": "Sprachzeit heute verbraucht · {{count}} Nachrichten täglich. Morgen wieder"},
@@ -591,6 +591,8 @@
     "soulsDescription": "Lass einen Alltagsgegenstand sprechen.",
     "learnDescription": "Lerne einen neuen Satz."
   },
+  "mobileHero": {"title": "Sprachen mit KI", "subtitle": "Sag einfach Hallo."},
+  "quickEntry": {"heading": "Crew entdecken", "fortune": "Tagesglück", "shorts": "Shorts ansehen"},
   "liveBubble": {
     "invite": "Hey, Lust auf ein Gespräch?",
     "start": "Audio",

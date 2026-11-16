@@ -96,7 +96,7 @@
     "explore": "See what else is here",
     "tap": "Tap to open"
   },
-  "layout2": {"title": "Say your first hello to {{name}}.","action": "Say hello to {{name}}","description": "No topic needed. Just start with hello.","voice": "Use voice chat instead","more": "Want to try something else?","resumeTitle": "Continue with {{name}}",
+  "layout2": {"title": "Learn languages with {{name}}","action": "Say hello to {{name}}","description": "No topic needed. Just start with hello.","voice": "Use voice chat instead","more": "Want to try something else?","resumeTitle": "Continue with {{name}}",
     "previewLabel": "Last chat:","resumeAction": "Continue text chat","chatTitle": "Start with hello","chatDescription": "Chat with an AI friend and see where it goes.","previewHidden": "Last message hidden","showPreview": "Show last message","hidePreview": "Hide last message"},
   "world": {
     "freeAllowance": {"full": "No sign-up · {{count}} texts + {{minutes}} min voice daily. More tomorrow", "textOnly": "No sign-up · {{count}} free texts daily. More tomorrow", "voiceUsed": "Voice used up today · {{count}} texts daily. More tomorrow"},
@@ -591,6 +591,8 @@
     "soulsDescription": "Give an everyday object a voice.",
     "learnDescription": "Try a fun new phrase in another language."
   },
+  "mobileHero": {"title": "Learn with AI friends", "subtitle": "Say hello to begin."},
+  "quickEntry": {"heading": "Explore Crew", "fortune": "Daily fortune", "shorts": "Watch Shorts"},
   "liveBubble": {
     "invite": "Hey, want to chat?",
     "start": "Voice",

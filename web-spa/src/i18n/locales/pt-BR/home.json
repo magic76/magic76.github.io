@@ -96,7 +96,7 @@
     "explore": "Veja outras possibilidades",
     "tap": "Toque para abrir"
   },
-  "layout2": {"title": "Diga seu primeiro oi para {{name}}.","action": "Diga oi para {{name}}","description": "Não precisa de assunto. Comece com um oi.","voice": "Usar conversa por voz","more": "Quer tentar outra coisa?","resumeTitle": "Continuar com {{name}}",
+  "layout2": {"title": "Idiomas com {{name}}","action": "Diga oi para {{name}}","description": "Não precisa de assunto. Comece com um oi.","voice": "Usar conversa por voz","more": "Quer tentar outra coisa?","resumeTitle": "Continuar com {{name}}",
     "previewLabel": "Último papo:","resumeAction": "Continuar conversa por texto","chatTitle": "Comece com um oi","chatDescription": "Converse com um amigo de IA e veja no que dá.","previewHidden": "Última mensagem oculta","showPreview": "Mostrar última mensagem","hidePreview": "Ocultar última mensagem"},
   "world": {
     "freeAllowance": {"full": "Sem cadastro · {{count}} mensagens + {{minutes}} min de voz por dia. Mais amanhã", "textOnly": "Sem cadastro · {{count}} mensagens grátis por dia. Mais amanhã", "voiceUsed": "Voz esgotada hoje · {{count}} mensagens por dia. Mais amanhã"},
@@ -591,6 +591,8 @@
     "soulsDescription": "Dê voz a um objeto do dia a dia.",
     "learnDescription": "Aprenda uma frase em outro idioma."
   },
+  "mobileHero": {"title": "Idiomas com IA", "subtitle": "Comece com um oi."},
+  "quickEntry": {"heading": "Explore o Crew", "fortune": "Sorte de hoje", "shorts": "Ver Shorts"},
   "liveBubble": {
     "invite": "Oi! Vamos conversar?",
     "start": "Voz",
