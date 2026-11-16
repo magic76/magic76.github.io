@@ -7,6 +7,7 @@ import {CrewFeatureMenu} from "./CrewFeatureMenu";
 import {OptionalWidgetBoundary} from "./OptionalWidgetBoundary";
 const CrewInstallEntry=lazy(()=>import("./CrewInstallEntry").then(module=>({default:module.CrewInstallEntry})));
 import "./mobileNavigation.css";
+import "./desktopNavigation.css";
 import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
 
 export type Product="home"|"teacher"|"story"|"fortune"|"settings"|"briefing";
