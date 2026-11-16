@@ -268,5 +268,20 @@
       "socket": "La connexion WebSocket Gemini Live a été interrompue ou refusée. Réessayez.",
       "service": "La connexion texte Gemini Live a échoué. Réessayez ou passez à la pratique gratuite."
     }
+  },
+  "callCaptions": {
+    "aria": "Sous-titres bilingues",
+    "more": "Autres options",
+    "showTranslation": "Afficher la traduction",
+    "hideTranslation": "Masquer la traduction",
+    "translating": "Traduction…",
+    "needsKey": "Une clé Gemini ou un navigateur avec traduction locale est nécessaire.",
+    "translateFailed": "Traduction indisponible, l'appel continue.",
+    "waitingForFriend": "La réponse apparaîtra ici",
+    "recognized": "Reconnu",
+    "recognizing": "Reconnaissance",
+    "waitingForYou": "Vos paroles apparaîtront ici",
+    "callControls": "Commandes d'appel",
+    "hangUp": "Raccrocher"
   }
 }
