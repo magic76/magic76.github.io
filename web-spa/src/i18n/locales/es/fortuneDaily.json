@@ -1,4 +1,5 @@
 {
+  "returnTomorrow": {"title": "Vuelve mañana ✦ Nueva carta a medianoche", "share": "Compartir la fortuna de hoy", "installed": "Abre Crew mañana para ver una nueva fortuna", "copied": "Enlace copiado", "failed": "No se pudo compartir. Inténtalo de nuevo."},
   "today": "Hoy",
   "emptyTitle": "Tu tarjeta diaria comienza con tu fecha de nacimiento",
   "emptyDescription": "Una breve reflexión basada en reglas tradicionales.",

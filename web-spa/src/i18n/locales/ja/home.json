@@ -602,5 +602,5 @@
   },
   "dailyQuote": {"title": "今日のひとこと", "fortune": "今日の運勢を占う", "chat": "Zoeとこの言葉を話す", "fortuneFull": "詳しい運勢を見る", "personalTitle": "今日の運勢", "chooseChart": "命式を選ぶ", "me": "自分", "markSelf": "自分の命式にする", "kind": {"bazi": "四柱推命", "tarot": "数秘術", "vedic": "インド占星術"}, "chatRead": "Zoeに今日の運勢を解説してもらう", "setupChart": "命盤を設定して、毎日の運勢を見る", "setupHint": "生年月日と出生時刻を入力すると、毎日の運勢を確認できます。",
     "basisBazi": "あなたの四柱推命の命式に基づく",
-    "basisNumerology": "誕生日（数秘術）に基づく"}
+    "basisNumerology": "誕生日（数秘術）に基づく", "updated": "今日の運勢が更新されました"}
 }

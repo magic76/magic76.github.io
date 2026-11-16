@@ -1,4 +1,5 @@
 {
+  "returnTomorrow": {"title": "Come back tomorrow ✦ A new card at midnight", "share": "Share today’s fortune", "installed": "Open Crew tomorrow for a new fortune", "copied": "Link copied", "failed": "Could not share. Please try again."},
   "today": "Today",
   "emptyTitle": "Your daily card starts with a birthday",
   "emptyDescription": "A brief reflection using traditional rules, no AI required.",

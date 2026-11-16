@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
 import {ensureCore,geminiKey,GEMINI_KEY_CHANGED_EVENT} from "../lib/runtime";
 import type {DailyCard} from "./dailyCard";
+import {FortuneReturnTomorrow} from "./FortuneReturnTomorrow";
 import {generateZoeDaily,readZoeDaily,readZoeDailyFailure,retryZoeDaily,saveZoeDaily,zoeDailyFailure,zoeDailySlot,zoeFollowupPrompt,ZOE_DAILY_OPTIONS,type ZoeDailyEntry,type ZoeDailyError} from "./zoeDailyReading";
 
 type Props={card:DailyCard;hash:string;locale:string;scrollOnOpen:boolean};
@@ -75,6 +76,7 @@ export function FortuneZoeReading({card,hash,locale,scrollOnOpen}:Props){
   {!busy&&activeEntry.source==="fallback"&&<p className="fortune-zoe-reading-status">{t("zoeReading.staticNote")}</p>}
   {error&&<div className="fortune-zoe-reading-status" role="alert">{t("zoeReading."+error)}{hasKey&&<button type="button" onClick={retry}>{t("zoeReading.retry")}</button>}</div>}
   <Link className="fortune-zoe-reading-chat" to={friendHref}>{t("zoeReading.continueChat")}</Link>
+  <FortuneReturnTomorrow card={card}/>
   {hasKey&&error==="key"&&<GeminiSetupNotice force returnTo={returnTo}/>}
   {hasKey&&<form className="fortune-zoe-reading-followup" onSubmit={e=>{e.preventDefault();void ask()}}>
    {(activeEntry.followups||[]).map((turn,i)=><div className="fortune-zoe-reading-turn" key={i}><strong>{turn.q}</strong><p>{turn.a}</p></div>)}

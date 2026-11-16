@@ -5,6 +5,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import {pickDailyQuote} from "./dailyQuotes";
 import {loadQuoteText} from "./quoteCatalog";
 import {hasStoredChart} from "./storedChart";
+import {hasNewDailyFortune} from "./dailyReturn";
 import "./dailyTopicCards.css";
 
 type TodayQuote={id:string;text:string;language:string};
@@ -20,11 +21,13 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  const [charts,setCharts]=useState<ChartOption[]>([]);
  const [chartHash,setChartHash]=useState<string|null>(null);
  const [revision,setRevision]=useState(0);
+ const [dailyUpdated,setDailyUpdated]=useState(false);
  useEffect(()=>{
   let active=true,version=0;
   let timer:ReturnType<typeof setTimeout>;
   const refresh=()=>{
    const token=++version,now=new Date(),selected=pickDailyQuote(now);
+   setDailyUpdated(hasNewDailyFortune());
    const updateQuote=()=>{
     setCharts([]);setPersonal(null);
     setQuote(previous=>previous?.id===selected.id&&previous.language===language&&previous.text?previous:null);
@@ -76,6 +79,7 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  return <section className={"daily-quote daily-quote--"+variant} aria-labelledby={"daily-quote-title-"+variant}>
   <div className="daily-quote-card">
    <div className="daily-quote-body">
+    {isPersonal&&dailyUpdated&&<span className="daily-quote-updated">{t("dailyQuote.updated")}</span>}
     <div className="daily-quote-heading">
      <h2 id={"daily-quote-title-"+variant}><span aria-hidden="true">✦</span> {title}</h2>
      {isPersonal&&charts.length>1?<select className="daily-quote-chart" aria-label={t("dailyQuote.chooseChart")}
@@ -89,7 +93,7 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
    </div>
    <div className={"daily-quote-actions"+(isPersonal?"":" daily-quote-actions--setup")}>
     {isPersonal?<>
-     <Link className="daily-quote-action daily-quote-action--fortune" to={fortuneHref} onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.fortuneFull")}</Link>
+     <Link className={"daily-quote-action daily-quote-action--fortune"+(dailyUpdated?" daily-quote-action--updated":"")} to={fortuneHref} onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.fortuneFull")}</Link>
      {chatHref&&<Link className="daily-quote-action daily-quote-action--chat" to={chatHref} onClick={()=>trackUsageEvent("home_entry_click","friend")}>{t("dailyQuote.chatRead")}</Link>}
     </>:<Link className="daily-quote-action daily-quote-action--chat" to="/fortune/reading?mode=bazi&from=daily" onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.setupChart")}</Link>}
    </div>
