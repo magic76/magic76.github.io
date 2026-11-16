@@ -272,6 +272,7 @@
   "callCaptions": {
     "aria": "Bilingual call captions",
     "more": "More options",
+    "closeMenu": "Close options",
     "showTranslation": "Show translation",
     "hideTranslation": "Hide translation",
     "translating": "Translating…",

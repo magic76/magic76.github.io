@@ -272,6 +272,7 @@
   "callCaptions": {
     "aria": "Zweisprachige Anrufuntertitel",
     "more": "Weitere Optionen",
+    "closeMenu": "Optionen schließen",
     "showTranslation": "Übersetzung anzeigen",
     "hideTranslation": "Übersetzung ausblenden",
     "translating": "Wird übersetzt…",
