@@ -210,13 +210,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
                       "Go to slide "+(index+1)+": "+["Zoe","AI friends","Today's game","Learn"][index])}
      onClick={()=>manualSlide(index)}><span aria-hidden="true"/></button>)}
    </div>
-   {!hasKey&&<div className="cmh-allowance-slot">
-    {ready&&!hasKey&&<p className="cmh-free-allowance" role="status">{trial.resolved&&trial.enabled&&trial.remaining===0
-     ?t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})
-     :trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null
-      ?t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})
-      :t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
-   </div>}
   </div>
   <DailyTopicCards variant="mobile"/>
   <section className="cmh-apps" aria-labelledby="cmh-apps-title">
@@ -225,6 +218,13 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
     <span className={"cmh-app-icon cmh-app-"+app.id}><Icon name={app.icon}/></span><span className="cmh-app-name">{copy(app.zh,app.en)}</span>
    </Link>)}</div>
   </section>
+  {!hasKey&&<div className="cmh-allowance-slot">
+   {ready&&!hasKey&&<p className="cmh-free-allowance" role="status">{trial.resolved&&trial.enabled&&trial.remaining===0
+    ?t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})
+    :trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null
+     ?t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})
+     :t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
+  </div>}
   <div className="cmh-shorts"><HomeShortsPreview maxPosts={8} sharedFeed={shortsFeed} sharedStatus={shortsStatus}/></div>
   {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
   <section className="cmh-seo" aria-labelledby="cmh-seo-heading">

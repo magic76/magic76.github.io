@@ -327,7 +327,7 @@
  }
 }
 
-/* Guest caption lives below the 244px carousel, leaving portraits and 44px CTAs untouched. */
+/* Guest allowance follows the shortcut grid so it cannot inflate the dots-to-fortune gap. */
 @media(max-width:767px){
  .cmh-allowance-slot{min-height:36px;display:grid;place-items:center;padding:0 3px}
  .cmh-free-allowance{font-size:12px;line-height:1.45;text-align:center;font-weight:600;color:#56465d;margin:0;max-width:100%;overflow-wrap:anywhere;text-wrap:balance}
@@ -352,4 +352,11 @@
 @media(max-width:380px){
  .cmh-slide{height:176px;min-height:176px;padding:10px 12px 9px}
  .cmh-scene{scale:.53;right:3px;top:1px}
+}
+
+/* Mobile hero-to-pagination = 8px; pagination-to-fortune = 16px.
+   The 44px pagination hit targets stay intact. */
+@media(max-width:767px){
+ .cmh-carousel{margin-bottom:0}
+ .cmh-carousel-dots{margin-top:8px}
 }
