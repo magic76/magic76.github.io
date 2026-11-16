@@ -3,7 +3,7 @@
 import {onRequestGet,onRequestPost,selectGuestGeminiKey,verifyCaptcha} from "../../functions/api/guest/token.js";
 import {onTextRequest} from "./text-chat.mjs";
 import {pollVideoTtsQueue,videoTtsResult} from "./video-tts.mjs";
-const ORIGIN="https://www.3sssi.com", HOST="crew-guest-trial.shanliyoung.workers.dev", PATH="/api/guest/token", TEXT_PATH="/api/guest/text";
+const ORIGIN="https://www.3sssi.com", NEW_ORIGIN="https://koolo.app", HOST="crew-guest-trial.shanliyoung.workers.dev", PATH="/api/guest/token", TEXT_PATH="/api/guest/text";
 function response(body,status=200,origin){
  const headers={"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"};
  if(origin){headers["access-control-allow-origin"]=origin;headers["vary"]="Origin"}
@@ -19,15 +19,15 @@ export default {
   }
   if(url.pathname!==PATH&&url.pathname!==TEXT_PATH)return response({error:"Not found"},404);
   const origin=request.headers.get("origin");
-  if(origin!==ORIGIN)return response({error:"Origin rejected"},403);
+  if(origin!==ORIGIN&&origin!==NEW_ORIGIN)return response({error:"Origin rejected"},403);
   if(request.method==="OPTIONS")return new Response(null,{status:204,headers:{
-   "access-control-allow-origin":ORIGIN,"access-control-allow-methods":"GET, POST, OPTIONS",
+   "access-control-allow-origin":origin,"access-control-allow-methods":"GET, POST, OPTIONS",
    "access-control-allow-headers":"content-type","access-control-max-age":"600",
    "vary":"Origin","cache-control":"no-store"
   }});
-  if(request.method!=="GET"&&request.method!=="POST")return response({error:"Method not allowed"},405,ORIGIN);
-  const internal=new Request(ORIGIN+url.pathname,request);
-  internal.headers.set("origin",ORIGIN);
+  if(request.method!=="GET"&&request.method!=="POST")return response({error:"Method not allowed"},405,origin);
+  const internal=new Request(origin+url.pathname,request);
+  internal.headers.set("origin",origin);
   internal.headers.delete("sec-fetch-site");
   const bindings={...env,
    GUEST_TURNSTILE_SECRET:env.GUEST_TURNSTILE_SECRET||env.TURNSTILE_SECRET_KEY,
@@ -38,7 +38,7 @@ export default {
     ?await onRequestGet({request:internal,env:bindings})
     :await onRequestPost({request:internal,env:bindings});
   const headers=new Headers(result.headers);
-  headers.set("access-control-allow-origin",ORIGIN);
+  headers.set("access-control-allow-origin",origin);
   headers.set("vary","Origin");
   headers.set("cache-control","no-store");
   return new Response(result.body,{status:result.status,headers});

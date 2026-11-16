@@ -1,5 +1,5 @@
 /** Minimal server-side OAuth for Cloudflare Pages. Provider tokens are never stored. */
-const ORIGIN="https://www.3sssi.com",OAUTH="__Host-crew_oauth",SESSION="__Host-crew_session";
+const ORIGIN="https://www.3sssi.com",NEW_ORIGIN="https://koolo.app",OAUTH="__Host-crew_oauth",SESSION="__Host-crew_session";
 const MEMBER_TRIAL_LIMIT=3;
 const TAIPEI_OFFSET_SECONDS=8*3600;
 const taipeiDayStart=now=>Math.floor((now+TAIPEI_OFFSET_SECONDS)/86400)*86400-TAIPEI_OFFSET_SECONDS;
@@ -8,7 +8,8 @@ const json=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{"Cont
 const go=(url,cookie)=>{const h=new Headers({"Location":url,"Cache-Control":"no-store","Referrer-Policy":"no-referrer","X-Frame-Options":"DENY"});if(cookie)h.append("Set-Cookie",cookie);return new Response(null,{status:302,headers:h})};
 const set=(name,value,age)=>name+"="+value+"; Max-Age="+age+"; "+COOKIE;
 const read=(req,name)=>(req.headers.get("Cookie")||"").split(";").map(s=>s.trim()).find(s=>s.startsWith(name+"="))?.slice(name.length+1)||"";
-const validHost=req=>new URL(req.url).origin===ORIGIN;
+const requestOrigin=req=>{const origin=new URL(req.url).origin;return origin===ORIGIN||origin===NEW_ORIGIN?origin:null};
+const validHost=req=>Boolean(requestOrigin(req));
 const b64=b=>btoa(String.fromCharCode(...b)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const random=()=>b64(crypto.getRandomValues(new Uint8Array(32)));
 const digest=async s=>new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)));
@@ -25,8 +26,8 @@ function creds(env,p){
  }
  return null;
 }
-const callback=p=>ORIGIN+"/api/auth/"+p+"/callback";
-const fail=why=>go(ORIGIN+"/account?auth_error="+why);
+const callback=(p,origin=ORIGIN)=>origin+"/api/auth/"+p+"/callback";
+const fail=(why,origin=ORIGIN)=>go(origin+"/account?auth_error="+why);
 // Public diagnostic codes contain no credentials, account data, or provider errors.
 const authStages=new Set(["state","token","profile","account","session"]);
 // Only allow fixed, provider-neutral error identifiers. Never expose response bodies,
@@ -62,16 +63,17 @@ export async function health({request,env}){
 }
 export async function start({request,env},provider){
  if(!validHost(request))return json({error:"Not found"},404);
+ const origin=requestOrigin(request);
  const c=PROVIDERS.includes(provider)?creds(env,provider):null;
- if(!c||!env?.CREW_AUTH_DB)return fail("unavailable");
+ if(!c||!env?.CREW_AUTH_DB)return fail("unavailable",origin);
  const state=random(),verifier=random(),challenge=b64(await digest(verifier));
- const q=new URLSearchParams({client_id:c.id,redirect_uri:callback(provider),state,response_type:"code",code_challenge:challenge,code_challenge_method:"S256"});
+ const q=new URLSearchParams({client_id:c.id,redirect_uri:callback(provider,origin),state,response_type:"code",code_challenge:challenge,code_challenge_method:"S256"});
  if(provider==="google")q.set("scope","openid email profile");
  const url=provider==="google"?"https://accounts.google.com/o/oauth2/v2/auth":"https://github.com/login/oauth/authorize";
  return go(url+"?"+q,set(OAUTH,state+"."+verifier+"."+provider,600));
 }
-async function exchange(provider,c,code,verifier){
- const q=new URLSearchParams({client_id:c.id,client_secret:c.secret,code,redirect_uri:callback(provider),code_verifier:verifier});
+async function exchange(provider,c,code,verifier,origin=ORIGIN){
+ const q=new URLSearchParams({client_id:c.id,client_secret:c.secret,code,redirect_uri:callback(provider,origin),code_verifier:verifier});
  if(provider==="google")q.set("grant_type","authorization_code");
  const url=provider==="google"?"https://oauth2.googleapis.com/token":"https://github.com/login/oauth/access_token";
  let r;
@@ -111,10 +113,11 @@ async function account(db,provider,p){
 }
 export async function callbackHandler({request,env},provider){
  if(!validHost(request))return json({error:"Not found"},404);
+ const origin=requestOrigin(request);
  const h=new Headers({"Cache-Control":"no-store","Referrer-Policy":"no-referrer","X-Frame-Options":"DENY"});
  h.append("Set-Cookie",set(OAUTH,"",0));
  const bounce=(reason,stage,tokenReason)=>{
-  const dest=new URL(ORIGIN+"/account");
+  const dest=new URL(origin+"/account");
   dest.searchParams.set("auth_error",reason);
   if(authStages.has(stage))dest.searchParams.set("auth_stage",stage);
   if(stage==="token"&&oauthTokenReasons.has(tokenReason))
@@ -130,7 +133,7 @@ export async function callbackHandler({request,env},provider){
  if(!c||!env?.CREW_AUTH_DB)return bounce("unavailable");
  let stage="token";
  try{
-  const exchangeResult=await exchange(provider,c,code,parts[1]);
+  const exchangeResult=await exchange(provider,c,code,parts[1],origin);
   if(!exchangeResult.token)return failStage(bounce,provider,stage,exchangeResult.reason);
   stage="profile";
   const info=await profile(provider,exchangeResult.token);
@@ -141,7 +144,7 @@ export async function callbackHandler({request,env},provider){
   const session=random(),now=Math.floor(Date.now()/1000);
   await env.CREW_AUTH_DB.prepare("INSERT INTO crew_auth_sessions(token_hash,user_id,created_at,expires_at) VALUES(?,?,?,?)")
    .bind(await hash(session),uid,now,now+TTL).run();
-  h.set("Location",ORIGIN+"/account");h.append("Set-Cookie",set(SESSION,session,TTL));
+  h.set("Location",origin+"/account");h.append("Set-Cookie",set(SESSION,session,TTL));
   return new Response(null,{status:302,headers:h});
  }catch{return failStage(bounce,provider,stage)}
 }
@@ -172,7 +175,7 @@ export async function sessionInfo({request,env}){
 }
 export async function logout({request,env}){
  if(!validHost(request))return json({error:"Not found"},404);
- if(request.headers.get("Origin")!==ORIGIN||request.headers.get("Sec-Fetch-Site")==="cross-site")return json({error:"Origin rejected"},403);
+ if(request.headers.get("Origin")!==requestOrigin(request)||request.headers.get("Sec-Fetch-Site")==="cross-site")return json({error:"Origin rejected"},403);
  const token=read(request,SESSION);
  if(env?.CREW_AUTH_DB&&/^[A-Za-z0-9_-]{43}$/.test(token)){
   try{await env.CREW_AUTH_DB.prepare("DELETE FROM crew_auth_sessions WHERE token_hash=?").bind(await hash(token)).run()}

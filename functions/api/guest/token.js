@@ -67,7 +67,7 @@ function selectGuestGeminiKey(env){
  return keys[value[0]%keys.length];
 }
 function validHost(url,env){
- if(url.hostname==="www.3sssi.com")return true;
+ if(url.hostname==="www.3sssi.com"||url.hostname==="koolo.app")return true;
  return env.GUEST_ALLOW_PREVIEW==="1"&&previewHost.test(url.hostname);
 }
 // Give operators a stable, non-sensitive failure reason in private Worker logs.
