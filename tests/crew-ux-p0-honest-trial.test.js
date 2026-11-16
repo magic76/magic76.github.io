@@ -78,8 +78,9 @@ test("Finish is honest across expired, early-ended and interrupted states",()=>{
 
 test("Teacher and game hubs defer Key onboarding; 11 locales keep new text",()=>{
  const practice=read("web-spa/src/teacher/PracticePage.tsx");
- assert.ok(practice.indexOf("<GeminiSetupNotice/>")>practice.indexOf('crew-practice-friend-links'));
- assert.ok(practice.indexOf("<GeminiSetupNotice/>")<practice.indexOf("<GuideHub/>"));
+ assert.ok(practice.indexOf('<GeminiSetupNotice compactLabel={t("practice.advancedKey")}/>')>practice.indexOf('crew-practice-friend-links'));
+ assert.ok(practice.indexOf('<GeminiSetupNotice compactLabel={t("practice.advancedKey")}/>')<practice.indexOf('<GuideHub hideGeminiKey/>'));
+ assert.doesNotMatch(practice,/<GeminiSetupNotice\/>/);
  const play=read("web-spa/src/games/CrewPlayHubPage.tsx");
  assert.match(play,/zh:"免費直接玩",en:"Play free now"/);
  assert.match(play,/打字練習 · 可開 AI 猜詞/);

@@ -31,7 +31,11 @@ test("Teacher, Story, Fortune and Live share one key setup notice without duplic
  const notice=read("web-spa/src/components/GeminiSetupNotice.tsx");
  assert.ok(notice.includes('to={"/account?returnTo="+encodeURIComponent(safeReturn)+"#settings-gemini"}'));
  assert.ok(!notice.includes("saveGeminiKey("));
- for(const file of ["teacher/PracticePage.tsx","story/CreatePage.tsx","story/PhysicalBookPage.tsx","fortune/ReadingPage.tsx","live/LiveControls.tsx"]){
+ const practice=read("web-spa/src/teacher/PracticePage.tsx");
+ assert.ok(practice.includes('GeminiSetupNotice compactLabel={t("practice.advancedKey")}'),"teacher hub should offer only a compact optional link");
+ assert.ok(notice.includes('if(compactLabel)return <Link'),"compact variant must opt in");
+ assert.ok(notice.includes('return <div className={"crew-gemini-setup-notice "+className} role="note">'),"shared default notice remains intact");
+ for(const file of ["story/CreatePage.tsx","story/PhysicalBookPage.tsx","fortune/ReadingPage.tsx","live/LiveControls.tsx"]){
   assert.ok(read("web-spa/src/"+file).includes("GeminiSetupNotice"),file+" should use the shared notice");
  }
  const fortune=read("web-spa/src/fortune/ReadingPage.tsx");

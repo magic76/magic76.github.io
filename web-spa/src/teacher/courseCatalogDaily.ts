@@ -12,7 +12,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an energetic and friendly friend. Ask what your buddy did last weekend and share excitement about outdoor activities.",
     "missions": [
       {
-        "titleEn": "分享自己上週末做了一件有趣的事",
+        "titleEn": "Share something fun you did last weekend",
         "titleZh": "分享自己上週末做了一件有趣的事",
         "keywords": [
           "weekend",
@@ -26,7 +26,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "主動反問對方的週末或近期生活 (How about you?)",
+        "titleEn": "Ask about their weekend in return (How about you?)",
         "titleZh": "主動反問對方的週末或近期生活 (How about you?)",
         "keywords": [
           "how about you",
@@ -36,7 +36,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "約定下次一起參與某個活動 (Let's do that)",
+        "titleEn": "Make plans to do an activity together next time",
         "titleZh": "約定下次一起參與某個活動 (Let's do that)",
         "keywords": [
           "next time",
@@ -61,7 +61,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a movie and foodie enthusiast. Ask for food recommendations and share your current binge-worthy show.",
     "missions": [
       {
-        "titleEn": "推薦一道喜愛的美食或一家餐廳 (Recommend food)",
+        "titleEn": "Recommend a favorite dish or restaurant",
         "titleZh": "推薦一道喜愛的美食或一家餐廳 (Recommend food)",
         "keywords": [
           "restaurant",
@@ -75,7 +75,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "分享正在觀看或喜愛的一部電影/影集 (Show / Movie)",
+        "titleEn": "Talk about a movie or TV show you enjoy",
         "titleZh": "分享正在觀看或喜愛的一部電影/影集 (Show / Movie)",
         "keywords": [
           "netflix",
@@ -89,7 +89,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "表達自己對劇情的看法或推薦理由 (Hooked / Worth watching)",
+        "titleEn": "Share your opinion or why a show is worth watching",
         "titleZh": "表達自己對劇情的看法或推薦理由 (Hooked / Worth watching)",
         "keywords": [
           "worth",
@@ -115,7 +115,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an understanding friend inviting the student to a weekend BBQ party. Handle their rescheduling warmly.",
     "missions": [
       {
-        "titleEn": "感謝對方的邀約並委婉說明無法參加的原因",
+        "titleEn": "Thank them and politely explain why you cannot attend",
         "titleZh": "感謝對方的邀約並委婉說明無法參加的原因",
         "keywords": [
           "thank you",
@@ -128,7 +128,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "使用 Rain check 或提議另擇日期 (Rain check / Next week)",
+        "titleEn": "Ask for a rain check or suggest another day",
         "titleZh": "使用 Rain check 或提議另擇日期 (Rain check / Next week)",
         "keywords": [
           "rain check",
@@ -140,7 +140,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "祝對方活動玩得愉快 (Have a great time)",
+        "titleEn": "Wish them a great time at the event",
         "titleZh": "祝對方活動玩得愉快 (Have a great time)",
         "keywords": [
           "have fun",
@@ -164,7 +164,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a pet lover with two playful golden retrievers. Swap funny pet stories enthusiastically.",
     "missions": [
       {
-        "titleEn": "分享自己養的寵物或喜愛的動物類型",
+        "titleEn": "Talk about your pet or favorite kind of animal",
         "titleZh": "分享自己養的寵物或喜愛的動物類型",
         "keywords": [
           "dog",
@@ -177,7 +177,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "生動描述寵物的一件搞笑或暖心事蹟",
+        "titleEn": "Tell a funny or heartwarming story about a pet",
         "titleZh": "生動描述寵物的一件搞笑或暖心事蹟",
         "keywords": [
           "funny",
@@ -191,7 +191,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問對方的寵物經驗 (Dog or cat person)",
+        "titleEn": "Ask about their pets (dog or cat person?)",
         "titleZh": "詢問對方的寵物經驗 (Dog or cat person)",
         "keywords": [
           "do you have",
@@ -215,7 +215,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an avid backpacker who has visited over 30 countries. Share cultural insights and travel highlights.",
     "missions": [
       {
-        "titleEn": "提到一個去過最喜歡的國家或城市 (City / Country)",
+        "titleEn": "Name a favorite city or country you have visited",
         "titleZh": "提到一個去過最喜歡的國家或城市 (City / Country)",
         "keywords": [
           "japan",
@@ -230,7 +230,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "描述一個印象深刻的景色或意外收穫 (Breathtaking / Culture)",
+        "titleEn": "Describe a memorable sight or cultural surprise",
         "titleZh": "描述一個印象深刻的景色或意外收穫 (Breathtaking / Culture)",
         "keywords": [
           "scenery",
@@ -243,7 +243,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "分享下一個 Bucket List 夢想旅遊清單",
+        "titleEn": "Share a dream destination on your bucket list",
         "titleZh": "分享下一個 Bucket List 夢想旅遊清單",
         "keywords": [
           "next",
@@ -268,7 +268,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a supportive friend who practices mindfulness and pilates. Chat about healthy boundaries and unwinding after work.",
     "missions": [
       {
-        "titleEn": "分享自己近期感到疲倦或忙碌的真實感受",
+        "titleEn": "Share how busy or tired you have felt lately",
         "titleZh": "分享自己近期感到疲倦或忙碌的真實感受",
         "keywords": [
           "busy",
@@ -281,7 +281,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "介紹一種自己最有效的放鬆或減壓方式 (Unwind / Exercise)",
+        "titleEn": "Explain how you relax or unwind after stress",
         "titleZh": "介紹一種自己最有效的放鬆或減壓方式 (Unwind / Exercise)",
         "keywords": [
           "gym",
@@ -295,7 +295,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "彼此打氣並提出一個健康的小目標 (Take it easy)",
+        "titleEn": "Encourage each other and set a small healthy goal",
         "titleZh": "彼此打氣並提出一個健康的小目標 (Take it easy)",
         "keywords": [
           "take it easy",
@@ -320,7 +320,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an enthusiastic tech blogger who uses generative AI daily. Discuss coolest AI tools and creative workflows.",
     "missions": [
       {
-        "titleEn": "分享自己日常使用的 AI 或效率軟體工具",
+        "titleEn": "Talk about AI or productivity tools you use daily",
         "titleZh": "分享自己日常使用的 AI 或效率軟體工具",
         "keywords": [
           "ai",
@@ -334,7 +334,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "探討 AI 對工作或語言學習帶來的改變 (Productivity / Learning)",
+        "titleEn": "Discuss how AI has changed work or language learning",
         "titleZh": "探討 AI 對工作或語言學習帶來的改變 (Productivity / Learning)",
         "keywords": [
           "fast",
@@ -347,7 +347,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "表達對未來科技的期待或省思 (Future / Exciting)",
+        "titleEn": "Share hopes or concerns about future technology",
         "titleZh": "表達對未來科技的期待或省思 (Future / Exciting)",
         "keywords": [
           "future",
@@ -372,7 +372,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an indie music fanatic who loves attending music festivals. Trade concert memories and artist favorites.",
     "missions": [
       {
-        "titleEn": "分享自己最喜歡的音樂曲風或歌手樂團",
+        "titleEn": "Talk about your favorite music genre or artist",
         "titleZh": "分享自己最喜歡的音樂曲風或歌手樂團",
         "keywords": [
           "band",
@@ -386,7 +386,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "描述一次難忘的 Live 演唱會或音樂節現場 (Concert / Live)",
+        "titleEn": "Describe a memorable live concert or music festival",
         "titleZh": "描述一次難忘的 Live 演唱會或音樂節現場 (Concert / Live)",
         "keywords": [
           "concert",
@@ -399,7 +399,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問對方最近是否有想看的演出 (Upcoming tour)",
+        "titleEn": "Ask which upcoming concert they want to see",
         "titleZh": "詢問對方最近是否有想看的演出 (Upcoming tour)",
         "keywords": [
           "ticket",
@@ -424,7 +424,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an energetic certified personal trainer. Share practical workout tips and celebrate fitness milestones.",
     "missions": [
       {
-        "titleEn": "分享自己目前的運動習慣（如慢跑/重訓/游泳/瑜珈）",
+        "titleEn": "Explain your current workout routine",
         "titleZh": "分享自己目前的運動習慣（如慢跑/重訓/游泳/瑜珈）",
         "keywords": [
           "gym",
@@ -438,7 +438,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "分享一項健康飲食習慣或喜愛的健康餐 (Diet / Protein / Veggies)",
+        "titleEn": "Share a healthy eating habit or favorite nutritious meal",
         "titleZh": "分享一項健康飲食習慣或喜愛的健康餐 (Diet / Protein / Veggies)",
         "keywords": [
           "diet",
@@ -451,7 +451,7 @@ export const DAILY_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "設定下一個月的新目標並互相鼓勵 (Goal / Keep it up)",
+        "titleEn": "Set a goal for next month and encourage each other",
         "titleZh": "設定下一個月的新目標並互相鼓勵 (Goal / Keep it up)",
         "keywords": [
           "goal",

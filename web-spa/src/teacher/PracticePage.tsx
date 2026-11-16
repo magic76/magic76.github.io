@@ -70,8 +70,8 @@ export function PracticePage(){
    <Link to={"/friend/live?id="+selectedFriend+"&intent=speak"}>{t("practiceEntry.speakTitle")}</Link>
   </div>
  </section>
- {ready&&!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
- <GuideHub/>
+ {ready&&!geminiKey()&&<section className="section"><GeminiSetupNotice compactLabel={t("practice.advancedKey")}/></section>}
+ <GuideHub hideGeminiKey/>
  <section className="section crew-practice-shortcuts"><div className="section-head"><h2>{t("practice.quick")}</h2><small>{t("practice.choose")}</small></div><div className="grid two-col">
   <Link className="feature-card teacher-material" to="/teacher/textbook"><span className="feature-icon"><Icon name="book"/></span><strong>{t("practice.textbook")}</strong><span>{t("practice.textbookDesc")}</span></Link>
   {target==="英文"&&<Link className="feature-card teacher-vocab" to="/teacher/vocabulary"><span className="feature-icon"><Icon name="cards"/></span><strong>{t("practice.vocab")}</strong><span>{t("practice.vocabDesc")}</span></Link>}

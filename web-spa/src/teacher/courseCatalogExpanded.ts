@@ -93,7 +93,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a teammate in a short daily standup. Ask for yesterday's progress, today's plan, and blockers. Keep the exchange concise and realistic.",
     "missions": [
       {
-        "titleEn": "說出昨天完成的一件事",
+        "titleEn": "Share one thing you finished yesterday",
         "titleZh": "說出昨天完成的一件事",
         "keywords": [
           "finished",
@@ -103,7 +103,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "說明今天的主要工作",
+        "titleEn": "Explain your main task for today",
         "titleZh": "說明今天的主要工作",
         "keywords": [
           "today",
@@ -113,7 +113,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "說出一個 blocker 或明確表示目前沒有 blocker",
+        "titleEn": "Name a blocker or say you have none",
         "titleZh": "說出一個 blocker 或明確表示目前沒有 blocker",
         "keywords": [
           "blocked",
@@ -137,7 +137,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a helpful senior teammate. Ask the learner to explain the blocker, what they already tried, and exactly what help they need.",
     "missions": [
       {
-        "titleEn": "描述目前卡住的問題",
+        "titleEn": "Describe the problem blocking your progress",
         "titleZh": "描述目前卡住的問題",
         "keywords": [
           "stuck",
@@ -148,7 +148,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "說明至少一個已經嘗試過的方法",
+        "titleEn": "Explain at least one solution you have already tried",
         "titleZh": "說明至少一個已經嘗試過的方法",
         "keywords": [
           "tried",
@@ -159,7 +159,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "提出明確的協助請求",
+        "titleEn": "Ask clearly for the help you need",
         "titleZh": "提出明確的協助請求",
         "keywords": [
           "could you",
@@ -183,7 +183,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a thoughtful reviewer. Question one implementation or design decision, suggest an alternative, and ask the learner to explain trade-offs.",
     "missions": [
       {
-        "titleEn": "解釋一個實作或設計決定的理由",
+        "titleEn": "Explain why you chose a particular design or implementation",
         "titleZh": "解釋一個實作或設計決定的理由",
         "keywords": [
           "because",
@@ -194,7 +194,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "回應 reviewer 的疑問或建議",
+        "titleEn": "Respond to a reviewer’s question or suggestion",
         "titleZh": "回應 reviewer 的疑問或建議",
         "keywords": [
           "point",
@@ -205,7 +205,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認至少一個後續修改項目",
+        "titleEn": "Confirm at least one follow-up change",
         "titleZh": "確認至少一個後續修改項目",
         "keywords": [
           "update",
@@ -229,7 +229,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are facilitating a product brainstorming session. Ask for two options, challenge the trade-offs, and help the learner recommend one direction.",
     "missions": [
       {
-        "titleEn": "提出至少兩個可能方案",
+        "titleEn": "Suggest at least two possible approaches",
         "titleZh": "提出至少兩個可能方案",
         "keywords": [
           "option",
@@ -240,7 +240,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "比較至少一項優點與缺點",
+        "titleEn": "Compare at least one advantage and drawback",
         "titleZh": "比較至少一項優點與缺點",
         "keywords": [
           "pro",
@@ -252,7 +252,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "推薦一個方向並說明原因",
+        "titleEn": "Recommend an approach and explain why",
         "titleZh": "推薦一個方向並說明原因",
         "keywords": [
           "recommend",
@@ -276,7 +276,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a teammate who strongly prefers a different solution. Push back professionally and work toward a practical compromise.",
     "missions": [
       {
-        "titleEn": "先肯定或理解對方觀點",
+        "titleEn": "Acknowledge the other person’s point of view",
         "titleZh": "先肯定或理解對方觀點",
         "keywords": [
           "understand",
@@ -286,7 +286,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "清楚說出自己的疑慮",
+        "titleEn": "Clearly express your concern",
         "titleZh": "清楚說出自己的疑慮",
         "keywords": [
           "concern",
@@ -297,7 +297,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "提出可執行的折衷方案",
+        "titleEn": "Offer a practical compromise",
         "titleZh": "提出可執行的折衷方案",
         "keywords": [
           "could we",
@@ -321,7 +321,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are leading a friendly sprint retrospective. Ask what went well, what was difficult, and what the team should change next time.",
     "missions": [
       {
-        "titleEn": "分享一件這次做得好的事",
+        "titleEn": "Share one thing the team did well",
         "titleZh": "分享一件這次做得好的事",
         "keywords": [
           "went well",
@@ -331,7 +331,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "說明一個困難或不足",
+        "titleEn": "Describe one difficulty or area to improve",
         "titleZh": "說明一個困難或不足",
         "keywords": [
           "difficult",
@@ -342,7 +342,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "提出下一次可採取的具體改善",
+        "titleEn": "Suggest a concrete improvement for next time",
         "titleZh": "提出下一次可採取的具體改善",
         "keywords": [
           "next time",
@@ -366,7 +366,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a train-station ticket clerk. Help the traveler choose a departure, ticket type and seat, then confirm the platform.",
     "missions": [
       {
-        "titleEn": "說出目的地與想搭的時間",
+        "titleEn": "State your destination and preferred departure time",
         "titleZh": "說出目的地與想搭的時間",
         "keywords": [
           "ticket",
@@ -378,7 +378,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "選擇票種或座位偏好",
+        "titleEn": "Choose a ticket type or seating preference",
         "titleZh": "選擇票種或座位偏好",
         "keywords": [
           "window",
@@ -390,7 +390,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認月台或出發資訊",
+        "titleEn": "Confirm the platform and departure details",
         "titleZh": "確認月台或出發資訊",
         "keywords": [
           "platform",
@@ -414,7 +414,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a transit information clerk. Compare single tickets with a day pass and explain transfer or zone rules.",
     "missions": [
       {
-        "titleEn": "詢問單程票與一日票的差別",
+        "titleEn": "Ask about single tickets versus day passes",
         "titleZh": "詢問單程票與一日票的差別",
         "keywords": [
           "day pass",
@@ -425,7 +425,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認票券涵蓋的交通或區域",
+        "titleEn": "Check which routes or zones the ticket covers",
         "titleZh": "確認票券涵蓋的交通或區域",
         "keywords": [
           "include",
@@ -436,7 +436,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問轉乘或有效時間",
+        "titleEn": "Ask about transfers or ticket validity",
         "titleZh": "詢問轉乘或有效時間",
         "keywords": [
           "transfer",
@@ -460,7 +460,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a transport service agent. Ask why the passenger missed or wants to change the booking and explain available options.",
     "missions": [
       {
-        "titleEn": "說明為什麼需要改票或錯過班次",
+        "titleEn": "Explain why you need a change or missed departure",
         "titleZh": "說明為什麼需要改票或錯過班次",
         "keywords": [
           "missed",
@@ -471,7 +471,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問下一班或可替代的班次",
+        "titleEn": "Ask about the next or an alternative departure",
         "titleZh": "詢問下一班或可替代的班次",
         "keywords": [
           "next",
@@ -482,7 +482,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認改票費用或退款規則",
+        "titleEn": "Confirm change fees or refund rules",
         "titleZh": "確認改票費用或退款規則",
         "keywords": [
           "fee",
@@ -506,7 +506,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a box-office staff member. Help the customer choose a showtime, number of tickets and available seats.",
     "missions": [
       {
-        "titleEn": "詢問指定日期或場次是否有票",
+        "titleEn": "Ask whether tickets are available for a date or show",
         "titleZh": "詢問指定日期或場次是否有票",
         "keywords": [
           "tickets",
@@ -517,7 +517,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "說出需要的票數與座位偏好",
+        "titleEn": "Specify the number of tickets and preferred seats",
         "titleZh": "說出需要的票數與座位偏好",
         "keywords": [
           "two",
@@ -529,7 +529,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認總價或付款方式",
+        "titleEn": "Confirm the total price or payment method",
         "titleZh": "確認總價或付款方式",
         "keywords": [
           "total",
@@ -553,7 +553,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an attraction ticket-counter staff member. Explain timed entry, family pricing and entry rules clearly.",
     "missions": [
       {
-        "titleEn": "詢問是否需要預約入場時段",
+        "titleEn": "Ask whether a timed entry reservation is required",
         "titleZh": "詢問是否需要預約入場時段",
         "keywords": [
           "time slot",
@@ -564,7 +564,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問家庭票或兒童票價",
+        "titleEn": "Ask about family or child admission prices",
         "titleZh": "詢問家庭票或兒童票價",
         "keywords": [
           "family",
@@ -575,7 +575,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認入場或再次入場規則",
+        "titleEn": "Confirm entry and re-entry rules",
         "titleZh": "確認入場或再次入場規則",
         "keywords": [
           "re-entry",
@@ -599,7 +599,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are an event guest-services agent. Help with sold-out shows, waitlists, ticket-date mistakes, and QR-code entry problems.",
     "missions": [
       {
-        "titleEn": "清楚描述售罄或票券問題",
+        "titleEn": "Clearly explain a sold-out or ticketing problem",
         "titleZh": "清楚描述售罄或票券問題",
         "keywords": [
           "sold out",
@@ -610,7 +610,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問候補、改期或替代場次",
+        "titleEn": "Ask about waitlists, rescheduling, or another show",
         "titleZh": "詢問候補、改期或替代場次",
         "keywords": [
           "waitlist",
@@ -621,7 +621,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "提供訂位資訊並請工作人員協助查詢",
+        "titleEn": "Provide booking details and ask staff to check",
         "titleZh": "提供訂位資訊並請工作人員協助查詢",
         "keywords": [
           "booking",
@@ -645,7 +645,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a mobile-store staff member. Compare prepaid plans, explain data limits, and help activate a SIM card.",
     "missions": [
       {
-        "titleEn": "說明使用天數與流量需求",
+        "titleEn": "Explain how many days and how much mobile data you need",
         "titleZh": "說明使用天數與流量需求",
         "keywords": [
           "SIM",
@@ -656,7 +656,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問熱點或通話是否包含",
+        "titleEn": "Ask whether hotspot or calls are included",
         "titleZh": "詢問熱點或通話是否包含",
         "keywords": [
           "hotspot",
@@ -667,7 +667,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認價格與啟用方式",
+        "titleEn": "Confirm the price and activation process",
         "titleZh": "確認價格與啟用方式",
         "keywords": [
           "price",
@@ -691,7 +691,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a parcel-service employee. Verify the tracking number and identity, then help resolve a delivery problem.",
     "missions": [
       {
-        "titleEn": "提供追蹤碼或領件資訊",
+        "titleEn": "Give your tracking number or pickup details",
         "titleZh": "提供追蹤碼或領件資訊",
         "keywords": [
           "tracking",
@@ -702,7 +702,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "描述配送狀態或問題",
+        "titleEn": "Describe the delivery status or problem",
         "titleZh": "描述配送狀態或問題",
         "keywords": [
           "delivered",
@@ -713,7 +713,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問下一步處理方式",
+        "titleEn": "Ask what to do next",
         "titleZh": "詢問下一步處理方式",
         "keywords": [
           "what should",
@@ -737,7 +737,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a bank-service representative. Help with currency exchange, fees, ATM withdrawal issues, or a temporarily blocked card.",
     "missions": [
       {
-        "titleEn": "說明要兌換的幣別與金額",
+        "titleEn": "State the currency and amount you want to exchange",
         "titleZh": "說明要兌換的幣別與金額",
         "keywords": [
           "exchange",
@@ -748,7 +748,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問匯率或手續費",
+        "titleEn": "Ask about the exchange rate or service fees",
         "titleZh": "詢問匯率或手續費",
         "keywords": [
           "rate",
@@ -759,7 +759,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "描述 ATM 或卡片問題並求助",
+        "titleEn": "Describe an ATM or card problem and ask for help",
         "titleZh": "描述 ATM 或卡片問題並求助",
         "keywords": [
           "ATM",
@@ -783,7 +783,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a receptionist taking appointments. Offer available times, confirm the service, and help reschedule if needed.",
     "missions": [
       {
-        "titleEn": "說明想預約的服務與日期",
+        "titleEn": "State the service and date you want to book",
         "titleZh": "說明想預約的服務與日期",
         "keywords": [
           "appointment",
@@ -794,7 +794,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "確認具體時間",
+        "titleEn": "Confirm a specific appointment time",
         "titleZh": "確認具體時間",
         "keywords": [
           "morning",
@@ -805,7 +805,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "練習取消或改期",
+        "titleEn": "Practice cancelling or rescheduling an appointment",
         "titleZh": "練習取消或改期",
         "keywords": [
           "reschedule",
@@ -829,7 +829,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a repair technician. Ask about symptoms, when the issue started, and explain diagnosis, cost and warranty options.",
     "missions": [
       {
-        "titleEn": "清楚描述裝置的故障症狀",
+        "titleEn": "Clearly describe the device malfunction",
         "titleZh": "清楚描述裝置的故障症狀",
         "keywords": [
           "phone",
@@ -841,7 +841,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問檢測或維修需要多久",
+        "titleEn": "Ask how long diagnosis or repair will take",
         "titleZh": "詢問檢測或維修需要多久",
         "keywords": [
           "how long",
@@ -852,7 +852,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "詢問估價或保固",
+        "titleEn": "Ask for a price estimate or warranty details",
         "titleZh": "詢問估價或保固",
         "keywords": [
           "estimate",
@@ -876,7 +876,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
     "rolePrompt": "You are a customer-service agent. Listen to the complaint, ask clarifying questions, and offer realistic solutions such as refund, replacement, or credit.",
     "missions": [
       {
-        "titleEn": "冷靜描述發生的客服問題",
+        "titleEn": "Calmly describe the customer service problem",
         "titleZh": "冷靜描述發生的客服問題",
         "keywords": [
           "charged",
@@ -888,7 +888,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "明確說出希望的解決方式",
+        "titleEn": "Clearly state your preferred solution",
         "titleZh": "明確說出希望的解決方式",
         "keywords": [
           "refund",
@@ -899,7 +899,7 @@ export const EXPANDED_COURSE_LESSONS:CourseLesson[]=[
         ]
       },
       {
-        "titleEn": "在第一方案不可行時提出替代方案",
+        "titleEn": "Offer an alternative if the first option is unavailable",
         "titleZh": "在第一方案不可行時提出替代方案",
         "keywords": [
           "if",
