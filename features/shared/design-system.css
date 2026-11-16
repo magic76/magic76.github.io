@@ -55,6 +55,11 @@ img{display:block;max-width:100%}
 .app-header .inner{height:58px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .app-brand{display:flex;align-items:center;gap:10px;min-width:0}
 .app-wordmark{display:block;width:103px;height:31px;max-width:none;object-fit:contain;flex:none}
+ /* One shared mobile header scale for every route; keep 44px tap targets. */
+ @media(max-width:767px){
+   .app-header .inner{height:52px}
+   .app-header .app-wordmark{width:88px;height:26px}
+ }
 .app-title{min-width:0}
 .app-title strong{display:block;font-size:14px;line-height:1.1;letter-spacing:-.02em}
 .app-title small{display:block;min-width:0;color:var(--muted);font-size:12px;margin-top:3px;line-height:1.1;white-space:normal;overflow-wrap:anywhere}
