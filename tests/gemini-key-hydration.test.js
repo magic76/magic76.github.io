@@ -17,18 +17,21 @@ test("SSG and initial hydration never mistake an unread client key for a missing
  assert.match(home,/\{ready&&!configured&&trial\.resolved&&\(!trial\.enabled\|\|trial\.remaining===0\)\?<section className="crew-home-start"/);
  assert.match(home,/ready&&configured&&!verified\?<Link to="\/account#settings-gemini" className="crew-home-start-verify"/);
 
- // Header uses a stable Account link, not key-dependent connection status.
- assert.match(chrome,/<Link className="crew-account-entry" to="\/account"/);
+ // Account entry belongs to My, not the shared page header.
+ const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
+ assert.doesNotMatch(chrome,/crew-account-entry|to="\/account"/);
+ assert.match(hub,/section==="me"&&<Link className="crew-section-card" to="\/account"/);
+ assert.match(hub,/tCommon\("auth.account"\)/);
  assert.doesNotMatch(chrome,/crew-key-status-placeholder|t\("gemini.pending"\)/);
 });
 
 test("Gemini key setup remains actionable after client hydration when truly unconfigured",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
- const chrome=read("web-spa/src/components/AppChrome.tsx");
+ const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  assert.match(home,/setup\.title/);
  assert.match(home,/setup\.verify/);
  assert.match(home,/crew-home-start-option/);
- assert.match(chrome,/to="\/account"/);
+ assert.match(hub,/to="\/account"/);
 });
 
 test("Cyber Orb refreshes its key status when the in-app Gemini setting is saved or cleared",()=>{
