@@ -1,69 +1,130 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
-import {ensureCore,geminiKey} from "../lib/runtime";
-import {nativeLanguageName,type NativeLanguage} from "../teacher/teacherLocale";
+import {geminiKey} from "../lib/runtime";
+import type {NativeLanguage} from "../teacher/teacherLocale";
 import {FriendAvatar} from "./FriendAvatar";
 import {CREW_FRIENDS,getCrewFriend} from "./friendProfiles";
+import {callTranslationRows,splitCallSentences} from "./callSentence.mjs";
+import {translateCallSentence} from "./callTranslate";
 type Turn={input?:string;output?:string};
 type Props={name:string;turns:ReadonlyArray<Turn>;input:string;output:string;learningLanguage:string;nativeLanguage:NativeLanguage;speaking:boolean};
-type Caption={source:string;language:NativeLanguage;text:string};
 type Translator={translate(text:string):Promise<string>;destroy?():void};
-type Factory={create(v:{sourceLanguage:string;targetLanguage:string}):Promise<Translator>};
+type Factory={availability(v:{sourceLanguage:string;targetLanguage:string}):Promise<"available"|"downloadable"|"downloading"|"unavailable">;create(v:{sourceLanguage:string;targetLanguage:string}):Promise<Translator>};
+type Browser={factory:Factory|null;status:"checking"|"available"|"downloadable"|"downloading"|"unavailable";instance:Translator|null;promise:Promise<void>|null;closed:boolean};
+type Part={source:string;text:string;status:"pending"|"working"|"done"|"key"|"failed"};
 const PREF="crew_friend_call_translation_v1";
 const LANG:Record<string,string>={"英文":"en","日文":"ja","韓文":"ko","中文":"zh","華語":"zh","繁體中文":"zh","簡體中文":"zh","西班牙文":"es","法文":"fr","德文":"de","義大利文":"it","越南文":"vi","泰文":"th","印尼文":"id","葡萄牙文":"pt"};
 function initial(){try{return localStorage.getItem(PREF)!=="off"}catch{return true}}
-async function translate(text:string,source:string,target:NativeLanguage):Promise<string>{
- if(!geminiKey()){
-  const factory=(globalThis as unknown as {Translator?:Factory}).Translator;
-  if(!factory)throw new Error("key");
-  let item:Translator|undefined;
-  try{item=await factory.create({sourceLanguage:source,targetLanguage:target});return String(await item.translate(text)).trim()}
-  finally{item?.destroy?.()}
- }
- await ensureCore();
- if(!window.CrewAI?.call)throw new Error("service");
- const value=await window.CrewAI.call("Translate this actual spoken transcript into "+nativeLanguageName(target)+". Return only the accurate translation:\n\n"+text,
- {preferLive:false,temperature:0,maxOutputTokens:240,system:"Translate only what was said. Do not invent dialogue."});
- return typeof value==="string"?value.trim():"";
-}
+function browserCode(language:string){return language==="zh-TW"?"zh-Hant":language==="zh-CN"?"zh":language.split("-")[0]}
 export function FriendCallCaptions({name,turns,input,output,learningLanguage,nativeLanguage,speaking}:Props){
  const {t}=useTranslation("voice");
- const captionsRef=useRef<HTMLDivElement>(null);
+ const captionsRef=useRef<HTMLDivElement>(null),replyRef=useRef<HTMLParagraphElement>(null),translationRef=useRef<HTMLDivElement>(null);
  const captionFriend=CREW_FRIENDS.find(friend=>friend.name===name)||getCrewFriend("zoe");
  const [enabled,setEnabled]=useState(initial);
- const [translated,setTranslated]=useState<Caption|null>(null);
- const [working,setWorking]=useState(false),[error,setError]=useState<""|"key"|"failed">("");
+ const [parts,setParts]=useState<Part[]>([]);
+ const partsRef=useRef<Part[]>([]),queueRef=useRef<number[]>([]),activeRef=useRef(new Map<number,AbortController>());
+ const epochRef=useRef(0),flushRef=useRef<()=>void>(()=>{}),browserRef=useRef<Browser|null>(null);
+ const streamRef=useRef({raw:"",closed:0,count:turns.length,completed:"",final:false,suspended:""});
+ const heardInputRef=useRef(input.trim());
  const latestInput=useMemo(()=>[...turns].reverse().find(v=>v.input?.trim())?.input?.trim()||"",[turns]);
  const latestReply=useMemo(()=>[...turns].reverse().find(v=>v.output?.trim())?.output?.trim()||"",[turns]);
  const source=LANG[learningLanguage]||"en";
  const needTranslation=source.split("-")[0]!==nativeLanguage.split("-")[0];
  const currentReply=output.trim();
+ const visibleTranslation=callTranslationRows(parts);
+ const publish=()=>setParts([...partsRef.current]);
+ const cancel=()=>{epochRef.current++;for(const controller of activeRef.current.values())controller.abort();activeRef.current.clear();queueRef.current=[];partsRef.current=[];publish()};
+ const reset=()=>{cancel();const s=streamRef.current;s.raw="";s.closed=0;s.completed="";s.final=false;s.suspended=""};
+ const startBrowser=(session:Browser)=>{
+  if(session.closed||!session.factory||session.promise||session.instance||session.status==="unavailable")return;
+  const from=browserCode(source),to=browserCode(nativeLanguage);
+  session.promise=session.factory.create({sourceLanguage:from,targetLanguage:to}).then(item=>{
+   if(session.closed){item.destroy?.();return}
+   session.instance=item;flushRef.current();
+  }).catch(()=>{if(!session.closed){session.status="unavailable";flushRef.current()}});
+ };
+ const flush=()=>{
+  if(!enabled||!needTranslation)return;
+  const browser=browserRef.current,useKey=!!geminiKey();
+  if(!useKey&&(!browser||browser.status==="checking"||(!browser.instance&&browser.status!=="unavailable")))return;
+  while(queueRef.current.length&&activeRef.current.size<(useKey?2:1)){
+   const index=queueRef.current.shift()!,part=partsRef.current[index];if(!part||part.status!=="pending")continue;
+   if(!useKey&&!browser?.instance){part.status="key";publish();continue}
+   const epoch=epochRef.current,controller=new AbortController();activeRef.current.set(index,controller);part.status="working";publish();
+   const onText=(value:string)=>{if(epoch!==epochRef.current||controller.signal.aborted)return;const item=partsRef.current[index];if(item){item.text=value;publish()}};
+   const task=useKey?translateCallSentence(part.source,source,nativeLanguage,onText,controller.signal):browser!.instance!.translate(part.source).then(value=>{onText(String(value).trim());return String(value).trim()});
+   void task.then(value=>{if(epoch!==epochRef.current)return;const item=partsRef.current[index];if(item){item.text=value;item.status=value?"done":"failed";publish()}}).catch(error=>{if(epoch!==epochRef.current)return;const item=partsRef.current[index];if(item){item.text="";item.status=error?.message==="key"?"key":"failed";publish()}}).finally(()=>{if(epoch!==epochRef.current)return;activeRef.current.delete(index);flushRef.current()});
+  }
+ };
+ flushRef.current=flush;
+ const enqueue=(text:string)=>{if(!text||!enabled||!needTranslation)return;partsRef.current.push({source:text,text:"",status:"pending"});queueRef.current.push(partsRef.current.length-1);publish();flushRef.current()};
+ const advance=(text:string,final:boolean)=>{
+  const s=streamRef.current;
+  const {sentences,tail}=splitCallSentences(text);
+  if(s.closed>sentences.length||partsRef.current.slice(0,s.closed).some((part,i)=>part.source!==sentences[i]))reset();
+  const state=streamRef.current;
+  for(let i=state.closed;i<sentences.length;i++)enqueue(sentences[i]);
+  state.closed=sentences.length;state.raw=text;
+  if(final&&!state.final){if(tail)enqueue(tail);state.final=true}
+ };
+ // Only mounted during an active telephone call: restore the exact prior browser chrome color.
+ useEffect(()=>{const meta=document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');if(!meta)return;const previous=meta.getAttribute("content");meta.setAttribute("content","#000");return()=>{if(previous===null)meta.removeAttribute("content");else meta.setAttribute("content",previous)}},[]);
+ // The browser model is prepared once per language pair, then reused throughout the call.
  useEffect(()=>{
-  let canceled=false;setWorking(false);setError("");
-  if(!enabled||!latestReply||!needTranslation){setTranslated(null);return}
-  setTranslated(v=>v?.source===latestReply&&v.language===nativeLanguage?v:null);
-  const timer=window.setTimeout(()=>{
-   if(canceled)return;
-   setWorking(true);
-   void translate(latestReply,source,nativeLanguage).then(value=>{
-    if(!canceled){if(!value)throw Error("empty");setTranslated({source:latestReply,language:nativeLanguage,text:value})}
-   }).catch(e=>{if(!canceled){setError(e?.message==="key"?"key":"failed");setTranslated(null)}})
-    .finally(()=>{if(!canceled)setWorking(false)});
-  },250);
-  return()=>{canceled=true;window.clearTimeout(timer)};
- },[enabled,latestReply,needTranslation,nativeLanguage,source]);
- // Only the caption transcript scrolls: keep the call controls pinned.
- useEffect(()=>{const el=captionsRef.current;if(el)el.scrollTop=el.scrollHeight},[latestReply,currentReply,latestInput,input,enabled,translated,working,error]);
- const toggle=()=>setEnabled(v=>{try{localStorage.setItem(PREF,v?"off":"on")}catch{}return !v});
+  const session:Browser={factory:null,status:"checking",instance:null,promise:null,closed:false};browserRef.current=session;
+  if(!geminiKey()){
+   const factory=(globalThis as unknown as {Translator?:Factory}).Translator;
+   if(!factory){session.status="unavailable";flushRef.current()}
+   else{session.factory=factory;void factory.availability({sourceLanguage:browserCode(source),targetLanguage:browserCode(nativeLanguage)}).then(status=>{
+    if(session.closed)return;session.status=status;
+    if(status==="available")startBrowser(session);
+    else flushRef.current();
+   }).catch(()=>{if(!session.closed){session.status="unavailable";flushRef.current()}})}
+  }
+  return()=>{session.closed=true;session.instance?.destroy?.();session.instance=null;browserRef.current=null};
+ },[source,nativeLanguage]);
+ useEffect(()=>{reset();streamRef.current.count=turns.length},[enabled,needTranslation,source,nativeLanguage]);
+ // A fresh stream that is not an extension of the prior reply is a new AI turn.
+ useEffect(()=>{
+  if(!enabled||!needTranslation)return;
+  const s=streamRef.current;
+  if(turns.length>s.count){
+   for(const turn of turns.slice(s.count))if(turn.output?.trim()){
+    const complete=turn.output.trim();
+    if(s.raw&&!complete.startsWith(s.raw))reset();
+    advance(complete,true);s.completed=complete;s.final=true;
+   }
+   s.count=turns.length;
+  }
+  if(!currentReply||currentReply===s.suspended||s.final&&currentReply===s.completed)return;
+  if(s.raw&&!currentReply.startsWith(s.raw))reset();
+  if(currentReply!==s.raw){s.final=false;advance(currentReply,false)}
+ },[turns,currentReply,enabled,needTranslation,source,nativeLanguage]);
+ // Interrupt button and server-side break both invalidate in-flight work; epoch guards late responses.
+ useEffect(()=>{
+  const interrupt=()=>{const stale=currentReply;reset();streamRef.current.suspended=stale};
+  window.addEventListener("crew-friend-call-interrupt",interrupt);
+  return()=>{window.removeEventListener("crew-friend-call-interrupt",interrupt);cancel()};
+ },[source,nativeLanguage]);
+ // Server interruption usually begins a fresh user transcript before the old AI turn completes.
+ useEffect(()=>{const previous=heardInputRef.current;heardInputRef.current=input.trim();if(input.trim()&&input.trim()!==previous&&!speaking&&streamRef.current.raw&&!streamRef.current.final){const stale=currentReply;reset();streamRef.current.suspended=stale}},[input,speaking,currentReply]);
+ // Keep Zoe's speaker and original visible; only the long original/translation scroll internally.
+ useEffect(()=>{const el=replyRef.current;if(el)el.scrollTop=el.scrollHeight;const pane=captionsRef.current;if(pane)pane.scrollTop=0},[latestReply,currentReply]);
+ useEffect(()=>{const el=translationRef.current;if(el)el.scrollTop=el.scrollHeight},[parts]);
+ const toggle=()=>{
+  if(!enabled){const session=browserRef.current;if(session&&(session.status==="downloadable"||session.status==="downloading"))startBrowser(session)}
+  else reset();
+  setEnabled(v=>{try{localStorage.setItem(PREF,v?"off":"on")}catch{}return !v});
+ };
  return <div ref={captionsRef} className="friend-phone-captions" aria-label={t("callCaptions.aria")}>
   <div className="friend-caption-heading"><span>{t("workspace.transcript")}</span>
    {needTranslation?<button type="button" className="friend-caption-toggle" aria-pressed={enabled} onClick={toggle}>{t(enabled?"callCaptions.hideTranslation":"callCaptions.showTranslation")}</button>:null}
   </div>
   <section className="friend-caption-ai" aria-label={name}>
    <div className="friend-caption-speaker"><FriendAvatar friend={captionFriend} className="friend-caption-avatar" decorative/><small>{name}{speaking?" · "+t("compact.speaking"):""}</small></div>
-   <p lang={source}>{currentReply||latestReply||t("callCaptions.waitingForFriend")}</p>
-   {enabled&&needTranslation&&latestReply&&(!currentReply||currentReply===latestReply)?<div className="friend-caption-translation" lang={nativeLanguage}>
-    {translated?.source===latestReply&&translated.language===nativeLanguage?translated.text:working?t("callCaptions.translating"):error==="key"?t("callCaptions.needsKey"):error==="failed"?t("callCaptions.translateFailed"):null}
+   <p ref={replyRef} lang={source}>{currentReply||latestReply||t("callCaptions.waitingForFriend")}</p>
+   {enabled&&needTranslation&&visibleTranslation.length?<div ref={translationRef} className="friend-caption-translation" lang={nativeLanguage}>
+    {visibleTranslation.map((row,i)=><span key={i} className="friend-caption-translation-sentence">{row.kind==="text"?row.value:t(row.value==="needsKey"?"callCaptions.needsKey":row.value==="translateFailed"?"callCaptions.translateFailed":"callCaptions.translating")}</span>)}
    </div>:null}
   </section>
   <section className="friend-caption-user" aria-label={t("friendLive.youSaid")}>

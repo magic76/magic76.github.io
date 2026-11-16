@@ -73,3 +73,85 @@
 
 /* The translation switch remains reachable while long transcripts move underneath. */
 .friend-phone-stage .friend-caption-heading{position:sticky;top:0;z-index:1;background:#253453}
+
+/* #52: Full-bleed telephone surface: only while the connected phone stage exists. */
+html:has(.friend-phone-stage){height:100%;min-height:100%;background:#000;color-scheme:dark}
+html:has(.friend-phone-stage) body{min-height:100dvh;margin:0;background:#000;color:#f5f5f5}
+body:has(.friend-phone-stage) #root{display:flex;flex-direction:column;min-height:100dvh;background:#000}
+body:has(.friend-phone-stage) .app-header{flex:none;width:100%;background:#000;color:#f5f5f5;border:0;box-shadow:none}
+body:has(.friend-phone-stage) .app-header .shell.inner{background:#000}
+body:has(.friend-phone-stage) .app-header .app-title,body:has(.friend-phone-stage) .app-header .app-title strong,body:has(.friend-phone-stage) .app-header .app-title small{color:#f5f5f5}
+body:has(.friend-phone-stage) .app-header .back-btn{background:#1c1c1c;color:#f5f5f5;border-color:#484848;box-shadow:none}
+body:has(.friend-phone-stage) .app-header .status{background:#141414;background-color:rgba(255,255,255,.08);color:#f5f5f5;border-color:#474747;box-shadow:none}
+body:has(.friend-phone-stage) .app-header .status span{color:#f5f5f5}
+body:has(.friend-phone-stage) .app-header .status .status-dot{background:#44d29a}
+body:has(.friend-phone-stage) .app-header .back-btn:focus-visible{outline:3px solid #d4e6ff;outline-offset:2px}
+/* No session-shell max width, auto margins, fixed 690px card height or bright safe-area gaps. */
+body.teacher-theme.session-page main.friend-live-page:has(.friend-phone-stage){display:flex;flex:1 1 auto;flex-direction:column;box-sizing:border-box;width:100%;min-width:0;min-height:0;max-width:none;margin:0;padding:0;background:#000;color:#f5f5f5}
+.friend-live-page:has(.friend-phone-stage)>.friend-desktop-workspace{box-sizing:border-box;flex:1 1 auto;width:100%;min-width:0;min-height:0;max-width:none;margin:0;padding:0;background:#000}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage{box-sizing:border-box;flex:1 1 auto;width:100%;min-width:0;min-height:0;max-width:none;max-height:none;height:auto;margin:0;padding:16px 18px calc(16px + env(safe-area-inset-bottom,0px));background:#000;background-image:none;color:#f5f5f5;border:0;border-radius:0;box-shadow:none;overflow:hidden}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-heading{background:#000;color:#e5e7eb;box-shadow:none;border:0}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-ai{background:#181818;color:#f5f5f5}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-ai small{color:#d9e1ea}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-translation{color:#e5e7eb;border-color:#484848}
+.friend-phone-stage .friend-caption-translation-sentence{display:block;white-space:pre-wrap}
+.friend-phone-stage .friend-caption-translation-sentence+.friend-caption-translation-sentence{margin-top:5px}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-user{background:#202020;color:#f5f5f5;border-color:#454545}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-user small{color:#d3dce7}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-toggle,.friend-live-page:has(.friend-phone-stage) .friend-call-options-toggle{background:#202020;color:#f5f5f5;border-color:#777}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-duration,.friend-live-page:has(.friend-phone-stage) .friend-phone-volume,.friend-live-page:has(.friend-phone-stage) .friend-phone-button{color:#f5f5f5}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-button svg{background:#354052;color:#fff}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-button.is-end svg{background:#c8263d;color:#fff}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-button.is-muted svg{background:#465568}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-button:disabled{opacity:1;color:#dce2e9}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-button:disabled svg{background:#2b3039;color:#dce2e9}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-volume-range button{background:#303b4d;color:#fff}
+.friend-live-page:has(.friend-phone-stage) .friend-language-switch,.friend-live-page:has(.friend-phone-stage) .crew-chat-mode-switch{background:#000;color:#f5f5f5;border-color:#424242}
+.friend-live-page:has(.friend-phone-stage) .friend-language-switch-title,.friend-live-page:has(.friend-phone-stage) .friend-language-switch>small,.friend-live-page:has(.friend-phone-stage) .crew-chat-mode-switch span{color:#dce4ee}
+.friend-live-page:has(.friend-phone-stage) .friend-language-options{background:#181818;border-color:#505050}
+.friend-live-page:has(.friend-phone-stage) .friend-language-options button{color:#e5e7eb;min-height:44px}
+.friend-live-page:has(.friend-phone-stage) .friend-language-options button.selected{background:#435684;color:#fff}
+.friend-live-page:has(.friend-phone-stage) .crew-chat-mode-switch .btn,.friend-live-page:has(.friend-phone-stage) .live-presets button,.friend-live-page:has(.friend-phone-stage) .live-presets a{background:#242424;color:#f5f5f5;border-color:#666;min-height:44px}
+/* Chat history is an inline black disclosure, not a white rounded sheet. */
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage>.friend-chat-history{box-sizing:border-box;flex:none;min-height:46px;max-height:min(26dvh,190px);margin:0 auto;padding:0;background:#000;color:#f5f5f5;border-color:#474747;box-shadow:none;overflow-y:auto}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage>.friend-chat-history:not([open]){max-height:46px}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage>.friend-chat-history summary{box-sizing:border-box;min-height:44px;display:flex;align-items:center;padding:8px 12px;background:#000;color:#f5f5f5}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-chat-history-scroll,.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-chat-turn{background:#000;color:#f5f5f5}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-chat-history-scroll{padding:0 12px 10px}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage.options-open>.friend-call-settings{box-sizing:border-box;width:100%;max-height:min(32dvh,200px);overflow-y:auto;overscroll-behavior:contain}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage>.friend-live-post,.friend-live-page:has(.friend-phone-stage) .friend-phone-stage>.friend-live-post-unavailable{background:#191919;color:#f5f5f5;border-color:#484848}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-live-post p,.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-live-post small{color:#e0e6ef}
+.friend-live-page:has(.friend-phone-stage) .guest-trial-countdown,.friend-live-page:has(.friend-phone-stage) .live-recovery{background:#1b1b1b;color:#f5f5f5;border-color:#505050}
+.friend-live-page:has(.friend-phone-stage) .guest-trial-countdown-copy small,.friend-live-page:has(.friend-phone-stage) .guest-trial-countdown-copy strong{color:#e5e7eb}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage button:focus-visible,.friend-live-page:has(.friend-phone-stage) .friend-phone-stage summary:focus-visible,.friend-live-page:has(.friend-phone-stage) .friend-phone-stage a:focus-visible{outline:3px solid #d4e6ff;outline-offset:2px}
+/* Friend desktop sidebar only: preserve the shared teacher/story workspace files. */
+.friend-live-page:has(.friend-phone-stage) .desktop-live-panel{background:#000;color:#f5f5f5;border-color:#414141;box-shadow:none}
+.friend-live-page:has(.friend-phone-stage) .workspace-panel-header{background:#000;color:#f5f5f5}
+.friend-live-page:has(.friend-phone-stage) .workspace-panel-header h2{color:#f5f5f5}
+.friend-live-page:has(.friend-phone-stage) .workspace-panel-header p,.friend-live-page:has(.friend-phone-stage) .workspace-panel-header .kicker,.friend-live-page:has(.friend-phone-stage) .workspace-note-area small,.friend-live-page:has(.friend-phone-stage) .workspace-feedback{color:#d3dce7;font-size:12px}
+.friend-live-page:has(.friend-phone-stage) .workspace-state{background:#233b2e;color:#e1f8e9;font-size:12px}
+.friend-live-page:has(.friend-phone-stage) .workspace-state[data-state="speaking"]{background:#303450;color:#e5eaff}
+.friend-live-page:has(.friend-phone-stage) .workspace-state[data-state="listening"]{background:#233b2e;color:#e1f8e9}
+.friend-live-page:has(.friend-phone-stage) .workspace-tabs{background:#000}
+.friend-live-page:has(.friend-phone-stage) .workspace-tabs button{color:#d5dce6;min-height:44px}
+.friend-live-page:has(.friend-phone-stage) .workspace-tabs button.active{background:#363636;color:#fff}
+.friend-live-page:has(.friend-phone-stage) .workspace-bubble{background:#252525;color:#f5f5f5}
+.friend-live-page:has(.friend-phone-stage) .workspace-bubble.from-user{background:#252b3d;color:#f5f5f5}
+.friend-live-page:has(.friend-phone-stage) .workspace-bubble small,.friend-live-page:has(.friend-phone-stage) .workspace-empty,.friend-live-page:has(.friend-phone-stage) .workspace-empty strong{color:#dde4ec;font-size:12px}
+.friend-live-page:has(.friend-phone-stage) .workspace-turn.current .workspace-bubble{border-color:#515151}
+.friend-live-page:has(.friend-phone-stage) .workspace-bottom{background:#000;border-color:#414141}
+.friend-live-page:has(.friend-phone-stage) .workspace-actions button{background:#272727;color:#f5f5f5;border-color:#626262;min-height:44px}
+.friend-live-page:has(.friend-phone-stage) .workspace-note-area textarea,.friend-live-page:has(.friend-phone-stage) .workspace-translation{background:#202020;color:#f5f5f5;border-color:#626262}
+.friend-live-page:has(.friend-phone-stage) .workspace-tabs button:focus-visible,.friend-live-page:has(.friend-phone-stage) .workspace-actions button:focus-visible,.friend-live-page:has(.friend-phone-stage) .workspace-note-area textarea:focus-visible{outline:3px solid #d4e6ff;outline-offset:2px}
+/* Fill 360x640 and 390x844 without guessing the header's pixel height. */
+@media(max-width:1049px){.friend-live-page:has(.friend-phone-stage)>.friend-desktop-workspace{display:flex;flex-direction:column}.friend-live-page:has(.friend-phone-stage) .friend-phone-stage{flex:1 1 auto}}
+@media(min-width:1050px){.friend-live-page:has(.friend-phone-stage)>.friend-desktop-workspace{align-items:stretch;gap:0}.friend-live-page:has(.friend-phone-stage) .desktop-live-workspace>.friend-phone-stage{padding:18px;border-radius:0}.friend-live-page:has(.friend-phone-stage) .desktop-live-panel{position:relative;top:auto;min-height:0;height:auto;border-radius:0}}
+@media(max-width:640px){body.teacher-theme.session-page main.friend-live-page:has(.friend-phone-stage){padding:0}.friend-live-page:has(.friend-phone-stage) .friend-phone-stage{padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px))}}
+
+/* #50 v3: translation errors cannot displace Zoe's name and spoken original. */
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage>.friend-phone-captions{flex:1 1 0;min-height:0;overflow-y:auto;scroll-behavior:auto;overscroll-behavior:contain}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-ai{flex:1 0 154px;min-height:154px;overflow:hidden;min-width:0}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-speaker{flex:none}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-ai>p{flex:1 1 0;min-height:3em;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:auto}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-translation{flex:0 1 auto;max-height:35%;min-height:0;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:auto}
+.friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-user{flex:none;max-height:84px;overflow-y:auto;overscroll-behavior:contain}
