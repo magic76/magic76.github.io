@@ -151,3 +151,11 @@
 .crew-text-return-actions button:focus-visible{outline:2px solid #6650bc;outline-offset:2px}
 @media(max-width:640px){.live-stage.crew-text-keyboard-open .crew-text-return-actions{display:none}}
 @media(prefers-reduced-motion:reduce){.crew-text-welcome-back,.crew-text-return-actions button{animation:none;transition:none}}
+
+/* Friend assistant messages keep the speaker visible when the keyboard hides the page header. */
+.crew-text-chat-history .crew-text-chat-row{display:contents}
+.crew-text-chat-history .crew-text-ai-row{display:flex;align-items:flex-start;align-self:flex-start;gap:8px;max-width:100%;width:100%;min-width:0}
+.crew-text-chat-history .crew-text-ai-row .crew-text-chat-message{flex:0 1 auto;min-width:0;max-width:calc(90% - 46px)}
+.crew-text-chat-history .crew-text-ai-row .crew-friend-avatar.crew-text-ai-avatar{width:38px;height:38px;min-width:38px;min-height:38px;max-width:38px;max-height:38px;border-radius:50%;object-fit:cover;flex:none}
+.crew-text-chat-history .crew-text-typing-row .crew-text-typing-bubble{flex:0 1 auto;min-width:0;max-width:calc(96% - 46px)}
+@media(max-width:420px){.crew-text-chat-history .crew-text-ai-row .crew-text-chat-message{max-width:calc(96% - 46px)}}

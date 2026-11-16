@@ -23,6 +23,8 @@ import {useTranslation} from "react-i18next";
 import {GUEST_TEXT_DAILY_TURNS} from "./guestAllowance";
 import {geminiKey,geminiVerified} from "../lib/runtime";
 import {PinyinHint} from "../teacher/PinyinHint";
+import {FriendAvatar} from "../friends/FriendAvatar";
+import {getCrewFriend} from "../friends/friendProfiles";
 import type {PinyinAidMode} from "../teacher/pinyinAid";
 import type {TeachingMode} from "../store/teacherStore";
 import "./TextChatPanel.css";
@@ -60,6 +62,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const backendFailureCount=useRef(0);
  const {t}=useTranslation("voice");
  const isFriend=sessionScope.startsWith("friend:");
+ const chatFriend=isFriend?getCrewFriend(sessionScope.split(":")[1]):null;
  // Private reward token; do not use an account ID or transcript.
  const creatureRewardSession=useRef("s"+Date.now().toString(36)+Math.random().toString(36).slice(2));
  const creatureRewardTurn=useRef(0);
@@ -344,16 +347,16 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   <div ref={history} className="crew-text-chat-history" role="log" aria-label={t("textChat.ui.conversation")} aria-live="polite" aria-relevant="additions">
    {!messages.length&&!firstStarter&&<p className="crew-text-chat-empty">{t("textChat.ui.empty",{name:speaker})}</p>}
    {historyReady&&!messages.length&&!draft.trim()&&!busy&&sessionScope.startsWith("friend:")&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} starters={starters}/>}
-   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?t("textChat.ui.you"):speaker}</strong><p>{m.text}</p>
+   {messages.map((m,i)=><div key={i} className={isFriend&&m.role==="assistant"?"crew-text-ai-row":"crew-text-chat-row"}>{isFriend&&m.role==="assistant"&&chatFriend&&<FriendAvatar friend={chatFriend} className="crew-text-ai-avatar" decorative/>}<div className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?t("textChat.ui.you"):speaker}</strong><p>{m.text}</p>
    {isFriend&&m.role==="user"&&!messages.slice(i+1).some(item=>item.role==="user")&&learning.canCheck(i,m.text)&&<FriendLearningCheck disabled={busy||(guestMode&&["unavailable","exhausted","paused"].includes(guestPhase))} onClick={()=>learning.check(i,m.text,value=>void sendMessage(value))}/>}
    {isFriend&&m.role==="assistant"&&(!busy||i!==messages.length-1)&&learning.notes.find(note=>note.index===i&&note.reply===m.text)?.tip&&<FriendLearningTip text={learning.notes.find(note=>note.index===i)?.tip||""}/>}{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}
-   {m.role==="assistant"&&busy&&i===messages.length-1&&<span className="crew-text-stream-cursor" aria-hidden="true">▍</span>}</div>)}
+   {m.role==="assistant"&&busy&&i===messages.length-1&&<span className="crew-text-stream-cursor" aria-hidden="true">▍</span>}</div></div>)}
    {busy&&pendingSend.current&&!pendingSend.current.sent&&<p className="crew-text-chat-pending" role="status">
     {t("textChat.ui.notSent")}{pendingSend.current.value}
    </p>}
-   {busy&&requestSent&&messages.at(-1)?.role!=="assistant"&&(isFriend?<div className="crew-text-typing-bubble" role="status" aria-live="off">
+   {busy&&requestSent&&messages.at(-1)?.role!=="assistant"&&(isFriend?<div className="crew-text-ai-row crew-text-typing-row">{chatFriend&&<FriendAvatar friend={chatFriend} className="crew-text-ai-avatar" decorative/>}<div className="crew-text-typing-bubble" role="status" aria-live="off">
     <span>{t("textChat.typing",{name:speaker})}</span><span className="crew-text-typing-dots" aria-hidden="true"><i/><i/><i/></span>
-   </div>:<p className="crew-text-chat-pending" role="status">{t("textChat.ui.replying",{name:speaker})}</p>)}
+   </div></div>:<p className="crew-text-chat-pending" role="status">{t("textChat.ui.replying",{name:speaker})}</p>)}
    {returnVisit&&!busy&&<TextChatWelcomeBack visit={returnVisit} name={speaker} showChoices={returnChoices&&!draft.trim()} onPick={message=>void sendMessage(message)}/>}
    {isFriend&&!returnVisit&&!busy&&!draft.trim()&&messages.at(-1)?.role==="assistant"&&nextReplies&&<TextChatNextReplies replies={nextReplies==="fallback"?fallbackReplies:nextReplies} onPick={sentence=>void sendMessage(sentence)}/>}
    {isFriend&&!learning.dismissed&&<FriendLearningSummary phrases={learning.summary(messages)} onDismiss={learning.dismiss}/>}
