@@ -3,7 +3,7 @@
 import {onRequestGet,onRequestPost,selectGuestGeminiKey,verifyCaptcha} from "../../functions/api/guest/token.js";
 import {onTextRequest} from "./text-chat.mjs";
 import {pollVideoTtsQueue,videoTtsResult} from "./video-tts.mjs";
-const ORIGIN="https://www.3sssi.com", NEW_ORIGIN="https://koolo.app", HOST="crew-guest-trial.shanliyoung.workers.dev", PATH="/api/guest/token", TEXT_PATH="/api/guest/text";
+const ORIGIN="https://www.3sssi.com", NEW_ORIGIN="https://koolo.app", HOSTS=new Set(["crew-guest-trial.shanliyoung.workers.dev","p.koolo.app"]), PATH="/api/guest/token", TEXT_PATH="/api/guest/text";
 function response(body,status=200,origin){
  const headers={"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"};
  if(origin){headers["access-control-allow-origin"]=origin;headers["vary"]="Origin"}
@@ -12,7 +12,7 @@ function response(body,status=200,origin){
 export default {
  async fetch(request,env){
   const url=new URL(request.url);
-  if(url.hostname!==HOST)return response({error:"Not found"},404);
+  if(url.protocol!=="https:"||!HOSTS.has(url.hostname))return response({error:"Not found"},404);
   if(url.pathname==="/api/video/tts/result"){
    if(request.method!=="GET")return response({error:"Method not allowed"},405);
    return videoTtsResult(request,env);

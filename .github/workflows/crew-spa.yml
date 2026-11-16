@@ -101,7 +101,7 @@ jobs:
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'magic')
         run: node --test tests/magic-world.test.js tests/magic-live-composition.test.js tests/magic-navigation.test.js
       - name: Validate Koolo dual-origin migration safety
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'koolo-domain')
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'koolo-domain') || contains(github.event.pull_request.head.ref, 'koolo-trial-worker-domain'))
         run: node --test tests/koolo-domain-ready.test.js tests/crew-auth.test.js tests/guest-trial.test.js tests/guest-text-chat.test.js
       - name: Validate UI translations (offline)
         run: npm run check:i18n
