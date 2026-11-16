@@ -268,5 +268,20 @@
       "socket": "Koneksi WebSocket Gemini Live terputus atau ditolak. Coba lagi.",
       "service": "Koneksi teks Gemini Live gagal. Coba lagi atau beralih ke latihan gratis."
     }
+  },
+  "callCaptions": {
+    "aria": "Teks panggilan dwibahasa",
+    "more": "Opsi lainnya",
+    "showTranslation": "Tampilkan terjemahan",
+    "hideTranslation": "Sembunyikan terjemahan",
+    "translating": "Menerjemahkan…",
+    "needsKey": "Perlu kunci Gemini atau browser yang mendukung terjemahan di perangkat.",
+    "translateFailed": "Terjemahan tidak tersedia, panggilan tetap berjalan.",
+    "waitingForFriend": "Balasan teman muncul di sini",
+    "recognized": "Dikenali",
+    "recognizing": "Mengenali",
+    "waitingForYou": "Ucapan Anda muncul di sini",
+    "callControls": "Kontrol panggilan",
+    "hangUp": "Akhiri panggilan"
   }
 }

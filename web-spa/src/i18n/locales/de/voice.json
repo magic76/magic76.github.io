@@ -268,5 +268,20 @@
       "socket": "Die Gemini Live WebSocket-Verbindung wurde unterbrochen oder abgelehnt. Bitte erneut versuchen.",
       "service": "Die Gemini Live-Textverbindung ist fehlgeschlagen. Versuche es erneut oder wechsle zur kostenlosen Übung."
     }
+  },
+  "callCaptions": {
+    "aria": "Zweisprachige Anrufuntertitel",
+    "more": "Weitere Optionen",
+    "showTranslation": "Übersetzung anzeigen",
+    "hideTranslation": "Übersetzung ausblenden",
+    "translating": "Wird übersetzt…",
+    "needsKey": "Ein Gemini-Schlüssel oder ein Browser mit Geräteübersetzung ist erforderlich.",
+    "translateFailed": "Übersetzung nicht verfügbar; der Anruf läuft weiter.",
+    "waitingForFriend": "Die Antwort erscheint hier",
+    "recognized": "Erkannt",
+    "recognizing": "Erkennung läuft",
+    "waitingForYou": "Deine Worte erscheinen hier",
+    "callControls": "Anrufsteuerung",
+    "hangUp": "Auflegen"
   }
 }

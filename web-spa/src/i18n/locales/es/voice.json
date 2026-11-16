@@ -268,5 +268,20 @@
       "socket": "La conexión WebSocket de Gemini Live se interrumpió o rechazó. Vuelve a intentarlo.",
       "service": "Falló la conexión de texto de Gemini Live. Reintenta o cambia a la práctica gratuita."
     }
+  },
+  "callCaptions": {
+    "aria": "Subtítulos bilingües",
+    "more": "Más opciones",
+    "showTranslation": "Mostrar traducción",
+    "hideTranslation": "Ocultar traducción",
+    "translating": "Traduciendo…",
+    "needsKey": "Necesitas una clave Gemini o un navegador con traducción local.",
+    "translateFailed": "La traducción no está disponible; la llamada continúa.",
+    "waitingForFriend": "La respuesta aparecerá aquí",
+    "recognized": "Reconocido",
+    "recognizing": "Reconociendo",
+    "waitingForYou": "Lo que digas aparecerá aquí",
+    "callControls": "Controles de llamada",
+    "hangUp": "Colgar"
   }
 }

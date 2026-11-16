@@ -268,5 +268,20 @@
       "socket": "Gemini Live の WebSocket 接続が切断または拒否されました。もう一度お試しください。",
       "service": "Gemini Live のテキスト接続に失敗しました。再試行するか無料練習に切り替えてください。"
     }
+  },
+  "callCaptions": {
+    "aria": "通話字幕と翻訳",
+    "more": "その他の操作",
+    "showTranslation": "翻訳を表示",
+    "hideTranslation": "翻訳を非表示",
+    "translating": "翻訳中…",
+    "needsKey": "Geminiキーまたは端末の翻訳機能が必要です。",
+    "translateFailed": "翻訳できませんが、通話は続けられます。",
+    "waitingForFriend": "相手の返答がここに表示されます",
+    "recognized": "認識済み",
+    "recognizing": "認識中",
+    "waitingForYou": "話した内容がここに表示されます",
+    "callControls": "通話操作",
+    "hangUp": "通話終了"
   }
 }

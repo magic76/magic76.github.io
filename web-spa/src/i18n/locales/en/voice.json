@@ -268,5 +268,20 @@
       "socket": "Gemini Live WebSocket connection was interrupted or rejected. Please retry.",
       "service": "Gemini Live text connection failed. Retry or switch to free practice."
     }
+  },
+  "callCaptions": {
+    "aria": "Bilingual call captions",
+    "more": "More options",
+    "showTranslation": "Show translation",
+    "hideTranslation": "Hide translation",
+    "translating": "Translating…",
+    "needsKey": "A Gemini key or an on-device translator is required.",
+    "translateFailed": "Translation is unavailable; the call continues.",
+    "waitingForFriend": "Your friend's reply will appear here",
+    "recognized": "Recognized",
+    "recognizing": "Recognizing",
+    "waitingForYou": "What you say will appear here",
+    "callControls": "Call controls",
+    "hangUp": "Hang up"
   }
 }

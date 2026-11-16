@@ -268,5 +268,20 @@
       "socket": "Kết nối WebSocket Gemini Live bị ngắt hoặc từ chối. Hãy thử lại.",
       "service": "Kết nối văn bản Gemini Live thất bại. Thử lại hoặc chuyển sang luyện tập miễn phí."
     }
+  },
+  "callCaptions": {
+    "aria": "Phụ đề cuộc gọi song ngữ",
+    "more": "Tùy chọn khác",
+    "showTranslation": "Hiện bản dịch",
+    "hideTranslation": "Ẩn bản dịch",
+    "translating": "Đang dịch…",
+    "needsKey": "Cần khóa Gemini hoặc trình duyệt hỗ trợ dịch trên thiết bị.",
+    "translateFailed": "Không thể dịch, cuộc gọi vẫn tiếp tục.",
+    "waitingForFriend": "Câu trả lời sẽ hiện ở đây",
+    "recognized": "Đã nhận diện",
+    "recognizing": "Đang nhận diện",
+    "waitingForYou": "Lời bạn nói sẽ hiện ở đây",
+    "callControls": "Điều khiển cuộc gọi",
+    "hangUp": "Kết thúc"
   }
 }
