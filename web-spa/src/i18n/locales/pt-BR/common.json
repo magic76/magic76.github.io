@@ -4,7 +4,7 @@
     "zh": "繁體中文",
     "en": "English",
     "select": "Escolher idioma da interface",
-    "description": "Altera apenas o idioma do Crew, não o idioma que você aprende ou usa nas conversas.",
+    "description": "Altera apenas o idioma do Koolo, não o idioma que você aprende ou usa nas conversas.",
     "beta": "Beta",
     "preview": "Prévia",
     "previewHint": "Parte do conteúdo será exibida em inglês",
@@ -22,7 +22,7 @@
     "chat": "Conversa",
     "explore": "Explorar",
     "learn": "Aprender",
-    "me": "Meu Crew"
+    "me": "Meu Koolo"
   },
   "featureMenu": {
     "trigger": "Todos os recursos",
@@ -131,7 +131,7 @@
   "auth": {
     "trialCount": "Testes de voz grátis hoje: {{used}} / {{limit}} usados (reinicia às 00h, horário de Taipei)",
     "account": "Conta",
-    "title": "Conta Crew",
+    "title": "Conta Koolo",
     "intro": "Entre com Google ou GitHub.",
     "choose": "Escolha como entrar",
     "signedIn": "Conectado",
@@ -144,7 +144,7 @@
     "backSettings": "Voltar às configurações",
     "accountAi": "Conta e configurações de IA",
     "aiSettings": "Conexão Gemini AI",
-    "aiIntro": "Após o teste grátis, você pode usar sua própria chave Gemini neste dispositivo. Não é preciso entrar na conta Crew.",
+    "aiIntro": "Após o teste grátis, você pode usar sua própria chave Gemini neste dispositivo. Não é preciso entrar na conta Koolo.",
     "preferences": "Outras preferências",
     "preferencesIntro": "Aprendizado, voz, memória e dispositivo são configurados separadamente e não são sincronizados ao entrar.",
     "voiceSettings": "Voz e microfone",

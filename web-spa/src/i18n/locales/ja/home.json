@@ -19,16 +19,16 @@
       "phoenix": "フェニックス"
     }
   },
-  "eyebrow": "あなたの CREW スペース",
-  "headline": "Crew と話して、遊んで、学ぼう",
+  "eyebrow": "あなたの Koolo スペース",
+  "headline": "Koolo と話して、遊んで、学ぼう",
   "intro": "AI の友達と話したり、ゲームをしたり、語学を練習したり、物語を楽しもう。",
   "continue": "前回の続きから",
   "localOnly": "この端末に保存",
-  "explore": "Crew を探索",
+  "explore": "Koolo を探索",
   "start": "やってみたいことを選ぼう",
   "product": {
     "teacher": "語学と会話練習",
-    "play": "Crew の友達とゲーム",
+    "play": "Koolo の友達とゲーム",
     "story": "物語と読書",
     "fortune": "命式を探索"
   },
@@ -39,9 +39,9 @@
     "verifyDesc": "キーが使えるか確認してください。",
     "shortDesc": "無料体験の後は、自分のキーを設定して会話を続けられます。"
   },
-  "android": "Crew のすべてをスマホに",
+  "android": "Koolo のすべてをスマホに",
   "androidApp": {
-    "name": "Crew：AI の友だちと語学チャット",
+    "name": "Koolo：AI の友だちと語学チャット",
     "description": "AI の友だちと話したり、語学を練習したり、ゲームで遊んだり、物語を楽しんだり。すべてがひとつのアプリに。"
   },
   "briefing": {
@@ -65,7 +65,7 @@
     "tarot": "タロット数秘術",
     "vedic": "インド占星術",
     "play": "このゲームを開いて新しいラウンドを始める",
-    "friend": "Crew の友達と話す",
+    "friend": "Koolo の友達と話す",
     "friendDesc": "この友達とのチャットに戻る",
     "fortuneResume": "占いの結果を続きを読む"
   },
@@ -77,7 +77,7 @@
   },
   "actions": {
     "label": "クイックスタート",
-    "chat": "Crew の友達に会う",
+    "chat": "Koolo の友達に会う",
     "chatDesc": "会話を始める",
     "play": "ゲームで遊ぶ",
     "playDesc": "AI の友だちと気軽にゲーム"
@@ -181,7 +181,7 @@
     },
     "intro": "おしゃべり、語学、占い、ゲーム。AI と一緒に。",
     "discovery": {
-      "intro": "Crewではこんなこともできるよ",
+      "intro": "Kooloではこんなこともできるよ",
       "item0": "AIと数字当てや五目並べで対決",
       "item1": "身近な物を撮って、おしゃべりさせよう",
       "item3": "ゲーム感覚で外国語を練習",
@@ -190,8 +190,8 @@
   },
   "playHub": {
     "back": "ホーム",
-    "heading": "Crew の友だちと何して遊ぶ？",
-    "intro": "Crew の友だちを選んで、ボードゲーム、数当て、言葉遊び、音声の謎解きを一緒に楽しもう。",
+    "heading": "Koolo の友だちと何して遊ぶ？",
+    "intro": "Koolo の友だちを選んで、ボードゲーム、数当て、言葉遊び、音声の謎解きを一緒に楽しもう。",
     "voiceRequired": "AI 音声",
     "offlineOptional": "オフライン対応 · 音声は任意",
     "games": {
@@ -225,7 +225,7 @@
       }
     },
     "allGames": "すべてのゲーム",
-    "yourFriend": "Crew の友だち",
+    "yourFriend": "Koolo の友だち",
     "changeFriend": "友だちを変更",
     "mini": {
       "courtTitle": "おかしな法廷",
@@ -256,14 +256,14 @@
       "noteDirectNoKey": "Key なしでは自己採点の練習のみで、AI は推測しません。",
       "noteLive": "Live は音声とキャラクターの返答のみ担当。得点はオフラインのルールで決まり、友達との会話履歴には保存されません。"
     },
-    "eyebrow": "Crew ゲーム",
+    "eyebrow": "Koolo ゲーム",
     "voiceDock": {
       "expand": "音声パネルを開く",
       "collapse": "音声パネルを閉じる"
     },
     "gomoku": {
-      "eyebrow": "Crew ゲーム · 五目並べ",
-      "intro": "コンピューターと五目並べ。おしゃべりしたくなったら、いつでも Crew の友だちの音声をオンにできます。"
+      "eyebrow": "Koolo ゲーム · 五目並べ",
+      "intro": "コンピューターと五目並べ。おしゃべりしたくなったら、いつでも Koolo の友だちの音声をオンにできます。"
     }
   },
   "timeline": {
@@ -340,7 +340,7 @@
     "liveContext": "探索 · 人生タイムライン"
   },
   "shorts": {
-    "heading": "Crew の友だちは今何をしている？",
+    "heading": "Koolo の友だちは今何をしている？",
     "intro": "小さな写真の物語と自然な表現から会話を始めよう。見るだけでも大丈夫。",
     "noteDaily": "架空の AI 友だちが毎日の写真ストーリーを共有しています。",
     "noteDemo": "プレビュー：サンプルの物語と外部のデモ写真を使用中です。毎日の AI 写真生成はまだ有効ではありません。",
@@ -415,7 +415,7 @@
     "destinations": "探索できるコンテンツ",
     "fortune": {
       "title": "運勢を探る・Fortune",
-      "desc": "自分の命式や鑑定履歴を見たり、新たに占ったり。Crew の友だちによる解説も。"
+      "desc": "自分の命式や鑑定履歴を見たり、新たに占ったり。Koolo の友だちによる解説も。"
     },
     "timeline": {
       "title": "人生タイムライン",
@@ -444,7 +444,7 @@
       "title": "友だちと話そう",
       "intro": "授業ではなく、友だちの日常や気になることから自然に会話を始めましょう。",
       "hero": {
-        "title": "Crew の友だちを探す",
+        "title": "Koolo の友だちを探す",
         "desc": "個性豊かな16人の友だちから、話したい相手と言語を選べます。",
         "tag": "気軽におしゃべり"
       },
@@ -462,7 +462,7 @@
           "desc": "友だちが覚えている話題やプライバシー設定を管理します。"
         }
       },
-      "meetFriends": "Crew の友だちを紹介",
+      "meetFriends": "Koolo の友だちを紹介",
       "allFriends": "すべての友だちを見る",
       "friendTitles": {
         "zoe": "機転が利くおしゃべり上手",
@@ -486,10 +486,10 @@
     },
     "learn": {
       "title": "外国語を練習しよう",
-      "intro": "学びたいことが決まったら、Crew Teacher と一緒に練習して上達を目指しましょう。",
+      "intro": "学びたいことが決まったら、Koolo Teacher と一緒に練習して上達を目指しましょう。",
       "hero": {
         "title": "スピーキング練習を始める",
-        "desc": "Crew Teacher を選んで、自然な音声会話を始めよう。",
+        "desc": "Koolo Teacher を選んで、自然な音声会話を始めよう。",
         "tag": "会話練習"
       },
       "items": {
@@ -518,7 +518,7 @@
       "todayTitle": "今日の学習",
       "recordsLink": "学習履歴を見る",
       "threeMinuteTitle": "外国語で3分間おしゃべり",
-      "threeMinuteDesc": "テストではなく、Crew の友だちと気軽に会話を楽しもう。",
+      "threeMinuteDesc": "テストではなく、Koolo の友だちと気軽に会話を楽しもう。",
       "syncInfo": "学習記録と同期について",
       "focusLabel": "おすすめの練習",
       "newLabel": "ここからスタート",
@@ -531,7 +531,7 @@
       "resumeCta": "練習を再開"
     },
     "me": {
-      "title": "マイ Crew",
+      "title": "マイ Koolo",
       "intro": "学習記録や保存したコンテンツ、個人設定をまとめて確認できます。",
       "hero": {
         "title": "学習記録と進捗",
@@ -576,7 +576,7 @@
     "footnote": "ここに表示されるのは、このブラウザやアプリの WebView に記録された学習情報だけです。以前の Android アプリの記録とはまだ同期されていません。"
   },
   "gift": {
-    "title": "Crew ミステリーボックス",
+    "title": "Koolo ミステリーボックス",
     "teaser": "今日のサプライズは？",
     "open": "開けてみる",
     "reopen": "結果を見る",
@@ -592,7 +592,7 @@
     "learnDescription": "外国語のひと言に挑戦しよう。"
   },
   "mobileHero": {"title": "遊んで学ぼう", "subtitle": "まずはあいさつから。"},
-  "quickEntry": {"heading": "Crewを探索", "fortune": "今日の運勢", "shorts": "Shortsを見る"},
+  "quickEntry": {"heading": "Kooloを探索", "fortune": "今日の運勢", "shorts": "Shortsを見る"},
   "liveBubble": {
     "invite": "ねえ、少しおしゃべりしない？",
     "start": "音声会話",

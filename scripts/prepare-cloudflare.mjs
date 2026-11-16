@@ -482,7 +482,7 @@ const pwaHead=[
  '<link rel="icon" type="image/svg+xml" href="/favicon.svg">',
  '<link rel="apple-touch-icon" sizes="180x180" href="/icons/koolo-v1-180.png">',
  '<meta name="apple-mobile-web-app-capable" content="yes">',
- '<meta name="apple-mobile-web-app-title" content="Crew">'
+ '<meta name="apple-mobile-web-app-title" content="Koolo">'
 ].join(newline);
 function addPwaHeadToHtml(directory){
  for(const entry of readdirSync(directory,{withFileTypes:true})){

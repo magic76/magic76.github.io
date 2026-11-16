@@ -91,12 +91,12 @@
       "friend": "Films, voyages ou sujets à aborder la prochaine fois…",
       "story": "Personnages préférés, idées d’histoire, questions pour Archie…"
     },
-    "notesHint": "Enregistré automatiquement dans ce navigateur, sauvegardable dans les Réglages Crew. Ces notes ne sont jamais envoyées au personnage."
+    "notesHint": "Enregistré automatiquement dans ce navigateur, sauvegardable dans les Réglages Koolo. Ces notes ne sont jamais envoyées au personnage."
   },
   "friendLive": {
     "preparingPost": "Préparation du sujet photo de ton ami…",
-    "backAria": "Retour à Crew Amis",
-    "brand": "Ami Crew · {{language}}",
+    "backAria": "Retour à Koolo Amis",
+    "brand": "Ami Koolo · {{language}}",
     "stageAria": "Discussion avec {{name}}",
     "hookPrefix": "Tu voulais demander : ",
     "postStarter": "Que se passe-t-il sur cette photo ?",
@@ -199,7 +199,7 @@
     "restartHint": "La session gratuite n’a pas pu démarrer. Une nouvelle vérification peut être nécessaire.",
     "backendNext": "Plusieurs essais sont restés sans réponse. Revenez plus tard ou utilisez votre clé Gemini.",
     "useKey": "Utiliser ma clé Gemini",
-    "nextDayHint": "Vous pourrez à nouveau discuter gratuitement demain, ou créer gratuitement votre clé Gemini avec un compte Google pour continuer sur Crew.",
+    "nextDayHint": "Vous pourrez à nouveau discuter gratuitement demain, ou créer gratuitement votre clé Gemini avec un compte Google pour continuer sur Koolo.",
     "applyKey": "Créer une clé gratuite pour continuer",
     "keyApplyNote": "Configuration en une minute environ ; les quotas gratuits de Google varient selon le modèle et l’utilisation.",
     "verifyAgain": "Vérifier à nouveau",

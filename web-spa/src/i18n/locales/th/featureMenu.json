@@ -1,11 +1,11 @@
 {
-  "title": "สำรวจโลก Crew",
+  "title": "สำรวจโลก Koolo",
   "subtitle": "รวมทุกฟีเจอร์ไว้ที่เดียว",
   "close": "ปิดเมนู",
   "groups": {
     "chat": "แชตและเพื่อน",
     "explore": "สร้างสรรค์และสำรวจ",
-    "me": "Crew ของฉัน",
+    "me": "Koolo ของฉัน",
     "learn": "เรียนภาษา",
     "games": "เกมโต้ตอบ"
   },
@@ -27,35 +27,35 @@
       "desc": "ดูไดอารีภาพของเพื่อน"
     },
     "souls": {
-      "title": "Crew Souls",
+      "title": "Koolo Souls",
       "desc": "ทำให้ภาพมีชีวิต"
     },
     "mate": {
-      "title": "Crew Mate",
+      "title": "Koolo Mate",
       "desc": "สื่อสารข้ามภาษา"
     },
     "story": {
-      "title": "Crew Story",
+      "title": "Koolo Story",
       "desc": "สร้างเรื่องราวโต้ตอบ"
     },
     "fortune": {
-      "title": "Crew Fortune",
+      "title": "Koolo Fortune",
       "desc": "สำรวจเส้นทางชีวิต"
     },
     "timeline": {
-      "title": "Crew Timeline",
+      "title": "Koolo Timeline",
       "desc": "สำรวจช่วงวัยต่าง ๆ"
     },
     "town": {
-      "title": "Crew Town",
+      "title": "Koolo Town",
       "desc": "เที่ยวเมืองของเพื่อน"
     },
     "magic": {
-      "title": "Crew Magic",
+      "title": "Koolo Magic",
       "desc": "สร้างโลกด้วยเสียง"
     },
     "discover": {
-      "title": "Crew Discover",
+      "title": "Koolo Discover",
       "desc": "สำรวจข่าวและความรู้"
     },
     "research": {

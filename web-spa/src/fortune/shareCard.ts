@@ -58,7 +58,7 @@ export async function buildDailyShareFile(card:import("./dailyCard").DailyCard,l
  ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1350);
  ctx.fillStyle="#fdf0ff";ctx.beginPath();ctx.arc(940,140,270,0,Math.PI*2);ctx.fill();
  ctx.fillStyle="#c5a7d2";ctx.font="27px sans-serif";for(const [x,y] of [[90,270],[975,285],[112,733],[930,750]])ctx.fillText("✦",x,y);
- ctx.fillStyle="#33284e";ctx.font="bold 41px sans-serif";ctx.fillText("CREW FORTUNE",76,103);
+ ctx.fillStyle="#33284e";ctx.font="bold 41px sans-serif";ctx.fillText("Koolo FORTUNE",76,103);
  ctx.font="28px sans-serif";ctx.fillStyle="#6b5a7e";ctx.fillText(card.date+"  ·  "+labels.kindLabel,76,158);
  // Approved Q-character illustration; same-origin source, graceful art fallback.
  const art=await dailyArt(card.artSrc);
@@ -95,7 +95,7 @@ export async function buildDailyShareFile(card:import("./dailyCard").DailyCard,l
 export async function shareDailyCard(card:import("./dailyCard").DailyCard,labels:DailyShareLabels):Promise<void>{
  const file=await buildDailyShareFile(card,labels);
  if(navigator.share&&navigator.canShare?.({files:[file]})){
-  try{await navigator.share({title:"Crew Fortune",text:card.headline,files:[file]});return;}
+  try{await navigator.share({title:"Koolo Fortune",text:card.headline,files:[file]});return;}
   catch(error){if((error as Error)?.name==="AbortError")return;}
  }
  const url=URL.createObjectURL(file),link=document.createElement("a");
@@ -122,10 +122,10 @@ export async function shareDailyReturn(card:import("./dailyCard").DailyCard,labe
  if(typeof navigator.share==="function"){
   const file=await buildDailyShareFile(card,labels).catch(()=>null);
   if(file&&navigator.canShare?.({files:[file]})){
-   try{await navigator.share({title:"Crew Fortune",text,url,files:[file]});return "shared";}
+   try{await navigator.share({title:"Koolo Fortune",text,url,files:[file]});return "shared";}
    catch(error){if((error as Error)?.name==="AbortError")return "cancelled";}
   }
-  try{await navigator.share({title:"Crew Fortune",text,url});return "shared";}
+  try{await navigator.share({title:"Koolo Fortune",text,url});return "shared";}
   catch(error){if((error as Error)?.name==="AbortError")return "cancelled";}
  }
  return await copyDailyPublicUrl(url)?"copied":"failed";

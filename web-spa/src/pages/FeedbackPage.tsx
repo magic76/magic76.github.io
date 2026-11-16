@@ -40,7 +40,7 @@ export function FeedbackPage(){
   }
  }
  return <div className="crew-feedback">
-  <section className="hero crew-feedback-hero"><span className="kicker">Crew</span><h1>{t("title")}</h1><p>{t("intro")}</p></section>
+  <section className="hero crew-feedback-hero"><span className="kicker">Koolo</span><h1>{t("title")}</h1><p>{t("intro")}</p></section>
   {status==="success"?<section className="section panel crew-feedback-success" role="status">
    <div aria-hidden="true" className="crew-feedback-success-icon">✓</div>
    <h2>{t("successTitle")}</h2><p>{t("successBody")}</p>

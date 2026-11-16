@@ -1,11 +1,11 @@
 {
-  "title": "Entdecke die Crew-Welt",
+  "title": "Entdecke die Koolo-Welt",
   "subtitle": "Alle Funktionen auf einen Blick",
   "close": "Menü schließen",
   "groups": {
     "chat": "Chat & Freunde",
     "explore": "Erstellen & Entdecken",
-    "me": "Mein Crew",
+    "me": "Mein Koolo",
     "learn": "Sprachen lernen",
     "games": "Interaktive Spiele"
   },
@@ -27,35 +27,35 @@
       "desc": "Sieh ihre Fototagebücher"
     },
     "souls": {
-      "title": "Crew Souls",
+      "title": "Koolo Souls",
       "desc": "Erwecke Fotos zum Leben"
     },
     "mate": {
-      "title": "Crew Mate",
+      "title": "Koolo Mate",
       "desc": "Sprich über Sprachgrenzen"
     },
     "story": {
-      "title": "Crew Story",
+      "title": "Koolo Story",
       "desc": "Erstelle interaktive Geschichten"
     },
     "fortune": {
-      "title": "Crew Fortune",
+      "title": "Koolo Fortune",
       "desc": "Erkunde deinen Lebensweg"
     },
     "timeline": {
-      "title": "Crew Timeline",
+      "title": "Koolo Timeline",
       "desc": "Entdecke Lebensphasen"
     },
     "town": {
-      "title": "Crew Town",
-      "desc": "Besuche die Crew-Stadt"
+      "title": "Koolo Town",
+      "desc": "Besuche die Koolo-Stadt"
     },
     "magic": {
-      "title": "Crew Magic",
+      "title": "Koolo Magic",
       "desc": "Erschaffe Welten mit Stimme"
     },
     "discover": {
-      "title": "Crew Discover",
+      "title": "Koolo Discover",
       "desc": "Erkunde Nachrichten und Ideen"
     },
     "research": {

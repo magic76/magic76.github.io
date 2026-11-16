@@ -4,7 +4,7 @@
     "zh": "繁體中文",
     "en": "English",
     "select": "Sprache der Oberfläche auswählen",
-    "description": "Ändert nur die Sprache der Crew-Oberfläche, nicht deine Lern- oder Gesprächssprache.",
+    "description": "Ändert nur die Sprache der Koolo-Oberfläche, nicht deine Lern- oder Gesprächssprache.",
     "beta": "Beta",
     "preview": "Vorschau",
     "previewHint": "Einige Inhalte werden auf Englisch angezeigt",
@@ -22,7 +22,7 @@
     "chat": "Chat",
     "explore": "Entdecken",
     "learn": "Lernen",
-    "me": "Mein Crew"
+    "me": "Mein Koolo"
   },
   "featureMenu": {
     "trigger": "Alle Funktionen",
@@ -131,7 +131,7 @@
   "auth": {
     "trialCount": "Kostenlose Sprachtests heute: {{used}} / {{limit}} genutzt (Reset um 00:00 Uhr Taipeh-Zeit)",
     "account": "Konto",
-    "title": "Crew-Konto",
+    "title": "Koolo-Konto",
     "intro": "Melde dich mit Google oder GitHub an.",
     "choose": "Anmeldemethode wählen",
     "signedIn": "Angemeldet",
@@ -144,7 +144,7 @@
     "backSettings": "Zurück zu Einstellungen",
     "accountAi": "Konto & KI-Einstellungen",
     "aiSettings": "Gemini-AI-Verbindung",
-    "aiIntro": "Nach der kostenlosen Probe kannst du deinen eigenen Gemini-Schlüssel auf diesem Gerät verwenden. Eine Crew-Anmeldung ist nicht nötig.",
+    "aiIntro": "Nach der kostenlosen Probe kannst du deinen eigenen Gemini-Schlüssel auf diesem Gerät verwenden. Eine Koolo-Anmeldung ist nicht nötig.",
     "preferences": "Weitere Einstellungen",
     "preferencesIntro": "Lernen, Sprache, Erinnerungen und Gerät bleiben getrennt und werden bei der Anmeldung nicht automatisch synchronisiert.",
     "voiceSettings": "Stimme & Mikrofon",

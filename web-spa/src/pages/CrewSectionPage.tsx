@@ -40,8 +40,8 @@ const copy:{
  }
 }={
  chat:{
-  eyebrow:"CREW FRIENDS",title:"和朋友聊聊",intro:"不是上課，而是從朋友的生活、你的好奇心開始對話。",
-  hero:{title:"找一位 Crew Friend",desc:"認識 16 位不同個性的朋友，選擇你想說的語言。",to:"/teacher/roles?mode=friends",icon:"chat",tag:"自然聊天"},
+  eyebrow:"Koolo FRIENDS",title:"和朋友聊聊",intro:"不是上課，而是從朋友的生活、你的好奇心開始對話。",
+  hero:{title:"找一位 Koolo Friend",desc:"認識 16 位不同個性的朋友，選擇你想說的語言。",to:"/teacher/roles?mode=friends",icon:"chat",tag:"自然聊天"},
   items:[
    {title:"朋友動態 Shorts",desc:"先看看今天發生什麼，再決定要不要聊天。",to:"/teacher/shorts",icon:"image"},
    {title:"和朋友玩遊戲",desc:"用互動遊戲找話題，不必先想好要說什麼。",to:"/games",icon:"play"},
@@ -49,8 +49,8 @@ const copy:{
   ]
  },
  explore:{
-  eyebrow:"CREW EXPLORE",title:"探索",intro:"今天想探索什麼？選一件讓你好奇的事，從這裡開始。",
-  hero:{title:"命理探索 Fortune",desc:"我的命盤、歷史紀錄、新命盤與 Crew Friend 講解，全部從這裡開始。",to:"/fortune",icon:"fortune",tag:"命盤與人生"},
+  eyebrow:"Koolo EXPLORE",title:"探索",intro:"今天想探索什麼？選一件讓你好奇的事，從這裡開始。",
+  hero:{title:"命理探索 Fortune",desc:"我的命盤、歷史紀錄、新命盤與 Koolo Friend 講解，全部從這裡開始。",to:"/fortune",icon:"fortune",tag:"命盤與人生"},
   items:[
    {title:"人生時光機 Timeline",desc:"遇見角色在不同年紀的生活與選擇。",to:"/timeline",icon:"history"},
    {title:"互動遊戲",desc:"海龜湯、猜詞、1A2B 與更多遊戲。",to:"/games",icon:"play"},
@@ -60,8 +60,8 @@ const copy:{
   ]
  },
  learn:{
-  eyebrow:"CREW TEACHER",title:"想練外語，找老師",intro:"有明確的學習目標時，再由老師帶你練習、回顧和進步。",
-  hero:{title:"開始口說練習",desc:"選擇你的 Crew Teacher，直接進入自然語音練習。",to:"/teacher/roles?mode=teacher",icon:"mic",tag:"語音學習"},
+  eyebrow:"Koolo TEACHER",title:"想練外語，找老師",intro:"有明確的學習目標時，再由老師帶你練習、回顧和進步。",
+  hero:{title:"開始口說練習",desc:"選擇你的 Koolo Teacher，直接進入自然語音練習。",to:"/teacher/roles?mode=teacher",icon:"mic",tag:"語音學習"},
   items:[
    {title:"學習中心",desc:"接續進度、單字、課程與發音練習。",to:"/teacher/learn",icon:"teacher"},
    {title:"情境課程",desc:"依照生活場景完成外語對話。",to:"/teacher/course",icon:"scene"},
@@ -71,7 +71,7 @@ const copy:{
   ]
  },
  me:{
-  eyebrow:"MY CREW",title:"我的 Crew",intro:"把你的紀錄、收藏、個人設定放在一起，首頁不用全部展示。",
+  eyebrow:"MY Koolo",title:"我的 Koolo",intro:"把你的紀錄、收藏、個人設定放在一起，首頁不用全部展示。",
   hero:{title:"我的學習與紀錄",desc:"查看已完成的練習、進度與學習資訊。",to:"/teacher/me",icon:"history",tag:"裝置內紀錄"},
   items:[
    {title:"我的命盤",desc:"重新查看先前算過的命盤。",to:"/fortune/history",icon:"fortune"},
@@ -86,8 +86,8 @@ const copy:{
 
 const englishCopy:typeof copy={
  chat:{
-  eyebrow:"CREW FRIENDS",title:"Chat with friends",intro:"This is not a class. Start with a friend's life or something you're curious about.",
-  hero:{title:"Meet your Crew Friends",desc:"Sixteen personalities. Pick a friend and the language you want to speak.",to:"/teacher/roles?mode=friends",icon:"chat",tag:"Just talk"},
+  eyebrow:"Koolo FRIENDS",title:"Chat with friends",intro:"This is not a class. Start with a friend's life or something you're curious about.",
+  hero:{title:"Meet your Koolo Friends",desc:"Sixteen personalities. Pick a friend and the language you want to speak.",to:"/teacher/roles?mode=friends",icon:"chat",tag:"Just talk"},
   items:[
    {title:"Friends' Shorts",desc:"See what happened today before you decide whether to chat.",to:"/teacher/shorts",icon:"image"},
    {title:"Play together",desc:"Find conversation starters through interactive games.",to:"/games",icon:"play"},
@@ -95,19 +95,19 @@ const englishCopy:typeof copy={
   ]
  },
  explore:{
-  eyebrow:"CREW EXPLORE",title:"Explore",intro:"What are you curious about today? Choose something interesting to discover.",
+  eyebrow:"Koolo EXPLORE",title:"Explore",intro:"What are you curious about today? Choose something interesting to discover.",
   hero:{title:"Fortune exploration",desc:"Your charts, saved history, new readings and friend explanations in one place.",to:"/fortune",icon:"fortune",tag:"Your charts"},
   items:[
-   {title:"Crew Timeline",desc:"Meet the same character at different ages and life stages.",to:"/timeline",icon:"history"},
+   {title:"Koolo Timeline",desc:"Meet the same character at different ages and life stages.",to:"/timeline",icon:"history"},
    {title:"Interactive games",desc:"Mystery stories, Taboo, numbers and more.",to:"/games",icon:"play"},
-   {title:"Crew Story",desc:"Write, read and explore interactive stories.",to:"/story",icon:"story"},
-   {title:"Crew Briefing",desc:"Explore AI technology and research briefings.",to:"/research",icon:"book"},
+   {title:"Koolo Story",desc:"Write, read and explore interactive stories.",to:"/story",icon:"story"},
+   {title:"Koolo Briefing",desc:"Explore AI technology and research briefings.",to:"/research",icon:"book"},
    {title:"Community circle",desc:"Browse local exchange and community posts.",to:"/circle",icon:"cards"}
   ]
  },
  learn:{
-  eyebrow:"CREW TEACHER",title:"Practice with a teacher",intro:"When you have a learning goal, your Crew Teacher can help you practice and improve.",
-  hero:{title:"Start speaking practice",desc:"Choose your Crew Teacher and start a live speaking session.",to:"/teacher/roles?mode=teacher",icon:"mic",tag:"Speaking"},
+  eyebrow:"Koolo TEACHER",title:"Practice with a teacher",intro:"When you have a learning goal, your Koolo Teacher can help you practice and improve.",
+  hero:{title:"Start speaking practice",desc:"Choose your Koolo Teacher and start a live speaking session.",to:"/teacher/roles?mode=teacher",icon:"mic",tag:"Speaking"},
   items:[
    {title:"Learning center",desc:"Continue lessons, vocabulary and pronunciation.",to:"/teacher/learn",icon:"teacher"},
    {title:"Real-life scenarios",desc:"Speak your way through everyday situations.",to:"/teacher/course",icon:"scene"},
@@ -117,7 +117,7 @@ const englishCopy:typeof copy={
   ]
  },
  me:{
-  eyebrow:"MY CREW",title:"My Crew",intro:"Your progress, saved content and preferences in one place.",
+  eyebrow:"MY Koolo",title:"My Koolo",intro:"Your progress, saved content and preferences in one place.",
   hero:{title:"My learning progress",desc:"Return to completed practice and learning records.",to:"/teacher/me",icon:"history",tag:"Device records"},
   items:[
    {title:"My readings",desc:"Reopen saved fortune charts.",to:"/fortune/history",icon:"fortune"},
@@ -249,7 +249,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     <Link className="crew-explore-tile crew-explore-mate" data-kind="mate" onClick={()=>trackUsageEvent("explore_entry_click","mate")} to="/mate">
      <div className="crew-explore-art"><ExploreArtwork kind="mate"/></div>
      <span className="crew-explore-text">
-      <strong>{en?"Crew Mate · Speak for me":"Crew Mate · AI 幫你溝通"}</strong>
+      <strong>{en?"Koolo Mate · Speak for me":"Koolo Mate · AI 幫你溝通"}</strong>
       <small>{en?"Brief privately, then let Mate talk to someone in another language.":"私下交代任務，再交給 Mate 用對方的語言溝通。"}</small>
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
@@ -257,7 +257,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     <Link className="crew-explore-tile crew-explore-souls" data-kind="souls" to="/souls" onClick={()=>trackUsageEvent("explore_entry_click","souls")}>
      <div className="crew-explore-art"><ExploreArtwork kind="souls"/></div>
      <span className="crew-explore-text">
-      <strong>{en?"Crew Souls · Bring photos to life":"Crew Souls · 讓照片活過來"}</strong>
+      <strong>{en?"Koolo Souls · Bring photos to life":"Koolo Souls · 讓照片活過來"}</strong>
       <small>{en?"Give an object or portrait a personality, then talk to it with AI.":"拍下物品或人物，打造有個性的角色，直接用 AI 語音聊天。"}</small>
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
@@ -265,7 +265,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     <Link className="crew-explore-tile crew-explore-town" data-kind="town" onClick={()=>trackUsageEvent("explore_entry_click","town")} to="/town">
      <div className="crew-explore-art"><ExploreArtwork kind="town"/></div>
      <span className="crew-explore-text">
-      <strong>{en?"Crew Town · A living little world":"Crew Town · 朋友生活小鎮"}</strong>
+      <strong>{en?"Koolo Town · A living little world":"Koolo Town · 朋友生活小鎮"}</strong>
       <small>{en?"Explore a 3D town with 16 AI friends.":"走進 3D 小鎮，探索街區並與 16 位 AI 朋友互動。"}</small>
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
@@ -273,14 +273,14 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     <Link className="crew-explore-tile crew-explore-magic" data-kind="magic" onClick={()=>trackUsageEvent("explore_entry_click","magic")} to="/magic">
      <div className="crew-explore-art"><ExploreArtwork kind="magic"/></div>
      <span className="crew-explore-text">
-      <strong>{en?"Crew Magic · Speak worlds into life":"Crew Magic · 用聲音創造世界"}</strong>
+      <strong>{en?"Koolo Magic · Speak worlds into life":"Koolo Magic · 用聲音創造世界"}</strong>
       <small>{en?"Summon dragons, change the sky and create live adventures with an AI guide.":"召喚飛龍、改變天空，和 AI 嚮導一起創造即時冒險。"}</small>
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>
     <Link className="crew-explore-tile crew-explore-discover" data-kind="discover" to="/discover" onClick={()=>trackUsageEvent("explore_entry_click","briefing")}>
       <div className="crew-explore-art" aria-hidden="true" style={{display:"grid",placeItems:"center",fontSize:"clamp(48px,7vw,90px)",background:"linear-gradient(135deg,#e8d6f4,#b9d9de)"}}>✦</div>
-      <span className="crew-explore-text"><strong>{en?"Crew Discover · Explore real life":"Crew Discover · 探索真實世界"}</strong><small>{en?"Search real news by text or voice.":"搜尋真實新聞、文化與新知，和 AI 用文字或語音一起探索。"}</small></span><span className="crew-explore-arrow" aria-hidden="true">↗</span>
+      <span className="crew-explore-text"><strong>{en?"Koolo Discover · Explore real life":"Koolo Discover · 探索真實世界"}</strong><small>{en?"Search real news by text or voice.":"搜尋真實新聞、文化與新知，和 AI 用文字或語音一起探索。"}</small></span><span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>
    </section>:
    <>

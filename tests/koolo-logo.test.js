@@ -48,15 +48,15 @@ test("all headers keep 44px tappable brand and the <=410px teacher suffix stays 
  for(const match of brandRules)for(const size of match[1].matchAll(/font-size:\s*([\d.]+)px/g))assert.ok(Number(size[1])>=12,size[0]);
 });
 
-test("Koolo PWA icons use fresh URLs without renaming Crew or shortcuts",async()=>{
+test("Koolo PWA icons use fresh URLs with Koolo app name and unchanged shortcuts",async()=>{
  const manifest=JSON.parse(read("web-spa/public/site.webmanifest"));
  const html=read("web-spa/index.html");
  const cf=read("scripts/prepare-cloudflare.mjs");
  const vite=read("vite.web.config.ts");
  const generator=read("scripts/pwa-icons.mjs");
  const iconUrl="/icons/koolo-v1-180.png";
- assert.equal(manifest.short_name,"Crew");
- assert.match(manifest.name,/Crew/);
+ assert.equal(manifest.short_name,"Koolo");
+ assert.match(manifest.name,/Koolo/);
  assert.deepEqual(manifest.icons.map(icon=>icon.src),[
   "/icons/koolo-v1-192.png","/icons/koolo-v1-512.png","/icons/koolo-v1-maskable-512.png"
  ]);
@@ -65,8 +65,8 @@ test("Koolo PWA icons use fresh URLs without renaming Crew or shortcuts",async()
   assert.ok(input.includes('/favicon.svg'));
  }
  for(const input of [html,cf,JSON.stringify(manifest)])assert.ok(!input.includes('/icons/crew-teacher-v2-'));
- assert.match(html,/apple-mobile-web-app-title" content="Crew"/);
- assert.match(cf,/apple-mobile-web-app-title" content="Crew"/);
+ assert.match(html,/apple-mobile-web-app-title" content="Koolo"/);
+ assert.match(cf,/apple-mobile-web-app-title" content="Koolo"/);
  assert.match(vite,/koolo-v1-maskable-512\.png/);
  assert.match(vite,/shortcut-\$\{kind\}-\$\{size\}\.png/);
  assert.match(generator,/icons\/koolo-source\.png/);

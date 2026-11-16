@@ -19,16 +19,16 @@
       "phoenix": "Phönix"
     }
   },
-  "eyebrow": "DEIN CREW-BEREICH",
-  "headline": "Reden, spielen und lernen mit Crew",
+  "eyebrow": "DEIN Koolo-BEREICH",
+  "headline": "Reden, spielen und lernen mit Koolo",
   "intro": "Chatte mit KI-Freunden, spiele, übe Sprachen und entdecke Geschichten.",
   "continue": "Dort weitermachen, wo du aufgehört hast",
   "localOnly": "Auf diesem Gerät gespeichert",
-  "explore": "Crew entdecken",
+  "explore": "Koolo entdecken",
   "start": "Wähle etwas zum Ausprobieren",
   "product": {
     "teacher": "Sprachen und Sprechtraining",
-    "play": "Spiele mit Crew-Freunden",
+    "play": "Spiele mit Koolo-Freunden",
     "story": "Geschichten und Lesen",
     "fortune": "Dein Horoskop erkunden"
   },
@@ -39,9 +39,9 @@
     "verifyDesc": "Prüfe, ob dein Schlüssel funktioniert.",
     "shortDesc": "Nach dem Test kannst du mit einem eigenen Schlüssel weiterchatten."
   },
-  "android": "Nimm ganz Crew auf dein Handy mit",
+  "android": "Nimm ganz Koolo auf dein Handy mit",
   "androidApp": {
-    "name": "Crew: KI-Freunde & Sprachchats",
+    "name": "Koolo: KI-Freunde & Sprachchats",
     "description": "Chatte mit KI-Freunden, übe Sprachen, spiele und entdecke Geschichten. Alles in einer App."
   },
   "briefing": {
@@ -65,7 +65,7 @@
     "tarot": "Tarot-Numerologie",
     "vedic": "Vedische Astrologie",
     "play": "Öffne dieses Spiel für eine neue Runde",
-    "friend": "Mit einem Crew-Freund chatten",
+    "friend": "Mit einem Koolo-Freund chatten",
     "friendDesc": "Zum Gespräch mit diesem Freund zurückkehren",
     "fortuneResume": "Horoskop weiterlesen"
   },
@@ -77,7 +77,7 @@
   },
   "actions": {
     "label": "Schnellstart",
-    "chat": "Crew-Freund kennenlernen",
+    "chat": "Koolo-Freund kennenlernen",
     "chatDesc": "Gespräch beginnen",
     "play": "Spiel starten",
     "playDesc": "Spiele mit KI-Freunden"
@@ -181,7 +181,7 @@
     },
     "intro": "Chatten, Sprachen lernen, Horoskope, Spiele. Mit KI.",
     "discovery": {
-      "intro": "Was kannst du noch mit Crew machen?",
+      "intro": "Was kannst du noch mit Koolo machen?",
       "item0": "Spiel Zahlenrätsel oder Gomoku mit KI",
       "item1": "Fotografiere ein Objekt und lass es sprechen",
       "item3": "Übe Sprachen ganz spielerisch",
@@ -190,8 +190,8 @@
   },
   "playHub": {
     "back": "Startseite",
-    "heading": "Was spielen wir mit deinen Crew-Freunden?",
-    "intro": "Wähle einen Crew-Freund und spielt zusammen: Brettspiele, Zahlenrätsel, Wortspiele oder Rätsel per Sprache.",
+    "heading": "Was spielen wir mit deinen Koolo-Freunden?",
+    "intro": "Wähle einen Koolo-Freund und spielt zusammen: Brettspiele, Zahlenrätsel, Wortspiele oder Rätsel per Sprache.",
     "voiceRequired": "KI-Stimme",
     "offlineOptional": "Offline · Sprache optional",
     "games": {
@@ -225,7 +225,7 @@
       }
     },
     "allGames": "Alle Spiele",
-    "yourFriend": "Dein Crew-Freund",
+    "yourFriend": "Dein Koolo-Freund",
     "changeFriend": "Freund wechseln",
     "mini": {
       "courtTitle": "Verrücktes Gericht",
@@ -256,14 +256,14 @@
       "noteDirectNoKey": "Ohne Key ist es eine Selbstkontrolle; die KI rät nicht.",
       "noteLive": "Live übernimmt nur Stimme und Rollenantworten; Offline-Regeln bestimmen die Punkte, nichts wird im Freundes-Chatverlauf gespeichert."
     },
-    "eyebrow": "Crew Play",
+    "eyebrow": "Koolo Play",
     "voiceDock": {
       "expand": "Sprachleiste aufklappen",
       "collapse": "Sprachleiste einklappen"
     },
     "gomoku": {
-      "eyebrow": "Crew Play · Gomoku",
-      "intro": "Spiele Gomoku gegen den Computer und schalte die Stimme deines Crew-Freundes ein, wann immer du plaudern möchtest."
+      "eyebrow": "Koolo Play · Gomoku",
+      "intro": "Spiele Gomoku gegen den Computer und schalte die Stimme deines Koolo-Freundes ein, wann immer du plaudern möchtest."
     }
   },
   "timeline": {
@@ -340,7 +340,7 @@
     "liveContext": "Entdecken · Lebenszeitreise"
   },
   "shorts": {
-    "heading": "Was gibt es Neues bei deinen Crew-Freunden?",
+    "heading": "Was gibt es Neues bei deinen Koolo-Freunden?",
     "intro": "Kleine Fotogeschichten, natürliche Redewendungen und leichte Gesprächseinstiege. Zuschauen geht auch.",
     "noteDaily": "Deine fiktiven KI-Freunde teilen täglich Fotogeschichten.",
     "noteDemo": "Vorschau: Beispielgeschichten und Demofotos von Drittanbietern. Täglich KI-generierte Fotos sind noch nicht aktiv.",
@@ -351,7 +351,7 @@
     "stories": "Geschichten",
     "demoLabel": "Englische Demo",
     "updates": "Story-Updates",
-    "updatesHeading": "Deine Crew hat ein neues Kapitel",
+    "updatesHeading": "Deine Koolo hat ein neues Kapitel",
     "updatesIntro": "Hier sind neue veröffentlichte Folgen von Geschichten, über die du gesprochen hast.",
     "followUp": "Neues von {{name}}",
     "ask": "Frag {{name}}, was passiert ist",
@@ -415,7 +415,7 @@
     "destinations": "Entdeckungsbereiche",
     "fortune": {
       "title": "Dein Schicksal erkunden",
-      "desc": "Entdecke deine Horoskope, frühere Deutungen, neue Analysen und Erklärungen deiner Crew-Freunde."
+      "desc": "Entdecke deine Horoskope, frühere Deutungen, neue Analysen und Erklärungen deiner Koolo-Freunde."
     },
     "timeline": {
       "title": "Lebenszeitreise",
@@ -427,7 +427,7 @@
     },
     "story": {
       "title": "Interaktive Geschichten",
-      "desc": "Erfinde, lies und erkunde Geschichten mit Crew."
+      "desc": "Erfinde, lies und erkunde Geschichten mit Koolo."
     },
     "research": {
       "title": "KI-Forschung",
@@ -444,7 +444,7 @@
       "title": "Mit Freunden chatten",
       "intro": "Kein Unterricht: Sprich über den Alltag deiner Freunde oder über das, was dich interessiert.",
       "hero": {
-        "title": "Crew-Freunde kennenlernen",
+        "title": "Koolo-Freunde kennenlernen",
         "desc": "16 Persönlichkeiten. Wähle einen Freund und die Sprache für euer Gespräch.",
         "tag": "Einfach reden"
       },
@@ -486,10 +486,10 @@
     },
     "learn": {
       "title": "Mit einem Lehrer üben",
-      "intro": "Mit einem klaren Lernziel unterstützt dich dein Crew Teacher beim Üben und Lernen.",
+      "intro": "Mit einem klaren Lernziel unterstützt dich dein Koolo Teacher beim Üben und Lernen.",
       "hero": {
         "title": "Sprechübung starten",
-        "desc": "Wähle deinen Crew Teacher und beginne ein natürliches Sprachgespräch.",
+        "desc": "Wähle deinen Koolo Teacher und beginne ein natürliches Sprachgespräch.",
         "tag": "Sprechtraining"
       },
       "items": {
@@ -518,7 +518,7 @@
       "todayTitle": "Dein heutiges Lernen",
       "recordsLink": "Lernverlauf ansehen",
       "threeMinuteTitle": "Drei Minuten in einer Fremdsprache reden",
-      "threeMinuteDesc": "Übe entspannt mit einem Crew-Freund, ganz ohne Prüfung.",
+      "threeMinuteDesc": "Übe entspannt mit einem Koolo-Freund, ganz ohne Prüfung.",
       "syncInfo": "Über den Lernverlauf",
       "focusLabel": "Empfohlene Übung",
       "newLabel": "HIER STARTEN",
@@ -531,7 +531,7 @@
       "resumeCta": "Übung fortsetzen"
     },
     "me": {
-      "title": "Mein Crew",
+      "title": "Mein Koolo",
       "intro": "Deine Fortschritte, gespeicherten Inhalte und Einstellungen an einem Ort.",
       "hero": {
         "title": "Mein Lernfortschritt",
@@ -576,7 +576,7 @@
     "footnote": "Angezeigt werden nur Aktivitäten aus diesem Browser oder der App-WebView. Ältere Daten aus der nativen Android-App sind noch nicht synchronisiert."
   },
   "gift": {
-    "title": "Crew Überraschungsbox",
+    "title": "Koolo Überraschungsbox",
     "teaser": "Welche Überraschung wartet heute?",
     "open": "Überraschung öffnen",
     "reopen": "Überraschung ansehen",
@@ -592,7 +592,7 @@
     "learnDescription": "Lerne einen neuen Satz."
   },
   "mobileHero": {"title": "Spiel & lern", "subtitle": "Sag einfach Hallo."},
-  "quickEntry": {"heading": "Crew entdecken", "fortune": "Tagesglück", "shorts": "Shorts ansehen"},
+  "quickEntry": {"heading": "Koolo entdecken", "fortune": "Tagesglück", "shorts": "Shorts ansehen"},
   "liveBubble": {
     "invite": "Hey, Lust auf ein Gespräch?",
     "start": "Audio",

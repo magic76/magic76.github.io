@@ -19,16 +19,16 @@
       "phoenix": "Feniks"
     }
   },
-  "eyebrow": "RUANG CREW ANDA",
-  "headline": "Mengobrol, bermain, dan belajar bersama Crew",
+  "eyebrow": "RUANG Koolo ANDA",
+  "headline": "Mengobrol, bermain, dan belajar bersama Koolo",
   "intro": "Mengobrol dengan teman AI, bermain, berlatih bahasa, dan menemukan cerita.",
   "continue": "Lanjutkan dari terakhir kali",
   "localOnly": "Disimpan di perangkat ini",
-  "explore": "Jelajahi Crew",
+  "explore": "Jelajahi Koolo",
   "start": "Pilih aktivitas yang ingin dicoba",
   "product": {
     "teacher": "Bahasa dan latihan berbicara",
-    "play": "Game bersama teman Crew",
+    "play": "Game bersama teman Koolo",
     "story": "Cerita dan membaca",
     "fortune": "Jelajahi bagan Anda"
   },
@@ -39,9 +39,9 @@
     "verifyDesc": "Periksa apakah kunci Anda berfungsi.",
     "shortDesc": "Setelah uji coba, atur kunci milikmu untuk lanjut mengobrol."
   },
-  "android": "Bawa semua fitur Crew ke ponselmu",
+  "android": "Bawa semua fitur Koolo ke ponselmu",
   "androidApp": {
-    "name": "Crew: teman AI & obrolan bahasa",
+    "name": "Koolo: teman AI & obrolan bahasa",
     "description": "Ngobrol dengan teman AI, latihan bahasa, main game, dan jelajahi cerita. Semua dalam satu aplikasi."
   },
   "briefing": {
@@ -65,7 +65,7 @@
     "tarot": "Numerologi tarot",
     "vedic": "Astrologi Weda",
     "play": "Buka game ini untuk memainkan ronde baru",
-    "friend": "Mengobrol dengan teman Crew",
+    "friend": "Mengobrol dengan teman Koolo",
     "friendDesc": "Lanjutkan obrolan dengan teman ini",
     "fortuneResume": "Lanjutkan membaca bagan"
   },
@@ -77,7 +77,7 @@
   },
   "actions": {
     "label": "Mulai cepat",
-    "chat": "Kenali teman Crew",
+    "chat": "Kenali teman Koolo",
     "chatDesc": "Mulai percakapan",
     "play": "Main game",
     "playDesc": "Main game singkat bersama teman AI"
@@ -181,7 +181,7 @@
     },
     "intro": "Mengobrol, belajar bahasa, ramalan, bermain. Bersama AI.",
     "discovery": {
-      "intro": "Apa lagi yang bisa kamu lakukan di Crew?",
+      "intro": "Apa lagi yang bisa kamu lakukan di Koolo?",
       "item0": "Main tebak angka atau gomoku bersama AI",
       "item1": "Foto benda lalu buat ia bicara",
       "item3": "Latih bahasa sambil bermain",
@@ -190,8 +190,8 @@
   },
   "playHub": {
     "back": "Beranda",
-    "heading": "Mau main apa bersama teman Crew?",
-    "intro": "Pilih teman Crew dan main bersama: permainan papan, tebak angka, permainan kata, atau misteri lewat suara.",
+    "heading": "Mau main apa bersama teman Koolo?",
+    "intro": "Pilih teman Koolo dan main bersama: permainan papan, tebak angka, permainan kata, atau misteri lewat suara.",
     "voiceRequired": "Suara AI",
     "offlineOptional": "Offline · suara opsional",
     "games": {
@@ -225,7 +225,7 @@
       }
     },
     "allGames": "Semua permainan",
-    "yourFriend": "Teman Crew-mu",
+    "yourFriend": "Teman Koolo-mu",
     "changeFriend": "Ganti teman",
     "mini": {
       "courtTitle": "Pengadilan Konyol",
@@ -256,14 +256,14 @@
       "noteDirectNoKey": "Tanpa key ini latihan mandiri; AI tidak menebak.",
       "noteLive": "Live hanya menangani suara dan balasan karakter; skor ditentukan aturan offline dan tidak disimpan ke riwayat obrolan teman."
     },
-    "eyebrow": "Crew Play",
+    "eyebrow": "Koolo Play",
     "voiceDock": {
       "expand": "Buka panel suara",
       "collapse": "Ciutkan panel suara"
     },
     "gomoku": {
-      "eyebrow": "Crew Play · Gomoku",
-      "intro": "Main Gomoku melawan komputer, lalu nyalakan suara teman Crew kapan pun kamu ingin mengobrol."
+      "eyebrow": "Koolo Play · Gomoku",
+      "intro": "Main Gomoku melawan komputer, lalu nyalakan suara teman Koolo kapan pun kamu ingin mengobrol."
     }
   },
   "timeline": {
@@ -340,7 +340,7 @@
     "liveContext": "Jelajahi · Linimasa Hidup"
   },
   "shorts": {
-    "heading": "Apa kabar teman-teman Crew?",
+    "heading": "Apa kabar teman-teman Koolo?",
     "intro": "Cerita foto singkat, ungkapan alami, dan cara mudah memulai obrolan. Anda juga bisa sekadar melihat.",
     "noteDaily": "Teman AI fiksi berbagi cerita foto setiap hari.",
     "noteDemo": "Pratinjau: cerita contoh dan foto demo pihak ketiga. Foto AI harian belum diaktifkan.",
@@ -351,7 +351,7 @@
     "stories": "cerita",
     "demoLabel": "Demo bahasa Inggris",
     "updates": "Pembaruan cerita",
-    "updatesHeading": "Ada babak baru dari teman Crew",
+    "updatesHeading": "Ada babak baru dari teman Koolo",
     "updatesIntro": "Ini adalah kelanjutan cerita publik yang pernah Anda bicarakan.",
     "followUp": "Kabar terbaru {{name}}",
     "ask": "Tanya {{name}} apa yang terjadi",
@@ -415,7 +415,7 @@
     "destinations": "Pilihan eksplorasi",
     "fortune": {
       "title": "Jelajahi ramalan",
-      "desc": "Lihat bagan, riwayat, pembacaan baru, dan penjelasan dari teman Crew."
+      "desc": "Lihat bagan, riwayat, pembacaan baru, dan penjelasan dari teman Koolo."
     },
     "timeline": {
       "title": "Linimasa kehidupan",
@@ -427,7 +427,7 @@
     },
     "story": {
       "title": "Cerita interaktif",
-      "desc": "Buat, baca, dan jelajahi cerita bersama Crew."
+      "desc": "Buat, baca, dan jelajahi cerita bersama Koolo."
     },
     "research": {
       "title": "Riset AI",
@@ -444,7 +444,7 @@
       "title": "Ngobrol dengan teman",
       "intro": "Ini bukan kelas. Mulailah dari cerita teman atau apa pun yang membuatmu penasaran.",
       "hero": {
-        "title": "Temui teman Crew",
+        "title": "Temui teman Koolo",
         "desc": "Ada 16 kepribadian unik. Pilih teman dan bahasa untuk berbicara.",
         "tag": "Ngobrol santai"
       },
@@ -462,7 +462,7 @@
           "desc": "Kelola topik yang diingat teman dan pengaturan privasi."
         }
       },
-      "meetFriends": "Kenali teman Crew",
+      "meetFriends": "Kenali teman Koolo",
       "allFriends": "Lihat semua teman",
       "friendTitles": {
         "zoe": "Cerdas dan jenaka",
@@ -486,10 +486,10 @@
     },
     "learn": {
       "title": "Latihan bersama guru",
-      "intro": "Kalau punya tujuan belajar, Crew Teacher akan membantumu berlatih dan berkembang.",
+      "intro": "Kalau punya tujuan belajar, Koolo Teacher akan membantumu berlatih dan berkembang.",
       "hero": {
         "title": "Mulai latihan berbicara",
-        "desc": "Pilih Crew Teacher lalu mulai percakapan suara yang alami.",
+        "desc": "Pilih Koolo Teacher lalu mulai percakapan suara yang alami.",
         "tag": "Latihan percakapan"
       },
       "items": {
@@ -518,7 +518,7 @@
       "todayTitle": "Belajar hari ini",
       "recordsLink": "Lihat catatan belajar",
       "threeMinuteTitle": "Ngobrol 3 menit dalam bahasa asing",
-      "threeMinuteDesc": "Berlatih santai dengan teman Crew tanpa ujian.",
+      "threeMinuteDesc": "Berlatih santai dengan teman Koolo tanpa ujian.",
       "syncInfo": "Tentang catatan belajar",
       "focusLabel": "Latihan yang disarankan",
       "newLabel": "MULAI DI SINI",
@@ -531,7 +531,7 @@
       "resumeCta": "Lanjutkan latihan"
     },
     "me": {
-      "title": "Crew Saya",
+      "title": "Koolo Saya",
       "intro": "Kemajuan, konten tersimpan, dan pengaturan pribadimu ada di sini.",
       "hero": {
         "title": "Kemajuan belajarku",
@@ -576,7 +576,7 @@
     "footnote": "Hanya aktivitas yang tercatat di browser atau WebView ini yang ditampilkan. Catatan aplikasi Android lama belum disinkronkan."
   },
   "gift": {
-    "title": "Kotak kejutan Crew",
+    "title": "Kotak kejutan Koolo",
     "teaser": "Kejutan apa hari ini?",
     "open": "Buka kejutan",
     "reopen": "Lihat kejutan",
@@ -592,7 +592,7 @@
     "learnDescription": "Pelajari frasa bahasa baru."
   },
   "mobileHero": {"title": "Main & belajar", "subtitle": "Mulai dengan halo."},
-  "quickEntry": {"heading": "Jelajahi Crew", "fortune": "Ramalan hari ini", "shorts": "Lihat Shorts"},
+  "quickEntry": {"heading": "Jelajahi Koolo", "fortune": "Ramalan hari ini", "shorts": "Lihat Shorts"},
   "liveBubble": {
     "invite": "Hai, mau ngobrol sebentar?",
     "start": "Suara",

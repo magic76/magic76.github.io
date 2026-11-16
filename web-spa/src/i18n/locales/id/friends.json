@@ -2,7 +2,7 @@
   "title": "Dengan siapa Anda ingin mengobrol?",
   "intro": "Bukan kelas: bagikan momen sehari-hari, lanjutkan topik yang diingat, dan mengobrol tanpa koreksi yang tidak diminta.",
   "language": "Bahasa yang dipelajari",
-  "gameEntryTitle": "Crew Play · main game bersama teman",
+  "gameEntryTitle": "Koolo Play · main game bersama teman",
   "gameEntryDescription": "Permainan papan dan 1A2B bisa dimainkan tanpa suara; tebak-tebakan dan Mystery perlu Gemini key.",
   "pace": "Kecepatan bicara",
   "slow": "Lambat",
@@ -107,7 +107,7 @@
     "preparing": "Menyiapkan obrolan",
     "free": "Obrolan bebas"
   },
-  "kicker": "Teman Crew",
+  "kicker": "Teman Koolo",
   "textStarters": {
     "targetHint": "Kamu bisa mulai dalam bahasa Indonesia dengan {{name}} atau pilih kalimat pendek dalam {{language}}. {{name}} akan menemanimu berlatih.",
     "meaning": {

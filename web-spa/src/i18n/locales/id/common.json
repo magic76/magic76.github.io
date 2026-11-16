@@ -4,7 +4,7 @@
     "zh": "繁體中文",
     "en": "English",
     "select": "Pilih bahasa antarmuka",
-    "description": "Hanya mengubah bahasa tampilan Crew, bukan bahasa yang Anda pelajari atau gunakan untuk berbicara.",
+    "description": "Hanya mengubah bahasa tampilan Koolo, bukan bahasa yang Anda pelajari atau gunakan untuk berbicara.",
     "beta": "Beta",
     "preview": "Pratinjau",
     "previewHint": "Sebagian konten akan ditampilkan dalam bahasa Inggris",
@@ -22,7 +22,7 @@
     "chat": "Obrolan",
     "explore": "Jelajahi",
     "learn": "Belajar",
-    "me": "Crew Saya"
+    "me": "Koolo Saya"
   },
   "featureMenu": {
     "trigger": "Semua fitur",
@@ -131,7 +131,7 @@
   "auth": {
     "trialCount": "Uji coba suara gratis hari ini: {{used}} / {{limit}} terpakai (reset pukul 00.00 waktu Taipei)",
     "account": "Akun",
-    "title": "Akun Crew",
+    "title": "Akun Koolo",
     "intro": "Masuk dengan Google atau GitHub.",
     "choose": "Pilih cara masuk",
     "signedIn": "Sudah masuk",
@@ -144,7 +144,7 @@
     "backSettings": "Kembali ke pengaturan",
     "accountAi": "Akun & pengaturan AI",
     "aiSettings": "Koneksi Gemini AI",
-    "aiIntro": "Setelah uji coba gratis, gunakan kunci Gemini milik Anda di perangkat ini. Tidak perlu masuk ke akun Crew.",
+    "aiIntro": "Setelah uji coba gratis, gunakan kunci Gemini milik Anda di perangkat ini. Tidak perlu masuk ke akun Koolo.",
     "preferences": "Preferensi lainnya",
     "preferencesIntro": "Pengaturan belajar, suara, memori, dan perangkat dikelola terpisah dan tidak otomatis tersinkron saat masuk.",
     "voiceSettings": "Suara & mikrofon",

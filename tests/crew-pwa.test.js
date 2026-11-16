@@ -6,12 +6,14 @@ const vm=require("node:vm");
 const ROOT=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(path.join(ROOT,p),"utf8");
 
-test("PWA manifest is scoped to Crew on the canonical domain with installable icons",()=>{
+test("PWA manifest uses Koolo app name on the canonical domain with installable icons",()=>{
  const m=JSON.parse(read("web-spa/public/site.webmanifest"));
  assert.equal(m.id,"/");
  assert.equal(m.scope,"/");
  assert.equal(m.start_url,"/");
  assert.equal(m.display,"standalone");
+ assert.equal(m.short_name,"Koolo");
+ assert.match(m.name,/Koolo/);
  assert.ok(m.icons.some(x=>x.sizes==="192x192"&&x.type==="image/png"));
  assert.deepEqual(m.icons.map(icon=>icon.src),["/icons/koolo-v1-192.png","/icons/koolo-v1-512.png","/icons/koolo-v1-maskable-512.png"],"change icon URLs so Chrome 144+ re-fetches updated logo");
  assert.ok(m.icons.some(x=>x.sizes==="512x512"&&x.purpose==="maskable"));

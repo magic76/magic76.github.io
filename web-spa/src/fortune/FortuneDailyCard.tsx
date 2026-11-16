@@ -106,7 +106,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  },[clientReady,ready,Boolean(profile?.birthDate),revealed,completed]);
  if(!clientReady||!ready)return <section className="fortune-daily panel" aria-busy="true"><p>{t("loading")}</p></section>;
  if(!profile?.birthDate)return <section className="fortune-daily panel">
-  <span className="kicker">CREW FORTUNE · {t("today")}</span><h2>{t("emptyTitle")}</h2>
+  <span className="kicker">Koolo FORTUNE · {t("today")}</span><h2>{t("emptyTitle")}</h2>
   <p>{t("emptyDescription")}</p><Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} →</Link>
  </section>;
  function changeKind(next:DailyKind){
@@ -138,7 +138,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  }
  return <section className="fortune-daily panel" aria-label={t("today")} data-daily-kind={kind}>
   <div className="fortune-daily-top">
-   <div><span className="kicker">CREW FORTUNE · {t("today")}</span><small>{date}</small></div>
+   <div><span className="kicker">Koolo FORTUNE · {t("today")}</span><small>{date}</small></div>
    {streak.streak>0&&<span className="fortune-daily-streak">✦ {t("streak",{count:streak.streak})}</span>}
   </div>
   <div className="fortune-daily-kind" role="group" aria-label={t("selectKind")}>

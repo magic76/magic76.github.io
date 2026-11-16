@@ -91,12 +91,12 @@
       "friend": "Phim, chuyến đi hay chủ đề muốn nói lần sau…",
       "story": "Nhân vật yêu thích, ý tưởng truyện, câu hỏi cho Archie…"
     },
-    "notesHint": "Tự động lưu trong trình duyệt này, có thể sao lưu trong Cài đặt Crew. Ghi chú không được gửi cho nhân vật."
+    "notesHint": "Tự động lưu trong trình duyệt này, có thể sao lưu trong Cài đặt Koolo. Ghi chú không được gửi cho nhân vật."
   },
   "friendLive": {
     "preparingPost": "Đang chuẩn bị chủ đề ảnh của bạn…",
-    "backAria": "Quay lại Crew Bạn bè",
-    "brand": "Bạn Crew · {{language}}",
+    "backAria": "Quay lại Koolo Bạn bè",
+    "brand": "Bạn Koolo · {{language}}",
     "stageAria": "Trò chuyện với {{name}}",
     "hookPrefix": "Bạn muốn hỏi: ",
     "postStarter": "Chuyện gì đang xảy ra trong bức ảnh này?",
@@ -199,7 +199,7 @@
     "restartHint": "Chưa tạo được phiên miễn phí. Lần kết nối tiếp theo có thể cần xác minh lại.",
     "backendNext": "Đã thử nhiều lần mà không có phản hồi. Hãy quay lại sau hoặc dùng khóa Gemini của mình.",
     "useKey": "Dùng khóa Gemini của tôi",
-    "nextDayHint": "Ngày mai bạn có thể nhắn tin miễn phí trở lại, hoặc dùng tài khoản Google để tạo khóa Gemini miễn phí và tiếp tục dùng Crew.",
+    "nextDayHint": "Ngày mai bạn có thể nhắn tin miễn phí trở lại, hoặc dùng tài khoản Google để tạo khóa Gemini miễn phí và tiếp tục dùng Koolo.",
     "applyKey": "Tạo khóa miễn phí để trò chuyện tiếp",
     "keyApplyNote": "Thiết lập khoảng một phút; hạn mức miễn phí của Google thay đổi theo mô hình và mức sử dụng.",
     "verifyAgain": "Xác minh lại",

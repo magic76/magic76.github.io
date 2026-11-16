@@ -110,7 +110,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  const todayLink="/games/"+featured;
  return <div className="crew-mobile-home">
   <div ref={carouselRef} className="cmh-carousel" role="region" aria-roledescription="carousel"
-   aria-label={copy("Crew 特色功能輪播","Crew highlights carousel")} tabIndex={0}
+   aria-label={copy("Koolo 特色功能輪播","Koolo highlights carousel")} tabIndex={0}
    onPointerDown={()=>setCarouselPaused(true)} onFocusCapture={()=>setCarouselPaused(true)}
    onKeyDown={event=>{
     if(event.key==="ArrowRight"||event.key==="ArrowLeft"){
@@ -202,7 +202,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
       aria-label={copy("和 AI 學語言","Learn with AI")}>
       <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
       <div className="cmh-slide-copy">
-       <span className="cmh-zoe-eyebrow">✦ CREW LEARN</span>
+       <span className="cmh-zoe-eyebrow">✦ Koolo LEARN</span>
        <h2>{copy("一句話，練出自信","Speak with confidence")}</h2>
        <p>{copy("跟 AI 老師練口說。","Practice speaking with AI.")}</p>
       </div>
@@ -247,7 +247,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
   <section className="cmh-seo" aria-labelledby="cmh-seo-heading">
    <h2 id="cmh-seo-heading">{copy("Crew：AI 朋友聊天、語言學習、互動遊戲與故事創作","Crew: AI Friends, Language Practice, Games and Stories")}</h2>
    <p>{copy("在 Crew，你可以和不同個性的 AI 朋友自然聊天、用 Crew Teacher 練習外語口說、一起玩猜數字或棋盤遊戲，也能探索命理、創作及閱讀故事。","Talk to AI friends, practice languages, play interactive games, explore fortune readings and create stories together.")}</p>
-   <nav aria-label={copy("探索 Crew","Explore Crew")}>
+   <nav aria-label={copy("探索 Koolo","Explore Koolo")}>
     <Link to="/teacher/roles?mode=friends">{copy("AI 朋友","AI Friends")}</Link>
     <Link to="/learn">{copy("語言學習","Learn languages")}</Link>
     <Link to="/games">{copy("互動遊戲","Games")}</Link>

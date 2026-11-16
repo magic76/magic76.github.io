@@ -142,14 +142,14 @@ export function ShortsPage(){
  const followUps=shortsStoryFollowUps(posts);
  const chatClick=(detail:"shorts_feed")=>trackUsageEvent("shorts_chat_click",detail);
  return <div className="crew-shorts-page" data-scroll-snap={focusPostId||scrollSnapReady?"ready":"off"}>
-  <header className="hero crew-shorts-hero"><span className="kicker">{feed?.source==="seed"||feed?.source==="daily"?"CREW SHORTS":"CREW SHORTS · DEMO"}</span>
+  <header className="hero crew-shorts-hero"><span className="kicker">{feed?.source==="seed"||feed?.source==="daily"?"Koolo SHORTS":"Koolo SHORTS · DEMO"}</span>
    <h1>{t("shorts.heading")}</h1>
    <p>{t("shorts.intro")}</p>
   </header>
   {busy?<p className="spa-loading" role="status">{t("shorts.loading")}</p>:null}
   {error?<section className="section crew-shorts-error" role="alert"><p>{t("shorts.feedError")}</p>
    <button type="button" onClick={()=>setRetry(x=>x+1)}>{t("shorts.retry")}</button></section>:null}
-  {posts.length>0?<section className="section" aria-label="Crew Shorts">
+  {posts.length>0?<section className="section" aria-label="Koolo Shorts">
    <div className="section-head"><h2>{t("shorts.moments")}</h2><small>{feed?.total??posts.length} {t("shorts.stories")} · {feed?.source==="demo"?t("shorts.demoLabel"):posts[0]?.language?.toUpperCase()}</small></div>
    <div className="crew-shorts-grid">{posts.slice(0,count).map((post,index)=>{
     const episodes=shortsStoryEpisodes(post,posts);

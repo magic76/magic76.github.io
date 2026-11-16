@@ -1,11 +1,11 @@
 {
-  "title": "Crew の世界を探索",
+  "title": "Koolo の世界を探索",
   "subtitle": "すべての機能を一覧表示",
   "close": "メニューを閉じる",
   "groups": {
     "chat": "友達と会話",
     "explore": "創作と探索",
-    "me": "マイ Crew",
+    "me": "マイ Koolo",
     "learn": "外国語学習",
     "games": "対話ゲーム"
   },
@@ -27,35 +27,35 @@
       "desc": "写真日記をチェック"
     },
     "souls": {
-      "title": "Crew Souls",
+      "title": "Koolo Souls",
       "desc": "写真に命を吹き込む"
     },
     "mate": {
-      "title": "Crew Mate",
+      "title": "Koolo Mate",
       "desc": "言葉の壁を越えて会話"
     },
     "story": {
-      "title": "Crew Story",
+      "title": "Koolo Story",
       "desc": "物語を作って読む"
     },
     "fortune": {
-      "title": "Crew Fortune",
+      "title": "Koolo Fortune",
       "desc": "運勢と人生を探る"
     },
     "timeline": {
-      "title": "Crew Timeline",
+      "title": "Koolo Timeline",
       "desc": "人生のさまざまな時期"
     },
     "town": {
-      "title": "Crew Town",
+      "title": "Koolo Town",
       "desc": "友達の町を訪れる"
     },
     "magic": {
-      "title": "Crew Magic",
+      "title": "Koolo Magic",
       "desc": "声で魔法の世界を作る"
     },
     "discover": {
-      "title": "Crew Discover",
+      "title": "Koolo Discover",
       "desc": "ニュースや知識を探る"
     },
     "research": {

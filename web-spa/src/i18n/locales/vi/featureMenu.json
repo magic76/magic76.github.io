@@ -1,11 +1,11 @@
 {
-  "title": "Khám phá thế giới Crew",
+  "title": "Khám phá thế giới Koolo",
   "subtitle": "Mọi tính năng trong một nơi",
   "close": "Đóng menu",
   "groups": {
     "chat": "Trò chuyện & bạn bè",
     "explore": "Sáng tạo & khám phá",
-    "me": "Crew của tôi",
+    "me": "Koolo của tôi",
     "learn": "Học ngoại ngữ",
     "games": "Trò chơi tương tác"
   },
@@ -27,35 +27,35 @@
       "desc": "Xem nhật ký ảnh"
     },
     "souls": {
-      "title": "Crew Souls",
+      "title": "Koolo Souls",
       "desc": "Làm ảnh trở nên sống động"
     },
     "mate": {
-      "title": "Crew Mate",
+      "title": "Koolo Mate",
       "desc": "Trò chuyện đa ngôn ngữ"
     },
     "story": {
-      "title": "Crew Story",
+      "title": "Koolo Story",
       "desc": "Tạo truyện tương tác"
     },
     "fortune": {
-      "title": "Crew Fortune",
+      "title": "Koolo Fortune",
       "desc": "Khám phá hành trình đời"
     },
     "timeline": {
-      "title": "Crew Timeline",
+      "title": "Koolo Timeline",
       "desc": "Khám phá các giai đoạn đời"
     },
     "town": {
-      "title": "Crew Town",
+      "title": "Koolo Town",
       "desc": "Thăm thị trấn bạn bè"
     },
     "magic": {
-      "title": "Crew Magic",
+      "title": "Koolo Magic",
       "desc": "Tạo thế giới bằng giọng nói"
     },
     "discover": {
-      "title": "Crew Discover",
+      "title": "Koolo Discover",
       "desc": "Khám phá tin tức và ý tưởng"
     },
     "research": {

@@ -2,7 +2,7 @@
   "title": "Com quem você gostaria de conversar?",
   "intro": "Aqui não tem aula: compartilhe momentos do dia a dia, retome assuntos lembrados e converse sem correções não solicitadas.",
   "language": "Idioma que está aprendendo",
-  "gameEntryTitle": "Crew Play · jogos com amigos",
+  "gameEntryTitle": "Koolo Play · jogos com amigos",
   "gameEntryDescription": "Jogos de tabuleiro e 1A2B funcionam sem voz; adivinhação e Mystery precisam de uma chave Gemini.",
   "pace": "Ritmo da fala",
   "slow": "Devagar",
@@ -107,7 +107,7 @@
     "preparing": "Preparando a conversa",
     "free": "Conversa livre"
   },
-  "kicker": "Amigos Crew",
+  "kicker": "Amigos Koolo",
   "textStarters": {
     "targetHint": "Você pode começar em português com {{name}} ou escolher uma frase curta em {{language}} abaixo. {{name}} vai ajudar você a praticar.",
     "meaning": {

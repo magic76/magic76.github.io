@@ -1,15 +1,15 @@
 {
   "hero": {
     "title": "Einstellungen",
-    "desc": "Verwalte Gemini-Schlüssel, Sprachfunktionen und Sicherungen an einem Ort. Die KI-Funktionen von Crew teilen einen Schlüssel, Offline-Spiele brauchen keinen."
+    "desc": "Verwalte Gemini-Schlüssel, Sprachfunktionen und Sicherungen an einem Ort. Die KI-Funktionen von Koolo teilen einen Schlüssel, Offline-Spiele brauchen keinen."
   },
   "memory": {
     "title": "Erinnerungen",
     "tagline": "Standardmäßig an · Jederzeit ausschaltbar",
-    "intro": "Crew-Lehrer und -Freunde können Gespräche in Erinnerung behalten. Die Daten bleiben in diesem Browser, aber relevante Erinnerungen können in späteren Gesprächen mit Gemini geteilt werden. Ausschalten beendet die weitere Nutzung und Sammlung, löscht aber keine gespeicherten Erinnerungen.",
+    "intro": "Koolo-Lehrer und -Freunde können Gespräche in Erinnerung behalten. Die Daten bleiben in diesem Browser, aber relevante Erinnerungen können in späteren Gesprächen mit Gemini geteilt werden. Ausschalten beendet die weitere Nutzung und Sammlung, löscht aber keine gespeicherten Erinnerungen.",
     "personal": "Persönliche Erinnerungen",
     "personalDesc": "Merke dir ausdrücklich mitgeteilte Alltagsfakten, Lernziele, Interessen und Vorlieben für Lehrer und Freunde.",
-    "friend": "Gemeinsame Themen mit Crew-Freunden",
+    "friend": "Gemeinsame Themen mit Koolo-Freunden",
     "friendDesc": "Jeder Freund und jede Lernsprache hat eigene Themen. Durch Ausschalten werden sie nicht weiter gespeichert oder verwendet.",
     "footnote": "Zuvor deaktivierte Einstellungen bleiben aus. Bestehende Erinnerungen kannst du im Wissen deines Lehrers oder bei den gemeinsamen Erinnerungen jedes Freundes verwalten und löschen."
   },
@@ -45,13 +45,13 @@
     "unverifiedDesc": "Überprüfe diesen Schlüssel ohne Mikrofonzugriff.",
     "reconfigure": "Schlüssel ändern",
     "titleEdit": "Gemini-Schlüssel ändern",
-    "titleNew": "Erstelle einen kostenlosen Gemini-API-Schlüssel für Crew AI",
+    "titleNew": "Erstelle einen kostenlosen Gemini-API-Schlüssel für Koolo AI",
     "intro": "Crews KI-Funktionen verwenden einen gemeinsamen Schlüssel, Offline-Spiele brauchen keinen. Richte ihn einmal ein und prüfe ihn. Bis zur Sprachnutzung ist Mikrofonzugriff optional.",
     "step1": "Mit Google anmelden",
     "step1Desc": "Öffne Google AI Studio und melde dich an.",
     "step2": "Kostenlosen API-Schlüssel erstellen",
     "step2Desc": "Wähle API-Schlüssel erstellen und kopiere den neuen Schlüssel.",
-    "step3": "In Crew einfügen",
+    "step3": "In Koolo einfügen",
     "step3Desc": "Prüfen und speichern. Dein Mikrofon kannst du später testen.",
     "openStudio": "Kostenlosen Schlüssel mit Google erstellen ↗",
     "keyPlaceholder": "API-Schlüssel einfügen",
@@ -114,7 +114,7 @@
     "pricingNote": "Ein kostenloser Schlüssel bedeutet keine unbegrenzte Gratisnutzung. Die Grenzen unterscheiden sich nach Modell.",
     "pricingLink": "Offizielle Google-Preise ansehen",
     "setupNoticeTitle": "Noch keinen Gemini-Schlüssel? Kostenlos erstellen",
-    "setupNoticeDesc": "Hol dir in etwa einer Minute einen Schlüssel mit deinem Google-Konto. Ein Schlüssel funktioniert für die KI-Funktionen von Crew; Offline-Spiele brauchen keinen. Kostenlose Kontingente hängen vom Modell ab.",
+    "setupNoticeDesc": "Hol dir in etwa einer Minute einen Schlüssel mit deinem Google-Konto. Ein Schlüssel funktioniert für die KI-Funktionen von Koolo; Offline-Spiele brauchen keinen. Kostenlose Kontingente hängen vom Modell ab.",
     "keyCapabilities": "Ohne Key: KI-Freunden schreiben ({{count}} Nachrichten täglich), Spiele ohne Key, Shorts und Vokabeltraining. Mit Key: Sprachchat, Unterricht, Geschichten erstellen und KI-Deutungen.",
     "setupNoticeAction": "Kostenlose Einrichtung ansehen",
     "setupInvalidTitle": "Dein Gemini-Schlüssel funktioniert möglicherweise nicht",
@@ -124,8 +124,8 @@
   "device": {
     "privacy": "Datenschutz und Daten",
     "heading": "App und Gerät",
-    "android": "Crew Android Web-Vorschau: Bilder lassen sich über Kamera oder Galerie hinzufügen. Audioberechtigungen bleiben unverändert.",
-    "browser": "Du nutzt Crew im Browser. Der Zugriff auf Kamera und Galerie hängt von den Browserberechtigungen ab.",
+    "android": "Koolo Android Web-Vorschau: Bilder lassen sich über Kamera oder Galerie hinzufügen. Audioberechtigungen bleiben unverändert.",
+    "browser": "Du nutzt Koolo im Browser. Der Zugriff auf Kamera und Galerie hängt von den Browserberechtigungen ab.",
     "storage": "Native Android-App, WebView und jeder Browser speichern Gemini-Schlüssel und Lernfortschritt getrennt. Sie werden nicht automatisch synchronisiert.",
     "permissions": "Prüfe bei Kamera- oder Mikrofonproblemen Android-Einstellungen → Apps → Crew Teacher → Berechtigungen. Berechtigungen werden nur bei Bedarf angefragt."
   },
@@ -172,7 +172,7 @@
     "copy": "Diagnose kopieren",
     "refresh": "Status aktualisieren",
     "details": "Technische Details",
-    "privacy": "Diagnosen werden nicht automatisch gesendet. Crew-Verfügbarkeit ist ungeprüft.",
+    "privacy": "Diagnosen werden nicht automatisch gesendet. Koolo-Verfügbarkeit ist ungeprüft.",
     "copied": "Diagnose kopiert.",
     "copyFailed": "Kopieren fehlgeschlagen.",
     "actionUnavailable": "Diese Einstellung ist nicht verfügbar.",
@@ -187,7 +187,7 @@
     "camera": "Kameraberechtigung",
     "tts": "Sprachausgabe",
     "network": "Netzwerk (OS)",
-    "service": "Crew-Dienst",
+    "service": "Koolo-Dienst",
     "state": {
       "granted": "Erlaubt",
       "denied": "Nicht erlaubt",
@@ -197,15 +197,15 @@
       "missing_data": "Sprachdaten fehlen",
       "failed": "Nicht verfügbar",
       "offline": "Offline",
-      "os_validated": "OS-geprüft (Crew ungeprüft)",
-      "connected_unverified": "Verbunden (Crew ungeprüft)"
+      "os_validated": "OS-geprüft (Koolo ungeprüft)",
+      "connected_unverified": "Verbunden (Koolo ungeprüft)"
     }
   },
   "cyberOrb": {
     "title": "Cyber Orb · Freihändig sprechen",
-    "intro": "Wähle eine Crew-Figur und sprich auch weiter, während du andere Android-Apps nutzt.",
-    "friend": "Crew Friends",
-    "teacher": "Crew Teachers",
+    "intro": "Wähle eine Koolo-Figur und sprich auch weiter, während du andere Android-Apps nutzt.",
+    "friend": "Koolo Friends",
+    "teacher": "Koolo Teachers",
     "language": "Gesprächssprache",
     "start": "Cyber Orb starten",
     "stop": "Anruf beenden",
@@ -213,11 +213,11 @@
     "active": "Gespräch mit {name}",
     "note": "Beende das laufende Sprachgespräch, bevor du ein neues beginnst oder die Figur wechselst.",
     "native_key_required": "Richte deinen Gemini-Schlüssel ein und versuche es erneut.",
-    "overlay_permission_required": "Erlaube die Anzeige über anderen Apps. Kehre zu Crew zurück und starte erneut.",
-    "microphone_permission_required": "Erlaube den Mikrofonzugriff. Kehre zu Crew zurück und starte erneut.",
+    "overlay_permission_required": "Erlaube die Anzeige über anderen Apps. Kehre zu Koolo zurück und starte erneut.",
+    "microphone_permission_required": "Erlaube den Mikrofonzugriff. Kehre zu Koolo zurück und starte erneut.",
     "already_active": "Ein Orb-Anruf läuft bereits. Beende ihn vor dem Rollenwechsel.",
     "start_failed": "Der Sprachchat konnte nicht gestartet werden. Bitte erneut versuchen.",
-    "bridge_error": "Die Verbindung antwortet nicht. Öffne Crew erneut.",
+    "bridge_error": "Die Verbindung antwortet nicht. Öffne Koolo erneut.",
     "unavailable": "Cyber Orb ist in dieser App-Version nicht verfügbar.",
     "unknown": "Aktion fehlgeschlagen. Bitte erneut versuchen.",
     "web_key_unavailable": "Gemini-Schlüssel noch nicht eingerichtet. Richte ihn unter Einstellungen ein und starte dann den Chat."

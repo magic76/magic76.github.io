@@ -1,11 +1,11 @@
 {
-  "title": "探索 Crew 世界",
+  "title": "探索 Koolo 世界",
   "subtitle": "所有功能，一次看見",
   "close": "關閉選單",
   "groups": {
     "chat": "聊天與朋友",
     "explore": "創作與探索",
-    "me": "我的 Crew",
+    "me": "我的 Koolo",
     "learn": "外語學習",
     "games": "互動遊戲"
   },
@@ -27,35 +27,35 @@
       "desc": "看看朋友的照片日記"
     },
     "souls": {
-      "title": "Crew Souls",
+      "title": "Koolo Souls",
       "desc": "讓照片開口說話"
     },
     "mate": {
-      "title": "Crew Mate",
+      "title": "Koolo Mate",
       "desc": "讓 AI 幫你跨語言溝通"
     },
     "story": {
-      "title": "Crew Story",
+      "title": "Koolo Story",
       "desc": "創作與閱讀互動故事"
     },
     "fortune": {
-      "title": "Crew Fortune",
+      "title": "Koolo Fortune",
       "desc": "探索命盤與人生"
     },
     "timeline": {
-      "title": "Crew Timeline",
+      "title": "Koolo Timeline",
       "desc": "穿越不同人生階段"
     },
     "town": {
-      "title": "Crew Town",
+      "title": "Koolo Town",
       "desc": "走進朋友生活小鎮"
     },
     "magic": {
-      "title": "Crew Magic",
+      "title": "Koolo Magic",
       "desc": "用聲音創造魔法世界"
     },
     "discover": {
-      "title": "Crew Discover",
+      "title": "Koolo Discover",
       "desc": "探索新聞與新知"
     },
     "research": {

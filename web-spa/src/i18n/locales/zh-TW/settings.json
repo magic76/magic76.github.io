@@ -1,15 +1,15 @@
 {
   "hero": {
     "title": "設定",
-    "desc": "學習、語音體驗與資料備份都可以在這裡管理；Gemini Key 則移至「帳號」頁。Crew Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key；離線遊戲不需要 Key。"
+    "desc": "學習、語音體驗與資料備份都可以在這裡管理；Gemini Key 則移至「帳號」頁。Koolo Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key；離線遊戲不需要 Key。"
   },
   "memory": {
     "title": "記憶",
     "tagline": "預設開啟 · 隨時可關",
-    "intro": "Crew 老師和 Crew 朋友會依你的對話延續記憶。資料保存在這台瀏覽器；後續對話可能將相關內容提供給 Gemini。關閉只停止新增與使用記憶，不會直接刪除已保存的資料。",
+    "intro": "Koolo 老師和 Koolo 朋友會依你的對話延續記憶。資料保存在這台瀏覽器；後續對話可能將相關內容提供給 Gemini。關閉只停止新增與使用記憶，不會直接刪除已保存的資料。",
     "personal": "個人化記憶",
-    "personalDesc": "記住明確分享的生活事實、學習目標、興趣與偏好，供 Crew 老師和朋友參考。",
-    "friend": "Crew 朋友的共同話題",
+    "personalDesc": "記住明確分享的生活事實、學習目標、興趣與偏好，供 Koolo 老師和朋友參考。",
+    "friend": "Koolo 朋友的共同話題",
     "friendDesc": "每位朋友、每種學習語言分開記錄；關閉後不再整理或帶入話題。",
     "footnote": "以前手動關閉的設定不會被重新開啟。已有記憶可在「老師對我的了解」或每位朋友的「共同回憶」管理與刪除。"
   },
@@ -45,13 +45,13 @@
     "unverifiedDesc": "請先驗證此 Key，無須開啟麥克風",
     "reconfigure": "重新設定 Key",
     "titleEdit": "重新設定 Gemini Key",
-    "titleNew": "免費建立 Gemini API Key，開始使用 Crew AI",
-    "intro": "Crew Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key；離線遊戲不需要 Key。只需建立一次，驗證後即可使用，語音權限可以之後再開啟。",
+    "titleNew": "免費建立 Gemini API Key，開始使用 Koolo AI",
+    "intro": "Koolo Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key；離線遊戲不需要 Key。只需建立一次，驗證後即可使用，語音權限可以之後再開啟。",
     "step1": "使用 Google 帳號登入",
     "step1Desc": "前往 Google AI Studio 登入。",
     "step2": "免費建立 API Key",
     "step2Desc": "選擇 Create API key，建立後複製金鑰。",
-    "step3": "貼回 Crew",
+    "step3": "貼回 Koolo",
     "step3Desc": "驗證並儲存；需要語音時再測試麥克風。",
     "openStudio": "前往 Google 免費建立 Key ↗",
     "keyPlaceholder": "貼上 API key",
@@ -114,7 +114,7 @@
     "pricingNote": "免費申請不等於無限免費使用；免費額度有模型與用量限制。",
     "pricingLink": "查看 Google 官方計費說明",
     "setupNoticeTitle": "還沒有 Gemini Key？可以免費建立",
-    "setupNoticeDesc": "用 Google 帳號約 1 分鐘即可申請。Crew 需要 AI 的功能共用同一組 Key；離線遊戲無需 Key。免費額度依模型而異。",
+    "setupNoticeDesc": "用 Google 帳號約 1 分鐘即可申請。Koolo 需要 AI 的功能共用同一組 Key；離線遊戲無需 Key。免費額度依模型而異。",
     "keyCapabilities": "不用 Key：和 AI 朋友打字聊天（每天 {{count}} 則）、免 Key 遊戲、Shorts、單字練習。需要 Key：語音聊天、老師課程、故事創作、算命 AI 解讀等。",
     "setupNoticeAction": "查看免費申請步驟",
     "setupInvalidTitle": "Gemini Key 可能無法使用",
@@ -124,8 +124,8 @@
   "device": {
     "privacy": "隱私與資料偏好",
     "heading": "App 與裝置",
-    "android": "Crew Android Web 預覽版：拍教材等圖片輸入可使用相機或相簿，不影響語音權限。",
-    "browser": "目前使用瀏覽器版 Crew。相機與相簿能否使用，取決於瀏覽器權限。",
+    "android": "Koolo Android Web 預覽版：拍教材等圖片輸入可使用相機或相簿，不影響語音權限。",
+    "browser": "目前使用瀏覽器版 Koolo。相機與相簿能否使用，取決於瀏覽器權限。",
     "storage": "原生 Android、App WebView 與各瀏覽器目前各自保存 Gemini Key 和學習紀錄，不會自動同步。切換版本前不會覆蓋舊資料。",
     "permissions": "拍照或麥克風不能使用時，請檢查 Android 設定 → 應用程式 → Crew Teacher → 權限；功能使用時才會提出權限要求。"
   },
@@ -172,7 +172,7 @@
     "copy": "複製診斷摘要",
     "refresh": "刷新狀態",
     "details": "技術詳細資料",
-    "privacy": "診斷資訊不會自動上傳，僅在你主動複製時寫入剪貼簿。未測試 Crew 服務是否正常。",
+    "privacy": "診斷資訊不會自動上傳，僅在你主動複製時寫入剪貼簿。未測試 Koolo 服務是否正常。",
     "copied": "已複製診斷摘要。",
     "copyFailed": "無法使用剪貼簿。",
     "actionUnavailable": "此裝置無法開啟這項設定。",
@@ -187,7 +187,7 @@
     "camera": "相機權限",
     "tts": "文字轉語音",
     "network": "網路（系統）",
-    "service": "Crew 服務",
+    "service": "Koolo 服務",
     "state": {
       "granted": "已允許",
       "denied": "未允許",
@@ -197,15 +197,15 @@
       "missing_data": "缺少語音資料",
       "failed": "無法使用",
       "offline": "無連線",
-      "os_validated": "系統已驗證網路（未測 Crew）",
-      "connected_unverified": "已連接網路（未測 Crew）"
+      "os_validated": "系統已驗證網路（未測 Koolo）",
+      "connected_unverified": "已連接網路（未測 Koolo）"
     }
   },
   "cyberOrb": {
     "title": "Cyber Orb · 隨身 AI 聊天",
-    "intro": "選一位 Crew 角色，切到其他 App 也能透過懸浮球繼續語音聊天。",
-    "friend": "Crew Friends",
-    "teacher": "Crew Teachers",
+    "intro": "選一位 Koolo 角色，切到其他 App 也能透過懸浮球繼續語音聊天。",
+    "friend": "Koolo Friends",
+    "teacher": "Koolo Teachers",
     "language": "對話語言",
     "start": "開啟 Cyber Orb",
     "stop": "結束懸浮對話",
@@ -213,11 +213,11 @@
     "active": "正在與 {name} 對話",
     "note": "若正在語音聊天，請先結束目前的對話；切換角色前也需要先結束對話。",
     "native_key_required": "請依照畫面提示完成 Gemini Key 設定後重試。",
-    "overlay_permission_required": "請允許在其他 App 上層顯示，返回 Crew 後再次點選開始。",
-    "microphone_permission_required": "請允許使用麥克風，返回 Crew 後再次點選開始。",
+    "overlay_permission_required": "請允許在其他 App 上層顯示，返回 Koolo 後再次點選開始。",
+    "microphone_permission_required": "請允許使用麥克風，返回 Koolo 後再次點選開始。",
     "already_active": "已有 Cyber Orb 通話。請先掛斷，再選擇其他角色。",
     "start_failed": "無法開始語音聊天，請重試。",
-    "bridge_error": "連線沒有回應，請重新開啟 Crew。",
+    "bridge_error": "連線沒有回應，請重新開啟 Koolo。",
     "unavailable": "此版本尚不支援 Cyber Orb。",
     "unknown": "操作失敗，請重試。",
     "web_key_unavailable": "尚未設定 Gemini Key。請先到設定完成後再開始聊天。"

@@ -1,11 +1,11 @@
 {
-  "title": "Jelajahi dunia Crew",
+  "title": "Jelajahi dunia Koolo",
   "subtitle": "Semua fitur dalam satu tempat",
   "close": "Tutup menu",
   "groups": {
     "chat": "Obrolan & teman",
     "explore": "Berkreasi & jelajah",
-    "me": "Crew Saya",
+    "me": "Koolo Saya",
     "learn": "Belajar bahasa",
     "games": "Game interaktif"
   },
@@ -27,35 +27,35 @@
       "desc": "Lihat diari foto teman"
     },
     "souls": {
-      "title": "Crew Souls",
+      "title": "Koolo Souls",
       "desc": "Hidupkan fotomu"
     },
     "mate": {
-      "title": "Crew Mate",
+      "title": "Koolo Mate",
       "desc": "Bicara lintas bahasa"
     },
     "story": {
-      "title": "Crew Story",
+      "title": "Koolo Story",
       "desc": "Buat cerita interaktif"
     },
     "fortune": {
-      "title": "Crew Fortune",
+      "title": "Koolo Fortune",
       "desc": "Jelajahi perjalanan hidup"
     },
     "timeline": {
-      "title": "Crew Timeline",
+      "title": "Koolo Timeline",
       "desc": "Jelajahi tahap kehidupan"
     },
     "town": {
-      "title": "Crew Town",
+      "title": "Koolo Town",
       "desc": "Kunjungi kota teman"
     },
     "magic": {
-      "title": "Crew Magic",
+      "title": "Koolo Magic",
       "desc": "Ciptakan dunia lewat suara"
     },
     "discover": {
-      "title": "Crew Discover",
+      "title": "Koolo Discover",
       "desc": "Jelajahi berita dan ide"
     },
     "research": {

@@ -2,7 +2,7 @@
   "title": "今天，找誰聊聊？",
   "intro": "這裡不用上課。聊生活、延續共同回憶，不主動糾錯。",
   "language": "想學的語言",
-  "gameEntryTitle": "和 Crew 朋友一起玩遊戲",
+  "gameEntryTitle": "和 Koolo 朋友一起玩遊戲",
   "gameEntryDescription": "棋類、1A2B 等可直接玩，不必開語音；猜謎、海龜湯等語音遊戲需要 Gemini Key。",
   "pace": "說話速度",
   "slow": "慢速",
@@ -107,7 +107,7 @@
     "preparing": "正在準備對話",
     "free": "自由聊天"
   },
-  "kicker": "Crew 朋友",
+  "kicker": "Koolo 朋友",
   "textStarters": {
     "targetHint": "可以先用中文跟 {{name}} 聊，或點下面的{{language}}短句；{{name}} 會陪你慢慢練。",
     "meaning": {
