@@ -302,7 +302,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
 </>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
     </div>
-    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/><FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} speaking={live.state==="speaking"}/>
+    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} speaking={live.state==="speaking"}/>:null}
     {live.turns.length?<details className="friend-chat-history"><summary>{t("friendLive.historySummary")}</summary>
      <div className="friend-chat-history-scroll">{live.turns.map((turn,index)=><div key={index} className="friend-chat-turn">
        {turn.input?<p><strong>{t("friendLive.youLabel")}</strong>{turn.input}</p>:null}
