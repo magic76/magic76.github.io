@@ -35,6 +35,26 @@ On Pages preview or `www.3sssi.com`, check the page source for `data-crew-ssg-pa
 - Dynamic paths still use the Vite SPA fallback, not request-time rendering.
 - When an app route lacks a dedicated prerendered HTML file, Cloudflare serves the root SPA HTML. The first-paint guard suppresses the incorrect snapshot until the correct React route mounts.
 
+## Missing hashed assets on Cloudflare Pages
+
+`prepare-cloudflare.mjs` emits a tiny, headless `dist/assets/build/404.html`, **not** a top-level `dist/404.html`. Pages first looks for a real asset, then walks up from a missing path for the nearest `404.html`: a missing `/assets/build/*.js` receives that file with **404**; `/teacher/roles` and `/story/read/x` find no ancestor 404 and still receive `/index.html` with **200** (SPA fallback). A missing unversioned `/assets/*.webp` still falls back to the SPA HTML; this change intentionally protects only the hashed build directory.
+
+This follows Cloudflare's [Serving Pages](https://developers.cloudflare.com/pages/configuration/serving-pages/) documentation and the Pages OSS asset server `packages/pages-shared/asset-server/handler.ts` (`notFound()` and `attachHeaders()`, commit `dc47e6d2a061748f47dc9cfba66ed3cffe944754`): after applying `_headers`, **404** responses lose user `Cache-Control` and receive `Cache-Control: no-store`. Real hashed bundles keep the existing immutable rule. The directly requested `404.html` asset redirects to its extensionless `/assets/build/404` URL and can be served with **200**, so `_headers` explicitly detaches the broad `Cache-Control` and sets `no-store` for **both** names *after* the broader rule. A more-specific rule alone would merge conflicting directives; see [Pages headers](https://developers.cloudflare.com/pages/configuration/headers/).
+
+Production Pages routing and edge caching may differ from this OSS implementation; verify **after deployment** (also repeat the missing-chunk request with `-H 'Origin: https://www.3sssi.com'`):
+
+```sh
+BASE=https://www.3sssi.com
+MISSING="${BASE}/assets/build/does-not-exist-$(date +%s).js"
+curl -sS -D - -o /dev/null "$MISSING"                       # 404; cache-control: no-store; NOT immutable
+curl -sS -D - -o /dev/null -H 'Origin: https://www.3sssi.com' "$MISSING" # same 404/no-store
+curl -sS -D - -o /dev/null "$BASE/assets/build/404"           # 200; cache-control: no-store
+curl -sS -D - -o /dev/null "$BASE/teacher/roles"             # 200; text/html (SPA)
+curl -sS -D - -o /dev/null "$BASE/story/read/x"             # 200; text/html (SPA)
+# Replace with an actual JS path emitted into dist/assets/build/ by this deployment:
+curl -sS -D - -o /dev/null "$BASE/assets/build/<real-hashed-entry>.js" # 200; JS MIME; immutable
+```
+
 ## Search discoverability: product pages and daily articles
 
 The Teacher, Story and Fortune React pages now render concise, user-facing bilingual explanations **below the interactive features**, using the same components for SSG and client-side navigation. No separate SEO-only landing page is maintained.

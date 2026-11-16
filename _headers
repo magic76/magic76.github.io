@@ -20,6 +20,17 @@ https://:version.magic76-github-io.pages.dev/*
 /assets/build/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Pages maps 404.html to the extensionless URL. Both direct asset URLs are
+# real 200/redirect responses, unlike a missing chunk's 404. Detach the broad
+# immutable rule first: matching _headers rules are merged in file order.
+/assets/build/404.html
+  ! Cache-Control
+  Cache-Control: no-store
+
+/assets/build/404
+  ! Cache-Control
+  Cache-Control: no-store
+
 # The version endpoint must bypass browser and Cloudflare caches so open tabs
 # can detect a newly deployed build without reloading the whole app.
 /version.json
