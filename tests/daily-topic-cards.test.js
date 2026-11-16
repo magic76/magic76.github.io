@@ -59,6 +59,8 @@ test("11 localized quote catalogs contain all 30 nonblank short thoughts; UI lab
  }
  assert.notEqual(JSON.parse(read("web-spa/src/i18n/locales/zh-TW/dailyQuote.json")).q01,en.q01);
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json")).dailyQuote;
+ assert.equal(zh.fortuneFull,"看完整運勢");
+ assert.equal(zh.chatRead,"請 Zoe 解運勢");
  assert.equal(zh.setupChart,"設定我的命盤，每天看專屬運勢");
  assert.equal(zh.setupHint,"填生日和出生時間，完成後每天看專屬運勢");
  for(const lang of langs){
