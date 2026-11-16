@@ -268,5 +268,20 @@
       "socket": "การเชื่อมต่อ WebSocket ของ Gemini Live ถูกตัดหรือปฏิเสธ โปรดลองใหม่",
       "service": "การเชื่อมต่อข้อความ Gemini Live ล้มเหลว ลองใหม่หรือใช้โหมดฟรี"
     }
+  },
+  "callCaptions": {
+    "aria": "คำบรรยายการโทรสองภาษา",
+    "more": "ตัวเลือกเพิ่มเติม",
+    "showTranslation": "แสดงคำแปล",
+    "hideTranslation": "ซ่อนคำแปล",
+    "translating": "กำลังแปล…",
+    "needsKey": "ต้องใช้คีย์ Gemini หรือเบราว์เซอร์ที่รองรับการแปลบนอุปกรณ์",
+    "translateFailed": "แปลไม่ได้ชั่วคราว แต่โทรต่อได้",
+    "waitingForFriend": "คำตอบของเพื่อนจะแสดงที่นี่",
+    "recognized": "รู้จำแล้ว",
+    "recognizing": "กำลังรู้จำ",
+    "waitingForYou": "คำพูดของคุณจะแสดงที่นี่",
+    "callControls": "ควบคุมการโทร",
+    "hangUp": "วางสาย"
   }
 }

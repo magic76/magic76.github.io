@@ -268,5 +268,20 @@
       "socket": "Gemini Live WebSocket 連線中斷或遭拒，請重試。",
       "service": "Gemini Live 文字連線失敗，請重試或改用免費文字練習。"
     }
+  },
+  "callCaptions": {
+    "aria": "雙語通話字幕",
+    "more": "更多選項",
+    "showTranslation": "顯示翻譯",
+    "hideTranslation": "隱藏翻譯",
+    "translating": "正在翻譯…",
+    "needsKey": "需要自己的 Gemini Key，或支援裝置翻譯的瀏覽器。",
+    "translateFailed": "翻譯暫時無法使用，不影響通話。",
+    "waitingForFriend": "朋友的回答會顯示在這裡",
+    "recognized": "已辨識",
+    "recognizing": "辨識中",
+    "waitingForYou": "你說的話會顯示在這裡",
+    "callControls": "通話控制",
+    "hangUp": "掛斷"
   }
 }
