@@ -1,7 +1,7 @@
 {
-  "name": "Crew｜AI 朋友、語言學習與探索",
-  "short_name": "Crew",
-  "description": "和 AI 朋友聊天、學語言、玩遊戲、閱讀故事，探索你的 Crew 世界。",
+  "name": "Koolo｜AI 朋友、語言學習與探索",
+  "short_name": "Koolo",
+  "description": "和 AI 朋友聊天、學語言、玩遊戲、閱讀故事，探索你的 Koolo 世界。",
   "lang": "zh-TW",
   "start_url": "/",
   "scope": "/",
@@ -69,7 +69,7 @@
       ]
     },
     {
-      "name": "Crew Play",
+      "name": "Koolo Play",
       "short_name": "遊戲",
       "url": "/games",
       "icons": [

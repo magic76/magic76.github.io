@@ -2,7 +2,7 @@
   "title": "Bạn muốn trò chuyện với ai?",
   "intro": "Chia sẻ chuyện thường ngày, tiếp tục chủ đề đã nhớ và không bị sửa lỗi bất ngờ.",
   "language": "Ngôn ngữ đang học",
-  "gameEntryTitle": "Crew Play · game cùng bạn bè",
+  "gameEntryTitle": "Koolo Play · game cùng bạn bè",
   "gameEntryDescription": "Game bàn cờ và 1A2B chơi được không cần giọng nói; game đoán và Mystery cần Gemini key.",
   "pace": "Tốc độ nói",
   "slow": "Chậm",
@@ -107,7 +107,7 @@
     "preparing": "Đang chuẩn bị cuộc trò chuyện",
     "free": "Trò chuyện tự do"
   },
-  "kicker": "Bạn Crew",
+  "kicker": "Bạn Koolo",
   "textStarters": {
     "targetHint": "Bạn có thể bắt đầu bằng tiếng Việt với {{name}} hoặc chọn một câu {{language}} ngắn bên dưới. {{name}} sẽ cùng bạn luyện tập đơn giản.",
     "meaning": {

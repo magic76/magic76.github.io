@@ -1,15 +1,15 @@
 {
   "hero": {
     "title": "Ajustes",
-    "desc": "Gestiona tu clave Gemini, las funciones de voz y las copias de seguridad. Una clave funciona en las funciones IA de Crew; los juegos sin conexión no la necesitan."
+    "desc": "Gestiona tu clave Gemini, las funciones de voz y las copias de seguridad. Una clave funciona en las funciones IA de Koolo; los juegos sin conexión no la necesitan."
   },
   "memory": {
     "title": "Memoria",
     "tagline": "Activada por defecto · Desactívala cuando quieras",
-    "intro": "Los profesores y amigos Crew pueden recordar conversaciones. Los datos permanecen en este navegador. Algunos recuerdos se pueden compartir con Gemini en próximas charlas. Desactivarla evita un nuevo uso y registro, pero no elimina los recuerdos guardados.",
+    "intro": "Los profesores y amigos Koolo pueden recordar conversaciones. Los datos permanecen en este navegador. Algunos recuerdos se pueden compartir con Gemini en próximas charlas. Desactivarla evita un nuevo uso y registro, pero no elimina los recuerdos guardados.",
     "personal": "Memoria personal",
     "personalDesc": "Recuerda datos compartidos voluntariamente, objetivos de aprendizaje, intereses y preferencias.",
-    "friend": "Temas compartidos con amigos Crew",
+    "friend": "Temas compartidos con amigos Koolo",
     "friendDesc": "Los temas se guardan por amigo y lengua de estudio. Al desactivarlo, dejan de guardarse y reutilizarse.",
     "footnote": "Las opciones ya desactivadas seguirán así. Puedes gestionar o borrar los recuerdos en el perfil del profesor o de cada amigo."
   },
@@ -45,13 +45,13 @@
     "unverifiedDesc": "Verifica la clave sin conceder acceso al micrófono.",
     "reconfigure": "Cambiar clave",
     "titleEdit": "Cambiar clave Gemini",
-    "titleNew": "Crea una clave API Gemini gratis para usar Crew AI",
-    "intro": "Las funciones IA de Crew usan una misma clave, los juegos sin conexión no. Configúrala y verifícala una vez. El micrófono solo se necesita al usar voz.",
+    "titleNew": "Crea una clave API Gemini gratis para usar Koolo AI",
+    "intro": "Las funciones IA de Koolo usan una misma clave, los juegos sin conexión no. Configúrala y verifícala una vez. El micrófono solo se necesita al usar voz.",
     "step1": "Inicia sesión con Google",
     "step1Desc": "Abre Google AI Studio e inicia sesión.",
     "step2": "Crea una clave API gratis",
     "step2Desc": "Selecciona Crear clave API y copia la nueva clave.",
-    "step3": "Pégala en Crew",
+    "step3": "Pégala en Koolo",
     "step3Desc": "Verifica y guarda. Puedes probar el micrófono después.",
     "openStudio": "Crear clave gratis con Google ↗",
     "keyPlaceholder": "Pegar clave API",
@@ -114,7 +114,7 @@
     "pricingNote": "Una clave gratis no garantiza uso ilimitado. Los límites dependen del modelo.",
     "pricingLink": "Consultar precios oficiales de Google",
     "setupNoticeTitle": "¿No tienes clave Gemini? Créala gratis",
-    "setupNoticeDesc": "Obtén una clave con tu cuenta Google en un minuto. Se usa en todas las funciones IA de Crew, y los juegos sin conexión no la necesitan. Los límites gratuitos varían.",
+    "setupNoticeDesc": "Obtén una clave con tu cuenta Google en un minuto. Se usa en todas las funciones IA de Koolo, y los juegos sin conexión no la necesitan. Los límites gratuitos varían.",
     "keyCapabilities": "Sin Key: chatea por texto con amigos IA ({{count}} mensajes al día), juegos sin Key, Shorts y vocabulario. Con Key: chat de voz, clases, creación de historias e interpretaciones de IA.",
     "setupNoticeAction": "Ver pasos gratuitos",
     "setupInvalidTitle": "Es posible que tu clave Gemini no funcione",
@@ -124,8 +124,8 @@
   "device": {
     "privacy": "Privacidad y datos",
     "heading": "Aplicación y dispositivo",
-    "android": "Vista previa de Crew para Android: puedes usar la cámara o la galería para añadir imágenes. No cambia los permisos de audio.",
-    "browser": "Estás usando Crew en un navegador. El acceso a la cámara y la galería depende de los permisos del navegador.",
+    "android": "Vista previa de Koolo para Android: puedes usar la cámara o la galería para añadir imágenes. No cambia los permisos de audio.",
+    "browser": "Estás usando Koolo en un navegador. El acceso a la cámara y la galería depende de los permisos del navegador.",
     "storage": "Android nativo, WebView y cada navegador guardan las claves de Gemini y el progreso por separado. No se sincronizan automáticamente.",
     "permissions": "Si fallan la cámara o el micrófono, ve a Ajustes de Android → Aplicaciones → Crew Teacher → Permisos. Solo se solicitan cuando hacen falta."
   },
@@ -172,7 +172,7 @@
     "copy": "Copiar diagnóstico",
     "refresh": "Actualizar estado",
     "details": "Detalles técnicos",
-    "privacy": "Los datos no se envían automáticamente. No se ha comprobado el servicio Crew.",
+    "privacy": "Los datos no se envían automáticamente. No se ha comprobado el servicio Koolo.",
     "copied": "Diagnóstico copiado.",
     "copyFailed": "No se pudo copiar.",
     "actionUnavailable": "Este ajuste no está disponible.",
@@ -187,7 +187,7 @@
     "camera": "Permiso de cámara",
     "tts": "Texto a voz",
     "network": "Red (SO)",
-    "service": "Servicio Crew",
+    "service": "Servicio Koolo",
     "state": {
       "granted": "Permitido",
       "denied": "Denegado",
@@ -197,15 +197,15 @@
       "missing_data": "Faltan datos de voz",
       "failed": "No disponible",
       "offline": "Sin conexión",
-      "os_validated": "Red validada por SO (Crew sin probar)",
-      "connected_unverified": "Conectado (Crew sin probar)"
+      "os_validated": "Red validada por SO (Koolo sin probar)",
+      "connected_unverified": "Conectado (Koolo sin probar)"
     }
   },
   "cyberOrb": {
     "title": "Cyber Orb · Conversación manos libres",
-    "intro": "Elige un personaje de Crew y sigue hablando mientras usas otras aplicaciones de Android.",
-    "friend": "Crew Friends",
-    "teacher": "Crew Teachers",
+    "intro": "Elige un personaje de Koolo y sigue hablando mientras usas otras aplicaciones de Android.",
+    "friend": "Koolo Friends",
+    "teacher": "Koolo Teachers",
     "language": "Idioma de conversación",
     "start": "Iniciar Cyber Orb",
     "stop": "Finalizar llamada",
@@ -213,11 +213,11 @@
     "active": "Hablando con {name}",
     "note": "Termina la conversación de voz actual antes de iniciar otra o cambiar de personaje.",
     "native_key_required": "Completa la configuración de la clave Gemini e inténtalo de nuevo.",
-    "overlay_permission_required": "Permite mostrarse sobre otras aplicaciones, vuelve a Crew e inténtalo de nuevo.",
-    "microphone_permission_required": "Permite el acceso al micrófono, vuelve a Crew e inténtalo de nuevo.",
+    "overlay_permission_required": "Permite mostrarse sobre otras aplicaciones, vuelve a Koolo e inténtalo de nuevo.",
+    "microphone_permission_required": "Permite el acceso al micrófono, vuelve a Koolo e inténtalo de nuevo.",
     "already_active": "Ya hay una llamada de Orb activa. Finalízala antes de cambiar de personaje.",
     "start_failed": "No se pudo iniciar el chat de voz. Inténtalo de nuevo.",
-    "bridge_error": "La conexión no responde. Vuelve a abrir Crew.",
+    "bridge_error": "La conexión no responde. Vuelve a abrir Koolo.",
     "unavailable": "Cyber Orb no está disponible en esta versión.",
     "unknown": "La operación falló. Inténtalo de nuevo.",
     "web_key_unavailable": "Aún no has configurado la clave Gemini. Ve a Ajustes antes de empezar a conversar."

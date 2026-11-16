@@ -1,15 +1,15 @@
 {
   "hero": {
     "title": "Pengaturan",
-    "desc": "Kelola Gemini Key, pengalaman suara, dan cadangan di satu tempat. Fitur AI Crew berbagi satu kunci; game offline tidak memerlukan kunci."
+    "desc": "Kelola Gemini Key, pengalaman suara, dan cadangan di satu tempat. Fitur AI Koolo berbagi satu kunci; game offline tidak memerlukan kunci."
   },
   "memory": {
     "title": "Memori",
     "tagline": "Aktif secara default · Matikan kapan saja",
-    "intro": "Guru dan teman Crew dapat mengingat percakapan. Data tetap di peramban ini, tetapi memori terkait dapat dibagikan ke Gemini dalam percakapan berikutnya. Mematikan memori menghentikan penggunaan dan pengumpulan baru, tetapi tidak menghapus yang telah disimpan.",
+    "intro": "Guru dan teman Koolo dapat mengingat percakapan. Data tetap di peramban ini, tetapi memori terkait dapat dibagikan ke Gemini dalam percakapan berikutnya. Mematikan memori menghentikan penggunaan dan pengumpulan baru, tetapi tidak menghapus yang telah disimpan.",
     "personal": "Memori pribadi",
     "personalDesc": "Ingat fakta sehari-hari yang sengaja dibagikan, tujuan belajar, minat, dan preferensi untuk guru dan teman.",
-    "friend": "Topik bersama teman Crew",
+    "friend": "Topik bersama teman Koolo",
     "friendDesc": "Setiap teman dan bahasa belajar memiliki topik terpisah. Menonaktifkan mencegah penyimpanan dan penggunaan ulang.",
     "footnote": "Pengaturan yang dulu dimatikan tetap nonaktif. Kelola atau hapus memori di pengetahuan Guru atau memori bersama setiap teman."
   },
@@ -45,13 +45,13 @@
     "unverifiedDesc": "Verifikasi kunci tanpa mengizinkan akses mikrofon.",
     "reconfigure": "Ubah kunci",
     "titleEdit": "Ubah Gemini Key",
-    "titleNew": "Buat Gemini API Key gratis untuk mulai memakai Crew AI",
-    "intro": "Fitur AI Crew memakai satu kunci; game offline tidak membutuhkannya. Atur dan verifikasi sekali. Mikrofon opsional sampai Anda memakai suara.",
+    "titleNew": "Buat Gemini API Key gratis untuk mulai memakai Koolo AI",
+    "intro": "Fitur AI Koolo memakai satu kunci; game offline tidak membutuhkannya. Atur dan verifikasi sekali. Mikrofon opsional sampai Anda memakai suara.",
     "step1": "Masuk dengan Google",
     "step1Desc": "Buka Google AI Studio lalu masuk.",
     "step2": "Buat API Key gratis",
     "step2Desc": "Pilih Buat API Key, lalu salin kunci baru.",
-    "step3": "Tempel di Crew",
+    "step3": "Tempel di Koolo",
     "step3Desc": "Verifikasi dan simpan. Anda bisa menguji mikrofon nanti.",
     "openStudio": "Buat kunci gratis dengan Google ↗",
     "keyPlaceholder": "Tempel API Key",
@@ -114,7 +114,7 @@
     "pricingNote": "Kunci gratis bukan berarti penggunaan gratis tanpa batas. Batas tiap model berbeda.",
     "pricingLink": "Lihat harga resmi Google",
     "setupNoticeTitle": "Belum punya Gemini Key? Buat gratis",
-    "setupNoticeDesc": "Dapatkan kunci dengan akun Google dalam sekitar satu menit. Satu kunci berlaku untuk fitur AI Crew; game offline tidak memerlukan kunci. Batas gratis bergantung model.",
+    "setupNoticeDesc": "Dapatkan kunci dengan akun Google dalam sekitar satu menit. Satu kunci berlaku untuk fitur AI Koolo; game offline tidak memerlukan kunci. Batas gratis bergantung model.",
     "keyCapabilities": "Tanpa Key: chat teks dengan teman AI ({{count}} pesan per hari), game tanpa Key, Shorts, dan latihan kosakata. Perlu Key: obrolan suara, kelas, membuat cerita, dan tafsir AI.",
     "setupNoticeAction": "Lihat langkah pengaturan gratis",
     "setupInvalidTitle": "Gemini Key Anda mungkin bermasalah",
@@ -124,8 +124,8 @@
   "device": {
     "privacy": "Privasi dan data",
     "heading": "Aplikasi dan perangkat",
-    "android": "Pratinjau Crew Android Web: gunakan kamera atau galeri untuk memasukkan gambar. Izin audio tidak berubah.",
-    "browser": "Anda memakai Crew di browser. Akses kamera dan galeri bergantung pada izin browser.",
+    "android": "Pratinjau Koolo Android Web: gunakan kamera atau galeri untuk memasukkan gambar. Izin audio tidak berubah.",
+    "browser": "Anda memakai Koolo di browser. Akses kamera dan galeri bergantung pada izin browser.",
     "storage": "Aplikasi Android, WebView, dan setiap browser menyimpan kunci Gemini serta catatan belajar secara terpisah. Data tidak tersinkron otomatis.",
     "permissions": "Jika kamera atau mikrofon bermasalah, buka Setelan Android → Aplikasi → Crew Teacher → Izin. Izin hanya diminta saat diperlukan."
   },
@@ -172,7 +172,7 @@
     "copy": "Salin diagnostik",
     "refresh": "Perbarui status",
     "details": "Rincian teknis",
-    "privacy": "Data tidak dikirim otomatis. Layanan Crew tidak diuji.",
+    "privacy": "Data tidak dikirim otomatis. Layanan Koolo tidak diuji.",
     "copied": "Diagnostik disalin.",
     "copyFailed": "Gagal menyalin.",
     "actionUnavailable": "Setelan tidak tersedia.",
@@ -187,7 +187,7 @@
     "camera": "Izin kamera",
     "tts": "Teks ke suara",
     "network": "Jaringan (OS)",
-    "service": "Layanan Crew",
+    "service": "Layanan Koolo",
     "state": {
       "granted": "Diizinkan",
       "denied": "Ditolak",
@@ -197,15 +197,15 @@
       "missing_data": "Data suara tidak ada",
       "failed": "Tidak tersedia",
       "offline": "Offline",
-      "os_validated": "Divalidasi OS (Crew belum diuji)",
-      "connected_unverified": "Terhubung (Crew belum diuji)"
+      "os_validated": "Divalidasi OS (Koolo belum diuji)",
+      "connected_unverified": "Terhubung (Koolo belum diuji)"
     }
   },
   "cyberOrb": {
     "title": "Cyber Orb · Obrolan bebas genggam",
-    "intro": "Pilih karakter Crew dan terus mengobrol saat menggunakan aplikasi Android lain.",
-    "friend": "Crew Friends",
-    "teacher": "Crew Teachers",
+    "intro": "Pilih karakter Koolo dan terus mengobrol saat menggunakan aplikasi Android lain.",
+    "friend": "Koolo Friends",
+    "teacher": "Koolo Teachers",
     "language": "Bahasa percakapan",
     "start": "Mulai Cyber Orb",
     "stop": "Akhiri panggilan",
@@ -213,11 +213,11 @@
     "active": "Berbicara dengan {name}",
     "note": "Akhiri percakapan suara saat ini sebelum memulai lagi atau mengganti karakter.",
     "native_key_required": "Selesaikan pengaturan Gemini Key, lalu coba lagi.",
-    "overlay_permission_required": "Izinkan tampil di atas aplikasi lain, kembali ke Crew, lalu coba lagi.",
-    "microphone_permission_required": "Izinkan akses mikrofon, kembali ke Crew, lalu coba lagi.",
+    "overlay_permission_required": "Izinkan tampil di atas aplikasi lain, kembali ke Koolo, lalu coba lagi.",
+    "microphone_permission_required": "Izinkan akses mikrofon, kembali ke Koolo, lalu coba lagi.",
     "already_active": "Panggilan Orb masih aktif. Akhiri sebelum mengganti karakter.",
     "start_failed": "Tidak dapat memulai obrolan suara. Coba lagi.",
-    "bridge_error": "Koneksi tidak merespons. Buka kembali Crew.",
+    "bridge_error": "Koneksi tidak merespons. Buka kembali Koolo.",
     "unavailable": "Cyber Orb tidak tersedia pada versi ini.",
     "unknown": "Tindakan gagal. Coba lagi.",
     "web_key_unavailable": "Gemini Key belum diatur. Buka Pengaturan terlebih dahulu, lalu mulai mengobrol."

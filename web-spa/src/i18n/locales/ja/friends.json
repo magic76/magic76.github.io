@@ -2,7 +2,7 @@
   "title": "誰とお話ししますか？",
   "intro": "ここは授業ではありません。日常の出来事を話したり、覚えている話題を続けたり、頼まない限り訂正されずに会話できます。",
   "language": "学習する言語",
-  "gameEntryTitle": "Crew Play・友達とゲーム",
+  "gameEntryTitle": "Koolo Play・友達とゲーム",
   "gameEntryDescription": "ボードゲームや 1A2B は音声なしで遊べます。推理ゲームやミステリーには Gemini Key が必要です。",
   "pace": "話す速さ",
   "slow": "ゆっくり",
@@ -107,7 +107,7 @@
     "preparing": "会話を準備しています",
     "free": "フリートーク"
   },
-  "kicker": "Crew の友だち",
+  "kicker": "Koolo の友だち",
   "textStarters": {
     "targetHint": "まず日本語で{{name}}と話しても大丈夫。下の短い{{language}}の文も使えます。{{name}}と気軽に練習しましょう。",
     "meaning": {

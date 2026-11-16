@@ -145,7 +145,7 @@ export function renderCollectibleCard(model:FortuneCardModel,art?:HTMLImageEleme
  rounded(ctx,64,67,952,1202,38,"#ffffff");ctx.restore();
  strokeRounded(ctx,64,67,952,1202,38,"#ded8ef",2);
  line(ctx,85,136,995,136,paint.line,2);
- ctx.fillStyle=paint.accent;ctx.font="800 34px system-ui,sans-serif";ctx.fillText("CREW FORTUNE",92,115);
+ ctx.fillStyle=paint.accent;ctx.font="800 34px system-ui,sans-serif";ctx.fillText("Koolo FORTUNE",92,115);
  ctx.font="600 20px system-ui,sans-serif";ctx.textAlign="right";ctx.fillText("✦  ARCHETYPE",984,114);ctx.textAlign="left";
  photo(ctx,model,art,paint);
  rounded(ctx,91,676,176,39,17,paint.chip);
@@ -208,8 +208,8 @@ export async function nativeCollectibleShare(file:File,message:string,url:string
  if(!navigator.share)return "unsupported";
  const canFile=typeof navigator.canShare==="function"&&navigator.canShare({files:[file]});
  try{
-  if(canFile)await navigator.share({title:"Crew Fortune",files:[file],text:message});
-  else await navigator.share({title:"Crew Fortune",text:message.endsWith(url)?message.slice(0,-url.length).trim():message,url});
+  if(canFile)await navigator.share({title:"Koolo Fortune",files:[file],text:message});
+  else await navigator.share({title:"Koolo Fortune",text:message.endsWith(url)?message.slice(0,-url.length).trim():message,url});
   return "shared";
  }catch(error){
   if((error as Error)?.name==="AbortError")return "cancelled";

@@ -64,7 +64,7 @@ export function DeviceAndAppPanel(){
   try{
    activeSpeech.current=true;
    setSpeaking(true);
-   await speakText("Hello, welcome to Crew.",{speed:"normal"});
+   await speakText("Hello, welcome to Koolo.",{speed:"normal"});
   }catch{
    activeSpeech.current=false;setSpeaking(false);
    setMessage(t("deviceApp.ttsUnavailable"));

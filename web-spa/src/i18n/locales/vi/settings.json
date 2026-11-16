@@ -1,15 +1,15 @@
 {
   "hero": {
     "title": "Cài đặt",
-    "desc": "Quản lý Gemini Key, trải nghiệm giọng nói và bản sao lưu tại một nơi. Các tính năng AI của Crew dùng chung một khóa; game ngoại tuyến không cần khóa."
+    "desc": "Quản lý Gemini Key, trải nghiệm giọng nói và bản sao lưu tại một nơi. Các tính năng AI của Koolo dùng chung một khóa; game ngoại tuyến không cần khóa."
   },
   "memory": {
     "title": "Bộ nhớ",
     "tagline": "Bật mặc định · Có thể tắt bất cứ lúc nào",
-    "intro": "Giáo viên và bạn Crew có thể ghi nhớ hội thoại. Dữ liệu lưu trong trình duyệt này, nhưng những ký ức liên quan có thể được chia sẻ với Gemini trong các lần trò chuyện sau. Tắt bộ nhớ sẽ dừng sử dụng và thu thập mới, nhưng không xóa ký ức đã lưu.",
+    "intro": "Giáo viên và bạn Koolo có thể ghi nhớ hội thoại. Dữ liệu lưu trong trình duyệt này, nhưng những ký ức liên quan có thể được chia sẻ với Gemini trong các lần trò chuyện sau. Tắt bộ nhớ sẽ dừng sử dụng và thu thập mới, nhưng không xóa ký ức đã lưu.",
     "personal": "Bộ nhớ cá nhân",
     "personalDesc": "Ghi nhớ các thông tin thường ngày được chủ động chia sẻ, mục tiêu học tập, sở thích và lựa chọn của bạn cho giáo viên và bạn bè.",
-    "friend": "Chủ đề chung với bạn Crew",
+    "friend": "Chủ đề chung với bạn Koolo",
     "friendDesc": "Mỗi người bạn và ngôn ngữ học có các chủ đề riêng. Khi tắt sẽ ngừng lưu và dùng lại.",
     "footnote": "Những thiết lập đã tắt vẫn được giữ nguyên. Quản lý hoặc xóa ký ức trong kiến thức của Giáo viên hoặc bộ nhớ chung của từng người bạn."
   },
@@ -45,13 +45,13 @@
     "unverifiedDesc": "Xác minh khóa mà không cần cấp quyền micro.",
     "reconfigure": "Thay khóa",
     "titleEdit": "Thay Gemini Key",
-    "titleNew": "Tạo Gemini API Key miễn phí để bắt đầu với Crew AI",
-    "intro": "Các tính năng AI của Crew dùng chung một khóa; game ngoại tuyến không cần. Thiết lập và xác minh một lần. Quyền micro chỉ cần khi dùng giọng nói.",
+    "titleNew": "Tạo Gemini API Key miễn phí để bắt đầu với Koolo AI",
+    "intro": "Các tính năng AI của Koolo dùng chung một khóa; game ngoại tuyến không cần. Thiết lập và xác minh một lần. Quyền micro chỉ cần khi dùng giọng nói.",
     "step1": "Đăng nhập bằng Google",
     "step1Desc": "Mở Google AI Studio và đăng nhập.",
     "step2": "Tạo API Key miễn phí",
     "step2Desc": "Chọn Tạo API Key rồi sao chép khóa mới.",
-    "step3": "Dán vào Crew",
+    "step3": "Dán vào Koolo",
     "step3Desc": "Xác minh và lưu. Có thể kiểm tra micro sau.",
     "openStudio": "Tạo khóa miễn phí với Google ↗",
     "keyPlaceholder": "Dán API Key",
@@ -114,7 +114,7 @@
     "pricingNote": "Khóa miễn phí không đồng nghĩa sử dụng miễn phí không giới hạn. Hạn mức tùy theo mô hình.",
     "pricingLink": "Xem giá chính thức của Google",
     "setupNoticeTitle": "Chưa có Gemini Key? Tạo miễn phí",
-    "setupNoticeDesc": "Dùng tài khoản Google để lấy khóa trong khoảng một phút. Một khóa cho các tính năng AI của Crew; game ngoại tuyến không cần. Hạn mức miễn phí tùy mô hình.",
+    "setupNoticeDesc": "Dùng tài khoản Google để lấy khóa trong khoảng một phút. Một khóa cho các tính năng AI của Koolo; game ngoại tuyến không cần. Hạn mức miễn phí tùy mô hình.",
     "keyCapabilities": "Không cần Key: nhắn tin với bạn AI ({{count}} tin/ngày), trò chơi không cần Key, Shorts và luyện từ vựng. Cần Key: trò chuyện giọng nói, lớp học, tạo truyện và luận giải AI.",
     "setupNoticeAction": "Xem hướng dẫn thiết lập miễn phí",
     "setupInvalidTitle": "Gemini Key có thể không hoạt động",
@@ -124,8 +124,8 @@
   "device": {
     "privacy": "Quyền riêng tư và dữ liệu",
     "heading": "Ứng dụng và thiết bị",
-    "android": "Bản xem trước Crew Android Web: có thể dùng máy ảnh hoặc thư viện để thêm hình. Quyền âm thanh không thay đổi.",
-    "browser": "Bạn đang dùng Crew trên trình duyệt. Quyền truy cập máy ảnh và thư viện phụ thuộc vào cài đặt trình duyệt.",
+    "android": "Bản xem trước Koolo Android Web: có thể dùng máy ảnh hoặc thư viện để thêm hình. Quyền âm thanh không thay đổi.",
+    "browser": "Bạn đang dùng Koolo trên trình duyệt. Quyền truy cập máy ảnh và thư viện phụ thuộc vào cài đặt trình duyệt.",
     "storage": "Android gốc, WebView và từng trình duyệt lưu khóa Gemini cùng tiến độ học tập riêng, không tự đồng bộ.",
     "permissions": "Nếu máy ảnh hoặc micrô gặp sự cố, hãy kiểm tra Cài đặt Android → Ứng dụng → Crew Teacher → Quyền. Chỉ yêu cầu quyền khi cần."
   },
@@ -172,7 +172,7 @@
     "copy": "Sao chép chẩn đoán",
     "refresh": "Làm mới",
     "details": "Chi tiết kỹ thuật",
-    "privacy": "Không tự động gửi dữ liệu. Chưa kiểm tra dịch vụ Crew.",
+    "privacy": "Không tự động gửi dữ liệu. Chưa kiểm tra dịch vụ Koolo.",
     "copied": "Đã sao chép.",
     "copyFailed": "Không thể sao chép.",
     "actionUnavailable": "Không có cài đặt này.",
@@ -187,7 +187,7 @@
     "camera": "Quyền camera",
     "tts": "Đọc văn bản",
     "network": "Mạng (OS)",
-    "service": "Dịch vụ Crew",
+    "service": "Dịch vụ Koolo",
     "state": {
       "granted": "Đã cấp",
       "denied": "Từ chối",
@@ -197,15 +197,15 @@
       "missing_data": "Thiếu dữ liệu giọng nói",
       "failed": "Không khả dụng",
       "offline": "Ngoại tuyến",
-      "os_validated": "OS xác nhận mạng (chưa kiểm tra Crew)",
-      "connected_unverified": "Có mạng (chưa kiểm tra Crew)"
+      "os_validated": "OS xác nhận mạng (chưa kiểm tra Koolo)",
+      "connected_unverified": "Có mạng (chưa kiểm tra Koolo)"
     }
   },
   "cyberOrb": {
     "title": "Cyber Orb · Trò chuyện rảnh tay",
-    "intro": "Chọn nhân vật Crew và tiếp tục trò chuyện khi dùng các ứng dụng Android khác.",
-    "friend": "Crew Friends",
-    "teacher": "Crew Teachers",
+    "intro": "Chọn nhân vật Koolo và tiếp tục trò chuyện khi dùng các ứng dụng Android khác.",
+    "friend": "Koolo Friends",
+    "teacher": "Koolo Teachers",
     "language": "Ngôn ngữ trò chuyện",
     "start": "Bắt đầu Cyber Orb",
     "stop": "Kết thúc cuộc gọi",
@@ -213,11 +213,11 @@
     "active": "Đang trò chuyện với {name}",
     "note": "Hãy kết thúc cuộc trò chuyện hiện tại trước khi bắt đầu cuộc trò chuyện mới hoặc đổi nhân vật.",
     "native_key_required": "Hoàn tất thiết lập Gemini Key rồi thử lại.",
-    "overlay_permission_required": "Cho phép hiển thị trên ứng dụng khác, quay lại Crew và thử lại.",
-    "microphone_permission_required": "Cho phép truy cập micrô, quay lại Crew và thử lại.",
+    "overlay_permission_required": "Cho phép hiển thị trên ứng dụng khác, quay lại Koolo và thử lại.",
+    "microphone_permission_required": "Cho phép truy cập micrô, quay lại Koolo và thử lại.",
     "already_active": "Đang có cuộc gọi Orb. Hãy kết thúc trước khi đổi nhân vật.",
     "start_failed": "Không thể bắt đầu trò chuyện bằng giọng nói. Vui lòng thử lại.",
-    "bridge_error": "Kết nối không phản hồi. Hãy mở lại Crew.",
+    "bridge_error": "Kết nối không phản hồi. Hãy mở lại Koolo.",
     "unavailable": "Cyber Orb không khả dụng trong phiên bản này.",
     "unknown": "Thao tác thất bại. Hãy thử lại.",
     "web_key_unavailable": "Bạn chưa thiết lập Gemini Key. Vào Cài đặt để hoàn tất trước khi trò chuyện."

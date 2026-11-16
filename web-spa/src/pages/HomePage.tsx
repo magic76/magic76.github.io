@@ -181,7 +181,7 @@ export function HomePage(){
      <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
      <div className="crew-home-continue-cards">{recents.map(recent=><Link key={recent.key} to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
       <span className="crew-home-recent-art" aria-hidden="true">{recent.cover?<img src={recent.cover} alt=""/>:<Icon name={recent.kind==="friend"?"chat":recent.kind}/>}</span>
-      <span className="crew-home-recent-copy"><span className="crew-home-overline">{recent.kind==="teacher"?"CREW TEACHER":recent.kind==="story"?"CREW STORY":recent.kind==="fortune"?"CREW FORTUNE":recent.kind==="play"?"CREW PLAY":"CREW FRIEND"}</span><strong>{recent.title}</strong><small>{recent.description}</small></span>
+      <span className="crew-home-recent-copy"><span className="crew-home-overline">{recent.kind==="teacher"?"Koolo TEACHER":recent.kind==="story"?"Koolo STORY":recent.kind==="fortune"?"Koolo FORTUNE":recent.kind==="play"?"Koolo PLAY":"Koolo FRIEND"}</span><strong>{recent.title}</strong><small>{recent.description}</small></span>
       <span className="crew-home-recent-arrow" aria-hidden="true">→</span>
      </Link>)}{creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}</div>
     </section>:null}
@@ -202,12 +202,12 @@ export function HomePage(){
     <div className="crew-home-world-explore-grid">
      <Link className="crew-home-world-explore-card" to="/teacher/course/travel" onClick={()=>trackUsageEvent("home_entry_click","learn")}>
       <span className="crew-home-world-explore-icon" aria-hidden="true"><Icon name="teacher"/></span>
-      <span><small>CREW TEACHER</small><strong>{t("product.teacher")}</strong><span>{t("world.modes.learn.description")}</span></span>
+      <span><small>Koolo TEACHER</small><strong>{t("product.teacher")}</strong><span>{t("world.modes.learn.description")}</span></span>
       <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
      </Link>
      <Link className="crew-home-world-explore-card" to="/timeline" onClick={()=>trackUsageEvent("home_entry_click","timeline")}>
       <span className="crew-home-world-explore-icon crew-home-world-timeline-icon" aria-hidden="true">⌁</span>
-      <span><small>CREW TIMELINE</small><strong>{t("world.timelineTitle")}</strong><span>{t("world.timelineDescription")}</span></span>
+      <span><small>Koolo TIMELINE</small><strong>{t("world.timelineTitle")}</strong><span>{t("world.timelineDescription")}</span></span>
       <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
      </Link>
     </div>

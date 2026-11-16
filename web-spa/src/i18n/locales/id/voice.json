@@ -91,12 +91,12 @@
       "friend": "Film, perjalanan, atau topik untuk obrolan berikutnya…",
       "story": "Tokoh favorit, ide cerita, pertanyaan untuk Archie…"
     },
-    "notesHint": "Tersimpan otomatis di browser ini dan dapat dicadangkan di Pengaturan Crew. Catatan tidak dikirim ke karakter."
+    "notesHint": "Tersimpan otomatis di browser ini dan dapat dicadangkan di Pengaturan Koolo. Catatan tidak dikirim ke karakter."
   },
   "friendLive": {
     "preparingPost": "Menyiapkan topik foto temanmu…",
-    "backAria": "Kembali ke Crew Teman",
-    "brand": "Teman Crew · {{language}}",
+    "backAria": "Kembali ke Koolo Teman",
+    "brand": "Teman Koolo · {{language}}",
     "stageAria": "Mengobrol dengan {{name}}",
     "hookPrefix": "Kamu ingin bertanya: ",
     "postStarter": "Apa yang sedang terjadi di foto ini?",
@@ -199,7 +199,7 @@
     "restartHint": "Sesi gratis belum berhasil dibuat. Verifikasi keamanan mungkin diperlukan lagi.",
     "backendNext": "Beberapa percobaan tidak mendapat balasan. Coba lagi nanti atau gunakan kunci Gemini sendiri.",
     "useKey": "Gunakan kunci Gemini sendiri",
-    "nextDayHint": "Besok kamu bisa chat gratis lagi, atau membuat kunci Gemini sendiri secara gratis dengan akun Google untuk terus menggunakan Crew.",
+    "nextDayHint": "Besok kamu bisa chat gratis lagi, atau membuat kunci Gemini sendiri secara gratis dengan akun Google untuk terus menggunakan Koolo.",
     "applyKey": "Buat kunci gratis dan lanjut chat",
     "keyApplyNote": "Penyiapan sekitar satu menit; batas gratis Google berbeda menurut model dan penggunaan.",
     "verifyAgain": "Verifikasi lagi",

@@ -19,16 +19,16 @@
       "phoenix": "Phénix"
     }
   },
-  "eyebrow": "VOTRE ESPACE CREW",
-  "headline": "Discutez, jouez et apprenez avec Crew",
+  "eyebrow": "VOTRE ESPACE Koolo",
+  "headline": "Discutez, jouez et apprenez avec Koolo",
   "intro": "Discutez avec des amis IA, jouez, pratiquez les langues et découvrez des histoires.",
   "continue": "Reprendre où vous en étiez",
   "localOnly": "Enregistré sur cet appareil",
-  "explore": "Explorer Crew",
+  "explore": "Explorer Koolo",
   "start": "Choisissez une activité",
   "product": {
     "teacher": "Langues et expression orale",
-    "play": "Jeux avec les amis Crew",
+    "play": "Jeux avec les amis Koolo",
     "story": "Histoires et lecture",
     "fortune": "Explorez votre thème"
   },
@@ -39,9 +39,9 @@
     "verifyDesc": "Vérifiez que votre clé fonctionne.",
     "shortDesc": "Après cet essai, configurez votre clé pour continuer la discussion."
   },
-  "android": "Emportez tout Crew avec vous",
+  "android": "Emportez tout Koolo avec vous",
   "androidApp": {
-    "name": "Crew : amis IA et langues",
+    "name": "Koolo : amis IA et langues",
     "description": "Discutez avec des amis IA, pratiquez les langues, jouez et découvrez des histoires. Tout dans une seule appli."
   },
   "briefing": {
@@ -65,7 +65,7 @@
     "tarot": "Numérologie du tarot",
     "vedic": "Astrologie védique",
     "play": "Ouvrez ce jeu pour une nouvelle partie",
-    "friend": "Discuter avec un ami Crew",
+    "friend": "Discuter avec un ami Koolo",
     "friendDesc": "Reprendre la discussion avec cet ami",
     "fortuneResume": "Continuer la lecture du thème"
   },
@@ -77,7 +77,7 @@
   },
   "actions": {
     "label": "Démarrage rapide",
-    "chat": "Rencontrer un ami Crew",
+    "chat": "Rencontrer un ami Koolo",
     "chatDesc": "Commencer une conversation",
     "play": "Jouer",
     "playDesc": "Des jeux rapides avec des amis IA"
@@ -181,7 +181,7 @@
     },
     "intro": "Discussion, langues, horoscope et jeux. Avec l’IA.",
     "discovery": {
-      "intro": "Découvre ce que tu peux faire avec Crew",
+      "intro": "Découvre ce que tu peux faire avec Koolo",
       "item0": "Joue aux devinettes et au gomoku avec l’IA",
       "item1": "Prends un objet en photo et fais-le parler",
       "item3": "Apprends des langues en jouant",
@@ -190,8 +190,8 @@
   },
   "playHub": {
     "back": "Accueil",
-    "heading": "À quoi jouer avec vos amis Crew ?",
-    "intro": "Choisissez un ami Crew et jouez ensemble : jeux de plateau, défis de chiffres, jeux de mots ou mystères à voix haute.",
+    "heading": "À quoi jouer avec vos amis Koolo ?",
+    "intro": "Choisissez un ami Koolo et jouez ensemble : jeux de plateau, défis de chiffres, jeux de mots ou mystères à voix haute.",
     "voiceRequired": "Voix IA",
     "offlineOptional": "Hors ligne · voix facultative",
     "games": {
@@ -225,7 +225,7 @@
       }
     },
     "allGames": "Tous les jeux",
-    "yourFriend": "Votre ami Crew",
+    "yourFriend": "Votre ami Koolo",
     "changeFriend": "Changer d'ami",
     "mini": {
       "courtTitle": "Tribunal absurde",
@@ -256,14 +256,14 @@
       "noteDirectNoKey": "Sans clé, c’est un entraînement autoévalué ; l’IA ne devine pas.",
       "noteLive": "Live ne gère que la voix et les répliques du personnage ; les règles hors ligne décident du score et rien n’est enregistré dans ton historique avec l’ami."
     },
-    "eyebrow": "Crew Play",
+    "eyebrow": "Koolo Play",
     "voiceDock": {
       "expand": "Développer le panneau vocal",
       "collapse": "Réduire le panneau vocal"
     },
     "gomoku": {
-      "eyebrow": "Crew Play · Gomoku",
-      "intro": "Jouez au Gomoku contre l’ordinateur et activez la voix de votre ami Crew dès que vous voulez discuter."
+      "eyebrow": "Koolo Play · Gomoku",
+      "intro": "Jouez au Gomoku contre l’ordinateur et activez la voix de votre ami Koolo dès que vous voulez discuter."
     }
   },
   "timeline": {
@@ -340,7 +340,7 @@
     "liveContext": "Explorer · Chronologie de vie"
   },
   "shorts": {
-    "heading": "Quoi de neuf chez vos amis Crew ?",
+    "heading": "Quoi de neuf chez vos amis Koolo ?",
     "intro": "De petites histoires en photos et des phrases naturelles pour lancer la conversation. Vous pouvez aussi simplement regarder.",
     "noteDaily": "Vos amis IA fictifs partagent chaque jour des histoires en photos.",
     "noteDemo": "Aperçu : histoires d'exemple et photos de démonstration tierces. Les photos quotidiennes générées par IA ne sont pas encore activées.",
@@ -351,7 +351,7 @@
     "stories": "histoires",
     "demoLabel": "Démo en anglais",
     "updates": "Nouvelles des histoires",
-    "updatesHeading": "Un nouveau chapitre chez vos amis Crew",
+    "updatesHeading": "Un nouveau chapitre chez vos amis Koolo",
     "updatesIntro": "Voici les suites publiées des histoires dont vous aviez parlé.",
     "followUp": "Nouvelles de {{name}}",
     "ask": "Demander à {{name}} ce qui s'est passé",
@@ -415,7 +415,7 @@
     "destinations": "Destinations à explorer",
     "fortune": {
       "title": "Explorez votre destinée",
-      "desc": "Retrouvez vos thèmes, l’historique, de nouvelles lectures et les explications de vos amis Crew."
+      "desc": "Retrouvez vos thèmes, l’historique, de nouvelles lectures et les explications de vos amis Koolo."
     },
     "timeline": {
       "title": "Frise de vie",
@@ -427,7 +427,7 @@
     },
     "story": {
       "title": "Histoires interactives",
-      "desc": "Créez, lisez et explorez des histoires avec Crew."
+      "desc": "Créez, lisez et explorez des histoires avec Koolo."
     },
     "research": {
       "title": "Veille et recherche IA",
@@ -444,7 +444,7 @@
       "title": "Discuter avec des amis",
       "intro": "Ce n'est pas un cours. Partez de leur quotidien ou de ce qui attise votre curiosité.",
       "hero": {
-        "title": "Rencontrer les amis Crew",
+        "title": "Rencontrer les amis Koolo",
         "desc": "Seize personnalités. Choisissez un ami et la langue de votre conversation.",
         "tag": "Discussion libre"
       },
@@ -486,10 +486,10 @@
     },
     "learn": {
       "title": "S'entraîner avec un professeur",
-      "intro": "Avec un objectif précis, votre Crew Teacher vous aide à pratiquer et à progresser.",
+      "intro": "Avec un objectif précis, votre Koolo Teacher vous aide à pratiquer et à progresser.",
       "hero": {
         "title": "Commencer à parler",
-        "desc": "Choisissez votre Crew Teacher et lancez une conversation vocale naturelle.",
+        "desc": "Choisissez votre Koolo Teacher et lancez une conversation vocale naturelle.",
         "tag": "Pratique orale"
       },
       "items": {
@@ -518,7 +518,7 @@
       "todayTitle": "Vos progrès du jour",
       "recordsLink": "Voir mes résultats",
       "threeMinuteTitle": "Parler une langue étrangère pendant 3 minutes",
-      "threeMinuteDesc": "Échangez naturellement avec un ami Crew, sans examen.",
+      "threeMinuteDesc": "Échangez naturellement avec un ami Koolo, sans examen.",
       "syncInfo": "À propos de l'historique d'apprentissage",
       "focusLabel": "Exercice recommandé",
       "newLabel": "COMMENCER ICI",
@@ -531,7 +531,7 @@
       "resumeCta": "Reprendre l'exercice"
     },
     "me": {
-      "title": "Mon Crew",
+      "title": "Mon Koolo",
       "intro": "Retrouvez vos progrès, vos contenus enregistrés et vos préférences.",
       "hero": {
         "title": "Ma progression",
@@ -576,7 +576,7 @@
     "footnote": "Seules les activités enregistrées dans ce navigateur ou WebView sont affichées. Les anciennes données de l'application Android native ne sont pas encore synchronisées."
   },
   "gift": {
-    "title": "Boîte surprise Crew",
+    "title": "Boîte surprise Koolo",
     "teaser": "Quelle surprise aujourd'hui ?",
     "open": "Ouvrir la surprise",
     "reopen": "Voir la surprise",
@@ -592,7 +592,7 @@
     "learnDescription": "Apprenez une expression étrangère."
   },
   "mobileHero": {"title": "Joue et parle", "subtitle": "Commence par bonjour."},
-  "quickEntry": {"heading": "Explorer Crew", "fortune": "Mon horoscope", "shorts": "Voir les Shorts"},
+  "quickEntry": {"heading": "Explorer Koolo", "fortune": "Mon horoscope", "shorts": "Voir les Shorts"},
   "liveBubble": {
     "invite": "Coucou, on discute un peu ?",
     "start": "Vocal",

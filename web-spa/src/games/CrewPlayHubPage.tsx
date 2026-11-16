@@ -51,8 +51,8 @@ export function CrewPlayHubPage(){
   "truth-news":zh?["新聞真假猜猜看","從最新新聞中猜出哪則是真的。"]:["Real or Fiction News","Find the one real news headline."],
  } as Record<string,string[]>;
  const titleFor=(id:string)=>id==="number-bomb"?(zh?"終極密碼":"Number Bomb"):id==="memory"?(zh?"翻牌記憶":"Memory Match"):t("playHub.games."+id+".title");
- const descFor=(id:string)=>id==="number-bomb"?(zh?"你來猜數字，AI 朋友當主持人公布提示。":"Guess a secret number while your Crew friend hosts."):
-  id==="memory"?(zh?"翻牌找相同圖案，挑戰朋友的記憶力。":"Match pairs and outscore your Crew friend."):t("playHub.games."+id+".desc");
+ const descFor=(id:string)=>id==="number-bomb"?(zh?"你來猜數字，AI 朋友當主持人公布提示。":"Guess a secret number while your Koolo friend hosts."):
+  id==="memory"?(zh?"翻牌找相同圖案，挑戰朋友的記憶力。":"Match pairs and outscore your Koolo friend."):t("playHub.games."+id+".desc");
  const titles:Record<string,string>={};
  for(const game of crewGames)titles[game.id]=titleFor(game.id);
  for(const id of extraGames)titles[id]=extraLabels[id][0];

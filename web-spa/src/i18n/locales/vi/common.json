@@ -4,7 +4,7 @@
     "zh": "繁體中文",
     "en": "English",
     "select": "Chọn ngôn ngữ giao diện",
-    "description": "Chỉ thay đổi ngôn ngữ hiển thị của Crew, không thay đổi ngôn ngữ bạn học hoặc trò chuyện.",
+    "description": "Chỉ thay đổi ngôn ngữ hiển thị của Koolo, không thay đổi ngôn ngữ bạn học hoặc trò chuyện.",
     "beta": "Beta",
     "preview": "Xem trước",
     "previewHint": "Một số nội dung sẽ hiển thị bằng tiếng Anh",
@@ -22,7 +22,7 @@
     "chat": "Trò chuyện",
     "explore": "Khám phá",
     "learn": "Học",
-    "me": "Crew của tôi"
+    "me": "Koolo của tôi"
   },
   "featureMenu": {
     "trigger": "Tất cả tính năng",
@@ -131,7 +131,7 @@
   "auth": {
     "trialCount": "Lượt trò chuyện miễn phí hôm nay: đã dùng {{used}} / {{limit}} (đặt lại lúc 00:00 giờ Đài Bắc)",
     "account": "Tài khoản",
-    "title": "Tài khoản Crew",
+    "title": "Tài khoản Koolo",
     "intro": "Đăng nhập bằng Google hoặc GitHub.",
     "choose": "Chọn cách đăng nhập",
     "signedIn": "Đã đăng nhập",
@@ -144,7 +144,7 @@
     "backSettings": "Quay lại cài đặt",
     "accountAi": "Tài khoản và cài đặt AI",
     "aiSettings": "Kết nối Gemini AI",
-    "aiIntro": "Sau khi dùng thử miễn phí, bạn có thể nhập khóa Gemini của mình trên thiết bị này mà không cần đăng nhập Crew.",
+    "aiIntro": "Sau khi dùng thử miễn phí, bạn có thể nhập khóa Gemini của mình trên thiết bị này mà không cần đăng nhập Koolo.",
     "preferences": "Tùy chọn khác",
     "preferencesIntro": "Cài đặt học tập, giọng nói, bộ nhớ và thiết bị được quản lý riêng và không tự đồng bộ khi đăng nhập.",
     "voiceSettings": "Giọng nói và micrô",

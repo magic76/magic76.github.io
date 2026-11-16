@@ -1,15 +1,15 @@
 {
   "hero": {
     "title": "設定",
-    "desc": "Gemini キー、音声機能、バックアップをまとめて管理します。Crew の AI 機能では 1 つのキーを共有します。オフラインゲームにはキーが不要です。"
+    "desc": "Gemini キー、音声機能、バックアップをまとめて管理します。Koolo の AI 機能では 1 つのキーを共有します。オフラインゲームにはキーが不要です。"
   },
   "memory": {
     "title": "記憶",
     "tagline": "初期設定で有効・いつでもオフにできます",
-    "intro": "Crew の先生と友達は会話を記憶できます。データはこのブラウザに保存されますが、関連する記憶は今後の会話で Gemini に共有される場合があります。オフにすると新たな利用と記録は止まりますが、保存済みの記憶は削除されません。",
+    "intro": "Koolo の先生と友達は会話を記憶できます。データはこのブラウザに保存されますが、関連する記憶は今後の会話で Gemini に共有される場合があります。オフにすると新たな利用と記録は止まりますが、保存済みの記憶は削除されません。",
     "personal": "個人の記憶",
     "personalDesc": "明示的に話した日常の情報、学習目標、興味や好みを先生と友達のために記憶します。",
-    "friend": "Crew の友達と共有する話題",
+    "friend": "Koolo の友達と共有する話題",
     "friendDesc": "友達ごと・学習言語ごとに別の話題を保存します。オフにすると保存や再利用を止めます。",
     "footnote": "以前にオフにした設定はオフのままです。既存の記憶は先生の知識や各友達の共有記憶で管理・削除できます。"
   },
@@ -45,13 +45,13 @@
     "unverifiedDesc": "マイクへのアクセスを許可せずにキーを確認できます。",
     "reconfigure": "キーを変更",
     "titleEdit": "Gemini キーを変更",
-    "titleNew": "無料の Gemini API キーを作成して Crew AI を始めよう",
-    "intro": "Crew の AI 機能では 1 つのキーを共有します。オフラインゲームには不要です。一度設定して確認してください。音声機能を使うまでマイクの許可は不要です。",
+    "titleNew": "無料の Gemini API キーを作成して Koolo AI を始めよう",
+    "intro": "Koolo の AI 機能では 1 つのキーを共有します。オフラインゲームには不要です。一度設定して確認してください。音声機能を使うまでマイクの許可は不要です。",
     "step1": "Google でログイン",
     "step1Desc": "Google AI Studio を開いてログインします。",
     "step2": "無料の API キーを作成",
     "step2Desc": "「API キーを作成」を選んでコピーします。",
-    "step3": "Crew に貼り付け",
+    "step3": "Koolo に貼り付け",
     "step3Desc": "確認して保存します。必要ならマイクは後でテストできます。",
     "openStudio": "Google で無料キーを作成 ↗",
     "keyPlaceholder": "API キーを貼り付け",
@@ -114,7 +114,7 @@
     "pricingNote": "無料キーでも無制限に無料利用できるわけではありません。無料枠はモデルごとに異なります。",
     "pricingLink": "Google の公式料金を見る",
     "setupNoticeTitle": "Gemini キーがまだですか？無料で作れます",
-    "setupNoticeDesc": "Google アカウントで約 1 分でキーを取得できます。Crew の AI 機能で共通利用できます。オフラインゲームには不要です。無料利用量はモデルで異なります。",
+    "setupNoticeDesc": "Google アカウントで約 1 分でキーを取得できます。Koolo の AI 機能で共通利用できます。オフラインゲームには不要です。無料利用量はモデルで異なります。",
     "keyCapabilities": "Key 不要：AI フレンドとのテキストチャット（1日 {{count}} 通）、Key 不要のゲーム、Shorts、単語練習。Key が必要：音声チャット、先生のレッスン、物語作成、AI 占い解説。",
     "setupNoticeAction": "無料の設定手順を見る",
     "setupInvalidTitle": "Gemini キーが使えない可能性があります",
@@ -124,8 +124,8 @@
   "device": {
     "privacy": "プライバシーとデータ設定",
     "heading": "アプリとデバイス",
-    "android": "Crew Android Web プレビューでは、カメラや写真から教材を追加できます。音声の権限には影響しません。",
-    "browser": "ブラウザー版 Crew を利用中です。カメラや写真へのアクセスはブラウザーの許可設定によります。",
+    "android": "Koolo Android Web プレビューでは、カメラや写真から教材を追加できます。音声の権限には影響しません。",
+    "browser": "ブラウザー版 Koolo を利用中です。カメラや写真へのアクセスはブラウザーの許可設定によります。",
     "storage": "Android ネイティブアプリ、WebView、各ブラウザーの Gemini キーと学習記録は別々に保存され、自動同期されません。",
     "permissions": "カメラやマイクに問題がある場合は、Android の設定 → アプリ → Crew Teacher → 権限を確認してください。必要なときにのみ許可を求めます。"
   },
@@ -172,7 +172,7 @@
     "copy": "診断情報をコピー",
     "refresh": "状態を更新",
     "details": "技術情報",
-    "privacy": "診断情報は自動送信されません。Crew サービスの接続確認は行いません。",
+    "privacy": "診断情報は自動送信されません。Koolo サービスの接続確認は行いません。",
     "copied": "診断情報をコピーしました。",
     "copyFailed": "コピーできません。",
     "actionUnavailable": "この設定画面は開けません。",
@@ -187,7 +187,7 @@
     "camera": "カメラの権限",
     "tts": "音声読み上げ",
     "network": "ネットワーク（OS）",
-    "service": "Crew サービス",
+    "service": "Koolo サービス",
     "state": {
       "granted": "許可",
       "denied": "未許可",
@@ -197,15 +197,15 @@
       "missing_data": "音声データ不足",
       "failed": "利用不可",
       "offline": "オフライン",
-      "os_validated": "OS が接続確認済（Crew 未確認）",
-      "connected_unverified": "接続あり（Crew 未確認）"
+      "os_validated": "OS が接続確認済（Koolo 未確認）",
+      "connected_unverified": "接続あり（Koolo 未確認）"
     }
   },
   "cyberOrb": {
     "title": "Cyber Orb · ハンズフリー会話",
-    "intro": "Crew のキャラクターを選んで、ほかのアプリを使いながら音声で会話できます。",
-    "friend": "Crew Friends",
-    "teacher": "Crew Teachers",
+    "intro": "Koolo のキャラクターを選んで、ほかのアプリを使いながら音声で会話できます。",
+    "friend": "Koolo Friends",
+    "teacher": "Koolo Teachers",
     "language": "会話の言語",
     "start": "Cyber Orb を開始",
     "stop": "通話を終了",
@@ -213,11 +213,11 @@
     "active": "{name} と会話中",
     "note": "音声チャット中の場合は、終了してから新しい会話を始めるかキャラクターを切り替えてください。",
     "native_key_required": "画面の案内に従って Gemini キーを設定し、再度お試しください。",
-    "overlay_permission_required": "ほかのアプリの上に表示する権限を許可し、Crew に戻って再度開始してください。",
-    "microphone_permission_required": "マイクの使用を許可し、Crew に戻って再度開始してください。",
+    "overlay_permission_required": "ほかのアプリの上に表示する権限を許可し、Koolo に戻って再度開始してください。",
+    "microphone_permission_required": "マイクの使用を許可し、Koolo に戻って再度開始してください。",
     "already_active": "Orb 通話が進行中です。別のキャラクターを選ぶ前に終了してください。",
     "start_failed": "音声チャットを開始できませんでした。もう一度お試しください。",
-    "bridge_error": "接続が応答しません。Crew を開き直してください。",
+    "bridge_error": "接続が応答しません。Koolo を開き直してください。",
     "unavailable": "このバージョンでは Cyber Orb を利用できません。",
     "unknown": "操作に失敗しました。再試行してください。",
     "web_key_unavailable": "Gemini キーが未設定です。設定画面で登録してから会話を始めてください。"

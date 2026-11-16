@@ -4,7 +4,7 @@
     "zh": "繁體中文",
     "en": "English",
     "select": "인터페이스 언어 선택",
-    "description": "Crew 화면 언어만 변경됩니다. 학습 언어나 대화 언어는 바뀌지 않습니다.",
+    "description": "Koolo 화면 언어만 변경됩니다. 학습 언어나 대화 언어는 바뀌지 않습니다.",
     "beta": "베타",
     "preview": "미리보기",
     "previewHint": "일부 콘텐츠는 영어로 표시됩니다",
@@ -22,7 +22,7 @@
     "chat": "채팅",
     "explore": "탐색",
     "learn": "학습",
-    "me": "내 Crew"
+    "me": "내 Koolo"
   },
   "featureMenu": {
     "trigger": "전체 기능",
@@ -131,7 +131,7 @@
   "auth": {
     "trialCount": "오늘 무료 음성 체험: {{used}} / {{limit}}회 사용 (타이베이 시간 00:00 초기화)",
     "account": "계정",
-    "title": "Crew 계정",
+    "title": "Koolo 계정",
     "intro": "Google 또는 GitHub로 로그인하세요.",
     "choose": "로그인 방법 선택",
     "signedIn": "로그인됨",
@@ -144,7 +144,7 @@
     "backSettings": "설정으로 돌아가기",
     "accountAi": "계정 및 AI 설정",
     "aiSettings": "Gemini AI 연결",
-    "aiIntro": "무료 체험 후 이 기기에서 본인의 Gemini 키를 설정할 수 있습니다. Crew 로그인이 필요하지 않습니다.",
+    "aiIntro": "무료 체험 후 이 기기에서 본인의 Gemini 키를 설정할 수 있습니다. Koolo 로그인이 필요하지 않습니다.",
     "preferences": "기타 설정",
     "preferencesIntro": "학습, 음성, 메모리, 기기 설정은 따로 관리되며 로그인해도 자동으로 동기화되지 않습니다.",
     "voiceSettings": "음성 및 마이크",

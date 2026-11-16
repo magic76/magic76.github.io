@@ -60,7 +60,7 @@ export function FortuneHomePage(){
   {invite&&<FortuneInviteLanding invite={invite} locale={i18n.resolvedLanguage||i18n.language}/>}
   {dailyIntent?dailySection:null}
   <section className="hero fortune-journey-hero">
-   <span className="kicker">CREW FORTUNE · EXPLORE</span>
+   <span className="kicker">Koolo FORTUNE · EXPLORE</span>
    <h1>{t("landing.title")}</h1>
    <p>{t("landing.intro")}</p>
   </section>

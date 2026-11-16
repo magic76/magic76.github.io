@@ -92,7 +92,7 @@ export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[],sharedFeed,sha
  },[status,feed]);
  return <section ref={sectionRef} className="section crew-home-shorts" aria-labelledby="crew-home-shorts-title">
   <div className="crew-home-shorts-heading">
-   <div><span className="kicker">CREW SHORTS</span>
+   <div><span className="kicker">Koolo SHORTS</span>
     <h2 id="crew-home-shorts-title">{t("practice.shortsTitle")}</h2>
     <p>{t("practice.shortsIntro")}</p></div>
    <div className="crew-home-shorts-controls">

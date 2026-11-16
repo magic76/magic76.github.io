@@ -56,7 +56,7 @@ export function SettingsPage(){
   const frame=window.requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView?.({block:"start"}));
   return()=>window.cancelAnimationFrame(frame);
  },[hash,location.search,navigate]);
- return <><section className="hero"><span className="kicker">Crew</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
+ return <><section className="hero"><span className="kicker">Koolo</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
   <section className="section panel"><h2>{t("common:auth.title")}</h2><p className="meta">{t("common:auth.intro")}</p><Link className="btn secondary" to="/account">{t("common:auth.account")}</Link></section>
  {orbAvailable&&<Link to="/orb" className="crew-settings-orb-entry">
   <span className="crew-settings-orb-icon" aria-hidden="true">◉</span>
@@ -78,7 +78,7 @@ export function SettingsPage(){
     <select value={target} onChange={e=>setTarget(e.target.value)}>
      {TARGET_LANGUAGES.map(item=><option key={item.value} value={item.value}>{english?item.spoken:item.value}</option>)}
     </select>
-    <small className="crew-settings-field-hint">{english?"Language you want to learn with Crew Teacher.":"老師教你學習的語言；不會更改 App 介面。"}</small>
+    <small className="crew-settings-field-hint">{english?"Language you want to learn with Koolo Teacher.":"老師教你學習的語言；不會更改 App 介面。"}</small>
    </label>
    <TeacherPinyinSetting targetLanguage={target} value={pinyinMode} onChange={setPinyinMode} english={english} showWhenUnavailable/>
    <label>{t("group.nativeLanguage")}

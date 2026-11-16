@@ -4,17 +4,17 @@ import {hasNewBuild,refreshCrewBuild,useBuildUpdate} from "../runtime/buildUpdat
 import "./crew-update-notice.css";
 
 const labels: Record<string, [string,string,string]> = {
-  "zh-TW": ["Crew 有新版可用", "立即更新", "稍後"],
-  en: ["A Crew update is available", "Update", "Later"],
-  ja: ["Crew の新しいバージョンがあります", "更新", "後で"],
-  ko: ["새 Crew 버전이 있습니다", "업데이트", "나중에"],
-  de: ["Eine neue Crew-Version ist verfügbar", "Aktualisieren", "Später"],
-  fr: ["Une mise à jour de Crew est disponible", "Actualiser", "Plus tard"],
-  es: ["Hay una actualización de Crew", "Actualizar", "Más tarde"],
-  id: ["Pembaruan Crew tersedia", "Perbarui", "Nanti"],
-  "pt-BR": ["Uma atualização do Crew está disponível", "Atualizar", "Depois"],
-  th: ["มี Crew เวอร์ชันใหม่", "อัปเดต", "ภายหลัง"],
-  vi: ["Đã có bản cập nhật Crew", "Cập nhật", "Để sau"]
+  "zh-TW": ["Koolo 有新版可用", "立即更新", "稍後"],
+  en: ["A Koolo update is available", "Update", "Later"],
+  ja: ["Koolo の新しいバージョンがあります", "更新", "後で"],
+  ko: ["새 Koolo 버전이 있습니다", "업데이트", "나중에"],
+  de: ["Eine neue Koolo-Version ist verfügbar", "Aktualisieren", "Später"],
+  fr: ["Une mise à jour de Koolo est disponible", "Actualiser", "Plus tard"],
+  es: ["Hay una actualización de Koolo", "Actualizar", "Más tarde"],
+  id: ["Pembaruan Koolo tersedia", "Perbarui", "Nanti"],
+  "pt-BR": ["Uma atualização do Koolo está disponível", "Atualizar", "Depois"],
+  th: ["มี Koolo เวอร์ชันใหม่", "อัปเดต", "ภายหลัง"],
+  vi: ["Đã có bản cập nhật Koolo", "Cập nhật", "Để sau"]
 };
 
 export function canOfferCrewRefresh(pathname: string) {

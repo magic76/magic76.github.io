@@ -19,16 +19,16 @@
       "phoenix": "Phoenix"
     }
   },
-  "eyebrow": "YOUR CREW SPACE",
-  "headline": "Talk, play, and learn with Crew",
+  "eyebrow": "YOUR Koolo SPACE",
+  "headline": "Talk, play, and learn with Koolo",
   "intro": "Chat with AI friends, play games, practice languages, and discover stories.",
   "continue": "Continue where you left off",
   "localOnly": "Saved on this device",
-  "explore": "Explore Crew",
+  "explore": "Explore Koolo",
   "start": "Choose something to try",
   "product": {
     "teacher": "Languages & speaking",
-    "play": "Games with Crew Friends",
+    "play": "Games with Koolo Friends",
     "story": "Stories & reading",
     "fortune": "Explore your chart"
   },
@@ -39,9 +39,9 @@
     "verifyDesc": "Verify your key to make sure it works.",
     "shortDesc": "When your trial ends, set up your own key to keep chatting."
   },
-  "android": "Take the whole Crew with you",
+  "android": "Take the whole Koolo with you",
   "androidApp": {
-    "name": "Crew: AI Friends & Language Chat",
+    "name": "Koolo: AI Friends & Language Chat",
     "description": "Chat with AI friends, practice languages, play games, and explore stories—all in one app."
   },
   "briefing": {
@@ -65,7 +65,7 @@
     "tarot": "Tarot numerology",
     "vedic": "Vedic astrology",
     "play": "Open this game to play a new round",
-    "friend": "Chat with your Crew Friend",
+    "friend": "Chat with your Koolo Friend",
     "friendDesc": "Return to this friend's chat",
     "fortuneResume": "Continue reading your chart"
   },
@@ -77,7 +77,7 @@
   },
   "actions": {
     "label": "Quick start",
-    "chat": "Meet a Crew Friend",
+    "chat": "Meet a Koolo Friend",
     "chatDesc": "Start a conversation",
     "play": "Play a game",
     "playDesc": "Quick games with AI friends"
@@ -181,7 +181,7 @@
     },
     "intro": "Chat, learn languages, read your fortune, play. With AI.",
     "discovery": {
-      "intro": "Did you know Crew can do all this?",
+      "intro": "Did you know Koolo can do all this?",
       "item0": "Play number games or Gomoku with AI",
       "item1": "Snap an object and let it talk",
       "item3": "Practice languages while playing",
@@ -190,8 +190,8 @@
   },
   "playHub": {
     "back": "Home",
-    "heading": "Play with your Crew Friends",
-    "intro": "Pick a Crew Friend and play board games, number puzzles, word games, or voice mysteries together.",
+    "heading": "Play with your Koolo Friends",
+    "intro": "Pick a Koolo Friend and play board games, number puzzles, word games, or voice mysteries together.",
     "voiceRequired": "AI voice",
     "offlineOptional": "Offline · optional voice",
     "games": {
@@ -225,7 +225,7 @@
       }
     },
     "allGames": "All games",
-    "yourFriend": "Your Crew Friend",
+    "yourFriend": "Your Koolo Friend",
     "changeFriend": "Change friend",
     "mini": {
       "courtTitle": "Crazy Court",
@@ -256,14 +256,14 @@
       "noteDirectNoKey": "Without a key this is self-checked practice; the AI won't guess.",
       "noteLive": "Live only handles voice and in-character replies; offline rules decide the score, and nothing is saved to your friend chat history."
     },
-    "eyebrow": "Crew Play",
+    "eyebrow": "Koolo Play",
     "voiceDock": {
       "expand": "Expand voice panel",
       "collapse": "Collapse voice panel"
     },
     "gomoku": {
-      "eyebrow": "Crew Play · Gomoku",
-      "intro": "Play Gomoku against the computer, and turn on your Crew Friend’s voice whenever you want to chat."
+      "eyebrow": "Koolo Play · Gomoku",
+      "intro": "Play Gomoku against the computer, and turn on your Koolo Friend’s voice whenever you want to chat."
     }
   },
   "timeline": {
@@ -340,7 +340,7 @@
     "liveContext": "Explore · Life Timeline"
   },
   "shorts": {
-    "heading": "What's happening with your Crew?",
+    "heading": "What's happening with your Koolo?",
     "intro": "Little photo stories, real phrases, and easy ways to start talking.",
     "noteDaily": "Fictional AI friends share daily photo stories.",
     "noteDemo": "Preview content: sample stories and third-party demo photos. AI-generated daily photos are not yet enabled.",
@@ -351,7 +351,7 @@
     "stories": "stories",
     "demoLabel": "English demo",
     "updates": "Story updates",
-    "updatesHeading": "Your Crew has a new chapter",
+    "updatesHeading": "Your Koolo has a new chapter",
     "updatesIntro": "These are published follow-ups to stories you actually discussed.",
     "followUp": "{{name}}'s update",
     "ask": "Ask {{name}} what happened",
@@ -418,7 +418,7 @@
       "desc": "Your charts, saved history, new readings and friend explanations in one place."
     },
     "timeline": {
-      "title": "Crew Timeline",
+      "title": "Koolo Timeline",
       "desc": "Meet the same character at different ages and life stages."
     },
     "games": {
@@ -426,11 +426,11 @@
       "desc": "Mystery stories, Taboo, numbers and more."
     },
     "story": {
-      "title": "Crew Story",
+      "title": "Koolo Story",
       "desc": "Write, read and explore interactive stories."
     },
     "research": {
-      "title": "Crew Briefing",
+      "title": "Koolo Briefing",
       "desc": "Explore AI technology and research briefings."
     },
     "circle": {
@@ -444,7 +444,7 @@
       "title": "Chat with friends",
       "intro": "This is not a class. Start with a friend's life or something you're curious about.",
       "hero": {
-        "title": "Meet your Crew Friends",
+        "title": "Meet your Koolo Friends",
         "desc": "Sixteen personalities. Pick a friend and the language you want to speak.",
         "tag": "Just talk"
       },
@@ -486,10 +486,10 @@
     },
     "learn": {
       "title": "Practice with a teacher",
-      "intro": "When you have a learning goal, your Crew Teacher can help you practice and improve.",
+      "intro": "When you have a learning goal, your Koolo Teacher can help you practice and improve.",
       "hero": {
         "title": "Start speaking practice",
-        "desc": "Choose your Crew Teacher and start a live speaking session.",
+        "desc": "Choose your Koolo Teacher and start a live speaking session.",
         "tag": "Speaking"
       },
       "items": {
@@ -518,7 +518,7 @@
       "todayTitle": "Your learning today",
       "recordsLink": "Learning records",
       "threeMinuteTitle": "Speak a language for 3 minutes",
-      "threeMinuteDesc": "Practice naturally with a Crew Friend, without a test.",
+      "threeMinuteDesc": "Practice naturally with a Koolo Friend, without a test.",
       "syncInfo": "About learning records",
       "focusLabel": "Recommended practice",
       "newLabel": "START HERE",
@@ -531,7 +531,7 @@
       "resumeCta": "Continue practice"
     },
     "me": {
-      "title": "My Crew",
+      "title": "My Koolo",
       "intro": "Your progress, saved content and preferences in one place.",
       "hero": {
         "title": "My learning progress",
@@ -576,7 +576,7 @@
     "footnote": "Only activity recorded in this browser or app WebView is shown. Existing native Android records are not yet synced."
   },
   "gift": {
-    "title": "Crew Mystery Box",
+    "title": "Koolo Mystery Box",
     "teaser": "Tap for today's surprise",
     "open": "Open surprise",
     "reopen": "View surprise",
@@ -592,7 +592,7 @@
     "learnDescription": "Try a fun new phrase in another language."
   },
   "mobileHero": {"title": "Play & learn", "subtitle": "Say hello to begin."},
-  "quickEntry": {"heading": "Explore Crew", "fortune": "Daily fortune", "shorts": "Watch Shorts"},
+  "quickEntry": {"heading": "Explore Koolo", "fortune": "Daily fortune", "shorts": "Watch Shorts"},
   "liveBubble": {
     "invite": "Hey, want to chat?",
     "start": "Voice",

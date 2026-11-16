@@ -10,7 +10,7 @@ export function PrivacyPage(){
  const[analyticsOff,setAnalyticsOff]=useState(usageDisabled);
  const[devMode,setDevMode]=useState(developerUsageMode);
  return <>
-  <section className="hero"><span className="kicker">Crew</span><h1>{english?"Privacy & data":"隱私與資料"}</h1>
+  <section className="hero"><span className="kicker">Koolo</span><h1>{english?"Privacy & data":"隱私與資料"}</h1>
    <p>{english?"Manage optional product analytics separately from your learning preferences.":"匿名使用統計與日常學習偏好分開管理。"}</p>
   </section>
   <section className="section panel" id="usage-privacy">

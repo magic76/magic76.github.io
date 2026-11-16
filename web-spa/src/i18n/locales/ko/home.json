@@ -19,16 +19,16 @@
       "phoenix": "불사조"
     }
   },
-  "eyebrow": "나만의 CREW 공간",
-  "headline": "Crew와 대화하고, 놀고, 배우세요",
+  "eyebrow": "나만의 Koolo 공간",
+  "headline": "Koolo와 대화하고, 놀고, 배우세요",
   "intro": "AI 친구와 채팅하고 게임을 즐기며 언어를 연습하고 이야기를 만나보세요.",
   "continue": "이어서 하기",
   "localOnly": "이 기기에 저장됨",
-  "explore": "Crew 둘러보기",
+  "explore": "Koolo 둘러보기",
   "start": "해보고 싶은 활동 선택",
   "product": {
     "teacher": "언어와 말하기 연습",
-    "play": "Crew 친구들과 게임",
+    "play": "Koolo 친구들과 게임",
     "story": "이야기와 독서",
     "fortune": "운세 차트 탐색"
   },
@@ -39,9 +39,9 @@
     "verifyDesc": "키가 정상 작동하는지 확인하세요.",
     "shortDesc": "체험 후 본인의 키를 설정해 대화를 이어갈 수 있어요."
   },
-  "android": "Crew의 모든 기능을 휴대폰에",
+  "android": "Koolo의 모든 기능을 휴대폰에",
   "androidApp": {
-    "name": "Crew: AI 친구와 외국어 대화",
+    "name": "Koolo: AI 친구와 외국어 대화",
     "description": "AI 친구와 대화하고, 외국어를 연습하고, 게임과 이야기를 즐겨 보세요. 모든 것을 하나의 앱에서."
   },
   "briefing": {
@@ -65,7 +65,7 @@
     "tarot": "타로 수비학",
     "vedic": "베다 점성술",
     "play": "게임을 열고 새 판 시작하기",
-    "friend": "Crew 친구와 대화하기",
+    "friend": "Koolo 친구와 대화하기",
     "friendDesc": "이 친구와의 대화 이어가기",
     "fortuneResume": "운세 결과 이어 보기"
   },
@@ -77,7 +77,7 @@
   },
   "actions": {
     "label": "빠른 시작",
-    "chat": "Crew 친구 만나기",
+    "chat": "Koolo 친구 만나기",
     "chatDesc": "대화 시작하기",
     "play": "게임하기",
     "playDesc": "AI 친구들과 가볍게 게임하기"
@@ -181,7 +181,7 @@
     },
     "intro": "대화, 외국어, 운세, 게임. AI와 함께.",
     "discovery": {
-      "intro": "Crew에서 이런 것도 할 수 있어요!",
+      "intro": "Koolo에서 이런 것도 할 수 있어요!",
       "item0": "AI와 숫자 맞히기, 오목 대결하기",
       "item1": "물건을 찍어 말하게 만들어 보세요",
       "item3": "게임으로 외국어를 연습하세요",
@@ -190,8 +190,8 @@
   },
   "playHub": {
     "back": "홈",
-    "heading": "Crew 친구들과 무엇을 할까요?",
-    "intro": "Crew 친구를 골라 보드게임, 숫자 맞히기, 단어 게임, 음성 추리 게임을 함께 즐겨 보세요.",
+    "heading": "Koolo 친구들과 무엇을 할까요?",
+    "intro": "Koolo 친구를 골라 보드게임, 숫자 맞히기, 단어 게임, 음성 추리 게임을 함께 즐겨 보세요.",
     "voiceRequired": "AI 음성",
     "offlineOptional": "오프라인 · 음성 선택",
     "games": {
@@ -225,7 +225,7 @@
       }
     },
     "allGames": "전체 게임",
-    "yourFriend": "내 Crew 친구",
+    "yourFriend": "내 Koolo 친구",
     "changeFriend": "친구 변경",
     "mini": {
       "courtTitle": "황당 법정",
@@ -256,14 +256,14 @@
       "noteDirectNoKey": "Key가 없으면 자가 채점 연습만 가능하며 AI는 추측하지 않아요.",
       "noteLive": "Live는 음성과 캐릭터 답변만 담당해요. 점수는 오프라인 규칙으로 정해지며 친구 채팅 기록에 저장되지 않아요."
     },
-    "eyebrow": "Crew 게임",
+    "eyebrow": "Koolo 게임",
     "voiceDock": {
       "expand": "음성 패널 펼치기",
       "collapse": "음성 패널 접기"
     },
     "gomoku": {
-      "eyebrow": "Crew 게임 · 오목",
-      "intro": "컴퓨터와 오목을 두고, 이야기하고 싶을 때 언제든 Crew 친구의 음성을 켜 보세요."
+      "eyebrow": "Koolo 게임 · 오목",
+      "intro": "컴퓨터와 오목을 두고, 이야기하고 싶을 때 언제든 Koolo 친구의 음성을 켜 보세요."
     }
   },
   "timeline": {
@@ -340,7 +340,7 @@
     "liveContext": "탐색 · 인생 타임라인"
   },
   "shorts": {
-    "heading": "Crew 친구들에게 무슨 일이 있었을까요?",
+    "heading": "Koolo 친구들에게 무슨 일이 있었을까요?",
     "intro": "짧은 사진 이야기와 자연스러운 표현으로 쉽게 대화를 시작해 보세요. 보기만 해도 좋아요.",
     "noteDaily": "가상의 AI 친구들이 매일 사진 이야기를 공유합니다.",
     "noteDemo": "미리보기: 예시 이야기와 외부 데모 사진입니다. 일일 AI 사진 생성은 아직 사용하지 않습니다.",
@@ -351,7 +351,7 @@
     "stories": "개 이야기",
     "demoLabel": "영어 데모",
     "updates": "이야기 업데이트",
-    "updatesHeading": "Crew 친구에게 새로운 이야기가 생겼어요",
+    "updatesHeading": "Koolo 친구에게 새로운 이야기가 생겼어요",
     "updatesIntro": "이전에 대화한 공개 이야기의 후속편이 나왔어요.",
     "followUp": "{{name}}의 새 소식",
     "ask": "{{name}}에게 무슨 일이 있었는지 묻기",
@@ -415,7 +415,7 @@
     "destinations": "탐색할 콘텐츠",
     "fortune": {
       "title": "운세 탐색",
-      "desc": "내 사주와 지난 기록을 확인하고 새 풀이와 Crew 친구의 설명을 들어 보세요."
+      "desc": "내 사주와 지난 기록을 확인하고 새 풀이와 Koolo 친구의 설명을 들어 보세요."
     },
     "timeline": {
       "title": "인생 타임라인",
@@ -427,7 +427,7 @@
     },
     "story": {
       "title": "인터랙티브 스토리",
-      "desc": "Crew와 함께 이야기를 만들고 읽으며 탐험해 보세요."
+      "desc": "Koolo와 함께 이야기를 만들고 읽으며 탐험해 보세요."
     },
     "research": {
       "title": "AI 연구 브리핑",
@@ -444,7 +444,7 @@
       "title": "친구와 이야기하기",
       "intro": "수업이 아니에요. 친구의 일상이나 궁금한 일부터 자연스럽게 대화를 시작해 보세요.",
       "hero": {
-        "title": "Crew 친구 만나기",
+        "title": "Koolo 친구 만나기",
         "desc": "서로 다른 개성을 가진 16명의 친구 중 대화 상대와 언어를 선택하세요.",
         "tag": "편하게 대화하기"
       },
@@ -462,7 +462,7 @@
           "desc": "친구가 기억하는 주제와 개인정보 설정을 관리하세요."
         }
       },
-      "meetFriends": "Crew 친구 소개",
+      "meetFriends": "Koolo 친구 소개",
       "allFriends": "모든 친구 보기",
       "friendTitles": {
         "zoe": "재치 있는 농담꾼",
@@ -486,10 +486,10 @@
     },
     "learn": {
       "title": "선생님과 외국어 연습",
-      "intro": "학습 목표가 있다면 Crew Teacher와 함께 연습하며 실력을 키워 보세요.",
+      "intro": "학습 목표가 있다면 Koolo Teacher와 함께 연습하며 실력을 키워 보세요.",
       "hero": {
         "title": "말하기 연습 시작",
-        "desc": "Crew Teacher를 선택하고 자연스러운 음성 대화를 시작하세요.",
+        "desc": "Koolo Teacher를 선택하고 자연스러운 음성 대화를 시작하세요.",
         "tag": "회화 연습"
       },
       "items": {
@@ -518,7 +518,7 @@
       "todayTitle": "오늘의 학습",
       "recordsLink": "학습 기록 보기",
       "threeMinuteTitle": "외국어로 3분간 대화하기",
-      "threeMinuteDesc": "시험 없이 Crew 친구와 자연스럽게 이야기해 보세요.",
+      "threeMinuteDesc": "시험 없이 Koolo 친구와 자연스럽게 이야기해 보세요.",
       "syncInfo": "학습 기록 및 동기화 안내",
       "focusLabel": "추천 연습",
       "newLabel": "여기서 시작",
@@ -531,7 +531,7 @@
       "resumeCta": "이어서 연습"
     },
     "me": {
-      "title": "나의 Crew",
+      "title": "나의 Koolo",
       "intro": "학습 기록, 저장한 콘텐츠, 개인 설정을 한곳에서 확인하세요.",
       "hero": {
         "title": "나의 학습 진도",
@@ -576,7 +576,7 @@
     "footnote": "이 브라우저 또는 앱 WebView에 기록된 활동만 표시됩니다. 이전 Android 네이티브 앱 기록은 아직 동기화되지 않았습니다."
   },
   "gift": {
-    "title": "Crew 깜짝 상자",
+    "title": "Koolo 깜짝 상자",
     "teaser": "오늘은 어떤 깜짝 선물일까요?",
     "open": "상자 열기",
     "reopen": "결과 보기",
@@ -592,7 +592,7 @@
     "learnDescription": "외국어 표현을 하나 배워보세요."
   },
   "mobileHero": {"title": "놀며 배우자", "subtitle": "인사부터 시작해요."},
-  "quickEntry": {"heading": "Crew 둘러보기", "fortune": "오늘의 운세", "shorts": "Shorts 보기"},
+  "quickEntry": {"heading": "Koolo 둘러보기", "fortune": "오늘의 운세", "shorts": "Shorts 보기"},
   "liveBubble": {
     "invite": "안녕! 잠깐 이야기할래?",
     "start": "음성대화",

@@ -19,16 +19,16 @@
       "phoenix": "鳳凰"
     }
   },
-  "eyebrow": "YOUR CREW SPACE",
-  "headline": "和 Crew 朋友聊聊吧",
+  "eyebrow": "YOUR Koolo SPACE",
+  "headline": "和 Koolo 朋友聊聊吧",
   "intro": "和有個性的 AI 朋友聊天、玩遊戲，也可以學語言、一起聽故事。",
   "continue": "繼續上次",
   "localOnly": "保存在這台裝置",
-  "explore": "探索 Crew",
+  "explore": "探索 Koolo",
   "start": "選一件事開始",
   "product": {
     "teacher": "語言與口說",
-    "play": "與 Crew 朋友玩遊戲",
+    "play": "與 Koolo 朋友玩遊戲",
     "story": "故事與陪讀",
     "fortune": "探索命盤"
   },
@@ -39,9 +39,9 @@
     "verifyDesc": "驗證後即可確認 Key 是否正常使用。",
     "shortDesc": "用完免費體驗後，可設定自己的 Key 繼續聊天。"
   },
-  "android": "把整個 Crew 裝進手機",
+  "android": "把整個 Koolo 裝進手機",
   "androidApp": {
-    "name": "Crew：AI 朋友與外語對話",
+    "name": "Koolo：AI 朋友與外語對話",
     "description": "和 AI 朋友聊天、練習外語、一起玩遊戲、讀故事，還有更多有趣的 AI 體驗。一個 App，隨時隨地都能探索。"
   },
   "briefing": {
@@ -65,7 +65,7 @@
     "tarot": "塔羅生命靈數",
     "vedic": "印度星盤",
     "play": "再次開啟遊戲，開始新的一局",
-    "friend": "和 Crew 朋友再聊聊",
+    "friend": "和 Koolo 朋友再聊聊",
     "friendDesc": "回到這位朋友的對話入口",
     "fortuneResume": "繼續查看命盤結果"
   },
@@ -78,7 +78,7 @@
   "actions": {
     "label": "快速開始",
     "chat": "找朋友聊天",
-    "chatDesc": "認識 Crew 朋友",
+    "chatDesc": "認識 Koolo 朋友",
     "play": "開始玩遊戲",
     "playDesc": "和 AI 朋友來一局"
   },
@@ -181,7 +181,7 @@
     },
     "intro": "聊天、學語言、算命、玩遊戲。和 AI 一起。",
     "discovery": {
-      "intro": "你知道 Crew 還能做什麼嗎？",
+      "intro": "你知道 Koolo 還能做什麼嗎？",
       "item0": "和 AI 玩猜數字、五子棋",
       "item1": "拍下物品，讓它活過來說話",
       "item3": "邊玩邊練習英文與其他語言",
@@ -191,7 +191,7 @@
   "playHub": {
     "back": "首頁",
     "heading": "今天和朋友玩什麼？",
-    "intro": "選一位 Crew 朋友，一起下棋、猜數字、玩文字遊戲，或用語音解謎。",
+    "intro": "選一位 Koolo 朋友，一起下棋、猜數字、玩文字遊戲，或用語音解謎。",
     "voiceRequired": "AI 語音",
     "offlineOptional": "離線可玩 · 語音選用",
     "games": {
@@ -225,7 +225,7 @@
       }
     },
     "allGames": "全部遊戲",
-    "yourFriend": "你的 Crew 朋友",
+    "yourFriend": "你的 Koolo 朋友",
     "changeFriend": "更換朋友",
     "mini": {
       "courtTitle": "荒謬法庭",
@@ -256,14 +256,14 @@
       "noteDirectNoKey": "免 Key 時僅供自評練習，不會模擬 AI 猜詞。",
       "noteLive": "Live 只處理語音與角色回覆；分數由離線規則決定，不寫入朋友聊天紀錄。"
     },
-    "eyebrow": "Crew 遊戲",
+    "eyebrow": "Koolo 遊戲",
     "voiceDock": {
       "expand": "展開語音面板",
       "collapse": "收合語音面板"
     },
     "gomoku": {
-      "eyebrow": "Crew 遊戲 · 五子棋",
-      "intro": "和電腦對手下五子棋，想聊天時隨時開啟 Crew 朋友的語音陪玩。"
+      "eyebrow": "Koolo 遊戲 · 五子棋",
+      "intro": "和電腦對手下五子棋，想聊天時隨時開啟 Koolo 朋友的語音陪玩。"
     }
   },
   "timeline": {
@@ -340,9 +340,9 @@
     "liveContext": "探索 · 人生時光機"
   },
   "shorts": {
-    "heading": "今天 Crew 朋友發生什麼事？",
+    "heading": "今天 Koolo 朋友發生什麼事？",
     "intro": "每天一張照片、一句自然外語。不想聊天，也可以只看看。",
-    "noteDaily": "虛構 AI 朋友的生活動態；照片與劇情由 Crew 創作。",
+    "noteDaily": "虛構 AI 朋友的生活動態；照片與劇情由 Koolo 創作。",
     "noteDemo": "這是示範內容：目前使用範例故事與第三方示意照片，尚未啟用每天 AI 生圖。",
     "loading": "正在載入朋友動態…",
     "feedError": "動態暫時無法載入，請再試一次。",
@@ -415,7 +415,7 @@
     "destinations": "探索功能",
     "fortune": {
       "title": "命理探索 Fortune",
-      "desc": "我的命盤、歷史紀錄、新命盤與 Crew Friend 講解，全部從這裡開始。"
+      "desc": "我的命盤、歷史紀錄、新命盤與 Koolo Friend 講解，全部從這裡開始。"
     },
     "timeline": {
       "title": "人生時光機 Timeline",
@@ -444,7 +444,7 @@
       "title": "和朋友聊聊",
       "intro": "不是上課，而是從朋友的生活、你的好奇心開始對話。",
       "hero": {
-        "title": "找一位 Crew Friend",
+        "title": "找一位 Koolo Friend",
         "desc": "認識 16 位不同個性的朋友，選擇你想說的語言。",
         "tag": "自然聊天"
       },
@@ -462,7 +462,7 @@
           "desc": "管理朋友記住的話題與隱私設定。"
         }
       },
-      "meetFriends": "認識 Crew Friends",
+      "meetFriends": "認識 Koolo Friends",
       "allFriends": "查看全部",
       "friendTitles": {
         "zoe": "機智吐槽",
@@ -489,7 +489,7 @@
       "intro": "有明確的學習目標時，再由老師帶你練習、回顧和進步。",
       "hero": {
         "title": "開始口說練習",
-        "desc": "選擇你的 Crew Teacher，直接進入自然語音練習。",
+        "desc": "選擇你的 Koolo Teacher，直接進入自然語音練習。",
         "tag": "語音學習"
       },
       "items": {
@@ -518,7 +518,7 @@
       "todayTitle": "今天的學習",
       "recordsLink": "查看學習紀錄",
       "threeMinuteTitle": "隨便聊 3 分鐘外語",
-      "threeMinuteDesc": "跟 Crew 朋友自然聊天，不用考試。",
+      "threeMinuteDesc": "跟 Koolo 朋友自然聊天，不用考試。",
       "syncInfo": "學習紀錄與同步說明",
       "focusLabel": "推薦練習",
       "newLabel": "從這裡開始",
@@ -531,7 +531,7 @@
       "resumeCta": "繼續練習"
     },
     "me": {
-      "title": "我的 Crew",
+      "title": "我的 Koolo",
       "intro": "把你的紀錄、收藏、個人設定放在一起，首頁不用全部展示。",
       "hero": {
         "title": "我的學習與紀錄",
@@ -576,7 +576,7 @@
     "footnote": "僅顯示此瀏覽器／App WebView 已記錄的學習資料；尚未與舊 Android 原生紀錄同步。"
   },
   "gift": {
-    "title": "Crew 驚喜盲盒",
+    "title": "Koolo 驚喜盲盒",
     "teaser": "今天有什麼驚喜？",
     "open": "打開驚喜",
     "reopen": "查看驚喜",

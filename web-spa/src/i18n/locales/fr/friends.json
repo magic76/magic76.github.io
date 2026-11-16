@@ -2,7 +2,7 @@
   "title": "Avec qui aimeriez-vous discuter ?",
   "intro": "Pas de cours ici : partagez des moments du quotidien, reprenez des sujets mémorisés et discutez sans corrections non sollicitées.",
   "language": "Langue apprise",
-  "gameEntryTitle": "Crew Play · jeux entre amis",
+  "gameEntryTitle": "Koolo Play · jeux entre amis",
   "gameEntryDescription": "Les jeux de plateau et 1A2B se jouent sans voix ; les devinettes et Mystery nécessitent une clé Gemini.",
   "pace": "Vitesse d'élocution",
   "slow": "Lent",
@@ -107,7 +107,7 @@
     "preparing": "Préparation de la conversation",
     "free": "Discussion libre"
   },
-  "kicker": "Amis Crew",
+  "kicker": "Amis Koolo",
   "textStarters": {
     "targetHint": "Tu peux commencer en français avec {{name}} ou choisir une phrase courte en {{language}}. {{name}} t’aidera à pratiquer.",
     "meaning": {
