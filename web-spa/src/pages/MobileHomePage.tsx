@@ -235,13 +235,13 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
       :t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
    </div>}
   </div>
-  <DailyTopicCards variant="mobile"/>
   <section className="cmh-apps" aria-labelledby="cmh-apps-title">
    <div className="cmh-section-heading"><h2 id="cmh-apps-title">{copy("想玩什麼？","What sounds fun?")}</h2></div>
    <div className="cmh-app-grid">{APPS.map(app=><Link to={app.to} key={app.id} className="cmh-app" onClick={()=>track(app.event)}>
     <span className={"cmh-app-icon cmh-app-"+app.id}><Icon name={app.icon}/></span><span className="cmh-app-name">{copy(app.zh,app.en)}</span>
    </Link>)}</div>
   </section>
+  <DailyTopicCards variant="mobile"/>
   <div className="cmh-shorts"><HomeShortsPreview maxPosts={8} sharedFeed={shortsFeed} sharedStatus={shortsStatus}/></div>
   {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
   <section className="cmh-seo" aria-labelledby="cmh-seo-heading">
