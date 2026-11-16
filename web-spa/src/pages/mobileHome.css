@@ -3,8 +3,6 @@
 @media(max-width:767px){
  body:has(.crew-mobile-home){background:#fcf9f9;color:#313345}
  body:has(.crew-mobile-home) .app-header{background:#fcf9f9;border-bottom:0;box-shadow:none}
- body:has(.crew-mobile-home) .app-header .inner{min-height:60px;height:auto}
- body:has(.crew-mobile-home) .app-header .app-wordmark{width:100px;height:30px}
  body:has(.crew-mobile-home) .app-header .app-title{display:none}
  body:has(.crew-mobile-home) .shell.page{width:100%;max-width:none;margin:0;padding:0 0 calc(var(--nav-h,68px) + 20px + env(safe-area-inset-bottom))}
  body:has(.crew-mobile-home) .crew-contact-footer{width:calc(100% - 36px);margin:0 auto;padding-bottom:calc(var(--nav-h,68px) + 16px + env(safe-area-inset-bottom))}
