@@ -18,8 +18,8 @@ test("Koolo V1 stays an isolated noindex preview",()=>{
  assert.match(icon,/<svg[\s>]/);
 });
 test("Koolo CTAs use existing Zoe routes with no new API surface",()=>{
- assert.match(html,/href="\/friend\/live\?id=zoe&amp;from=home&amp;entry=bubble"/);
- assert.match(html,/href="\/friend\/live\?id=zoe&amp;from=home&amp;chat=text"/);
+ assert.match(html,/href="https:\/\/www\.3sssi\.com\/friend\/live\?id=zoe&amp;from=home&amp;entry=bubble"/);
+ assert.match(html,/href="https:\/\/www\.3sssi\.com\/friend\/live\?id=zoe&amp;from=home&amp;chat=text"/);
  assert.match(html,/href="\/"/);
  assert.doesNotMatch(html,/onclick=|<form\b|api\/|gemini|token/i);
 });
