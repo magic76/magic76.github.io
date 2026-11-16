@@ -30,7 +30,7 @@ jobs:
   build:
     # The visual-only mobile-home PR needs Playwright 1.56's supported image.
     # Every other PR and master push keep their original runner.
-    runs-on: ${{ github.event_name == 'pull_request' && ((contains(github.event.pull_request.head.ref, 'mobile-home-phone-phase1') || contains(github.event.pull_request.head.ref, 'mobile-home-timeline-scenarios-shortcuts')) || (contains(github.event.pull_request.head.ref, 'mobile-home-hero-editorial-v3') || contains(github.event.pull_request.head.ref, 'mobile-hero-compact-first-screen') || contains(github.event.pull_request.head.ref, 'desktop-home-stage-alignment'))) && 'ubuntu-24.04' || 'ubuntu-latest' }}
+    runs-on: ${{ github.event_name == 'pull_request' && ((contains(github.event.pull_request.head.ref, 'mobile-home-phone-phase1') || contains(github.event.pull_request.head.ref, 'mobile-home-timeline-scenarios-shortcuts')) || (contains(github.event.pull_request.head.ref, 'mobile-home-hero-editorial-v3') || contains(github.event.pull_request.head.ref, 'mobile-hero-compact-first-screen') || (contains(github.event.pull_request.head.ref, 'desktop-home-stage-alignment') || contains(github.event.pull_request.head.ref, 'koolo-desktop-home-alignment')))) && 'ubuntu-24.04' || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -134,17 +134,17 @@ jobs:
       # Desktop home visual proof. Build master in a separate worktree and verify
       # 390/360 phone screenshots are pixel-identical to the base branch.
       - name: Desktop home alignment screenshots and mobile master parity
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'desktop-home-stage-alignment')
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'desktop-home-stage-alignment') || contains(github.event.pull_request.head.ref, 'koolo-desktop-home-alignment'))
         run: |
           npm install --no-save --package-lock=false --no-audit --no-fund --ignore-scripts playwright@1.56.1 pngjs@7.0.0
           npx playwright install chromium
           sudo apt-get update -qq
           sudo apt-get install -y -qq fonts-noto-cjk
-          node --test tests/desktop-home-stage.test.js tests/mobile-home-phase1.test.js tests/crew-home-live-bubble.test.js
+          node --test tests/koolo-desktop-home.test.js tests/desktop-home-stage.test.js tests/mobile-home-phase1.test.js tests/crew-home-live-bubble.test.js
           npm run build:cloudflare
           npm run test:cloudflare
-          git fetch --no-tags --depth=1 origin master
-          git worktree add --detach ../crew-master-visual origin/master
+          git fetch --no-tags --depth=1 origin 0357f26cffd92c895f2abe20ccbca0eac1b905e1
+          git worktree add --detach ../crew-master-visual 0357f26cffd92c895f2abe20ccbca0eac1b905e1
           ln -s "$GITHUB_WORKSPACE/node_modules" ../crew-master-visual/node_modules
           (cd ../crew-master-visual && npm run build:cloudflare)
           node scripts/screenshot-desktop-home-stage.mjs ../crew-master-visual/dist
