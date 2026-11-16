@@ -9,7 +9,7 @@ import {
 import {getCrewInstallCopy} from "./crewInstallCopy";
 import "./crewInstallEntry.css";
 
-type InstallSource="footer"|"menu"|"nudge";
+type InstallSource="footer"|"menu"|"nudge"|"fortune";
 const NUDGE_KEY="crew_pwa_install_nudge_v1";
 const ENGAGED_KEY="crew_pwa_engaged_v1";
 const DAY=24*60*60*1000;
@@ -26,7 +26,7 @@ function useInstallAction(source:InstallSource){
  const prompt=useSyncExternalStore(subscribeCrewInstall,getCrewInstallPrompt,emptyCrewInstallPrompt);
  const [supported,setSupported]=useState(false);
  const [guide,setGuide]=useState(false);
- useEffect(()=>{registerCrewPwa();setSupported(canOfferCrewInstall());},[]);
+ useEffect(()=>{registerCrewPwa();const sync=()=>setSupported(canOfferCrewInstall());sync();return subscribeCrewInstall(sync);},[]);
  const copy=getCrewInstallCopy(i18n.resolvedLanguage||i18n.language);
  const action=()=>{
   trackUsageEvent("pwa_install_click",source);
@@ -52,6 +52,16 @@ export function CrewInstallEntry(){
  if(!supported||(!prompt&&!isCrewIosSafari()))return null;
  return <div className="crew-install-entry">
   <button type="button" className="crew-install-action" onClick={action}>{prompt?copy.install:copy.add}</button>
+  {guide&&<InstallGuide message={getGuide(copy)} closeLabel={copy.close} onClose={()=>setGuide(false)}/>}
+ </div>;
+}
+
+/** Contextual non-modal CTA in the lazy fortune route. */
+export function CrewInstallInline(){
+ const {supported,prompt,guide,setGuide,copy,action}=useInstallAction("fortune");
+ if(!supported||(!prompt&&!isCrewIosSafari()&&!isCrewIosDevice()&&!isCrewEmbeddedBrowser()&&!/Android/i.test(navigator.userAgent)))return null;
+ return <div className="crew-install-inline">
+  <button type="button" className="crew-install-action" onClick={action}>{copy.add}</button>
   {guide&&<InstallGuide message={getGuide(copy)} closeLabel={copy.close} onClose={()=>setGuide(false)}/>}
  </div>;
 }

@@ -8,7 +8,9 @@ import {buildDailyCard,dailyProfileHash,localDateKey,type DailyCard,type DailyKi
 import {DAILY_COPY_REVISION,readCachedDaily,readDailyKindChoice,resolveDailyKind,saveDailyKind,saveCachedDaily,readDailyCompletionStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
 import {generateDailyAi} from "./dailyAi";
 import {FortuneZoeReading} from "./FortuneZoeReading";
-import {shareDailyCard} from "./shareCard";
+import {FortuneReturnTomorrow} from "./FortuneReturnTomorrow";
+import {rememberDailyView} from "../pages/dailyReturn";
+
 import {readDailyProfiles,chooseDailyProfile} from "./dailyProfileSelection";
 import type {FortuneProfile} from "./types";
 import "./dailyCard.css";
@@ -86,6 +88,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
   saveCachedDaily(result,profileHash,undefined,locale);
   return result;
  },[clientReady,ready,profileHash,profile,kind,date,locale,engineReady,refresh]);
+ useEffect(()=>{if(card&&!("status" in card))rememberDailyView(date);},[card,date]);
  const activeKey=date+":"+kind+":"+profileHash;
  active.current=activeKey;
  useEffect(()=>{
@@ -167,6 +170,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
    </div>
    {/^[a-f0-9]{64}$/.test(profileHash)&&searchParams.get("zoe")!=="1"&&<Link className="fortune-daily-zoe" to={"/fortune?daily=1&chart="+profileHash+"&kind="+kind+"&zoe=1"}>{t("dailyQuote.chatRead",{ns:"home"})}</Link>}
    {/^[a-f0-9]{64}$/.test(profileHash)&&searchParams.get("zoe")==="1"&&<FortuneZoeReading key={date+":"+kind+":"+profileHash+":"+locale} card={full} hash={profileHash} locale={locale} scrollOnOpen/>}
+   {searchParams.get("zoe")!=="1"&&<FortuneReturnTomorrow card={full}/>}
    <div className="fortune-daily-week"><span>{t("recentDays")}</span>
     <div className="fortune-daily-week-dots">{days.map(item=><span key={item.date} title={item.date} className={item.completed?"done":""} aria-label={item.date+" · "+t(item.completed?"completed":"notCompleted")}>{item.completed?"✦":"·"}</span>)}</div>
    </div>
@@ -182,7 +186,6 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
     {aiError&&<p role="alert" className="fortune-daily-help">{t("ai."+aiError)}</p>}
     {loadFailure&&<p role="alert" className="fortune-daily-help">{t("loadFailed")}</p>}
     <div className="fortune-daily-actions">
-     <button className="btn secondary small" type="button" onClick={()=>void shareDailyCard(full,{doLabel:t("doLabel"),avoidLabel:t("avoidLabel"),luckyColor:t("luckyColor"),disclaimer:t("disclaimer"),kindLabel:t(full.kind)})}>{t("share")}</button>
      {!!geminiKey()&&<button className="btn secondary small" type="button" disabled={aiBusy||Boolean(aiText)||aiUsedOther} onClick={()=>void useGemini(full)}>{aiBusy?t("ai.loading"):aiText||aiUsedOther?t("ai.used"):t("ai.generate")}</button>}
      <Link className="btn small" to={full.deepLink}>{t("fullReading")} →</Link>
     </div>

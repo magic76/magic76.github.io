@@ -602,5 +602,5 @@
   },
   "dailyQuote": {"title": "Ein Gedanke für heute", "fortune": "Mein Tageshoroskop ansehen", "chat": "Mit Zoe darüber reden", "fortuneFull": "Ganze Tagesdeutung", "personalTitle": "Deine Tagesdeutung", "chooseChart": "Geburtsprofil wählen", "me": "Mein Profil", "markSelf": "Als mein Profil markieren", "kind": {"bazi": "BaZi", "tarot": "Numerologie", "vedic": "Vedisches Horoskop"}, "chatRead": "Zoe erklärt mein heutiges Horoskop", "setupChart": "Geburtsprofil anlegen und täglich persönliche Impulse erhalten", "setupHint": "Geburtsdatum und -zeit eingeben und täglich dein Horoskop ansehen.",
     "basisBazi": "Basierend auf deinem BaZi-Geburtshoroskop",
-    "basisNumerology": "Basierend auf deinem Geburtstag (Numerologie)"}
+    "basisNumerology": "Basierend auf deinem Geburtstag (Numerologie)", "updated": "Dein Tageshoroskop ist neu"}
 }

@@ -46,7 +46,7 @@ test("11 localized quote catalogs contain all 30 nonblank short thoughts; UI lab
    assert.ok(quotes[id].length<=125,lang+" "+id+" should be short");
    assert.doesNotMatch(quotes[id],/\{\{|\}\}/,lang+" "+id);
   }
-  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["basisBazi","basisNumerology","chat","chatRead","chooseChart","fortune","fortuneFull","kind","markSelf","me","personalTitle","setupChart","setupHint","title"]);
+  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["basisBazi","basisNumerology","chat","chatRead","chooseChart","fortune","fortuneFull","kind","markSelf","me","personalTitle","setupChart","setupHint","title","updated"]);
   assert.deepEqual(Object.keys(home.dailyQuote.kind).sort(),["bazi","tarot","vedic"]);
   for(const text of Object.values(home.dailyQuote.kind))assert.ok(typeof text==="string"&&text.trim());
   for(const key of ["title","fortune","chat","chatRead","fortuneFull","personalTitle","chooseChart","me","markSelf","setupChart","setupHint","basisBazi","basisNumerology"])assert.ok(home.dailyQuote[key]?.trim(),lang+" "+key);

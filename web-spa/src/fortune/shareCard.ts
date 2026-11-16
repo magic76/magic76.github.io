@@ -102,3 +102,31 @@ export async function shareDailyCard(card:import("./dailyCard").DailyCard,labels
  link.href=url;link.download=file.name;link.click();
  window.setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
+
+/** Only a public landing URL leaves this device, never a chart hash or birth details. */
+export const DAILY_PUBLIC_SHARE_URL="https://www.3sssi.com/fortune?daily=1";
+async function copyDailyPublicUrl(url:string):Promise<boolean>{
+ try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);return true;}}catch{/* fallback */}
+ if(typeof document==="undefined")return false;
+ const field=document.createElement("textarea");field.value=url;field.readOnly=true;
+ field.setAttribute("aria-hidden","true");field.style.position="fixed";field.style.left="-9999px";
+ try{
+  document.body.appendChild(field);field.select();
+  return document.execCommand("copy");
+ }catch{return false;}
+ finally{field.remove();}
+}
+/** Web Share PNG first, then text/link, finally clipboard or selection copy. */
+export async function shareDailyReturn(card:import("./dailyCard").DailyCard,labels:DailyShareLabels):Promise<"shared"|"cancelled"|"copied"|"failed">{
+ const url=DAILY_PUBLIC_SHARE_URL,text=card.headline+"\n"+card.theme;
+ if(typeof navigator.share==="function"){
+  const file=await buildDailyShareFile(card,labels).catch(()=>null);
+  if(file&&navigator.canShare?.({files:[file]})){
+   try{await navigator.share({title:"Crew Fortune",text,url,files:[file]});return "shared";}
+   catch(error){if((error as Error)?.name==="AbortError")return "cancelled";}
+  }
+  try{await navigator.share({title:"Crew Fortune",text,url});return "shared";}
+  catch(error){if((error as Error)?.name==="AbortError")return "cancelled";}
+ }
+ return await copyDailyPublicUrl(url)?"copied":"failed";
+}
