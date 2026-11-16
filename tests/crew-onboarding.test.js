@@ -18,10 +18,10 @@ test("shared guide is mounted in the React app, including Android WebView",()=>{
  assert.match(gate,/if\(pathname!=="\/"\)return/);
 });
 
-test("first-run gate never forces existing users, persists skip or completion, and resumes language switch",()=>{
+test("optional guide preserves existing-user marker, skip, completion and explicit replay draft",()=>{
  assert.match(gate,/if\(localStorage\.getItem\(ONBOARDING_DONE_KEY\)\)return/);
  assert.match(gate,/if\(previousCrewActivity\(\)\)/);
- assert.match(gate,/sessionStorage\.getItem\(DRAFT_KEY\)/);
+ assert.match(gate,/sessionStorage\.getItem\(REPLAY_SESSION_KEY\)==="1"&&sessionStorage\.getItem\(DRAFT_KEY\)/);
  assert.match(gate,/localStorage\.setItem\(ONBOARDING_DONE_KEY,begin\?"completed":"skipped"\)/);
  assert.match(gate,/onCancel=\{event=>\{event\.preventDefault\(\);finish\(false\)\}\}/);
  assert.match(gate,/if\(begin\)navigate\(destinations\[chosenGoal\]\)/);
@@ -41,7 +41,7 @@ test("first-run destinations open real experiences, not feature indexes",()=>{
  }
  assert.match(gate,/if\(begin\)navigate\(destinations\[chosenGoal\]\)/);
  assert.match(gate,/onClick=\{\(\)=>finish\(true,item\.id\)\}/);
- assert.match(gate,/onClick=\{\(\)=>finish\(true,"chat"\)\}/);
+ assert.doesNotMatch(gate,/guestTrial\.onboardingCTA|guestAvailable|fetchGuestTrialConfig/);
  assert.match(gate,/step===2\?firstAction:c.next/);
  assert.match(gate,/firstAction=\{chat:c\.firstChat,learn:c\.firstLearn,play:c\.firstPlay,explore:c\.firstExplore\}\[goal\]/);
  assert.doesNotMatch(gate,/trackUsageEvent\(|setOnboardingFirstActionPending|clearOnboardingFirstActionPending|FIRST_ACTION_KEY|onboarding_first_action/);

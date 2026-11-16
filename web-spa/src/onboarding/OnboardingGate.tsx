@@ -3,7 +3,6 @@ import type {ReactNode} from "react";
 import {useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
-import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled} from "../lib/guestTrial";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {getOnboardingCopy} from "./copy";
@@ -13,6 +12,7 @@ import "./onboarding.css";
 export const REOPEN_ONBOARDING_EVENT="crew:reopen-onboarding";
 export const ONBOARDING_DONE_KEY="crew_onboarding_web_v1";
 const DRAFT_KEY="crew_onboarding_draft_v1";
+const REPLAY_SESSION_KEY="crew_onboarding_replay_active_v1";
 type Goal="chat"|"learn"|"play"|"explore";
 const goals:readonly Goal[]=["chat","learn","play","explore"];
 // Send the visitor to a usable first experience, not a feature index.
@@ -51,67 +51,46 @@ function Tile({children,selected,onClick}:{children:ReactNode;selected:boolean;o
 
 /** Shared first-run experience for browser and official Android WebView shell. */
 export function OnboardingGate({pathname}:{pathname:string}){
- const {i18n,t}=useTranslation();
+ const {i18n}=useTranslation();
  const c=getOnboardingCopy(i18n.resolvedLanguage||i18n.language);
  const navigate=useNavigate();
  const dialog=useRef<HTMLDialogElement>(null);
  const [open,setOpen]=useState(false);
- const [guestAvailable,setGuestAvailable]=useState(false);
  const [step,setStep]=useState(0);
  const [goal,setGoal]=useState<Goal>("chat");
  const firstAction={chat:c.firstChat,learn:c.firstLearn,play:c.firstPlay,explore:c.firstExplore}[goal];
  const target=useTeacherStore(state=>state.targetLanguage);
  const setTarget=useTeacherStore(state=>state.setTargetLanguage);
- useEffect(()=>{
-  if(pathname!=="/")return;
-  if(!guestTrialDiscoveryEnabled())return;
-  let live=true;
-  void fetchGuestTrialConfig().then(x=>{if(live)setGuestAvailable(x.enabled)});
-  return()=>{live=false};
- },[pathname]);
-
 
  const openGuide=useCallback((replay:boolean)=>{
-  if(replay){try{sessionStorage.removeItem(DRAFT_KEY)}catch{/* optional */}}
+  if(replay){try{sessionStorage.removeItem(DRAFT_KEY);sessionStorage.setItem(REPLAY_SESSION_KEY,"1")}catch{/* optional */}}
   const draft=replay?{step:0,goal:"chat" as Goal}:readDraft();
   setStep(draft.step);setGoal(draft.goal);setOpen(true);
  },[]);
 
  useEffect(()=>{
-  const onReplay=()=>openGuide(true);
+  // Only the Settings replay button may request a modal guide.
+  const onReplay=()=>{if(pathname==="/settings")openGuide(true)};
   window.addEventListener(REOPEN_ONBOARDING_EVENT,onReplay);
   return()=>window.removeEventListener(REOPEN_ONBOARDING_EVENT,onReplay);
- },[openGuide]);
-
- useEffect(()=>{
-  // Do not cover a shared deep link, a live conversation, or a game invitation.
-  // Existing Web users should never be forced through a new migration wizard.
-  // Always respect external deep links, including games and live conversations.
-  // Settings is allowed for an explicit replay interrupted by a locale switch.
-  if(pathname!=="/"&&pathname!=="/settings")return;
-  // The mobile homepage itself is the first-run introduction. Preserve the
-  // original desktop wizard and explicit Settings replay, without a mobile overlay.
-  if(pathname==="/"&&window.matchMedia("(max-width:767px)").matches)return;
-  try{
-   // Restore a partially completed guide after switching interface language.
-   if(sessionStorage.getItem(DRAFT_KEY)){openGuide(false);return;}
-   if(pathname!=="/")return;
-   if(localStorage.getItem(ONBOARDING_DONE_KEY))return;
-   if(previousCrewActivity()){
-    localStorage.setItem(ONBOARDING_DONE_KEY,"existing");
-    return;
-   }
-   openGuide(false);
-  }catch{/* Private/blocked storage: don't trap someone in repeated onboarding. */}
  },[pathname,openGuide]);
 
  useEffect(()=>{
+  // A locale switch can remount the actively replayed Settings guide.
+  if(pathname!=="/settings")return;
+  try{
+   if(sessionStorage.getItem(REPLAY_SESSION_KEY)==="1"&&sessionStorage.getItem(DRAFT_KEY))openGuide(false);
+  }catch{/* Private/blocked session storage: leave the guide optional. */}
+ },[pathname,openGuide]);
+
+ useEffect(()=>{
+  // Home never launches the guide or takes focus, regardless of viewport width.
   if(pathname!=="/")return;
-  const media=window.matchMedia("(max-width:767px)");
-  const dismiss=()=>{if(media.matches){dialog.current?.close();setOpen(false)}};
-  dismiss();
-  media.addEventListener("change",dismiss);
-  return()=>media.removeEventListener("change",dismiss);
+  dialog.current?.close();setOpen(false);
+  try{
+   if(localStorage.getItem(ONBOARDING_DONE_KEY))return;
+   if(previousCrewActivity())localStorage.setItem(ONBOARDING_DONE_KEY,"existing");
+  }catch{/* Private/blocked storage: leave the homepage usable. */}
  },[pathname]);
 
  useEffect(()=>{
@@ -123,7 +102,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
 
  function finish(begin:boolean,chosenGoal:Goal=goal){
   try{localStorage.setItem(ONBOARDING_DONE_KEY,begin?"completed":"skipped")}catch{/* Optional persistence. */}
-  try{sessionStorage.removeItem(DRAFT_KEY)}catch{/* Optional persistence. */}
+  try{sessionStorage.removeItem(DRAFT_KEY);sessionStorage.removeItem(REPLAY_SESSION_KEY)}catch{/* Optional persistence. */}
   // Only the final learning-preference step counts as explicit confirmation.
   // The welcome shortcut intentionally reaches the Learn gate for first-time visitors.
   if(begin&&chosenGoal==="learn"&&step===2)markLearningLanguageConfirmed(localStorage);
@@ -168,7 +147,6 @@ export function OnboardingGate({pathname}:{pathname:string}){
       {goalCards.map(item=><button type="button" className="crew-onboarding-preview-item" key={item.id} onClick={()=>finish(true,item.id)}><span aria-hidden="true">{item.symbol}</span><strong>{item.title}</strong><span className="crew-onboarding-preview-arrow" aria-hidden="true">→</span></button>)}
      </div>
      <p className="crew-onboarding-note">{c.welcomeNote}</p>
-     {guestAvailable&&<button type="button" className="crew-onboarding-primary" onClick={()=>finish(true,"chat")}>{t("guestTrial.onboardingCTA")} →</button>}
     </section>:null}
     {step===1?<section className="crew-onboarding-step">
      <h2 id="crew-onboarding-title">{c.goalTitle}</h2>
@@ -207,7 +185,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
       {step===2?firstAction:c.next}<span aria-hidden="true">→</span>
      </button>
     </div>
-    <button type="button" className="crew-onboarding-skip" onClick={()=>finish(false)}>{c.skip}</button>
+    <button type="button" className="crew-onboarding-skip crew-onboarding-guide-skip" onClick={()=>finish(false)}>{c.skip}</button>
    </footer>
   </div>
  </dialog>;
