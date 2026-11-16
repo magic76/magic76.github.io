@@ -272,6 +272,7 @@
   "callCaptions": {
     "aria": "雙語通話字幕",
     "more": "更多選項",
+    "closeMenu": "關閉選單",
     "showTranslation": "顯示翻譯",
     "hideTranslation": "隱藏翻譯",
     "translating": "正在翻譯…",

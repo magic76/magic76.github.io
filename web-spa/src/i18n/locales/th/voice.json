@@ -272,6 +272,7 @@
   "callCaptions": {
     "aria": "คำบรรยายการโทรสองภาษา",
     "more": "ตัวเลือกเพิ่มเติม",
+    "closeMenu": "ปิดตัวเลือก",
     "showTranslation": "แสดงคำแปล",
     "hideTranslation": "ซ่อนคำแปล",
     "translating": "กำลังแปล…",

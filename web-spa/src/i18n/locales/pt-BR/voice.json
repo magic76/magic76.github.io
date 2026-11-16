@@ -272,6 +272,7 @@
   "callCaptions": {
     "aria": "Legendas bilíngues da chamada",
     "more": "Mais opções",
+    "closeMenu": "Fechar opções",
     "showTranslation": "Mostrar tradução",
     "hideTranslation": "Ocultar tradução",
     "translating": "Traduzindo…",
