@@ -272,6 +272,7 @@
   "callCaptions": {
     "aria": "Sous-titres bilingues",
     "more": "Autres options",
+    "closeMenu": "Fermer les options",
     "showTranslation": "Afficher la traduction",
     "hideTranslation": "Masquer la traduction",
     "translating": "Traduction…",

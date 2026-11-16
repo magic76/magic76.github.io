@@ -272,6 +272,7 @@
   "callCaptions": {
     "aria": "通話字幕と翻訳",
     "more": "その他の操作",
+    "closeMenu": "オプションを閉じる",
     "showTranslation": "翻訳を表示",
     "hideTranslation": "翻訳を非表示",
     "translating": "翻訳中…",

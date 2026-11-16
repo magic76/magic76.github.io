@@ -155,3 +155,34 @@ body.teacher-theme.session-page main.friend-live-page:has(.friend-phone-stage){d
 .friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-ai>p{flex:1 1 0;min-height:3em;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:auto}
 .friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-translation{flex:0 1 auto;max-height:35%;min-height:0;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:auto}
 .friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-user{flex:none;max-height:84px;overflow-y:auto;overscroll-behavior:contain}
+
+/* #55: black bottom sheet for voice-call settings and transcript. */
+body:has(.friend-phone-stage) .app-header .shell.inner{display:flex;align-items:center;gap:8px;min-width:0}
+body:has(.friend-phone-stage) .app-header .app-brand{flex:1 1 auto;min-width:0;overflow:hidden}
+body:has(.friend-phone-stage) .app-header .app-title{min-width:0;overflow:hidden}
+body:has(.friend-phone-stage) .app-header .app-title strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body:has(.friend-phone-stage) .app-header .friend-call-header-actions{display:flex;align-items:center;justify-content:flex-end;flex:0 1 auto;min-width:0;gap:8px}
+body:has(.friend-phone-stage) .app-header .status{flex:0 1 auto;min-width:0;max-width:min(42vw,185px);padding:6px 9px;gap:6px}
+body:has(.friend-phone-stage) .app-header .status span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.friend-call-menu-trigger{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:1px solid #777;border-radius:14px;background:#202020;color:#f5f5f5;font-size:27px;line-height:1;cursor:pointer}
+.friend-call-menu-trigger:focus-visible,.friend-call-menu-close:focus-visible,.friend-call-menu-panel button:focus-visible,.friend-call-menu-panel a:focus-visible,.friend-call-menu-panel summary:focus-visible{outline:3px solid #d4e6ff;outline-offset:2px}
+.friend-call-menu-backdrop{position:fixed;inset:0;z-index:2200;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.7);color:#f5f5f5}
+.friend-call-menu-panel{box-sizing:border-box;display:flex;flex-direction:column;width:100%;max-width:620px;max-height:min(86dvh,720px);min-height:0;border:1px solid #555;border-radius:20px 20px 0 0;background:#000;color:#f5f5f5;box-shadow:0 -12px 38px #000;overflow:hidden}
+.friend-call-menu-heading{display:flex;flex:none;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid #424242;background:#000}
+.friend-call-menu-heading h2{margin:0;color:#f5f5f5;font-size:18px;line-height:1.4}
+.friend-call-menu-close{display:grid;place-items:center;flex:0 0 44px;min-height:44px;min-width:44px;border:1px solid #777;border-radius:12px;background:#202020;color:#f5f5f5;font-size:24px;cursor:pointer}
+.friend-call-menu-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 16px calc(18px + env(safe-area-inset-bottom,0px));background:#000}
+.friend-call-menu-panel .friend-call-settings{display:flex;flex-direction:column;align-items:stretch;gap:12px;margin:0}
+.friend-call-menu-panel .friend-language-switch,.friend-call-menu-panel .crew-chat-mode-switch{box-sizing:border-box;display:flex;flex-direction:column;gap:8px;width:100%;max-width:none;margin:0;padding:10px;border:1px solid #4c4c4c;border-radius:12px;background:#000;color:#f5f5f5}
+.friend-call-menu-panel .friend-language-switch-title,.friend-call-menu-panel .friend-language-switch>small,.friend-call-menu-panel .crew-chat-mode-switch span{color:#dce4ee;font-size:12px}
+.friend-call-menu-panel .friend-language-options{background:#181818;border:1px solid #505050}
+.friend-call-menu-panel .friend-language-options button{min-height:44px;color:#f5f5f5;font-size:12px}
+.friend-call-menu-panel .friend-language-options button.selected{background:#435684;color:#fff}
+.friend-call-menu-panel .crew-chat-mode-switch .btn,.friend-call-menu-panel .live-presets button,.friend-call-menu-panel .live-presets a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;background:#242424;color:#f5f5f5;border:1px solid #777;border-radius:10px;font-size:12px}
+.friend-call-menu-panel .live-presets{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:8px;margin:12px 0;background:#000}
+.friend-call-menu-panel .friend-chat-history{box-sizing:border-box;width:100%;margin:12px 0 0;padding:0;border:1px solid #555;border-radius:12px;background:#000;color:#f5f5f5}
+.friend-call-menu-panel .friend-chat-history summary{display:flex;align-items:center;min-height:44px;padding:8px 12px;background:#000;color:#f5f5f5;font-size:12px}
+.friend-call-menu-panel .friend-chat-history-scroll{max-height:40dvh;margin:0;padding:12px;background:#000;color:#f5f5f5}
+.friend-call-menu-panel .friend-chat-turn,.friend-call-menu-panel .friend-chat-turn p,.friend-call-menu-panel .friend-chat-turn strong{background:#000;color:#f5f5f5;font-size:12px}
+@media(max-width:380px){body:has(.friend-phone-stage) .app-header .friend-call-header-actions{gap:5px}body:has(.friend-phone-stage) .app-header .status{padding:6px}body:has(.friend-phone-stage) .app-header .app-title small{display:none}}
+@media(prefers-reduced-motion:reduce){.friend-call-menu-backdrop,.friend-call-menu-panel,.friend-call-menu-trigger{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

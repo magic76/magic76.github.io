@@ -272,6 +272,7 @@
   "callCaptions": {
     "aria": "Phụ đề cuộc gọi song ngữ",
     "more": "Tùy chọn khác",
+    "closeMenu": "Đóng tùy chọn",
     "showTranslation": "Hiện bản dịch",
     "hideTranslation": "Ẩn bản dịch",
     "translating": "Đang dịch…",

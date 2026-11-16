@@ -19,6 +19,7 @@ import {FriendCallCaptions} from "./FriendCallCaptions";
 import {useFriendTextViewport,useFriendBodyTheme} from "./useFriendTextViewport";
 import {friendVoiceStatusKey} from "./friendVoiceStatusKey";
 import {FriendChatHistory} from "./FriendChatHistory";
+import {FriendCallMenu,FriendCallMenuTrigger} from "./FriendCallMenu";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
 import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";
 import {geminiKey} from "../lib/runtime";
@@ -40,10 +41,6 @@ import {isShortsHook,shortsOpeningHint,shortsSelectedQuestion,shortsQuestionOpen
 import "./friends.css";
 import "./friendCall.css";
 
-/**
- * Resolve a Shorts ID against the published feed before opening Live. The URL
- * cannot inject a caption, persona, or system prompt, and regular chat remains instant.
- */
 export function FriendLivePage(){
  const {t}=useTranslation("voice");
  const [params]=useSearchParams();
@@ -214,7 +211,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   if(chosen===friendChatMode)return;
   const connected=["listening","speaking"].includes(live.state);
   const pending=["requesting-mic","connecting"].includes(live.state);
-  // Silent control never creates an artificial learner utterance.
   const applied=connected&&live.sendControl(friendLanguageTransition(language,friendNativeLanguage,chosen));
   useTeacherStore.getState().setFriendChatMode(chosen);
   if(applied||(!connected&&!pending))setActiveFriendChatMode(chosen);
@@ -237,10 +233,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    <div className="app-brand"><Link className="back-btn" to={shortsReturnTo||(intent==="speak"?"/learn":"/teacher/roles?mode=friends")} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}>‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>{t("friendLive.brand",{language:t("languages."+language,{defaultValue:language})})}</small></div>
    </div>
-   <span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
+   <div className="friend-call-header-actions"><span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span><FriendCallMenuTrigger active={active&&!textMode} open={showCallOptions} label={t("callCaptions.more")} onToggle={()=>setShowCallOptions(v=>!v)}/></div>
   </div></header>
   <main className="session-shell friend-live-page">
-   <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(textMode?" friend-text-stage":active?" friend-phone-stage"+(showCallOptions?" options-open":""):"")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
+   <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(textMode?" friend-text-stage":active?" friend-phone-stage":"")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
     <div className="live-identity">
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
@@ -255,8 +251,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      </section>:null}
     {postUnavailable?<p className="friend-live-post-unavailable" role="status">{t("friendLive.postUnavailable")}</p>:null}
     {shortsPost&&!textMode?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
-    <div className="friend-call-settings">
-    {active&&!textMode?<button type="button" className="friend-call-options-toggle" aria-expanded={showCallOptions} onClick={()=>setShowCallOptions(v=>!v)}>{t("callCaptions.more")}</button>:null}
+    <FriendCallMenu inCall={active&&!textMode} open={showCallOptions} onClose={()=>setShowCallOptions(false)} title={t("callCaptions.more")} closeLabel={t("callCaptions.closeMenu")}><div className="friend-call-settings">
     <div className="friend-language-switch" role="group" aria-label={t("chatModeTitle")}>
      <span className="friend-language-switch-title">{t("chatModeTitle")}</span>
      <div className="friend-language-options">
@@ -269,6 +264,16 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     </div>
+    {!textMode?<>
+    <div className="live-presets">
+     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>{t("friendLive.changeTopic")}</button>{!guestStarted&&<LiveSearchAction live={live} english={english} label={english?"What's new lately?":"聊聊最近發生的事"}
+    query="Find one recent, lighthearted, verifiable news or culture story with a publication date and credible source."
+    instruction={"As "+friend.name+", discuss this verified story naturally, in our selected language. No tutoring, no generic greeting, no role change. "+languageDirective}/>}
+      <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
+</>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
+    </div>
+    {live.turns.length?<FriendChatHistory turns={live.turns} friendName={friend.name} youLabel={t("friendLive.youLabel")} summary={t("friendLive.historySummary")}/>:null}
+    </>:null}</FriendCallMenu>
     {textMode?(dailyLookupPending?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:dailyHandoff?":fortune:"+dailyKind+":"+personalChartHash+":"+dayKey:dailyFortune?":daily:"+dailyFortune.hash:"")} searchEnabled={!shortsPost} system={system+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+"\n"+languageDirective+(beginnerTextStart?"\n"+beginnerTextStart:"")} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
      firstStarter={shortsStarter||fortuneContinue||dailyFortuneStarter||dailyQuoteStarter||dailyTopicStarter}
      autoStarter={fortuneContinue} replyFallback={fortuneReplies}
@@ -282,15 +287,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       <span>{live.voicePhase==="no-transcript"?t("friendLive.noTranscript"):t("friendLive.noReply")}</span>
       {live.voicePhase==="no-reply"&&!guestStarted?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
-    <div className="live-presets">
-     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>{t("friendLive.changeTopic")}</button>{!guestStarted&&<LiveSearchAction live={live} english={english} label={english?"What's new lately?":"聊聊最近發生的事"}
-    query="Find one recent, lighthearted, verifiable news or culture story with a publication date and credible source."
-    instruction={"As "+friend.name+", discuss this verified story naturally, in our selected language. No tutoring, no generic greeting, no role change. "+languageDirective}/>}
-      <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
-</>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
-    </div>
+
     <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} speaking={live.state==="speaking"}/>:null}
-    {live.turns.length?<FriendChatHistory turns={live.turns} friendName={friend.name} youLabel={t("friendLive.youLabel")} summary={t("friendLive.historySummary")}/>:null}</>}
+    </>}
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{!textMode&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
   </main>

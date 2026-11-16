@@ -272,6 +272,7 @@
   "callCaptions": {
     "aria": "이중 언어 통화 자막",
     "more": "추가 옵션",
+    "closeMenu": "옵션 닫기",
     "showTranslation": "번역 표시",
     "hideTranslation": "번역 숨기기",
     "translating": "번역 중…",
