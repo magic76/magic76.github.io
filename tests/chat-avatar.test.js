@@ -49,11 +49,11 @@ test("call captions rely on the large profile avatar instead of a redundant spea
  const ai=captions.slice(captions.indexOf('<section className="friend-caption-ai"'),captions.indexOf('<section className="friend-caption-user"'));
  assert.ok(ai.startsWith('<section className="friend-caption-ai" aria-label={name}>'));
  assert.doesNotMatch(ai,/<FriendAvatar|friend-caption-speaker|friend-caption-avatar|<small/);
- assert.doesNotMatch(captions,/import \\{FriendAvatar\\}|CREW_FRIENDS\\.find/);
- assert.match(ai,/<p ref=\\{replyRef\\} lang=\\{source\\}>/);
+ assert.doesNotMatch(captions,/import \{FriendAvatar\}|CREW_FRIENDS\.find/);
+ assert.match(ai,/<p ref=\{replyRef\} lang=\{source\}>/);
  assert.match(ai,/friend-caption-translation/);
- assert.match(styleRule(callCss,".friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-ai>p"),/font-size:17px;font-weight:500;line-height:1\\.55/);
- assert.match(styleRule(callCss,".friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-translation"),/font-size:14px;line-height:1\\.55/);
+ assert.match(styleRule(callCss,".friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-ai>p"),/font-size:17px;font-weight:500;line-height:1\.55/);
+ assert.match(styleRule(callCss,".friend-live-page:has(.friend-phone-stage) .friend-phone-stage .friend-caption-translation"),/font-size:14px;line-height:1\.55/);
  assert.doesNotMatch(callCss,/friend-caption-speaker|friend-caption-avatar/);
 });
 test("small components and keyboard-open switches remain within the contract",()=>{
