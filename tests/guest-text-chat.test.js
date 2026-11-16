@@ -177,7 +177,7 @@ test("BYOK text now uses a persistent Gemini Live keyboard session",()=>{
  const panel=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/TextChatPanel.tsx"),"utf8");
  const adapter=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/liveTextChat.ts"),"utf8");
  const transport=fs.readFileSync(path.join(__dirname,"../crew-live.js"),"utf8");
- assert.match(panel,/new LiveTextConversation\(prior\?system\+[\s\S]*?\+prior:system,\s*searchEnabled/);
+ assert.match(panel,/new LiveTextConversation\(prior\?returningSystem\+[\s\S]*?\+prior:returningSystem,\s*searchEnabled/);
   assert.match(panel,/if\(!liveChat\.current\)\{/);
  assert.match(panel,/liveChat\.current\.send\(value,partial=>\{/);
  assert.match(panel,/reveal\?\.push\(partial\)/);
@@ -198,8 +198,9 @@ test("a Live 429 error is not presented as exhausted API key quota",()=>{
  const panel=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/TextChatPanel.tsx"),"utf8");
  const adapter=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/liveTextChat.ts"),"utf8");
  const errors=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/textChatByokMessage.ts"),"utf8");
- assert.doesNotMatch(errors,/目前的 Gemini API 配額已用完/);
- assert.match(errors,/不代表整把 API Key 的額度已用完/);
- assert.match(errors,/429：速率或用量限制/);
+ assert.match(errors,/textChat\.byok\./);
+ const zh=JSON.parse(fs.readFileSync(path.join(__dirname,"../web-spa/src/i18n/locales/zh-TW/voice.json"),"utf8"));
+ assert.match(zh.textChat.byok.quota,/不代表整把 API Key 的額度已用完/);
+ assert.match(zh.textChat.byok.quota,/429：速率或用量限制/);
  assert.equal(adapter.includes("tools:[{googleSearch:"),false);
 });

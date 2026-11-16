@@ -116,7 +116,9 @@ test("unavailable phase rejects a pending challenge and first send restores the 
  assert.match(panel,/if\(failure\.reverify&&!start\)\{invalidateGuestGrant\(\);setGuestPhase\("error"\)\}/);
  assert.match(panel,/if\(!key&&guestPhase==="error"\)setGuestPhase\("ready"\)/);
  assert.match(panel,/role="status"/);
- assert.match(panel,/等待驗證・尚未送出/);
+ assert.match(panel,/t\("textChat\.ui\.notSent"\)/);
+ const zhPending=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/voice.json")).textChat.ui.notSent;
+ assert.match(zhPending,/等待驗證・尚未送出/);
 });
 
 test("Worker contract, layout constraints and locale status copy are preserved",()=>{

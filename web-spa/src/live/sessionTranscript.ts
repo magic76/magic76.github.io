@@ -58,6 +58,30 @@ export function readSessionTranscript(scope:string,store?:SessionStore):StoredMe
   return [];
  }catch{return []}
 }
+/** Only a genuine cross-tab/device resume can start a local welcome-back greeting. */
+export type ReturningFriendVisit={at:number;minutes:number;excerpt:string};
+export function readReturningFriendResume(scope:string,tabStore?:Pick<Storage,"getItem">,deviceStore?:Pick<Storage,"getItem">,now=Date.now()):ReturningFriendVisit|null{
+ const friendId=friendIdFromScope(scope);
+ if(!friendId)return null;
+ try{
+  const tab=tabStore||sessionStorage;
+  // A same-tab transcript is not a return visit, even after a long idle period.
+  if(cleanMessages(JSON.parse(tab.getItem(PREFIX+scope)||"null")).length)return null;
+  const resume=savedResumes(deviceStore||localStorage).find(item=>item.friendId===friendId);
+  if(!resume||now-resume.at<30*60*1000)return null;
+  const lastUser=[...resume.messages].reverse().find(m=>m.role==="user");
+  if(!lastUser)return null;
+  const compact=lastUser.text.replace(/\s+/g," ").trim();
+  const chars=Array.from(compact);
+  return {at:resume.at,minutes:Math.max(30,Math.floor((now-resume.at)/60000)),
+   excerpt:chars.slice(0,40).join("")+(chars.length>40?"…":"")};
+ }catch{return null}
+}
+/** System-only hint, never a message or a stored transcript turn. */
+export function returningFriendSystemHint(visit:ReturningFriendVisit):string{
+ const elapsed=visit.minutes<90?`${visit.minutes} minutes`:`${Math.round(visit.minutes/60)} hours`;
+ return `[RETURNING USER] The user is back after about ${elapsed}. Earlier turns are from the previous visit. Greet briefly as a friend who remembers. Continue the prior topic, unless the user asks for something new.`;
+}
 export function writeSessionTranscript(scope:string,messages:StoredMessage[],store?:SessionStore){
  if(!scope)return;
  try{(store||sessionStorage).setItem(PREFIX+scope,JSON.stringify(cleanMessages(messages)))}catch{}

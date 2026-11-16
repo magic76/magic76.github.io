@@ -142,3 +142,12 @@
 .crew-text-guest .crew-text-key-recovery .btn{justify-self:start;max-width:100%;min-height:44px;white-space:normal;text-align:center}
 .friend-text-stage .crew-text-chat.is-chatting .crew-text-guest .crew-text-key-recovery{display:grid;flex:1 0 100%}
 .friend-text-stage .crew-text-chat.is-chatting .crew-text-guest .crew-text-key-recovery p{display:block}
+
+/* A device-local return greeting, never appended to the persisted transcript. */
+.crew-text-welcome-back{display:grid;gap:8px;min-width:0}
+.crew-text-welcome-back .crew-text-return-greeting{max-width:96%;border-color:#bdb4e0;background:#f8f6ff}
+.crew-text-return-actions{display:flex;gap:8px;flex-wrap:wrap;min-width:0}
+.crew-text-return-actions button{min-height:44px;max-width:100%;padding:10px 12px;border:1px solid #8273bc;border-radius:12px;background:#fff;color:#48367e;font:inherit;font-size:13px;font-weight:700;text-align:left;overflow-wrap:anywhere;cursor:pointer}
+.crew-text-return-actions button:focus-visible{outline:2px solid #6650bc;outline-offset:2px}
+@media(max-width:640px){.live-stage.crew-text-keyboard-open .crew-text-return-actions{display:none}}
+@media(prefers-reduced-motion:reduce){.crew-text-welcome-back,.crew-text-return-actions button{animation:none;transition:none}}

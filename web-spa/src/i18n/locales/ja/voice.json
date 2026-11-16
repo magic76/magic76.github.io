@@ -211,13 +211,62 @@
     "challengeUnavailable": "セキュリティ認証を読み込むか完了することができませんでした。もう一度「送信」を押してください。"
   },
   "textChat": {
-    "learning": {"checkButton": "この言い方で合ってる？", "checkQuestion": "この言い方は自然ですか？", "better": "もっと自然：", "summaryTitle": "今日覚えた3つの表現", "dismiss": "学習メモを閉じる"},
+    "learning": {
+      "checkButton": "この言い方で合ってる？",
+      "checkQuestion": "この言い方は自然ですか？",
+      "better": "もっと自然：",
+      "summaryTitle": "今日覚えた3つの表現",
+      "dismiss": "学習メモを閉じる"
+    },
     "typing": "{{name}} が入力中",
     "nextHeading": "次はこう言ってみよう",
     "followUps": {
       "more": "もっと聞かせて。",
       "why": "どうして？",
       "change": "別の話をしよう。"
+    },
+    "ui": {
+      "previousSent": "前のメッセージは送信済みでも返信が届いていない可能性があります。再送すると無料枠をもう1回使うことがあります。",
+      "previousUnsent": "前のメッセージは未送信です。「送信」で再試行できます。",
+      "preparingSend": "送信準備中…",
+      "connectingLive": "Gemini Live に接続中…",
+      "sessionChanged": "接続が更新されました。再確認後に送信します…",
+      "textChat": "テキストチャット",
+      "freePractice": "無料テキスト練習",
+      "usingKey": "自分の Gemini Key を使用中",
+      "useKey": "自分の Key を使う",
+      "useFree": "無料テキストに切り替え",
+      "liveKeyboard": "Gemini Live キーボードチャット・マイク不要",
+      "freeDaily": "無料テキスト練習・1日{{count}}通・API Key 不要",
+      "checking": "無料枠を確認中…",
+      "verification": "Turnstile 認証",
+      "remaining": "今日の無料メッセージ残り{{count}}通",
+      "unavailable": "無料テキストチャットは一時的に利用できません。",
+      "exhausted": "今日の無料メッセージを使い切りました。",
+      "conversation": "会話内容",
+      "empty": "メッセージを入力して {{name}} と話そう。",
+      "you": "あなた",
+      "notSent": "認証待ち・まだ送信していません：",
+      "replying": "{{name}} が返信中…",
+      "message": "メッセージ",
+      "placeholder": "メッセージを入力…",
+      "send": "送信",
+      "notice": "Live テキストと無料練習は別セッションです。マイクは不要です。"
+    },
+    "resume": {
+      "greeting": "おかえり！前は「{{excerpt}}」の話をしてたね。続きを話す？",
+      "continue": "前の話を続ける",
+      "newTopic": "新しい話をする",
+      "continueMessage": "戻ったよ！前の話の続きをしよう。",
+      "newMessage": "戻ったよ！今日は別の話がしたいな。"
+    },
+    "byok": {
+      "key": "Gemini Key が無効か、アクセス権限がありません。",
+      "quota": "Gemini が Live テキストリクエストを拒否しました（429：レートまたは利用制限）。API Key 全体の上限に達したとは限りません。後でもう一度試すか Google AI Studio でモデルの制限を確認してください。",
+      "model": "この Gemini Key ではテキストモデルを利用できません。",
+      "noText": "Gemini Live に接続しましたが、テキストが返ってきませんでした。",
+      "socket": "Gemini Live の WebSocket 接続が切断または拒否されました。もう一度お試しください。",
+      "service": "Gemini Live のテキスト接続に失敗しました。再試行するか無料練習に切り替えてください。"
     }
   }
 }

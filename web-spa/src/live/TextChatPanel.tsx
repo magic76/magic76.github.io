@@ -9,9 +9,10 @@ import {sendGuestTextWithRenewal} from "./guestTextFlow";
 import {useGuestTextChallenge} from "./guestTextChallenge";
 import {hasGuestChallengeHandoff,takeUsedGuestHandoff,takeMicFallbackNotice} from "./guestTextChallenge";
 import {classifyGuestTextFailure,guestTextWorkerError,markGuestTextStartError,isGuestTextStartError} from "./guestTextError";
-import {readSessionTranscript,writeSessionTranscript,saveFriendResume,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
+import {readSessionTranscript,readReturningFriendResume,returningFriendSystemHint,writeSessionTranscript,saveFriendResume,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
 import {TextChatStarters} from "./TextChatStarters";
+import {TextChatWelcomeBack} from "./TextChatWelcomeBack";
 import {TextChatNextReplies,useFriendNextReplyFallback} from "./TextChatNextReplies";
 import {parseFriendReply,stripFriendReplyMeta,friendGuestSystem} from "./textChatReplies";
 import {useTextChatKeyboard} from "./textChatKeyboard";
@@ -42,8 +43,11 @@ function getSavedGuestSession(){
 }
 /** No microphone: BYOK connects to Gemini Live; guests use metered Worker text. */
 export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,starters,showStarterWithHistory=false,autoStarter,replyFallback,shortsContext,onExchange}:Props){
+ const [returnVisit,setReturnVisit]=useState<ReturnType<typeof readReturningFriendResume>>(null);
+ const [returnChoices,setReturnChoices]=useState(false);
  const shortsSystems=shortsContext?buildShortsTextSystems(baseSystem,shortsContext):null;
  const system=shortsSystems?.live||baseSystem;
+ const returningSystem=system+(returnVisit?"\n"+returningFriendSystemHint(returnVisit):"");
  const [messages,setMessages]=useState<Message[]>([]);
  const [draft,setDraft]=useState("");
  const [historyReady,setHistoryReady]=useState(false);
@@ -56,7 +60,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const backendFailureCount=useRef(0);
  const {t}=useTranslation("voice");
  const isFriend=sessionScope.startsWith("friend:");
- // A private browser-local turn token; never use a transcript, name or account ID.
+ // Private reward token; do not use an account ID or transcript.
  const creatureRewardSession=useRef("s"+Date.now().toString(36)+Math.random().toString(36).slice(2));
  const creatureRewardTurn=useRef(0);
  const learning=useFriendTextLearning(system,sessionScope);
@@ -65,7 +69,6 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const [liveStatus,setLiveStatus]=useState("");
  const liveChat=useRef<LiveTextConversation|null>(null);
  const typingRef=useRef<ReturnType<typeof createTypingReveal>|null>(null);
- // A stale, unverified browser key must not silently block free practice.
  const [useGuest,setUseGuest]=useState(()=>!geminiKey()||!geminiVerified());
  const [guestPhase,setGuestPhase]=useState<GuestPhase>("checking");
  const [guestToken,setGuestToken]=useState(getSavedGuestSession);
@@ -87,19 +90,17 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  useEffect(()=>{mounted.current=true;return()=>{
   mounted.current=false;
  }},[]);
- // Restore only after mount: the server and first client render match.
  useEffect(()=>{
+  const visit=readReturningFriendResume(sessionScope);
   const saved=readSessionTranscript(sessionScope);
   const dangling=saved.at(-1)?.role==="user"?saved.pop()?.text:"";
-  // Also recover older transcripts written by the pre-v2 unmount path.
   if(dangling)writeSessionTranscript(sessionScope,saved);
   const pending=readPendingTextDraft(sessionScope);
   if(pending||dangling){
    setDraft(pending?.text||dangling||"");
-   setError(pending?.sent
-    ?english?"The previous message may have been sent without a reply. Retrying may use another free message.":"上一則訊息可能已送出但未收到回覆，重送可能再次使用免費額度。"
-    :english?"Your previous message wasn't sent. Press Send to retry.":"上一則訊息尚未送出，按「送出」即可重試。");
+   setError(t(pending?.sent?"textChat.ui.previousSent":"textChat.ui.previousUnsent"));
   }
+  setReturnVisit(!pending&&!dangling?visit:null);setReturnChoices(Boolean(visit&&!pending&&!dangling));
   latestMessages.current=saved;
   setNextReplies(isFriend&&!pending&&!dangling&&saved.at(-1)?.role==="assistant"?(replyFallback||"fallback"):null);
   setMessages(saved);setHistoryReady(true);
@@ -116,12 +117,10 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  useEffect(()=>()=>{
   typingRef.current?.cancel();typingRef.current=null;
   liveChat.current?.close();liveChat.current=null;
- },[guestMode,system,searchEnabled]);
+ },[guestMode,returningSystem,searchEnabled]);
  useEffect(()=>{
   if(messages.length&&history.current)history.current.scrollTop=history.current.scrollHeight;
  },[messages.length,messages.at(-1)?.text.length,historyReady,nextReplies]);
- // A late Turnstile iframe changes the available height after transcript restore.
- // Observe both the challenge and the scroll viewport, not just message changes.
  useEffect(()=>{
   const log=history.current,guest=guestBox.current;
   if(!log||typeof ResizeObserver!=="function")return;
@@ -180,8 +179,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   }catch(reason){
    const failure=classifyGuestTextFailure(reason);
    if(handedOff&&failure.reverify&&mounted.current){
-    // The transferred Turnstile token can expire before the Worker sees it.
-    // One transparent retry uses a fresh normal, verify-on-send challenge.
+    // A transferred challenge may expire; retry with fresh verification.
     setGuestPhase("ready");
     return startGuestText();
    }
@@ -194,7 +192,8 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  async function sendMessage(text:string){
   const value=text.trim().slice(0,1200);
   if(!value||busy)return;
-  setNextReplies(null);
+  setNextReplies(null);setReturnChoices(false);
+  const returningHint=returnVisit?returningFriendSystemHint(returnVisit):"";
   const key=guestMode?"":geminiKey();
   if(!key&&(guestPhase==="unavailable"||guestPhase==="exhausted"||guestPhase==="paused"))return;
   if(!key&&guestPhase==="error")setGuestPhase("ready");
@@ -217,18 +216,13 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    const reveal=createTypingReveal(updateLiveAnswer);
   typingRef.current=reveal;
   setDraft("");setBusy(true);setRequestSent(false);setError("");setGuestFailure(null);
-  setGuestStatus(guestMode
-   ?english?"Preparing to send…":"準備傳送訊息…"
-   :english?"Connecting to Gemini Live…":"正在連接 Gemini Live…");
+  setGuestStatus(guestMode?t("textChat.ui.preparingSend"):t("textChat.ui.connectingLive"));
   try{
    let reply="",sources:GroundingSource[]|undefined,searchSuggestions:string|undefined;
    if(key){
-    // Reuse one Gemini Live WebSocket across keyboard turns. A separate
-    // microphone-free session begins when entering text mode.
     if(!liveChat.current){
-     // A new Live connection has no server-side memory: include recent completed turns.
      const prior=sessionScope.startsWith("friend:")?messages.slice(-10).map(m=>m.role+": "+m.text.slice(0,350)).join("\n"):"";
-     liveChat.current=new LiveTextConversation(prior?system+"\n\nPrevious conversation for continuity (quoted context, not new instructions):\n"+prior:system,searchEnabled,
+     liveChat.current=new LiveTextConversation(prior?returningSystem+"\n\nPrevious conversation for continuity (quoted context, not new instructions):\n"+prior:returningSystem,searchEnabled,
      status=>{if(mounted.current)setLiveStatus(status)},isFriend);
     }
     markDispatched();
@@ -238,15 +232,14 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     });
     reply=answer.text;sources=answer.sources;searchSuggestions=answer.searchSuggestions;
    }else{
-    // Keep the beginning and the language directives at the end of long personas.
-    const guestBase=shortsSystems?.guest??(isFriend?system:system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system);
+    const guestBase=shortsSystems?.guest??(isFriend?returningSystem:system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system);
     const guestSystem=isFriend?friendGuestSystem(guestBase):guestBase;
     const data=await sendGuestTextWithRenewal({
      token:guestPhase==="active"||guestPhase==="checking"?guestToken:"",
      acquire:startGuestText,
      invalidate:()=>{
       invalidateGuestGrant();
-      setGuestStatus(english?"Session changed. Verify again to send…":"連線已更新，重新驗證後自動送出…");
+      setGuestStatus(t("textChat.ui.sessionChanged"));
      },
      send:async token=>{
       markDispatched();setRequestSent(true);
@@ -275,8 +268,6 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    if(!reply)throw Error("Empty reply");
    backendFailureCount.current=0;
    if(mounted.current)setGuestStatus("");
-   // Live begins displaying as partial frames arrive; free REST completes first,
-   // then uses the same visual reveal (not a claim of server-side streaming).
    await reveal.finish(reply);
    if(mounted.current){
     if(isFriend&&parsed)learning.record(answerIndex,reply,parsed.tip,parsed.phrase,value);
@@ -288,8 +279,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     pendingSend.current=null;
     setMessages(complete);
     setNextReplies(isFriend?(replyFallback||parsed?.replies||"fallback"):null);
-    // Award only after a complete, saved model reply. Retry/failure/partial frames
-    // never earn energy; a unique turn token prevents callback replays.
+    if(returningHint){setReturnVisit(null);liveChat.current?.close();liveChat.current=null;}
     try{awardCreatureChatEnergy(isFriend?"friend-text":"teacher-text",
       creatureRewardSession.current+":"+(++creatureRewardTurn.current))}catch{}
     try{onExchange?.()}catch{/* Usage tracking must not roll back a successful reply. */}
@@ -307,7 +297,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
      (/RESOURCE_EXHAUSTED|quota/i.test(type)||status===429?"quota":
       /NOT_FOUND|unsupported model|model not found/i.test(type)||[400,404].includes(status)?"model":
       /UNAUTHENTICATED|PERMISSION_DENIED|invalid.*key/i.test(type)||[401,403].includes(status)?"key":"service");
-    const byokMessage=textChatByokMessage(category,type,english);
+    const byokMessage=textChatByokMessage(category,type,t);
     if(key){setError(byokMessage);setGuestFailure(null)}
     else{
      const failure=classifyGuestTextFailure(reason);
@@ -324,48 +314,48 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    if(mounted.current){setBusy(false);setRequestSent(false)}
   }
  }
- // Explicit fortune-page handoff only. Never send on ordinary friend or Shorts entry.
  useEffect(()=>{
   if(!historyReady||!autoStarter||autoSent.current===sessionScope||messages.length||draft.trim()||readPendingTextDraft(sessionScope))return;
   autoSent.current=sessionScope;void sendMessage(autoStarter);
  },[historyReady,sessionScope,autoStarter,messages.length,draft]);
- return <section ref={chatRoot} className={"crew-text-chat"+(messages.length||busy||guestPhase==="active"?" is-chatting":"")} aria-label={english?"Text chat":"文字聊天"}>
+ return <section ref={chatRoot} className={"crew-text-chat"+(messages.length||busy||guestPhase==="active"?" is-chatting":"")} aria-label={t("textChat.ui.textChat")}>
   {hasKey&&<div className="crew-text-mode-choice">
-   <span>{guestMode?(english?"Free text practice":"免費文字練習"):(english?"Using your Gemini key":"使用自己的 Gemini Key")}</span>
+   <span>{guestMode?t("textChat.ui.freePractice"):t("textChat.ui.usingKey")}</span>
    <button type="button" className="btn secondary small" disabled={busy} onClick={()=>{
     clearPendingTextDraft(sessionScope);pendingSend.current=null;
-    setUseGuest(current=>!current);setError("");setGuestFailure(null);setMessages([]);setDraft("");setLiveStatus("");
-   }}>{guestMode?(english?"Use my key":"使用自己的 Key"):(english?"Switch to free text":"改用免費文字")}</button>
+    setUseGuest(current=>!current);setError("");setGuestFailure(null);setMessages([]);setDraft("");setLiveStatus("");setReturnVisit(null);setReturnChoices(false);
+   }}>{guestMode?t("textChat.ui.useKey"):t("textChat.ui.useFree")}</button>
   </div>}
-  {!guestMode&&<small role="status" className="crew-text-chat-live-status">{liveStatus||(english?"Gemini Live keyboard chat · no microphone":"Gemini Live 鍵盤對話・不需麥克風")}</small>}
-  {guestMode&&<div ref={guestBox} className="crew-text-guest" role="region" aria-label={english?"Free text practice":"免費文字練習"}>
-   <strong>{english?`Free text practice · ${GUEST_TEXT_DAILY_TURNS} messages/day · no API key`:`免費文字練習・每天 ${GUEST_TEXT_DAILY_TURNS} 則・不需 API Key`}</strong>
+  {!guestMode&&<small role="status" className="crew-text-chat-live-status">{liveStatus||t("textChat.ui.liveKeyboard")}</small>}
+  {guestMode&&<div ref={guestBox} className="crew-text-guest" role="region" aria-label={t("textChat.ui.freePractice")}>
+   <strong>{t("textChat.ui.freeDaily",{count:GUEST_TEXT_DAILY_TURNS})}</strong>
    {micFallbackNotice&&<small role="status">{t("guestText.micFallbackNotice",{name:speaker})}</small>}
-   {guestPhase==="checking"&&<small role="status">{english?"Checking availability…":"正在確認免費額度…"}</small>}
-   {challengeRequested&&guestPhase==="ready"&&<><div ref={host} className="crew-text-challenge-host" aria-label="Turnstile verification"/>
+   {guestPhase==="checking"&&<small role="status">{t("textChat.ui.checking")}</small>}
+   {challengeRequested&&guestPhase==="ready"&&<><div ref={host} className="crew-text-challenge-host" aria-label={t("textChat.ui.verification")}/>
     <small role="status">{t("guestText.interactionHint")}</small></>}
    {guestPhase==="starting"&&<small role="status">{t("guestText.connecting")}</small>}
-   {guestPhase==="active"&&remaining!==null&&<small role="status">{english?remaining+" free messages remaining":"今日剩餘 "+remaining+" 則免費訊息"}</small>}
+   {guestPhase==="active"&&remaining!==null&&<small role="status">{t("textChat.ui.remaining",{count:remaining})}</small>}
    {guestPhase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.verifyAgain")}</button>}
    {guestPhase==="paused"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.restart")}</button>}
-   {guestPhase==="unavailable"&&<small role="status">{english?"Free text chat is temporarily unavailable.":"免費文字聊天暫時無法使用。"}</small>}
-   {guestPhase==="exhausted"&&<small role="status">{english?"Today's free messages have been used.":"今天的免費文字訊息已用完。"}</small>}
+   {guestPhase==="unavailable"&&<small role="status">{t("textChat.ui.unavailable")}</small>}
+   {guestPhase==="exhausted"&&<small role="status">{t("textChat.ui.exhausted")}</small>}
    {(guestPhase==="unavailable"||guestPhase==="exhausted")&&<GuestKeyRecovery exhausted={guestPhase==="exhausted"} hasKey={hasKey}/>}
   </div>}
-  <div ref={history} className="crew-text-chat-history" role="log" aria-label={english?"Conversation":"對話內容"} aria-live="polite" aria-relevant="additions">
-   {!messages.length&&!firstStarter&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}
+  <div ref={history} className="crew-text-chat-history" role="log" aria-label={t("textChat.ui.conversation")} aria-live="polite" aria-relevant="additions">
+   {!messages.length&&!firstStarter&&<p className="crew-text-chat-empty">{t("textChat.ui.empty",{name:speaker})}</p>}
    {historyReady&&!messages.length&&!draft.trim()&&!busy&&sessionScope.startsWith("friend:")&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} starters={starters}/>}
-   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>
+   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?t("textChat.ui.you"):speaker}</strong><p>{m.text}</p>
    {isFriend&&m.role==="user"&&!messages.slice(i+1).some(item=>item.role==="user")&&learning.canCheck(i,m.text)&&<FriendLearningCheck disabled={busy||(guestMode&&["unavailable","exhausted","paused"].includes(guestPhase))} onClick={()=>learning.check(i,m.text,value=>void sendMessage(value))}/>}
    {isFriend&&m.role==="assistant"&&(!busy||i!==messages.length-1)&&learning.notes.find(note=>note.index===i&&note.reply===m.text)?.tip&&<FriendLearningTip text={learning.notes.find(note=>note.index===i)?.tip||""}/>}{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}
    {m.role==="assistant"&&busy&&i===messages.length-1&&<span className="crew-text-stream-cursor" aria-hidden="true">▍</span>}</div>)}
    {busy&&pendingSend.current&&!pendingSend.current.sent&&<p className="crew-text-chat-pending" role="status">
-    {english?"Awaiting verification · not sent yet: ":"等待驗證・尚未送出："}{pendingSend.current.value}
+    {t("textChat.ui.notSent")}{pendingSend.current.value}
    </p>}
    {busy&&requestSent&&messages.at(-1)?.role!=="assistant"&&(isFriend?<div className="crew-text-typing-bubble" role="status" aria-live="off">
     <span>{t("textChat.typing",{name:speaker})}</span><span className="crew-text-typing-dots" aria-hidden="true"><i/><i/><i/></span>
-   </div>:<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>)}
-   {isFriend&&!busy&&!draft.trim()&&messages.at(-1)?.role==="assistant"&&nextReplies&&<TextChatNextReplies replies={nextReplies==="fallback"?fallbackReplies:nextReplies} onPick={sentence=>void sendMessage(sentence)}/>}
+   </div>:<p className="crew-text-chat-pending" role="status">{t("textChat.ui.replying",{name:speaker})}</p>)}
+   {returnVisit&&!busy&&<TextChatWelcomeBack visit={returnVisit} name={speaker} showChoices={returnChoices&&!draft.trim()} onPick={message=>void sendMessage(message)}/>}
+   {isFriend&&!returnVisit&&!busy&&!draft.trim()&&messages.at(-1)?.role==="assistant"&&nextReplies&&<TextChatNextReplies replies={nextReplies==="fallback"?fallbackReplies:nextReplies} onPick={sentence=>void sendMessage(sentence)}/>}
    {isFriend&&!learning.dismissed&&<FriendLearningSummary phrases={learning.summary(messages)} onDismiss={learning.dismiss}/>}
    <div ref={bottom}/>
   </div>
@@ -379,13 +369,13 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   </div>}
   {historyReady&&messages.length>0&&showStarterWithHistory&&firstStarter&&!draft.trim()&&!busy&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} firstOnly/>}
   <form className="crew-text-chat-form" onSubmit={event=>{event.preventDefault();void sendMessage(draft)}}>
-   <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>{
-    const value=e.target.value;setDraft(value);if(value)setNextReplies(null);
+   <input type="text" aria-label={t("textChat.ui.message")} autoComplete="off" maxLength={1200} value={draft} onChange={e=>{
+    const value=e.target.value;setDraft(value);if(value){setNextReplies(null);setReturnChoices(false)}
     const unsent=readPendingTextDraft(sessionScope);
     if(unsent){if(value)writePendingTextDraft(sessionScope,{text:value,sent:false});else clearPendingTextDraft(sessionScope)}
-   }} placeholder={english?"Write a message…":"輸入訊息…"} disabled={busy||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"||guestPhase==="paused"))}/>
-   <button className="btn primary" type="submit" disabled={busy||!draft.trim()||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"||guestPhase==="paused"))}>{english?"Send":"送出"}</button>
+   }} placeholder={t("textChat.ui.placeholder")} disabled={busy||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"||guestPhase==="paused"))}/>
+   <button className="btn primary" type="submit" disabled={busy||!draft.trim()||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"||guestPhase==="paused"))}>{t("textChat.ui.send")}</button>
   </form>
-  <small className="crew-text-chat-notice">{hint||(english?"Text-only Live and free practice keep separate sessions. No microphone is used.":"Live 文字對話與免費練習使用各自的連線，無須開啟麥克風。")}</small>
+  <small className="crew-text-chat-notice">{hint||t("textChat.ui.notice")}</small>
  </section>;
 }

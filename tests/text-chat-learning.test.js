@@ -112,7 +112,7 @@ test('eleven locales have only string leaves, no guestText or followUps alterati
   assert.deepEqual(Object.keys(data.textChat.learning).sort(),['better','checkButton','checkQuestion','dismiss','summaryTitle']);
   assert.ok(Object.values(data.textChat.learning).every(v=>typeof v==='string'&&v.trim()),locale);
   assert.equal(Object.keys(data.textChat.followUps).length,3);
-  assert.equal(Object.keys(data.guestText).length,22);
+  assert.equal(Object.keys(data.guestText).length,25);
  }
  const panel=read('web-spa/src/live/TextChatPanel.tsx');
  const ui=read('web-spa/src/live/TextChatLearning.tsx');

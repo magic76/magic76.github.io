@@ -288,7 +288,7 @@
     "title": "Zoes Deutung für heute",
     "loading": "Zoe formuliert deine heutige Deutung…",
     "staticNote": "Zoes kurze Deutung aus der Tageskarte – ohne KI.",
-    "fallback": "Also, {{kind}} gibt heute den Hinweis „{{headline}}“. Klingt groß, aber wichtig ist: {{theme}}\n\nProbier zuerst {{do}}. Bei {{avoid}} lieber einen Gang zurückschalten. Deine Glücksfarbe ist {{color}} – als kleine Erinnerung, nicht als Zaubertrick.",
+    "fallback": "Also, {{kind}} gibt heute den Hinweis „{{headline}}“. Klingt groß, aber wichtig ist: {{theme}}\n\nHeute könntest du das ausprobieren: „{{do}}“\nUnd das lässt du lieber bleiben: „{{avoid}}“\nDeine Glücksfarbe ist {{color}} – eine kleine Erinnerung, kein Zaubertrick.",
     "needKey": "Für eine neue KI-Deutung von Zoe brauchst du einen Gemini Key. Diese Version geht ohne.",
     "continueChat": "Mit Zoe im Chat weiterreden",
     "keyMore": "Persönliche Live-Deutung gewünscht? Gemini Key einrichten",

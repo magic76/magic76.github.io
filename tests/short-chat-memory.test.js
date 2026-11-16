@@ -126,7 +126,7 @@ test("Teacher and Friend text mode bypasses microphone auto-start and uses text-
   assert.match(source,/<TextChatPanel/);
   assert.match(source,/live\.stop\(true\)\.finally/);
  }
- assert.match(panel,/new LiveTextConversation\(prior\?system\+[\s\S]*?\+prior:system,\s*searchEnabled/);
+ assert.match(panel,/new LiveTextConversation\(prior\?returningSystem\+[\s\S]*?\+prior:returningSystem,\s*searchEnabled/);
  assert.doesNotMatch(panel,/getUserMedia\(/);
  const adapter=fs.readFileSync(path.join(root,"web-spa/src/live/liveTextChat.ts"),"utf8");
  assert.match(adapter,/textOnly:true/);

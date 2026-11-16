@@ -102,8 +102,8 @@ test("quota recovery promotes free key creation and returns to the same conversa
  assert.ok(recovery.includes('exhausted&&!hasKey&&<p>{t("guestText.nextDayHint")}</p>'));
  assert.ok(recovery.includes('hasKey?t("guestText.useKey"):t("guestText.applyKey")'));
  assert.ok(recovery.includes('!hasKey&&<small>{t("guestText.keyApplyNote")}</small>'));
- assert.match(css,/\\.crew-text-guest \\.crew-text-key-recovery \\.btn\\{[^}]*min-height:44px/);
- assert.match(css,/\\.crew-text-chat\\.is-chatting \\.crew-text-guest \\.crew-text-key-recovery p\\{display:block\\}/);
+ assert.match(css,/\.crew-text-guest \.crew-text-key-recovery \.btn\{[^}]*min-height:44px/);
+ assert.match(css,/\.crew-text-chat\.is-chatting \.crew-text-guest \.crew-text-key-recovery p\{display:block\}/);
  for(const locale of ["zh-TW","en","ja","ko","es","fr","de","pt-BR","id","vi","th"]){
   const strings=JSON.parse(read(`web-spa/src/i18n/locales/${locale}/voice.json`)).guestText;
   for(const key of ["nextDayHint","applyKey","keyApplyNote"])assert.ok(strings[key]?.trim(),locale+" "+key);

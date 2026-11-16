@@ -114,7 +114,9 @@ test("During Turnstile / connection, the friend must not be labelled as typing",
  assert.match(panel,/setRequestSent\(true\)/);
  assert.match(panel,/markDispatched\(\);setRequestSent\(true\);/);
  assert.match(text,/pendingSend\.current&&!pendingSend\.current\.sent/);
- assert.match(text,/等待驗證・尚未送出/);
+ assert.match(text,/t\("textChat\.ui\.notSent"\)/);
+ const zhPending=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/voice.json")).textChat.ui.notSent;
+ assert.match(zhPending,/等待驗證・尚未送出/);
  assert.match(panel,/await waitForChallenge\(\)/);
 });
 test("Restored Turnstile layout re-scrolls history after widget resize",()=>{
