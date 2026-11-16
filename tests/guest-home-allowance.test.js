@@ -12,7 +12,13 @@ test("guest text allowance agrees with the Worker DAILY_TURNS",()=>{
  assert.ok(frontend,"front end must expose the shared quota");
  assert.equal(Number(frontend[1]),Number(backend[1]));
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
- assert.match(panel,/\$\{GUEST_TEXT_DAILY_TURNS\}/);
+ // The translated UI must still take its quota from the Worker-aligned shared constant.
+ assert.match(panel,/t\(["']textChat\.ui\.freeDaily["']\s*,\s*\{\s*count\s*:\s*GUEST_TEXT_DAILY_TURNS\s*\}\s*\)/);
+ for(const lang of locales){
+  const freeDaily=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/voice.json`)).textChat?.ui?.freeDaily;
+  assert.equal(typeof freeDaily,"string",lang+":textChat.ui.freeDaily");
+  assert.match(freeDaily,/\{\{count\}\}/,lang+":textChat.ui.freeDaily must interpolate count");
+ }
  assert.doesNotMatch(panel,/Up to 12 messages|每天最多 12 則/);
 });
 

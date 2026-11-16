@@ -288,7 +288,7 @@
     "title": "Tafsiran hari ini oleh Zoe",
     "loading": "Zoe sedang merangkai tafsiran hari ini…",
     "staticNote": "Catatan Zoe dari kartu harianmu, tanpa AI.",
-    "fallback": "Nah, {{kind}} memberi petunjuk hari ini: “{{headline}}”. Kedengarannya besar, tetapi intinya: {{theme}}\n\nCoba mulai dari {{do}}. Untuk {{avoid}}, jangan memaksakan diri. Warna keberuntunganmu {{color}}; anggap sebagai pengingat kecil, bukan jaminan.",
+    "fallback": "Nah, {{kind}} memberi petunjuk hari ini: “{{headline}}”. Kedengarannya besar, tetapi intinya: {{theme}}\n\nSatu hal yang bisa dicoba hari ini: “{{do}}”\nDan satu hal yang sebaiknya dihindari: “{{avoid}}”\nWarna keberuntunganmu {{color}}; anggap saja sebagai pengingat kecil, bukan jaminan.",
     "needKey": "Perlu Gemini Key untuk tafsiran AI baru dari Zoe. Versi ini bisa dibaca tanpa Key.",
     "continueChat": "Lanjut ngobrol dengan Zoe",
     "keyMore": "Ingin tafsir pribadi langsung? Atur Gemini Key",

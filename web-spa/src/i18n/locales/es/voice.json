@@ -211,13 +211,62 @@
     "challengeUnavailable": "No se pudo cargar o completar la verificación de seguridad. Pulsa Enviar de nuevo."
   },
   "textChat": {
-    "learning": {"checkButton": "¿Lo dije bien?", "checkQuestion": "¿Suena natural esta frase?", "better": "Más natural:", "summaryTitle": "3 expresiones de hoy", "dismiss": "Cerrar resumen"},
+    "learning": {
+      "checkButton": "¿Lo dije bien?",
+      "checkQuestion": "¿Suena natural esta frase?",
+      "better": "Más natural:",
+      "summaryTitle": "3 expresiones de hoy",
+      "dismiss": "Cerrar resumen"
+    },
     "typing": "{{name}} está escribiendo",
     "nextHeading": "Puedes decir",
     "followUps": {
       "more": "Cuéntame más.",
       "why": "¿Por qué?",
       "change": "Hablemos de otra cosa."
+    },
+    "ui": {
+      "previousSent": "Es posible que el mensaje anterior se haya enviado sin respuesta. Reintentar podría consumir otro mensaje gratis.",
+      "previousUnsent": "El mensaje anterior no se envió. Pulsa Enviar para reintentar.",
+      "preparingSend": "Preparando envío…",
+      "connectingLive": "Conectando con Gemini Live…",
+      "sessionChanged": "La sesión cambió. Verifica de nuevo para enviar…",
+      "textChat": "Chat de texto",
+      "freePractice": "Práctica de texto gratis",
+      "usingKey": "Usando tu clave de Gemini",
+      "useKey": "Usar mi clave",
+      "useFree": "Cambiar a texto gratis",
+      "liveKeyboard": "Chat escrito con Gemini Live · sin micrófono",
+      "freeDaily": "Práctica gratuita · {{count}} mensajes al día · sin clave API",
+      "checking": "Comprobando disponibilidad…",
+      "verification": "Verificación Turnstile",
+      "remaining": "Quedan {{count}} mensajes gratis hoy",
+      "unavailable": "El chat de texto gratuito no está disponible temporalmente.",
+      "exhausted": "Ya agotaste tus mensajes gratis de hoy.",
+      "conversation": "Conversación",
+      "empty": "Escribe un mensaje para empezar a hablar con {{name}}.",
+      "you": "Tú",
+      "notSent": "Esperando verificación · aún no enviado: ",
+      "replying": "{{name}} está respondiendo…",
+      "message": "Mensaje",
+      "placeholder": "Escribe un mensaje…",
+      "send": "Enviar",
+      "notice": "El modo Live escrito y la práctica gratis usan sesiones separadas. No hace falta micrófono."
+    },
+    "resume": {
+      "greeting": "¡Qué bueno verte de nuevo! La última vez hablamos de «{{excerpt}}». ¿Seguimos?",
+      "continue": "Seguir lo de antes",
+      "newTopic": "Cambiar de tema",
+      "continueMessage": "¡Ya volví! Sigamos donde lo dejamos.",
+      "newMessage": "Volví y hoy quiero hablar de algo nuevo."
+    },
+    "byok": {
+      "key": "La clave de Gemini no es válida o no tiene permisos.",
+      "quota": "Gemini rechazó la solicitud Live de texto (429: límite de frecuencia o uso). No implica necesariamente que tu clave API se haya quedado sin cuota. Inténtalo más tarde o revisa el modelo en Google AI Studio.",
+      "model": "El modelo de texto Gemini no está disponible con esta clave.",
+      "noText": "Gemini Live se conectó, pero no devolvió ninguna transcripción.",
+      "socket": "La conexión WebSocket de Gemini Live se interrumpió o rechazó. Vuelve a intentarlo.",
+      "service": "Falló la conexión de texto de Gemini Live. Reintenta o cambia a la práctica gratuita."
     }
   }
 }

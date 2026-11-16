@@ -211,13 +211,62 @@
     "challengeUnavailable": "Security verification could not load or complete. Press Send to try again."
   },
   "textChat": {
-    "learning": {"checkButton": "Did I say that right?", "checkQuestion": "Does this sentence sound natural?", "better": "More natural:", "summaryTitle": "3 expressions from today", "dismiss": "Dismiss learning recap"},
+    "learning": {
+      "checkButton": "Did I say that right?",
+      "checkQuestion": "Does this sentence sound natural?",
+      "better": "More natural:",
+      "summaryTitle": "3 expressions from today",
+      "dismiss": "Dismiss learning recap"
+    },
     "typing": "{{name}} is typing",
     "nextHeading": "You could say",
     "followUps": {
       "more": "Tell me more.",
       "why": "Why is that?",
       "change": "Let’s talk about something else."
+    },
+    "ui": {
+      "previousSent": "The previous message may have been sent without a reply. Retrying may use another free message.",
+      "previousUnsent": "Your previous message wasn’t sent. Press Send to retry.",
+      "preparingSend": "Preparing to send…",
+      "connectingLive": "Connecting to Gemini Live…",
+      "sessionChanged": "Session changed. Verify again to send…",
+      "textChat": "Text chat",
+      "freePractice": "Free text practice",
+      "usingKey": "Using your Gemini key",
+      "useKey": "Use my key",
+      "useFree": "Switch to free text",
+      "liveKeyboard": "Gemini Live keyboard chat · no microphone",
+      "freeDaily": "Free text practice · {{count}} messages/day · no API key",
+      "checking": "Checking availability…",
+      "verification": "Turnstile verification",
+      "remaining": "{{count}} free messages remaining",
+      "unavailable": "Free text chat is temporarily unavailable.",
+      "exhausted": "Today’s free messages have been used.",
+      "conversation": "Conversation",
+      "empty": "Type a message to start chatting with {{name}}.",
+      "you": "You",
+      "notSent": "Awaiting verification · not sent yet: ",
+      "replying": "{{name}} is typing…",
+      "message": "Message",
+      "placeholder": "Write a message…",
+      "send": "Send",
+      "notice": "Text-only Live and free practice keep separate sessions. No microphone is used."
+    },
+    "resume": {
+      "greeting": "Welcome back! Last time we talked about “{{excerpt}}”. Want to pick up there?",
+      "continue": "Continue last chat",
+      "newTopic": "Talk about something new",
+      "continueMessage": "I’m back! Let’s pick up where we left off.",
+      "newMessage": "I’m back, and I’d like to talk about something new today."
+    },
+    "byok": {
+      "key": "This Gemini key is invalid or lacks permission.",
+      "quota": "Gemini rejected this Live text request (429: rate or usage limit). This does not necessarily mean your API key is out of quota. Try again later or check this model in Google AI Studio.",
+      "model": "The Gemini text model is unavailable for this key.",
+      "noText": "Gemini Live connected but returned no text transcript.",
+      "socket": "Gemini Live WebSocket connection was interrupted or rejected. Please retry.",
+      "service": "Gemini Live text connection failed. Retry or switch to free practice."
     }
   }
 }

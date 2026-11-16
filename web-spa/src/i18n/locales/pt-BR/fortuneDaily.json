@@ -288,7 +288,7 @@
     "title": "A leitura de hoje da Zoe",
     "loading": "Zoe está preparando a leitura de hoje…",
     "staticNote": "Uma leitura da Zoe baseada no seu cartão, sem IA.",
-    "fallback": "Olha só, {{kind}} trouxe uma pista hoje: “{{headline}}”. Parece dramático, mas o ponto é: {{theme}}\n\nComece por {{do}}. E vá com calma em {{avoid}}. Sua cor da sorte é {{color}}; pense nela como lembrete, não como garantia.",
+    "fallback": "Olha só, {{kind}} trouxe uma pista hoje: “{{headline}}”. Parece dramático, mas o ponto é: {{theme}}\n\nUma ideia para experimentar hoje: “{{do}}”\nE algo para evitar: “{{avoid}}”\nSua cor da sorte é {{color}}; pense nela como um lembrete, não como garantia.",
     "needKey": "Para uma nova leitura por IA, você precisa de uma chave Gemini. Esta versão não precisa.",
     "continueChat": "Continuar falando com Zoe no chat",
     "keyMore": "Quer uma leitura personalizada? Configure a chave Gemini",

@@ -211,13 +211,62 @@
     "challengeUnavailable": "보안 인증을 불러오거나 완료하지 못했어요. 보내기를 다시 눌러 주세요."
   },
   "textChat": {
-    "learning": {"checkButton": "이렇게 말해도 돼?", "checkQuestion": "이 문장은 자연스러운가요?", "better": "더 자연스럽게:", "summaryTitle": "오늘 배운 표현 3개", "dismiss": "학습 요약 닫기"},
+    "learning": {
+      "checkButton": "이렇게 말해도 돼?",
+      "checkQuestion": "이 문장은 자연스러운가요?",
+      "better": "더 자연스럽게:",
+      "summaryTitle": "오늘 배운 표현 3개",
+      "dismiss": "학습 요약 닫기"
+    },
     "typing": "{{name}}님이 입력 중",
     "nextHeading": "다음에 이렇게 말해 보세요",
     "followUps": {
       "more": "더 얘기해 줘.",
       "why": "왜 그래?",
       "change": "다른 얘기 하자."
+    },
+    "ui": {
+      "previousSent": "이전 메시지가 전송되었지만 답장을 받지 못했을 수 있어요. 다시 보내면 무료 메시지가 한 번 더 차감될 수 있어요.",
+      "previousUnsent": "이전 메시지는 전송되지 않았어요. 보내기를 눌러 다시 시도하세요.",
+      "preparingSend": "메시지 전송 준비 중…",
+      "connectingLive": "Gemini Live 연결 중…",
+      "sessionChanged": "세션이 변경됐어요. 다시 인증한 뒤 전송합니다…",
+      "textChat": "텍스트 채팅",
+      "freePractice": "무료 텍스트 연습",
+      "usingKey": "내 Gemini 키 사용 중",
+      "useKey": "내 키 사용",
+      "useFree": "무료 텍스트로 전환",
+      "liveKeyboard": "Gemini Live 키보드 채팅 · 마이크 불필요",
+      "freeDaily": "무료 텍스트 연습 · 하루 {{count}}개 · API 키 불필요",
+      "checking": "무료 이용 가능 여부 확인 중…",
+      "verification": "Turnstile 인증",
+      "remaining": "오늘 남은 무료 메시지 {{count}}개",
+      "unavailable": "무료 텍스트 채팅을 일시적으로 이용할 수 없어요.",
+      "exhausted": "오늘 무료 메시지를 모두 사용했어요.",
+      "conversation": "대화 내용",
+      "empty": "메시지를 입력해 {{name}}와 대화를 시작하세요.",
+      "you": "나",
+      "notSent": "인증 대기 · 아직 전송되지 않음: ",
+      "replying": "{{name}} 님이 답장 중…",
+      "message": "메시지 입력",
+      "placeholder": "메시지 입력…",
+      "send": "보내기",
+      "notice": "Live 텍스트와 무료 연습은 세션이 분리되어 있어요. 마이크는 필요 없어요."
+    },
+    "resume": {
+      "greeting": "다시 와서 반가워! 지난번엔 “{{excerpt}}” 이야기를 했지. 이어서 얘기할까?",
+      "continue": "이어서 대화하기",
+      "newTopic": "새로운 주제로",
+      "continueMessage": "나 돌아왔어! 지난번 이야기 이어서 하자.",
+      "newMessage": "나 돌아왔어. 오늘은 새로운 얘기를 하고 싶어."
+    },
+    "byok": {
+      "key": "Gemini 키가 유효하지 않거나 권한이 없어요.",
+      "quota": "Gemini가 Live 텍스트 요청을 거부했어요(429: 속도 또는 사용 제한). API 키 전체 할당량이 소진됐다는 뜻은 아닙니다. 나중에 다시 시도하거나 Google AI Studio에서 모델 제한을 확인하세요.",
+      "model": "이 Gemini 키로는 텍스트 모델을 사용할 수 없어요.",
+      "noText": "Gemini Live에 연결됐지만 텍스트 응답이 없었어요.",
+      "socket": "Gemini Live WebSocket 연결이 끊어지거나 거부됐어요. 다시 시도하세요.",
+      "service": "Gemini Live 텍스트 연결에 실패했어요. 다시 시도하거나 무료 연습으로 전환하세요."
     }
   }
 }

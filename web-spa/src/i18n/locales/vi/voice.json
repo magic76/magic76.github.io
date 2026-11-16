@@ -211,13 +211,62 @@
     "challengeUnavailable": "Không thể tải hoặc hoàn tất xác minh bảo mật. Hãy nhấn Gửi lần nữa."
   },
   "textChat": {
-    "learning": {"checkButton": "Mình nói đúng chưa?", "checkQuestion": "Câu này có tự nhiên không?", "better": "Tự nhiên hơn:", "summaryTitle": "3 cách diễn đạt hôm nay", "dismiss": "Đóng phần tổng kết"},
+    "learning": {
+      "checkButton": "Mình nói đúng chưa?",
+      "checkQuestion": "Câu này có tự nhiên không?",
+      "better": "Tự nhiên hơn:",
+      "summaryTitle": "3 cách diễn đạt hôm nay",
+      "dismiss": "Đóng phần tổng kết"
+    },
     "typing": "{{name}} đang nhập",
     "nextHeading": "Bạn có thể nói",
     "followUps": {
       "more": "Kể thêm cho mình nhé.",
       "why": "Tại sao vậy?",
       "change": "Mình nói chuyện khác nhé."
+    },
+    "ui": {
+      "previousSent": "Tin trước có thể đã gửi nhưng chưa nhận được phản hồi. Thử lại có thể tốn thêm một lượt miễn phí.",
+      "previousUnsent": "Tin trước chưa được gửi. Nhấn Gửi để thử lại.",
+      "preparingSend": "Đang chuẩn bị gửi…",
+      "connectingLive": "Đang kết nối Gemini Live…",
+      "sessionChanged": "Phiên đã thay đổi. Xác minh lại để gửi…",
+      "textChat": "Trò chuyện bằng chữ",
+      "freePractice": "Luyện nhắn tin miễn phí",
+      "usingKey": "Đang dùng khóa Gemini của bạn",
+      "useKey": "Dùng khóa của tôi",
+      "useFree": "Chuyển sang nhắn tin miễn phí",
+      "liveKeyboard": "Chat Gemini Live bằng bàn phím · không cần mic",
+      "freeDaily": "Luyện nhắn tin miễn phí · {{count}} tin/ngày · không cần khóa API",
+      "checking": "Đang kiểm tra lượt miễn phí…",
+      "verification": "Xác minh Turnstile",
+      "remaining": "Hôm nay còn {{count}} tin miễn phí",
+      "unavailable": "Chat chữ miễn phí tạm thời không khả dụng.",
+      "exhausted": "Bạn đã dùng hết lượt nhắn miễn phí hôm nay.",
+      "conversation": "Cuộc trò chuyện",
+      "empty": "Nhập tin nhắn để bắt đầu trò chuyện với {{name}}.",
+      "you": "Bạn",
+      "notSent": "Đang chờ xác minh · chưa gửi: ",
+      "replying": "{{name}} đang trả lời…",
+      "message": "Tin nhắn",
+      "placeholder": "Nhập tin nhắn…",
+      "send": "Gửi",
+      "notice": "Live dạng chữ và luyện tập miễn phí dùng phiên riêng. Không cần mic."
+    },
+    "resume": {
+      "greeting": "Mừng bạn quay lại! Lần trước mình đã nói về “{{excerpt}}”. Nói tiếp nhé?",
+      "continue": "Nói tiếp chuyện cũ",
+      "newTopic": "Nói chuyện mới",
+      "continueMessage": "Mình quay lại rồi! Nói tiếp chuyện lần trước nhé.",
+      "newMessage": "Mình quay lại rồi, hôm nay muốn nói chuyện mới."
+    },
+    "byok": {
+      "key": "Khóa Gemini không hợp lệ hoặc thiếu quyền truy cập.",
+      "quota": "Gemini từ chối yêu cầu Live dạng chữ (429: giới hạn tốc độ hoặc sử dụng). Điều này không nhất thiết có nghĩa khóa API đã hết hạn mức. Hãy thử lại sau hoặc kiểm tra mô hình trong Google AI Studio.",
+      "model": "Khóa Gemini này không dùng được mô hình văn bản.",
+      "noText": "Đã kết nối Gemini Live nhưng không nhận được bản ghi văn bản.",
+      "socket": "Kết nối WebSocket Gemini Live bị ngắt hoặc từ chối. Hãy thử lại.",
+      "service": "Kết nối văn bản Gemini Live thất bại. Thử lại hoặc chuyển sang luyện tập miễn phí."
     }
   }
 }

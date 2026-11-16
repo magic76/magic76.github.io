@@ -211,13 +211,62 @@
     "challengeUnavailable": "Verifikasi keamanan gagal dimuat atau diselesaikan. Tekan Kirim lagi."
   },
   "textChat": {
-    "learning": {"checkButton": "Apakah ucapanku sudah tepat?", "checkQuestion": "Apakah kalimat ini terdengar alami?", "better": "Lebih alami:", "summaryTitle": "3 ungkapan hari ini", "dismiss": "Tutup ringkasan"},
+    "learning": {
+      "checkButton": "Apakah ucapanku sudah tepat?",
+      "checkQuestion": "Apakah kalimat ini terdengar alami?",
+      "better": "Lebih alami:",
+      "summaryTitle": "3 ungkapan hari ini",
+      "dismiss": "Tutup ringkasan"
+    },
     "typing": "{{name}} sedang mengetik",
     "nextHeading": "Kamu bisa bilang",
     "followUps": {
       "more": "Ceritakan lebih banyak.",
       "why": "Kenapa begitu?",
       "change": "Ayo bahas hal lain."
+    },
+    "ui": {
+      "previousSent": "Pesan sebelumnya mungkin terkirim tanpa balasan. Mencoba lagi dapat memakai satu pesan gratis.",
+      "previousUnsent": "Pesan sebelumnya belum terkirim. Tekan Kirim untuk mencoba lagi.",
+      "preparingSend": "Menyiapkan pesan…",
+      "connectingLive": "Menghubungkan ke Gemini Live…",
+      "sessionChanged": "Sesi berubah. Verifikasi lagi untuk mengirim…",
+      "textChat": "Chat teks",
+      "freePractice": "Latihan teks gratis",
+      "usingKey": "Menggunakan Gemini Key milikmu",
+      "useKey": "Pakai kunci saya",
+      "useFree": "Pakai teks gratis",
+      "liveKeyboard": "Chat keyboard Gemini Live · tanpa mikrofon",
+      "freeDaily": "Latihan teks gratis · {{count}} pesan/hari · tanpa API Key",
+      "checking": "Memeriksa ketersediaan…",
+      "verification": "Verifikasi Turnstile",
+      "remaining": "Sisa {{count}} pesan gratis hari ini",
+      "unavailable": "Chat teks gratis sedang tidak tersedia.",
+      "exhausted": "Pesan gratis hari ini sudah habis.",
+      "conversation": "Percakapan",
+      "empty": "Ketik pesan untuk mulai mengobrol dengan {{name}}.",
+      "you": "Kamu",
+      "notSent": "Menunggu verifikasi · belum terkirim: ",
+      "replying": "{{name}} sedang membalas…",
+      "message": "Pesan",
+      "placeholder": "Tulis pesan…",
+      "send": "Kirim",
+      "notice": "Live teks dan latihan gratis memakai sesi terpisah. Mikrofon tidak diperlukan."
+    },
+    "resume": {
+      "greeting": "Selamat datang kembali! Terakhir kita membahas “{{excerpt}}”. Mau lanjut?",
+      "continue": "Lanjutkan obrolan",
+      "newTopic": "Bahas hal baru",
+      "continueMessage": "Aku kembali! Yuk lanjutkan obrolan kita sebelumnya.",
+      "newMessage": "Aku kembali, hari ini ingin membahas hal baru."
+    },
+    "byok": {
+      "key": "Gemini Key ini tidak valid atau tidak punya izin.",
+      "quota": "Gemini menolak permintaan teks Live (429: batas laju atau penggunaan). Ini tidak selalu berarti kuota API Key habis. Coba lagi nanti atau periksa model di Google AI Studio.",
+      "model": "Model teks Gemini tidak tersedia untuk kunci ini.",
+      "noText": "Gemini Live terhubung tetapi tidak menerima transkrip teks.",
+      "socket": "Koneksi WebSocket Gemini Live terputus atau ditolak. Coba lagi.",
+      "service": "Koneksi teks Gemini Live gagal. Coba lagi atau beralih ke latihan gratis."
     }
   }
 }

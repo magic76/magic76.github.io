@@ -288,7 +288,7 @@
     "title": "Zoe의 오늘 운세 풀이",
     "loading": "Zoe가 오늘의 풀이를 정리하고 있어요…",
     "staticNote": "AI 없이 오늘의 카드로 정리한 Zoe의 한마디예요.",
-    "fallback": "자, 오늘 {{kind}}의 힌트는 ‘{{headline}}’야. 거창하게 들리지만 핵심은 이거지: {{theme}}\n\n먼저 {{do}}부터 해봐. {{avoid}}는 무리하지 말고. 행운의 색은 {{color}}야. 마법이 아니라 페이스를 조절하라는 작은 신호로 생각해.",
+    "fallback": "자, 오늘 {{kind}}의 힌트는 ‘{{headline}}’야. 거창하게 들리지만 핵심은 이거지: {{theme}}\n\n오늘 한번 해볼 일: ‘{{do}}’\n그리고 조심할 일: ‘{{avoid}}’\n행운의 색은 {{color}}야. 마법이 아니라 페이스를 조절하라는 작은 신호로 생각해.",
     "needKey": "Zoe의 AI 풀이에는 Gemini Key가 필요해요. 이 버전은 Key 없이 볼 수 있어요.",
     "continueChat": "채팅에서 Zoe에게 더 물어보기",
     "keyMore": "Zoe의 맞춤 해석을 원하나요? Gemini Key 설정",

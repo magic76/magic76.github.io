@@ -211,13 +211,62 @@
     "challengeUnavailable": "安全驗證無法載入或完成，請再按一次送出。"
   },
   "textChat": {
-    "learning": {"checkButton": "我說得對嗎？", "checkQuestion": "我這句說得自然嗎？", "better": "更自然：", "summaryTitle": "今天學到的 3 個說法", "dismiss": "收起學習小結"},
+    "learning": {
+      "checkButton": "我說得對嗎？",
+      "checkQuestion": "我這句說得自然嗎？",
+      "better": "更自然：",
+      "summaryTitle": "今天學到的 3 個說法",
+      "dismiss": "收起學習小結"
+    },
     "typing": "{{name}} 正在輸入",
     "nextHeading": "接下來可以說",
     "followUps": {
       "more": "多說一點。",
       "why": "為什麼？",
       "change": "換個話題。"
+    },
+    "ui": {
+      "previousSent": "上一則訊息可能已送出但未收到回覆，重送可能再次使用免費額度。",
+      "previousUnsent": "上一則訊息尚未送出，按「送出」即可重試。",
+      "preparingSend": "準備傳送訊息…",
+      "connectingLive": "正在連接 Gemini Live…",
+      "sessionChanged": "連線已更新，重新驗證後自動送出…",
+      "textChat": "文字聊天",
+      "freePractice": "免費文字練習",
+      "usingKey": "使用自己的 Gemini Key",
+      "useKey": "使用自己的 Key",
+      "useFree": "改用免費文字",
+      "liveKeyboard": "Gemini Live 鍵盤對話・不需麥克風",
+      "freeDaily": "免費文字練習・每天 {{count}} 則・不需 API Key",
+      "checking": "正在確認免費額度…",
+      "verification": "Turnstile 驗證",
+      "remaining": "今日剩餘 {{count}} 則免費訊息",
+      "unavailable": "免費文字聊天暫時無法使用。",
+      "exhausted": "今天的免費文字訊息已用完。",
+      "conversation": "對話內容",
+      "empty": "輸入訊息，開始與 {{name}} 聊天。",
+      "you": "你",
+      "notSent": "等待驗證・尚未送出：",
+      "replying": "{{name}} 正在回覆…",
+      "message": "輸入訊息",
+      "placeholder": "輸入訊息…",
+      "send": "送出",
+      "notice": "Live 文字對話與免費練習使用各自的連線，無須開啟麥克風。"
+    },
+    "resume": {
+      "greeting": "歡迎回來！上次我們聊到「{{excerpt}}」，要接著聊嗎？",
+      "continue": "接著聊上次的",
+      "newTopic": "聊點新的",
+      "continueMessage": "我回來了！我們接著上次的聊吧。",
+      "newMessage": "我回來了，今天想聊點新的。"
+    },
+    "byok": {
+      "key": "目前的 Gemini Key 無效或沒有存取權限。",
+      "quota": "Gemini 暫時拒絕這次 Live 文字請求（429：速率或用量限制）。不代表整把 API Key 的額度已用完；可稍後重試，或查看 Google AI Studio 的模型限制。",
+      "model": "目前的 Gemini Key 無法使用這個文字模型。",
+      "noText": "Gemini Live 已連線，但沒有收到文字轉錄。",
+      "socket": "Gemini Live WebSocket 連線中斷或遭拒，請重試。",
+      "service": "Gemini Live 文字連線失敗，請重試或改用免費文字練習。"
     }
   }
 }

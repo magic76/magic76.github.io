@@ -288,7 +288,7 @@
     "title": "Zoe giải nghĩa vận hôm nay",
     "loading": "Zoe đang diễn giải lá bài hôm nay…",
     "staticNote": "Lời giải của Zoe từ thẻ hôm nay, không cần AI.",
-    "fallback": "Này, {{kind}} cho ta một gợi ý hôm nay: “{{headline}}”. Nghe kịch tính nhỉ, nhưng điều đáng chú ý là: {{theme}}\n\nHãy thử {{do}} trước. Còn {{avoid}} thì đừng cố quá. Màu may mắn là {{color}}; xem như một lời nhắc nhỏ chứ không phải phép màu nhé.",
+    "fallback": "Này, {{kind}} cho ta một gợi ý hôm nay: “{{headline}}”. Nghe kịch tính nhỉ, nhưng điều đáng chú ý là: {{theme}}\n\nMột điều đáng thử hôm nay: “{{do}}”\nVà một điều nên tránh: “{{avoid}}”\nMàu may mắn là {{color}}; xem như một lời nhắc nhỏ chứ không phải phép màu nhé.",
     "needKey": "Cần Gemini Key để Zoe tạo lời giải AI mới. Bản này không cần Key.",
     "continueChat": "Tiếp tục hỏi Zoe trong chat",
     "keyMore": "Muốn Zoe luận giải riêng? Thiết lập Gemini Key",
