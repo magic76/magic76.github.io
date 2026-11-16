@@ -58,7 +58,8 @@
  .daily-quote--mobile .daily-quote-body{gap:1px}
 }
 
-/* Distance from the carousel pagination row to the daily fortune card. */
+/* The 44px pager controls have 18.5px transparent space below their 7px dots.
+   Removing 2.5px after the hit-box leaves exactly 16px *visible* dot-to-card gap. */
 @media(max-width:767px){
- .daily-quote--mobile{margin-top:16px}
+ .daily-quote--mobile{margin-top:-2.5px}
 }

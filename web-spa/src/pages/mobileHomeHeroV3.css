@@ -354,9 +354,11 @@
  .cmh-scene{scale:.53;right:3px;top:1px}
 }
 
-/* Mobile hero-to-pagination = 8px; pagination-to-fortune = 16px.
-   The 44px pagination hit targets stay intact. */
+/* Visually measured spacing: the 7px dots are centered in 44px touch targets.
+   Pull the transparent hit-box up so the *visible* dots sit 8px below the banner.
+   Lift the CTA row by 13px to avoid overlap with the pager's touch region. */
 @media(max-width:767px){
  .cmh-carousel{margin-bottom:0}
- .cmh-carousel-dots{margin-top:8px}
+ .cmh-slide{padding-bottom:22px}
+ .cmh-carousel-dots{margin-top:-10.5px;position:relative;z-index:2}
 }
