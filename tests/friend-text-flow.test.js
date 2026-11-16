@@ -75,7 +75,7 @@ test("SESSION_EXPIRED invalidates first grant and resends same turn only once",a
 });
 test("Friend text screen pins composer while transcript alone scrolls",()=>{
  const css=read("web-spa/src/live/TextChatPanel.css")+read("web-spa/src/friends/friends.css");
- const page=read("web-spa/src/friends/FriendLivePage.tsx");
+ const page=read("web-spa/src/friends/FriendLivePage.tsx")+read("web-spa/src/friends/useFriendTextViewport.ts");
  assert.match(css,/\.friend-text-stage \.crew-text-chat-history\{flex:1;min-height:0;max-height:none/);
  assert.match(css,/\.friend-desktop-workspace>\.friend-text-stage\{/);
  assert.match(page,/viewport\?\.height\|\|window\.innerHeight/);
@@ -131,7 +131,7 @@ test("Restored Turnstile layout re-scrolls history after widget resize",()=>{
 });
 test("390px composer uses actual viewport header/shell offset, not hardcoded 104px",()=>{
  const css=read("web-spa/src/friends/friends.css")+read("web-spa/src/live/TextChatPanel.css");
- const page=read("web-spa/src/friends/FriendLivePage.tsx");
+ const page=read("web-spa/src/friends/FriendLivePage.tsx")+read("web-spa/src/friends/useFriendTextViewport.ts");
  assert.doesNotMatch(css,/viewport-height,100dvh\) - 104px/);
  assert.match(css,/--crew-friend-stage-top/);
  assert.match(css,/\.friend-text-stage \.crew-text-chat-form\{flex:0 0 auto;margin-top:auto\}/);

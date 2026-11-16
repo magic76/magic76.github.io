@@ -1,7 +1,9 @@
-import {useEffect,useMemo,useState} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {ensureCore,geminiKey} from "../lib/runtime";
 import {nativeLanguageName,type NativeLanguage} from "../teacher/teacherLocale";
+import {FriendAvatar} from "./FriendAvatar";
+import {CREW_FRIENDS,getCrewFriend} from "./friendProfiles";
 type Turn={input?:string;output?:string};
 type Props={name:string;turns:ReadonlyArray<Turn>;input:string;output:string;learningLanguage:string;nativeLanguage:NativeLanguage;speaking:boolean};
 type Caption={source:string;language:NativeLanguage;text:string};
@@ -26,6 +28,8 @@ async function translate(text:string,source:string,target:NativeLanguage):Promis
 }
 export function FriendCallCaptions({name,turns,input,output,learningLanguage,nativeLanguage,speaking}:Props){
  const {t}=useTranslation("voice");
+ const captionsRef=useRef<HTMLDivElement>(null);
+ const captionFriend=CREW_FRIENDS.find(friend=>friend.name===name)||getCrewFriend("zoe");
  const [enabled,setEnabled]=useState(initial);
  const [translated,setTranslated]=useState<Caption|null>(null);
  const [working,setWorking]=useState(false),[error,setError]=useState<""|"key"|"failed">("");
@@ -48,13 +52,15 @@ export function FriendCallCaptions({name,turns,input,output,learningLanguage,nat
   },250);
   return()=>{canceled=true;window.clearTimeout(timer)};
  },[enabled,latestReply,needTranslation,nativeLanguage,source]);
+ // Only the caption transcript scrolls: keep the call controls pinned.
+ useEffect(()=>{const el=captionsRef.current;if(el)el.scrollTop=el.scrollHeight},[latestReply,currentReply,latestInput,input,enabled,translated,working,error]);
  const toggle=()=>setEnabled(v=>{try{localStorage.setItem(PREF,v?"off":"on")}catch{}return !v});
- return <div className="friend-phone-captions" aria-label={t("callCaptions.aria")}>
+ return <div ref={captionsRef} className="friend-phone-captions" aria-label={t("callCaptions.aria")}>
   <div className="friend-caption-heading"><span>{t("workspace.transcript")}</span>
    {needTranslation?<button type="button" className="friend-caption-toggle" aria-pressed={enabled} onClick={toggle}>{t(enabled?"callCaptions.hideTranslation":"callCaptions.showTranslation")}</button>:null}
   </div>
   <section className="friend-caption-ai" aria-label={name}>
-   <small>{name}{speaking?" · "+t("compact.speaking"):""}</small>
+   <div className="friend-caption-speaker"><FriendAvatar friend={captionFriend} className="friend-caption-avatar" decorative/><small>{name}{speaking?" · "+t("compact.speaking"):""}</small></div>
    <p lang={source}>{currentReply||latestReply||t("callCaptions.waitingForFriend")}</p>
    {enabled&&needTranslation&&latestReply&&(!currentReply||currentReply===latestReply)?<div className="friend-caption-translation" lang={nativeLanguage}>
     {translated?.source===latestReply&&translated.language===nativeLanguage?translated.text:working?t("callCaptions.translating"):error==="key"?t("callCaptions.needsKey"):error==="failed"?t("callCaptions.translateFailed"):null}

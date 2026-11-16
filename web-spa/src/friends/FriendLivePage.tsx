@@ -16,6 +16,9 @@ import {CreatureVoicePanel} from "./CreatureVoicePanel";
 import {LiveControls} from "../live/LiveControls";
 import {FriendCallControls} from "./FriendCallControls";
 import {FriendCallCaptions} from "./FriendCallCaptions";
+import {useFriendTextViewport,useFriendBodyTheme} from "./useFriendTextViewport";
+import {friendVoiceStatusKey} from "./friendVoiceStatusKey";
+import {FriendChatHistory} from "./FriendChatHistory";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
 import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";
 import {geminiKey} from "../lib/runtime";
@@ -201,28 +204,12 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry)trackUsageEvent("home_live_bubble_connected")}},[live.state]);
  // Start once after mounting, without double-starting under React StrictMode.
  useEffect(()=>{if(textMode||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost,creatureEmbed]);
- useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page"+(creatureEmbed?" creature-voice-embed-body":"");return()=>{document.body.className=""}},[creatureEmbed]);
+ useFriendBodyTheme(creatureEmbed);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
- const phaseKey:Record<string,string>={idle:"idle",hearing:"hearing",pause:"pause",processing:"processing",recovering:"recovering","no-transcript":"noTranscript","no-reply":"noReply"};
- const friendVoiceStatus=live.state==="speaking"?t("liveStatus.speaking")
-  :live.state==="listening"?t("liveStatus."+(phaseKey[live.voicePhase]||"idle"))
-  :needsKey?t("common:gemini.keyNeeded"):live.state==="error"?t("liveStatus.error"):active?t("liveStatus.preparing"):t("liveStatus.free");
- // Android/iOS soft keyboards may resize visualViewport without changing dvh.
- useEffect(()=>{
-  if(!textMode)return;
-  const viewport=window.visualViewport;
-  const sync=()=>{
-   const stage=textStage.current;
-   if(!stage)return;
-   // Measure the real header + shell offset, including the visual viewport shift.
-   stage.style.setProperty("--crew-friend-viewport-height",(viewport?.height||window.innerHeight)+"px");
-   stage.style.setProperty("--crew-friend-stage-top",Math.max(0,stage.getBoundingClientRect().top-(viewport?.offsetTop||0))+"px");
-  };
-  sync();viewport?.addEventListener("resize",sync);viewport?.addEventListener("scroll",sync);window.addEventListener("resize",sync);
-  return()=>{viewport?.removeEventListener("resize",sync);viewport?.removeEventListener("scroll",sync);window.removeEventListener("resize",sync)};
- },[textMode]);
+ const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active));
+ useFriendTextViewport(textMode,textStage);
  const changeFriendChatMode=(chosen:FriendChatLanguageMode)=>{
   if(chosen===friendChatMode)return;
   const connected=["listening","speaking"].includes(live.state);
@@ -303,12 +290,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
 </>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
     </div>
     <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} speaking={live.state==="speaking"}/>:null}
-    {live.turns.length?<details className="friend-chat-history"><summary>{t("friendLive.historySummary")}</summary>
-     <div className="friend-chat-history-scroll">{live.turns.map((turn,index)=><div key={index} className="friend-chat-turn">
-       {turn.input?<p><strong>{t("friendLive.youLabel")}</strong>{turn.input}</p>:null}
-       {turn.output?<p><strong>{friend.name}：</strong>{turn.output}</p>:null}
-      </div>)}</div>
-    </details>:null}</>}
+    {live.turns.length?<FriendChatHistory turns={live.turns} friendName={friend.name} youLabel={t("friendLive.youLabel")} summary={t("friendLive.historySummary")}/>:null}</>}
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{!textMode&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
   </main>
