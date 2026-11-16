@@ -11,6 +11,7 @@ import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {HomePortal} from "./HomePortal";
 import {HomeLiveBubble} from "./HomeLiveBubble";
 import {MobileHomePage} from "./MobileHomePage";
+import {DesktopHomePage} from "./DesktopHomePage";
 import {DailyTopicCards} from "./DailyTopicCards";
 import {CreatureLabResume,useCreatureLabProgress} from "./CreatureLabResume";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
@@ -158,7 +159,7 @@ export function HomePage(){
   })().catch(()=>{/* Book progress is optional when browser storage is unavailable. */});
   return()=>{live=false};
  },[]);
- return <><div className="crew-home-legacy"><div className="crew-home">
+ return <><DesktopHomePage recents={recents} shortsFeed={shortsFeed} shortsStatus={shortsStatus} creatureProgress={creatureProgress} featuredGame={featuredGame}/><div className="crew-home-legacy" aria-hidden="true" inert><div className="crew-home">
   {orbAvailable&&<div className="crew-home-content"><Link to="/orb" className="crew-home-orb-quick">
    <span className="crew-home-orb-icon" aria-hidden="true">◉</span>
    <span className="crew-home-orb-quick-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選角色，開始背景語音聊天":"Choose a character for hands-free chat"}</small></span>
