@@ -245,7 +245,10 @@
     },
     "kicker": "Vokabeln"
   },
+  "languageHint": {"immersion":"Vollständiges Eintauchen: Übungen und Erklärungen nur auf {{target}}.","base":"Fragen zu Bedeutung oder Grammatik sind auf {{native}} möglich. Die Lehrkraft erklärt auf {{native}} und zeigt Beispiele auf {{target}}. ","beginner":"Anfänger erhalten mehr Hilfe in ihrer Muttersprache.","advanced":"Auf höherem Niveau wird mehr {{target}} geübt.","adaptive":"Die Unterstützung passt sich deinem Sprachniveau an."},
   "course": {
+    "materialNotice": "Die Szenariolektionen enthalten derzeit nur englisches Lernmaterial. Übe {{language}} im Lehrkraft-Chat; Erklärungen sind auf {{native}} möglich.",
+    "nonEnglishNext": "Alltagssituationen üben (vorhandene Lektionen)",
     "nextLesson": "Nächste Lektion",
     "continue": "Lektion beginnen",
     "trackComplete": "Lernpfad abgeschlossen",

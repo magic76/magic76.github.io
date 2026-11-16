@@ -245,7 +245,10 @@
     },
     "kicker": "Kosakata"
   },
+  "languageHint": {"immersion":"Imersi penuh: latihan dan penjelasan hanya dalam {{target}}.","base":"Tanyakan arti atau tata bahasa dalam {{native}}. Guru menjelaskan dalam {{native}} dan memberi contoh dalam {{target}}. ","beginner":"Pemula mendapat lebih banyak bantuan dalam bahasa ibu.","advanced":"Tingkat lanjut lebih banyak berlatih dalam {{target}}.","adaptive":"Bantuan menyesuaikan kemampuan berbicaramu."},
   "course": {
+    "materialNotice": "Materi kursus situasi saat ini hanya tersedia dalam bahasa Inggris. Untuk berlatih {{language}}, gunakan chat guru; penjelasan bisa dalam {{native}}.",
+    "nonEnglishNext": "Latihan situasi sehari-hari (materi yang ada)",
     "nextLesson": "Pelajaran berikutnya",
     "continue": "Mulai pelajaran",
     "trackComplete": "Jalur selesai",

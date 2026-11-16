@@ -6,6 +6,10 @@ import {courseDisplayTitle,courseDisplayDescription,courseDisplayMission} from "
 import {CourseBriefing} from "./CourseBriefing";
 import {COURSE_SEO_TITLES} from "./courseSeoTitles";
 import {bestNextLesson,completedLessons,lessonProgress,lessonUnlocked,nextUnlockedLesson,totalStars} from "./courseProgress";
+import {useTeacherStore} from "../store/teacherStore";
+import {useClientReady} from "../lib/useClientReady";
+import {localizedNativeName} from "./teacherLocale";
+import {neutralCourseCopy} from "./teacherLanguageUx";
 import "./learningFlow.css";
 
 const TRACK_KEY="crew_teacher_course_track";
@@ -18,6 +22,9 @@ export function CoursePage(){
  const {t:tLesson}=useTranslation("lesson");
  const locale=i18n.resolvedLanguage||"en";
  const english=locale==="en";
+ const ready=useClientReady(),storedTarget=useTeacherStore(s=>s.targetLanguage),native=useTeacherStore(s=>s.nativeLanguage);
+ const target=ready?storedTarget:"英文",otherLanguage=target!=="英文";
+ const learnerName=t("friends:languages."+target,{defaultValue:target});
  const [params]=useSearchParams();const {slug}=useParams();const navigate=useNavigate();const location=useLocation();
  const pathTrack=COURSE_TRACKS.find(item=>item.id===slug);
  const requested=courseLesson(params.get("lesson")||"");
@@ -25,7 +32,7 @@ export function CoursePage(){
  const[trackId,setTrackId]=useState(()=>requested?.trackId||briefing?.trackId||pathTrack?.id||storedTrack());
  const track=COURSE_TRACKS.find(item=>item.id===trackId)||COURSE_TRACKS[0];
  useEffect(()=>{if(pathTrack?.id)setTrackId(current=>current===pathTrack.id?current:pathTrack.id)},[pathTrack?.id]);
- useEffect(()=>{if(pathTrack){const entry=COURSE_SEO_TITLES[pathTrack.id];document.title=(locale.startsWith("ja")?courseDisplayTitle(pathTrack,locale):entry?(english?entry.en:entry.zh):courseDisplayTitle(pathTrack,locale))+" | Crew Teacher"}},[pathTrack?.id,locale]);
+ useEffect(()=>{if(pathTrack){const entry=COURSE_SEO_TITLES[pathTrack.id];document.title=neutralCourseCopy(locale.startsWith("ja")?courseDisplayTitle(pathTrack,locale):entry?(english?entry.en:entry.zh):courseDisplayTitle(pathTrack,locale),locale,target)+" | Crew Teacher"}},[pathTrack?.id,locale,target]);
  const units=useMemo(()=>unitsForTrack(track.id),[track.id]);
  const next=nextUnlockedLesson(track.id);
  const completed=completedLessons(track.id);
@@ -54,8 +61,8 @@ export function CoursePage(){
   setTrackId(id);navigate("/teacher/course/"+id);
   try{localStorage.setItem(TRACK_KEY,id)}catch{/* Optional local preference. */}
  }
- const title=(item:CourseTrack|CourseUnit|CourseLesson)=>courseDisplayTitle(item,locale);
- const description=(item:CourseTrack|CourseUnit|CourseLesson)=>courseDisplayDescription(item,locale);
+ const title=(item:CourseTrack|CourseUnit|CourseLesson)=>neutralCourseCopy(courseDisplayTitle(item,locale),locale,target);
+ const description=(item:CourseTrack|CourseUnit|CourseLesson)=>neutralCourseCopy(courseDisplayDescription(item,locale),locale,target);
  const route=(id:string)=>"/teacher/course/"+track.id+"?briefing="+encodeURIComponent(id);
  // Unknown course URLs must not silently show a previously stored track.
  if(slug&&!pathTrack)return <Navigate to={"/teacher/course"+location.search} replace/>;
@@ -67,6 +74,7 @@ export function CoursePage(){
    <span className="kicker">{t("course.kicker")}</span>
    <h1>{pathTrack?title(track):t("course.title")}</h1>
    <p>{t("course.intro",{tracks:COURSE_TRACKS.length,units:COURSE_UNITS.length,lessons:COURSE_LESSONS.length})}</p>
+   {otherLanguage&&<p className="crew-course-language-note" role="note">{t("course.materialNotice",{language:learnerName,native:localizedNativeName(native,locale)})}</p>}
   </header>
   <section className="crew-course-resume" aria-label={t("course.nextLesson")}>
    <span className="kicker">{next?t("course.nextLesson"):t("course.trackComplete")}</span>

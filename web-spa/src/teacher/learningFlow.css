@@ -121,3 +121,5 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 .crew-course-warmup .btn{flex-shrink:0;text-decoration:none;min-height:38px}
 .crew-course-briefing-footnote{font-size:12px;line-height:1.6;text-align:center;color:var(--muted,#667085);margin:10px 0 0}
 @media(max-width:480px){.crew-course-briefing-card{padding:16px;border-radius:18px}.crew-course-warmup{align-items:flex-start;flex-direction:column}.crew-course-warmup .btn{align-self:flex-end}}
+
+.crew-course-language-note{font-size:13px;line-height:1.65;opacity:.88;margin:.5rem 0 0}

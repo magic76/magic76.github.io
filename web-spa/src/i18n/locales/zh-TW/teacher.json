@@ -245,7 +245,10 @@
     },
     "kicker": "單字練習"
   },
+  "languageHint": {"immersion":"完全沉浸：練習與解釋都只使用{{target}}。","base":"可以直接用{{native}}問意思、文法或文化差異；老師用{{native}}解釋，再用{{target}}示範。","beginner":"初階會提供較多母語引導。","advanced":"較高程度以{{target}}練習為主。","adaptive":"依口說表現自動調整，不必設定語言比例。"},
   "course": {
+    "materialNotice": "情境課程目前只有英文教材；若要練習{{language}}，請改用老師對話，老師可用{{native}}協助解釋。",
+    "nonEnglishNext": "生活情境練習（現有教材）",
     "nextLesson": "下一堂 · 接著學",
     "continue": "開始這堂課",
     "trackComplete": "本系列已全部完成",

@@ -1,7 +1,8 @@
 import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
-import {nativeLanguageName} from "../teacher/teacherLocale";
+import {useClientReady} from "../lib/useClientReady";
+import {localizedNativeName} from "../teacher/teacherLocale";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {getLearningLanguageCopy} from "./learningLanguageCopy";
 import {isLearningLanguageEntry,markLearningLanguageConfirmed,needsLearningLanguageConfirmation} from "./learningLanguagePreference";
@@ -12,6 +13,7 @@ import "./learningLanguage.css";
 export function LearningLanguageGate({pathname}:{pathname:string}){
  const {t,i18n}=useTranslation("friends");
  const copy=getLearningLanguageCopy(i18n.resolvedLanguage||i18n.language);
+ const ready=useClientReady();
  const dialog=useRef<HTMLDialogElement>(null);
  const [open,setOpen]=useState(false);
  const [draft,setDraft]=useState("英文");
@@ -60,7 +62,7 @@ export function LearningLanguageGate({pathname}:{pathname:string}){
        </option>)}
       </select>
      </label>
-     <p className="crew-learning-language-native">{copy.native}：<strong>{nativeLanguageName(nativeLanguage)}</strong></p>
+     <p className="crew-learning-language-native">{copy.native}：<strong>{localizedNativeName(ready?nativeLanguage:"zh-TW",i18n.resolvedLanguage||i18n.language)}</strong></p>
      <p className="crew-onboarding-note">{copy.friendNote}</p>
      <p className="crew-learning-language-later">{copy.changeLater}</p>
     </section>
