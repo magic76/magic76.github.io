@@ -25,7 +25,7 @@ test("#55 moves call settings, presets and history to the header bottom sheet",(
 });
 
 test("#55 accessible call menu is 44px, keyboard dismissible and black",()=>{
- for(const token of ['aria-label={label}','aria-haspopup="dialog"','aria-expanded={open}','aria-controls="friend-call-menu-dialog"','aria-modal="true"','role="dialog"','event.key==="Escape"','event.key==="Tab"','previous.focus()'])assert.ok(sheet.includes(token),token);
+ for(const token of ['aria-label={label}','aria-haspopup="dialog"','aria-expanded={open}','aria-controls="friend-call-menu-dialog"','aria-modal="true"','role="dialog"','event.key==="Escape"','event.key!=="Tab"','previous.focus()'])assert.ok(sheet.includes(token),token);
  const trigger=css.match(/\.friend-call-menu-trigger\{([^}]+)\}/)?.[1]||"";
  assert.match(trigger,/min-width:44px/);
  assert.match(trigger,/min-height:44px/);
