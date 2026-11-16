@@ -12,17 +12,17 @@ import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
 
 export type Product="home"|"teacher"|"story"|"fortune"|"settings"|"briefing";
 const meta={
- home:["C","Crew","語言・故事・命理"],
- teacher:["T","Crew Teacher","語言學習"],
- story:["S","Crew Story","故事創作"],
- fortune:["F","Crew Fortune","命盤探索"],
- settings:["C","Crew","設定"],
- briefing:["C","Crew Briefing","每日研發情報"]
+ home:"",
+ teacher:"Teacher",
+ story:"Story",
+ fortune:"Fortune",
+ settings:"",
+ briefing:"Briefing"
 } as const;
 
 export function AppChrome({product,children,headerAction}:{product:Product;children?:React.ReactNode;headerAction?:React.ReactNode}){
  const {t,i18n}=useTranslation("common");
- const m=meta[product],location=useLocation();
+ const productName=meta[product],location=useLocation();
  const headerContext=location.pathname==="/teacher/shorts"||location.pathname==="/teacher/shorts/"
   ?[t("chrome.shortsSection"),t("chrome.shortsTitle")]
   :location.pathname==="/timeline"||location.pathname.startsWith("/timeline/")
@@ -35,7 +35,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  },[product]);
  useEffect(()=>{if(!location.pathname.startsWith("/guides/")&&!/^\/teacher\/course\/[^/]+\/?$/.test(location.pathname))document.title=t("seo."+product)},[product,t,i18n.resolvedLanguage,location.pathname]);
  return <>
-  <header className="app-header"><div className="shell inner"><CrewFeatureMenu/><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:m[1]})}><span className={"app-mark "+(product==="home"||product==="settings"?"":product)} aria-hidden="true">{m[0]}</span><span className="app-title"><strong>{product==="fortune"?<><span className="fortune-brand-wide">Crew Fortune</span><span className="fortune-brand-compact" aria-hidden="true">Fortune</span></>:headerContext?.[0]||m[1]}</strong><small>{headerContext?.[1]||t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/><Link className="crew-account-entry" to="/account" aria-label={t("auth.accountAi")}>{t("auth.account")}</Link>{headerAction} </div></div></header>
+  <header className="app-header"><div className="shell inner"><CrewFeatureMenu/><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:"Koolo"+(productName?" "+productName:"")})}><img className="app-wordmark" src="/brand/koolo-wordmark-C.svg" alt="" aria-hidden="true" width="160" height="48"/><span className="app-title">{(headerContext||productName)&&<strong>{headerContext?.[0]||productName}</strong>}<small>{headerContext?.[1]||t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/><Link className="crew-account-entry" to="/account" aria-label={t("auth.accountAi")}>{t("auth.account")}</Link>{headerAction} </div></div></header>
   <main key={location.pathname} className="shell page page-enter">{children||<Outlet/>}</main>
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>

@@ -658,7 +658,7 @@ button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--
 
 /* Reserve header controls; the brand copy takes the remaining width. */
 .app-header .app-brand{flex:1;min-width:0}
-.app-header .app-mark,.app-header .app-header-actions{flex-shrink:0}
+.app-header .app-wordmark,.app-header .app-header-actions{flex-shrink:0}
 .app-header .crew-account-entry{min-height:44px}
 /* Two label rows share one fixed icon row. Keep the complete translations. */
 @media(max-width:1099px){
@@ -668,13 +668,10 @@ button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--
 }
 
 
-/* Fortune sharing: short mobile brand and an accessible persistent status after export. */
-.fortune-brand-compact{display:none}
+/* Fortune sharing: accessible persistent status after export. */
 .fortune-share-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .fortune-share-status{color:#51416d;font-size:12px;line-height:1.4;max-width:220px}
 @media(max-width:520px){
- .fortune-theme .fortune-brand-wide{display:none}
- .fortune-theme .fortune-brand-compact{display:inline}
  .fortune-theme .app-header .app-title small{display:none}
  .fortune-share-actions{justify-content:flex-start}
 }
