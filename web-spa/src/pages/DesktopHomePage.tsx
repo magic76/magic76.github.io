@@ -62,15 +62,15 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
  };
  const track=(detail:Shortcut["event"])=>trackUsageEvent("home_entry_click",detail);
  return <div className="koolo-desktop-home">
-  <section className="kdh-stage" aria-label={copy("開始探索 Koolo","Explore Koolo")}>
+  <section className="kdh-stage" aria-label={t("showcase29.desktop.stage")}>
    <div className="kdh-zoe">
     <div className="kdh-zoe-content">
-     <span className="kdh-eyebrow"><span className="kdh-status-dot"/> {friend?friend.name.toUpperCase():"ZOE"} · AI FRIEND</span>
+     <span className="kdh-eyebrow"><span className="kdh-status-dot"/> {friend?friend.name.toUpperCase():"ZOE"} · {t("showcase29.badgeFriend")}</span>
      <h1>{validResume?t("layout2.resumeTitle",{name:friend!.name}):t("mobileHero.title")}</h1>
-     <p>{validResume?copy("從上次的話題繼續，不用重新認識。","Pick up right where you left off."):t("mobileHero.subtitle")}</p>
+     <p>{validResume?t("showcase29.desktop.resumeDesc"):t("mobileHero.subtitle")}</p>
      <div className="kdh-zoe-actions">
-      <Link className="kdh-primary" to={textTo} onClick={()=>track("friend")}><Icon name="chat"/>{validResume?t("layout2.resumeAction"):copy("文字聊天","Text chat")}</Link>
-      <Link className="kdh-secondary" to={voiceTo} onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{copy("語音聊天","Voice chat")}</Link>
+      <Link className="kdh-primary" to={textTo} onClick={()=>track("friend")}><Icon name="chat"/>{validResume?t("layout2.resumeAction"):t("showcase29.desktop.text")}</Link>
+      <Link className="kdh-secondary" to={voiceTo} onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{t("showcase29.desktop.voice")}</Link>
      </div>
      {validResume&&<div className="kdh-resume-line">
       <span>{previewHidden?t("layout2.previewHidden"):formatResumePreview(validResume.preview,58)}</span>
@@ -88,17 +88,17 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
    </div>
    <div className="kdh-feature-column">
     <Link to="/chat" className="kdh-feature kdh-feature-friends" onClick={()=>track("friend")}>
-     <span className="kdh-feature-copy"><small>AI FRIENDS</small><strong>{copy("換個朋友聊聊？","Meet someone new")}</strong><span>{copy("16 位朋友，找到聊得來的那一位。","Sixteen friends, countless conversations.")}</span></span>
+     <span className="kdh-feature-copy"><small>{t("showcase29.badgeFriends")}</small><strong>{t("showcase29.friendsTitle")}</strong><span>{t("showcase29.desktop.friendsDesc")}</span></span>
      <span className="kdh-feature-faces" aria-hidden="true">{FEATURE_FRIENDS.map(id=>{const person=CREW_FRIENDS.find(p=>p.id===id);return person?<img src={person.avatar} width="78" height="94" loading="lazy" decoding="async" alt="" key={id}/>:null})}</span>
      <span className="kdh-feature-arrow" aria-hidden="true">↗</span>
     </Link>
     <Link to={"/games/"+featuredGame} className="kdh-feature kdh-feature-game" onClick={()=>track("play")}>
-     <span className="kdh-feature-copy"><small>{t("gamePick.label")}</small><strong>{t("playHub.games."+featuredGame+".title")}</strong><span>{copy("玩一局，換個心情。","One round. A fresh mood.")}</span></span>
+     <span className="kdh-feature-copy"><small>{t("gamePick.label")}</small><strong>{t("playHub.games."+featuredGame+".title")}</strong><span>{t("showcase29.desktop.gameDesc")}</span></span>
      <span className="kdh-game-art" aria-hidden="true"><b>1</b><b>A</b><b>2</b><b>B</b></span>
      <span className="kdh-feature-arrow" aria-hidden="true">↗</span>
     </Link>
     <Link to="/learn" className="kdh-feature kdh-feature-learn" onClick={()=>track("learn")}>
-     <span className="kdh-feature-copy"><small>LANGUAGE LEARNING</small><strong>{copy("一句話，練出自信","Speak with confidence")}</strong><span>{copy("和 AI 老師自然練口說。","Practice with your AI teacher.")}</span></span>
+     <span className="kdh-feature-copy"><small>{t("showcase29.desktop.learnBadge")}</small><strong>{t("showcase29.learnTitle")}</strong><span>{t("showcase29.desktop.learnDesc")}</span></span>
      <img className="kdh-teacher-image" src={oliviaPhoto} width="85" height="110" alt="" loading="lazy" decoding="async"/>
      <span className="kdh-feature-arrow" aria-hidden="true">↗</span>
     </Link>
@@ -116,11 +116,11 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
     {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
    </div>
   </section>}
-  <section className="kdh-shortcuts-section" aria-label={copy("快速探索","Quick explore")}>
-   <div className="kdh-section-title"><h2>{copy("想做點什麼？","What would you like to do?")}</h2><Link to="/explore">{copy("全部功能","Explore all")} →</Link></div>
+  <section className="kdh-shortcuts-section" aria-label={t("showcase29.desktop.quick")}>
+   <div className="kdh-section-title"><h2>{t("showcase29.desktop.heading")}</h2><Link to="/explore">{t("showcase29.desktop.all")} →</Link></div>
    <div className="kdh-shortcuts">{SHORTCUTS.map(item=><Link className={"kdh-shortcut kdh-shortcut-"+item.id} key={item.id} to={item.to} onClick={()=>track(item.event)}>
     <span className="kdh-shortcut-icon"><Icon name={item.icon}/></span>
-    <strong>{zh?item.zh:item.en}</strong>
+    <strong>{t("showcase29.apps."+item.id)}</strong>
    </Link>)}</div>
   </section>
   <section className="kdh-moments">
