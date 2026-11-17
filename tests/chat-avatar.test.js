@@ -66,7 +66,24 @@ test("phone captions do not repeat the friend identity; teachers keep their spea
  };
  walk(source);
  assert.ok(teacherOnly,"inline speaker row is present only when an explicit teacher avatar is supplied");
- assert.ok(!hasClass(source,"friend-caption-avatar")||teacherOnly);
+ const captionJSX=[];
+ const locate=(sourceFile)=>{
+  const props=[];
+  const visit=node=>{
+   if(ts.isJsxSelfClosingElement(node)&&node.tagName.getText(sourceFile)==="FriendCallCaptions"){
+    props.push(node.attributes.properties.filter(ts.isJsxAttribute).map(item=>item.name.text));
+   }
+   ts.forEachChild(node,visit);
+  };
+  visit(sourceFile);return props;
+ };
+ const friend=ts.createSourceFile("FriendLivePage.tsx",page,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+ const teacher=ts.createSourceFile("TeacherLivePage.tsx",read("web-spa/src/teacher/LivePage.tsx"),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+ const friendCalls=locate(friend),teacherCalls=locate(teacher);
+ assert.equal(friendCalls.length,1,"friend has one active call caption component");
+ assert.equal(teacherCalls.length,1,"teacher has one call caption component");
+ assert.ok(!friendCalls[0].includes("speakerAvatar"),"friend reuses the large call avatar");
+ assert.ok(teacherCalls[0].includes("speakerAvatar"),"teacher supplies a distinct speaker avatar");
 });
 test("small components and keyboard-open switches remain within the contract",()=>{
  assert.ok(Buffer.byteLength(text)<26000,`TextChatPanel=${Buffer.byteLength(text)}`);
