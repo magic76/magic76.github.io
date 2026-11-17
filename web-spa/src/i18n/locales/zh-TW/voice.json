@@ -94,6 +94,10 @@
     "notesHint": "自動儲存在這個瀏覽器，可在 Koolo 設定中備份；這份筆記不會自動傳給對話角色。"
   },
   "friendLive": {
+    "preCallSteps": "先完成驗證 → 開始聊天",
+    "preCallWaiting": "等待安全驗證…",
+    "preCallVerified": "驗證完成，可以開始聊天！",
+    "preCallStart": "開始免費試玩",
     "preparingPost": "正在準備朋友的照片話題…",
     "backAria": "返回 Koolo 朋友",
     "brand": "Koolo 朋友 · {{language}}",
