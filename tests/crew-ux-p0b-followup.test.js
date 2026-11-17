@@ -21,7 +21,11 @@ test("DAILY_LIMIT means shared capacity full, not personal consumption",()=>{
  assert.match(render,/\(phase==="exhausted"\|\|phase==="full"\)&&<>/);
  assert.equal((render.match(/t\("guestTrial.continueKey"\)/g)||[]).length,1);
  assert.equal((render.match(/t\("guestTrial.free1a2b"\)/g)||[]).length,1);
- assert.match(render,/phase==="error"&&<button[^\n]*guestTrial.retry/);
+ const retryButton=render.match(/phase==="error"&&<button\b[\s\S]*?<\/button>/)?.[0];
+ assert.ok(retryButton,"error state still has a retry button");
+ assert.match(retryButton,/canRetryGuestMicrophone\(/,"microphone retry uses the permission retry path");
+ assert.match(retryButton,/micUnavailable\?"guestTrial\.retryMic":"guestTrial\.retry"/,
+  "microphone denial says retry microphone permission rather than reverify");
  assert.doesNotMatch(render,/phase==="full"&&<button/);
  assert.match(src,/data\.seconds!==300/);
  assert.match(src.slice(src.indexOf("async function begin()")),/getUserMedia\(\{audio:true\}\)/);
