@@ -527,7 +527,7 @@ check("all published SSG OG images are present, 1200x630 PNG, and route-specific
   assert.equal(png.readUInt32BE(16),1200,"wrong width "+page);
   assert.equal(png.readUInt32BE(20),630,"wrong height "+page);
   assert.ok(meta('property="og:image:alt"'),"missing accessible OG alt "+page);
-  if(/^en\/?$|^index\.html$/.test(page))assert.equal(og,origin+"/social/crew-shared-v2.png");
+  if(/^en\/?$|^index\.html$/.test(page))assert.equal(og,origin+"/social/koolo-shared-v1.png");
  }
  for(const slug of ["teacher","story","fortune","research","games"]){
   const url=origin+"/social/og/"+slug+"-chibi-v1.png";
@@ -549,7 +549,7 @@ check("Fortune challenge URL is readable by link preview crawlers without runnin
    assert.match(head,new RegExp('(?:property|name)="'+name+'"'),relative+" missing "+name);
   }
   assert.ok(head.includes("我算出了自己的命格身份！換你看看，你是哪一型？"),relative);
-  assert.ok(head.includes("https://koolo.app/social/og/fortune-chibi-v1.png"),relative);
+  assert.ok(head.includes("https://koolo.app/social/og/fortune-koolo-v1.png"),relative);
   assert.ok(head.includes('content="summary_large_image"'),relative);
   assert.ok(!head.includes("birthDate")&&!head.includes("dayMaster"),"Never expose a personal chart in public OG");
   assert.ok(head.includes('name="robots" content="noindex,follow"'),"Private reading must not become indexable");

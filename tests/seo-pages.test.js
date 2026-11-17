@@ -28,7 +28,7 @@ test("each locale has crawlable content with its own canonical and reciprocal hr
     }
     assert.ok(html.includes('href="/crew-app/#/'));
     assert.ok(html.includes('<meta name="robots" content="index,follow">'));
-    const expectedImage=slug?ORIGIN+"/social/og/"+slug+"-chibi-v1.png":ORIGIN+"/social/crew-shared-v2.png";
+    const expectedImage=slug?ORIGIN+"/social/og/"+slug+"-chibi-v1.png":ORIGIN+"/social/koolo-shared-v1.png";
     for(const tag of ['<meta property="og:image"','<meta property="og:image:secure_url"','<meta name="twitter:image"']){
       assert.ok(html.includes(tag+' content="'+expectedImage+'">'),file+" missing "+tag);
     }
@@ -85,7 +85,7 @@ test("client course titles stay exactly aligned with SSG course SEO titles",asyn
 test("OG PNG renderer creates deterministic, distinct full-size imagery without external dependencies",async()=>{
  const {writePreview,previewUrl}=await import("../scripts/social-og.mjs");
  const os=require("node:os");
- const tmp=fs.mkdtempSync(path.join(os.tmpdir(),"crew-og-"));
+ const tmp=fs.mkdtempSync(path.join(os.tmpdir(),"koolo-og-"));
  try{
   const urlA=writePreview(tmp,"course","travel"),urlB=writePreview(tmp,"course","business");
   const pngA=fs.readFileSync(path.join(tmp,new URL(urlA).pathname.slice(1)));
@@ -97,8 +97,8 @@ test("OG PNG renderer creates deterministic, distinct full-size imagery without 
    assert.ok(png.length>4000,"must have real nonempty visual content");
   }
   assert.notDeepEqual(pngA,pngB,"different topics must not share a preview image");
-  assert.equal(previewUrl("home"),ORIGIN+"/social/crew-shared-v2.png");
-  assert.equal(previewUrl("feature","teacher"),ORIGIN+"/social/og/teacher-chibi-v1.png");
+  assert.equal(previewUrl("home"),ORIGIN+"/social/koolo-shared-v1.png");
+  assert.equal(previewUrl("feature","teacher"),ORIGIN+"/social/og/teacher-koolo-v1.png");
   assert.throws(()=>writePreview(tmp,"feature","teacher"),/curated/i);
   assert.equal(previewUrl("course","travel","en"),ORIGIN+"/social/og/course/travel-en.png");
   assert.equal(previewUrl("guide","ai-english-speaking","zh"),ORIGIN+"/social/og/guide/ai-english-speaking-zh.png");
@@ -107,7 +107,7 @@ test("OG PNG renderer creates deterministic, distinct full-size imagery without 
 });
 
 
-test("five curated Crew Q-style OG images are real, distinct 1200x630 PNGs",()=>{
+test("five curated Koolo Q-style OG images are real, distinct 1200x630 PNGs",()=>{
  const crypto=require("node:crypto");
  const sums=new Set();
  for(const slug of ["teacher","story","fortune","research","games"]){

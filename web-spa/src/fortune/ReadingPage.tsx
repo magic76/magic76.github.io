@@ -22,9 +22,9 @@ export function FortuneReadingPage(){
  const[mode,setModeState]=useState<FortuneMode>(copy[initial]?initial:"bazi"),[p,setP]=useState<FortuneProfile>(EMPTY),[ready,setReady]=useState(false),[busy,setBusy]=useState(false),[reading,setReading]=useState<FortuneReading|null>(null),[showInput,setShowInput]=useState(true),[loadError,setLoadError]=useState(""),[aiStatus,setAiStatus]=useState<"idle"|"loading"|"ready"|"error">("idle");
  useEffect(()=>{
   // Social crawlers use the server-side shell; these tags cover in-app SPA navigation.
-  const image="https://koolo.app/social/og/fortune-chibi-v1.png";
+  const image="https://koolo.app/social/og/fortune-koolo-v1.png";
   const title="我算出了自己的命格身份！換你看看，你是哪一型？";
-  const desc="Crew Fortune｜八字、塔羅生命靈數與印度星盤，看看你的命格身份是哪一型。";
+  const desc="Koolo Fortune｜八字、塔羅生命靈數與印度星盤，看看你的命格身份是哪一型。";
   const fields:[string,string,string][]=[
    ["property","og:type","website"],["property","og:title",title],
    ["property","og:description",desc],["property","og:image",image],
