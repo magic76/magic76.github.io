@@ -151,7 +151,7 @@ function png(p){const scan=Buffer.alloc((W*4+1)*H);for(let y=0;y<H;y++)scan.set(
 export const OG_ORIGIN="https://koolo.app";
 export function previewUrl(category,slug,locale="zh"){
  if(category==="home")return OG_ORIGIN+"/social/koolo-shared-v1.png";
- if(category==="feature"){if(!["teacher","story","fortune","research","games"].includes(slug))throw Error("Invalid feature OG preview");return OG_ORIGIN+"/social/og/"+slug+"-chibi-v1.png";}
+ if(category==="feature"){if(!["teacher","story","fortune","research","games"].includes(slug))throw Error("Invalid feature OG preview");return OG_ORIGIN+"/social/og/"+slug+"-koolo-v1.png";}
  if(category==="article"){if(!/^\d{4}-\d\d-\d\d\/[a-zA-Z0-9_-]{4,100}$/.test(slug))throw Error("Invalid article image id");return OG_ORIGIN+"/social/og/research/"+slug+".png"}
  if(!/^[a-z0-9-]{1,64}$/.test(slug)||!["course","guide","game"].includes(category))throw Error("Invalid OG preview key");
  return OG_ORIGIN+"/social/og/"+category+"/"+slug+(category==="game"?"":"-"+(locale==="en"?"en":"zh"))+".png";
@@ -172,7 +172,7 @@ export function writeStaticPreviews(out,{courseSlugs,guideSlugs,gameSlugs}){
  // The assets folder is copied into /dist before this function runs.
  // Fail closed rather than silently replacing artwork with geometric placeholders.
  for(const slug of ["teacher","story","fortune","research","games"]){
-  const curated=join(out,"social","og",slug+"-chibi-v1.png");
+  const curated=join(out,"social","og",slug+"-koolo-v1.png");
   if(!existsSync(curated))throw Error("Missing curated Koolo OG image: "+curated);
   const data=readFileSync(curated);
   const magic=[137,80,78,71,13,10,26,10];
