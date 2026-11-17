@@ -1,5 +1,15 @@
 {
   "playHub": {
+    "gameEnd": {
+      "heading": "Round complete",
+      "win": "You won!",
+      "lose": "{{name}} won!",
+      "draw": "It's a draw!",
+      "moves": "{{count}} moves",
+      "hint": "Practice a friendly rematch phrase with Zoe.",
+      "chat": "Talk to Zoe about this round",
+      "again": "Play again"
+    },
     "number": {
       "times": "{{n}} tries",
       "digitsLong": "{{n}} digits",
