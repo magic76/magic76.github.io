@@ -268,3 +268,50 @@ body.teacher-theme.session-page .friend-live-page .friend-precall-stage .notice.
 .friend-live-page .friend-precall-stage .guest-live-entry [aria-label="Turnstile verification"]{box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;overflow:hidden}
 .friend-live-page .friend-precall-stage .guest-live-entry [aria-label="Turnstile verification"] iframe{max-width:100%}
 .friend-live-page .friend-precall-stage .guest-live-entry .btn{box-sizing:border-box;width:100%;max-width:100%}
+
+/* #9 voice follow-up: preserve room for complete live captions when joining from Shorts. */
+@media(max-width:640px){
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact>.live-identity{display:none}
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact>.friend-live-post{
+  flex:0 0 auto;min-height:0;min-width:0;max-width:none;gap:9px;margin:0;padding:7px 9px
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact>.friend-live-post img{
+  width:48px;height:48px;flex:0 0 48px;border-radius:9px
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact>.friend-live-post div{flex:1;min-width:0}
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact>.friend-live-post p,
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact>.friend-live-post .friend-live-post-date{display:none}
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact>.friend-live-post .friend-live-post-hook{
+  display:block;margin:2px 0 0;font-size:12px;line-height:1.4;white-space:normal;overflow-wrap:anywhere
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact>.friend-phone-captions{
+  flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:auto
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact .friend-caption-ai{
+  flex:0 0 auto;min-height:0;overflow:visible
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact .friend-caption-ai>p{
+  flex:none;min-height:0;overflow:visible;font-size:15px;line-height:1.5
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact .friend-caption-translation{
+  flex:none;max-height:none;overflow:visible;font-size:13px;line-height:1.5
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact .friend-caption-user{
+  flex:none;max-height:none;overflow:visible
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact .friend-phone-controls{
+  flex:none;gap:3px
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact .friend-phone-button{
+  min-width:64px;min-height:66px;gap:4px
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact .friend-phone-button svg{
+  width:48px;height:48px
+ }
+ .friend-live-page:not(.teacher-call-page) .friend-phone-stage.friend-shorts-voice-compact .friend-phone-volume{
+  font-size:12px
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .friend-phone-stage.friend-shorts-voice-compact .friend-phone-captions{scroll-behavior:auto}
+}
