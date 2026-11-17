@@ -71,13 +71,13 @@ function render({kind,tag,sub,locale="zh",date=""}){
  disk(1170,510,185,tint(acc,[255,255,255],.82),.60);
  disk(675,585,115,tint(acc,[255,255,255],.85),.6);
  for(const s of [[824,90,13],[1095,99,18],[731,434,9],[1060,550,12]])star(...s,tint(acc,[255,255,255],.35));
- // Shared brand identity.
- round(72,62,68,58,20,[21,58,53]);
- // Approved K + smiling oo mark in brand colors.
- line(86,77,86,105,4,[217,242,177]);line(86,97,96,87,4,[217,242,177]);line(86,97,96,106,4,[217,242,177]);
- for(const cx of [107,127]){disk(cx,95,10,[217,242,177]);disk(cx,95,5,[21,58,53]);}
- disk(131,78,4,[255,150,120]);line(111,109,122,113,2,[147,227,178]);line(122,113,130,109,2,[147,227,178]);
- txt("KOOLO",158,74,9,[21,58,53],390);
+ // One full Koolo wordmark; no separate small-logo badge.
+ txt("KOOLO",88,74,9,[21,58,53],410);
+ // The two adjacent O glyphs have centers at x=164.5 and 218.5.
+ // Keep the detached smile centered at x=191.5, below the OO (not the LO).
+ // Glyphs end at y=137; the smile remains visibly separated from them.
+ for(let n=0;n<=24;n++){const t=n/24;disk(160+63*t,149+4*Math.sin(Math.PI*t),2.3,[85,182,141]);}
+ disk(350,79,4.5,[255,150,120]);
  round(74,161,Math.min(440,95+(tag||t.tag).length*16),52,25,tint(acc,[255,255,255],.74));
  txt(tag||t.tag,99,174,5,acc,420);
  const headline=tag||t.tag;
