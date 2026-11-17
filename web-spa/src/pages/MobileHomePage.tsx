@@ -207,7 +207,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
    <div className="cmh-carousel-dots" role="group" aria-label={t("showcase29.dots")}>
     {SLIDES.map((slide,index)=><button key={slide} type="button"
      className={index===activeSlide?"is-active":""} aria-current={index===activeSlide?"true":undefined}
-     aria-label={t("showcase29.slideGo",{number:index+1,label:t("showcase29.slide."+slide)})}
+     aria-label={t("showcase29.slideGo",{number:index+1,label:t("showcase29.slide"+slide[0].toUpperCase()+slide.slice(1))})}
      onClick={()=>manualSlide(index)}><span aria-hidden="true"/></button>)}
    </div>
   </div>
