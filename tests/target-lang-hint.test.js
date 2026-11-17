@@ -28,7 +28,7 @@ test("English and non-English targets use practiced-language phrases with locali
  assert.match(starters,/friendStarterTopics\(speaker\)\.map\(key=>/);
  assert.match(starters,/targetStarterPhrase\(targetCode,key,speaker\)/);
  assert.match(starters,/onClick=\{\(\)=>onPick\(phrase\)\}/);
- assert.match(starters,/firstStarter&&<button[^>]+onClick=\{\(\)=>onPick\(firstStarter\)\}/);
+  assert.ok(starters.includes("onClick={()=>onPick((gameStarter||firstStarter)!)}"),"the game-aware first starter uses the same send path");
  assert.equal(starterState().targetCode,"ja");
  assert.equal(starterState().hasTargetStarters,true);
  assert.equal(api.targetStarterPhrase("ja","cafe","Zoe"),"こんにちは、Zoe！コーヒーをください。");
