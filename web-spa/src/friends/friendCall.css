@@ -186,3 +186,55 @@ body:has(.friend-phone-stage) .app-header .status span{display:block;min-width:0
 .friend-call-menu-panel .friend-chat-turn,.friend-call-menu-panel .friend-chat-turn p,.friend-call-menu-panel .friend-chat-turn strong{background:#000;color:#f5f5f5;font-size:12px}
 @media(max-width:380px){body:has(.friend-phone-stage) .app-header .friend-call-header-actions{gap:5px}body:has(.friend-phone-stage) .app-header .status{padding:6px}body:has(.friend-phone-stage) .app-header .app-title small{display:none}}
 @media(prefers-reduced-motion:reduce){.friend-call-menu-backdrop,.friend-call-menu-panel,.friend-call-menu-trigger{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* #57: Full-bleed black pre-call; active phone and text stages keep their own rules. */
+html:has(.friend-precall-stage){height:100%;min-height:100%;background:#000;color-scheme:dark}
+html:has(.friend-precall-stage) body{min-height:100dvh;margin:0;background:#000;color:#f5f5f5}
+body:has(.friend-precall-stage) #root{display:flex;flex-direction:column;min-height:100dvh;background:#000}
+body:has(.friend-precall-stage) .app-header{flex:none;width:100%;background:#000;color:#f5f5f5;border:0;box-shadow:none}
+body:has(.friend-precall-stage) .app-header .shell.inner{display:flex;align-items:center;gap:8px;min-width:0;background:#000}
+body:has(.friend-precall-stage) .app-header .app-brand{flex:1 1 auto;min-width:0;overflow:hidden}
+body:has(.friend-precall-stage) .app-header .app-title{min-width:0;overflow:hidden}
+body:has(.friend-precall-stage) .app-header .app-title strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body:has(.friend-precall-stage) .app-header .app-title,body:has(.friend-precall-stage) .app-header .app-title strong,body:has(.friend-precall-stage) .app-header .app-title small{color:#f5f5f5}
+body:has(.friend-precall-stage) .app-header .back-btn{min-width:44px;min-height:44px;background:#1c1c1c;color:#f5f5f5;border-color:#484848;box-shadow:none}
+body:has(.friend-precall-stage) .app-header .friend-call-header-actions{display:flex;align-items:center;gap:8px;min-width:0}
+body:has(.friend-precall-stage) .app-header .status{flex:0 1 auto;min-width:0;max-width:min(42vw,185px);padding:6px 9px;gap:6px;background:#141414;color:#f5f5f5;border-color:#474747;box-shadow:none}
+body:has(.friend-precall-stage) .app-header .status span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f5f5f5;font-size:12px}
+body:has(.friend-precall-stage) .app-header .status .status-dot{background:#44d29a}
+body:has(.friend-precall-stage) .app-header .back-btn:focus-visible{outline:3px solid #d4e6ff;outline-offset:2px}
+body.teacher-theme.session-page main.friend-live-page:has(.friend-precall-stage){display:flex;flex:1 1 auto;flex-direction:column;box-sizing:border-box;width:100%;min-width:0;min-height:0;max-width:none;margin:0;padding:0;background:#000;color:#f5f5f5}
+.friend-live-page:has(.friend-precall-stage)>.friend-desktop-workspace{display:flex;flex:1 1 auto;flex-direction:column;align-items:center;box-sizing:border-box;width:100%;min-width:0;min-height:0;max-width:none;margin:0;padding:0;background:#000}
+.friend-live-page:has(.friend-precall-stage) .friend-precall-stage{box-sizing:border-box;display:flex;flex-direction:column;align-items:stretch;gap:10px;flex:1 1 auto;width:100%;max-width:660px;min-width:0;min-height:0;height:auto;max-height:none;margin:0;padding:16px 18px calc(18px + env(safe-area-inset-bottom,0px));background:#000;background-image:none;color:#f5f5f5;border:0;border-radius:0;box-shadow:none}
+.friend-precall-stage>.live-identity{display:flex;flex-direction:column;align-items:center;gap:4px;margin:0 auto}
+.friend-precall-stage .friend-live-avatar{width:88px;height:88px;margin:0 auto;border-color:#656565;background:#171717}
+.friend-precall-stage .live-identity h1{margin:0;color:#f5f5f5;font-size:20px}
+.friend-precall-stage .live-identity>p{display:none}
+.friend-precall-stage .voice-text-recap{max-height:136px;overflow:hidden;background:#171717;color:#f5f5f5;border-color:#656565}
+.friend-precall-stage .voice-text-recap-list{max-height:86px}
+.friend-precall-stage .notice.guest-live-entry{box-sizing:border-box;width:100%;max-width:490px;margin:0 auto;padding:10px 2px;background:#000;color:#f5f5f5;border:0;border-radius:0;box-shadow:none}
+.friend-precall-stage .guest-live-entry strong,.friend-precall-stage .guest-live-entry .guest-live-key-link{color:#f5f5f5}
+.friend-precall-stage .guest-live-entry p{margin:0;color:#dce4ee;font-size:13px;line-height:1.5}
+.friend-precall-stage .guest-live-entry .friend-precall-steps{margin:0 0 10px;text-align:center;color:#f5f5f5;font-size:15px;font-weight:750}
+.friend-precall-stage .guest-live-entry .friend-precall-verification{font-size:13px;font-weight:650;color:#e5e7eb}
+.friend-precall-stage .guest-live-entry .friend-precall-verification.is-verified{color:#9cf1ca}
+.friend-precall-stage .guest-live-entry .btn{display:flex;align-items:center;justify-content:center;min-height:54px;min-width:44px;background:#9cf1ca;color:#071c13;border:1px solid #9cf1ca;border-radius:14px;font-size:16px;font-weight:800}
+.friend-precall-stage .guest-live-entry .btn:disabled{opacity:1;background:#383838;color:#f5f5f5;border:1px solid #858585;cursor:not-allowed}
+.friend-precall-stage .guest-live-entry .btn.secondary,.friend-precall-stage .guest-live-entry .guest-live-key-link{min-height:44px;background:#202020;color:#f5f5f5;border:1px solid #777;border-radius:10px;font-size:12px}
+.friend-precall-stage .guest-live-entry .guest-live-key-link{display:inline-flex;padding:8px}
+.friend-precall-stage .guest-live-entry .btn:focus-visible,.friend-precall-stage .guest-live-entry .guest-live-key-link:focus-visible,.friend-precall-stage button:focus-visible,.friend-precall-stage a:focus-visible{outline:3px solid #d4e6ff;outline-offset:2px}
+.friend-precall-stage .friend-shorts-first-action{box-sizing:border-box;width:100%;max-width:490px;margin:0 auto}
+.friend-precall-stage .friend-shorts-first-action .guest-live-entry{max-width:none}
+.friend-precall-stage .friend-shorts-controls{width:100%;max-width:490px;margin:0 auto}
+.friend-precall-stage .live-status,.friend-precall-stage .friend-live-footnote{color:#dce4ee}
+.friend-precall-stage .live-controls .live-btn{min-height:54px;min-width:44px;background:#9cf1ca;color:#071c13;font-size:16px;font-weight:800}
+.friend-precall-stage .guest-trial-finish,.friend-precall-stage .live-recovery,.friend-precall-stage .crew-gemini-setup-live{background:#000;color:#f5f5f5;border-color:#505050;box-shadow:none}
+.friend-precall-stage .guest-trial-finish p,.friend-precall-stage .guest-trial-finish h2{color:#f5f5f5}
+.friend-precall-stage .friend-live-post,.friend-precall-stage .friend-live-post-unavailable{background:#171717;color:#f5f5f5;border-color:#505050}
+.friend-precall-stage .friend-live-post p,.friend-precall-stage .friend-live-post small{color:#e5e7eb}
+.friend-precall-stage .live-mode-shortcut{display:inline-flex;align-items:center;min-height:44px;color:#e5e7eb}
+@media(min-width:1050px){.friend-live-page:has(.friend-precall-stage)>.friend-desktop-workspace{display:flex;align-items:center}.friend-live-page:has(.friend-precall-stage) .desktop-live-workspace>.friend-precall-stage{max-width:660px;padding:26px 24px;border-radius:0}}
+@media(max-width:640px){.friend-live-page:has(.friend-precall-stage) .friend-precall-stage{padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px))}}
+@media(max-width:380px){body:has(.friend-precall-stage) .app-header .friend-call-header-actions{gap:5px}body:has(.friend-precall-stage) .app-header .status{padding:6px}body:has(.friend-precall-stage) .app-header .app-title small{display:none}}
+@media(prefers-reduced-motion:reduce){.friend-precall-stage,.friend-precall-stage .friend-live-avatar,.friend-precall-stage .guest-live-entry .btn{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
