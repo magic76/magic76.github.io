@@ -94,6 +94,10 @@
     "notesHint": "Se guarda automáticamente en este navegador y puedes respaldarlo en Ajustes de Koolo. Las notas no se envían al personaje."
   },
   "friendLive": {
+    "preCallSteps": "Primero verifica → luego empieza a charlar",
+    "preCallWaiting": "Esperando la verificación…",
+    "preCallVerified": "Verificación completada. Ya puedes empezar.",
+    "preCallStart": "Empezar prueba gratis",
     "preparingPost": "Preparando el tema de la foto de tu amigo…",
     "backAria": "Volver a Koolo Amigos",
     "brand": "Amigo Koolo · {{language}}",
