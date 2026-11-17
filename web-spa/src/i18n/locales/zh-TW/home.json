@@ -152,6 +152,7 @@
     "preparing": "準備中…",
     "chatTrialWith": "免費打字和 {{name}} 聊天",
     "chatNeutralWith": "打字和 {{name}} 開聊",
+    "chatStableWith": "和 {{name}} 文字聊天",
     "chatWithFriend": "和 {{name}} 文字聊天",
     "shortsFallback": "問問這張照片的故事",
     "game1a2b": "直接開一局 1A2B",

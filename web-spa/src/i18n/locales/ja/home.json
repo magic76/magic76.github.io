@@ -152,6 +152,7 @@
     "preparing": "準備中…",
     "chatTrialWith": "{{name}} と無料で文字チャット",
     "chatNeutralWith": "{{name}} と文字チャットを始める",
+    "chatStableWith": "{{name}} と文字チャット",
     "chatWithFriend": "{{name}} と文字チャット",
     "shortsFallback": "この写真について聞いてみる",
     "game1a2b": "すぐに1A2Bを遊ぶ",

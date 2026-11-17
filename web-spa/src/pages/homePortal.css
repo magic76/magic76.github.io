@@ -143,3 +143,9 @@
 .crew-portal-invitation-meta .crew-portal-status-slot{order:-1;min-height:38px}
 .crew-portal-remaining{max-width:100%;overflow-wrap:anywhere;color:#eee2f4}
 @media(orientation:landscape) and (max-height:500px) and (min-width:560px){.crew-portal-invitation-meta .crew-portal-status-slot{min-height:0}}
+
+/* #16: Match the server preview dimensions to the lazy language select. */
+.crew-portal-practice-holder{width:min(100%,290px);min-height:44px}
+.crew-portal-practice-lang,.crew-portal-practice-preview{width:100%;min-width:0;justify-content:flex-start}
+.crew-portal-practice-control{flex:1;min-width:0}
+.crew-portal-practice-control select{width:100%;max-width:100%}

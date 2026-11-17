@@ -132,7 +132,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
       <div className="cmh-zoe-actions">
-       <Link to={textDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{friendResume?t("layout2.resumeAction"):t("showcase29.textZoe")}</Link>
+       <Link to={textDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.textZoe")}</Link>
        <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{t("showcase29.voice")}</Link>
       </div>
      </section>

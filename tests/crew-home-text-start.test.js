@@ -11,7 +11,7 @@ test("chat destinations use text mode but retain exhausted quota redirect",()=>{
  assert.match(portal,/friendId==="zoe"\?HOME_ZOE:"\/friend\/live\?id="\+friendId\+"&from=home&chat=text"/);
  assert.match(portal,/const destination=exhausted\?"\/account#settings-gemini":shortsDestination\|\|/);
  assert.match(portal,/const teacherDestination=exhausted\?"\/account#settings-gemini"/);
- assert.match(portal,/const cta=hasKey\?"world.chatWithFriend":exhausted\?"world.chatExhausted":trialAvailable\?"world.chatTrialWith":"world.chatNeutralWith"/);
+ assert.match(portal,/t\("world\.chatStableWith",\{name:friendName\}\)/);
  assert.match(portal,/!exhausted\?<img className="crew-portal-cta-avatar"/);
  assert.match(portal,/ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0/);
  assert.match(portal,/trackUsageEvent\("home_entry_click",exhausted\?"settings":"friend"\)/);

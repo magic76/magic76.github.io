@@ -580,10 +580,7 @@ test("Crew home prioritizes chat and preserves free play with conditional Gemini
  assert.match(home,/<HomePortal\b/);
  const modeRail=fs.readFileSync(path.join(root,"web-spa/src/pages/HomeModeRail.tsx"),"utf8");
  assert.ok(modeRail.includes('world.modes.'),"Secondary rail changes descriptions, not the Zoe headline");
- assert.match(portal,/const cta=hasKey\?"world\.chatWithFriend":exhausted\?"world\.chatExhausted":trialAvailable\?"world\.chatTrialWith":"world\.chatNeutralWith"/);
- assert.match(portal,/exhausted\?t\("world\.chatExhausted"\)/,"Exhausted CTA truthfully explains the quota limit");
- assert.match(portal,/hasKey\?t\(cta,\{name:friendName\}\)/,"BYOK CTA uses the key-appropriate wording");
- assert.match(portal,/t\("layout2\.action",\{name:friendName\}\)/,"Guest CTA invites a first message");
+  assert.match(portal,/t\("world\.chatStableWith",\{name:friendName\}\)/,"Main CTA keeps its quota-neutral label");
  assert.ok(portal.includes('className="crew-portal-cta"'),"World Portal must keep a real CTA");
  assert.ok(home.includes('t("continue")'));
  assert.equal(readUiLocale("home").continue,"繼續上次");

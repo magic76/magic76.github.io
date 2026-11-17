@@ -63,3 +63,10 @@
 @media(max-width:767px){
  .daily-quote--mobile{margin-top:-2.5px}
 }
+
+/* #16: Async mobile quotes replace a same-height placeholder, not the card geometry. */
+@media(max-width:767px){
+ .daily-quote--mobile .daily-quote-heading{min-height:44px}
+ .daily-quote--mobile .daily-quote-text,.daily-quote--mobile .daily-quote-placeholder{box-sizing:border-box;height:38px;min-height:38px;max-height:38px;overflow:hidden}
+ .daily-quote--mobile .daily-quote-text{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}
+}

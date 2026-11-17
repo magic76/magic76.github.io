@@ -152,6 +152,7 @@
     "preparing": "Preparando…",
     "chatTrialWith": "Converse de graça por texto com {{name}}",
     "chatNeutralWith": "Comece a conversar por texto com {{name}}",
+    "chatStableWith": "Converse por texto com {{name}}",
     "chatWithFriend": "Converse por texto com {{name}}",
     "shortsFallback": "Pergunte sobre esta foto",
     "game1a2b": "Jogar 1A2B agora",

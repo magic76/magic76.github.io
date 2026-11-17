@@ -67,8 +67,7 @@ test("Mobile quota follows carousel, hides for BYOK and preserves voice secondar
  }
  assert.match(mobile,/className="cmh-zoe-secondary"/);
  assert.match(mobile,/className="cmh-zoe-primary"/);
- assert.match(mobile,/friendResume\?t\("layout2.resumeAction"\)/);
- assert.match(mobile,/friendResume\?t\("layout2\.resumeAction"\):t\("showcase29\.textZoe"\)/);
+  assert.match(mobile,/className="cmh-zoe-primary"[^\n]*showcase29\.textZoe/);
  assert.match(mobile,/t\("showcase29\.voice"\)/);
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json")).showcase29;
  assert.equal(zh.textZoe,"文字聊天");

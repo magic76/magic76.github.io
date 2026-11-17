@@ -40,7 +40,6 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
  const hasKey=ready&&Boolean(geminiKey());
  const trial=useGuestTrialQuota(!ready||hasKey);
  const exhausted=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0;
- const trialAvailable=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==0;
  const [deepLink,setDeepLink]=useState<ReturnType<typeof readHomeDeepLink>>({tab:null,friend:null,game:null,short:null});
  // A Shorts ID is active only when it matches a post from the validated network feed.
  const selectedPost=deepLink.short?shortsFeed?.posts.find(post=>post.id===deepLink.short)||null:null;
@@ -56,7 +55,6 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
  const destination=exhausted?"/account#settings-gemini":shortsDestination||
   (friendId==="zoe"?HOME_ZOE:"/friend/live?id="+friendId+"&from=home&chat=text");
  const teacherDestination=exhausted?"/account#settings-gemini":"/teacher/live?lesson=daily_u1_l1";
- const cta=hasKey?"world.chatWithFriend":exhausted?"world.chatExhausted":trialAvailable?"world.chatTrialWith":"world.chatNeutralWith";
  const gameId=deepLink.tab==="play"&&deepLink.game?deepLink.game:"1a2b";
  const [preparing,setPreparing]=useState(false);
  const [launching,setLaunching]=useState(false);
@@ -162,7 +160,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
     <Link className="crew-portal-cta" to={target} data-preparing={preparing} aria-busy={preparing}
      onPointerDown={warmFriendStart} onTouchStart={warmFriendStart} onFocus={warmFriendStart} onMouseEnter={warmFriendStart} onClick={handleLaunch}>
      {!exhausted?<img className="crew-portal-cta-avatar" src={"/assets/friends/crew_friend_"+(selectedPost?.friendId||friendId)+".webp"} alt="" width="32" height="32"/>:null}
-     <span className="crew-portal-cta-label">{preparing?t("world.preparing"):exhausted?t("world.chatExhausted"):selectedPost?(questions[0]?.label||t("world.shortsFallback")):canResume?t("layout2.resumeAction"):hasKey?t(cta,{name:friendName}):t("layout2.action",{name:friendName})}</span><span className="crew-portal-cta-arrow" aria-hidden="true">↗</span>
+     <span className="crew-portal-cta-label">{preparing?t("world.preparing"):selectedPost?(questions[0]?.label||t("world.shortsFallback")):t("world.chatStableWith",{name:friendName})}</span><span className="crew-portal-cta-arrow" aria-hidden="true">↗</span>
     </Link>
     <div className="crew-portal-invitation-meta">
      {!hasKey&&<div className="crew-portal-status-slot">
