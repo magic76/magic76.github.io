@@ -42,3 +42,7 @@
 /* The native-language hint is portaled to body by FriendCallMenu. A scoped
    override must beat body.teacher-theme .teacher-native-help from parity.css. */
 body.teacher-theme .friend-call-menu-panel .teacher-native-help.teacher-live-language-hint{background:#242424;color:#f5f5f5;border:1px solid #777;box-shadow:none}
+
+/* #56 final: keep locked teacher dropdown values legible inside the call sheet.
+   The sheet is portaled to body, so scope it using the Teacher session theme. */
+body.teacher-theme.session-page .friend-call-menu-panel .live-more .live-config select.field:disabled{background:#1a1a1a!important;border-color:#4a4a4a!important;color:#dce4ee!important;-webkit-text-fill-color:#dce4ee!important;opacity:1!important}
