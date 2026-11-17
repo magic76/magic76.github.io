@@ -56,6 +56,7 @@ test("Published Shorts UI offers story questions on home and feed, with server-s
  const feed=load("web-spa/src/teacher/ShortsPage.tsx");
  const home=load("web-spa/src/teacher/HomeShortsPreview.tsx");
  const live=load("web-spa/src/friends/FriendLivePage.tsx");
+ const voiceOpener=load("web-spa/src/live/VoiceTextRecap.tsx");
  const server=load("functions/api/usage/event.ts");
  for(const source of [feed,home]){
   assert.match(source,/shortsChatUrl/);
@@ -75,8 +76,8 @@ test("Published Shorts UI offers story questions on home and feed, with server-s
  assert.match(feed,/SHORTS_HOOKS\.map/);
  assert.match(home,/shorts_hook_click/);
  assert.match(live,/isShortsHook\(urlHook\)/);
- assert.match(live,/shortsOpeningHint\(shortsHook\)/);
- assert.match(live,/shortsQuestionOpeningHint\(selectedQuestion\)/);
+ assert.match(live+voiceOpener,/shortsOpeningHint\(shortsHook\)/);
+ assert.match(live+voiceOpener,/shortsQuestionOpeningHint\(selectedQuestion\)/);
  assert.match(live,/rememberShortsConversation\(shortsPost\)/);
  assert.match(live,/completedTurns\.some/);
  for(const event of ["shorts_hook_click","shorts_story_followup"])assert.ok(server.includes('"'+event+'"'));
