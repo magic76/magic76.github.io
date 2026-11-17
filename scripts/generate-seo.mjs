@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import {COURSE_SEO} from "./course-seo.mjs";
 import {previewUrl} from "./social-og.mjs";
 // Public static landing pages are separate from the Web App HashRouter.
-const ORIGIN = "https://www.3sssi.com";
+const ORIGIN = "https://koolo.app";
 const PAGES = [
   {
     "slug": "",

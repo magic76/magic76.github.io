@@ -3,7 +3,7 @@ import {pathToFileURL} from 'node:url';
 
 // Production HTTP audit, not an index-coverage claim: only Google Search Console
 // can report Google's actual crawl/index state.
-export const ORIGIN='https://www.3sssi.com';
+export const ORIGIN='https://koolo.app';
 const games=['friend-gomoku','connect4','twenty-questions','reversi','mystery','1a2b','taboo'];
 const guides=['ai-english-speaking','ai-conversation-partner','travel-english-dialogues','english-pronunciation','gemini-key-for-ai-practice'];
 const hubs=['','teacher','story','fortune','research','games'];
