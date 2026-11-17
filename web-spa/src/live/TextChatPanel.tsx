@@ -13,6 +13,7 @@ import {classifyGuestTextFailure,guestTextWorkerError,markGuestTextStartError,is
 import {readSessionTranscript,readReturningFriendResume,returningFriendSystemHint,writeSessionTranscript,saveFriendResume,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
 import {TextChatStarters} from "./TextChatStarters";
+import {gameRoundContext,isGameRoundLink} from "./gameRoundHandoff";
 import {TextChatWelcomeBack} from "./TextChatWelcomeBack";
 import {TextChatNextReplies,useFriendNextReplyFallback} from "./TextChatNextReplies";
 import {parseFriendReply,stripFriendReplyMeta,friendGuestSystem} from "./textChatReplies";
@@ -49,7 +50,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const [returnVisit,setReturnVisit]=useState<ReturnType<typeof readReturningFriendResume>>(null);
  const [returnChoices,setReturnChoices]=useState(false);
  const shortsSystems=shortsContext?buildShortsTextSystems(baseSystem,shortsContext):null;
- const system=shortsSystems?.live||baseSystem;
+ const system=gameRoundContext(shortsSystems?.live||baseSystem,sessionScope);
  const returningSystem=system+(returnVisit?"\n"+returningFriendSystemHint(returnVisit):"");
  const [messages,setMessages]=useState<Message[]>([]);
  const [draft,setDraft]=useState("");
@@ -371,7 +372,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {guestFailure&&!guestFailure.start&&guestFailure.retry&&<button type="button" className="btn secondary" disabled={busy} onClick={()=>void sendMessage(draft)}>{t("guestText.retry")}</button>}
    {guestFailure&&(guestFailure.kind==="capacity"||guestFailure.repeated)&&<Link className="btn secondary" to="/account#settings-gemini">{t("guestText.useKey")}</Link>}
   </div>}
-  {historyReady&&messages.length>0&&showStarterWithHistory&&firstStarter&&!draft.trim()&&!busy&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} firstOnly/>}
+  {historyReady&&messages.length>0&&(showStarterWithHistory||isGameRoundLink())&&firstStarter&&!draft.trim()&&!busy&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} firstOnly/>}
   <form className="crew-text-chat-form" onSubmit={event=>{event.preventDefault();void sendMessage(draft)}}>
    <input type="text" aria-label={t("textChat.ui.message")} autoComplete="off" maxLength={1200} value={draft} onChange={e=>{
     const value=e.target.value;setDraft(value);if(value){setNextReplies(null);setReturnChoices(false)}
