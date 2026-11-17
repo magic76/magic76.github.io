@@ -14,7 +14,7 @@ test("B: the one CTA has a Zoe portrait, honest per-role text and direct destina
   assert.ok(rail.includes('to:"'+target+'"'));
  assert.match(src,/src=\{"\/assets\/friends\/crew_friend_"\+\(selectedPost\?\.friendId\|\|friendId\)\+"\.webp"\} alt=""/);
  assert.match(src,/const target=destination/);
- assert.match(src,/layout2\.resumeAction/);
+  assert.match(src,/world\.chatStableWith/);
  assert.match(src,/!hasKey&&<div className="crew-portal-status-slot"/);
 
 });

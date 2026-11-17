@@ -44,7 +44,7 @@ test("return card resumes the last friend without exposing transcript text",()=>
  assert.doesNotMatch(mobile,/cmh-resume-preview-row|cmh-preview-eye|formatResumePreview\(friendResume\.preview/);
  assert.doesNotMatch(mobile,/PREVIEW_HIDDEN_KEY|previewHidden|togglePreview/);
  assert.doesNotMatch(art,/\.cmh-resume-preview-row\{|\.cmh-preview-eye\{/);
- assert.match(mobile,/friendResume\?t\("layout2.resumeAction"\)/);
+ assert.match(mobile,/className="cmh-zoe-primary"[^\n]*showcase29\.textZoe/);
  assert.match(art,/\.cmh-zoe-return \.cmh-chat-pop\{display:none!important\}/);
  assert.match(art,/\.cmh-chat-pop-first\{top:179px/);
  for(const width of [360,375,390,412])assert.ok(width>=360&&width<=767);

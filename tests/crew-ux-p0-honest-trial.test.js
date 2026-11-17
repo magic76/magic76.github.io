@@ -9,8 +9,8 @@ test("Home tabs retain one SSR-safe, honest chat CTA and trial gates",()=>{
  assert.match(portal,/const hasKey=ready&&Boolean\(geminiKey\(\)\)/);
  assert.match(portal,/const exhausted=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0/);
  assert.match(portal,/const destination=exhausted\?"\/account#settings-gemini":shortsDestination\|\|/);
- assert.match(portal,/const trialAvailable=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==0/);
- assert.match(portal,/const cta=hasKey\?"world.chatWithFriend":exhausted\?"world.chatExhausted":trialAvailable\?"world.chatTrialWith":"world.chatNeutralWith"/);
+ assert.match(portal,/world\.freeAllowance\.voiceUsed/);
+ assert.match(portal,/t\("world\.chatStableWith",\{name:friendName\}\)/);
  assert.match(portal,/to=\{target\}/);
  const rail=read("web-spa/src/pages/HomeModeRail.tsx");
  for(const target of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])assert.ok(rail.includes('to:"'+target+'"'));

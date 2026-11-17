@@ -152,6 +152,7 @@
     "preparing": "준비 중…",
     "chatTrialWith": "{{name}}와 무료 문자 채팅",
     "chatNeutralWith": "{{name}}와 문자로 대화 시작",
+    "chatStableWith": "{{name}}와 문자 채팅",
     "chatWithFriend": "{{name}}와 문자 채팅",
     "shortsFallback": "이 사진에 대해 물어보기",
     "game1a2b": "바로 1A2B 시작하기",

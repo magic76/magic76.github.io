@@ -69,7 +69,7 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
      <h1>{validResume?t("layout2.resumeTitle",{name:friend!.name}):t("mobileHero.title")}</h1>
      <p>{validResume?t("showcase29.desktop.resumeDesc"):t("mobileHero.subtitle")}</p>
      <div className="kdh-zoe-actions">
-      <Link className="kdh-primary" to={textTo} onClick={()=>track("friend")}><Icon name="chat"/>{validResume?t("layout2.resumeAction"):t("showcase29.desktop.text")}</Link>
+      <Link className="kdh-primary" to={textTo} onClick={()=>track("friend")}><Icon name="chat"/>{t("showcase29.desktop.text")}</Link>
       <Link className="kdh-secondary" to={voiceTo} onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{t("showcase29.desktop.voice")}</Link>
      </div>
      {validResume&&<div className="kdh-resume-line">

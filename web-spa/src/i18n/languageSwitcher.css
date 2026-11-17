@@ -80,3 +80,7 @@
 .crew-language-feedback[role="alert"]{color:var(--text,#253044)}
 .crew-language-option:disabled{cursor:wait;opacity:.65}
 .crew-locale-error{padding:9px 16px;text-align:center;font-size:12px;background:var(--surface-alt,#f7f5fd);color:var(--text,#253044);overflow-wrap:anywhere}
+
+/* #16: Reserve the same header width before and after locale hydration. */
+.crew-language-picker-header .crew-language-trigger{width:104px;min-width:104px;justify-content:space-between}
+@media(max-width:700px){.crew-language-picker-header .crew-language-trigger{width:92px;min-width:92px;max-width:92px}}

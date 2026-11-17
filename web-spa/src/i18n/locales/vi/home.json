@@ -152,6 +152,7 @@
     "preparing": "Đang chuẩn bị…",
     "chatTrialWith": "Nhắn tin miễn phí với {{name}}",
     "chatNeutralWith": "Bắt đầu nhắn tin với {{name}}",
+    "chatStableWith": "Nhắn tin với {{name}}",
     "chatWithFriend": "Nhắn tin với {{name}}",
     "shortsFallback": "Hỏi về bức ảnh này",
     "game1a2b": "Chơi ngay 1A2B",
