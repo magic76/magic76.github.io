@@ -1,5 +1,15 @@
 {
   "playHub": {
+    "gameEnd": {
+      "heading": "Ronde selesai",
+      "win": "Kamu menang!",
+      "lose": "{{name}} menang!",
+      "draw": "Seri!",
+      "moves": "{{count}} langkah",
+      "hint": "Latih kalimat ajakan tanding ulang bersama Zoe.",
+      "chat": "Obrolkan ronde ini dengan Zoe",
+      "again": "Main lagi"
+    },
     "number": {
       "times": "{{n}} kali",
       "digitsLong": "{{n}} digit",
