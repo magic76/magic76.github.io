@@ -10,7 +10,7 @@ const modes:readonly FortuneMode[]=["bazi","tarot","vedic"];
  */
 export function fortuneInviteUrl(mode:FortuneMode,archetype:string|null,locale="zh-TW"):string{
  const path=fortuneLocale(locale)==="zh-TW"?"/fortune":"/"+fortuneLocale(locale)+"/fortune";
- const base="https://www.3sssi.com"+path;
+ const base="https://koolo.app"+path;
  if(!archetype||!Object.hasOwn(FORTUNE_ARCHETYPE_TRAITS,archetype)||!archetype.startsWith(mode+"-"))return base;
  const p=new URLSearchParams({m:mode,a:archetype,theme:"identity",src:"card"});
  return base+"?"+p.toString();

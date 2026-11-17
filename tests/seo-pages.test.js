@@ -4,7 +4,7 @@ const fs=require("node:fs");
 const path=require("node:path");
 const {execFileSync}=require("node:child_process");
 const ROOT=path.resolve(__dirname,"..");
-const ORIGIN="https://www.3sssi.com";
+const ORIGIN="https://koolo.app";
 const slugs=["","teacher","story","fortune","research"];
 const courses=["travel","business","daily","teamwork","tickets","services"].map(slug=>"teacher/course/"+slug);
 const read=p=>fs.readFileSync(path.join(ROOT,p),"utf8");
@@ -53,7 +53,7 @@ test("sitemap enumerates public and game URLs with matching language alternates"
   assert.deepEqual(actual,[...slugs,...games,...courses].flatMap(slug=>[url(slug,"zh"),url(slug,"en")]));
   assert.equal((xml.match(/hreflang="x-default"/g)||[]).length,(slugs.length+games.length+courses.length)*2);
   assert.match(xml,/xmlns:xhtml="http:\/\/www\.w3\.org\/1999\/xhtml"/);
-  assert.match(read("robots.txt"),/Sitemap: https:\/\/www\.3sssi\.com\/sitemap\.xml/);
+  assert.match(read("robots.txt"),/Sitemap: https:\/\/koolo\.app\/sitemap\.xml/);
 });
 test("referenced social image assets exist and are PNG files",()=>{
   for(const name of ["crew","teacher","story","fortune","research","crew-shared-v2"]){

@@ -23,7 +23,7 @@ function saveResultImage(t:TFunction,count:number,digits:number,name:string,won:
  ctx.fillText(t("playHub.number.cardSays",{name}),65,605);
  ctx.font="32px sans-serif";ctx.fillText(won?t("playHub.number.cardQuoteWin"):t("playHub.number.cardQuoteLose"),65,665);
  ctx.strokeStyle="#8585ba";ctx.beginPath();ctx.moveTo(65,875);ctx.lineTo(835,875);ctx.stroke();
- ctx.fillStyle="#fff";ctx.font="29px sans-serif";ctx.fillText("https://www.3sssi.com/games/1a2b",65,965);
+ ctx.fillStyle="#fff";ctx.font="29px sans-serif";ctx.fillText("https://koolo.app/games/1a2b",65,965);
  canvas.toBlob(blob=>{
   if(!blob)return;
   const url=URL.createObjectURL(blob),link=document.createElement("a");
@@ -196,7 +196,7 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate,resume}:{
    <blockquote>{friendGameReaction(friend.id,won?"win":"lose",i18n.language==="zh-TW"?"zh":"en")}</blockquote>
    {mode==="guess"?<p>{t("playHub.number.bestLabel")}<strong>{record.best===null?t("playHub.number.none"):t("playHub.number.times",{n:record.best})}</strong> · {t("playHub.number.played",{n:record.played})}{dailyDate?" · "+t("playHub.number.streak",{n:record.streak}):""}</p>:null}
    {dailyDate&&dailyResult?<p>{t("playHub.number.todayFirstLabel")}{dailyResult.won?t("playHub.number.success"):t("playHub.number.fail")} · {t("playHub.number.times",{n:dailyResult.attempts})}</p>:null}
-   <p>3sssi.com/games/1a2b</p>
+   <p>koolo.app/games/1a2b</p>
    <div className="crew-mini-result-actions">
     <button onClick={()=>saveResultImage(t,history.length,digits,friend.name,won,Boolean(dailyDate),record.best)} type="button">{t("playHub.number.saveCard")}</button>
     <button className="crew-mini-primary" onClick={dailyDate?onLeaveDaily:onNew} type="button">{dailyDate?t("playHub.number.normalMode"):t("playHub.number.again")}</button>

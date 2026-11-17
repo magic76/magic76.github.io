@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 
-const ORIGIN='https://www.3sssi.com';
+const ORIGIN='https://koolo.app';
 async function load(){return import('../scripts/check-live-seo.mjs');}
 function html(url,{noindex=false,canonical=url,alternate=true,ssg=true}={}){
  const p=new URL(url).pathname;
