@@ -1,5 +1,15 @@
 {
   "playHub": {
+    "gameEnd": {
+      "heading": "対局終了",
+      "win": "あなたの勝ち！",
+      "lose": "{{name}}の勝ち！",
+      "draw": "引き分け！",
+      "moves": "{{count}}手",
+      "hint": "Zoeと「もう一回」の言い方を練習しよう。",
+      "chat": "Zoeとこの対局について話す",
+      "again": "もう一局"
+    },
     "number": {
       "times": "{{n}} 回",
       "digitsLong": "{{n}} 桁",
