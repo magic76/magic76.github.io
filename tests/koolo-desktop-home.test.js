@@ -23,7 +23,7 @@ test("Koolo desktop home mirrors the mobile product entry points without changin
  assert.match(desktop,/className="kdh-feature-column"/);
  assert.match(desktop,/className="kdh-shortcuts"/);
  assert.match(desktop,/HomeShortsPreview maxPosts=\{10\} sharedFeed=\{shortsFeed\} sharedStatus=\{shortsStatus\}/);
- assert.match(mobile,/HomeShortsPreview maxPosts=\{8\} sharedFeed=\{shortsFeed\}/);
+ assert.match(mobile,/HomeShortsPreview maxPosts=\{6\} sharedFeed=\{shortsFeed\}/);
  assert.match(desktop,/className="kdh-moments"/);
  assert.match(desktop,/<DailyTopicCards variant="desktop"\/>/);
  assert.match(desktop,/<GuideHub\/>/);
