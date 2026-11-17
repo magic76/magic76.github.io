@@ -53,7 +53,7 @@ test('friend prompts end both Live and guest system, teacher never gets instruct
  assert.match(FRIEND_TEXT_INSTRUCTIONS,/\[\[PHRASE\]\]/);
  assert.match(FRIEND_TEXT_INSTRUCTIONS,/No extra text after the suffix/);
  assert.match(live,/this\.friendScope\?FRIEND_TEXT_INSTRUCTIONS:""/);
- assert.match(panel,/const guestSystem=isFriend\?friendGuestSystem\(guestBase\):guestBase/);
+ assert.match(panel,/const guestSystem=isFriend\?friendGuestSystem\(guestBase\+easyFriendTextReplyRule\(guestBase,isFriend\)\):guestBase/);
  const guest=friendGuestSystem('Friend persona\n'+'big '.repeat(2000)+'\n[FRIEND LANGUAGE CONTROL — FULL IMMERSION]');
  assert.ok(guest.length<=6000);
  assert.ok(guest.endsWith(FRIEND_TEXT_INSTRUCTIONS));

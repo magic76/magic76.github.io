@@ -76,7 +76,7 @@ test("Shorts changes are opt-in, other chat and visible user message stay untouc
  assert.match(panel,/shortsContext\?buildShortsTextSystems\(baseSystem,shortsContext\):null/);
  assert.match(panel,/const system=shortsSystems\?\.live\|\|baseSystem/);
  assert.match(panel,/const guestBase=shortsSystems\?\.guest\?\?/);
- assert.match(panel,/const guestSystem=isFriend\?friendGuestSystem\(guestBase\):guestBase/);
+ assert.match(panel,/const guestSystem=isFriend\?friendGuestSystem\(guestBase\+easyFriendTextReplyRule\(guestBase,isFriend\)\):guestBase/);
  assert.match(panel,/new LiveTextConversation\(prior\?returningSystem\+[\s\S]*?\+prior:returningSystem,\s*searchEnabled/);
  assert.match(panel,/const next:Message\[\]=\[\.\.\.messages,\{role:"user",text:value\}\]/);
  assert.match(panel,/messages:next\.slice\(-10\)\.map\(m=>\(\{role:m\.role,text:m\.text\}\)\)/);

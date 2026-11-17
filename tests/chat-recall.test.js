@@ -74,7 +74,7 @@ test("RETURNING instruction is short, lives in the system for both routes, and c
  assert.match(panel,/const returningSystem=system\+\(returnVisit\?"\\n"\+returningFriendSystemHint\(returnVisit\):""\)/);
  assert.match(panel,/new LiveTextConversation\(prior\?returningSystem\+/);
  assert.match(panel,/const guestBase=shortsSystems\?\.guest\?\?\(isFriend\?returningSystem/);
- assert.match(panel,/friendGuestSystem\(guestBase\)/);
+ assert.match(panel,/friendGuestSystem\(guestBase\+easyFriendTextReplyRule\(guestBase,isFriend\)\)/);
  assert.match(panel,/if\(returningHint\)\{setReturnVisit\(null\);liveChat\.current\?\.close\(\);liveChat\.current=null;\}/);
  assert.ok(panel.indexOf("setReturnVisit(null);liveChat.current?.close()")>panel.indexOf("await reveal.finish(reply)"));
  assert.doesNotMatch(widget,/useEffect|sendMessage|autoStarter/);

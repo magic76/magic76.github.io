@@ -113,7 +113,14 @@
     "meaning": {
       "cafe": "嗨 {{name}}！請給我一杯咖啡。",
       "intro": "嗨 {{name}}！我想自我介紹。",
-      "smalltalk": "嗨 {{name}}！你今天好嗎？"
+      "smalltalk": "嗨 {{name}}！你今天好嗎？",
+      "funny": "嗨 {{name}}！今天什麼事讓你笑了？",
+      "food": "嗨 {{name}}！你喜歡吃什麼？",
+      "travel": "嗨 {{name}}！你想去哪裡？",
+      "make": "嗨 {{name}}！今天可以一起做什麼？",
+      "idea": "嗨 {{name}}！你有什麼小點子？",
+      "outdoors": "嗨 {{name}}！你喜歡散步嗎？",
+      "weekend": "嗨 {{name}}！你週末都做什麼？"
     },
     "heading": "點一句直接開聊",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
@@ -146,9 +153,10 @@
       "guide-english-pronunciation": "{{name}}，我想練英文發音，可以陪我從一個常見句子開始嗎？",
       "guide-gemini-key-for-ai-practice": "{{name}}，我剛讀完 Gemini Key 指南，能用簡單的話解釋怎麼設定嗎？",
       "research-article": "{{name}}，我剛讀完一篇研究文章，想跟你聊聊該怎麼理解重點。"
-    }
-  }
-,
+    },
+    "openingHelp": "不知道怎麼開口？點一句，或用中文打也可以。",
+    "tapToBegin": "不知道怎麼開口？點一句開始聊。"
+  },
   "dailyQuoteStarter": "今天的小語：「{{quote}}」想跟你聊聊這句。",
   "dailyFortuneContinue": "我想繼續問剛才這份今日運勢解讀，從你提到的重點聊起。",
   "dailyFortuneStarter": "幫我解讀今天的運勢",

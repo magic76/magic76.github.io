@@ -113,7 +113,14 @@
     "meaning": {
       "cafe": "안녕, {{name}}! 커피 한 잔 주세요.",
       "intro": "안녕, {{name}}! 자기소개를 하고 싶어요.",
-      "smalltalk": "안녕, {{name}}! 오늘 잘 지내요?"
+      "smalltalk": "안녕, {{name}}! 오늘 잘 지내요?",
+      "funny": "안녕, {{name}}! 오늘 뭐가 재미있었어?",
+      "food": "안녕, {{name}}! 무슨 음식을 좋아해?",
+      "travel": "안녕, {{name}}! 어디에 가고 싶어?",
+      "make": "안녕, {{name}}! 오늘 뭘 만들까?",
+      "idea": "안녕, {{name}}! 작은 아이디어가 있어?",
+      "outdoors": "안녕, {{name}}! 산책 좋아해?",
+      "weekend": "안녕, {{name}}! 주말에 뭐 해?"
     },
     "heading": "문장을 눌러 바로 대화 시작",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
@@ -146,9 +153,10 @@
       "guide-english-pronunciation": "{{name}}, 영어 발음을 연습하고 싶어. 쉬운 문장부터 시작하자.",
       "guide-gemini-key-for-ai-practice": "{{name}}, Gemini Key 가이드를 읽었어. 설정법을 쉽게 설명해 줄래?",
       "research-article": "{{name}}, 연구 글을 읽었어. 핵심 내용을 함께 이야기하고 싶어."
-    }
-  }
-,
+    },
+    "openingHelp": "뭐라고 시작할지 모르겠다면 문장을 누르거나 내 언어로 입력해도 돼요.",
+    "tapToBegin": "뭐라고 시작할지 모르겠다면 문장을 눌러 보세요."
+  },
   "dailyQuoteStarter": "오늘의 한마디: “{{quote}}” 이 말에 대해 이야기하고 싶어.",
   "dailyFortuneContinue": "방금 해준 오늘의 운세 해석에 대해 더 묻고 싶어. 핵심부터 이야기해 줘.",
   "dailyFortuneStarter": "오늘의 운세를 풀이해 줘",

@@ -1,4 +1,4 @@
-import {LiveTextConversation} from "./liveTextChat";
+import {LiveTextConversation,easyFriendTextReplyRule} from "./liveTextChat";
 import {GUEST_TOKEN_ENDPOINT} from "../lib/guestTrial";
 import {awardCreatureChatEnergy} from "../pages/creatureChatRewards.mjs";
 import {GuestKeyRecovery} from "./GuestKeyRecovery";
@@ -237,7 +237,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     reply=answer.text;sources=answer.sources;searchSuggestions=answer.searchSuggestions;
    }else{
     const guestBase=shortsSystems?.guest??(isFriend?returningSystem:system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system);
-    const guestSystem=isFriend?friendGuestSystem(guestBase):guestBase;
+    const guestSystem=isFriend?friendGuestSystem(guestBase+easyFriendTextReplyRule(guestBase,isFriend)):guestBase;
     const data=await sendGuestTextWithRenewal({
      token:guestPhase==="active"||guestPhase==="checking"?guestToken:"",
      acquire:startGuestText,

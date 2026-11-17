@@ -113,7 +113,14 @@
     "meaning": {
       "cafe": "Chào {{name}}! Cho mình một ly cà phê nhé.",
       "intro": "Chào {{name}}! Mình muốn giới thiệu bản thân.",
-      "smalltalk": "Chào {{name}}! Hôm nay bạn khỏe không?"
+      "smalltalk": "Chào {{name}}! Hôm nay bạn khỏe không?",
+      "funny": "Chào {{name}}! Hôm nay điều gì làm bạn cười?",
+      "food": "Chào {{name}}! Bạn thích món ăn nào?",
+      "travel": "Chào {{name}}! Bạn muốn đi đâu?",
+      "make": "Chào {{name}}! Hôm nay mình cùng làm gì?",
+      "idea": "Chào {{name}}! Bạn có ý tưởng nhỏ nào không?",
+      "outdoors": "Chào {{name}}! Bạn thích đi dạo không?",
+      "weekend": "Chào {{name}}! Cuối tuần bạn làm gì?"
     },
     "heading": "Chạm vào một câu để bắt đầu trò chuyện ngay",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
@@ -146,9 +153,10 @@
       "guide-english-pronunciation": "Chào {{name}}, mình muốn luyện phát âm tiếng Anh từ một câu đơn giản.",
       "guide-gemini-key-for-ai-practice": "Chào {{name}}, mình đọc hướng dẫn Gemini Key. Bạn giải thích cách cài đặt dễ hiểu nhé?",
       "research-article": "Chào {{name}}, mình vừa đọc bài nghiên cứu. Ta cùng bàn các ý chính nhé?"
-    }
-  }
-,
+    },
+    "openingHelp": "Chưa biết nói gì? Chạm một câu hoặc gõ bằng tiếng mẹ đẻ.",
+    "tapToBegin": "Chưa biết nói gì? Chạm một câu để bắt đầu."
+  },
   "dailyQuoteStarter": "Lời nhắn hôm nay: “{{quote}}” Mình muốn trò chuyện về câu này.",
   "dailyFortuneContinue": "Mình muốn hỏi tiếp về phần luận giải vận may hôm nay bạn vừa nói. Điểm quan trọng nhất là gì?",
   "dailyFortuneStarter": "Giúp mình giải nghĩa vận may hôm nay",

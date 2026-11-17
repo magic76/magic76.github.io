@@ -113,7 +113,14 @@
     "meaning": {
       "cafe": "Hai {{name}}! Kopi satu, ya.",
       "intro": "Hai {{name}}! Aku ingin memperkenalkan diri.",
-      "smalltalk": "Hai {{name}}! Apa kabarmu hari ini?"
+      "smalltalk": "Hai {{name}}! Apa kabarmu hari ini?",
+      "funny": "Hai {{name}}! Apa yang membuatmu tertawa hari ini?",
+      "food": "Hai {{name}}! Kamu suka makanan apa?",
+      "travel": "Hai {{name}}! Kamu ingin pergi ke mana?",
+      "make": "Hai {{name}}! Mau membuat apa hari ini?",
+      "idea": "Hai {{name}}! Punya ide kecil?",
+      "outdoors": "Hai {{name}}! Kamu suka jalan-jalan?",
+      "weekend": "Hai {{name}}! Biasanya akhir pekan kamu ngapain?"
     },
     "heading": "Ketuk satu kalimat untuk langsung mengobrol",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
@@ -146,9 +153,10 @@
       "guide-english-pronunciation": "Hai {{name}}, aku ingin latihan pelafalan bahasa Inggris dari satu kalimat.",
       "guide-gemini-key-for-ai-practice": "Hai {{name}}, aku membaca panduan Gemini Key. Bisa jelaskan cara mengaturnya?",
       "research-article": "Hai {{name}}, aku baru membaca artikel riset. Ayo bahas gagasan utamanya."
-    }
-  }
-,
+    },
+    "openingHelp": "Bingung mau bilang apa? Ketuk kalimat, atau ketik dalam bahasamu.",
+    "tapToBegin": "Bingung mau bilang apa? Ketuk kalimat untuk mulai."
+  },
   "dailyQuoteStarter": "Pesan hari ini: “{{quote}}” Aku ingin membicarakannya.",
   "dailyFortuneContinue": "Aku ingin melanjutkan pembahasan ramalan hari ini yang baru kamu jelaskan. Apa inti pesannya?",
   "dailyFortuneStarter": "Bantu aku memahami ramalan hari ini",

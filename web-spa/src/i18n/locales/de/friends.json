@@ -113,7 +113,14 @@
     "meaning": {
       "cafe": "Hallo {{name}}! Einen Kaffee, bitte.",
       "intro": "Hallo {{name}}! Ich möchte mich vorstellen.",
-      "smalltalk": "Hallo {{name}}! Wie geht es dir heute?"
+      "smalltalk": "Hallo {{name}}! Wie geht es dir heute?",
+      "funny": "Hallo {{name}}! Was hat dich heute zum Lachen gebracht?",
+      "food": "Hallo {{name}}! Welches Essen magst du?",
+      "travel": "Hallo {{name}}! Wohin möchtest du reisen?",
+      "make": "Hallo {{name}}! Was können wir heute machen?",
+      "idea": "Hallo {{name}}! Hast du eine kleine Idee?",
+      "outdoors": "Hallo {{name}}! Gehst du gern spazieren?",
+      "weekend": "Hallo {{name}}! Was machst du am Wochenende?"
     },
     "heading": "Tippe auf einen Satz, um direkt zu chatten",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
@@ -146,9 +153,10 @@
       "guide-english-pronunciation": "Hallo {{name}}, ich möchte meine englische Aussprache mit einem einfachen Satz üben.",
       "guide-gemini-key-for-ai-practice": "Hallo {{name}}, ich habe den Gemini-Key-Leitfaden gelesen. Kannst du die Einrichtung erklären?",
       "research-article": "Hallo {{name}}, ich habe einen Forschungsartikel gelesen. Besprechen wir die wichtigsten Punkte?"
-    }
-  }
-,
+    },
+    "openingHelp": "Keine Idee, was du sagen sollst? Tippe auf einen Satz oder schreibe in deiner Sprache.",
+    "tapToBegin": "Keine Idee, was du sagen sollst? Tippe zum Start auf einen Satz."
+  },
   "dailyQuoteStarter": "Mein Gedanke für heute: „{{quote}}“ Darüber würde ich gern reden.",
   "dailyFortuneContinue": "Ich möchte zu deiner heutigen Deutung weiterfragen. Was bedeutet der wichtigste Punkt für mich heute?",
   "dailyFortuneStarter": "Hilf mir, mein heutiges Horoskop zu deuten",
