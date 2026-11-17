@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useRef,useState} from "react";
+import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
 import {useTranslation} from "react-i18next";
 import {geminiKey} from "../lib/runtime";
 import type {NativeLanguage} from "../teacher/teacherLocale";
@@ -7,7 +7,7 @@ import {CREW_FRIENDS,getCrewFriend} from "./friendProfiles";
 import {callTranslationRows,splitCallSentences} from "./callSentence.mjs";
 import {translateCallSentence} from "./callTranslate";
 type Turn={input?:string;output?:string};
-type Props={name:string;turns:ReadonlyArray<Turn>;input:string;output:string;learningLanguage:string;nativeLanguage:NativeLanguage;speaking:boolean};
+type Props={name:string;turns:ReadonlyArray<Turn>;input:string;output:string;learningLanguage:string;nativeLanguage:NativeLanguage;speaking:boolean;speakerAvatar?:ReactNode;waitingText?:string;replyExtra?:ReactNode};
 type Translator={translate(text:string):Promise<string>;destroy?():void};
 type Factory={availability(v:{sourceLanguage:string;targetLanguage:string}):Promise<"available"|"downloadable"|"downloading"|"unavailable">;create(v:{sourceLanguage:string;targetLanguage:string}):Promise<Translator>};
 type Browser={factory:Factory|null;status:"checking"|"available"|"downloadable"|"downloading"|"unavailable";instance:Translator|null;promise:Promise<void>|null;closed:boolean};
@@ -16,7 +16,7 @@ const PREF="crew_friend_call_translation_v1";
 const LANG:Record<string,string>={"英文":"en","日文":"ja","韓文":"ko","中文":"zh","華語":"zh","繁體中文":"zh","簡體中文":"zh","西班牙文":"es","法文":"fr","德文":"de","義大利文":"it","越南文":"vi","泰文":"th","印尼文":"id","葡萄牙文":"pt"};
 function initial(){try{return localStorage.getItem(PREF)!=="off"}catch{return true}}
 function browserCode(language:string){return language==="zh-TW"?"zh-Hant":language==="zh-CN"?"zh":language.split("-")[0]}
-export function FriendCallCaptions({name,turns,input,output,learningLanguage,nativeLanguage,speaking}:Props){
+export function FriendCallCaptions({name,turns,input,output,learningLanguage,nativeLanguage,speaking,speakerAvatar,waitingText,replyExtra}:Props){
  const {t}=useTranslation("voice");
  const captionsRef=useRef<HTMLDivElement>(null),replyRef=useRef<HTMLParagraphElement>(null),translationRef=useRef<HTMLDivElement>(null);
  const captionFriend=CREW_FRIENDS.find(friend=>friend.name===name)||getCrewFriend("zoe");
@@ -121,8 +121,8 @@ export function FriendCallCaptions({name,turns,input,output,learningLanguage,nat
    {needTranslation?<button type="button" className="friend-caption-toggle" aria-pressed={enabled} onClick={toggle}>{t(enabled?"callCaptions.hideTranslation":"callCaptions.showTranslation")}</button>:null}
   </div>
   <section className="friend-caption-ai" aria-label={name}>
-   <div className="friend-caption-speaker"><FriendAvatar friend={captionFriend} className="friend-caption-avatar" decorative/><small>{name}{speaking?" · "+t("compact.speaking"):""}</small></div>
-   <p ref={replyRef} lang={source}>{currentReply||latestReply||t("callCaptions.waitingForFriend")}</p>
+   <div className="friend-caption-speaker">{speakerAvatar?<span className="friend-caption-avatar teacher-call-caption-avatar">{speakerAvatar}</span>:<FriendAvatar friend={captionFriend} className="friend-caption-avatar" decorative/>}<small>{name}{speaking?" · "+t("compact.speaking"):""}</small></div>
+   <p ref={replyRef} lang={source}>{currentReply||latestReply||waitingText||t("callCaptions.waitingForFriend")}</p>{replyExtra}
    {enabled&&needTranslation&&visibleTranslation.length?<div ref={translationRef} className="friend-caption-translation" lang={nativeLanguage}>
     {visibleTranslation.map((row,i)=><span key={i} className="friend-caption-translation-sentence">{row.kind==="text"?row.value:t(row.value==="needsKey"?"callCaptions.needsKey":row.value==="translateFailed"?"callCaptions.translateFailed":"callCaptions.translating")}</span>)}
    </div>:null}

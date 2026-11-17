@@ -279,6 +279,7 @@
     "needsKey": "A Gemini key or an on-device translator is required.",
     "translateFailed": "Translation is unavailable; the call continues.",
     "waitingForFriend": "Your friend's reply will appear here",
+    "waitingForTeacher": "Your teacher's reply will appear here",
     "recognized": "Recognized",
     "recognizing": "Recognizing",
     "waitingForYou": "What you say will appear here",

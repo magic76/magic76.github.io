@@ -36,7 +36,7 @@ test("retry context is local, language scoped, expires and is never falsely mark
 test("visible learning goals and feedback lead to working retry entry points",()=>{
  const focus=read("web-spa/src/teacher/LearningFocusCard.tsx");
  const reports=read("web-spa/src/teacher/ReportsPage.tsx");
- const live=read("web-spa/src/teacher/LivePage.tsx");
+ const live=read("web-spa/src/teacher/LivePage.tsx")+"\n"+read("web-spa/src/teacher/TeacherLiveResults.tsx");
  assert.match(focus,/plan\?\.learnerGoal/);
  assert.match(focus,/plan\?\.reviewFocus&&plan.action!=="review"/);
  assert.match(reports,/queueReviewFocus\(targetLanguage/);

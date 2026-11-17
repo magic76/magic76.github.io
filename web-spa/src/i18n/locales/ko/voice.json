@@ -279,6 +279,7 @@
     "needsKey": "Gemini 키 또는 기기 번역 기능이 필요합니다.",
     "translateFailed": "번역을 사용할 수 없어도 통화는 계속됩니다.",
     "waitingForFriend": "친구의 답변이 여기에 표시됩니다",
+    "waitingForTeacher": "선생님의 답변이 여기에 표시됩니다",
     "recognized": "인식 완료",
     "recognizing": "인식 중",
     "waitingForYou": "말한 내용이 여기에 표시됩니다",

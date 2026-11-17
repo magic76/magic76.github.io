@@ -279,6 +279,7 @@
     "needsKey": "Ein Gemini-Schlüssel oder ein Browser mit Geräteübersetzung ist erforderlich.",
     "translateFailed": "Übersetzung nicht verfügbar; der Anruf läuft weiter.",
     "waitingForFriend": "Die Antwort erscheint hier",
+    "waitingForTeacher": "Die Antwort deiner Lehrkraft erscheint hier",
     "recognized": "Erkannt",
     "recognizing": "Erkennung läuft",
     "waitingForYou": "Deine Worte erscheinen hier",

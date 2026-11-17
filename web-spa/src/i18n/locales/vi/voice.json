@@ -279,6 +279,7 @@
     "needsKey": "Cần khóa Gemini hoặc trình duyệt hỗ trợ dịch trên thiết bị.",
     "translateFailed": "Không thể dịch, cuộc gọi vẫn tiếp tục.",
     "waitingForFriend": "Câu trả lời sẽ hiện ở đây",
+    "waitingForTeacher": "Câu trả lời của giáo viên sẽ xuất hiện ở đây",
     "recognized": "Đã nhận diện",
     "recognizing": "Đang nhận diện",
     "waitingForYou": "Lời bạn nói sẽ hiện ở đây",
