@@ -28,7 +28,7 @@ test("each locale has crawlable content with its own canonical and reciprocal hr
     }
     assert.ok(html.includes('href="/crew-app/#/'));
     assert.ok(html.includes('<meta name="robots" content="index,follow">'));
-    const expectedImage=slug?ORIGIN+"/social/og/"+slug+"-chibi-v1.png":ORIGIN+"/social/koolo-shared-v1.png";
+    const expectedImage=slug?ORIGIN+"/social/og/"+slug+"-koolo-v1.png":ORIGIN+"/social/koolo-shared-v1.png";
     for(const tag of ['<meta property="og:image"','<meta property="og:image:secure_url"','<meta name="twitter:image"']){
       assert.ok(html.includes(tag+' content="'+expectedImage+'">'),file+" missing "+tag);
     }
@@ -111,7 +111,7 @@ test("five curated Koolo Q-style OG images are real, distinct 1200x630 PNGs",()=
  const crypto=require("node:crypto");
  const sums=new Set();
  for(const slug of ["teacher","story","fortune","research","games"]){
-  const file=path.join(ROOT,"social","og",slug+"-chibi-v1.png");
+  const file=path.join(ROOT,"social","og",slug+"-koolo-v1.png");
   const image=fs.readFileSync(file);
   assert.deepEqual([...image.subarray(0,8)],[137,80,78,71,13,10,26,10],slug);
   assert.equal(image.readUInt32BE(16),1200,slug);
