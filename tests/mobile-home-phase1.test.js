@@ -45,7 +45,7 @@ test("eight one-tap app destinations, one Shorts strip and one daily recommendat
  const shortcuts=page.slice(page.indexOf("const APPS:"),page.indexOf("/** Mobile-only"));
  assert.equal((shortcuts.match(/\{id:"/g)||[]).length,8,"exactly eight shortcuts");
  assert.ok(!shortcuts.includes('to:"/magic"'),"Magic must not be added");
- assert.match(page,/HomeShortsPreview maxPosts=\{8\} sharedFeed=\{shortsFeed\}/);
+ assert.match(page,/HomeShortsPreview maxPosts=\{6\} sharedFeed=\{shortsFeed\}/);
  assert.match(page,/className="cmh-slide cmh-slide-game"/);
  assert.doesNotMatch(page,/className="cmh-featured"/);
  assert.match(page,/className="cmh-seo"/);
