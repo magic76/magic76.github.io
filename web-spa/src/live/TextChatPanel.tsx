@@ -19,7 +19,7 @@ import {TextChatNextReplies,useFriendNextReplyFallback} from "./TextChatNextRepl
 import {parseFriendReply,stripFriendReplyMeta,friendGuestSystem} from "./textChatReplies";
 import {useTextChatKeyboard} from "./textChatKeyboard";
 import type {GroundingSource} from "./grounding";
-import {useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState,type ReactNode} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {GUEST_TEXT_DAILY_TURNS} from "./guestAllowance";
@@ -32,7 +32,7 @@ import type {TeachingMode} from "../store/teacherStore";
 import "./TextChatPanel.css";
 
 type Message={role:"user"|"assistant";text:string;sources?:GroundingSource[];searchSuggestions?:string};
-type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;starters?:string[];showStarterWithHistory?:boolean;autoStarter?:string;replyFallback?:string[];shortsContext?:string;onExchange?:()=>void};
+type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;starters?:string[];showStarterWithHistory?:boolean;autoStarter?:string;replyFallback?:string[];shortsContext?:string;onExchange?:()=>void;completionFeedback?:ReactNode};
 type GuestPhase="checking"|"ready"|"starting"|"active"|"unavailable"|"error"|"exhausted"|"paused";
 const GUEST_TEXT_ENDPOINT=GUEST_TOKEN_ENDPOINT.replace(/\/token$/,"/text");
 const SESSION_STORAGE_KEY="crew_guest_text_session_v1";
@@ -46,7 +46,7 @@ function getSavedGuestSession(){
  return "";
 }
 /** No microphone: BYOK connects to Gemini Live; guests use metered Worker text. */
-export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,starters,showStarterWithHistory=false,autoStarter,replyFallback,shortsContext,onExchange}:Props){
+export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,starters,showStarterWithHistory=false,autoStarter,replyFallback,shortsContext,onExchange,completionFeedback}:Props){
  const [returnVisit,setReturnVisit]=useState<ReturnType<typeof readReturningFriendResume>>(null);
  const [returnChoices,setReturnChoices]=useState(false);
  const shortsSystems=shortsContext?buildShortsTextSystems(baseSystem,shortsContext):null;
@@ -362,6 +362,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {returnVisit&&!busy&&<TextChatWelcomeBack visit={returnVisit} name={speaker} showChoices={returnChoices&&!draft.trim()} onPick={message=>void sendMessage(message)}/>}
    {isFriend&&!returnVisit&&!busy&&!draft.trim()&&messages.at(-1)?.role==="assistant"&&nextReplies&&<TextChatNextReplies replies={nextReplies==="fallback"?fallbackReplies:nextReplies} onPick={sentence=>void sendMessage(sentence)}/>}
    {isFriend&&!learning.dismissed&&<FriendLearningSummary phrases={learning.summary(messages)} onDismiss={learning.dismiss}/>}
+   {completionFeedback}
    <div ref={bottom}/>
   </div>
   {guestStatus&&<small className="crew-text-chat-progress" role="status">{guestStatus}</small>}

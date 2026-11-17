@@ -11,7 +11,7 @@ import{hasMeaningfulLearnerSpeech,rememberTeacherConversation}from"./studentMemo
 import{recordCompletedTutorSession}from"./teacherPracticeHistory";
 import{consumeReviewFocus,markReviewPracticed}from"./learningReview";
 import{useEffect,useMemo,useRef,useState}from"react";import{Link,useNavigate,useSearchParams}from"react-router-dom";
-import{LiveControls}from"../live/LiveControls";import{GuestLiveStarter}from"../live/GuestLiveStarter";import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";import{TextChatPanel}from"../live/TextChatPanel";
+import{LiveControls}from"../live/LiveControls";import{GuestLiveStarter}from"../live/GuestLiveStarter";import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";import{TeacherTextCourseChat}from"./TeacherTextCourseChat";
 import{PinyinHint}from"./PinyinHint";
 import{DesktopLivePanel}from"../components/DesktopLivePanel";import{useLiveSession}from"../live/useLiveSession";
 import{history,lastLive,vocabularyLevel,geminiKey}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
@@ -149,8 +149,7 @@ export function TeacherLivePage(){
     setEvaluationError(t("live.noSpeech"));
     return;
    }
-   // Keep the learner on the finished lesson while grading. The single
-   // promise saves results even if the learner leaves during a slow response.
+   // Save grading results even if the learner navigates away.
    const grading=saved.completion
     .then(done=>evaluateCourseSession(course,done.turns,done.report))
     .then(result=>{
@@ -259,7 +258,7 @@ export function TeacherLivePage(){
     {textMode?teacherOptions:null}
   </div>
   {textMode?modeSwitch:null}
-  {textMode?<TextChatPanel searchEnabled={!isRoleplay&&!fortuneKind} system={system+"\n"+languageDirective} speaker={profile.name} english={english} targetLanguage={s.targetLanguage} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode} hint={course?t("live.textHint"):undefined}/>:<>
+  {textMode?<TeacherTextCourseChat course={course} searchEnabled={!isRoleplay&&!fortuneKind} system={system+"\n"+languageDirective} speaker={profile.name} english={english} targetLanguage={s.targetLanguage} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode} hint={course?t("live.textHint"):undefined}/>:<>
   <div className="teacher-call-voice-dock">
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?t("live.endingTitleBusy"):t("live.endingTitle")}</b><p>{evaluating?t("live.endingBodyBusy"):t("live.endingBody")}</p>{!evaluating&&(courseResult||evaluationError)&&<button type="button" className="btn secondary small" onClick={()=>void endAndReturn()}>{t("learnToday.backToLearn")}</button>}</div></div>

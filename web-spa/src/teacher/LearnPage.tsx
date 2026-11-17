@@ -5,6 +5,8 @@ import{ContinueLearningCard}from"./ContinueLearningCard";
 import{TodayLearningCard}from"./TodayLearningCard";
 import{threeMinuteSpeakingPath}from"./threeMinuteSpeaking";
 import{useClientReady}from"../lib/useClientReady";
+import{useRouteNamespace}from"../i18n/useRouteNamespace";
+import{textCompletedLessons}from"./courseProgress";
 
 const items:Array<{to:string;icon:IconName;key:string}>=[
  {to:"/teacher/board",icon:"mic",key:"board"},
@@ -15,7 +17,7 @@ const items:Array<{to:string;icon:IconName;key:string}>=[
  {to:"/teacher/reading-library",icon:"book",key:"library"}
 ];
 
-export function LearnPage(){const {t}=useTranslation("teacher");const clientReady=useClientReady();return <>
+export function LearnPage(){const {t}=useTranslation("teacher");const {t:tLesson}=useTranslation("lesson");const stringsReady=useRouteNamespace("lesson");const clientReady=useClientReady();const textCount=clientReady?textCompletedLessons():0;return <>
  <section className="hero"><span className="kicker">Learn</span><h1>{t("learn.title")}</h1><p>{t("learn.intro")}</p></section>
  <section className="section"><TodayLearningCard/></section>
  <section className="section"><ContinueLearningCard compact/></section>
@@ -24,5 +26,5 @@ export function LearnPage(){const {t}=useTranslation("teacher");const clientRead
   <span className="list-copy"><strong>{t("learn.threeMinute")}</strong><small>{t("learn.threeMinuteDesc")}</small></span>
   <span className="chevron">›</span>
  </Link></section>
- <section className="section"><div className="section-head"><h2>{t("learn.method")}</h2></div><div className="list">{items.map(x=><Link className="list-item" to={x.to} key={x.to}><span className="list-icon"><Icon name={x.icon}/></span><span className="list-copy"><strong>{t("learn."+x.key)}</strong><small>{t("learn."+x.key+"Desc")}</small></span><span className="chevron">›</span></Link>)}</div></section>
+ <section className="section"><div className="section-head"><h2>{t("learn.method")}</h2></div><div className="list">{items.map(x=><Link className="list-item" to={x.to} key={x.to}><span className="list-icon"><Icon name={x.icon}/></span><span className="list-copy"><strong>{t("learn."+x.key)}</strong><small>{t("learn."+x.key+"Desc")}</small>{x.key==="course"&&stringsReady&&textCount>0&&<small className="crew-course-text-count">{tLesson("live.textCourseCount",{count:textCount})}</small>}</span><span className="chevron">›</span></Link>)}</div></section>
  </>}

@@ -30,9 +30,15 @@ test("teacher panel has no friend sessionScope and does not render friend avatar
  // The handoff includes only editable TSX; on the full repository verify the caller as well.
  if(fs.existsSync(path)){
   const teacher=read(path);
-  const calls=[...teacher.matchAll(/<TextChatPanel\b([\s\S]*?)\/>/g)];
-  assert.ok(calls.length>0,"teacher uses TextChatPanel");
-  for(const call of calls)assert.doesNotMatch(call[1],/sessionScope=\{"friend:/);
+  const courseChat=read("web-spa/src/teacher/TeacherTextCourseChat.tsx");
+  assert.match(teacher,/<TeacherTextCourseChat\b/);
+  assert.match(courseChat,/<TextChatPanel\b/);
+  assert.match(courseChat,/\bsessionScope\s*=\s*\{\s*scope\s*\}/);
+  assert.match(courseChat,/teacher:course:/);
+  for(const source of [teacher,courseChat]){
+   assert.doesNotMatch(source,/<FriendAvatar\b/);
+   assert.doesNotMatch(source,/\bsessionScope\s*=\s*\{?\s*["']friend:/);
+  }
  }
  assert.match(text,/const chatFriend=isFriend\?/);
  assert.match(text,/isFriend&&m\.role==="assistant"&&chatFriend/);

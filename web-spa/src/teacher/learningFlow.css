@@ -124,3 +124,10 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 @media(max-width:480px){.crew-course-briefing-card{padding:16px;border-radius:18px}.crew-course-warmup{align-items:flex-start;flex-direction:column}.crew-course-warmup .btn{align-self:flex-end}}
 
 .crew-course-language-note{font-size:13px;line-height:1.65;opacity:.88;margin:.5rem 0 0}
+
+/* Scenario text progress is visually distinct from scored speaking lessons. */
+.crew-course-lesson.text-completed{border-color:#aad7c0}
+.crew-course-text-badge,.crew-course-text-count{font-size:12px!important;line-height:1.5;color:#206844!important;font-style:normal}
+.crew-course-text-feedback{display:grid;gap:10px;margin:12px 4px;padding:14px;border:1px solid #9fddba;border-radius:14px;background:#eefaf2;color:#1b603d;font-size:14px;line-height:1.5}
+.crew-course-text-feedback .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;font-size:14px;text-align:center;white-space:normal}
+@media(prefers-reduced-motion:reduce){.crew-course-text-feedback *{transition:none!important;animation:none!important}}
