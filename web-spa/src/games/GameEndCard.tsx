@@ -11,12 +11,17 @@ export function GameEndCard({game,result,moves,friendName,onRematch}:{game:Game;
  const {t}=useTranslation("games");
  const cardRef=useRef<HTMLElement>(null);
  useEffect(()=>{
-  if(!window.matchMedia?.("(max-width: 620px)").matches)return;
-  // The text-chat dock is fixed above mobile navigation, outside normal flow.
-  // On completion bring the entire card above it; do not scroll during play.
+  const isMobile=window.matchMedia?.("(max-width: 620px)").matches;
+  // Keep the mobile fixed-dock avoidance unchanged. Desktop only reveals the
+  // finished card if it is outside the viewport; never move keyboard focus.
   const frame=window.requestAnimationFrame(()=>{
    const card=cardRef.current;
    if(!card)return;
+   if(!isMobile){
+    const reduceMotion=window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    card.scrollIntoView({block:"nearest",inline:"nearest",behavior:reduceMotion?"auto":"smooth"});
+    return;
+   }
    const dock=card.closest(".crew-play-page,.friend-gomoku-page")?.querySelector<HTMLElement>(".game-voice-dock");
    const bottomLimit=dock&&window.getComputedStyle(dock).position==="fixed"
     ?dock.getBoundingClientRect().top:window.innerHeight;

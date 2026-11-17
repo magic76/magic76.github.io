@@ -19,3 +19,7 @@
   padding-bottom:calc(230px + var(--nav-h,68px) + env(safe-area-inset-bottom));
  }
 }
+
+/* The result card already has a round-specific chat action. Keep voice
+   controls available, but remove the competing generic chat link at game end. */
+:is(.crew-play-page,.friend-gomoku-page):has(.crew-game-end) .game-voice-dock .game-voice-dock-chat{display:none}
