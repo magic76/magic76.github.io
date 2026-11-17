@@ -203,8 +203,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  // Start once after mounting, without double-starting under React StrictMode.
  useEffect(()=>{if(textMode||!voiceRecapReady||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost,creatureEmbed,voiceRecapReady]);
  useFriendBodyTheme(creatureEmbed);
- useFriendVoiceTheme(!textMode&&!creatureEmbed&&!active);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ useFriendVoiceTheme(!textMode&&!creatureEmbed&&!active);
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
  const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active));
