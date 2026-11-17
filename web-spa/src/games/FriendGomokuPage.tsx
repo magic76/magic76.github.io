@@ -15,6 +15,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import {GamePanel} from "./GamePanel";
 import {GameSpeechBubble} from "./GameSpeechBubble";
 import {GameVoiceDock} from "./GameVoiceDock";
+import {GameEndCard} from "./GameEndCard";
 import {friendGameReaction} from "./friendGameReaction";
 import "./games.css";
 
@@ -320,6 +321,7 @@ export function FriendGomokuPage(){
         <span>{english?"Letters A–O → columns · Numbers 1–15 ↓ rows":"字母 A–O → 欄位 · 數字 1–15 ↓ 列數"}</span>
         {lastCoordinate?<strong>{english?"Last move":"上一手"}：{lastCoordinate}</strong>:null}
       </p>
+      {engine.winner?<GameEndCard game="gomoku" result={engine.winner==="draw"?"draw":engine.winner==="black"?"win":"lose"} moves={engine.moveHistory.length} friendName={friend.name} onRematch={newGame}/>:null}
       <GameVoiceDock className="friend-gomoku-voice-dock">
       <div className="friend-gomoku-companion">
         <FriendAvatar friend={friend} className={`friend-gomoku-avatar ${live.state==="speaking"?"is-speaking":""}`}/>
