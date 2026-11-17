@@ -1,5 +1,15 @@
 {
   "playHub": {
+    "gameEnd": {
+      "heading": "Ván chơi kết thúc",
+      "win": "Bạn thắng rồi!",
+      "lose": "{{name}} thắng rồi!",
+      "draw": "Hòa rồi!",
+      "moves": "{{count}} lượt",
+      "hint": "Luyện nói lời mời đấu lại cùng Zoe.",
+      "chat": "Trò chuyện với Zoe về ván này",
+      "again": "Chơi ván nữa"
+    },
     "number": {
       "times": "{{n}} lần",
       "digitsLong": "{{n}} chữ số",

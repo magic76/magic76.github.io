@@ -1,0 +1,21 @@
+.crew-game-end{box-sizing:border-box;width:min(100%,520px);display:grid;gap:8px;padding:14px;border:1px solid #a8a0d8;border-radius:16px;background:#f5f2ff;color:#30234e;line-height:1.45}
+.crew-game-end strong{font-size:16px;font-weight:800}
+.crew-game-end p{margin:0;font-size:13px;color:#4a4263;line-height:1.5}
+.crew-game-end-actions{display:flex;flex-wrap:wrap;gap:8px}
+.crew-game-end-actions a,.crew-game-end-actions button{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;flex:1 1 150px;min-height:44px;padding:10px 12px;border:1px solid #56419c;border-radius:12px;font:inherit;font-size:14px;font-weight:750;text-decoration:none;text-align:center;cursor:pointer}
+.crew-game-end-chat{background:#56419c;color:#fff}
+.crew-game-end-again{background:#fff;color:#443777}
+.crew-game-end-actions :is(a,button):focus-visible{outline:3px solid #a68eff;outline-offset:2px}
+.friend-gomoku-play>.crew-game-end{width:min(100%,520px)}
+@media(max-width:620px){.crew-game-end{padding:12px}.crew-game-end-actions{gap:7px}.crew-game-end-actions a,.crew-game-end-actions button{flex-basis:125px}}
+@media(prefers-reduced-motion:reduce){.crew-game-end,.crew-game-end *{animation:none;transition:none}}
+
+/* Only after a board finishes: enough document scroll range to lift both
+   44px actions completely above the fixed dock AND the bottom navigation.
+   High specificity wins over the compact-dock bottom-padding rule. */
+@media(max-width:620px){
+ body .crew-play-page.crew-play-page:has(.crew-game-end):has(.crew-play-voice.game-voice-dock),
+ body .friend-gomoku-page.friend-gomoku-page:has(.crew-game-end):has(.friend-gomoku-voice-dock.game-voice-dock){
+  padding-bottom:calc(230px + var(--nav-h,68px) + env(safe-area-inset-bottom));
+ }
+}

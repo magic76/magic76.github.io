@@ -2,6 +2,7 @@ import {useEffect,useMemo,useRef,useState,type CSSProperties} from "react";
 import {loadScript} from "../lib/runtime";
 import type {ExpectedBoardSpeech} from "./boardVoiceTurn";
 import {trackUsageEvent} from "../analytics/usage";
+import {GameEndCard} from "./GameEndCard";
 
 type GameKind="connect4"|"reversi";
 type Props={kind:GameKind;english:boolean;friendName:string;
@@ -232,6 +233,8 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
    </div>
    <small className="crew-play-hint">{english?"A–H identify columns (1–8), numbers 1–8 identify rows. C4 = column 3, row 4; dots mark legal moves.":"上方 A～H 對應第 1～8 欄，左側數字是列數（C4＝第 3 欄、第 4 列）；小圓點是合法落點。"}</small>
   </>:null}
+  {kind==="connect4"&&connect?.winner&&!connectDrop?<GameEndCard game="connect4" result={connect.winner==="draw"?"draw":connect.winner==="player"?"win":"lose"} moves={connect.moves} friendName={friendName} onRematch={restart}/>:null}
+  {kind==="reversi"&&reversi?.winner?<GameEndCard game="reversi" result={reversi.winner==="draw"?"draw":reversi.winner==="black"?"win":"lose"} moves={reversi.moves} friendName={friendName} onRematch={restart}/>:null}
   <small className="crew-play-hint">{english?"Rules and moves are calculated locally. Voice is optional. If it is enabled, your friend announces their move before the piece appears.":"棋步和勝負都在本機計算；開啟語音後，朋友會先說出下一步，說完才落子。"}</small>
  </section>;
 }

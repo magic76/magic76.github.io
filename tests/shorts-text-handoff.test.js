@@ -21,7 +21,7 @@ test("Validated post question is first suggested text reply; existing composer s
  const bubble=read("web-spa/src/pages/HomeLiveBubble.tsx");
  assert.match(friend,/shortsSelectedQuestion\(shortsPost,params\.get\("q"\)/);
  assert.match(friend,/firstStarter=\{shortsStarter\|\|fortuneContinue\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
- assert.match(starters,/firstStarter&&<button[^>]+onClick=\{\(\)=>onPick\(firstStarter\)\}/);
+  assert.ok(starters.includes("onClick={()=>onPick((gameStarter||firstStarter)!)}"),"the game-aware first starter uses the same send path");
  assert.match(panel,/onPick=\{sentence=>void sendMessage\(sentence\)\}/);
  assert.match(panel,/if\(messages\.length&&history\.current\)/);
  assert.match(panel,/if\(latestMessages\.current\.length\)log\.scrollTop/);

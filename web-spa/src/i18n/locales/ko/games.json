@@ -1,5 +1,15 @@
 {
   "playHub": {
+    "gameEnd": {
+      "heading": "게임 종료",
+      "win": "이겼어요!",
+      "lose": "{{name}}의 승리!",
+      "draw": "무승부!",
+      "moves": "{{count}}수",
+      "hint": "Zoe와 재대결을 제안하는 표현을 연습해요.",
+      "chat": "Zoe와 이번 판 이야기하기",
+      "again": "한 판 더"
+    },
     "number": {
       "times": "{{n}}회",
       "digitsLong": "{{n}}자리",

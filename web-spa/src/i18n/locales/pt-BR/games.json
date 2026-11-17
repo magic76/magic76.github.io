@@ -1,5 +1,15 @@
 {
   "playHub": {
+    "gameEnd": {
+      "heading": "Partida encerrada",
+      "win": "Você venceu!",
+      "lose": "{{name}} venceu!",
+      "draw": "Empate!",
+      "moves": "{{count}} jogadas",
+      "hint": "Pratique com Zoe uma frase para pedir revanche.",
+      "chat": "Conversar com Zoe sobre esta partida",
+      "again": "Jogar de novo"
+    },
     "number": {
       "times": "{{n}} tentativas",
       "digitsLong": "{{n}} dígitos",

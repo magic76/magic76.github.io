@@ -36,9 +36,9 @@ const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:
 
 const TimelineComparePage=lazy(()=>import("./timeline/TimelineComparePage").then(m=>({default:m.TimelineComparePage})));
 const TimelineLivePage=lazy(()=>withNamespace("voice",import("./timeline/TimelineLivePage")).then(m=>({default:m.TimelineLivePage})));
-const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.FriendsPage})));const FriendLivePage=lazy(()=>withNamespace("voice",import("./friends/FriendLivePage")).then(m=>({default:m.FriendLivePage})));const FriendGomokuPage=lazy(()=>withNamespace("voice",import("./games/FriendGomokuPage")).then(m=>({default:m.FriendGomokuPage})));
+const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.FriendsPage})));const FriendLivePage=lazy(()=>withNamespace("voice",import("./friends/FriendLivePage")).then(m=>({default:m.FriendLivePage})));const FriendGomokuPage=lazy(()=>withNamespace(["voice","games"],import("./games/FriendGomokuPage")).then(m=>({default:m.FriendGomokuPage})));
 const CrewPlayHubPage=lazy(()=>import("./games/CrewPlayHubPage").then(m=>({default:m.CrewPlayHubPage})));
-const CrewPlayGamePage=lazy(()=>withNamespace("voice",import("./games/CrewPlayGamePage")).then(m=>({default:m.CrewPlayGamePage})));
+const CrewPlayGamePage=lazy(()=>withNamespace(["voice","games"],import("./games/CrewPlayGamePage")).then(m=>({default:m.CrewPlayGamePage})));
 const NumberGamePage=lazy(()=>withNamespace(["games","voice"],import("./games/NumberGamePage")).then(m=>({default:m.NumberGamePage})));
 const QuickPlayGamePage=lazy(()=>import("./games/QuickPlayGamePage").then(m=>({default:m.QuickPlayGamePage})));
 const TabooGamePage=lazy(()=>withNamespace(["games","voice"],import("./games/TabooGamePage")).then(m=>({default:m.TabooGamePage})));

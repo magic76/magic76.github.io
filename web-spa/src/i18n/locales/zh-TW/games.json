@@ -1,5 +1,15 @@
 {
   "playHub": {
+    "gameEnd": {
+      "heading": "這局結束了",
+      "win": "你贏了！",
+      "lose": "{{name}} 贏了！",
+      "draw": "平手！",
+      "moves": "共 {{count}} 步",
+      "hint": "跟 Zoe 練一句自然的「再來一局」。",
+      "chat": "跟 Zoe 聊這局",
+      "again": "再來一局"
+    },
     "number": {
       "times": "{{n}} 次",
       "digitsLong": "{{n}} 位數",

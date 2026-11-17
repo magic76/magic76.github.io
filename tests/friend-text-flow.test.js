@@ -166,7 +166,7 @@ test("Completed friend turns survive a fresh tab without writing drafts or touch
  // Quote links keep the same resume scope (option b), but expose one opt-in starter
  // above the composer even though the restored transcript is nonempty.
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
- assert.match(panel,/historyReady&&messages\.length>0&&showStarterWithHistory&&firstStarter&&!draft\.trim\(\)&&!busy/);
+  assert.ok(panel.includes("historyReady&&messages.length>0&&(showStarterWithHistory||isGameRoundLink())&&firstStarter&&!draft.trim()&&!busy"));
  assert.match(panel,/firstStarter=\{firstStarter\} firstOnly\/>/);
  assert.match(read("web-spa/src/friends/FriendLivePage.tsx"),/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
  assert.equal(context.readSessionTranscript("friend:zoe").length,2,"a saved Zoe conversation remains readable with a quote link");

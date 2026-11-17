@@ -41,7 +41,7 @@ test("English learner with zh-TW UI gets English text and a Chinese meaning, not
   assert.match(meaning,/[\u3400-\u9fff]/);
   assert.ok(!phrase.includes(meaning));
  }
- assert.match(ui,/firstStarter&&<button[^>]+onClick=\{\(\)=>onPick\(firstStarter\)\}/);
+  assert.ok(ui.includes("onClick={()=>onPick((gameStarter||firstStarter)!)}"),"the game-aware first starter uses the same send path");
  assert.match(ui,/!firstOnly&&!starters&&friendStarterTopics\(speaker\)/);
 });
 test("11 UI translations have accessible instructions and all topical meaning strings",()=>{

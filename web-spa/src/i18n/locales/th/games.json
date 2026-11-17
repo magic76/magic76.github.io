@@ -1,5 +1,15 @@
 {
   "playHub": {
+    "gameEnd": {
+      "heading": "จบเกมแล้ว",
+      "win": "คุณชนะ!",
+      "lose": "{{name}} ชนะ!",
+      "draw": "เสมอกัน!",
+      "moves": "{{count}} ตา",
+      "hint": "ฝึกพูดชวนเล่นอีกตากับ Zoe",
+      "chat": "คุยกับ Zoe เรื่องเกมนี้",
+      "again": "เล่นอีกตา"
+    },
     "number": {
       "times": "{{n}} ครั้ง",
       "digitsLong": "{{n}} หลัก",

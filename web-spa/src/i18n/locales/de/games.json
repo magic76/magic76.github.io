@@ -1,5 +1,15 @@
 {
   "playHub": {
+    "gameEnd": {
+      "heading": "Partie beendet",
+      "win": "Du hast gewonnen!",
+      "lose": "{{name}} hat gewonnen!",
+      "draw": "Unentschieden!",
+      "moves": "{{count}} Züge",
+      "hint": "Übe mit Zoe einen Satz für die nächste Runde.",
+      "chat": "Mit Zoe über diese Runde sprechen",
+      "again": "Noch eine Runde"
+    },
     "number": {
       "times": "{{n}} Versuche",
       "digitsLong": "{{n}} Ziffern",
