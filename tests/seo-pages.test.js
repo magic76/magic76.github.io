@@ -122,3 +122,26 @@ test("five curated Koolo Q-style OG images are real, distinct 1200x630 PNGs",()=
   sums.add(hash);
  }
 });
+
+test("Koolo social previews are versioned, size-bounded and referenced by both localized pages",async()=>{
+ const {previewUrl}=await import("../scripts/social-og.mjs");
+ for(const slug of ["","teacher","story","games","fortune","research"]){
+  const asset=previewUrl(slug?"feature":"home",slug||undefined);
+  assert.match(asset,/^https:\/\/koolo\.app\/social\//);
+  const png=fs.readFileSync(path.join(ROOT,new URL(asset).pathname.slice(1)));
+  assert.deepEqual([...png.subarray(0,8)],[137,80,78,71,13,10,26,10]);
+  assert.equal(png.readUInt32BE(16),1200);
+  assert.equal(png.readUInt32BE(20),630);
+  assert.ok(png.length<(slug?400000:1100000),asset+" exceeds the share-image budget");
+  for(const locale of ["","en/"]){
+   const html=read(locale+(slug?slug+"/":"")+"index.html");
+   const metas=[...html.matchAll(/<meta\s+[^>]+>/g)].map(m=>m[0]);
+   for(const key of ["og:image","og:image:secure_url","twitter:image"]){
+    const tag=metas.find(m=>m.includes('="'+key+'"'));
+    assert.ok(tag,locale+slug+" missing "+key);
+    const content=tag.match(/\bcontent="([^"]+)"/)?.[1];
+    assert.equal(content,asset,locale+slug+" "+key);
+   }
+  }
+ }
+});
