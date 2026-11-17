@@ -5,7 +5,7 @@ import {COURSE_TRACKS,COURSE_UNITS,COURSE_LESSONS,courseLesson,lessonsForUnit,un
 import {courseDisplayTitle,courseDisplayDescription,courseDisplayMission} from "./courseLocale";
 import {CourseBriefing} from "./CourseBriefing";
 import {COURSE_SEO_TITLES} from "./courseSeoTitles";
-import {bestNextLesson,completedLessons,lessonProgress,lessonUnlocked,nextUnlockedLesson,totalStars} from "./courseProgress";
+import {bestNextLesson,completedLessons,lessonCompleted,lessonProgress,lessonUnlocked,nextUnlockedLesson,textLessonCompleted,totalStars} from "./courseProgress";
 import {useTeacherStore} from "../store/teacherStore";
 import {useClientReady} from "../lib/useClientReady";
 import {localizedNativeName} from "./teacherLocale";
@@ -116,7 +116,7 @@ export function CoursePage(){
    </div>
    {units.map((unit,ui)=>{
     const lessons=lessonsForUnit(unit.id);
-    const count=lessons.filter(lesson=>lessonProgress(lesson.id).completed).length;
+    const count=lessons.filter(lesson=>lessonCompleted(lesson.id)).length;
     return <details className="crew-course-unit" key={unit.id} open={expandedUnits.includes(unit.id)}
      onToggle={event=>{
       const opened=event.currentTarget.open;
@@ -131,21 +131,22 @@ export function CoursePage(){
      </summary>
      <div className="crew-course-lessons">
       {lessons.map((lesson,li)=>{
-       const progress=lessonProgress(lesson.id);
+       const progress=lessonProgress(lesson.id),textDone=textLessonCompleted(lesson.id),finished=progress.completed||textDone;
        const unlocked=lessonUnlocked(lesson.id);
        const isNext=next?.id===lesson.id;
        const inner=<>
-        <span className="crew-course-lesson-index">{progress.completed?"✓":unlocked?li+1:"🔒"}</span>
+        <span className="crew-course-lesson-index">{finished?"✓":unlocked?li+1:"🔒"}</span>
         <span className="crew-course-lesson-copy">
          <strong>{title(lesson)}</strong>
          <small>{description(lesson)}</small>
          {progress.completed&&<em>★ {progress.stars} · {t("course.best",{score:progress.bestScore})}</em>}
+          {textDone&&<em className="crew-course-text-badge">{tLesson("live.textCourseBadge")}</em>}
         </span>
         <span className="crew-course-lesson-action" aria-hidden="true">{unlocked?"→":"·"}</span>
        </>;
-       const className="crew-course-lesson "+(progress.completed?"completed":unlocked?"unlocked":"locked")+(isNext?" is-next":"")+(requested?.id===lesson.id?" highlighted":"");
+       const className="crew-course-lesson "+(finished?"completed":unlocked?"unlocked":"locked")+(textDone?" text-completed":"")+(isNext?" is-next":"")+(requested?.id===lesson.id?" highlighted":"");
        return unlocked
-        ?<Link key={lesson.id} to={route(lesson.id)} className={className} aria-label={title(lesson)+" · "+(progress.completed?t("course.review"):t("course.start"))}>{inner}</Link>
+        ?<Link key={lesson.id} to={route(lesson.id)} className={className} aria-label={title(lesson)+" · "+(finished?t("course.review"):t("course.start"))}>{inner}</Link>
         :<div key={lesson.id} className={className} aria-disabled="true">{inner}</div>;
       })}
      </div>
