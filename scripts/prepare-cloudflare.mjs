@@ -210,20 +210,20 @@ writeFileSync(join(out,"_app-noindex.html"),privateShell);
 // actual /fortune/reading HTML response, without embedding private chart data.
 const readingShareMeta=[
  '<meta property="og:type" content="website">',
- '<meta property="og:site_name" content="Crew Fortune">',
+ '<meta property="og:site_name" content="Koolo Fortune">',
  '<meta property="og:locale" content="zh_TW">',
  '<meta property="og:title" content="我算出了自己的命格身份！換你看看，你是哪一型？">',
- '<meta property="og:description" content="Crew Fortune｜八字、塔羅生命靈數與印度星盤，看看你的命格身份是哪一型。">',
+ '<meta property="og:description" content="Koolo Fortune｜八字、塔羅生命靈數與印度星盤，看看你的命格身份是哪一型。">',
  '<meta property="og:url" content="https://koolo.app/fortune/reading">',
- '<meta property="og:image" content="https://koolo.app/social/og/fortune-chibi-v1.png">',
- '<meta property="og:image:secure_url" content="https://koolo.app/social/og/fortune-chibi-v1.png">',
+ '<meta property="og:image" content="https://koolo.app/social/og/fortune-koolo-v1.png">',
+ '<meta property="og:image:secure_url" content="https://koolo.app/social/og/fortune-koolo-v1.png">',
  '<meta property="og:image:type" content="image/png">',
  '<meta property="og:image:width" content="1200">',
  '<meta property="og:image:height" content="630">',
  '<meta name="twitter:card" content="summary_large_image">',
  '<meta name="twitter:title" content="我算出了自己的命格身份！換你看看，你是哪一型？">',
- '<meta name="twitter:description" content="Crew Fortune｜看看你的命格身份是哪一型。">',
- '<meta name="twitter:image" content="https://koolo.app/social/og/fortune-chibi-v1.png">'
+ '<meta name="twitter:description" content="Koolo Fortune｜看看你的命格身份是哪一型。">',
+ '<meta name="twitter:image" content="https://koolo.app/social/og/fortune-koolo-v1.png">'
 ].join(newline);
 for(const prefix of ["","/en"]){
  for(const route of privatePaths){

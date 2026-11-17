@@ -1,7 +1,7 @@
 /**
  * Deterministic, dependency-free 1200x630 Open Graph artwork.
  * Runs at Cloudflare build time, never in the visitor's browser.
- * Existing /social/crew-shared-v2.png remains the homepage image.
+ * Curated Koolo home and feature PNGs use versioned filenames.
  */
 import {deflateSync} from "node:zlib";
 import {mkdirSync,writeFileSync,readFileSync,existsSync} from "node:fs";
@@ -13,25 +13,25 @@ const THEMES={
  story:{bg:[255,245,233],accent:[224,128,73],tag:"STORY",sub:"READ & IMAGINE",scene:"book"},
  fortune:{bg:[245,238,255],accent:[132,93,181],tag:"FORTUNE",sub:"PATTERNS & REFLECTION",scene:"cards"},
  research:{bg:[233,248,241],accent:[52,143,117],tag:"RESEARCH",sub:"AI IDEAS & ENGINEERING",scene:"laptop"},
- games:{bg:[234,244,255],accent:[57,122,191],tag:"GAMES",sub:"PLAY WITH CREW FRIENDS",scene:"board"},
+ games:{bg:[234,244,255],accent:[57,122,191],tag:"GAMES",sub:"PLAY WITH KOOLO FRIENDS",scene:"board"},
  travel:{bg:[230,243,255],accent:[51,122,201],tag:"TRAVEL",sub:"ENGLISH PRACTICE",scene:"plane"},
  business:{bg:[238,237,255],accent:[100,83,182],tag:"BUSINESS",sub:"ENGLISH PRACTICE",scene:"laptop"},
  daily:{bg:[255,247,231],accent:[204,136,49],tag:"DAILY",sub:"ENGLISH PRACTICE",scene:"coffee"},
  teamwork:{bg:[234,249,239],accent:[55,151,105],tag:"TEAMWORK",sub:"ENGLISH PRACTICE",scene:"people"},
  tickets:{bg:[255,238,239],accent:[193,88,108],tag:"TICKETS",sub:"ENGLISH PRACTICE",scene:"ticket"},
  services:{bg:[241,240,255],accent:[108,110,191],tag:"SERVICES",sub:"ENGLISH PRACTICE",scene:"phone"},
- "ai-english-speaking":{bg:[239,243,255],accent:[91,104,209],tag:"SPEAKING",sub:"CREW STUDY GUIDE",scene:"people"},
- "ai-conversation-partner":{bg:[238,247,255],accent:[53,126,188],tag:"CONVERSATION",sub:"CREW STUDY GUIDE",scene:"people"},
- "travel-english-dialogues":{bg:[231,245,254],accent:[59,131,204],tag:"TRAVEL",sub:"CREW STUDY GUIDE",scene:"plane"},
- "english-pronunciation":{bg:[244,238,255],accent:[132,93,181],tag:"PRONUNCIATION",sub:"CREW STUDY GUIDE",scene:"people"},
- "gemini-key-for-ai-practice":{bg:[232,249,244],accent:[60,147,116],tag:"AI SETUP",sub:"CREW STUDY GUIDE",scene:"laptop"},
- "friend-gomoku":{bg:[234,244,255],accent:[57,122,191],tag:"GOMOKU",sub:"CREW PLAY",scene:"board"},
- connect4:{bg:[255,242,229],accent:[210,120,61],tag:"CONNECT FOUR",sub:"CREW PLAY",scene:"board"},
- "twenty-questions":{bg:[242,241,255],accent:[109,102,190],tag:"20 QUESTIONS",sub:"CREW PLAY",scene:"people"},
- reversi:{bg:[239,248,244],accent:[52,143,117],tag:"REVERSI",sub:"CREW PLAY",scene:"board"},
- mystery:{bg:[247,238,255],accent:[130,93,177],tag:"MYSTERY",sub:"CREW PLAY",scene:"cards"},
- "1a2b":{bg:[241,246,255],accent:[81,107,174],tag:"1A2B",sub:"CREW PLAY",scene:"board"},
- taboo:{bg:[255,238,239],accent:[193,88,108],tag:"TABOO",sub:"CREW PLAY",scene:"people"}
+ "ai-english-speaking":{bg:[239,243,255],accent:[91,104,209],tag:"SPEAKING",sub:"KOOLO STUDY GUIDE",scene:"people"},
+ "ai-conversation-partner":{bg:[238,247,255],accent:[53,126,188],tag:"CONVERSATION",sub:"KOOLO STUDY GUIDE",scene:"people"},
+ "travel-english-dialogues":{bg:[231,245,254],accent:[59,131,204],tag:"TRAVEL",sub:"KOOLO STUDY GUIDE",scene:"plane"},
+ "english-pronunciation":{bg:[244,238,255],accent:[132,93,181],tag:"PRONUNCIATION",sub:"KOOLO STUDY GUIDE",scene:"people"},
+ "gemini-key-for-ai-practice":{bg:[232,249,244],accent:[60,147,116],tag:"AI SETUP",sub:"KOOLO STUDY GUIDE",scene:"laptop"},
+ "friend-gomoku":{bg:[234,244,255],accent:[57,122,191],tag:"GOMOKU",sub:"KOOLO PLAY",scene:"board"},
+ connect4:{bg:[255,242,229],accent:[210,120,61],tag:"CONNECT FOUR",sub:"KOOLO PLAY",scene:"board"},
+ "twenty-questions":{bg:[242,241,255],accent:[109,102,190],tag:"20 QUESTIONS",sub:"KOOLO PLAY",scene:"people"},
+ reversi:{bg:[239,248,244],accent:[52,143,117],tag:"REVERSI",sub:"KOOLO PLAY",scene:"board"},
+ mystery:{bg:[247,238,255],accent:[130,93,177],tag:"MYSTERY",sub:"KOOLO PLAY",scene:"cards"},
+ "1a2b":{bg:[241,246,255],accent:[81,107,174],tag:"1A2B",sub:"KOOLO PLAY",scene:"board"},
+ taboo:{bg:[255,238,239],accent:[193,88,108],tag:"TABOO",sub:"KOOLO PLAY",scene:"people"}
 };
 const FONT={
  A:["01110","10001","10001","11111","10001","10001","10001"],B:["11110","10001","10001","11110","10001","10001","11110"],C:["01111","10000","10000","10000","10000","10000","01111"],
@@ -71,9 +71,13 @@ function render({kind,tag,sub,locale="zh",date=""}){
  disk(1170,510,185,tint(acc,[255,255,255],.82),.60);
  disk(675,585,115,tint(acc,[255,255,255],.85),.6);
  for(const s of [[824,90,13],[1095,99,18],[731,434,9],[1060,550,12]])star(...s,tint(acc,[255,255,255],.35));
- // Shared brand identity.
- round(72,62,68,58,22,acc);disk(96,85,5,[255,255,255]);disk(117,85,5,[255,255,255]);line(94,101,119,101,3,[255,255,255]);
- txt("CREW",158,74,9,[30,44,71],360);
+ // One full Koolo wordmark; no separate small-logo badge.
+ txt("KOOLO",88,74,9,[21,58,53],410);
+ // The two adjacent O glyphs have centers at x=164.5 and 218.5.
+ // Keep the detached smile centered at x=191.5, below the OO (not the LO).
+ // Glyphs end at y=137; the smile remains visibly separated from them.
+ for(let n=0;n<=24;n++){const t=n/24;disk(160+63*t,149+4*Math.sin(Math.PI*t),2.3,[85,182,141]);}
+ disk(350,79,4.5,[255,150,120]);
  round(74,161,Math.min(440,95+(tag||t.tag).length*16),52,25,tint(acc,[255,255,255],.74));
  txt(tag||t.tag,99,174,5,acc,420);
  const headline=tag||t.tag;
@@ -81,11 +85,11 @@ function render({kind,tag,sub,locale="zh",date=""}){
  txt(headline,74,277,titleScale,[31,43,70],590);
  rect(76,399,74,6,acc);
  txt(sub||t.sub,75,439,5,tint(acc,[40,50,71],.38),595);
- txt("3SSSI.COM",76,558,4,[101,113,135],250);
+ txt("KOOLO.APP",76,558,4,[101,113,135],250);
  // Illustration language is shared; subject changes, not random AI art.
  const scene=t.scene;
  if(scene==="people"){
-  // Two friendly Crew figures with large expressive faces.
+  // Two friendly Koolo figures with large expressive faces.
   ellipse(906,468,145,112,tint(acc,[255,255,255],.40));
   round(762,388,148,151,50,acc);round(916,387,142,151,50,tint(acc,[255,255,255],.20));
   disk(842,302,78,[244,204,177]);disk(979,309,75,[249,210,186]);
@@ -128,7 +132,7 @@ function render({kind,tag,sub,locale="zh",date=""}){
  }else if(scene==="ticket"){
   round(755,265,353,222,29,[255,255,255]);round(773,282,318,188,20,tint(acc,[255,255,255],.73));
   line(967,296,967,455,4,acc,.4);disk(967,269,21,rgb);disk(967,484,21,rgb);
-  txt("CREW",807,323,9,acc,250);txt("ADMIT",810,416,5,acc,190);
+  txt("KOOLO",807,323,9,acc,260);txt("ADMIT",810,416,5,acc,190);
  }else if(scene==="phone"){
   round(816,211,243,340,35,[46,62,93]);round(833,236,208,282,22,[255,255,255]);
   round(854,270,168,122,20,tint(acc,[255,255,255],.69));bubble(938,328,33);
@@ -146,8 +150,8 @@ function png(p){const scan=Buffer.alloc((W*4+1)*H);for(let y=0;y<H;y++)scan.set(
 }
 export const OG_ORIGIN="https://koolo.app";
 export function previewUrl(category,slug,locale="zh"){
- if(category==="home")return OG_ORIGIN+"/social/crew-shared-v2.png";
- if(category==="feature"){if(!["teacher","story","fortune","research","games"].includes(slug))throw Error("Invalid feature OG preview");return OG_ORIGIN+"/social/og/"+slug+"-chibi-v1.png";}
+ if(category==="home")return OG_ORIGIN+"/social/koolo-shared-v1.png";
+ if(category==="feature"){if(!["teacher","story","fortune","research","games"].includes(slug))throw Error("Invalid feature OG preview");return OG_ORIGIN+"/social/og/"+slug+"-koolo-v1.png";}
  if(category==="article"){if(!/^\d{4}-\d\d-\d\d\/[a-zA-Z0-9_-]{4,100}$/.test(slug))throw Error("Invalid article image id");return OG_ORIGIN+"/social/og/research/"+slug+".png"}
  if(!/^[a-z0-9-]{1,64}$/.test(slug)||!["course","guide","game"].includes(category))throw Error("Invalid OG preview key");
  return OG_ORIGIN+"/social/og/"+category+"/"+slug+(category==="game"?"":"-"+(locale==="en"?"en":"zh"))+".png";
@@ -157,24 +161,24 @@ export function writePreview(out,category,slug,locale="zh",date=""){
  const src=previewUrl(category,slug,locale),relative=new URL(src).pathname.slice(1),file=join(out,relative);
  const kind=category==="feature"?slug:category==="course"||category==="guide"||category==="game"?slug:"research";
  const theme=THEMES[kind]||THEMES.research;
- const header=category==="article"?"RESEARCH":category==="guide"?"STUDY GUIDE":category==="course"?"CREW TEACHER":category==="game"?"CREW PLAY":theme.tag;
+ const header=category==="article"?"RESEARCH":category==="guide"?"STUDY GUIDE":category==="course"?"KOOLO TEACHER":category==="game"?"KOOLO PLAY":theme.tag;
  const sub=category==="article"?"RESEARCH NOTE":theme.sub;
  mkdirSync(dirname(file),{recursive:true});
  writeFileSync(file,render({kind,tag:header,sub,locale,date}));
  return src;
 }
 export function writeStaticPreviews(out,{courseSlugs,guideSlugs,gameSlugs}){
- // Published feature art is curated from original Crew chibi illustrations.
+ // Published feature art is curated from original chibi illustrations.
  // The assets folder is copied into /dist before this function runs.
  // Fail closed rather than silently replacing artwork with geometric placeholders.
  for(const slug of ["teacher","story","fortune","research","games"]){
-  const curated=join(out,"social","og",slug+"-chibi-v1.png");
-  if(!existsSync(curated))throw Error("Missing curated Crew OG image: "+curated);
+  const curated=join(out,"social","og",slug+"-koolo-v1.png");
+  if(!existsSync(curated))throw Error("Missing curated Koolo OG image: "+curated);
   const data=readFileSync(curated);
   const magic=[137,80,78,71,13,10,26,10];
   if(data.length<20000 || magic.some((byte,i)=>data[i]!==byte) ||
      data.readUInt32BE(16)!==W || data.readUInt32BE(20)!==H)
-   throw Error("Invalid curated Crew OG image: "+curated);
+   throw Error("Invalid curated Koolo OG image: "+curated);
   // Preserve the old geometric URL for previously shared links.
   const legacy=join(out,"social","og",slug+".png");
   mkdirSync(dirname(legacy),{recursive:true});
@@ -193,7 +197,7 @@ export function replacePreviewMeta(html,url,alt){
  const re=/<meta name="twitter:image" content="[^"]*">/;
  if(!re.test(html))throw Error("Missing twitter:image");
  html=html.replace(re,'<meta name="twitter:image" content="'+url+'">');
- const safe=String(alt||"Crew").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+ const safe=String(alt||"Koolo").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
  html=html.replace(/<meta property="og:image:alt" content="[^"]*">/,'<meta property="og:image:alt" content="'+safe+'">');
  return html;
 }
