@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+<title id="title">Koolo — koo lettermark icon</title>
+<rect x="2" y="2" width="60" height="60" rx="17" fill="#153A35"/>
+<!-- Rounded lowercase k + twin oo, forming a friendly mini face -->
+<g fill="none" stroke="#D9F2B1" stroke-linecap="round" stroke-linejoin="round">
+ <path d="M13 22V42M23.5 28.5L14.5 35M17.8 34.5L25 42" stroke-width="5.6"/>
+ <circle cx="35.2" cy="35" r="6.75" stroke-width="4.9"/>
+ <circle cx="49.8" cy="35" r="6.75" stroke-width="4.9"/>
+</g>
+<path d="M36.3 47Q42.7 51.7 49.1 47" fill="none" stroke="#93E3B2" stroke-width="2.4" stroke-linecap="round"/>
+<circle cx="51.5" cy="15.6" r="3.0" fill="#FF9678"/>
+</svg>
