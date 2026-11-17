@@ -3,13 +3,13 @@ import {Buffer} from "node:buffer";
 import {deflateSync,inflateSync} from "node:zlib";
 
 /*
- * Crew's PWA icon uses the approved Koolo C artwork, rasterized at 192px.
- * Source is byte-identical to reference/brand/koolo-icon-C-192.png.
+ * Koolo PWA icon v2 uses the koo letterform artwork at 192px.
+ * Source is the v2 koo rasterized SVG, generated as a 192px palette PNG.
  *
  * Generate 180/192/512 and maskable icons without extra npm dependencies.
  * The shortcut icons are drawn as real PNG pictograms, never font/emoji glyphs.
  */
-const nativeBytes=readFileSync(new URL("../web-spa/public/icons/koolo-source.png",import.meta.url));
+const nativeBytes=readFileSync(new URL("../web-spa/public/icons/koolo-source-v2.png",import.meta.url));
 const signature=Buffer.from([137,80,78,71,13,10,26,10]);
 const crcTable=Uint32Array.from({length:256},(_,index)=>{
  let value=index;
@@ -120,7 +120,7 @@ function renderNative(size,maskable){
 }
 export function createCrewPwaIcon(size,maskable=false){
  if(!Number.isInteger(size)||size<16||size>1024)throw Error("Invalid PWA icon size");
- // The approved 192px Koolo PNG is preserved byte for byte.
+ // The canonical 192px Koolo v2 PNG is preserved byte for byte.
  if(size===native.width&&!maskable)return Buffer.from(nativeBytes);
  return renderNative(size,maskable);
 }

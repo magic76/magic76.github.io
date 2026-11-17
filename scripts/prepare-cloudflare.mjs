@@ -480,7 +480,7 @@ console.log("Prepared Cloudflare Pages: "+(12+GAME_SEO_SLUGS.length*2+guides.siz
 const pwaHead=[
  '<link rel="manifest" href="/site.webmanifest">',
  '<link rel="icon" type="image/svg+xml" href="/favicon.svg">',
- '<link rel="apple-touch-icon" sizes="180x180" href="/icons/koolo-v1-180.png">',
+ '<link rel="apple-touch-icon" sizes="180x180" href="/icons/koolo-v2-180.png">',
  '<meta name="apple-mobile-web-app-capable" content="yes">',
  '<meta name="apple-mobile-web-app-title" content="Koolo">'
 ].join(newline);
@@ -495,7 +495,7 @@ function addPwaHeadToHtml(directory){
   if(missing.length)writeFileSync(file,original.replace("</head>",missing.join(newline)+newline+"</head>"));
  }
 }
-for(const name of ["site.webmanifest","sw.js","offline.html","favicon.svg","brand/koolo-wordmark-C.svg","brand/koolo-wordmark-C-dark.svg","brand/koolo-icon-C.svg","brand/koolo-icon-C-dark.svg","icons/koolo-v1-180.png","icons/koolo-v1-192.png","icons/koolo-v1-512.png","icons/koolo-v1-maskable-512.png",
+for(const name of ["site.webmanifest","sw.js","offline.html","favicon.svg","brand/koolo-wordmark-C.svg","brand/koolo-wordmark-C-dark.svg","brand/koolo-icon-C.svg","brand/koolo-icon-C-dark.svg","brand/koolo-wordmark-koo-v2.svg","brand/koolo-wordmark-koo-v2-dark.svg","brand/koolo-icon-koo-v2.svg","brand/koolo-icon-koo-v2-dark.svg","icons/koolo-v2-180.png","icons/koolo-v2-192.png","icons/koolo-v2-512.png","icons/koolo-v2-maskable-512.png",
  "icons/shortcut-chat-96.png","icons/shortcut-chat-192.png",
  "icons/shortcut-learn-96.png","icons/shortcut-learn-192.png",
  "icons/shortcut-games-96.png","icons/shortcut-games-192.png"]){

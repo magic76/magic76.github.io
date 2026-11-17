@@ -90,7 +90,7 @@ export default defineConfig(({ command }) => {
       name: "crew-pwa-icons",
       apply: "build",
       generateBundle() {
-        for (const [name,size,maskable] of [["koolo-v1-180.png",180,false],["koolo-v1-192.png",192,false],["koolo-v1-512.png",512,false],["koolo-v1-maskable-512.png",512,true]] as const) {
+        for (const [name,size,maskable] of [["koolo-v2-180.png",180,false],["koolo-v2-192.png",192,false],["koolo-v2-512.png",512,false],["koolo-v2-maskable-512.png",512,true]] as const) {
           this.emitFile({type:"asset",fileName:"icons/"+name,source:createCrewPwaIcon(size,maskable)});
         }
         for (const kind of ["chat","learn","games"] as const) {
