@@ -44,7 +44,7 @@ test('voice permissions are requested on Start, and actual denial gives localize
  // settings is not a RouteNamespace accepted by loadUiNamespace().
  assert.doesNotMatch(src,/loadUiNamespace\("settings"\)/);
  assert.doesNotMatch(src,/settings:gemini\./);
- assert.match(src,/return t\("guestTrial\."\+key\)/);
+ assert.match(src,/guestTrial\.micSitePermission/);
  assert.match(src,/setMessage\(t\("guestTrial\.micDenied"\)\)/);
  assert.match(src,/phase==="error"&&micPermissionDenied&&<p/);
  assert.match(src,/\{microphoneHelp\(\)\}<\/p>/);

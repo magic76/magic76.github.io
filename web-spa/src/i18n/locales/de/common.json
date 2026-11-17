@@ -76,6 +76,7 @@
     "micTextFallback": "Du kannst mit {{name}} kostenlos schreiben, auch ohne Mikrofon.",
     "micNotFound": "Kein Mikrofon gefunden.",
     "retryMic": "Mikrofon ist aktiviert – erneut versuchen",
+    "micSitePermission": "Öffne die Website-Einstellungen neben der Adressleiste (Schloss/Regler) und erlaube das Mikrofon.",
     "microphoneNotice": "Wenn du den Sprachchat startest, verwendet dein Browser dein Mikrofon.",
     "micHelpMac": "Mac: Öffne Systemeinstellungen → Datenschutz & Sicherheit → Mikrofon und erlaube Edge / Chrome. Erlaube die Website auch in der Adressleiste. Starte den Browser nach Änderungen neu.",
     "micHelpWindows": "Windows: Öffne Einstellungen → Datenschutz & Sicherheit → Mikrofon. Erlaube Mikrofon- und Desktop-App-Zugriff und dann diese Website in Edge / Chrome.",

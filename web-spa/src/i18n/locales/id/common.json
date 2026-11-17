@@ -76,6 +76,7 @@
     "micTextFallback": "Kamu bisa chat teks gratis dengan {{name}} tanpa mikrofon.",
     "micNotFound": "Mikrofon tidak ditemukan.",
     "retryMic": "Mikrofon sudah aktif, coba lagi",
+    "micSitePermission": "Buka setelan situs di samping bilah alamat (ikon gembok/pengaturan), lalu izinkan mikrofon.",
     "microphoneNotice": "Saat memulai obrolan suara, browser akan menggunakan mikrofon Anda.",
     "micHelpMac": "Mac: buka Pengaturan Sistem → Privasi & Keamanan → Mikrofon dan izinkan Edge / Chrome. Izinkan pula situs ini dari bilah alamat. Tutup dan buka kembali peramban setelah mengubah pengaturan.",
     "micHelpWindows": "Windows: buka Pengaturan → Privasi & keamanan → Mikrofon. Izinkan akses mikrofon dan aplikasi desktop, lalu izinkan situs ini di Edge / Chrome.",

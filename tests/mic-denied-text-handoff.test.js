@@ -9,6 +9,9 @@ const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const starter=read('web-spa/src/live/GuestLiveStarter.tsx');
 const helper=read('web-spa/src/live/guestTextChallenge.ts');
 const panel=read('web-spa/src/live/TextChatPanel.tsx');
+const retrySource=read('web-spa/src/live/guestMicRetry.ts');
+const retryApi={};
+vm.runInNewContext(stripTypeScriptTypes(retrySource,{mode:'strip'}).replace(/^export /gm,'')+'\nthis.rules={canRetryGuestMicrophone,isGuestVoiceVerificationExpired}',retryApi);
 const locales=['zh-TW','en','de','es','fr','id','ja','ko','pt-BR','th','vi'];
 
 // Execute the real begin() body, not a reimplementation, with mocked browser I/O.
@@ -17,47 +20,51 @@ function trial(errorName,withFallback=true,afterToken=false){
  const fallback=withFallback?{href:'/friend/live?id=zoe&post=short01&quote=daily&chat=text',name:'Zoe'}:undefined;
  const beginSource=starter.slice(starter.indexOf('async function begin(){'),starter.indexOf('\n return <div className="notice guest-live-entry"'));
  const body=stripTypeScriptTypes(beginSource,{mode:'strip'});
+ let allowed=false;
  const microphone=errorName==='missing'?undefined:async()=>{
-  if(!afterToken&&errorName)throw new DOMException('microphone unavailable',errorName);
+  if(!afterToken&&!allowed&&errorName)throw new DOMException('microphone unavailable',errorName);
   return {getTracks:()=>[{stop(){}}]};
  };
  const ctx={
   DOMException,Error,Event,window:{dispatchEvent(){}},
   navigator:{mediaDevices:microphone?{getUserMedia:microphone}:undefined},
-  busy:{current:false},phase:'ready',challenge:'unused-challenge',role:'friend',active:{current:true},
+  busy:{current:false},phase:'ready',challenge:'unused-challenge',micUnavailable:false,role:'friend',active:{current:true},
+  ...retryApi.rules,
   signinRequired:false,memberSignedIn:false,textFallback:fallback,
   ensureLive:async()=>{},trackUsageEvent:(name)=>events.push(name),
   offerGuestChallengeToken:token=>actions.push(['offer',token]),
   navigate:(href,options)=>actions.push(['navigate',href,options]),
   setMicPermissionDenied:value=>actions.push(['micDenied',value]),
-  setMicUnavailable:value=>actions.push(['micUnavailable',value]),
+  setMicUnavailable:value=>{ctx.micUnavailable=value;actions.push(['micUnavailable',value])},
+  setChallenge:value=>{ctx.challenge=value;actions.push(['challenge',value])},
   setPhase:value=>{ctx.phase=value;actions.push(['phase',value])},
   setMessage:value=>messages.push(value),
-  t:(key)=>key,fetch:async()=>{if(afterToken)throw new DOMException('token failed','NotAllowedError');throw Error('Unexpected network')},
-  GUEST_TOKEN_ENDPOINT:'/guest/token',onGrant:async()=>{},
+  t:(key)=>key,fetch:async()=>{if(afterToken)throw new DOMException('token failed','NotAllowedError');return {ok:true,status:200,headers:{get:()=> 'application/json'},json:async()=>({token:'token-one',model:'gemini-3.8-live',seconds:300})}},
+  GUEST_TOKEN_ENDPOINT:'/guest/token',onGrant:async grant=>actions.push(['grant',grant]),
  };
  vm.runInNewContext(body+'\nthis.begin=begin',ctx);
- return {begin:ctx.begin,actions,events,messages,get phase(){return ctx.phase}};
+ return {begin:ctx.begin,actions,events,messages,allowMicrophone(){allowed=true},get phase(){return ctx.phase}};
 }
 
-test('blocked and missing microphones hand off unused challenge and replace the original URL without new event names',async()=>{
+test('mic failure keeps voice recovery visible and reuses the same verification when permissions change',async()=>{
  for(const [name,event] of [['NotAllowedError','guest_trial_mic_denied'],['NotFoundError','guest_trial_setup_failed'],['SecurityError','guest_trial_setup_failed'],['missing','guest_trial_setup_failed']]){
   const h=trial(name);await h.begin();
+  assert.equal(h.phase,'error',name);
   assert.equal(h.events.filter(x=>x===event).length,1,name);
-  assert.deepEqual(h.events.sort(),['guest_trial_start_click',event].sort(),name);
-  assert.deepEqual(h.actions.filter(x=>x[0]==='offer'),[['offer','unused-challenge']],name);
-  const navigation=h.actions.find(x=>x[0]==='navigate');
-  assert.equal(navigation[1],'/friend/live?id=zoe&post=short01&quote=daily&chat=text',name);
-  assert.equal(navigation[2].replace,true,name);
-  assert.ok(!h.actions.some(x=>x[0]==='phase'&&x[1]==='error'),name);
+  assert.equal(h.actions.filter(x=>x[0]==='offer'||x[0]==='navigate').length,0,name);
+  assert.ok(h.actions.some(x=>x[0]==='micUnavailable'&&x[1]),name);
+  if(name!=='missing'){
+   h.allowMicrophone();await h.begin();
+   assert.equal(h.actions.filter(x=>x[0]==='grant').length,1,name);
+   assert.equal(h.actions.filter(x=>x[0]==='offer'||x[0]==='navigate').length,0,name);
+  }
  }
 });
 
-test('without fallback the error card remains; missing microphone gets an accurate message; token requested or unrelated errors never redirect',async()=>{
+test('without fallback mic error remains; unrelated network/token failures do not redirect',async()=>{
  for(const name of ['NotAllowedError','NotFoundError','missing']){
   const h=trial(name,false);await h.begin();
-  assert.equal(h.phase,'error');assert.equal(h.actions.filter(x=>x[0]==='navigate').length,0);
-  assert.equal(h.actions.filter(x=>x[0]==='offer').length,0);
+  assert.equal(h.phase,'error');
   if(name!=='NotAllowedError')assert.ok(h.messages.includes('guestTrial.micNotFound'),name);
  }
  for(const [name,tokenRequested] of [['AbortError',false],['NotAllowedError',true]]){
@@ -65,10 +72,6 @@ test('without fallback the error card remains; missing microphone gets an accura
   assert.equal(h.actions.filter(x=>x[0]==='offer'||x[0]==='navigate').length,0,name);
   assert.ok(h.events.includes(tokenRequested?'guest_trial_token_failed':'guest_trial_setup_failed'));
  }
- assert.match(starter,/micPermissionDenied\?"guestTrial\.retryMic":"guestTrial\.retry"/);
- assert.match(starter,/onClick=\{\(\)=>\{clearGuestChallengeHandoff\(\)/);
- assert.match(starter,/phase==="error"&&micUnavailable&&textFallback\?t\("guestTrial\.micTextTitle"\)/);
- assert.match(starter,/phase==="error"&&textFallback&&<Link className="btn"/);
 });
 
 function challengeHarness(){
@@ -151,7 +154,7 @@ test('one-shot accessible message and all 11 localized strings remain within bui
  for(const loc of locales){
   const common=JSON.parse(read(`web-spa/src/i18n/locales/${loc}/common.json`)).guestTrial;
   const voice=JSON.parse(read(`web-spa/src/i18n/locales/${loc}/voice.json`)).guestText;
-  for(const key of ['micTextTitle','micTextDesc','micTextFallback','micNotFound','retryMic'])assert.ok(typeof common[key]==='string'&&common[key].trim(),loc+':'+key);
+  for(const key of ['micTextTitle','micTextDesc','micTextFallback','micNotFound','retryMic','micSitePermission'])assert.ok(typeof common[key]==='string'&&common[key].trim(),loc+':'+key);
   assert.ok(typeof voice.micFallbackNotice==='string'&&voice.micFallbackNotice.trim());
   assert.match(common.micTextFallback,/\{\{name\}\}/);assert.match(voice.micFallbackNotice,/\{\{name\}\}/);
  }
