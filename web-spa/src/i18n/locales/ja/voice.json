@@ -99,6 +99,7 @@
     "preCallWaiting": "認証を待っています…",
     "preCallVerified": "認証が完了しました。開始できます。",
     "preCallStart": "無料でお試し",
+    "preCallTextFallback": "まずは {{name}} と文字でチャット",
     "preparingPost": "友だちの写真の話題を準備中…",
     "backAria": "Koolo フレンズに戻る",
     "brand": "Koolo フレンド · {{language}}",

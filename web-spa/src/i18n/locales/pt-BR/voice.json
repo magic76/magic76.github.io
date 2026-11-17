@@ -99,6 +99,7 @@
     "preCallWaiting": "Aguardando verificação…",
     "preCallVerified": "Verificação concluída. Pode começar!",
     "preCallStart": "Começar teste grátis",
+    "preCallTextFallback": "Converse primeiro por texto com {{name}}",
     "preparingPost": "Preparando o assunto da foto do seu amigo…",
     "backAria": "Voltar para Koolo Amigos",
     "brand": "Amigo Koolo · {{language}}",

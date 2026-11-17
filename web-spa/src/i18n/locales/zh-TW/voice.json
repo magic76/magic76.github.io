@@ -99,6 +99,7 @@
     "preCallWaiting": "等待安全驗證…",
     "preCallVerified": "驗證完成，可以開始聊天！",
     "preCallStart": "開始免費試玩",
+    "preCallTextFallback": "先用文字和 {{name}} 聊",
     "preparingPost": "正在準備朋友的照片話題…",
     "backAria": "返回 Koolo 朋友",
     "brand": "Koolo 朋友 · {{language}}",

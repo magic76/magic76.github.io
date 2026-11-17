@@ -99,6 +99,7 @@
     "preCallWaiting": "인증 대기 중…",
     "preCallVerified": "인증이 완료되었습니다. 대화를 시작하세요.",
     "preCallStart": "무료 체험 시작",
+    "preCallTextFallback": "먼저 {{name}}와 문자로 대화하기",
     "preparingPost": "친구의 사진 이야깃거리를 준비하는 중…",
     "backAria": "Koolo 친구로 돌아가기",
     "brand": "Koolo 친구 · {{language}}",

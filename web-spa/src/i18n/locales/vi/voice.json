@@ -99,6 +99,7 @@
     "preCallWaiting": "Đang chờ xác minh…",
     "preCallVerified": "Đã xác minh. Bạn có thể bắt đầu trò chuyện.",
     "preCallStart": "Bắt đầu dùng thử miễn phí",
+    "preCallTextFallback": "Trò chuyện bằng chữ với {{name}} trước",
     "preparingPost": "Đang chuẩn bị chủ đề ảnh của bạn…",
     "backAria": "Quay lại Koolo Bạn bè",
     "brand": "Bạn Koolo · {{language}}",

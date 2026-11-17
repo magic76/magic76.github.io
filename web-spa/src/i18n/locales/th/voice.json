@@ -99,6 +99,7 @@
     "preCallWaiting": "กำลังรอการยืนยัน…",
     "preCallVerified": "ยืนยันสำเร็จ พร้อมเริ่มแชตแล้ว",
     "preCallStart": "เริ่มทดลองใช้ฟรี",
+    "preCallTextFallback": "เริ่มแชตข้อความกับ {{name}} ก่อน",
     "preparingPost": "กำลังเตรียมหัวข้อรูปของเพื่อน…",
     "backAria": "กลับไปที่เพื่อน Koolo",
     "brand": "เพื่อน Koolo · {{language}}",
