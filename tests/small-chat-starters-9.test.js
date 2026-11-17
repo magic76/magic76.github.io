@@ -23,7 +23,7 @@ test("Short-phone layout preserves first suggestion, composer and keyboard focus
  assert.match(block,/\.friend-live-post p\{[^}]*text-overflow:ellipsis/);
  assert.match(block,/\.crew-text-starters-target-hint\{display:none/);
  assert.match(block,/\.crew-text-guest:not\(:has\(\.crew-text-challenge-host,\.crew-text-key-recovery,button\)\)/);
- assert.doesNotMatch(block,/(?:\.crew-text-starter|\.crew-text-chat-form)[^{]*\{[^}]*display:none/);
+ assert.doesNotMatch(block,/(?:\.crew-text-starter(?:\s|:|\{)|\.crew-text-chat-form(?:\s|:|\{))[^{]*\{[^}]*display:none/);
  const shared=read("web-spa/src/live/TextChatPanel.css");
  assert.match(shared,/\.crew-text-starter\{[^}]*min-height:\d+px/);
  assert.match(shared,/\.crew-text-chat-form button\{[^}]*min-height:\d+px/);
