@@ -41,6 +41,7 @@ import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teache
 import {isShortsHook,shortsSelectedQuestion,rememberShortsConversation} from "../teacher/shortsSocial";
 import "./friends.css";
 import "./friendCall.css";
+import "./friendCallFocus.css";
 
 export function FriendLivePage(){
  const {t}=useTranslation("voice");
