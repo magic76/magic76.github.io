@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import ts from "typescript";
 const read=path=>fs.readFileSync(path,"utf8");
 const text=read("web-spa/src/live/TextChatPanel.tsx");
 const textCss=read("web-spa/src/live/TextChatPanel.css");
@@ -45,15 +46,27 @@ test("both friend text bubbles and typing indicator have 36-40px circular avatar
  assert.match(styleRule(textCss,".crew-text-chat-history .crew-text-ai-row .crew-text-chat-message"),/min-width:0;max-width:calc\(90% - 46px\)/);
  assert.match(styleRule(textCss,".crew-text-chat-history .crew-text-typing-row .crew-text-typing-bubble"),/min-width:0/);
 });
-test("telephone assistant captions, but not user captions, carry FriendAvatar",()=>{
- assert.match(captions,/import \{FriendAvatar\} from "\.\/FriendAvatar"/);
- assert.match(captions,/CREW_FRIENDS\.find\(friend=>friend\.name===name\)/);
- const ai=captions.slice(captions.indexOf('<section className="friend-caption-ai"'),captions.indexOf('<section className="friend-caption-user"'));
- assert.match(ai,/<FriendAvatar friend=\{captionFriend\} className="friend-caption-avatar" decorative\/>/);
- assert.doesNotMatch(captions.slice(captions.indexOf('<section className="friend-caption-user"')),/<FriendAvatar/);
- const a=styleRule(callCss,".friend-phone-stage .friend-caption-ai .crew-friend-avatar.friend-caption-avatar");
- for(const prop of ["width","height"]){const value=px(a,prop);assert.ok(value>=36&&value<=40,prop+"="+value)}
- assert.match(a,/border-radius:50%/);
+test("phone captions do not repeat the friend identity; teachers keep their speaker avatar",()=>{
+ const source=ts.createSourceFile("FriendCallCaptions.tsx",captions,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+ assert.equal(source.parseDiagnostics.length,0,"caption JSX parses");
+ const hasClass=(root,name)=>{
+  let found=false;
+  const visit=node=>{
+   if(ts.isJsxOpeningElement(node)||ts.isJsxSelfClosingElement(node)){
+    if(node.attributes.properties.some(prop=>ts.isJsxAttribute(prop)&&prop.name.text==="className"&&ts.isStringLiteral(prop.initializer)&&prop.initializer.text===name))found=true;
+   }
+   ts.forEachChild(node,visit);
+  };
+  visit(root);return found;
+ };
+ let teacherOnly=false;
+ const walk=node=>{
+  if(ts.isConditionalExpression(node)&&ts.isIdentifier(node.condition)&&node.condition.text==="speakerAvatar"&&node.whenFalse.kind===ts.SyntaxKind.NullKeyword&&hasClass(node.whenTrue,"friend-caption-speaker"))teacherOnly=true;
+  ts.forEachChild(node,walk);
+ };
+ walk(source);
+ assert.ok(teacherOnly,"inline speaker row is present only when an explicit teacher avatar is supplied");
+ assert.ok(!hasClass(source,"friend-caption-avatar")||teacherOnly);
 });
 test("small components and keyboard-open switches remain within the contract",()=>{
  assert.ok(Buffer.byteLength(text)<26000,`TextChatPanel=${Buffer.byteLength(text)}`);
