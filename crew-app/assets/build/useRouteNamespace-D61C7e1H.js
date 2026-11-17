@@ -1,0 +1,1 @@
+import{a as e,n as t}from"./jsx-runtime-D3jfb0Ew.js";import{a as n,r}from"./i18n-BowE-cR1.js";import{t as i}from"./useTranslation-DK3kRvlH.js";var a=e(t());function o(e){i();let[,t]=(0,a.useReducer)(e=>e+1,0),o=n(e);return(0,a.useEffect)(()=>{o||r(e).then(t,()=>{})},[o,e]),o}export{o as t};
