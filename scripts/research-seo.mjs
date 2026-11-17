@@ -61,7 +61,7 @@ export function readPublishedResearch(root){
 
 export function articleHead(article,day){
  const canonical=articleCanonical(day.date,article);
- const title=article.title+"｜Crew Research";
+ const title=article.title+"｜Koolo Research";
  const description=article.summary.slice(0,180);
  const robots=indexableArticle(article)?"index,follow":"noindex,follow";
  const publication=day.generatedAt;
@@ -71,8 +71,8 @@ export function articleHead(article,day){
   headline:article.title,description:article.summary,
   mainEntityOfPage:{"@type":"WebPage","@id":canonical},url:canonical,
   datePublished:publication,dateModified:publication,inLanguage:"zh-Hant",
-  author:{"@type":"Organization",name:"Crew Research",url:"https://koolo.app/research/"},
-  publisher:{"@type":"Organization",name:"Crew",url:"https://koolo.app/"},
+  author:{"@type":"Organization",name:"Koolo Research",url:"https://koolo.app/research/"},
+  publisher:{"@type":"Organization",name:"Koolo",url:"https://koolo.app/"},
   ...(sources.length?{citation:sources}:{}),
   ...(article.topic?{about:article.topic}:{})
  };

@@ -283,7 +283,7 @@ for(const locale of ["zh","en"])for(const slug of GAME_SEO_SLUGS){
   {"@type":"WebPage","@id":canonical+"#webpage",url:canonical,name:meta.title,description:meta.description,inLanguage:locale==="en"?"en":"zh-Hant"},
   {"@type":"BreadcrumbList",itemListElement:[
    {"@type":"ListItem",position:1,name:locale==="en"?"Home":"首頁",item:"https://koolo.app"+(locale==="en"?"/en/":"/")},
-   {"@type":"ListItem",position:2,name:"Crew Play",item:"https://koolo.app"+(locale==="en"?"/en/games/":"/games/")},
+   {"@type":"ListItem",position:2,name:"Koolo Play",item:"https://koolo.app"+(locale==="en"?"/en/games/":"/games/")},
    {"@type":"ListItem",position:3,name:meta.name,item:canonical}
   ]},
   {"@type":"SoftwareApplication",name:meta.name,applicationCategory:"GameApplication",operatingSystem:"Web",url:canonical,description:meta.description}
@@ -373,7 +373,7 @@ for(const [id,{slug,locale,content:guide}] of guides){
     description:guide.description,inLanguage:language,isPartOf:{"@id":"https://koolo.app/#website"}},
    {"@type":"BreadcrumbList",itemListElement:[
     {"@type":"ListItem",position:1,name:locale==="en"?"Home":"首頁",item:"https://koolo.app"+(locale==="en"?"/en/":"/")},
-    {"@type":"ListItem",position:2,name:"Crew Teacher",item:"https://koolo.app"+(locale==="en"?"/en/teacher/":"/teacher/")},
+    {"@type":"ListItem",position:2,name:"Koolo Teacher",item:"https://koolo.app"+(locale==="en"?"/en/teacher/":"/teacher/")},
     {"@type":"ListItem",position:3,name:guide.label,item:canonical}
    ]}
   ]
