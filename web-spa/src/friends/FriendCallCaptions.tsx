@@ -5,7 +5,7 @@ import type {NativeLanguage} from "../teacher/teacherLocale";
 import {callTranslationRows,splitCallSentences} from "./callSentence.mjs";
 import {translateCallSentence} from "./callTranslate";
 type Turn={input?:string;output?:string};
-type Props={name:string;turns:ReadonlyArray<Turn>;input:string;output:string;learningLanguage:string;nativeLanguage:NativeLanguage;speaking:boolean;speakerAvatar?:ReactNode;waitingText?:string;replyExtra?:ReactNode};
+type Props={name:string;turns:ReadonlyArray<Turn>;input:string;output:string;learningLanguage:string;nativeLanguage:NativeLanguage;speaking:boolean;speakerAvatar?:ReactNode;waitingText?:string;replyExtra?:ReactNode;headerAccessory?:ReactNode};
 type Translator={translate(text:string):Promise<string>;destroy?():void};
 type Factory={availability(v:{sourceLanguage:string;targetLanguage:string}):Promise<"available"|"downloadable"|"downloading"|"unavailable">;create(v:{sourceLanguage:string;targetLanguage:string}):Promise<Translator>};
 type Browser={factory:Factory|null;status:"checking"|"available"|"downloadable"|"downloading"|"unavailable";instance:Translator|null;promise:Promise<void>|null;closed:boolean};
@@ -14,7 +14,7 @@ const PREF="crew_friend_call_translation_v1";
 const LANG:Record<string,string>={"英文":"en","日文":"ja","韓文":"ko","中文":"zh","華語":"zh","繁體中文":"zh","簡體中文":"zh","西班牙文":"es","法文":"fr","德文":"de","義大利文":"it","越南文":"vi","泰文":"th","印尼文":"id","葡萄牙文":"pt"};
 function initial(){try{return localStorage.getItem(PREF)!=="off"}catch{return true}}
 function browserCode(language:string){return language==="zh-TW"?"zh-Hant":language==="zh-CN"?"zh":language.split("-")[0]}
-export function FriendCallCaptions({name,turns,input,output,learningLanguage,nativeLanguage,speaking,speakerAvatar,waitingText,replyExtra}:Props){
+export function FriendCallCaptions({name,turns,input,output,learningLanguage,nativeLanguage,speaking,speakerAvatar,waitingText,replyExtra,headerAccessory}:Props){
  const {t}=useTranslation("voice");
  const captionsRef=useRef<HTMLDivElement>(null),replyRef=useRef<HTMLParagraphElement>(null),translationRef=useRef<HTMLDivElement>(null);
  const [enabled,setEnabled]=useState(initial);
@@ -116,6 +116,7 @@ export function FriendCallCaptions({name,turns,input,output,learningLanguage,nat
  return <div ref={captionsRef} className="friend-phone-captions" aria-label={t("callCaptions.aria")}>
   <div className="friend-caption-heading"><span>{t("workspace.transcript")}</span>
    {needTranslation?<button type="button" className="friend-caption-toggle" aria-pressed={enabled} onClick={toggle}>{t(enabled?"callCaptions.hideTranslation":"callCaptions.showTranslation")}</button>:null}
+   {headerAccessory}
   </div>
   <section className="friend-caption-ai" aria-label={name}>
    {speakerAvatar?<div className="friend-caption-speaker"><span className="friend-caption-avatar teacher-call-caption-avatar">{speakerAvatar}</span><small>{name}{speaking?" · "+t("compact.speaking"):""}</small></div>:null}
