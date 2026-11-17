@@ -265,10 +265,10 @@ export function TeacherLivePage(){
    :!geminiKey()&&!guestStarted?<GuestLiveStarter role="teacher" textFallback={p.has("fortune")?undefined:{href:alternateHref,name:profile.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
     :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"} name={profile.name}/>
     :sessionActive?<FriendCallControls live={live} onEnd={endAndReturn}/>:<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
-   {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
+   {guestStarted&&!sessionActive&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
   {textMode?quickActions:null}
   </div>
-  {sessionActive?<FriendCallCaptions name={profile.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={s.targetLanguage} nativeLanguage={s.nativeLanguage} speaking={live.state==="speaking"} speakerAvatar={<TeacherAvatar profile={profile} decorative/>} waitingText={t("voice:callCaptions.waitingForTeacher")} replyExtra={<PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/>}/>:null}
+  {sessionActive?<FriendCallCaptions name={profile.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={s.targetLanguage} nativeLanguage={s.nativeLanguage} speaking={live.state==="speaking"} speakerAvatar={<TeacherAvatar profile={profile} decorative/>} waitingText={t("voice:callCaptions.waitingForTeacher")} headerAccessory={guestStarted&&live.state!=="ended"&&live.state!=="error"?<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>:null} replyExtra={<PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/>}/>:null}
   </>}
 
  </section>{!textMode&&<DesktopLivePanel kind="teacher" label={profile.name} language={s.targetLanguage} turns={live.turns} input={live.input} output={live.output} state={live.state} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode}/>}</div>
