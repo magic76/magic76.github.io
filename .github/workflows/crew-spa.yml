@@ -103,6 +103,9 @@ jobs:
       - name: Validate Koolo dual-origin migration safety
         if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'koolo-domain') || contains(github.event.pull_request.head.ref, 'koolo-trial-worker-domain'))
         run: node --test tests/koolo-domain-ready.test.js tests/crew-auth.test.js tests/guest-trial.test.js tests/guest-text-chat.test.js
+      - name: Validate Koolo trial Worker endpoint routing
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'koolo-frontend-guest-api')
+        run: node --test tests/koolo-trial-endpoint.test.js tests/crew-guest-config-cache.test.js tests/guest-text-chat.test.js
       - name: Validate UI translations (offline)
         run: npm run check:i18n
       - name: Review newly added UI literals (PR only)
