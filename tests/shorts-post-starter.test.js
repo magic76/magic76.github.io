@@ -116,7 +116,7 @@ test("11 voice translations have the same nonblank, interpolation-free, safe pos
 test("starter is opt-in and uses the unchanged verified first-send path",()=>{
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
  const starters=read("web-spa/src/live/TextChatStarters.tsx");
- assert.match(starters,/firstStarter&&<button[^>]+onClick=\{\(\)=>onPick\(firstStarter\)\}/);
+ assert.match(starters,/\(gameStarter\|\|firstStarter\)&&<button[^>]+onClick=\{\(\)=>onPick\(\(gameStarter\|\|firstStarter\)!\)\}/);
  assert.match(panel,/onPick=\{sentence=>void sendMessage\(sentence\)\}/);
  assert.match(panel,/historyReady&&!messages\.length&&!draft\.trim\(\)&&!busy/);
  assert.doesNotMatch(friend,/sendMessage\(shortsStarter\)|setDraft\(shortsStarter\)/);
