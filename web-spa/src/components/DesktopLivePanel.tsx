@@ -61,7 +61,7 @@ export function DesktopLivePanel({kind,label,language,state,turns,input,output,p
  if(!voiceReady)return null;
  return <aside className="desktop-live-panel" aria-label={t("workspace.aria."+kind)}>
   <header className="workspace-panel-header">
-   <div><span className="kicker">{kind==="teacher"?"Crew Teacher":kind==="friend"?"Crew Friends":"Crew Story"} · Workspace</span>
+   <div><span className="kicker">{kind==="teacher"?"Crew Teacher":kind==="friend"?"Koolo Friends":"Crew Story"} · Workspace</span>
     <h2>{t("workspace.title."+kind)}</h2>
     <p>{t("workspace.desc."+kind)}</p></div>
    <span className="workspace-state" data-state={state}>{t("workspace.state."+(["speaking","listening","connecting","ended"].includes(state)?state:"idle"))}</span>

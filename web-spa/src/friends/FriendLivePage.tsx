@@ -17,7 +17,7 @@ import {LiveControls} from "../live/LiveControls";
 import {FriendCallControls} from "./FriendCallControls";
 import {FriendCallCaptions} from "./FriendCallCaptions";
 import {VoiceTextRecap,useVoiceTextRecap,buildFriendVoiceOpening,voiceTextContext} from "../live/VoiceTextRecap";
-import {useFriendTextViewport,useFriendBodyTheme} from "./useFriendTextViewport";
+import {useFriendTextViewport,useFriendBodyTheme,useFriendVoiceTheme} from "./useFriendTextViewport";
 import {friendVoiceStatusKey} from "./friendVoiceStatusKey";
 import {FriendChatHistory} from "./FriendChatHistory";
 import {FriendCallMenu,FriendCallMenuTrigger} from "./FriendCallMenu";
@@ -203,6 +203,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  // Start once after mounting, without double-starting under React StrictMode.
  useEffect(()=>{if(textMode||!voiceRecapReady||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost,creatureEmbed,voiceRecapReady]);
  useFriendBodyTheme(creatureEmbed);
+ useFriendVoiceTheme(!textMode&&!creatureEmbed);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
@@ -220,12 +221,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const alternateParams=new URLSearchParams(params);
  if(textMode)alternateParams.delete("chat");else alternateParams.set("chat","text");
  const alternateHref="/friend/live?"+alternateParams.toString();
- // A Shorts referral puts the only required second gesture before optional mode
- // choices. The original guest-trial gate remains responsible for eligibility.
  if(creatureEmbed)return <CreatureVoicePanel live={live} ready={!!creatureBridge.creature} status={friendVoiceStatus} guestStarted={guestStarted} setGuestStarted={setGuestStarted}/>;
  const voiceStart=<>
   {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
-  {!voiceRecapReady?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" focusStartOnVerified={homeFirstAction} textFallback={{href:alternateHref,name:friend.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
+  {!voiceRecapReady?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" precall focusStartOnVerified={homeFirstAction} textFallback={{href:alternateHref,name:friend.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
    :<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}>{active?<FriendCallControls live={live} onEnd={endAndReturn}/>:<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}</div>}
  </>;
@@ -234,10 +233,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    <div className="app-brand"><Link className="back-btn" to={shortsReturnTo||(intent==="speak"?"/learn":"/teacher/roles?mode=friends")} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}>‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>{t("friendLive.brand",{language:t("languages."+language,{defaultValue:language})})}</small></div>
    </div>
-   <div className="friend-call-header-actions"><span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span><FriendCallMenuTrigger active={active&&!textMode} open={showCallOptions} label={t("callCaptions.more")} onToggle={()=>setShowCallOptions(v=>!v)}/></div>
+   <div className="friend-call-header-actions"><span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span><FriendCallMenuTrigger active={!textMode} open={showCallOptions} label={t("callCaptions.more")} onToggle={()=>setShowCallOptions(v=>!v)}/></div>
   </div></header>
   <main className="session-shell friend-live-page">
-   <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(textMode?" friend-text-stage":active?" friend-phone-stage":"")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
+   <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(textMode?" friend-text-stage":active?" friend-phone-stage":" friend-precall-stage")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
     <div className="live-identity">
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
@@ -253,7 +252,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      </section>:null}
     {postUnavailable?<p className="friend-live-post-unavailable" role="status">{t("friendLive.postUnavailable")}</p>:null}
     {shortsPost&&!textMode?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
-    <FriendCallMenu inCall={active&&!textMode} open={showCallOptions} onClose={()=>setShowCallOptions(false)} title={t("callCaptions.more")} closeLabel={t("callCaptions.closeMenu")}><div className="friend-call-settings">
+    <FriendCallMenu inCall={!textMode} open={showCallOptions} onClose={()=>setShowCallOptions(false)} title={t("callCaptions.more")} closeLabel={t("callCaptions.closeMenu")}><div className="friend-call-settings">
     <div className="friend-language-switch" role="group" aria-label={t("chatModeTitle")}>
      <span className="friend-language-switch-title">{t("chatModeTitle")}</span>
      <div className="friend-language-options">
@@ -293,7 +292,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} speaking={live.state==="speaking"}/>:null}
     </>}
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
-   </section>{!textMode&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
+   </section>{!textMode&&active&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
   </main>
  </>;
 }

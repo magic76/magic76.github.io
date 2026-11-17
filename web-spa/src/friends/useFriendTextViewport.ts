@@ -20,3 +20,14 @@ export function useFriendTextViewport(textMode:boolean,textStage:RefObject<HTMLE
 export function useFriendBodyTheme(creatureEmbed:boolean){
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page"+(creatureEmbed?" creature-voice-embed-body":"");return()=>{document.body.className=""}},[creatureEmbed]);
 }
+
+/** Match browser chrome to the black voice screen, then restore it for text. */
+export function useFriendVoiceTheme(enabled:boolean){
+ useEffect(()=>{
+  if(!enabled)return;
+  const meta=document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  const previous=meta?.getAttribute("content");
+  if(meta)meta.setAttribute("content","#000");
+  return()=>{if(meta){if(previous===null)meta.removeAttribute("content");else meta.setAttribute("content",previous)}};
+ },[enabled]);
+}

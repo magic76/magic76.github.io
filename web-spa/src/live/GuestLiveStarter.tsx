@@ -12,8 +12,8 @@ type WidgetApi={
 };
 const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
-export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFallback,linksInNewTab=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";focusStartOnVerified?:boolean;textFallback?:{href:string;name:string};linksInNewTab?:boolean}){
- const {t}=useTranslation("common");
+export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerified=false,textFallback,linksInNewTab=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";precall?:boolean;focusStartOnVerified?:boolean;textFallback?:{href:string;name:string};linksInNewTab?:boolean}){
+ const {t}=useTranslation(["common","voice"]);
  const navigate=useNavigate();
  const linkTarget=linksInNewTab?{target:"_blank",rel:"noopener noreferrer"}:{};
  const [micUnavailable,setMicUnavailable]=useState(false);
@@ -188,14 +188,16 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
   }finally{busy.current=false}
  }
  return <div className="notice guest-live-entry" role="region" aria-label={phase==="full"?t("guestTrial.limit"):phase==="exhausted"?t("guestTrial.usedUpTitle"):t("guestTrial.homeTitle")}>
+  {precall&&(phase==="checking"||phase==="ready"||phase==="starting")&&<p className="friend-precall-steps">{t("voice:friendLive.preCallSteps")}</p>}
   <div style={{display:"grid",gap:10,width:"100%"}}>
    {phase!=="exhausted"&&phase!=="full"&&<><strong>{phase==="error"&&micUnavailable&&textFallback?t("guestTrial.micTextTitle"):t("guestTrial.homeTitle")}</strong>
     <p>{phase==="error"&&micUnavailable&&textFallback?t("guestTrial.micTextDesc"):t("guestTrial.homeDesc")}</p>
     {remaining!==null&&<p role="status">{t(memberSignedIn?"guestTrial.memberRemaining":"guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
    {phase==="checking"&&<p role="status">{t("guestTrial.checking")}</p>}
    {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
+    {precall&&<p className={"friend-precall-verification"+(challenge?" is-verified":"")} role="status" aria-live="polite">{t(challenge?"voice:friendLive.preCallVerified":"voice:friendLive.preCallWaiting")}</p>}
     <p style={{fontSize:13,lineHeight:1.5,margin:0}}>{t("guestTrial.microphoneNotice")}</p>
-    <button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{t("guestTrial.start")}</button></>}
+    <button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{precall?t("voice:friendLive.preCallStart"):t("guestTrial.start")}</button></>}
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
     <Link className="btn" to="/account" {...linkTarget}>{t("guestTrial.signInAction")}</Link></>}
