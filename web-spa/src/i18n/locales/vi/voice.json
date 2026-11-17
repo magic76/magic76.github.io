@@ -94,6 +94,10 @@
     "notesHint": "Tự động lưu trong trình duyệt này, có thể sao lưu trong Cài đặt Koolo. Ghi chú không được gửi cho nhân vật."
   },
   "friendLive": {
+    "preCallSteps": "Xác minh trước → rồi bắt đầu trò chuyện",
+    "preCallWaiting": "Đang chờ xác minh…",
+    "preCallVerified": "Đã xác minh. Bạn có thể bắt đầu trò chuyện.",
+    "preCallStart": "Bắt đầu dùng thử miễn phí",
     "preparingPost": "Đang chuẩn bị chủ đề ảnh của bạn…",
     "backAria": "Quay lại Koolo Bạn bè",
     "brand": "Bạn Koolo · {{language}}",

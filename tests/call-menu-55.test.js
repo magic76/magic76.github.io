@@ -9,8 +9,8 @@ const sheet=read(root+"FriendCallMenu.tsx");
 const css=read(root+"friendCall.css");
 
 test("#55 moves call settings, presets and history to the header bottom sheet",()=>{
- assert.match(page,/FriendCallMenuTrigger active=\{active&&!textMode\}/);
- assert.match(page,/<FriendCallMenu inCall=\{active&&!textMode\}/);
+ assert.match(page,/FriendCallMenuTrigger active=\{!textMode\}/);
+ assert.match(page,/<FriendCallMenu inCall=\{!textMode\}/);
  assert.doesNotMatch(page,/friend-call-options-toggle/);
  assert.match(page,/className="friend-language-switch"/);
  assert.match(page,/className="crew-chat-mode-switch"/);

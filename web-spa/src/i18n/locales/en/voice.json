@@ -94,6 +94,10 @@
     "notesHint": "Saved automatically in this browser and can be backed up in Koolo Settings. These notes aren’t sent to the character automatically."
   },
   "friendLive": {
+    "preCallSteps": "Verify first → then start chatting",
+    "preCallWaiting": "Waiting for verification…",
+    "preCallVerified": "Verified — ready to chat.",
+    "preCallStart": "Start free trial",
     "preparingPost": "Getting your friend's photo topic ready…",
     "backAria": "Back to Koolo Friends",
     "brand": "Koolo Friend · {{language}}",

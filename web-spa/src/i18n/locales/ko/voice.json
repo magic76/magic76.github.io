@@ -94,6 +94,10 @@
     "notesHint": "이 브라우저에 자동 저장되며 Koolo 설정에서 백업할 수 있어요. 노트는 대화 상대에게 전송되지 않아요."
   },
   "friendLive": {
+    "preCallSteps": "먼저 인증 → 대화 시작",
+    "preCallWaiting": "인증 대기 중…",
+    "preCallVerified": "인증이 완료되었습니다. 대화를 시작하세요.",
+    "preCallStart": "무료 체험 시작",
     "preparingPost": "친구의 사진 이야깃거리를 준비하는 중…",
     "backAria": "Koolo 친구로 돌아가기",
     "brand": "Koolo 친구 · {{language}}",
