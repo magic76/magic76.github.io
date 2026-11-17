@@ -94,6 +94,10 @@
     "notesHint": "Tersimpan otomatis di browser ini dan dapat dicadangkan di Pengaturan Koolo. Catatan tidak dikirim ke karakter."
   },
   "friendLive": {
+    "preCallSteps": "Verifikasi dulu → lalu mulai mengobrol",
+    "preCallWaiting": "Menunggu verifikasi…",
+    "preCallVerified": "Verifikasi berhasil. Siap mengobrol.",
+    "preCallStart": "Mulai coba gratis",
     "preparingPost": "Menyiapkan topik foto temanmu…",
     "backAria": "Kembali ke Koolo Teman",
     "brand": "Teman Koolo · {{language}}",
