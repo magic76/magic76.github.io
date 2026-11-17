@@ -36,7 +36,7 @@ import {nextFriendLifeOpening} from "../characters/lifeBook";
 import {friendLanguageReminder,friendLanguageTransition,friendBeginnerTextStart,type FriendChatLanguageMode} from "./friendLanguage";
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
-import {conversationIntent} from "../teacher/conversationIntent";
+import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
 import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
 import {isShortsHook,shortsSelectedQuestion,rememberShortsConversation} from "../teacher/shortsSocial";
 import "./friends.css";
@@ -149,7 +149,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
    system:system+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
   openingPrompt:buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
-   shortsHook,selectedQuestion,lifeOpening,intent,creatureContext,messages:voiceRecap}),
+   shortsHook,selectedQuestion,lifeOpening,conversationHint:conversationOpening(intent,"friend"),
+   conversationStyle:"one easy conversational observation",creatureContext,messages:voiceRecap}),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onObservedExchange:turn=>{
