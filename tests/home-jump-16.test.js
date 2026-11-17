@@ -46,7 +46,28 @@ test("#16: header, practice selector, CTA columns and quote reserve stable dimen
  assert.match(portal,/crew-portal-practice-lang,\.crew-portal-practice-preview\{[^}]*width:100%/);
  assert.match(header,/crew-language-picker-header \.crew-language-trigger\{width:104px;min-width:104px/);
  assert.match(header,/@media\(max-width:700px\)\{\.crew-language-picker-header \.crew-language-trigger\{width:92px;min-width:92px/);
- assert.match(quote,/daily-quote--mobile \.daily-quote-text,\.daily-quote--mobile \.daily-quote-placeholder\{[^}]*height:38px/);
+ assert.match(quote,/daily-quote--mobile \.daily-quote-text,\.daily-quote--mobile \.daily-quote-placeholder\{[^}]*overflow:hidden/);
  assert.match(art,/cmh-zoe-primary\{flex:1\.35 1 0;min-width:0/);
  assert.match(art,/cmh-zoe-secondary\{flex:\.8 1 0;min-width:0/);
+});
+
+test("#16 regression: quote does not grow after async text and compact phone grid remains tappable",()=>{
+ const quote=read("web-spa/src/pages/dailyTopicCards.css");
+ const mobile=read("web-spa/src/pages/mobileHome.css");
+ const slot=quote.match(/\.daily-quote--mobile \.daily-quote-text,\.daily-quote--mobile \.daily-quote-placeholder\{([^}]+)\}/)?.[1];
+ assert.ok(slot,"placeholder and loaded text must occupy the same slot");
+ const fontSize=Number(quote.match(/\.daily-quote-text\{[^}]*font-size:([\d.]+)px/)?.[1]);
+ const lineHeight=Number(slot.match(/(?:^|;)height:([\d.]+)px/)?.[1]);
+ assert.ok(lineHeight>fontSize&&lineHeight<fontSize*2,"reserve only a single text line");
+ assert.match(slot,/margin:0/);
+ assert.match(slot,/overflow:hidden/);
+ assert.doesNotMatch(quote,/\.daily-quote--mobile \.daily-quote-heading\{[^}]*min-height/);
+ assert.match(quote,/\.daily-quote--mobile \.daily-quote-text\{[^}]*white-space:nowrap;[^}]*text-overflow:ellipsis/);
+ const chartHit=Number(quote.match(/\.daily-quote-chart\{[^}]*min-height:([\d.]+)px/)?.[1]);
+ const actionHit=Number(quote.match(/\.daily-quote-action\{[^}]*min-height:([\d.]+)px/)?.[1]);
+ assert.ok(chartHit>=44&&actionHit>=44,"chart selector and fortune action keep accessible hit areas");
+ const small=mobile.match(/@media\(max-width:(\d+)px\)\{\s*\.cmh-app\{min-height:([\d.]+)px\}/);
+ const regular=Number(mobile.match(/\.cmh-app\{min-height:([\d.]+)px;gap:4px/)?.[1]);
+ assert.ok(small&&Number(small[1])>=360&&Number(small[1])<390,"narrow-only override");
+ assert.ok(Number(small[2])>=44&&Number(small[2])<regular,"shortcuts stay tappable and compact");
 });
