@@ -96,6 +96,6 @@ test("the source APPS entries, routes, order, icons, tracking and markup are unc
  ];
  assert.deepEqual(actual.map(item=>item.slice(1)),expected);
  assert.match(page,/className="cmh-app-grid"\>\{APPS\.map\(app=><Link to=\{app.to\} key=\{app.id\} className="cmh-app" onClick=\{\(\)=>track\(app.event\)\}/);
- assert.match(page,/<span className=\{"cmh-app-icon cmh-app-"\+app\.id\}><Icon name=\{app\.icon\}\/><\/span><span className="cmh-app-name">\{copy\(app\.zh,app\.en\)\}<\/span>/);
+ assert.match(page,/<span className=\{"cmh-app-icon cmh-app-"\+app\.id\}><Icon name=\{app\.icon\}\/><\/span><span className="cmh-app-name">\{t\("showcase29\.apps\."\+app\.id\)\}<\/span>/);
  assert.match(page,/<\/Link>\)\}<\/div>/);
 });
