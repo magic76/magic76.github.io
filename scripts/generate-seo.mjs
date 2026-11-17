@@ -9,13 +9,13 @@ const PAGES = [
   {
     "slug": "",
     "nav": "首頁",
-    "title": "AI 朋友聊天、英文口說練習與互動遊戲｜Crew",
-    "description": "和 AI 朋友免費文字聊天，也能練英文口說、玩 1A2B 猜數字與五子棋。選一種想練的語言，開啟 Crew 就能開始探索。",
+    "title": "AI 朋友聊天、英文口說練習與互動遊戲｜Koolo",
+    "description": "和 AI 朋友免費文字聊天，也能練英文口說、玩 1A2B 猜數字與五子棋。選一種想練的語言，開啟 Koolo 就能開始探索。",
     "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
     "heading": "你的 AI 夥伴，從學習到探索。",
-    "intro": "用 Crew 老師與朋友練習語言、和故事角色一起閱讀、從不同角度認識自己，再透過每日研發情報發現值得研究的新方向。",
+    "intro": "用 Koolo 老師與朋友練習語言、和故事角色一起閱讀、從不同角度認識自己，再透過每日研發情報發現值得研究的新方向。",
     "primary": {
-      "text": "開啟 Crew Web",
+      "text": "開啟 Koolo Web",
       "href": "/crew-app/#/"
     },
     "secondary": {
@@ -30,28 +30,28 @@ const PAGES = [
     "features": [
       {
         "label": "LANGUAGE",
-        "title": "Crew Teacher",
-        "body": "AI 語言老師、Crew 朋友、口說練習和教材陪讀。",
+        "title": "Koolo Teacher",
+        "body": "AI 語言老師、Koolo 朋友、口說練習和教材陪讀。",
         "href": "/teacher/",
         "link": "認識語言學習"
       },
       {
         "label": "STORIES",
-        "title": "Crew Story",
+        "title": "Koolo Story",
         "body": "創作故事、閱讀與語音陪伴，也能拿起手邊的實體書。",
         "href": "/story/",
         "link": "認識故事陪讀"
       },
       {
         "label": "SELF DISCOVERY",
-        "title": "Crew Fortune",
+        "title": "Koolo Fortune",
         "body": "透過八字、塔羅生命靈數和印度星盤，整理不同角度的解讀。",
         "href": "/fortune/",
         "link": "認識命盤探索"
       },
       {
         "label": "RESEARCH",
-        "title": "Crew Research",
+        "title": "Koolo Research",
         "body": "每日精選 AI 論文、技術報告及值得動手實驗的研究方向。",
         "href": "/research/",
         "link": "閱讀研究情報"
@@ -74,7 +74,7 @@ const PAGES = [
     ],
     "faq": [
       {
-        "q": "使用 Crew 需要先建立帳號嗎？",
+        "q": "使用 Koolo 需要先建立帳號嗎？",
         "a": "Web 版可直接進入體驗頁面。使用 Gemini 功能前，需要先設定自己的 API Key。"
       },
       {
@@ -86,17 +86,17 @@ const PAGES = [
   {
     "slug": "teacher",
     "nav": "Teacher",
-    "title": "AI 英文口說練習｜和老師、AI 朋友自然對話｜Crew Teacher",
-    "description": "想練英文卻找不到語伴？和 Crew Teacher 的 AI 老師練習發音、日常情境，也能和不同個性的 AI 朋友自然聊天。語音提供免費試用。",
+    "title": "AI 英文口說練習｜和老師、AI 朋友自然對話｜Koolo Teacher",
+    "description": "想練英文卻找不到語伴？和 Koolo Teacher 的 AI 老師練習發音、日常情境，也能和不同個性的 AI 朋友自然聊天。語音提供免費試用。",
     "eyebrow": "CREW TEACHER",
     "heading": "讓語言練習，更像真的在對話。",
-    "intro": "想認真學習時，找 Crew 老師；想自在聊天時，找有不同個性與背景的 Crew 朋友。透過語音互動，練習日常與實際情境。",
+    "intro": "想認真學習時，找 Koolo 老師；想自在聊天時，找有不同個性與背景的 Koolo 朋友。透過語音互動，練習日常與實際情境。",
     "primary": {
       "text": "開始語言練習",
       "href": "/crew-app/#/teacher/practice"
     },
     "secondary": {
-      "text": "探索 Crew 朋友",
+      "text": "探索 Koolo 朋友",
       "href": "/crew-app/#/teacher/roles?mode=friends"
     },
     "visualLabel": "SPEAK & LEARN",
@@ -107,12 +107,12 @@ const PAGES = [
     "features": [
       {
         "label": "01 / TUTOR",
-        "title": "Crew 老師",
+        "title": "Koolo 老師",
         "body": "透過語音進行口說練習、發音與語句回饋，適合有明確學習目標的練習。"
       },
       {
         "label": "02 / FRIENDS",
-        "title": "Crew 朋友",
+        "title": "Koolo 朋友",
         "body": "挑選不同角色，進行偏自然、沉浸式的目標語言聊天。"
       },
       {
@@ -125,7 +125,7 @@ const PAGES = [
     "steps": [
       {
         "title": "選老師或朋友",
-        "body": "想要糾正與指導，就選老師；想自由聊天，就選 Crew 朋友。"
+        "body": "想要糾正與指導，就選老師；想自由聊天，就選 Koolo 朋友。"
       },
       {
         "title": "設定學習語言與速度",
@@ -138,8 +138,8 @@ const PAGES = [
     ],
     "faq": [
       {
-        "q": "Crew 老師和 Crew 朋友有什麼不同？",
-        "a": "Crew 老師以學習輔助與回饋為主；Crew 朋友著重自然聊天和不同個性的情境互動。"
+        "q": "Koolo 老師和 Koolo 朋友有什麼不同？",
+        "a": "Koolo 老師以學習輔助與回饋為主；Koolo 朋友著重自然聊天和不同個性的情境互動。"
       },
       {
         "q": "可以調整練習的語言嗎？",
@@ -150,8 +150,8 @@ const PAGES = [
   {
     "slug": "story",
     "nav": "Story",
-    "title": "Crew Story｜AI 故事創作、語音朗讀與親子陪讀",
-    "description": "Crew Story 讓你和 AI 一起創作故事、聆聽語音朗讀，也能用照片搭配手邊的實體書進行陪讀。探索 Web 故事書架與閱讀體驗。",
+    "title": "Koolo Story｜AI 故事創作、語音朗讀與親子陪讀",
+    "description": "Koolo Story 讓你和 AI 一起創作故事、聆聽語音朗讀，也能用照片搭配手邊的實體書進行陪讀。探索 Web 故事書架與閱讀體驗。",
     "eyebrow": "CREW STORY",
     "heading": "從一個想法，走進一段故事。",
     "intro": "和阿奇一起創作、閱讀，或拿起手邊的故事書。保留故事閱讀的樂趣，把語音互動融入共讀時間。",
@@ -203,19 +203,19 @@ const PAGES = [
     "faq": [
       {
         "q": "一定要先有故事才能使用嗎？",
-        "a": "不用，可以在 Crew Story 中探索已有的故事或嘗試創作自己的內容。"
+        "a": "不用，可以在 Koolo Story 中探索已有的故事或嘗試創作自己的內容。"
       },
       {
         "q": "可以拿自己的紙本書陪讀嗎？",
-        "a": "可以，Crew Story 提供實體書照片的閱讀流程；實際效果取決於拍攝清晰度及模型對內容的理解。"
+        "a": "可以，Koolo Story 提供實體書照片的閱讀流程；實際效果取決於拍攝清晰度及模型對內容的理解。"
       }
     ]
   },
   {
     "slug": "fortune",
     "nav": "Fortune",
-    "title": "Crew Fortune｜八字、塔羅生命靈數與印度星盤",
-    "description": "使用 Crew Fortune 探索八字、塔羅生命靈數與印度星盤，整理性格、人生主題與不同時期的解讀。透過 Web 進行個人命盤探索。",
+    "title": "Koolo Fortune｜八字、塔羅生命靈數與印度星盤",
+    "description": "使用 Koolo Fortune 探索八字、塔羅生命靈數與印度星盤，整理性格、人生主題與不同時期的解讀。透過 Web 進行個人命盤探索。",
     "eyebrow": "CREW FORTUNE",
     "heading": "從不同角度，看懂自己的節奏。",
     "intro": "選一種方式，從性格、人生主題或時間週期探索個人命盤。把資料與解讀整理在一起，當作自我觀察的另一種參考。",
@@ -266,7 +266,7 @@ const PAGES = [
     ],
     "faq": [
       {
-        "q": "Crew Fortune 目前有 Android 版嗎？",
+        "q": "Koolo Fortune 目前有 Android 版嗎？",
         "a": "目前可以使用 Web 版；Google Play 上架進度請以正式產品頁公告為準。"
       },
       {
@@ -278,8 +278,8 @@ const PAGES = [
   {
     "slug": "research",
     "nav": "Research",
-    "title": "Crew Research｜每日 AI 論文與工程研發情報",
-    "description": "閱讀 Crew 每日精選 AI 論文、技術報告與深度分析，聚焦 AI Agent、記憶、即時語音、開發工具與產品實作。",
+    "title": "Koolo Research｜每日 AI 論文與工程研發情報",
+    "description": "閱讀 Koolo 每日精選 AI 論文、技術報告與深度分析，聚焦 AI Agent、記憶、即時語音、開發工具與產品實作。",
     "eyebrow": "CREW RESEARCH",
     "heading": "每天找出真正值得研究的事。",
     "intro": "從 AI 論文、技術報告到工程實作，挑選值得深入的方向。不只追新消息，也關心它能否對實際產品開發帶來幫助。",
@@ -325,13 +325,13 @@ const PAGES = [
       },
       {
         "title": "找到可驗證的實作方向",
-        "body": "把觀點和 Crew 系列產品的實際問題連結。"
+        "body": "把觀點和 Koolo 系列產品的實際問題連結。"
       }
     ],
     "faq": [
       {
-        "q": "Crew Research 每天都會有新內容嗎？",
-        "a": "Crew Briefing 以每日研究情報為目標；實際更新狀態以報告頁發布內容為準。"
+        "q": "Koolo Research 每天都會有新內容嗎？",
+        "a": "Koolo Briefing 以每日研究情報為目標；實際更新狀態以報告頁發布內容為準。"
       },
       {
         "q": "研究文章會直接取代原始論文嗎？",
@@ -344,13 +344,13 @@ const EN_PAGES = [
   {
     "slug": "",
     "nav": "Home",
-    "title": "Chat with AI Friends, Practice Speaking & Play Games | Crew",
-    "description": "Start a free text chat with an AI friend, practice speaking English and other languages, and play guessing or board games in your browser with Crew.",
+    "title": "Chat with AI Friends, Practice Speaking & Play Games | Koolo",
+    "description": "Start a free text chat with an AI friend, practice speaking English and other languages, and play guessing or board games in your browser with Koolo.",
     "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
     "heading": "Your AI companions for learning and exploring.",
-    "intro": "Practice speaking with a Crew teacher or friend, read stories together, explore personal charts, and discover useful AI research—all in one place.",
+    "intro": "Practice speaking with a Koolo teacher or friend, read stories together, explore personal charts, and discover useful AI research—all in one place.",
     "primary": {
-      "text": "Open Crew Web",
+      "text": "Open Koolo Web",
       "href": "/crew-app/#/"
     },
     "secondary": {
@@ -360,33 +360,33 @@ const EN_PAGES = [
     "visualLabel": "CREW SPACE",
     "visualTitle": "Choose what to explore today",
     "visualDetail": "Language · Stories · Reflection · AI research",
-    "sectionTitle": "Four ways to explore, one Crew experience",
+    "sectionTitle": "Four ways to explore, one Koolo experience",
     "sectionIntro": "Find something you enjoy, then jump straight into the interactive Web App.",
     "features": [
       {
         "label": "LANGUAGE",
-        "title": "Crew Teacher",
+        "title": "Koolo Teacher",
         "body": "AI tutors and conversational friends for speaking practice, vocabulary, and guided reading.",
         "href": "/en/teacher/",
         "link": "Explore language learning"
       },
       {
         "label": "STORIES",
-        "title": "Crew Story",
+        "title": "Koolo Story",
         "body": "Create stories, enjoy narrated reading, or bring a physical book to your reading session.",
         "href": "/en/story/",
         "link": "Explore stories"
       },
       {
         "label": "SELF-DISCOVERY",
-        "title": "Crew Fortune",
+        "title": "Koolo Fortune",
         "body": "Reflect on BaZi, numerology, and Vedic astrology as different perspectives on personal themes.",
         "href": "/en/fortune/",
         "link": "Explore personal charts"
       },
       {
         "label": "RESEARCH",
-        "title": "Crew Research",
+        "title": "Koolo Research",
         "body": "Selected AI papers, technical reports, and practical engineering research to investigate.",
         "href": "/en/research/",
         "link": "Read the research briefing"
@@ -404,13 +404,13 @@ const EN_PAGES = [
       },
       {
         "title": "Explore in your browser",
-        "body": "Continue to Crew Web. Interface language and conversation or learning language are managed separately."
+        "body": "Continue to Koolo Web. Interface language and conversation or learning language are managed separately."
       }
     ],
     "faq": [
       {
-        "q": "Do I need to sign up for a Crew account?",
-        "a": "You can open the Web App without creating a Crew account. Gemini-powered features require you to configure your own API key."
+        "q": "Do I need to sign up for a Koolo account?",
+        "a": "You can open the Web App without creating a Koolo account. Gemini-powered features require you to configure your own API key."
       },
       {
         "q": "Can I get a Gemini API key for free?",
@@ -421,17 +421,17 @@ const EN_PAGES = [
   {
     "slug": "teacher",
     "nav": "Teacher",
-    "title": "AI English Speaking Practice with Tutors & Friends | Crew Teacher",
-    "description": "Practice spoken English with an AI tutor or talk naturally with Crew Friends. Build confidence with real-life scenarios and try a free voice session.",
+    "title": "AI English Speaking Practice with Tutors & Friends | Koolo Teacher",
+    "description": "Practice spoken English with an AI tutor or talk naturally with Koolo Friends. Build confidence with real-life scenarios and try a free voice session.",
     "eyebrow": "CREW TEACHER",
     "heading": "Language practice that feels like a real conversation.",
-    "intro": "Choose a Crew teacher when you want guided learning and feedback. Pick a Crew Friend when you'd rather chat naturally with a character who has their own personality and background.",
+    "intro": "Choose a Koolo teacher when you want guided learning and feedback. Pick a Koolo Friend when you'd rather chat naturally with a character who has their own personality and background.",
     "primary": {
       "text": "Start language practice",
       "href": "/crew-app/#/teacher/practice"
     },
     "secondary": {
-      "text": "Meet Crew Friends",
+      "text": "Meet Koolo Friends",
       "href": "/crew-app/#/teacher/roles?mode=friends"
     },
     "visualLabel": "SPEAK & LEARN",
@@ -442,12 +442,12 @@ const EN_PAGES = [
     "features": [
       {
         "label": "01 / TUTOR",
-        "title": "Crew Teachers",
+        "title": "Koolo Teachers",
         "body": "Practice speaking with an AI tutor, receive pronunciation and phrasing feedback, and follow your learning goals."
       },
       {
         "label": "02 / FRIENDS",
-        "title": "Crew Friends",
+        "title": "Koolo Friends",
         "body": "Meet characters with different personalities and enjoy more immersive conversations in your target language."
       },
       {
@@ -460,7 +460,7 @@ const EN_PAGES = [
     "steps": [
       {
         "title": "Choose a teacher or friend",
-        "body": "Use a teacher for structured learning and feedback, or a Crew Friend for relaxed conversation."
+        "body": "Use a teacher for structured learning and feedback, or a Koolo Friend for relaxed conversation."
       },
       {
         "title": "Set your language and speaking pace",
@@ -473,8 +473,8 @@ const EN_PAGES = [
     ],
     "faq": [
       {
-        "q": "What is the difference between Crew Teachers and Crew Friends?",
-        "a": "Crew Teachers focus on learning support and feedback. Crew Friends prioritize natural conversations and character-based experiences."
+        "q": "What is the difference between Koolo Teachers and Koolo Friends?",
+        "a": "Koolo Teachers focus on learning support and feedback. Koolo Friends prioritize natural conversations and character-based experiences."
       },
       {
         "q": "Can I change the language I practice?",
@@ -485,11 +485,11 @@ const EN_PAGES = [
   {
     "slug": "story",
     "nav": "Story",
-    "title": "Crew Story | AI Storytelling, Narration and Family Reading",
-    "description": "Create stories, enjoy AI narration, and read together with Crew Story. You can also photograph pages from a physical book and explore a guided reading experience.",
+    "title": "Koolo Story | AI Storytelling, Narration and Family Reading",
+    "description": "Create stories, enjoy AI narration, and read together with Koolo Story. You can also photograph pages from a physical book and explore a guided reading experience.",
     "eyebrow": "CREW STORY",
     "heading": "Turn a simple idea into a story worth sharing.",
-    "intro": "Create a new story, browse your reading shelf, or pick up a book you already own. Crew Story brings voice interaction into reading time.",
+    "intro": "Create a new story, browse your reading shelf, or pick up a book you already own. Koolo Story brings voice interaction into reading time.",
     "primary": {
       "text": "Open the story shelf",
       "href": "/crew-app/#/story/shelf"
@@ -538,7 +538,7 @@ const EN_PAGES = [
     "faq": [
       {
         "q": "Do I need to bring my own story?",
-        "a": "No. You can explore stories in Crew Story or create new content."
+        "a": "No. You can explore stories in Koolo Story or create new content."
       },
       {
         "q": "Can I use a printed children's book?",
@@ -549,8 +549,8 @@ const EN_PAGES = [
   {
     "slug": "fortune",
     "nav": "Fortune",
-    "title": "Crew Fortune | BaZi, Numerology and Vedic Astrology",
-    "description": "Explore BaZi, tarot-inspired life-path numerology, and Vedic astrology with Crew Fortune. Consider personality themes, life cycles, and different traditions of self-reflection.",
+    "title": "Koolo Fortune | BaZi, Numerology and Vedic Astrology",
+    "description": "Explore BaZi, tarot-inspired life-path numerology, and Vedic astrology with Koolo Fortune. Consider personality themes, life cycles, and different traditions of self-reflection.",
     "eyebrow": "CREW FORTUNE",
     "heading": "Explore your story from different perspectives.",
     "intro": "Look at personality, life themes, and personal cycles through three different interpretive traditions. Use the readings as prompts for reflection rather than certain predictions.",
@@ -601,7 +601,7 @@ const EN_PAGES = [
     ],
     "faq": [
       {
-        "q": "Is Crew Fortune available on Android?",
+        "q": "Is Koolo Fortune available on Android?",
         "a": "The Web version is available. Check official product announcements for any future Google Play release."
       },
       {
@@ -613,7 +613,7 @@ const EN_PAGES = [
   {
     "slug": "research",
     "nav": "Research",
-    "title": "Crew Research | Daily AI Papers and Engineering Briefings",
+    "title": "Koolo Research | Daily AI Papers and Engineering Briefings",
     "description": "Read selected AI research papers, technical reports, and deeper engineering analysis covering AI agents, memory, context management, real-time voice, and practical product development.",
     "eyebrow": "CREW RESEARCH",
     "heading": "Find the AI research that's worth your time.",
@@ -660,13 +660,13 @@ const EN_PAGES = [
       },
       {
         "title": "Find something worth testing",
-        "body": "Connect the research back to concrete problems in the Crew product family."
+        "body": "Connect the research back to concrete problems in the Koolo product family."
       }
     ],
     "faq": [
       {
-        "q": "Does Crew Research publish a report every day?",
-        "a": "Crew Briefing is designed as a daily research selection. Check the briefing itself for its latest published edition."
+        "q": "Does Koolo Research publish a report every day?",
+        "a": "Koolo Briefing is designed as a daily research selection. Check the briefing itself for its latest published edition."
       },
       {
         "q": "Do the research summaries replace original papers?",
@@ -682,8 +682,8 @@ function pageUrl(slug,locale){return ORIGIN+"/"+(locale==="en"?"en/":"")+(slug?s
 
 function jsonScript(data){return JSON.stringify(data).replace(/</g,"\\u003c").replace(/>/g,"\\u003e").replace(/&/g,"\\u0026")}
 
-function jsonld(p,locale){const url=pageUrl(p.slug,locale),home=pageUrl("",locale),name=p.slug==="teacher"?"Crew Teacher":p.slug==="story"?"Crew Story":p.slug==="fortune"?"Crew Fortune":p.slug==="research"?"Crew Research":"Crew";const data=[
-{"@type":"WebSite","@id":ORIGIN+"/#website","url":ORIGIN+"/","name":"Crew","inLanguage":["zh-Hant","en"]},
+function jsonld(p,locale){const url=pageUrl(p.slug,locale),home=pageUrl("",locale),name=p.slug==="teacher"?"Koolo Teacher":p.slug==="story"?"Koolo Story":p.slug==="fortune"?"Koolo Fortune":p.slug==="research"?"Koolo Research":"Koolo";const data=[
+{"@type":"WebSite","@id":ORIGIN+"/#website","url":ORIGIN+"/","name":"Koolo","inLanguage":["zh-Hant","en"]},
 {"@type":p.slug==="research"?"CollectionPage":"WebPage","@id":url+"#webpage","url":url,"name":p.title,"description":p.description,"inLanguage":locale==="en"?"en":"zh-Hant","isPartOf":{"@id":ORIGIN+"/#website"}},
 ];if(p.slug){data.push({"@type":"BreadcrumbList","@id":url+"#breadcrumbs","itemListElement":[{"@type":"ListItem","position":1,"name":locale==="en"?"Home":"首頁","item":home},{"@type":"ListItem","position":2,"name":name,"item":url}]});}
 if(["teacher","story","fortune"].includes(p.slug)){data.push({"@type":"SoftwareApplication","@id":ORIGIN+"/#app-"+p.slug,"name":name,"applicationCategory":p.slug==="teacher"?"EducationalApplication":p.slug==="story"?"EntertainmentApplication":"LifestyleApplication","operatingSystem":"Web","url":ORIGIN+"/crew-app/#/"+p.slug,"description":p.description});}
@@ -691,7 +691,7 @@ return jsonScript({"@context":"https://schema.org","@graph":data});
 }
 
 function renderPage(p,locale){
-const en=locale==="en", dict={home:en?"Home":"首頁",open:en?"Open Web App":"開啟 Web App",faq:en?"Frequently asked questions":"常見問題",stepHint:en?"Start with what matters to you and explore at your own pace.":"從想法到實際體驗，依自己的步調開始。",ctaTitle:en?"Ready to begin?":"準備好開始了嗎？",ctaBody:en?"Explore the interactive Crew Web App whenever you're ready.":"不需要在介紹頁停留，直接進入原本的 Crew Web 體驗。",skip:en?"Skip to main content":"跳至主要內容",researchHint:en?"Focused on technical research and practical applications.":"聚焦技術研究與應用實作。",usageHint:en?"Use your own Gemini API key. Free quotas and pricing are subject to Google's terms.":"使用自己的 Gemini API Key；免費額度與收費依 Google 規定。"};
+const en=locale==="en", dict={home:en?"Home":"首頁",open:en?"Open Web App":"開啟 Web App",faq:en?"Frequently asked questions":"常見問題",stepHint:en?"Start with what matters to you and explore at your own pace.":"從想法到實際體驗，依自己的步調開始。",ctaTitle:en?"Ready to begin?":"準備好開始了嗎？",ctaBody:en?"Explore the interactive Koolo Web App whenever you're ready.":"不需要在介紹頁停留，直接進入原本的 Koolo Web 體驗。",skip:en?"Skip to main content":"跳至主要內容",researchHint:en?"Focused on technical research and practical applications.":"聚焦技術研究與應用實作。",usageHint:en?"Use your own Gemini API key. Free quotas and pricing are subject to Google's terms.":"使用自己的 Gemini API Key；免費額度與收費依 Google 規定。"};
 const isHome=!p.slug;const nav=(en?EN_PAGES:PAGES).map(item=>`<a href="${pageUrl(item.slug,locale)}"${item.slug===p.slug?' aria-current="page"':""}>${escapeHTML(item.nav)}</a>`).join("");
 const features=p.features.map(f=>`<article class="feature"><span class="feature-label">${escapeHTML(f.label)}</span><h3>${escapeHTML(f.title)}</h3><p>${escapeHTML(f.body)}</p>${f.href?`<a class="text-link" href="${escapeHTML(f.href)}">${escapeHTML(f.link)} <span aria-hidden="true">↗</span></a>`:""}</article>`).join("");
 const steps=p.steps.map((s,i)=>`<li><span class="step-num">${String(i+1).padStart(2,"0")}</span><div><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.body)}</p></div></li>`).join("");
@@ -714,7 +714,7 @@ return `<!doctype html>
   <meta property="og:type" content="website">
   <meta property="og:locale" content="${en?"en_US":"zh_TW"}">
   <meta property="og:locale:alternate" content="${en?"zh_TW":"en_US"}">
-  <meta property="og:site_name" content="Crew">
+  <meta property="og:site_name" content="Koolo">
   <meta property="og:title" content="${escapeHTML(p.title)}">
   <meta property="og:description" content="${escapeHTML(p.description)}">
   <meta property="og:url" content="${url}">
@@ -723,7 +723,7 @@ return `<!doctype html>
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${escapeHTML(p.slug?p.title:"Crew AI friends")}">
+  <meta property="og:image:alt" content="${escapeHTML(p.slug?p.title:"Koolo AI friends")}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="${ogImage}">
   <link rel="stylesheet" href="/seo.css">
@@ -732,7 +732,7 @@ return `<!doctype html>
 <body>
   <a class="skip-link" href="#main">${dict.skip}</a>
   <header class="site-header"><div class="header-inner">
-    <a class="brand" href="${pageUrl("",locale)}" aria-label="Crew ${dict.home}"><span class="brand-symbol" aria-hidden="true">✳</span><span>Crew<span class="brand-dot">.</span></span></a>
+    <a class="brand" href="${pageUrl("",locale)}" aria-label="Koolo ${dict.home}"><span class="brand-symbol" aria-hidden="true">✳</span><span>Koolo<span class="brand-dot">.</span></span></a>
     <nav aria-label="${en?"Main navigation":"主選單"}">${nav}</nav>
     <div class="language-switch" aria-label="${en?"Site language":"網站語言"}"><a lang="zh-Hant" href="${zhURL}"${!en?' aria-current="page"':""}>中文</a><a lang="en" href="${enURL}"${en?' aria-current="page"':""}>EN</a></div>
     <a class="header-cta" href="/crew-app/#/">${dict.open} <span aria-hidden="true">↗</span></a>
@@ -761,7 +761,7 @@ return `<!doctype html>
     <section class="section shell questions"><div class="section-lead"><span class="section-kicker">GOOD TO KNOW / 03</span><h2>${dict.faq}</h2></div><div class="faq">${faq}</div></section>
     <section class="shell final-cta"><span class="section-kicker">YOUR CREW SPACE</span><h2>${dict.ctaTitle}</h2><p>${dict.ctaBody}</p><a class="button primary" href="${escapeHTML(p.primary.href)}">${escapeHTML(p.primary.text)} <span aria-hidden="true">↗</span></a></section>
   </main>
-  <footer class="site-footer"><div class="shell"><div><a class="brand footer-brand" href="${pageUrl("",locale)}"><span class="brand-symbol" aria-hidden="true">✳</span><span>Crew<span class="brand-dot">.</span></span></a><p>Learn, imagine, explore.</p></div><div class="footer-nav">${related}</div><div class="footer-bottom"><span>© Crew</span><a href="mailto:crew@3sssi.com">crew@3sssi.com</a><a href="/crew-app/#/">Web App</a></div></div></footer>
+  <footer class="site-footer"><div class="shell"><div><a class="brand footer-brand" href="${pageUrl("",locale)}"><span class="brand-symbol" aria-hidden="true">✳</span><span>Koolo<span class="brand-dot">.</span></span></a><p>Learn, imagine, explore.</p></div><div class="footer-nav">${related}</div><div class="footer-bottom"><span>© Koolo</span><a href="mailto:crew@3sssi.com">crew@3sssi.com</a><a href="/crew-app/#/">Web App</a></div></div></footer>
 </body>
 </html>
 `;
