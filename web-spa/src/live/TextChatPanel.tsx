@@ -340,7 +340,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     <small role="status">{t("guestText.interactionHint")}</small></>}
    {guestPhase==="starting"&&<small role="status">{t("guestText.connecting")}</small>}
    {guestPhase==="active"&&remaining!==null&&<small role="status">{t("textChat.ui.remaining",{count:remaining})}</small>}
-   {guestPhase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.verifyAgain")}</button>}
+   {guestPhase==="error"&&guestFailure?.kind==="verification"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.verifyAgain")}</button>}
    {guestPhase==="paused"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.restart")}</button>}
    {guestPhase==="unavailable"&&<small role="status">{t("textChat.ui.unavailable")}</small>}
    {guestPhase==="exhausted"&&<small role="status">{t("textChat.ui.exhausted")}</small>}
