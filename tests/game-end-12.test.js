@@ -21,6 +21,14 @@ test("#12 finished boards render a result- and move-aware end card with a rematc
  const css=src("games/gameEndCard.css");
  assert.match(css,/min-height:44px/);
  assert.match(css,/prefers-reduced-motion:reduce/);
+ // The finished board must be scrollable above the fixed chat dock and nav
+ // on both 360px and 390px mobile viewports, without changing active play.
+ assert.match(card,/window\.matchMedia\?\.\("\(max-width: 620px\)"\)/);
+ assert.match(card,/getBoundingClientRect\(\)\.top/);
+ assert.match(card,/window\.scrollBy\(\{top:Math\.ceil\(hiddenPixels\),behavior:"auto"\}\)/);
+ assert.match(css,/:has\(\.crew-game-end\):has\(\.crew-play-voice\.game-voice-dock\)/);
+ assert.match(css,/:has\(\.crew-game-end\):has\(\.friend-gomoku-voice-dock\.game-voice-dock\)/);
+ assert.match(css,/padding-bottom:calc\(230px \+ var\(--nav-h,68px\) \+ env\(safe-area-inset-bottom\)\)/);
  assert.ok(Buffer.byteLength(card)<26000);
  for(const page of ["games/CrewBoardGames.tsx","games/FriendGomokuPage.tsx","live/TextChatPanel.tsx"])
   assert.ok(Buffer.byteLength(src(page))<26000,page+" exceeds TSX cap");
