@@ -19,3 +19,15 @@ test("#56 eleven locales and size constraints",()=>{
  for(const p of ["teacher/LivePage.tsx","teacher/TeacherLiveResults.tsx","friends/FriendCallCaptions.tsx"])assert.ok(Buffer.byteLength(read("web-spa/src/"+p))<26000,p);
  assert.doesNotMatch(read("web-spa/src/teacher/teacherCall.css"),/font-size:(?:[0-9]|10|11)px/);
 });
+
+test("#56 dark guest entry and teacher-language hint stay scoped and readable",()=>{
+ const style=read("web-spa/src/teacher/teacherCall.css");
+ const offer=".teacher-call-page .teacher-live-stage.friend-phone-stage .notice.guest-live-entry";
+ assert.ok(style.includes(offer+"{background:#111;border:1px solid #4a4a4a;color:#f5f5f5;box-shadow:none}"));
+ assert.ok(style.includes(offer+" strong,"+offer+" .guest-live-key-link{color:#f5f5f5}"));
+ assert.ok(style.includes(offer+" p{color:#dce4ee}"));
+ assert.ok(style.includes("body.teacher-theme .friend-call-menu-panel .teacher-native-help.teacher-live-language-hint{background:#242424;color:#f5f5f5;"));
+ for(const file of ["tests/crew-learning-p0-ux.test.js","tests/crew-learning-guided-review.test.js"]){
+  assert.ok(read(file).includes('read("web-spa/src/teacher/LivePage.tsx")+"\\n"+read("web-spa/src/teacher/TeacherLiveResults.tsx")'),file);
+ }
+});

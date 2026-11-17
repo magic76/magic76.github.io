@@ -49,7 +49,7 @@ test("course track has featured next lesson and accessible expandable units inst
 });
 
 test("course grading is visible before returning and saved before unlocking the next lesson",()=>{
- const live=read("web-spa/src/teacher/LivePage.tsx");
+ const live=read("web-spa/src/teacher/LivePage.tsx")+"\n"+read("web-spa/src/teacher/TeacherLiveResults.tsx");
  const method=live.slice(live.indexOf(" const endAndReturn=async()=>{"),live.indexOf(" const sessionActive="));
  const stop=method.indexOf("await live.stop(true)");
  const assess=method.indexOf("evaluateCourseSession(course,done.turns,done.report)");

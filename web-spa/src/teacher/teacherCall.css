@@ -31,3 +31,14 @@
 /* Controls follow captions; keep the shared phone dock visible at all viewport heights. */
 .teacher-call-page .teacher-live-stage.friend-phone-stage>.teacher-call-voice-dock{order:5;display:flex;flex:0 0 auto;flex-direction:column;align-items:center;gap:8px;width:100%;min-height:0}
 .teacher-call-page .teacher-call-voice-dock .friend-phone-controls{width:100%;max-width:460px}
+
+/* #56 follow-up: the keyless guest entry is part of the black Teacher call,
+   including the pre-connection state. Never affect Friend or other pages. */
+.teacher-call-page .teacher-live-stage.friend-phone-stage .notice.guest-live-entry{background:#111;border:1px solid #4a4a4a;color:#f5f5f5;box-shadow:none}
+.teacher-call-page .teacher-live-stage.friend-phone-stage .notice.guest-live-entry strong,.teacher-call-page .teacher-live-stage.friend-phone-stage .notice.guest-live-entry .guest-live-key-link{color:#f5f5f5}
+.teacher-call-page .teacher-live-stage.friend-phone-stage .notice.guest-live-entry p{color:#dce4ee}
+.teacher-call-page .teacher-live-stage.friend-phone-stage .notice.guest-live-entry .guest-live-key-link:focus-visible{outline:3px solid #d4e6ff;outline-offset:2px}
+
+/* The native-language hint is portaled to body by FriendCallMenu. A scoped
+   override must beat body.teacher-theme .teacher-native-help from parity.css. */
+body.teacher-theme .friend-call-menu-panel .teacher-native-help.teacher-live-language-hint{background:#242424;color:#f5f5f5;border:1px solid #777;box-shadow:none}
