@@ -17,9 +17,9 @@ const approved={
 test("approved C SVGs remain immutable and AppChrome uses v2 shorter-smile wordmark",()=>{
  for(const [name,expected] of Object.entries(approved))assert.equal(sha256(iconBase+name),expected,name);
  assert.equal(sha256("web-spa/public/favicon.svg"),"f21633aeb23557fa10a523fbdfae77f37a3a9a2dd746f99f68d73ac8c1e708b7");
- assert.equal(sha256(iconBase+"koolo-wordmark-koo-v2.svg"),"1776f60986bb34d7e87b185291d0dfa7b3d299763057be9d4e1c6487d4cc1b44");
- assert.equal(sha256(iconBase+"koolo-wordmark-koo-v2-dark.svg"),"96d7badddafb6e45158a2eb9c52f9cc4501e73627f9388b7eb8536e3e74d64e7");
- assert.match(read(iconBase+"koolo-wordmark-koo-v2.svg"),/M55 39Q66 46 77 39/);
+ assert.equal(sha256(iconBase+"koolo-wordmark-koo-v2.svg"),"01224c089b986477464ad340129fe71cd0e086da418bfae42894c35640a09423");
+ assert.equal(sha256(iconBase+"koolo-wordmark-koo-v2-dark.svg"),"a741e73af7280238ece73befee33ccaa5e8da478dcf1ac338068f75e096d2d5a");
+ assert.match(read(iconBase+"koolo-wordmark-koo-v2.svg"),/M55 44Q66 47 77 44/);
  assert.match(read(iconBase+"koolo-icon-koo-v2.svg"),/M13 22V42/);
  const chrome=read("web-spa/src/components/AppChrome.tsx");
  assert.match(chrome,/<img className="app-wordmark" src="\/brand\/koolo-wordmark-koo-v2\.svg"/);
@@ -31,6 +31,16 @@ test("approved C SVGs remain immutable and AppChrome uses v2 shorter-smile wordm
  assert.match(chrome,/"chrome\.shortsSection"/);
  assert.match(chrome,/"chrome\.timelineTitle"/);
  assert.match(chrome,/briefing:"Briefing"/);
+});
+
+test("both wordmark variants keep the smile separated from the oo rings",()=>{
+ const ringBottom=24+10.2+8.8/2;
+ const smileTop=44-3.2/2;
+ assert.ok(smileTop-ringBottom>=3.5,"Smile needs a visible gap at mobile header size");
+ for(const name of ["koolo-wordmark-koo-v2.svg","koolo-wordmark-koo-v2-dark.svg"]){
+  const svg=read(iconBase+name);
+  assert.match(svg,/d="M55 44Q66 47 77 44"[^\n]*stroke-width="3\\.2"/,name);
+ }
 });
 
 test("all headers keep 44px tappable brand and the <=410px teacher suffix stays visible",()=>{
