@@ -10,6 +10,7 @@ import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {GuideHub} from "../guides/GuideHub";
 import {useClientReady} from "../lib/useClientReady";
 import {DailyTopicCards} from "./DailyTopicCards";
+import {HomeGeminiVerify} from "./HomeGeminiVerify";
 import {CreatureLabResume} from "./CreatureLabResume";
 import type {CreatureLabProgress} from "./creatureLabProgress";
 import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
@@ -218,6 +219,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
     <span className={"cmh-app-icon cmh-app-"+app.id}><Icon name={app.icon}/></span><span className="cmh-app-name">{copy(app.zh,app.en)}</span>
    </Link>)}</div>
   </section>
+  <HomeGeminiVerify variant="mobile"/>
   {!hasKey&&<div className="cmh-allowance-slot">
    {ready&&!hasKey&&<p className="cmh-free-allowance" role="status">{trial.resolved&&trial.enabled&&trial.remaining===0
     ?t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})
