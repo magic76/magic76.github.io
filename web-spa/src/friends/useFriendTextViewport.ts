@@ -26,7 +26,7 @@ export function useFriendVoiceTheme(enabled:boolean){
  useEffect(()=>{
   if(!enabled)return;
   const meta=document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-  const previous=meta?.getAttribute("content");
+  const previous=meta?meta.getAttribute("content"):null;
   if(meta)meta.setAttribute("content","#000");
   return()=>{if(meta){if(previous===null)meta.removeAttribute("content");else meta.setAttribute("content",previous)}};
  },[enabled]);
