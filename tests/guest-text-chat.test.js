@@ -149,9 +149,15 @@ test("Teacher and Friend retain the same text component and no mic is needed in 
  const root=path.join(__dirname,"..");
  const panel=fs.readFileSync(path.join(root,"web-spa/src/live/TextChatPanel.tsx"),"utf8");
  const worker=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
- for(const page of ["web-spa/src/teacher/LivePage.tsx","web-spa/src/friends/FriendLivePage.tsx"]){
-  assert.match(fs.readFileSync(path.join(root,page),"utf8"),/<TextChatPanel/);
- }
+ const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const courseChat=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherTextCourseChat.tsx"),"utf8");
+ // Teacher uses a course-aware wrapper; both modes render the microphone-free panel.
+ assert.match(teacher,/<TeacherTextCourseChat\b/);
+ assert.match(courseChat,/<TextChatPanel\b/);
+ assert.match(courseChat,/\bsessionScope\s*=\s*\{\s*scope\s*\}/);
+ assert.match(courseChat,/teacher:course:/);
+ assert.match(friend,/<TextChatPanel\b/);
  assert.match(panel,/GUEST_TEXT_ENDPOINT/);
  assert.doesNotMatch(panel,/getUserMedia\(/);
  assert.doesNotMatch(panel,/guestTrialDiscoveryEnabled\(/); // Android WebView must not be disabled.

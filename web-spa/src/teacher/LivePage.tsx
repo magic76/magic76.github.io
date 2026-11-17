@@ -149,8 +149,7 @@ export function TeacherLivePage(){
     setEvaluationError(t("live.noSpeech"));
     return;
    }
-   // Keep the learner on the finished lesson while grading. The single
-   // promise saves results even if the learner leaves during a slow response.
+   // Save grading results even if the learner navigates away.
    const grading=saved.completion
     .then(done=>evaluateCourseSession(course,done.turns,done.report))
     .then(result=>{
