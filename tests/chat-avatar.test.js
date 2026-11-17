@@ -51,15 +51,20 @@ test("both friend text bubbles and typing indicator have 36-40px circular avatar
  assert.match(styleRule(textCss,".crew-text-chat-history .crew-text-ai-row .crew-text-chat-message"),/min-width:0;max-width:calc\(90% - 46px\)/);
  assert.match(styleRule(textCss,".crew-text-chat-history .crew-text-typing-row .crew-text-typing-bubble"),/min-width:0/);
 });
-test("telephone assistant captions, but not user captions, carry FriendAvatar",()=>{
- assert.match(captions,/import \{FriendAvatar\} from "\.\/FriendAvatar"/);
- assert.match(captions,/CREW_FRIENDS\.find\(friend=>friend\.name===name\)/);
- const ai=captions.slice(captions.indexOf('<section className="friend-caption-ai"'),captions.indexOf('<section className="friend-caption-user"'));
- assert.match(ai,/<FriendAvatar friend=\{captionFriend\} className="friend-caption-avatar" decorative\/>/);
- assert.doesNotMatch(captions.slice(captions.indexOf('<section className="friend-caption-user"')),/<FriendAvatar/);
- const a=styleRule(callCss,".friend-phone-stage .friend-caption-ai .crew-friend-avatar.friend-caption-avatar");
- for(const prop of ["width","height"]){const value=px(a,prop);assert.ok(value>=36&&value<=40,prop+"="+value)}
- assert.match(a,/border-radius:50%/);
+test("phone captions do not repeat the friend identity; teachers keep their speaker avatar",()=>{
+ const teacher=read("web-spa/src/teacher/LivePage.tsx");
+ // The shared captions must not resolve/render a second friend avatar.
+ assert.doesNotMatch(captions,/\bFriendAvatar\b/);
+ // Explicit teacher-provided avatar is the only way the speaker row appears.
+ assert.match(captions,/\bspeakerAvatar\s*\?\s*<div\b/);
+ assert.match(captions,/\bspeakerAvatar\s*\?[\s\S]*?\bfriend-caption-speaker\b[\s\S]*?:\s*null\b/);
+ // Examine the JSX call sites, not the exact formatting or byte length.
+ const calls=source=>[...source.matchAll(/<FriendCallCaptions\b([\s\S]*?)\/>/g)].map(match=>match[1]);
+ const friendCalls=calls(page),teacherCalls=calls(teacher);
+ assert.equal(friendCalls.length,1,"friends render one call caption component");
+ assert.equal(teacherCalls.length,1,"teachers render one call caption component");
+ assert.ok(friendCalls.every(props=>!/\bspeakerAvatar\s*=/.test(props)),"friend relies on the large call avatar");
+ assert.ok(teacherCalls.some(props=>/\bspeakerAvatar\s*=/.test(props)),"teacher passes an explicit avatar");
 });
 test("small components and keyboard-open switches remain within the contract",()=>{
  assert.ok(Buffer.byteLength(text)<26000,`TextChatPanel=${Buffer.byteLength(text)}`);
