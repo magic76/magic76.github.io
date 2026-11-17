@@ -229,3 +229,25 @@
  .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open) .crew-text-starters-target-hint{display:none}
  .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open) .crew-text-starters-options{gap:5px}
 }
+
+/* Shorts deep links are conversations, not setup screens: keep the topic
+   preview compact and reserve the viewport for the starter and composer. */
+.friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.friend-live-post{
+ flex:0 0 auto;min-width:0;margin:0;padding:8px 10px;gap:10px;
+}
+.friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.friend-live-post img{
+ width:48px;height:48px;flex:0 0 48px;border-radius:10px;
+}
+.friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.friend-live-post p{
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ overflow:hidden;font-size:12px;line-height:1.4;
+}
+.friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.friend-live-post .friend-live-post-hook{display:none}
+.friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.live-identity{
+ flex:0 0 auto;min-height:0;
+}
+@media(max-width:420px) and (max-height:700px){
+ .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.friend-live-post p{
+  display:block;-webkit-line-clamp:unset;white-space:nowrap;text-overflow:ellipsis;
+ }
+}
