@@ -35,7 +35,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  },[product]);
  useEffect(()=>{if(!location.pathname.startsWith("/guides/")&&!/^\/teacher\/course\/[^/]+\/?$/.test(location.pathname))document.title=t("seo."+product)},[product,t,i18n.resolvedLanguage,location.pathname]);
  return <>
-  <header className="app-header"><div className="shell inner"><CrewFeatureMenu/><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:"Koolo"+(productName?" "+productName:"")})}><img className="app-wordmark" src="/brand/koolo-wordmark-C.svg" alt="" aria-hidden="true" width="160" height="48"/><span className="app-title">{(headerContext||productName)&&<strong>{headerContext?.[0]||productName}</strong>}<small>{headerContext?.[1]||t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/>{headerAction} </div></div></header>
+  <header className="app-header"><div className="shell inner"><CrewFeatureMenu/><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:"Koolo"+(productName?" "+productName:"")})}><img className="app-wordmark" src="/brand/koolo-wordmark-koo-v2.svg" alt="" aria-hidden="true" width="160" height="48"/><span className="app-title">{(headerContext||productName)&&<strong>{headerContext?.[0]||productName}</strong>}<small>{headerContext?.[1]||t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/>{headerAction} </div></div></header>
   <main key={location.pathname} className="shell page page-enter">{children||<Outlet/>}</main>
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>

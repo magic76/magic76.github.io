@@ -3,13 +3,13 @@ import {Buffer} from "node:buffer";
 import {deflateSync,inflateSync} from "node:zlib";
 
 /*
- * Crew's PWA icon uses the approved Koolo C artwork, rasterized at 192px.
- * Source is byte-identical to reference/brand/koolo-icon-C-192.png.
+ * Koolo PWA icon v2 uses the koo letterform artwork at 192px.
+ * Source is the v2 koo rasterized SVG, generated as a 192px palette PNG.
  *
  * Generate 180/192/512 and maskable icons without extra npm dependencies.
  * The shortcut icons are drawn as real PNG pictograms, never font/emoji glyphs.
  */
-const nativeBytes=readFileSync(new URL("../web-spa/public/icons/koolo-source.png",import.meta.url));
+const nativeBytes=readFileSync(new URL("../web-spa/public/icons/koolo-source-v2.png",import.meta.url));
 const signature=Buffer.from([137,80,78,71,13,10,26,10]);
 const crcTable=Uint32Array.from({length:256},(_,index)=>{
  let value=index;
@@ -46,23 +46,26 @@ function paeth(a,b,c){
 function decodeNativePng(bytes){
  if(!bytes.subarray(0,8).equals(signature))throw Error("Koolo icon source is not PNG");
  let cursor=8,w=0,h=0,channels=0,interlace=0;
- const idat=[];
+ const idat=[];let palette=null,alphaTable=null;
  while(cursor+12<=bytes.length){
   const length=bytes.readUInt32BE(cursor),type=bytes.toString("ascii",cursor+4,cursor+8);
   if(cursor+length+12>bytes.length)throw Error("Truncated Koolo PNG chunk");
   const body=bytes.subarray(cursor+8,cursor+8+length);
   if(type==="IHDR"){
    w=body.readUInt32BE(0);h=body.readUInt32BE(4);
-   if(body[8]!==8||body[9]!==6||body[10]!==0||body[11]!==0)throw Error("Expected 8-bit RGBA Koolo PNG");
-   interlace=body[12];channels=4;
+   if(body[8]!==8||![3,6].includes(body[9])||body[10]!==0||body[11]!==0)throw Error("Expected 8-bit RGBA or indexed Koolo PNG");
+   interlace=body[12];channels=body[9]===3?1:4;
   }
+  if(type==="PLTE")palette=Buffer.from(body);
+  if(type==="tRNS")alphaTable=Buffer.from(body);
   if(type==="IDAT")idat.push(body);
   cursor+=length+12;
   if(type==="IEND")break;
  }
  if(!w||!h||w>2048||h>2048||!idat.length||!channels||interlace)throw Error("Unsupported native PNG encoding");
+ if(channels===1&&(!palette||!palette.length||palette.length%3))throw Error("Indexed Koolo PNG needs a valid palette");
  const raw=inflateSync(Buffer.concat(idat));
- const stride=w*4,rgba=Buffer.alloc(w*h*4);
+ const stride=w*channels,rgba=Buffer.alloc(w*h*4);
  if(raw.length!==(stride+1)*h)throw Error("Unexpected native PNG data length");
  let input=0,previous=Buffer.alloc(stride);
  for(let y=0;y<h;y++){
@@ -78,7 +81,14 @@ function decodeNativePng(bytes){
    else if(filter===4)predictor=paeth(left,up,upLeft);
    current[i]=(value+predictor)&255;
   }
-  current.copy(rgba,y*stride);previous=current;
+  if(channels===4)current.copy(rgba,y*stride);
+  else for(let x=0;x<w;x++){
+   const index=current[x],source=index*3,target=(y*w+x)*4;
+   if(source+2>=palette.length)throw Error("Invalid indexed Koolo PNG palette entry");
+   rgba[target]=palette[source];rgba[target+1]=palette[source+1];rgba[target+2]=palette[source+2];
+   rgba[target+3]=alphaTable?.[index]??255;
+  }
+  previous=current;
  }
  return {width:w,height:h,rgba};
 }
@@ -120,7 +130,7 @@ function renderNative(size,maskable){
 }
 export function createCrewPwaIcon(size,maskable=false){
  if(!Number.isInteger(size)||size<16||size>1024)throw Error("Invalid PWA icon size");
- // The approved 192px Koolo PNG is preserved byte for byte.
+ // The canonical 192px Koolo v2 PNG is preserved byte for byte.
  if(size===native.width&&!maskable)return Buffer.from(nativeBytes);
  return renderNative(size,maskable);
 }

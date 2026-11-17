@@ -14,11 +14,15 @@ const approved={
  "koolo-icon-C-dark.svg":"599aaaa5c015c02cd556930d4dd125f862283e68101792985866dec84ccbc84d"
 };
 
-test("approved Koolo C SVG bytes are immutable and AppChrome uses light wordmark",()=>{
+test("approved C SVGs remain immutable and AppChrome uses v2 shorter-smile wordmark",()=>{
  for(const [name,expected] of Object.entries(approved))assert.equal(sha256(iconBase+name),expected,name);
- assert.equal(sha256("web-spa/public/favicon.svg"),approved["koolo-icon-C.svg"]);
+ assert.equal(sha256("web-spa/public/favicon.svg"),"f21633aeb23557fa10a523fbdfae77f37a3a9a2dd746f99f68d73ac8c1e708b7");
+ assert.equal(sha256(iconBase+"koolo-wordmark-koo-v2.svg"),"01224c089b986477464ad340129fe71cd0e086da418bfae42894c35640a09423");
+ assert.equal(sha256(iconBase+"koolo-wordmark-koo-v2-dark.svg"),"a741e73af7280238ece73befee33ccaa5e8da478dcf1ac338068f75e096d2d5a");
+ assert.match(read(iconBase+"koolo-wordmark-koo-v2.svg"),/M55 44Q66 47 77 44/);
+ assert.match(read(iconBase+"koolo-icon-koo-v2.svg"),/M13 22V42/);
  const chrome=read("web-spa/src/components/AppChrome.tsx");
- assert.match(chrome,/<img className="app-wordmark" src="\/brand\/koolo-wordmark-C\.svg"/);
+ assert.match(chrome,/<img className="app-wordmark" src="\/brand\/koolo-wordmark-koo-v2\.svg"/);
  assert.doesNotMatch(chrome,/koolo-wordmark-C-dark|koolo-icon-C-dark|app-mark/);
  assert.match(chrome,/to=\{product==="teacher"\?"\/teacher":"\/"\}/);
  assert.match(chrome,/aria-label=\{t\("brand\.homeLink",\{name:"Koolo"/);
@@ -27,6 +31,16 @@ test("approved Koolo C SVG bytes are immutable and AppChrome uses light wordmark
  assert.match(chrome,/"chrome\.shortsSection"/);
  assert.match(chrome,/"chrome\.timelineTitle"/);
  assert.match(chrome,/briefing:"Briefing"/);
+});
+
+test("both wordmark variants keep the smile separated from the oo rings",()=>{
+ const ringBottom=24+10.2+8.8/2;
+ const smileTop=44-3.2/2;
+ assert.ok(smileTop-ringBottom>=3.5,"Smile needs a visible gap at mobile header size");
+ for(const name of ["koolo-wordmark-koo-v2.svg","koolo-wordmark-koo-v2-dark.svg"]){
+  const svg=read(iconBase+name);
+  assert.match(svg,/d="M55 44Q66 47 77 44"[^\n]*stroke-width="3[.]2"/,name);
+ }
 });
 
 test("all headers keep 44px tappable brand and the <=410px teacher suffix stays visible",()=>{
@@ -55,11 +69,11 @@ test("Koolo PWA icons use fresh URLs with Koolo app name and unchanged shortcuts
  const cf=read("scripts/prepare-cloudflare.mjs");
  const vite=read("vite.web.config.ts");
  const generator=read("scripts/pwa-icons.mjs");
- const iconUrl="/icons/koolo-v1-180.png";
+ const iconUrl="/icons/koolo-v2-180.png";
  assert.equal(manifest.short_name,"Koolo");
  assert.match(manifest.name,/Koolo/);
  assert.deepEqual(manifest.icons.map(icon=>icon.src),[
-  "/icons/koolo-v1-192.png","/icons/koolo-v1-512.png","/icons/koolo-v1-maskable-512.png"
+  "/icons/koolo-v2-192.png","/icons/koolo-v2-512.png","/icons/koolo-v2-maskable-512.png"
  ]);
  for(const input of [html,cf]){
   assert.ok(input.includes(iconUrl));
@@ -68,11 +82,11 @@ test("Koolo PWA icons use fresh URLs with Koolo app name and unchanged shortcuts
  for(const input of [html,cf,JSON.stringify(manifest)])assert.ok(!input.includes('/icons/crew-teacher-v2-'));
  assert.match(html,/apple-mobile-web-app-title" content="Koolo"/);
  assert.match(cf,/apple-mobile-web-app-title" content="Koolo"/);
- assert.match(vite,/koolo-v1-maskable-512\.png/);
+ assert.match(vite,/koolo-v2-maskable-512\.png/);
  assert.match(vite,/shortcut-\$\{kind\}-\$\{size\}\.png/);
- assert.match(generator,/icons\/koolo-source\.png/);
- assert.equal(sha256("web-spa/public/icons/koolo-source.png"),"172ef55cf1c3ea56dfb07c9748271890f58d1efc49f829755fa20eb98d91723d");
+ assert.match(generator,/icons\/koolo-source-v2\.png/);
+ assert.equal(sha256("web-spa/public/icons/koolo-source-v2.png"),"25ba52c3f2b1b6b5218df36e5a832d22a94f524543056739fffe0c4572b89c7b");
  const {createCrewPwaIcon}=await import("../scripts/pwa-icons.mjs");
- assert.deepEqual(createCrewPwaIcon(192),fs.readFileSync(path.join(root,"web-spa/public/icons/koolo-source.png")));
+ assert.deepEqual(createCrewPwaIcon(192),fs.readFileSync(path.join(root,"web-spa/public/icons/koolo-source-v2.png")));
  assert.deepEqual(manifest.shortcuts.map(s=>s.url),["/chat","/learn","/games"]);
 });

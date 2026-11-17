@@ -15,12 +15,12 @@ test("PWA manifest uses Koolo app name on the canonical domain with installable 
  assert.equal(m.short_name,"Koolo");
  assert.match(m.name,/Koolo/);
  assert.ok(m.icons.some(x=>x.sizes==="192x192"&&x.type==="image/png"));
- assert.deepEqual(m.icons.map(icon=>icon.src),["/icons/koolo-v1-192.png","/icons/koolo-v1-512.png","/icons/koolo-v1-maskable-512.png"],"change icon URLs so Chrome 144+ re-fetches updated logo");
+ assert.deepEqual(m.icons.map(icon=>icon.src),["/icons/koolo-v2-192.png","/icons/koolo-v2-512.png","/icons/koolo-v2-maskable-512.png"],"change icon URLs so Chrome 144+ re-fetches updated logo");
  assert.ok(m.icons.some(x=>x.sizes==="512x512"&&x.purpose==="maskable"));
  const html=read("web-spa/index.html");
  assert.match(html,/rel="manifest"/);
  assert.match(html,/apple-touch-icon/);
- assert.match(html,/href="\/icons\/koolo-v1-180\.png"/);
+ assert.match(html,/href="\/icons\/koolo-v2-180\.png"/);
 });
 test("PWA service worker is network first for navigation and never caches dynamic requests",()=>{
  const script=read("web-spa/public/sw.js");
@@ -49,7 +49,7 @@ test("PWA service worker is network first for navigation and never caches dynami
 });
 test("PWA icon renderer emits a valid PNG for required device sizes",async()=>{
  const {createCrewPwaIcon,createCrewShortcutIcon}=await import("../scripts/pwa-icons.mjs");
- const official=fs.readFileSync(path.join(ROOT,"web-spa/public/icons/koolo-source.png"));
+ const official=fs.readFileSync(path.join(ROOT,"web-spa/public/icons/koolo-source-v2.png"));
  assert.deepEqual(createCrewPwaIcon(192),official,"192px PWA icon must be byte-identical to approved Koolo artwork");
  for(const [size,maskable] of [[180,false],[192,false],[512,false],[512,true]]){
   const png=createCrewPwaIcon(size,maskable);
@@ -95,7 +95,7 @@ test("PWA is opt-in, excluded from Android WebView and keeps existing build upda
 test("Cloudflare build publishes PWA assets and metadata on SSG and private pages",()=>{
  if(process.env.CREW_CLOUDFLARE_TEST!=="1")return;
  const dist=path.join(ROOT,"dist");
- for(const file of ["site.webmanifest","sw.js","offline.html","favicon.svg","brand/koolo-wordmark-C.svg","icons/koolo-v1-180.png","icons/koolo-v1-192.png","icons/koolo-v1-512.png","icons/koolo-v1-maskable-512.png","icons/shortcut-chat-96.png","icons/shortcut-chat-192.png","icons/shortcut-learn-96.png","icons/shortcut-learn-192.png","icons/shortcut-games-96.png","icons/shortcut-games-192.png"]){
+ for(const file of ["site.webmanifest","sw.js","offline.html","favicon.svg","brand/koolo-wordmark-koo-v2.svg","icons/koolo-v2-180.png","icons/koolo-v2-192.png","icons/koolo-v2-512.png","icons/koolo-v2-maskable-512.png","icons/shortcut-chat-96.png","icons/shortcut-chat-192.png","icons/shortcut-learn-96.png","icons/shortcut-learn-192.png","icons/shortcut-games-96.png","icons/shortcut-games-192.png"]){
   assert.ok(fs.existsSync(path.join(dist,file)),file);
  }
  for(const shortcut of JSON.parse(read("web-spa/public/site.webmanifest")).shortcuts){
@@ -108,7 +108,7 @@ test("Cloudflare build publishes PWA assets and metadata on SSG and private page
   const html=fs.readFileSync(path.join(dist,file),"utf8");
   assert.match(html,/rel="manifest" href="\/site\.webmanifest"/,file);
   assert.match(html,/rel="apple-touch-icon"/,file);
-  assert.match(html,/href="\/icons\/koolo-v1-180\.png"/,file);
+  assert.match(html,/href="\/icons\/koolo-v2-180\.png"/,file);
  }
  const headers=fs.readFileSync(path.join(dist,"_headers"),"utf8");
  assert.match(headers,/\/sw\.js[\s\S]+?Cache-Control: no-store/);
