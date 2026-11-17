@@ -100,7 +100,9 @@ function sample(x,y){
 }
 function renderNative(size,maskable){
  const image=Buffer.alloc(size*size*4);
- const area=maskable?0.72:1;
+ // Android launcher uses this same approved artwork; enlarge its visual footprint
+ // in the web-installed icon without redrawing or changing brand geometry.
+ const area=maskable?0.79:1.10;
  // RGB pre-multiplied bilinear resampling avoids dark fringes around the
  // alpha edges of the approved Koolo icon.
  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
@@ -130,8 +132,6 @@ function renderNative(size,maskable){
 }
 export function createCrewPwaIcon(size,maskable=false){
  if(!Number.isInteger(size)||size<16||size>1024)throw Error("Invalid PWA icon size");
- // The canonical 192px Koolo v2 PNG is preserved byte for byte.
- if(size===native.width&&!maskable)return Buffer.from(nativeBytes);
  return renderNative(size,maskable);
 }
 function rounded(x,y,l,t,r,b,radius){
