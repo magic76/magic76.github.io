@@ -13,6 +13,24 @@ type InstallSource="footer"|"menu"|"nudge"|"fortune";
 const NUDGE_KEY="crew_pwa_install_nudge_v1";
 const ENGAGED_KEY="crew_pwa_engaged_v1";
 const DAY=24*60*60*1000;
+const HOME_VISITED_KEY="crew_pwa_home_visited_v1";
+const HOME_VISIT_SESSION_KEY="crew_pwa_home_visit_session_v1";
+
+// Count distinct browser visits, not every navigation back to the homepage.
+function hasReturnVisit(){
+ try{
+  let visit=sessionStorage.getItem(HOME_VISIT_SESSION_KEY);
+  if(!visit){
+   visit=localStorage.getItem(HOME_VISITED_KEY)==="1"?"return":"first";
+   sessionStorage.setItem(HOME_VISIT_SESSION_KEY,visit);
+   localStorage.setItem(HOME_VISITED_KEY,"1");
+  }
+  return visit==="return";
+ }catch{return false;}
+}
+function canShowCrewInstallNudge(engaged:boolean,returning:boolean,snooze:string|null,now:number){
+ return (engaged||returning)&&snooze!=="never"&&(!snooze||Number(snooze)<now);
+}
 
 function getGuide(copy:ReturnType<typeof getCrewInstallCopy>){
  if(isCrewEmbeddedBrowser())return copy.external;
@@ -87,11 +105,11 @@ export function CrewInstallNudge(){
  const [dismissed,setDismissed]=useState(false);
  const impression=useRef(false);
  useEffect(()=>{
+  const returning=hasReturnVisit();
   const eligible=()=>{
    try{
     const snooze=localStorage.getItem(NUDGE_KEY);
-    return localStorage.getItem(ENGAGED_KEY)==="1"&&snooze!=="never"&&
-     (!snooze||Number(snooze)<Date.now());
+    return canShowCrewInstallNudge(localStorage.getItem(ENGAGED_KEY)==="1",returning,snooze,Date.now());
    }catch{return false;}
   };
   setEngaged(eligible());
@@ -117,6 +135,7 @@ export function CrewInstallNudge(){
   <div className="crew-install-nudge-heading">
    <span className="crew-install-nudge-icon" aria-hidden="true">✳</span>
    <span><strong>{copy.inviteTitle}</strong><small>{copy.inviteDesc}</small></span>
+   <button type="button" className="crew-install-nudge-close" aria-label={copy.close} onClick={()=>dismiss(false)}>×</button>
   </div>
   {guide&&<InstallGuide message={getGuide(copy)} closeLabel={copy.close} onClose={()=>setGuide(false)}/>}
   <div className="crew-install-nudge-actions">

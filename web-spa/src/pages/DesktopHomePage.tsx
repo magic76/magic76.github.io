@@ -12,6 +12,7 @@ import {CreatureLabResume} from "./CreatureLabResume";
 import type {CreatureLabProgress} from "./creatureLabProgress";
 import type {ShortFeed} from "../teacher/shortsFeed";
 import {GuideHub} from "../guides/GuideHub";
+import {HomeGeminiVerify} from "./HomeGeminiVerify";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
 import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./desktopHome.css";
@@ -103,6 +104,7 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
     </Link>
    </div>
   </section>
+  <HomeGeminiVerify variant="desktop"/>
   {(recents.length>0||creatureProgress)&&<section className="kdh-resume-section" aria-label={t("continue")}>
    <div className="kdh-section-title"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
    <div className="kdh-resume-grid">
