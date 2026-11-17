@@ -63,7 +63,9 @@ test("#16 regression: quote does not grow after async text and compact phone gri
  assert.match(slot,/overflow:hidden/);
  assert.doesNotMatch(quote,/\.daily-quote--mobile \.daily-quote-heading\{[^}]*min-height/);
  assert.match(quote,/\.daily-quote--mobile \.daily-quote-text\{[^}]*white-space:nowrap;[^}]*text-overflow:ellipsis/);
- assert.match(quote,/\.daily-quote-chart\{[^}]*min-height:44px/,"chart selector keeps a full touch target");
+ const chartHit=Number(quote.match(/\.daily-quote-chart\{[^}]*min-height:([\d.]+)px/)?.[1]);
+ const actionHit=Number(quote.match(/\.daily-quote-action\{[^}]*min-height:([\d.]+)px/)?.[1]);
+ assert.ok(chartHit>=44&&actionHit>=44,"chart selector and fortune action keep accessible hit areas");
  const small=mobile.match(/@media\(max-width:(\d+)px\)\{\s*\.cmh-app\{min-height:([\d.]+)px\}/);
  const regular=Number(mobile.match(/\.cmh-app\{min-height:([\d.]+)px;gap:4px/)?.[1]);
  assert.ok(small&&Number(small[1])>=360&&Number(small[1])<390,"narrow-only override");
