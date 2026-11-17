@@ -39,7 +39,7 @@ test("both wordmark variants keep the smile separated from the oo rings",()=>{
  assert.ok(smileTop-ringBottom>=3.5,"Smile needs a visible gap at mobile header size");
  for(const name of ["koolo-wordmark-koo-v2.svg","koolo-wordmark-koo-v2-dark.svg"]){
   const svg=read(iconBase+name);
-  assert.match(svg,/d="M55 44Q66 47 77 44"[^\n]*stroke-width="3\\.2"/,name);
+  assert.match(svg,/d="M55 44Q66 47 77 44"[^\n]*stroke-width="3[.]2"/,name);
  }
 });
 
