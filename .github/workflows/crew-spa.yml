@@ -62,6 +62,11 @@ jobs:
       - name: Validate Japanese English learning flow
         if: github.event_name == 'pull_request'
         run: node --test tests/teacher-japanese-english-onboarding.test.js
+      # Game-end handoffs share the starter UI with daily topics and Shorts;
+      # verify these existing opt-in paths when this feature changes.
+      - name: Validate game-end and existing starter handoffs
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'game-end-')
+        run: node --test tests/daily-topic-cards.test.js tests/shorts-post-starter.test.js tests/shorts-text-first-reply.test.js tests/game-end-12.test.js
       - name: Full regressions (test repair PRs only)
         if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'test-regressions') || contains(github.event.pull_request.head.ref, 'fix/reliability-'))
         run: npm test
