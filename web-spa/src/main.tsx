@@ -74,10 +74,14 @@ const prerenderedPath=root.dataset.crewSsgPath;
 // Wait only for the active locale, never for all nine languages.
 // Select a localized public URL before hydration, preserving the page and query.
 // Native Android WebView loads the same Crew home URL and follows this path.
-const destination=!legacy?preferredPublicLocaleDestination(
+// Canonicalize the www alias before mounting or claiming a guest session.
+// Keep pathname, query and hash intact; do not redirect the old 3sssi.com site here.
+const kooloCanonicalDestination=window.location.origin==="https://www.koolo.app"
+ ? "https://koolo.app"+window.location.pathname+window.location.search+window.location.hash:null;
+const destination=kooloCanonicalDestination||(!legacy?preferredPublicLocaleDestination(
  window.location.pathname,normalizeUiLocale(i18n.language)||"en",
  window.location.search,window.location.hash,navigator.userAgent
-):null;
+):null);
 if(destination){
  window.location.replace(destination);
 } else {
