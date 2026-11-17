@@ -144,7 +144,7 @@ function png(p){const scan=Buffer.alloc((W*4+1)*H);for(let y=0;y<H;y++)scan.set(
  const head=Buffer.alloc(13);head.writeUInt32BE(W,0);head.writeUInt32BE(H,4);head[8]=8;head[9]=6;
  return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk("IHDR",head),chunk("IDAT",deflateSync(scan,{level:9})),chunk("IEND",Buffer.alloc(0))]);
 }
-export const OG_ORIGIN="https://www.3sssi.com";
+export const OG_ORIGIN="https://koolo.app";
 export function previewUrl(category,slug,locale="zh"){
  if(category==="home")return OG_ORIGIN+"/social/crew-shared-v2.png";
  if(category==="feature"){if(!["teacher","story","fortune","research","games"].includes(slug))throw Error("Invalid feature OG preview");return OG_ORIGIN+"/social/og/"+slug+"-chibi-v1.png";}

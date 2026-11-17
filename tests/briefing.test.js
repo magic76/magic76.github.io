@@ -98,8 +98,8 @@ test("compose up to six public items, and keep raw excerpts out of SEO indexing"
  assert.deepEqual(composeEdition([],[]),{items:[],deepCount:0});
 });
 
-test("published RSS and future generated article links use the canonical 3sssi domain",()=>{
- const expectedOrigin="https://www.3sssi.com";
+test("published RSS and future generated article links use the canonical Koolo domain",()=>{
+ const expectedOrigin="https://koolo.app";
  const generated=renderRssFeed([{date:"2026-10-14",item:{id:"sample",title:"Example & research",summary:"Research summary",publishedAt:"2026-10-14T00:00:00Z"}}]);
  const expectedLinks=[expectedOrigin+"/research/",expectedOrigin+"/research/2026-10-14/sample"];
  const extractLinks=xml=>[...xml.matchAll(/<link>([^<]+)<\/link>/g)].map(match=>match[1]);

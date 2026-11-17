@@ -1,41 +1,33 @@
-# Crew Web international SEO
-The static marketing website is intentionally separate from the existing interactive app at `/crew-app/#/`. Do not migrate its HashRouter paths.
+# Koolo international SEO — domain migration
 
-## Canonical domains and language paths
-The Pages `CNAME` is `www.3sssi.com`; keep all canonical and alternate URLs on `https://www.3sssi.com`.
+## Canonical origin
+Production canonical: **https://koolo.app** (apex; without www). The old `www.3sssi.com` and `3sssi.com` domains are historical entry points, not canonical URLs. Existing backend host allowlists must remain compatible with the old domain during migration.
 
-| Product | Traditional Chinese | English |
-| --- | --- | --- |
-| Home | `/` | `/en/` |
-| Teacher | `/teacher/` | `/en/teacher/` |
-| Story | `/story/` | `/en/story/` |
-| Fortune | `/fortune/` | `/en/fortune/` |
-| Research | `/research/` | `/en/research/` |
+Public static pages have reciprocal `hreflang="zh-Hant"`, `hreflang="en"` and `x-default` tags. The generated sitemap, robots.txt, OG and Twitter images, JSON-LD, game/course/guide/research SSG and RSS should all point to `https://koolo.app`.
 
-Each static page includes reciprocal `hreflang="zh-Hant"`, `hreflang="en"`, and `x-default` pointing to zh-Hant. The sitemap lists both languages with equivalent alternate links. No browser-language auto-redirect is used, because both crawlability and explicit language choice matter.
+The Cloudflare Pages preview domains, preview UI languages and interactive private SPA remain **noindex**. Do not remove that protection.
 
-## Source and checks
-Edit `scripts/generate-seo.mjs` and regenerate all ten public pages; do not edit generated HTML directly.
+## Source of truth / testing
+Modify generators, never just hand-edit generated HTML.
 
 ```sh
 node scripts/generate-seo.mjs
 node scripts/generate-seo.mjs --check
-npm test
+node --test tests/seo-pages.test.js tests/seo-live.test.js tests/koolo-seo-cutover.test.js
 npm run check:web
-npm run build:web
+npm run build:cloudflare
+CREW_CLOUDFLARE_TEST=1 node --test tests/cloudflare-deployment.test.js
 ```
 
-SEO regression tests validate generator output, reciprocal alternates, canonical URLs, nonempty language-specific content, JSON-LD, social images and sitemap. The OG image assets at `social/{crew,teacher,story,fortune,research}.png` are 1200×630 PNGs with English product identifiers to serve both locales.
+Production HTTP smoke test (only after the new site is deployed): `node scripts/check-live-seo.mjs`. It checks public 200 responses, canonical, hreflang, sitemap/robots and private noindex; it does **not** prove Google indexing.
 
-Structured data is conservative: `WebSite`, page, `BreadcrumbList`, plus `SoftwareApplication` where the website actually has an interactive app. No fabricated reviews, ratings or paid/free offer claims.
+## Domain transfer sequence
+1. Confirm `koolo.app` is Active with valid TLS and that Google/GitHub OAuth, Turnstile and `p.koolo.app` anonymous text/voice sessions work, as well as the old origin.
+2. Deploy this SEO code, then validate `https://koolo.app/robots.txt` and `https://koolo.app/sitemap.xml`. Confirm public pages return 200 and advertise `koolo.app`.
+3. Only after functional smoke QA, enable **zone-level Cloudflare Redirect Rules** for both `3sssi.com` and `www.3sssi.com` to `https://koolo.app` (301, keep path/query); on the Koolo zone redirect `www.koolo.app` to the apex. Do NOT use Pages `_redirects` for cross-domain redirects, and do NOT redirect the dedicated Worker subdomain `p.koolo.app`.
+4. Confirm no redirect loop and no 404; verify root, `/en/`, `/teacher/`, `/games/1a2b/`, `/fortune/`, `/guides/ai-english-speaking/` and deep links with query strings.
+5. Add and verify `koolo.app` in Search Console, submit `sitemap.xml`; once redirects are live use Change of Address on the old verified property. Keep the redirects for at least a year.
 
-The interactive SPA stays `noindex,follow`. Its interface language settings remain independent of the landing page's locale. No model prompts, voice or memory logic changes.
+**Cookies/localStorage do not migrate** across domains. Users may need to log in again; do not silently copy BYOK keys. Keep old OAuth callbacks and backend compatibility during transition.
 
-## Post-merge rollout checklist
-1. Confirm that GitHub Pages deploys the static directories, and check 200 responses for both `/teacher/` and `/en/teacher/`.
-2. Test image responses and social card previews; caching can delay updates.
-3. In Google Search Console verify `www.3sssi.com` (or domain ownership), submit `https://www.3sssi.com/sitemap.xml`, inspect representative URLs in both languages, and monitor index coverage.
-4. Research articles should receive individual indexable URLs only after editorial review; do not auto-index unreviewed daily drafts.
-
-## Content policy
-English pages are fully authored in English. Switching languages should never change an active Crew Teacher/Friend target language, raw user content or model-generated output. For now the landing pages explain products and link to their canonical Crew Web interactive experiences.
+See [koolo-domain-rollout.md](koolo-domain-rollout.md) for exact verification steps and rollback.

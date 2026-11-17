@@ -76,7 +76,7 @@ export function buildUsageExport(data:UsageReport,days:7|30,category:UsageCatego
  const eventUsers=data.eventUsers.filter(item=>item&&SAFE_EVENTS.has(item.event))
   .map(item=>({event:item.event,users:count(item.users)}));
  return {
-  exportedAt:now.toISOString(),source:"https://www.3sssi.com/usage",days,
+  exportedAt:now.toISOString(),source:"https://koolo.app/usage",days,
   category:{id:categoryId,label:CATEGORY_LABELS[categoryId]},generatedAt:safeInstant(data.generatedAt),
   headlines:{
    activeUsers:count(data.activeUsers),previousActiveUsers:count(data.previousActiveUsers),

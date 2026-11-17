@@ -38,7 +38,7 @@ test("all eleven locales provide complete, meaningful challenge and two sourced 
    assert.equal(card.chips.length,2);
    assert.ok(card.chips.every(x=>x.length>0));
    assert.ok(card.title&&card.tagline&&card.modeLabel&&card.cta);
-   assert.ok(card.cta.includes("3sssi.com/fortune"));
+   assert.ok(card.cta.includes("koolo.app/fortune"));
   }
  }
  assert.notEqual(model.buildFortuneCardModel("bazi",{dayMaster:"辛"},"ja").chips[0],
@@ -61,12 +61,12 @@ test("all eleven languages invite a comparison, not just a bare link",()=>{
  }
  const identity=model.buildFortuneCardModel("bazi",{dayMaster:"丙",careerProfile:{officerCount:1,resourceCount:0,outputCount:3}},"zh-TW");
  assert.ok(identity.identity?.tension);
- const personalized=i18n.fortuneInvitation("zh-TW",identity.title,"https://www.3sssi.com/fortune",identity.identity.tension);
+ const personalized=i18n.fortuneInvitation("zh-TW",identity.title,"https://koolo.app/fortune",identity.identity.tension);
  assert.match(personalized,/點子一多/);
  assert.match(personalized,/耀眼領航者/);
  const secret="出生：1985-07-06，姓名私人";
- assert.doesNotMatch(i18n.fortuneInvitation("zh-TW",identity.title,"https://www.3sssi.com/fortune",secret),/1985|私人/);
- const japanese=i18n.fortuneInvitation("ja",identity.title,"https://www.3sssi.com/fortune",identity.identity.tension);
+ assert.doesNotMatch(i18n.fortuneInvitation("zh-TW",identity.title,"https://koolo.app/fortune",secret),/1985|私人/);
+ const japanese=i18n.fortuneInvitation("ja",identity.title,"https://koolo.app/fortune",identity.identity.tension);
  assert.doesNotMatch(japanese,/點子一多/,"do not leak Chinese body into Japanese invitation");
 });
 test("identity, missing identity and missing art keep a private-data-free fallback",()=>{
@@ -84,7 +84,7 @@ test("identity, missing identity and missing art keep a private-data-free fallba
 test("allowlisted invitations exclude date, history and arbitrary user text",()=>{
  for(const [mode,result,id] of examples){
   const url=invite.fortuneInviteUrl(mode,id,"en");
-  assert.match(url,/^https:\/\/www\.3sssi\.com\/en\/fortune\?/);
+  assert.match(url,/^https:\/\/koolo\.app\/en\/fortune\?/);
   const params=new URL(url).searchParams;
   assert.deepEqual([...params.keys()].sort(),["a","m","src","theme"]);
   assert.deepEqual(invite.parseFortuneInvite(params),{mode,archetype:id,theme:"identity",src:"card"});
@@ -102,7 +102,7 @@ test("allowlisted invitations exclude date, history and arbitrary user text",()=
   "m=tarot&a=%3Cscript%3E&theme=identity&src=card","m=vedic&a=vedic-aries&theme=evil&src=card",
   "m=tarot&a=tarot-22&theme=identity&src=card&x="+("a".repeat(350))])
   assert.equal(invite.parseFortuneInvite(payload),null,payload.slice(0,40));
- assert.equal(invite.fortuneInviteUrl("tarot","not-an-id"),"https://www.3sssi.com/fortune");
+ assert.equal(invite.fortuneInviteUrl("tarot","not-an-id"),"https://koolo.app/fortune");
 });
 function makeCanvas(){
  const calls=[],ctx={
@@ -139,7 +139,7 @@ test("shared renderer produces 1080x1350 illustrated collectible with no birth f
   assert.equal(footer.length,2);
   assert.deepEqual(footer.map(x=>x[2]),[101,982]);
   assert.ok(env.calls.some(x=>x[1]==="Koolo FORTUNE"));
-  assert.ok(env.calls.some(x=>String(x[1]).includes("3sssi.com/fortune")));
+  assert.ok(env.calls.some(x=>String(x[1]).includes("koolo.app/fortune")));
   assert.ok(env.calls.some(x=>x[1]==="命格輪廓"));
   assert.ok(env.calls.some(x=>x[1]==="行動線索"));
   assert.ok(env.calls.some(x=>x[1]==="成長提醒"));

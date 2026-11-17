@@ -87,7 +87,7 @@ export async function buildDailyShareFile(card:import("./dailyCard").DailyCard,l
  ctx.fillStyle=card.luckyColor.hex;ctx.beginPath();ctx.arc(91,1258,12,0,Math.PI*2);ctx.fill();
  ctx.fillStyle="#645773";ctx.font="22px sans-serif";ctx.fillText(labels.luckyColor+" · "+card.luckyColor.name,116,1266);
  ctx.font="18px sans-serif";ctx.fillStyle="#7e7387";wrap(ctx,labels.disclaimer,78,1304,580,20,1);
- ctx.font="bold 25px sans-serif";ctx.fillStyle="#554072";ctx.textAlign="right";ctx.fillText("3sssi.com/fortune",1003,1304);ctx.textAlign="left";
+ ctx.font="bold 25px sans-serif";ctx.fillStyle="#554072";ctx.textAlign="right";ctx.fillText("koolo.app/fortune",1003,1304);ctx.textAlign="left";
  return new Promise<File>((resolve,reject)=>canvas.toBlob(blob=>blob?
   resolve(new File([blob],"crew-fortune-daily.png",{type:"image/png"})):
   reject(new Error("Could not create daily share card")),"image/png"));
@@ -104,7 +104,7 @@ export async function shareDailyCard(card:import("./dailyCard").DailyCard,labels
 }
 
 /** Only a public landing URL leaves this device, never a chart hash or birth details. */
-export const DAILY_PUBLIC_SHARE_URL="https://www.3sssi.com/fortune?daily=1";
+export const DAILY_PUBLIC_SHARE_URL="https://koolo.app/fortune?daily=1";
 async function copyDailyPublicUrl(url:string):Promise<boolean>{
  try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);return true;}}catch{/* fallback */}
  if(typeof document==="undefined")return false;

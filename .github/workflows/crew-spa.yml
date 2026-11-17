@@ -136,6 +136,7 @@ jobs:
           node --test tests/seo-live.test.js
           node --test tests/seo-pages.test.js
           node --test tests/seo-ctr.test.js
+          node --test tests/koolo-seo-cutover.test.js
       # Manual-review visual proof for the mobile homepage phase-1 PR only.
       # Desktop home visual proof. Build master in a separate worktree and verify
       # 390/360 phone screenshots are pixel-identical to the base branch.

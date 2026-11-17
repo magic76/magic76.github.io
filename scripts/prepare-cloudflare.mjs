@@ -214,16 +214,16 @@ const readingShareMeta=[
  '<meta property="og:locale" content="zh_TW">',
  '<meta property="og:title" content="我算出了自己的命格身份！換你看看，你是哪一型？">',
  '<meta property="og:description" content="Crew Fortune｜八字、塔羅生命靈數與印度星盤，看看你的命格身份是哪一型。">',
- '<meta property="og:url" content="https://www.3sssi.com/fortune/reading">',
- '<meta property="og:image" content="https://www.3sssi.com/social/og/fortune-chibi-v1.png">',
- '<meta property="og:image:secure_url" content="https://www.3sssi.com/social/og/fortune-chibi-v1.png">',
+ '<meta property="og:url" content="https://koolo.app/fortune/reading">',
+ '<meta property="og:image" content="https://koolo.app/social/og/fortune-chibi-v1.png">',
+ '<meta property="og:image:secure_url" content="https://koolo.app/social/og/fortune-chibi-v1.png">',
  '<meta property="og:image:type" content="image/png">',
  '<meta property="og:image:width" content="1200">',
  '<meta property="og:image:height" content="630">',
  '<meta name="twitter:card" content="summary_large_image">',
  '<meta name="twitter:title" content="我算出了自己的命格身份！換你看看，你是哪一型？">',
  '<meta name="twitter:description" content="Crew Fortune｜看看你的命格身份是哪一型。">',
- '<meta name="twitter:image" content="https://www.3sssi.com/social/og/fortune-chibi-v1.png">'
+ '<meta name="twitter:image" content="https://koolo.app/social/og/fortune-chibi-v1.png">'
 ].join(newline);
 for(const prefix of ["","/en"]){
  for(const route of privatePaths){
@@ -261,9 +261,9 @@ const replaceMeta=(html,attr,name,value)=>{
 for(const locale of ["zh","en"])for(const slug of GAME_SEO_SLUGS){
  const meta=GAME_SEO_PAGES[slug][locale],path="/games/"+slug;
  const prefix=locale==="en"?"/en":"";
- const canonical="https://www.3sssi.com"+prefix+path+"/";
- const zhHref="https://www.3sssi.com"+path+"/";
- const enHref="https://www.3sssi.com/en"+path+"/";
+ const canonical="https://koolo.app"+prefix+path+"/";
+ const zhHref="https://koolo.app"+path+"/";
+ const enHref="https://koolo.app/en"+path+"/";
  const template=read(locale==="en"?"en/games/index.html":"games/index.html");
  let head=template.split("</head>")[0]+"</head>";
  head=head.replace(/<title>[\s\S]*?<\/title>/,"<title>"+escapeHtml(meta.title)+"</title>");
@@ -282,8 +282,8 @@ for(const locale of ["zh","en"])for(const slug of GAME_SEO_SLUGS){
  const ld={"@context":"https://schema.org","@graph":[
   {"@type":"WebPage","@id":canonical+"#webpage",url:canonical,name:meta.title,description:meta.description,inLanguage:locale==="en"?"en":"zh-Hant"},
   {"@type":"BreadcrumbList",itemListElement:[
-   {"@type":"ListItem",position:1,name:locale==="en"?"Home":"首頁",item:"https://www.3sssi.com"+(locale==="en"?"/en/":"/")},
-   {"@type":"ListItem",position:2,name:"Crew Play",item:"https://www.3sssi.com"+(locale==="en"?"/en/games/":"/games/")},
+   {"@type":"ListItem",position:1,name:locale==="en"?"Home":"首頁",item:"https://koolo.app"+(locale==="en"?"/en/":"/")},
+   {"@type":"ListItem",position:2,name:"Koolo Play",item:"https://koolo.app"+(locale==="en"?"/en/games/":"/games/")},
    {"@type":"ListItem",position:3,name:meta.name,item:canonical}
   ]},
   {"@type":"SoftwareApplication",name:meta.name,applicationCategory:"GameApplication",operatingSystem:"Web",url:canonical,description:meta.description}
@@ -307,8 +307,8 @@ for(const locale of ["zh","en"])for(const slug of GAME_SEO_SLUGS){
 
 for(const locale of ["zh-TW","en"])for(const course of COURSE_SEO){
  const slug=course.slug,meta=locale==="en"?course.en:course.zh;
- const route="/teacher/course/"+slug,canonical="https://www.3sssi.com"+(locale==="en"?"/en":"")+route+"/";
- const zhHref="https://www.3sssi.com"+route+"/",enHref="https://www.3sssi.com/en"+route+"/";
+ const route="/teacher/course/"+slug,canonical="https://koolo.app"+(locale==="en"?"/en":"")+route+"/";
+ const zhHref="https://koolo.app"+route+"/",enHref="https://koolo.app/en"+route+"/";
  const template=read(locale==="en"?"en/teacher/index.html":"teacher/index.html");
  let head=template.split("</head>")[0]+"</head>";
  head=head.replace(/<title>[\s\S]*?<\/title>/,"<title>"+escapeHtml(meta.title)+"</title>");
@@ -344,7 +344,7 @@ for(const locale of ["zh-TW","en"])for(const course of COURSE_SEO){
 // with per-article metadata. The old research template contributes only head SEO.
 // The first five search-intent guides are genuine React SSG pages (zh-Hant + en).
 // Reuse the verified teacher template's HEAD only, never its old marketing BODY.
-const guideUrl=(slug,locale)=>"https://www.3sssi.com"+(locale==="en"?"/en":"")+"/guides/"+slug+"/";
+const guideUrl=(slug,locale)=>"https://koolo.app"+(locale==="en"?"/en":"")+"/guides/"+slug+"/";
 for(const [id,{slug,locale,content:guide}] of guides){
  const route="/guides/"+slug;
  const canonical=guideUrl(slug,locale),zhHref=guideUrl(slug,"zh-TW"),enHref=guideUrl(slug,"en");
@@ -370,10 +370,10 @@ for(const [id,{slug,locale,content:guide}] of guides){
  const ld={
   "@context":"https://schema.org","@graph":[
    {"@type":"WebPage","@id":canonical+"#webpage",url:canonical,name:guide.title,
-    description:guide.description,inLanguage:language,isPartOf:{"@id":"https://www.3sssi.com/#website"}},
+    description:guide.description,inLanguage:language,isPartOf:{"@id":"https://koolo.app/#website"}},
    {"@type":"BreadcrumbList",itemListElement:[
-    {"@type":"ListItem",position:1,name:locale==="en"?"Home":"首頁",item:"https://www.3sssi.com"+(locale==="en"?"/en/":"/")},
-    {"@type":"ListItem",position:2,name:"Crew Teacher",item:"https://www.3sssi.com"+(locale==="en"?"/en/teacher/":"/teacher/")},
+    {"@type":"ListItem",position:1,name:locale==="en"?"Home":"首頁",item:"https://koolo.app"+(locale==="en"?"/en/":"/")},
+    {"@type":"ListItem",position:2,name:"Koolo Teacher",item:"https://koolo.app"+(locale==="en"?"/en/teacher/":"/teacher/")},
     {"@type":"ListItem",position:3,name:guide.label,item:canonical}
    ]}
   ]
@@ -429,7 +429,7 @@ for(const [route,{day,item,seed}] of articles){
 // Only substantial original commentary is indexable. Thin extracted abstracts
 // remain available via normal links, but are excluded from Google Sitemap.
 const sitemapEntries=[...articles.values()].filter(({item})=>indexableArticle(item))
- .map(({item,day})=>'  <url><loc>https://www.3sssi.com'+articlePath(day.date,item)+'</loc><lastmod>'+day.generatedAt.slice(0,10)+'</lastmod></url>').join(newline);
+ .map(({item,day})=>'  <url><loc>https://koolo.app'+articlePath(day.date,item)+'</loc><lastmod>'+day.generatedAt.slice(0,10)+'</lastmod></url>').join(newline);
 const guideSitemapEntries=[...new Set([...guides.values()].map(({slug})=>slug))].flatMap(slug=>
  ["zh-TW","en"].map(locale=>{
   const canonical=guideUrl(slug,locale),zhHref=guideUrl(slug,"zh-TW"),enHref=guideUrl(slug,"en");

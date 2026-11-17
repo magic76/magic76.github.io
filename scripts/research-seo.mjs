@@ -5,7 +5,7 @@ import {join} from "node:path";
 const dateRe=/^\d{4}-\d{2}-\d{2}$/;
 const idRe=/^[a-zA-Z0-9_-]{3,100}$/;
 export const articlePath=(day,item)=>"/research/"+day+"/"+item.id+"/";
-export const articleCanonical=(day,item)=>"https://www.3sssi.com"+articlePath(day,item);
+export const articleCanonical=(day,item)=>"https://koolo.app"+articlePath(day,item);
 export const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 export const decodeHtmlText=value=>String(value??"").replace(/&(?:amp|lt|gt|quot|#(?:\d+|x[0-9a-f]+));/gi,entity=>{
  const named={"&amp;":"&","&lt;":"<","&gt;":">","&quot;":"\""};
@@ -61,7 +61,7 @@ export function readPublishedResearch(root){
 
 export function articleHead(article,day){
  const canonical=articleCanonical(day.date,article);
- const title=article.title+"｜Crew Research";
+ const title=article.title+"｜Koolo Research";
  const description=article.summary.slice(0,180);
  const robots=indexableArticle(article)?"index,follow":"noindex,follow";
  const publication=day.generatedAt;
@@ -71,8 +71,8 @@ export function articleHead(article,day){
   headline:article.title,description:article.summary,
   mainEntityOfPage:{"@type":"WebPage","@id":canonical},url:canonical,
   datePublished:publication,dateModified:publication,inLanguage:"zh-Hant",
-  author:{"@type":"Organization",name:"Crew Research",url:"https://www.3sssi.com/research/"},
-  publisher:{"@type":"Organization",name:"Crew",url:"https://www.3sssi.com/"},
+  author:{"@type":"Organization",name:"Koolo Research",url:"https://koolo.app/research/"},
+  publisher:{"@type":"Organization",name:"Koolo",url:"https://koolo.app/"},
   ...(sources.length?{citation:sources}:{}),
   ...(article.topic?{about:article.topic}:{})
  };

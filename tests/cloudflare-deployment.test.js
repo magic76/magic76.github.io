@@ -165,7 +165,7 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
  for(const locale of ["zh","en"])for(const slug of pages){
   const pathname=(locale==="en"?"en/":"")+(slug?slug+"/":"")+"index.html";
   const html=read(pathname);
-  const canonical="https://www.3sssi.com/"+(locale==="en"?"en/":"")+(slug?slug+"/":"");
+  const canonical="https://koolo.app/"+(locale==="en"?"en/":"")+(slug?slug+"/":"");
   assert.ok(html.includes('<link rel="canonical" href="'+canonical+'">'),pathname);
   assert.ok(html.includes('<html lang="'+(locale==="en"?"en":"zh-Hant")+'">'),pathname);
   assert.ok(html.includes('data-crew-ssg-path="'),"must contain route-specific SSG marker");
@@ -223,7 +223,7 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
 });
 check("search-intent guides serve real localized SSG HTML and enter the sitemap",()=>{
  const slugs=["ai-english-speaking","ai-conversation-partner","travel-english-dialogues","english-pronunciation","gemini-key-for-ai-practice"];
- const domain="https://www.3sssi.com",sitemap=read("sitemap.xml");
+ const domain="https://koolo.app",sitemap=read("sitemap.xml");
  for(const slug of slugs){
   for(const locale of ["zh","en"]){
    const prefix=locale==="en"?"en/":"",relative=prefix+"guides/"+slug+"/index.html";
@@ -250,7 +250,7 @@ check("search-intent guides serve real localized SSG HTML and enter the sitemap"
  }
 });
 check("Crew Play SSG has real game cards with correct bilingual canonical and JSON-LD",()=>{
- const origin="https://www.3sssi.com",sitemap=read("sitemap.xml");
+ const origin="https://koolo.app",sitemap=read("sitemap.xml");
  for(const prefix of ["","en/"]){
   const url=origin+"/"+prefix+"games/",html=read(prefix+"games/index.html");
   assert.ok(sitemap.includes("<loc>"+url+"</loc>"),"games sitemap entry missing: "+url);
@@ -271,7 +271,7 @@ check("indexed game URLs each ship route-specific hydrated SSG HTML, metadata an
  const sitemap=read("sitemap.xml");
  for(const locale of ["","en/"])for(const game of games){
   const path=locale+"games/"+game+"/";
-  const canonical="https://www.3sssi.com/"+path;
+  const canonical="https://koolo.app/"+path;
   const html=read(path+"index.html");
   assert.ok(sitemap.includes("<loc>"+canonical+"</loc>"),"missing indexed URL "+path);
   assert.ok(html.includes('<link rel="canonical" href="'+canonical+'">'),"bad canonical "+path);
@@ -353,7 +353,7 @@ check("React SSG hydration keeps one app and uses client-side routing for deep l
 
 check("production SEO metadata, sitemap and preview noindex are consistent",async()=>{
  const robots=read("robots.txt"),sitemap=read("sitemap.xml"),headers=read("_headers");
- const domain="https://www.3sssi.com";
+ const domain="https://koolo.app";
  assert.ok(robots.includes("Sitemap: "+domain+"/sitemap.xml"),"robots must point to production sitemap");
  const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(x=>x[1]);
  const expected=[];
@@ -438,7 +438,7 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
  assert.match(headers,/\/version\.json\s*\n\s*Cache-Control: no-store/,"live version feed must not be cached");
  assert.match(headers,/\/assets\/build\/\*\s*\n\s*Cache-Control: public, max-age=31536000, immutable/,"only hashed bundles may be cached immutably");
  assert.ok(!/\/assets\/\*\s*\n\s*Cache-Control:.*immutable/.test(headers),"unversioned images must not be immutable");
- assert.ok(!headers.includes("https://www.3sssi.com/"),"production must remain indexable");
+ assert.ok(!headers.includes("https://koolo.app/"),"production must remain indexable");
  assert.ok(!headers.includes("no-transform"),"Cloudflare automatic Web Analytics needs unmodified HTML");
 });
 
@@ -494,7 +494,7 @@ check("preview language routes serve noindex HTML and are excluded from the site
   assert.ok(preview.includes('name="robots" content="noindex,follow"'));
   assert.ok(preview.includes('name="crew-i18n-stage" content="'+stage+'"'));
   assert.ok(!preview.includes('rel="canonical"'));
-  assert.ok(!sitemap.includes("https://www.3sssi.com/"+code+"/"));
+  assert.ok(!sitemap.includes("https://koolo.app/"+code+"/"));
   assert.ok(rewrites.includes("/"+code+"/* /"+code+"/ 200"),"preview locale must use its canonical directory URL");;
  }
  assert.ok(!rewrites.includes("/en/*"),"published English routes must retain SSG");
@@ -502,7 +502,7 @@ check("preview language routes serve noindex HTML and are excluded from the site
 
 
 check("all published SSG OG images are present, 1200x630 PNG, and route-specific",async()=>{
- const origin="https://www.3sssi.com",paths=[];
+ const origin="https://koolo.app",paths=[];
  const push=route=>paths.push(route+"index.html");
  for(const lang of ["","en/"]){
   for(const slug of pages)push(lang+(slug?slug+"/":""));
@@ -549,7 +549,7 @@ check("Fortune challenge URL is readable by link preview crawlers without runnin
    assert.match(head,new RegExp('(?:property|name)="'+name+'"'),relative+" missing "+name);
   }
   assert.ok(head.includes("我算出了自己的命格身份！換你看看，你是哪一型？"),relative);
-  assert.ok(head.includes("https://www.3sssi.com/social/og/fortune-chibi-v1.png"),relative);
+  assert.ok(head.includes("https://koolo.app/social/og/fortune-chibi-v1.png"),relative);
   assert.ok(head.includes('content="summary_large_image"'),relative);
   assert.ok(!head.includes("birthDate")&&!head.includes("dayMaster"),"Never expose a personal chart in public OG");
   assert.ok(head.includes('name="robots" content="noindex,follow"'),"Private reading must not become indexable");
