@@ -160,5 +160,9 @@
     "gameText": "Zoeと文字で話す",
     "articleText": "この記事をZoeと話す",
     "todayFortune": "今日の運勢を見る"
+  },
+  "voiceTextRecap": {
+    "title": "さっきの会話",
+    "you": "あなた"
   }
 }

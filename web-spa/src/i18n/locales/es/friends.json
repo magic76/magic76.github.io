@@ -160,5 +160,9 @@
     "gameText": "Chatear por texto con Zoe",
     "articleText": "Hablar con Zoe de este artículo",
     "todayFortune": "Ver la fortuna de hoy"
+  },
+  "voiceTextRecap": {
+    "title": "Lo que acabamos de hablar",
+    "you": "Tú"
   }
 }

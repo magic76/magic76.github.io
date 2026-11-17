@@ -160,5 +160,9 @@
     "gameText": "Mit Zoe schreiben",
     "articleText": "Mit Zoe über diesen Artikel chatten",
     "todayFortune": "Heutiges Horoskop ansehen"
+  },
+  "voiceTextRecap": {
+    "title": "Gerade besprochen",
+    "you": "Du"
   }
 }

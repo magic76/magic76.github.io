@@ -160,5 +160,9 @@
     "gameText": "Zoe와 문자로 대화",
     "articleText": "이 글을 Zoe와 이야기하기",
     "todayFortune": "오늘의 운세 보기"
+  },
+  "voiceTextRecap": {
+    "title": "방금 나눈 이야기",
+    "you": "나"
   }
 }

@@ -160,5 +160,9 @@
     "gameText": "Écrire à Zoe",
     "articleText": "Parler de cet article avec Zoe",
     "todayFortune": "Voir la fortune du jour"
+  },
+  "voiceTextRecap": {
+    "title": "On en était là",
+    "you": "Toi"
   }
 }
