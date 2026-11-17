@@ -41,6 +41,7 @@ test("#3 handoff waits for text-panel unmount, keeps resume, and renders before 
  assert.match(page,/useVoiceTextRecap\(!textMode,/);
  assert.match(page,/!voiceRecapReady\|\|creatureEmbed/);
  assert.match(page,/voiceTextContext\(voiceRecap\)/);
+ assert.match(page,/openingPrompt:languageDirective/);
  assert.match(page,/messages=\{voiceRecap\}/);
  assert.match(recap,/readSessionTranscript\(scope\)/);
  assert.match(recap,/useEffect\(\(\)=>/);

@@ -148,7 +148,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
    system:system+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
-  openingPrompt:buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
+  openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
    shortsHook,selectedQuestion,lifeOpening,conversationHint:conversationOpening(intent,"friend"),
    conversationStyle:"one easy conversational observation",creatureContext,messages:voiceRecap}),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,

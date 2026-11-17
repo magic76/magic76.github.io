@@ -15,11 +15,11 @@ export function voiceTextContext(messages){
 }
 /** Preserve the original Shorts/personality opening when there is no handoff. */
 export function composeFriendVoiceOpening({name,languageDirective,shorts,shortsHint,questionHint,lifeOpening,conversationHint,conversationStyle,creatureContext,hasRecap}){
- if(hasRecap)return languageDirective+"\n[TEXT-TO-VOICE HANDOFF] You are still "+name+
+ if(hasRecap)return "[TEXT-TO-VOICE HANDOFF] You are still "+name+
   ", speaking to the same learner. Pick up the subject of the prior text chat, not a fresh introduction. Give one short natural follow-up without reciting the transcript.\n"+creatureContext+"\n"+languageDirective;
  const opening=shorts
   ?"[FRIEND POST REACTION] You are continuing your own Crew Shorts fictional photo story. Start with a short, casual comment about the caption from the post context (not a generic greeting). Don't say you saw a real-world photo or claim this happened to the learner. Use one language per reply."+shortsHint+questionHint
   :"[FRIEND CONVERSATION] Begin the conversation as "+name+
    " with "+conversationStyle+" that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+(lifeOpening||conversationHint)+"\n"+conversationHint;
- return languageDirective+"\n"+opening+creatureContext+"\n"+languageDirective;
+ return opening+creatureContext+"\n"+languageDirective;
 }
