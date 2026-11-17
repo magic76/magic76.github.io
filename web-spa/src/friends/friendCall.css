@@ -238,3 +238,11 @@ body.teacher-theme.session-page main.friend-live-page:has(.friend-precall-stage)
 @media(max-width:640px){.friend-live-page:has(.friend-precall-stage) .friend-precall-stage{padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px))}}
 @media(max-width:380px){body:has(.friend-precall-stage) .app-header .friend-call-header-actions{gap:5px}body:has(.friend-precall-stage) .app-header .status{padding:6px}body:has(.friend-precall-stage) .app-header .app-title small{display:none}}
 @media(prefers-reduced-motion:reduce){.friend-precall-stage,.friend-precall-stage .friend-live-avatar,.friend-precall-stage .guest-live-entry .btn{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* #59: Keep pre-call verification steps on a full row above the guest form. */
+body.teacher-theme.session-page .friend-live-page .friend-precall-stage .notice.guest-live-entry{display:flex;flex-flow:column nowrap;align-items:stretch;gap:10px;min-width:0;max-width:490px}
+.friend-live-page .friend-precall-stage .guest-live-entry>.friend-precall-steps{box-sizing:border-box;flex:0 0 auto;align-self:stretch;width:100%;min-width:0;margin:0;text-align:center;white-space:normal;overflow-wrap:anywhere}
+.friend-live-page .friend-precall-stage .guest-live-entry>div{box-sizing:border-box;flex:0 1 auto;width:100%;min-width:0;max-width:100%;grid-template-columns:minmax(0,1fr)}
+.friend-live-page .friend-precall-stage .guest-live-entry [aria-label="Turnstile verification"]{box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;overflow:hidden}
+.friend-live-page .friend-precall-stage .guest-live-entry [aria-label="Turnstile verification"] iframe{max-width:100%}
+.friend-live-page .friend-precall-stage .guest-live-entry .btn{box-sizing:border-box;width:100%;max-width:100%}
