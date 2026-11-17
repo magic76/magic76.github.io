@@ -218,9 +218,9 @@
  .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.friend-live-post .friend-live-post-date{display:none}
  .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.friend-live-post .friend-live-post-hook{display:none}
  .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.friend-live-post p{display:block;flex:1;min-width:0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;line-height:1.4}
- .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.friend-language-switch{gap:0}
+ .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open) .friend-language-switch{gap:0}
  .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open) .friend-language-options{padding:0}
- .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open)>.crew-chat-mode-switch{padding:0 8px}
+ .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open) .crew-chat-mode-switch{padding:0 8px}
  .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open) .crew-text-chat{gap:4px}
  .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open) .crew-text-guest:not(:has(.crew-text-challenge-host,.crew-text-key-recovery,button)){display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:0 2px;border:0;background:transparent}
  .friend-text-stage.friend-text-short-post:not(.crew-text-keyboard-open) .crew-text-guest:not(:has(.crew-text-challenge-host,.crew-text-key-recovery,button)) strong{font-size:12px;line-height:1.5}
