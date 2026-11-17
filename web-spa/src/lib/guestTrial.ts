@@ -1,8 +1,10 @@
 import {isCrewAndroidShell} from "./platform";
 // Public endpoint only. The Worker must remain disabled until operator smoke QA.
 // Move only the new public website to the verified custom Worker domain.
+// Both Koolo host spellings use p.koolo.app; www is redirected to apex before app mount.
 // Keep legacy 3sssi.com, preview deployments and existing integrations unchanged.
-export const GUEST_TOKEN_ENDPOINT=typeof window!=="undefined"&&window.location?.origin==="https://koolo.app"
+export const GUEST_TOKEN_ENDPOINT=typeof window!=="undefined"&&
+ ["https://koolo.app","https://www.koolo.app"].includes(window.location?.origin)
  ?"https://p.koolo.app/api/guest/token"
  :"https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
 export function guestTrialDiscoveryEnabled():boolean{
