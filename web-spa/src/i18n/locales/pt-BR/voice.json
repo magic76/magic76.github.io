@@ -94,6 +94,7 @@
     "notesHint": "Salvo automaticamente neste navegador e com backup nas Configurações do Koolo. As notas não são enviadas ao personagem."
   },
   "friendLive": {
+    "postOrigin": "Publicação Shorts",
     "preCallSteps": "Primeiro verifique → depois comece a conversar",
     "preCallWaiting": "Aguardando verificação…",
     "preCallVerified": "Verificação concluída. Pode começar!",

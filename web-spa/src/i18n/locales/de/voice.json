@@ -94,6 +94,7 @@
     "notesHint": "Wird automatisch in diesem Browser gespeichert und lässt sich in den Koolo-Einstellungen sichern. Die Notizen werden nicht an die Figur gesendet."
   },
   "friendLive": {
+    "postOrigin": "Shorts-Beitrag",
     "preCallSteps": "Zuerst verifizieren → dann chatten",
     "preCallWaiting": "Warte auf die Bestätigung…",
     "preCallVerified": "Bestätigt – du kannst jetzt starten.",

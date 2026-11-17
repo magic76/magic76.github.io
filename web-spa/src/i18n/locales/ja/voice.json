@@ -94,6 +94,7 @@
     "notesHint": "このブラウザに自動保存され、Koolo の設定でバックアップできます。メモが会話相手に送られることはありません。"
   },
   "friendLive": {
+    "postOrigin": "Shorts の投稿",
     "preCallSteps": "先に認証 → チャットを開始",
     "preCallWaiting": "認証を待っています…",
     "preCallVerified": "認証が完了しました。開始できます。",

@@ -94,6 +94,7 @@
     "notesHint": "Tersimpan otomatis di browser ini dan dapat dicadangkan di Pengaturan Koolo. Catatan tidak dikirim ke karakter."
   },
   "friendLive": {
+    "postOrigin": "Postingan Shorts",
     "preCallSteps": "Verifikasi dulu → lalu mulai mengobrol",
     "preCallWaiting": "Menunggu verifikasi…",
     "preCallVerified": "Verifikasi berhasil. Siap mengobrol.",
