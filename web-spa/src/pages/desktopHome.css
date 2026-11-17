@@ -6,7 +6,7 @@
  body .shell.page:has(>.koolo-desktop-home){width:min(1320px,calc(100% - 72px));max-width:none;padding:24px 0 56px;margin-inline:auto}
  body:has(.koolo-desktop-home){background:#fcf9f9;color:#343649}
  body:has(.koolo-desktop-home) .app-header{background:rgba(252,249,249,.95);border-color:#efe5ea}
- .koolo-desktop-home{display:grid;gap:25px;min-width:0;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC",system-ui,sans-serif;color:#343649}
+ .koolo-desktop-home{display:grid;grid-template-columns:minmax(0,1fr);width:100%;max-width:100%;gap:25px;min-width:0;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC",system-ui,sans-serif;color:#343649}
  .koolo-desktop-home *{box-sizing:border-box}
  .koolo-desktop-home a{text-decoration:none}
  .koolo-desktop-home :is(a,button):focus-visible{outline:3px solid #665ac1;outline-offset:3px}
@@ -75,6 +75,9 @@
  .kdh-shortcut-friends .kdh-shortcut-icon,.kdh-shortcut-shorts .kdh-shortcut-icon{background:#fde7eb;color:#ab637d}
  .kdh-shortcut-games .kdh-shortcut-icon,.kdh-shortcut-story .kdh-shortcut-icon{background:#fdf0dd;color:#bd865a}
  .kdh-shortcut-fortune .kdh-shortcut-icon,.kdh-shortcut-timeline .kdh-shortcut-icon{background:#e7f5f0;color:#6b9d8d}
+ /* Keep the ten-card Shorts strip scrollable inside its own grid item, never the page. */
+ .kdh-moments{min-width:0;max-width:100%}
+ .kdh-moments .crew-home-shorts-grid,.kdh-moments .crew-home-shorts-loading{max-width:100%}
  .kdh-moments .crew-home-shorts{background:#fff;border:1px solid #ece6ef;border-radius:24px;box-shadow:0 6px 24px #40304d0b;padding:22px 26px}
  .kdh-moments .crew-home-shorts-heading h2{font-size:24px;color:#3c4052}
  .kdh-moments .crew-home-short-card{border-radius:17px;overflow:hidden}
