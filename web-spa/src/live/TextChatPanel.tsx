@@ -1,4 +1,5 @@
 import {LiveTextConversation} from "./liveTextChat";
+import {GUEST_TOKEN_ENDPOINT} from "../lib/guestTrial";
 import {awardCreatureChatEnergy} from "../pages/creatureChatRewards.mjs";
 import {GuestKeyRecovery} from "./GuestKeyRecovery";
 import {textChatByokMessage} from "./textChatByokMessage";
@@ -32,7 +33,7 @@ import "./TextChatPanel.css";
 type Message={role:"user"|"assistant";text:string;sources?:GroundingSource[];searchSuggestions?:string};
 type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;starters?:string[];showStarterWithHistory?:boolean;autoStarter?:string;replyFallback?:string[];shortsContext?:string;onExchange?:()=>void};
 type GuestPhase="checking"|"ready"|"starting"|"active"|"unavailable"|"error"|"exhausted"|"paused";
-const GUEST_TEXT_ENDPOINT="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/text";
+const GUEST_TEXT_ENDPOINT=GUEST_TOKEN_ENDPOINT.replace(/\/token$/,"/text");
 const SESSION_STORAGE_KEY="crew_guest_text_session_v1";
 function getSavedGuestSession(){
  try{

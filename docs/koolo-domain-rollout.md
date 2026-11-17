@@ -18,7 +18,7 @@ This PR makes both precise HTTPS origins available to the Pages and standalone G
 If `p.koolo.app` has already been added under **crew-guest-trial → Settings → Domains & Routes**, keep it there. This code adds the same Custom Domain in `wrangler.toml` and allows the Worker to respond to both `p.koolo.app` and `crew-guest-trial.shanliyoung.workers.dev` (both exact HTTPS hosts).
 1. Deploy from repository root: `npx wrangler deploy --dry-run --config workers/guest-trial/wrangler.toml`, followed by `npx wrangler deploy --config workers/guest-trial/wrangler.toml`.
 2. Confirm the Worker responds to `OPTIONS https://p.koolo.app/api/guest/token` with `Origin: https://koolo.app`: status 204, `access-control-allow-origin: https://koolo.app`. Also verify old origin/host.
-3. **Only after verification**, update the Web frontend's `GUEST_TOKEN_ENDPOINT` (and its text endpoint derived from that URL) for `koolo.app` users to `https://p.koolo.app`. Until then, the Web app continues using the old `workers.dev` endpoint.
+3. After the Worker endpoint is verified, deploy `chatgpt/koolo-frontend-guest-api`. Exact `https://koolo.app` now uses `https://p.koolo.app` for both Live and text trial; legacy `www.3sssi.com`, previews and Android continue using the old `workers.dev` endpoint. This does not switch SEO/301.
 4. Turnstile allowed hostname should include `koolo.app`, **not** `p.koolo.app`: the challenge is rendered by the website, not the API Worker. Keep `www.3sssi.com`.
 5. Do not disable the old `workers.dev` hostname or change D1, production secrets, quotas, Cron or OAuth callback settings as part of this Worker-only deployment.
 
