@@ -40,8 +40,15 @@ test("Incidental meals, backdrop words and previous post topics do not select fo
 });
 test("Actual food-photo prompts are food or neutral, never unrelated topics",async()=>{
  const {shortsPhotoQuestions}=await social();
+ // posts.json only holds the 100 newest cards. These food stories are still
+ // published in the v2 archive, so resolve the actual published posts by ID.
+ const index=JSON.parse(read("features/teacher/shorts/v2/index.json"));
  for(const id of ["hugo-20261109","luna-20261110","hugo-20261107","luna-20261107"]){
-  const post=byId.get(id);assert.ok(post,id);
+  const pagePath=index.lookup[id];
+  assert.match(pagePath,/^\/features\/teacher\/shorts\/v2\/pages\/[0-9]{5}\.json$/,id);
+  const archive=JSON.parse(read(pagePath.slice(1)));
+  const post=archive.posts.find(item=>item.id===id);
+  assert.ok(post,"missing archived food post "+id);
   const questions=shortsPhotoQuestions(post,translate);
   assert.equal(key(questions[0]?.label||""),"food",id);
  }

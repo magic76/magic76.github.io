@@ -29,14 +29,26 @@ export type ShortsQuestionTranslator=(key:`photoTopics.${ShortsTopic}.${"first"|
 // absent: they can describe a backdrop rather than what the friend is doing.
 // A false positive sends the visitor into an irrelevant first chat turn; [] lets
 // both the Shorts card and homepage use their existing neutral conversation hooks.
+// A repair topic needs an actual repair action AND the item being worked on.
+// "repair manual", "repair meetup" and unrelated objects are not repairs.
+// Keep this conservative: a neutral photo question is safer than asking about an
+// invented fix. The window is short enough to keep separate events apart.
+const REPAIR_ACTION=/\b(?:fix(?:ed|ing)?|patch(?:ed|ing)?|replac(?:ed|ing)|sharpen(?:ed|ing)|tighten(?:ed|ing)|repair(?:ed|ing)|repair (?=(?:a|the|my|our|this|that)\b))\b/i;
+const REPAIR_OBJECT=/\b(?:bikes?|bicycles?|tyres?|tires?|tubes?|mouse feet|buttons?|scissors?|hinges?|screws?|pinball machines?|tables?|chairs?|lamps?|zippers?|taps?|pipes?|jackets?|coats?)\b/i;
+function hasRepairActionOnObject(caption:string):boolean{
+ const actions=[...caption.matchAll(new RegExp(REPAIR_ACTION.source,"gi"))];
+ const objects=[...caption.matchAll(new RegExp(REPAIR_OBJECT.source,"gi"))];
+ return actions.some(action=>objects.some(object=>Math.abs((action.index??0)-(object.index??0))<=85));
+}
 const TOPIC_CUES:readonly {topic:ShortsTopic;pattern:RegExp}[]=[
  {topic:"craft",pattern:/\b(?:sew(?:ing|n)?|stitched?|embroider(?:ing|y|ed (?:a|the|my))|paint(?:ed|ing)?|sketch(?:ed|ing)?|draw(?:ing|n)?|basket.weav(?:ing|e)|weav(?:ing|e) (?:a |the )?basket|pottery|clay whistle|craft workshop|carv(?:ed|ing)|knit(?:ted|ting)|paper planes?|padded pouch|(?:bowl|pot) is back from firing|sponge clouds (?:are|in)|(?:handmade|made) (?:a |the )?(?:scarf|pouch|basket|pot)|shelf home from class)\b/i},
- {topic:"repair",pattern:/\b(?:fix(?:ed|ing)?|repair(?:ed|ing)?|patch(?:ed|ing)? (?:the |a )?(?:tyre|tire|tube)|patched (?:tyre|tire)|puncture|replac(?:ed|ing) (?:the )?mouse feet|(?:blunt|sharpened) scissors|loose button|thermal camera at (?:a |the )?repair|(?:bike|inner) tube|flat (?:tire|tyre)|leaking (?:tube|tap|pipe)|squeaky hinge)\b/i},
+ {topic:"repair",pattern:REPAIR_ACTION},
  {topic:"find",pattern:/\b(?:(?:lost|missing) (?:my|her|his|the|a) (?:earring|bookmark|slipper|keys?|bag|purse)|found (?:my|her|his|the|a) (?:lost|missing) |(?:ball|earring|bookmark|slipper) (?:rolled|fell) (?:into|under).{0,60}\b(?:got|retrieved|found) (?:it |them )?back)\b/i},
  {topic:"home",pattern:/\b(?:doorstop|(?:new|lower|higher|extra) shelf|(?:cabinet|curtains?|desk lamp|felt pad|monitor glare) (?:was|kept|needed|fixed|moved|changed)|shelf (?:installed|freed|is level)|(?:moved|put) (?:the |my )?(?:heavier |last )?(?:tins|boxes) on (?:the |a )?(?:lower|new) shelf|wind chime.{0,70}felt|felt.{0,70}wind chime|(?:flask|bag) strap.{0,90}(?:webbing|loop)|(?:webbing|loop).{0,90}(?:flask|bag) strap|(?:rearranged|adjusted) (?:the |my )?(?:desk|curtains?|furniture)|divided drawer)\b/i},
  {topic:"food",pattern:/\b(?:dumpling(?:s| dip)?|steamed bun|hot bun|bun was still warm|ginger duck|baked potatoes|(?:baked|baking|made) (?:some |a |the )?(?:bread|cake|scones?|noodles?|soup)|scones? without|(?:flavou?r|taste) (?:of |like )?(?:the |this |a )?(?:food|dish|sauce)|(?:vinegar|dressing) (?:from|over|on) (?:that |the )?(?:dumpling|cucumber)|(?:trail mix|pumpkin) (?:has become|produced|finished|into dinner)|(?:ate|tasted) (?:that |the |my |an? )?(?:trail mix|bun|dumplings?|potatoes|noodles)|(?:smell of )?baked potatoes)\b/i},
  {topic:"sport",pattern:/\b(?:practic(?:e|ed|ing) (?:badminton |tennis |squash |bowling |my |the |some )?(?:serves?|shots?|catches|squash|badminton|bowling)|stadium steps|stair session|roller skates?|slackline|(?:ten|\d+) (?:clean |one.hand )?catches|(?:disc|frisbee) landed.{0,60}basket|(?:green|climbing) hold|finger tape|dance class|squash|bowling|balance beam|workout|(?:slow )?jog on (?:the )?sand|pool.{0,80}first length|(?:exercise|fitness) session)\b/i},
- {topic:"travel",pattern:/\b(?:took the ferry|ferry (?:back|ride)|(?:bus|train) (?:seat|ride|window)|took (?:the |a )?(?:train|bus)|hillside tram|(?:hiked|hiking) (?:up|down|along|through)|(?:walked|walking) (?:the |a )?(?:trail|route)|trip (?:to|back|home)|(?:boat|ferry) (?:journey|crossing))\b/i},
+ // A "trip to the desk" is an errand, not a journey; require an explicit travel cue.
+ {topic:"travel",pattern:/\b(?:took the ferry|ferry (?:back|ride)|(?:bus|train) (?:seat|ride|window)|took (?:the |a )?(?:train|bus)|hillside tram|(?:hiked|hiking) (?:up|down|along|through)|(?:walked|walking) (?:the |a )?(?:trail|route)|(?:boat|ferry) (?:journey|crossing))\b/i},
  {topic:"nature",pattern:/\b(?:stone turns? (?:almost )?(?:black|dark) when wet|(?:tiny|new) roots|(?:plant|soil) had (?:finished )?draining|(?:trees?|bark) (?:without|looked|made|has)|(?:spotted|watched|observed) (?:a |the )?(?:bird|birds|clouds|waves|moon)|(?:notic(?:ed|ing)|watch(?:ed|ing)) (?:the |a )?(?:clouds|leaves|moon|sunlight|breeze|waves))\b/i}
 ];
 export function shortsPhotoQuestions(post:ShortPost,translate:ShortsQuestionTranslator):ShortsPhotoQuestion[]{
@@ -45,7 +57,7 @@ export function shortsPhotoQuestions(post:ShortPost,translate:ShortsQuestionTran
  if(caption.length<24)return [];
  // imageAlt and storyContext can contain location props, meals and other side details;
  // the approved caption is the only evidence for the post's principal activity.
- const topic=TOPIC_CUES.find(({pattern})=>pattern.test(caption))?.topic;
+ const topic=TOPIC_CUES.find(({topic,pattern})=>pattern.test(caption)&&(topic!=="repair"||hasRepairActionOnObject(caption)))?.topic;
  if(!topic)return [];
  return (["first","second"] as const).map((variant,index)=>({
   index,label:translate(`photoTopics.${topic}.${variant}`)
