@@ -46,7 +46,7 @@ test("#20: first visit is ineligible, a different session counts as a return",()
  assert.ok(start>=0&&end>start,"visit guard function missing");
  const storage=()=>{const values=new Map();return {getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,String(v))};};
  const ctx={localStorage:storage(),sessionStorage:storage()};
- const check=vm.runInNewContext(ui.slice(start,end+2)+"\nhasReturnVisit",ctx);
+ const check=vm.runInNewContext('const HOME_VISITED_KEY="crew_pwa_home_visited_v1";const HOME_VISIT_SESSION_KEY="crew_pwa_home_visit_session_v1";\n'+ui.slice(start,end+2)+"\nhasReturnVisit",ctx);
  assert.equal(check(),false,"fresh visitors never get a nudge just by opening Home");
  assert.equal(check(),false,"same session navigation is not a return visit");
  ctx.sessionStorage=storage();
