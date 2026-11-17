@@ -8,7 +8,7 @@ export const GUEST_TOKEN_ENDPOINT=typeof window!=="undefined"&&
  ?"https://p.koolo.app/api/guest/token"
  :"https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
 export function guestTrialDiscoveryEnabled():boolean{
- return typeof window!=="undefined"&&!isCrewAndroidShell();
+ return typeof window!=="undefined"&&(!isCrewAndroidShell()||["https://koolo.app","https://www.koolo.app"].includes(window.location.origin));
 }
 export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number;signinRequired?:boolean;memberMetering?:boolean;trial?:{used:number;limit:number}};
 export function invalidateGuestTrialConfig(){cachedConfig=null;cachedAt=0}
