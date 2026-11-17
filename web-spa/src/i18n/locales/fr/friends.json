@@ -113,7 +113,14 @@
     "meaning": {
       "cafe": "Salut {{name}} ! Un café, s’il te plaît.",
       "intro": "Salut {{name}} ! J’aimerais me présenter.",
-      "smalltalk": "Salut {{name}} ! Comment vas-tu aujourd’hui ?"
+      "smalltalk": "Salut {{name}} ! Comment vas-tu aujourd’hui ?",
+      "funny": "Salut {{name}} ! Qu'est-ce qui t'a fait rire aujourd'hui ?",
+      "food": "Salut {{name}} ! Quel plat aimes-tu ?",
+      "travel": "Salut {{name}} ! Où voudrais-tu aller ?",
+      "make": "Salut {{name}} ! Qu'est-ce qu'on peut créer ?",
+      "idea": "Salut {{name}} ! Tu as une petite idée ?",
+      "outdoors": "Salut {{name}} ! Tu aimes te promener ?",
+      "weekend": "Salut {{name}} ! Que fais-tu le week-end ?"
     },
     "heading": "Touchez une phrase pour démarrer la discussion",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
@@ -146,9 +153,10 @@
       "guide-english-pronunciation": "Salut {{name}}, je veux pratiquer la prononciation anglaise avec une phrase simple.",
       "guide-gemini-key-for-ai-practice": "Salut {{name}}, j’ai lu le guide de clé Gemini. Tu peux expliquer la configuration ?",
       "research-article": "Salut {{name}}, je viens de lire un article de recherche. On en discute les idées principales ?"
-    }
-  }
-,
+    },
+    "openingHelp": "Tu ne sais pas quoi dire ? Touche une phrase ou écris dans ta langue.",
+    "tapToBegin": "Tu ne sais pas quoi dire ? Touche une phrase pour commencer."
+  },
   "dailyQuoteStarter": "La pensée du jour : « {{quote}} » J’aimerais en parler.",
   "dailyFortuneContinue": "J’aimerais poursuivre notre discussion sur l’interprétation du jour que tu viens de me donner. Quel est le point essentiel ?",
   "dailyFortuneStarter": "Aide-moi à comprendre ma fortune du jour",

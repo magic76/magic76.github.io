@@ -113,7 +113,14 @@
     "meaning": {
       "cafe": "Oi, {{name}}! Um café, por favor.",
       "intro": "Oi, {{name}}! Quero me apresentar.",
-      "smalltalk": "Oi, {{name}}! Como você está hoje?"
+      "smalltalk": "Oi, {{name}}! Como você está hoje?",
+      "funny": "Oi, {{name}}! O que te fez rir hoje?",
+      "food": "Oi, {{name}}! Que comida você gosta?",
+      "travel": "Oi, {{name}}! Para onde você quer ir?",
+      "make": "Oi, {{name}}! O que podemos criar hoje?",
+      "idea": "Oi, {{name}}! Tem uma ideia simples?",
+      "outdoors": "Oi, {{name}}! Você gosta de caminhar?",
+      "weekend": "Oi, {{name}}! O que faz no fim de semana?"
     },
     "heading": "Toque em uma frase para começar a conversar",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
@@ -146,9 +153,10 @@
       "guide-english-pronunciation": "Oi {{name}}, quero praticar pronúncia em inglês com uma frase simples.",
       "guide-gemini-key-for-ai-practice": "Oi {{name}}, li o guia da chave Gemini. Pode explicar como configurar?",
       "research-article": "Oi {{name}}, acabei de ler um artigo de pesquisa. Vamos conversar sobre os pontos principais?"
-    }
-  }
-,
+    },
+    "openingHelp": "Não sabe o que dizer? Toque numa frase ou escreva no seu idioma.",
+    "tapToBegin": "Não sabe o que dizer? Toque numa frase para começar."
+  },
   "dailyQuoteStarter": "A frase de hoje: “{{quote}}” Queria conversar sobre isso.",
   "dailyFortuneContinue": "Quero continuar falando sobre a leitura de hoje que você acabou de fazer. Qual é o ponto principal?",
   "dailyFortuneStarter": "Me ajude a interpretar a sorte de hoje",

@@ -113,7 +113,14 @@
     "meaning": {
       "cafe": "¡Hola, {{name}}! Un café, por favor.",
       "intro": "¡Hola, {{name}}! Quiero presentarme.",
-      "smalltalk": "¡Hola, {{name}}! ¿Cómo estás hoy?"
+      "smalltalk": "¡Hola, {{name}}! ¿Cómo estás hoy?",
+      "funny": "¡Hola, {{name}}! ¿Qué te hizo reír hoy?",
+      "food": "¡Hola, {{name}}! ¿Qué comida te gusta?",
+      "travel": "¡Hola, {{name}}! ¿Adónde te gustaría ir?",
+      "make": "¡Hola, {{name}}! ¿Qué podemos crear hoy?",
+      "idea": "¡Hola, {{name}}! ¿Tienes una idea sencilla?",
+      "outdoors": "¡Hola, {{name}}! ¿Te gusta pasear?",
+      "weekend": "¡Hola, {{name}}! ¿Qué haces los fines de semana?"
     },
     "heading": "Toca una frase para empezar a chatear",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
@@ -146,9 +153,10 @@
       "guide-english-pronunciation": "Hola {{name}}, quiero practicar pronunciación en inglés con una frase sencilla.",
       "guide-gemini-key-for-ai-practice": "Hola {{name}}, leí la guía de la clave de Gemini. ¿Me explicas cómo configurarla?",
       "research-article": "Hola {{name}}, acabo de leer un artículo de investigación. ¿Comentamos sus ideas principales?"
-    }
-  }
-,
+    },
+    "openingHelp": "¿No sabes qué decir? Toca una frase o escribe en tu idioma.",
+    "tapToBegin": "¿No sabes qué decir? Toca una frase para empezar."
+  },
   "dailyQuoteStarter": "La frase de hoy: «{{quote}}». Me gustaría hablar de ella.",
   "dailyFortuneContinue": "Quiero seguir hablando de la lectura de hoy que acabas de darme. ¿Qué significa lo más importante?",
   "dailyFortuneStarter": "Ayúdame a interpretar mi fortuna de hoy",

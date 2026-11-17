@@ -121,6 +121,6 @@ test("starter is opt-in and uses the unchanged verified first-send path",()=>{
  assert.match(panel,/historyReady&&!messages\.length&&!draft\.trim\(\)&&!busy/);
  assert.doesNotMatch(friend,/sendMessage\(shortsStarter\)|setDraft\(shortsStarter\)/);
  assert.match(friend,/starters=\{dailyEntry\?\[t\("dailyFortuneStarters\.goodFor"\),t\("dailyFortuneStarters\.watchOut"\)\]:undefined\}/);
- assert.match(starters,/\["cafe","intro","smalltalk"\]/);
+ assert.match(starters,/friendStarterTopics\(speaker\)\.map\(key=>/);
  assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
 });

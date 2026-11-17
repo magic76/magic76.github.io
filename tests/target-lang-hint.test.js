@@ -17,44 +17,41 @@ const starters=read("web-spa/src/live/TextChatStarters.tsx");
 const friend=read("web-spa/src/friends/FriendLivePage.tsx");
 function starterState({target="日文",ui="zh-TW",resolved=ui,mode="bilingual",firstOnly=false,overrides=false}={}){
  const expression=starters.slice(starters.indexOf(" const targetCode="),starters.indexOf(" return <div"));
- assert.match(expression,/const showHint=showMeaning&&friendChatMode!=="immersion"/);
+ assert.match(expression,/const showMeaning=hasTargetStarters&&uiCode!==targetCode/);
  const ctx={TARGET_LANGUAGES:api.TARGET_LANGUAGES,targetLanguage:target,
   i18n:{resolvedLanguage:resolved,language:ui},friendChatMode:mode,firstOnly,starters:overrides?["override"]:undefined};
- vm.runInNewContext(expression+"\nthis.value={targetCode,hasTargetStarters,showMeaning,showHint};",ctx);
+ vm.runInNewContext(expression+"\nthis.value={targetCode,hasTargetStarters,showMeaning};",ctx);
  return ctx.value;
 }
-test("default non-English target starts with target-language phrase only; English branch retains its exact submit",()=>{
+test("English and non-English targets use practiced-language phrases with localized meanings",()=>{
  assert.match(starters,/useTeacherStore\(s=>s\.targetLanguage\)/);
- assert.match(starters,/useTeacherStore\(s=>s\.friendChatMode\)/);
+ assert.match(starters,/friendStarterTopics\(speaker\)\.map\(key=>/);
  assert.match(starters,/targetStarterPhrase\(targetCode,key,speaker\)/);
  assert.match(starters,/onClick=\{\(\)=>onPick\(phrase\)\}/);
- assert.match(starters,/onClick=\{\(\)=>onPick\(t\("textStarters\."\+key,\{name:speaker\}\)\)\}/);
- assert.match(starters,/!firstOnly&&!starters&&\(\["cafe","intro","smalltalk"\]/);
+ assert.match(starters,/firstStarter&&<button[^>]+onClick=\{\(\)=>onPick\(firstStarter\)\}/);
  assert.equal(starterState().targetCode,"ja");
  assert.equal(starterState().hasTargetStarters,true);
  assert.equal(api.targetStarterPhrase("ja","cafe","Zoe"),"こんにちは、Zoe！コーヒーをください。");
- assert.notEqual(api.targetStarterPhrase("ja","cafe","Zoe"),"嗨 Zoe！請給我一杯咖啡。");
- assert.equal(starterState({target:"英文"}).hasTargetStarters,false);
- assert.equal(starterState({target:"英文"}).showHint,false);
+ assert.equal(starterState({target:"英文"}).targetCode,"en");
+ assert.equal(starterState({target:"英文"}).hasTargetStarters,true);
+ assert.equal(starterState({target:"英文"}).showMeaning,true);
+ assert.match(api.targetStarterPhrase("en","funny","Zoe"),/^Hi Zoe!/);
  assert.doesNotMatch(starters,/sendMessage\(|setDraft\(|fetch\(|submit\(|getUserMedia\(/);
 });
-test("overrides, firstOnly, and same UI language suppress hint and meanings",()=>{
- for(const state of [{firstOnly:true},{overrides:true},{target:"英文"},
-  {ui:"ja",resolved:"en"},
+test("firstOnly, overrides, and matching UI/target locale suppress generic phrase meanings",()=>{
+ for(const state of [{firstOnly:true},{overrides:true},{target:"英文",ui:"en"},
+  {target:"日文",ui:"ja",resolved:"en"},
   {target:"中文",ui:"zh-TW",resolved:"en"},
   {target:"葡萄牙文",ui:"pt-BR",resolved:"en"}]){
   const result=starterState(state);
-  assert.equal(result.showHint,false,JSON.stringify(state));
   assert.equal(result.showMeaning,false,JSON.stringify(state));
   if(state.firstOnly||state.overrides)assert.equal(result.hasTargetStarters,false);
  }
- assert.equal(starterState({mode:"immersion"}).showHint,false);
  assert.equal(starterState({mode:"immersion"}).showMeaning,true);
- assert.equal(starterState().showHint,true);
- assert.equal(starterState({ui:"zh-TW",resolved:"ja"}).showHint,true,"must use actual UI language, not resolved fallback");
- assert.match(starters,/i18n\.language\|\|i18n\.resolvedLanguage/,"actual UI language takes precedence over i18n fallback");
- assert.match(starters,/showHint&&<p className="crew-text-starters-target-hint"/);
+ assert.equal(starterState({target:"英文",ui:"zh-TW",resolved:"en"}).showMeaning,true);
+ assert.match(starters,/i18n\.language\|\|i18n\.resolvedLanguage/);
  assert.match(starters,/showMeaning&&<span className="crew-text-starter-meaning"/);
+ assert.match(starters,/friendChatMode==="immersion"\?"textStarters\.tapToBegin":"textStarters\.openingHelp"/);
 });
 test("all 11 locales have string-only beginner hints and three meaningful translations",()=>{
  for(const loc of langs){
@@ -65,7 +62,7 @@ test("all 11 locales have string-only beginner hints and three meaningful transl
   assert.match(targetHint,/\{\{language\}\}/,loc);
   const interpolationCount=value=>[...value.matchAll(/\{\{\s*([^{}]*?)\s*\}\}/g)].map(match=>match[1]).sort();
   assert.deepEqual(interpolationCount(targetHint),["language","name","name"],loc+" must match published en token counts");
-  assert.deepEqual(Object.keys(meaning).sort(),["cafe","intro","smalltalk"],loc);
+  assert.deepEqual(Object.keys(meaning).sort(),["cafe","food","funny","idea","intro","make","outdoors","smalltalk","travel","weekend"],loc);
   for(const key of ["cafe","intro","smalltalk"]){
    assert.ok(typeof meaning[key]==="string"&&meaning[key].trim().length>8,loc+" "+key);
    assert.match(meaning[key],/\{\{name\}\}/,loc+" "+key);
@@ -83,7 +80,7 @@ test("11 target languages each have all three named natural phrases, no old Engl
    assert.doesNotMatch(phrase,/\{\{name\}\}|Can we pretend|introduce myself|How has your day/i,code+" "+key);
   }
  }
- assert.equal(api.targetStarterPhrase("en","cafe","Zoe"),"");
+ assert.equal(api.targetStarterPhrase("en","cafe","Zoe"),"Hi Zoe! A coffee, please.");
 });
 test("text-only prompt: mode, target, gloss; original voice reminder is unchanged",()=>{
  const prompt=api.friendBeginnerTextStart("日文","zh-TW","bilingual");

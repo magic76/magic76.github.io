@@ -113,7 +113,14 @@
     "meaning": {
       "cafe": "Hi {{name}}! A coffee, please.",
       "intro": "Hi {{name}}! I want to introduce myself.",
-      "smalltalk": "Hi {{name}}! How are you today?"
+      "smalltalk": "Hi {{name}}! How are you today?",
+      "funny": "Hi {{name}}! What made you laugh today?",
+      "food": "Hi {{name}}! What food do you like?",
+      "travel": "Hi {{name}}! Where would you like to go?",
+      "make": "Hi {{name}}! What can we make today?",
+      "idea": "Hi {{name}}! What is one small idea you have?",
+      "outdoors": "Hi {{name}}! Do you like walking outside?",
+      "weekend": "Hi {{name}}! What do you do on weekends?"
     },
     "heading": "Tap a phrase to start chatting",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
@@ -146,9 +153,10 @@
       "guide-english-pronunciation": "Hi {{name}}, I’d like to practice English pronunciation, starting with one common sentence.",
       "guide-gemini-key-for-ai-practice": "Hi {{name}}, I read the Gemini Key guide. Can you explain the setup simply?",
       "research-article": "Hi {{name}}, I just read a research article. Can we discuss its main ideas?"
-    }
-  }
-,
+    },
+    "openingHelp": "Not sure what to say? Tap a phrase, or type in your own language.",
+    "tapToBegin": "Not sure what to say? Tap a phrase to start."
+  },
   "dailyQuoteStarter": "Today’s thought: “{{quote}}” I’d love to talk about it.",
   "dailyFortuneContinue": "I'd like to follow up on the fortune reading you just gave me. What does its main point mean for today?",
   "dailyFortuneStarter": "Help me understand today’s fortune",

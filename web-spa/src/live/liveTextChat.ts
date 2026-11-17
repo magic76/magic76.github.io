@@ -2,6 +2,12 @@ import {ensureLive,type LiveSession} from "../lib/runtime";
 import {FRIEND_TEXT_INSTRUCTIONS} from "./textChatReplies";
 import {extractGroundingSources,extractSearchSuggestions,mergeGroundingSources,type GroundingSource} from "./grounding";
 
+/** Friend Easy mode only: other levels and voice keep their existing instructions. */
+export function easyFriendTextReplyRule(system:string,friendScope:boolean){
+ if(!friendScope||!system.includes("[FRIEND LANGUAGE CONTROL — TARGET CHAT WITH NATIVE HELP"))return "";
+ return "\n[FRIEND TEXT CHAT — EASY MODE] Every reply must be 1-2 short sentences, using common everyday words. No slang, idioms, complex metaphors, or long paragraphs. Ask at most ONE simple question per reply; make it easy to answer with a few words. For the FIRST 3 assistant replies, use no more than 20 English words (or an equally short amount in the target language) per reply. Keep the friend's personality warm and natural, but always prioritize beginner clarity.";
+}
+
 export type LiveTextAnswer={text:string;sources:GroundingSource[];searchSuggestions?:string};
 type Pending={resolve:(answer:LiveTextAnswer)=>void;reject:(error:Error)=>void;timer:ReturnType<typeof setTimeout>;idleTimer?:ReturnType<typeof setTimeout>;onPartial?:(text:string)=>void};
 
@@ -55,7 +61,7 @@ export class LiveTextConversation{
     if(!window.CrewLive?.Session)throw new Error("Gemini Live runtime unavailable");
     const session=new window.CrewLive.Session({
      textOnly:true,models:["gemini-3.8-live"],maxLiveAttempts:1,
-     system:this.system+"\n[KEYBOARD CHAT] Respond naturally in the configured character and language. The user types messages. Return clear, concise conversational replies."+(this.searchEnabled?"\n[CURRENT FACTS] Do not claim live web search access in ordinary chat; ask the user to use a dedicated search action for current facts.":"")+(this.friendScope?FRIEND_TEXT_INSTRUCTIONS:""),
+     system:this.system+"\n[KEYBOARD CHAT] Respond naturally in the configured character and language. The user types messages. Return clear, concise conversational replies."+(this.searchEnabled?"\n[CURRENT FACTS] Do not claim live web search access in ordinary chat; ask the user to use a dedicated search action for current facts.":"")+(this.friendScope?FRIEND_TEXT_INSTRUCTIONS:"")+easyFriendTextReplyRule(this.system,this.friendScope),
      openingPrompt:"",voice:"Kore",volume:0,connectTimeoutMs:12000,
      // Unlike an on-demand search, ordinary teacher/friend conversation must
      // not automatically attach Google Search. That optional tool has separate

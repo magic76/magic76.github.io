@@ -124,7 +124,7 @@ test("quote starter is allowlisted, same-language, opt-in and Shorts retains pri
  assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
  assert.match(chat,/historyReady&&messages\.length>0&&showStarterWithHistory&&firstStarter/);
  assert.match(chat,/firstOnly\/>/);
- assert.match(starters,/!firstOnly&&!starters&&\(\["cafe","intro","smalltalk"\]/);
+ assert.match(starters,/!firstOnly&&!starters&&friendStarterTopics\(speaker\)/);
  assert.match(chat,/onPick=\{sentence=>void sendMessage\(sentence\)\}/);
  assert.match(chat,/sessionScope\.startsWith\("friend:"\)/);
  assert.match(friend,/getDailyTopic\(params\.get\("topic"\)\)/);

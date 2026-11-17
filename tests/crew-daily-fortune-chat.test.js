@@ -49,8 +49,9 @@ test("only the daily entry substitutes translated fortune starters",()=>{
  assert.match(panel,/firstStarter=\{firstStarter\} firstOnly\/\>/);
  assert.match(starters,/!firstOnly&&starters\?\.map/);
  assert.match(starters,/onClick=\{\(\)=>onPick\(sentence\)\}/);
- assert.match(starters,/!firstOnly&&!starters&&\(\["cafe","intro","smalltalk"\]/);
- assert.match(starters,/onClick=\{\(\)=>onPick\(t\("textStarters\."\+key,\{name:speaker\}\)\)\}/);
+ assert.match(starters,/!firstOnly&&!starters&&friendStarterTopics\(speaker\)\.map\(key=>/);
+ assert.match(starters,/onClick=\{\(\)=>onPick\(phrase\)\}/);
+ assert.match(starters,/const phrase=targetStarterPhrase\(targetCode,key,speaker\)/);
  assert.match(panel,/onPick=\{sentence=>void sendMessage\(sentence\)\}/);
  assert.doesNotMatch(starters,/sendMessage\(|setDraft\(|fetch\(|submit\(/);
 });

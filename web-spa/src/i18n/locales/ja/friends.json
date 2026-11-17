@@ -113,7 +113,14 @@
     "meaning": {
       "cafe": "こんにちは、{{name}}！コーヒーをください。",
       "intro": "こんにちは、{{name}}！自己紹介をしたいです。",
-      "smalltalk": "こんにちは、{{name}}！今日は元気ですか？"
+      "smalltalk": "こんにちは、{{name}}！今日は元気ですか？",
+      "funny": "こんにちは、{{name}}！今日は何が面白かった？",
+      "food": "こんにちは、{{name}}！好きな食べ物は何？",
+      "travel": "こんにちは、{{name}}！どこに行きたい？",
+      "make": "こんにちは、{{name}}！今日は何を作ろうか？",
+      "idea": "こんにちは、{{name}}！何か小さなアイデアはある？",
+      "outdoors": "こんにちは、{{name}}！散歩は好き？",
+      "weekend": "こんにちは、{{name}}！週末は何をする？"
     },
     "heading": "一文をタップしてすぐに会話",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
@@ -146,9 +153,10 @@
       "guide-english-pronunciation": "{{name}}、英語の発音を練習したい。簡単な一文から始めよう。",
       "guide-gemini-key-for-ai-practice": "{{name}}、Gemini Keyのガイドを読んだよ。設定方法を簡単に教えて。",
       "research-article": "{{name}}、研究記事を読んだよ。大切なポイントを一緒に整理したい。"
-    }
-  }
-,
+    },
+    "openingHelp": "何から話すか迷ったら、文をタップ。自分の言葉で入力してもOK。",
+    "tapToBegin": "何から話すか迷ったら、文をタップして始めよう。"
+  },
   "dailyQuoteStarter": "今日のひとこと「{{quote}}」について話してみたいな。",
   "dailyFortuneContinue": "さっきの今日の運勢の解説について、もう少し聞きたい。大切なポイントから教えて。",
   "dailyFortuneStarter": "今日の運勢を読み解いて",

@@ -74,7 +74,7 @@ test('friend prompts cover Live and free Worker; teacher is not subject to the s
  const panel=read('web-spa/src/live/TextChatPanel.tsx');
  const live=read('web-spa/src/live/liveTextChat.ts');
  assert.match(panel,/sessionScope\.startsWith\("friend:"\)/);
- assert.match(panel,/const guestSystem=isFriend\?friendGuestSystem\(guestBase\):guestBase/);
+ assert.match(panel,/const guestSystem=isFriend\?friendGuestSystem\(guestBase\+easyFriendTextReplyRule\(guestBase,isFriend\)\):guestBase/);
  assert.match(panel,/status=>\{if\(mounted\.current\)setLiveStatus\(status\)\},isFriend/);
  assert.match(live,/this\.friendScope\?FRIEND_TEXT_INSTRUCTIONS:""/);
  assert.match(live,/this\.searchEnabled\?.*FRIEND_TEXT_INSTRUCTIONS/);

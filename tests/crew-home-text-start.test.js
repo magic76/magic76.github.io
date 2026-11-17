@@ -28,7 +28,7 @@ test("friend text empty state offers one-tap starters and preserves verification
  const style=read("web-spa/src/live/TextChatPanel.css");
  assert.match(panel,/historyReady&&!messages.length&&!draft.trim\(\)&&!busy&&sessionScope.startsWith\("friend:"\)/);
  assert.match(panel,/<TextChatStarters onPick=\{sentence=>void sendMessage\(sentence\)\} speaker=\{speaker\} firstStarter=\{firstStarter\} starters=\{starters\}\/>/);
- assert.match(starters,/onClick=\{\(\)=>onPick\(t\("textStarters\."\+key,\{name:speaker\}\)\)\}/);
+ assert.match(starters,/onClick=\{\(\)=>onPick\(phrase\)\}/);
  assert.match(starters,/type="button"/);
  assert.doesNotMatch(starters,/send\(|submit\(|fetch\(|getUserMedia\(/);
  assert.match(panel,/onSubmit=\{event=>\{event.preventDefault\(\);void sendMessage\(draft\)\}\}/);
