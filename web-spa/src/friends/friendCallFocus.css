@@ -36,3 +36,12 @@
  .friend-phone-stage .friend-caption-translation{max-height:12dvh}
 }
 @media(prefers-reduced-motion:reduce){.friend-phone-stage .friend-live-avatar{transition:none}}
+
+/* Keep the complete circular avatar glow inside the connected call stage.
+   The avatar's drop shadow must not be clipped by its identity row. */
+.friend-phone-stage>.live-identity{overflow:visible;flex-shrink:0;padding:12px 0 5px}
+.friend-phone-stage .friend-live-avatar{flex-shrink:0;overflow:visible;box-sizing:border-box}
+.friend-phone-stage .friend-live-avatar .crew-friend-avatar{border-radius:50%;overflow:hidden}
+@media(max-width:640px){
+ .friend-phone-stage>.live-identity{padding:10px 0 5px}
+}
