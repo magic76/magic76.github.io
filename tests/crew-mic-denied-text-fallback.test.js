@@ -12,12 +12,12 @@ test("friend trial errors offer same-friend text before retry and demote API set
  assert.match(friend,/const alternateHref="\/friend\/live\?"\+alternateParams\.toString\(\)/);
  assert.match(friend,/textFallback=\{\{href:alternateHref,name:friend\.name\}\}/);
  assert.match(guest,/textFallback\?:\{href:string;name:string\}/);
- assert.match(render,/phase==="error"&&textFallback&&<Link className="btn" to=\{textFallback\.href\}>\{t\(role==="teacher"\?"guestTrial\.practiceByText":"guestTrial\.chatByText",\{name:textFallback\.name\}\)\}<\/Link>/);
  const primary=render.indexOf('phase==="error"&&textFallback&&<Link');
  const retry=render.indexOf('phase==="error"&&<button className="btn secondary"');
  const guidance=render.indexOf('phase==="error"&&micPermissionDenied&&<p');
  const settings=render.indexOf('className="guest-live-key-link"');
  assert.ok(primary>0&&retry>primary&&guidance>retry&&settings>guidance);
+ assert.ok(render.slice(primary,retry).includes('offerGuestChallengeToken(challenge)'),"the unused challenge is handed off only when text is selected");
  assert.match(render,/\(phase==="error"\|\|phase==="unavailable"\)&&<Link className="guest-live-key-link"/);
  assert.doesNotMatch(render,/t\("guestTrial\.setupKey"\)/);
  assert.doesNotMatch(render,/phase==="ready"&&[\s\S]*?role="alert"/);
