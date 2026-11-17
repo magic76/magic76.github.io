@@ -124,7 +124,7 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
    </Link>)}</div>
   </section>
   <section className="kdh-moments">
-   <HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>
+   <HomeShortsPreview maxPosts={10} sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>
   </section>
   <section className="kdh-daily"><DailyTopicCards variant="desktop"/></section>
   <section className="kdh-more"><GuideHub/></section>

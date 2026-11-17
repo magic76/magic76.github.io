@@ -94,7 +94,7 @@ test("Daily thought replaces topics, unchanged eight cards, Shorts and SEO remai
  assert.match(home,/<DailyTopicCards variant="desktop"\/>/);
  assert.equal((mobile.match(/\{id:"/g)||[]).length,8);
  assert.match(mobile,/className="cmh-app-grid">\{APPS.map/);
- assert.match(mobile,/HomeShortsPreview maxPosts=\{8\} sharedFeed=\{shortsFeed\}/);
+ assert.match(mobile,/HomeShortsPreview maxPosts=\{6\} sharedFeed=\{shortsFeed\}/);
  assert.match(home,/<HomeShortsPreview sharedFeed=\{shortsFeed\} sharedStatus=\{shortsStatus\}\/>/);
  assert.match(mobile,/className="cmh-seo"/);assert.match(mobile,/<GuideHub\/>/);
  assert.match(home,/className="crew-home-search-summary"/);
