@@ -99,6 +99,7 @@
     "preCallWaiting": "Menunggu verifikasi…",
     "preCallVerified": "Verifikasi berhasil. Siap mengobrol.",
     "preCallStart": "Mulai coba gratis",
+    "preCallTextFallback": "Chat lewat teks dulu dengan {{name}}",
     "preparingPost": "Menyiapkan topik foto temanmu…",
     "backAria": "Kembali ke Koolo Teman",
     "brand": "Teman Koolo · {{language}}",

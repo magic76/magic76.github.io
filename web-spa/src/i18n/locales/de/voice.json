@@ -99,6 +99,7 @@
     "preCallWaiting": "Warte auf die Bestätigung…",
     "preCallVerified": "Bestätigt – du kannst jetzt starten.",
     "preCallStart": "Kostenlos ausprobieren",
+    "preCallTextFallback": "Schreib zuerst mit {{name}}",
     "preparingPost": "Das Fotothema deines Freundes wird vorbereitet…",
     "backAria": "Zurück zu Koolo Freunde",
     "brand": "Koolo-Freund · {{language}}",

@@ -99,6 +99,7 @@
     "preCallWaiting": "Waiting for verification…",
     "preCallVerified": "Verified — ready to chat.",
     "preCallStart": "Start free trial",
+    "preCallTextFallback": "Chat with {{name}} by text first",
     "preparingPost": "Getting your friend's photo topic ready…",
     "backAria": "Back to Koolo Friends",
     "brand": "Koolo Friend · {{language}}",
