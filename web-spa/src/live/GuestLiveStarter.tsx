@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from "react";
-import {Link,useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
+import {canRetryGuestMicrophone,isGuestVoiceVerificationExpired} from "./guestMicRetry";
 import {clearGuestChallengeHandoff,offerGuestChallengeToken} from "./guestTextChallenge";
 import {useTranslation} from "react-i18next";
 import {ensureLive} from "../lib/runtime";
@@ -14,15 +15,10 @@ const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
 export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerified=false,textFallback,linksInNewTab=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";precall?:boolean;focusStartOnVerified?:boolean;textFallback?:{href:string;name:string};linksInNewTab?:boolean}){
  const {t}=useTranslation(["common","voice"]);
- const navigate=useNavigate();
  const linkTarget=linksInNewTab?{target:"_blank",rel:"noopener noreferrer"}:{};
  const [micUnavailable,setMicUnavailable]=useState(false);
  const [micPermissionDenied,setMicPermissionDenied]=useState(false);
- const microphoneHelp=()=>{
-  const agent=navigator.userAgent;
-  const key=/Macintosh|Mac OS X/.test(agent)?"micHelpMac":/Windows/.test(agent)?"micHelpWindows":"micHelpGeneric";
-  return t("guestTrial."+key);
- };
+ const microphoneHelp=()=>t("guestTrial.micSitePermission");
  const [siteKey,setSiteKey]=useState("");
  const [signinRequired,setSigninRequired]=useState(false);
  const [memberSignedIn,setMemberSignedIn]=useState(false);
@@ -119,7 +115,7 @@ export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerifie
  },[siteKey,phase]);
  useEffect(()=>{if(focusStartOnVerified&&phase==="ready"&&challenge)startButton.current?.focus({preventScroll:true})},[focusStartOnVerified,phase,challenge]);
  async function begin(){
-  if(busy.current||phase!=="ready"||!challenge)return;
+  if(busy.current||!challenge||(phase!=="ready"&&!canRetryGuestMicrophone(phase,micUnavailable,challenge)))return;
   busy.current=true;setMicPermissionDenied(false);setMicUnavailable(false);setPhase("starting");setMessage("");
   trackUsageEvent("guest_trial_start_click",role);
   let tokenRequested=false;
@@ -151,11 +147,12 @@ export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerifie
    const res=await fetch(GUEST_TOKEN_ENDPOINT,{method:"POST",cache:"no-store",
     headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge,...(authTicket?{authTicket}:{})})});
    if(!res.headers.get("content-type")?.includes("application/json"))throw Error("invalid response");
-   const data=await res.json() as GuestTrialGrant&{code?:string};
+   const data=await res.json() as GuestTrialGrant&{code?:string;error?:string};
    if(!res.ok||!data.token||!data.model||data.seconds!==300){
     trackUsageEvent("guest_trial_token_failed",role);
     if(active.current){
-     if(data.code==="SIGNIN_REQUIRED")setPhase("login");
+     if(isGuestVoiceVerificationExpired(res.status,data)){setChallenge("");setPhase("ready")}
+     else if(data.code==="SIGNIN_REQUIRED")setPhase("login");
      else if(data.code==="ALREADY_USED")setPhase("exhausted");
      else if(data.code==="DAILY_LIMIT")setPhase("full");
      else{setMessage(t("guestTrial.tempUnavailable"));setPhase("error")}
@@ -171,11 +168,6 @@ export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerifie
    const micFailed=blocked||noMicrophone;
    if(!tokenRequested&&denied)trackUsageEvent("guest_trial_mic_denied",role);
    else trackUsageEvent(tokenRequested?"guest_trial_token_failed":"guest_trial_setup_failed",role);
-   if(!tokenRequested&&micFailed&&textFallback&&active.current){
-    offerGuestChallengeToken(challenge);
-    navigate(textFallback.href,{replace:true});
-    return;
-   }
    if(micFailed)setMicUnavailable(true);
    if(denied){
     setMicPermissionDenied(true);
@@ -207,8 +199,11 @@ export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerifie
     <Link className="btn" to="/account#settings-gemini" {...linkTarget}>{t("guestTrial.continueKey")}</Link>
     <Link className="btn secondary" to="/games/1a2b" {...linkTarget}>{t("guestTrial.free1a2b")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role={phase==="error"&&micPermissionDenied?"alert":"status"}>{message||t("guestTrial.unavailable")}</p>}
-   {phase==="error"&&textFallback&&<Link className="btn" to={textFallback.href}>{t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}
-   {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{clearGuestChallengeHandoff();setChallenge("");setMicPermissionDenied(false);setMicUnavailable(false);setPhase("ready")}}>{t(micPermissionDenied?"guestTrial.retryMic":"guestTrial.retry")}</button>}
+   {phase==="error"&&textFallback&&<Link className="btn" to={textFallback.href} onClick={()=>offerGuestChallengeToken(challenge)}>{t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}
+   {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{
+    if(canRetryGuestMicrophone(phase,micUnavailable,challenge)){void begin();return}
+    clearGuestChallengeHandoff();setChallenge("");setMicPermissionDenied(false);setMicUnavailable(false);setPhase("ready");
+   }}>{t(micUnavailable?"guestTrial.retryMic":"guestTrial.retry")}</button>}
    {phase==="error"&&micPermissionDenied&&<p style={{fontSize:13,lineHeight:1.6,margin:0,overflowWrap:"anywhere"}}>{microphoneHelp()}</p>}
    {(phase==="error"||phase==="unavailable")&&<Link className="guest-live-key-link" style={{minHeight:44,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:13,lineHeight:1.5,textDecoration:"underline"}} to="/account#settings-gemini" {...linkTarget}>{t("guestTrial.keySettingsLink")}</Link>}
   </div>
