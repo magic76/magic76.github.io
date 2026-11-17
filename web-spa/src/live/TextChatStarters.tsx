@@ -2,6 +2,7 @@ import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {friendStarterTopics,targetStarterPhrase} from "../friends/targetStarters";
+import {gameRoundStarter} from "./gameRoundHandoff";
 import "./quoteTextStarter.css";
 
 /** A starter uses the same verified send path as the composer submit button. */
@@ -13,11 +14,12 @@ export function TextChatStarters({onPick,speaker,firstStarter,starters,firstOnly
  const uiCode=(i18n.language||i18n.resolvedLanguage||"").split("-")[0].toLowerCase();
  const hasTargetStarters=!firstOnly&&!starters;
  const showMeaning=hasTargetStarters&&uiCode!==targetCode;
+ const gameStarter=typeof window==="undefined"?undefined:gameRoundStarter(targetLanguage,speaker,window.location.search);
  return <div className={"crew-text-starters"+(firstOnly?" crew-quote-resume-starters":"")} aria-label={t("textStarters.heading")}>
   <span className="crew-text-starters-heading">{t("textStarters.heading")}</span>
   {!firstOnly&&<p className="crew-text-starters-target-hint">{t(friendChatMode==="immersion"?"textStarters.tapToBegin":"textStarters.openingHelp")}</p>}
   <div className="crew-text-starters-options">
-   {firstStarter&&<button type="button" className="crew-text-starter" onClick={()=>onPick(firstStarter)}>{firstStarter}</button>}
+   {(gameStarter||firstStarter)&&<button type="button" className="crew-text-starter" onClick={()=>onPick((gameStarter||firstStarter)!)}>{gameStarter||firstStarter}</button>}
    {!firstOnly&&starters?.map((sentence,index)=><button key={index} type="button"
     className="crew-text-starter" onClick={()=>onPick(sentence)}>{sentence}</button>)}
    {!firstOnly&&!starters&&friendStarterTopics(speaker).map(key=>{
