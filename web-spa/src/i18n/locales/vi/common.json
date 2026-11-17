@@ -76,6 +76,7 @@
     "micTextFallback": "Bạn có thể nhắn tin miễn phí với {{name}}, không cần mic.",
     "micNotFound": "Không tìm thấy micrô khả dụng.",
     "retryMic": "Tôi đã bật mic, thử lại",
+    "micSitePermission": "Mở cài đặt trang web cạnh thanh địa chỉ (biểu tượng ổ khóa/cài đặt) và cho phép dùng micrô.",
     "microphoneNotice": "Khi bắt đầu trò chuyện thoại, trình duyệt sẽ dùng micrô của bạn.",
     "micHelpMac": "Mac: mở Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Micro và cho phép Edge / Chrome. Cũng cho phép trang này trong thanh địa chỉ. Khởi động lại trình duyệt sau khi đổi cài đặt.",
     "micHelpWindows": "Windows: mở Cài đặt → Quyền riêng tư & Bảo mật → Micro. Cho phép micro và ứng dụng máy tính rồi cho phép trang này trong Edge / Chrome.",

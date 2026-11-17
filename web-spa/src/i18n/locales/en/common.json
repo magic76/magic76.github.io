@@ -76,6 +76,7 @@
     "micTextFallback": "You can chat with {{name}} by text for free, no microphone needed.",
     "micNotFound": "No microphone found.",
     "retryMic": "I enabled my microphone — try again",
+    "micSitePermission": "Open site settings beside your browser's address bar (lock or sliders icon) and allow microphone access.",
     "microphoneNotice": "Your browser will use your microphone when you start voice chat.",
     "micHelpMac": "Mac: Open System Settings → Privacy & Security → Microphone and allow Microsoft Edge / Chrome. Also allow this site in your browser's address-bar permissions. Quit and reopen the browser after changing the system setting.",
     "micHelpWindows": "Windows: Open Settings → Privacy & security → Microphone. Allow microphone and desktop app access, then allow this site in Edge / Chrome.",
