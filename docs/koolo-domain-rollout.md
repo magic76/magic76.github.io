@@ -22,8 +22,8 @@ If `p.koolo.app` has already been added under **crew-guest-trial → Settings �
 4. Turnstile allowed hostname should include `koolo.app`, **not** `p.koolo.app`: the challenge is rendered by the website, not the API Worker. Keep `www.3sssi.com`.
 5. Do not disable the old `workers.dev` hostname or change D1, production secrets, quotas, Cron or OAuth callback settings as part of this Worker-only deployment.
 
-## Phase 2 — SEO and hostname cutover (**separate PR**, after Phase 1 validation)
-- [ ] Change the SEO generator, pre-rendered HTML/SSG, social OG URLs, JSON-LD, robots, sitemap and live SEO tests to `https://koolo.app`; regenerate generated artifacts.
+## Phase 2 — SEO and hostname cutover (code in `chatgpt/koolo-seo-cutover-20261117`; Cloudflare rules after live QA)
+- [x] Code prepared: SEO generator, pre-rendered HTML/SSG, social OG URLs, JSON-LD, robots, sitemap, RSS and live SEO tests now use `https://koolo.app` on this branch (verify the built deployment after merging).
 - [ ] Cloudflare on the **old** 3sssi.com zone: use HTTP Redirect Rules or Bulk Redirects for `3sssi.com` and `www.3sssi.com` to `koolo.app`, with 301, preserve path and query. Only enable once new app works. **Do not** use Pages `_redirects` for cross-domain matching: it does not support domain-level conditions and cannot intercept Pages Functions.
 - [ ] Cloudflare on the **new** zone: 301 `www.koolo.app` to `koolo.app`, preserving path and query.
 - [ ] Test that indexed public URLs return 200 on the new host, old links 301 to the corresponding new path, and canonical/OG/hreflang/sitemap all point to the new origin. Check robots/noindex.

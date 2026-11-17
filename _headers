@@ -1,5 +1,5 @@
 # Keep Cloudflare Pages preview/deployment aliases out of Google results.
-# www.3sssi.com remains indexable and continues to advertise its canonical URLs.
+# koolo.app is canonical; both public domains remain indexable until the legacy 301 rules are enabled.
 https://magic76-github-io.pages.dev/*
   X-Robots-Tag: noindex
 

@@ -51,7 +51,7 @@ test("export uses a strict aggregate allowlist and strips sensitive keys and poi
  assert.deepEqual(Object.keys(payload.rows[0]),["day","event","detail","count","users"]);
  assert.deepEqual(Object.keys(payload.categoryBars[0]),["day","count"]);
  assert.deepEqual(Object.keys(payload.eventUsers[0]),["event","users"]);
- assert.equal(payload.source,"https://www.3sssi.com/usage");
+ assert.equal(payload.source,"https://koolo.app/usage");
  assert.deepEqual(payload.platforms,[{platform:"android_shell",opened:4,active:2,chat:1,returned:1,gamesCompleted:0}]);
  assert.equal(payload.rows.length,9);
  assert.equal(payload.eventUsers.length,1);
