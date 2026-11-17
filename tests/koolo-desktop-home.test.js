@@ -50,3 +50,13 @@ test("Desktop top navigation reuses the five existing routes and leaves phone do
  assert.match(phone,/@media\(max-width:767px\)/);
  assert.match(phone,/\.global-nav\{display:none!important\}/);
 });
+
+test("Desktop Shorts strip scrolls within its grid item without stretching the viewport",()=>{
+ const css=read("web-spa/src/pages/desktopHome.css");
+ const shorts=read("web-spa/src/teacher/homeShorts.css");
+ const desktop=css.slice(css.indexOf("@media(min-width:768px){"),css.indexOf("@media(min-width:768px) and (max-width:1099px)"));
+ assert.match(desktop,/\\.koolo-desktop-home\\{[^}]*grid-template-columns:minmax\\(0,1fr\\)[^}]*width:100%;max-width:100%/);
+ assert.match(desktop,/\\.kdh-moments\\{min-width:0;max-width:100%\\}/);
+ assert.match(desktop,/\\.kdh-moments \\.crew-home-shorts-grid,\\.kdh-moments \\.crew-home-shorts-loading\\{max-width:100%\\}/);
+ assert.match(shorts,/\\.crew-home-shorts-grid,\\.crew-home-shorts-loading\\{[^}]*overflow-x:auto/);
+});
