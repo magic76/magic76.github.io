@@ -160,5 +160,9 @@
     "gameText": "พิมพ์คุยกับ Zoe",
     "articleText": "คุยกับ Zoe เรื่องบทความนี้",
     "todayFortune": "ดูดวงวันนี้"
+  },
+  "voiceTextRecap": {
+    "title": "เรื่องที่เพิ่งคุยกัน",
+    "you": "คุณ"
   }
 }
