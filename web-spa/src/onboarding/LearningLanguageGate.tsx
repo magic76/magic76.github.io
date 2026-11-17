@@ -12,7 +12,7 @@ import "./learningLanguage.css";
 /** One-time Learn entry, separate from the home welcome wizard and live share links. */
 export function LearningLanguageGate({pathname}:{pathname:string}){
  const {t,i18n}=useTranslation("friends");
- const copy=getLearningLanguageCopy(i18n.resolvedLanguage||i18n.language);
+ const copy=getLearningLanguageCopy(i18n.language);
  const ready=useClientReady();
  const dialog=useRef<HTMLDialogElement>(null);
  const [open,setOpen]=useState(false);
@@ -62,7 +62,7 @@ export function LearningLanguageGate({pathname}:{pathname:string}){
        </option>)}
       </select>
      </label>
-     <p className="crew-learning-language-native">{copy.native}：<strong>{localizedNativeName(ready?nativeLanguage:"zh-TW",i18n.resolvedLanguage||i18n.language)}</strong></p>
+     <p className="crew-learning-language-native">{copy.native}：<strong>{localizedNativeName(ready?nativeLanguage:"zh-TW",i18n.language)}</strong></p>
      <p className="crew-onboarding-note">{copy.friendNote}</p>
      <p className="crew-learning-language-later">{copy.changeLater}</p>
     </section>

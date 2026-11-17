@@ -68,3 +68,14 @@
  /* Circle is a separate full-width page; preserve access to the shared dock without obscuring its footer. */
  .books-root{padding-bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom,0px))}
 }
+
+/* Two-line labels at 360px: no clipped navigation names or smaller touch targets. */
+@media(max-width:360px){
+ .crew-mobile-dock-item{min-width:0;min-height:54px}
+ .crew-mobile-dock-label{
+  box-sizing:border-box;min-width:0;max-width:100%;padding:0 2px;
+  font-size:12px;line-height:1.15;text-align:center;white-space:normal;
+  overflow-wrap:anywhere;word-break:normal;overflow:hidden;text-overflow:clip;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ }
+}
