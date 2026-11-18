@@ -20,3 +20,17 @@ export function readFortuneHistoryPreviews(limit=30):FortuneHistoryPreview[]{
    }));
  }catch{return []}
 }
+
+/** Remove one saved reading without discarding unrelated or unreadable entries. */
+export function deleteFortuneHistoryReading(id:string):boolean{
+ try{
+  const raw=JSON.parse(localStorage.getItem("crew_fortune_readings_v2")||"[]");
+  if(!Array.isArray(raw))return false;
+  const next=raw.filter((entry:unknown)=>!(entry&&typeof entry==="object"&&!Array.isArray(entry)&&(entry as {id?:unknown}).id===id));
+  if(next.length===raw.length)return false;
+  localStorage.setItem("crew_fortune_readings_v2",JSON.stringify(next));
+  const last=localStorage.getItem("crew_fortune_last_reading");
+  if(last){try{if(JSON.parse(last)?.id===id)localStorage.removeItem("crew_fortune_last_reading")}catch{/* preserve unreadable last-reading data */}}
+  return true;
+ }catch{return false}
+}
