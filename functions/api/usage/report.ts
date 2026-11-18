@@ -186,6 +186,7 @@ export async function onRequestGet({request,env}:Context){
     return {platform,opened:get(platformOpens),active:get(platformActive),chat:get(platformChat),
       returned:get(platformReturn),gamesCompleted:get(platformGames)};
    }),
+   magicDiagnostics:{entrySessions:Number(magicSessions[0]?.users||0)},
    rows,generatedAt:new Date().toISOString()
   });
  }catch{
