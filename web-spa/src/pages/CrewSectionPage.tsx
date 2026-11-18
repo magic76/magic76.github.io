@@ -132,17 +132,6 @@ const englishCopy:typeof copy={
  }
 };
 
-function DeviceSettingsShortcut(){
- const {t}=useTranslation("settings");
- return <Link className="crew-section-card" to="/settings#settings-device">
-  <span className="crew-section-card-icon"><Icon name="settings"/></span>
-  <span className="crew-section-card-copy">
-   <strong>{t("deviceApp.title")}</strong><small>{t("deviceApp.description")}</small>
-  </span>
-  <span className="crew-section-arrow" aria-hidden="true">→</span>
- </Link>;
-}
-
 const exploreKinds:readonly ExploreKind[]=["fortune","timeline","games","story","research","circle"];
 // Hide only the Explore entry during the Circle pilot; keep its route and content intact.
 const showCircleInExplore=false;
@@ -233,11 +222,6 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     </>
     :section==="chat"?<h1>{x.title}</h1>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>
-  {false&&section==="me"&&<Link className="crew-section-card crew-me-language-shortcut" to="/settings#settings-learning">
-   <span className="crew-section-card-icon"><Icon name="settings"/></span>
-   <span className="crew-section-card-copy"><strong>{en?"Language & learning settings":"語言與學習設定"}</strong><small>{en?"Learning language, mother tongue and Chinese Pinyin":"學習語言、母語、中文拼音輔助"}</small></span>
-   <span className="crew-section-arrow" aria-hidden="true">→</span>
-  </Link>}
   {section==="explore"?
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
     {[x.hero,...x.items].map((item,i)=><Link className="crew-explore-tile" key={item.to} to={item.to} onClick={()=>recordExploreEntry(item.to)} data-kind={exploreKinds[i]}>
