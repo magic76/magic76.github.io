@@ -45,3 +45,8 @@
 @media(max-width:640px){
  .friend-phone-stage>.live-identity{padding:10px 0 5px}
 }
+
+/* Android/iOS phone calls use the device volume keys; keep the desktop fallback. */
+@media(max-width:640px) and (pointer:coarse){
+ .friend-phone-stage .friend-phone-volume{display:none}
+}
