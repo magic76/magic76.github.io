@@ -5,26 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b0912">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="和 Zoe 聊天，蒐集能量，孵出你的生物。能量夠了，親手注入，看牠進化。">
-<title>和 Zoe 孵生物 · Crew Creature Lab</title>
-<link rel="stylesheet" href="./creature.css?v=5265cdb0">
-<script src="./creature-v6.js?v=5265cdb0" defer></script>
-<script src="./voice-bridge.js?v=5265cdb0" defer></script>
-<script src="./creature.js?v=5265cdb0" defer></script>
+<meta name="description" content="用 Crew 聊天獲得能量，在生物實驗室孵化、進化、收藏八種生物與禮物。">
+<title>生物實驗室 · 養成與收藏 · Crew Lab</title>
+<link rel="stylesheet" href="./creature.css?v=e97dac28">
+<script src="./creature-v6.js?v=e97dac28" defer></script>
+<script src="./creature.js?v=e97dac28" defer></script>
 </head>
 <body>
 <main class="page">
   <header class="top">
-    <a class="brand" href="/" aria-label="返回 Crew 首頁"><span class="brand-mark">🥚</span><span><strong>生物實驗室</strong><small>和 Zoe 一起養成 · Crew Lab</small></span></a>
-    <span class="tagline">聊天蒐集能量，注入能量進化 <span class="live-dot"></span></span>
+    <a class="brand" href="/" aria-label="返回 Crew 首頁"><span class="brand-mark">🥚</span><span><strong>生物實驗室</strong><small>孵化 · 進化 · 收藏</small></span></a>
+    <span class="tagline">用 Crew 聊天集能量，回來親手進化 <span class="live-dot"></span></span>
   </header>
   <section class="intro">
-    <div><p class="overline">A LITTLE LAB OF CONVERSATIONS</p><h1>和 Zoe，<br><em>孵出你的生物。</em></h1><p>聊一句話，蒐集 1 點能量。能量夠了，親手注入，看著牠從蛋進化成完全體。每次進化都有一份禮物，第一次進化會依不同機率隨機孵出 8 種生物之一。</p></div>
-    <div class="tag-pair"><span>⚡ 聊天集能量</span><span>✦ 親手按進化</span></div>
+    <div><p class="overline">YOUR CREATURE COLLECTION</p><h1>孵出專屬生物，<br><em>收藏每次進化。</em></h1><p>平常在 Crew 和朋友或老師聊天可累積能量，回來孵化、進化，收集八種生物、成長禮物與共同回憶。</p></div>
+    <div class="tag-pair"><span>⚡ 全站聊天集能量</span><span>✦ 親手按進化</span></div>
   </section>
   <div class="play-grid">
     <section class="creature-panel" aria-label="生物畫布">
-      <div class="creature-top"><div><span class="overline">YOUR CREATURE LAB</span><h2 id="creatureName">🥚 神秘的蛋</h2></div><span class="stage-pill" id="stageBadge">蛋 · 0 句</span></div>
+      <div class="creature-top"><div><span class="overline">YOUR CREATURE LAB</span><h2 id="creatureName">🥚 神秘的蛋</h2></div><span class="stage-pill" id="stageBadge">蛋 · 準備孵化</span></div>
       <div class="canvas-wrap" id="canvasWrap">
         <div class="canvas-breathe" id="canvasBreathe">
           <canvas id="creatureCanvas" width="780" height="1560" role="img" aria-label="生物：從蛋進化成月狐、星龍、花妖精、小貓咪、雪兔、小熊貓、海豚或鳳凰"></canvas>
@@ -41,13 +40,15 @@
         <span class="floating-note" id="growthToast" aria-live="polite"></span>
         <span class="react-bubble" id="reactBubble" role="status" aria-live="polite" hidden></span>
         <span id="moodSticker" class="mood-sticker" aria-hidden="true" hidden>✨</span>
-        <span class="ground-label" id="creatureSubtitle">從第一句開始，蒐集能量，準備孵化。</span>
+        <span class="ground-label" id="creatureSubtitle">用 Crew 聊天累積能量，準備孵化。</span>
       </div>
       <div class="energy-panel" aria-label="能量與進化">
         <div class="energy-row"><div class="energy-orbs" id="energyOrbs" aria-label="能量珠"></div><span id="energyText">⚡ 能量 0 / 2</span></div>
-        <p id="progressHint" class="progress-hint" aria-live="polite">再聊 2 句就能孵化</p>
+        <p id="progressHint" class="progress-hint" aria-live="polite">還差 2 能量就能孵化</p>
          <button id="evolveBtn" class="evolve-btn" type="button" disabled>還需要 2 能量</button>
-        <p class="evolve-hint" id="evolveHint">進化要 2 能量，聊一句 +1，能量夠了按下去就進化。每次進化都有禮物！</p>
+        <p class="evolve-hint" id="evolveHint">在 Crew 朋友或老師聊天可獲得能量，集滿後親手進化。</p>
+        <a class="earn-energy-chat-link" href="/friend/live?id=zoe&amp;chat=text">💬 去和 Zoe 聊天賺能量</a>
+        <button id="dailyGiftBtn" class="daily-supply-btn" type="button" hidden>🎁 領取今日補給</button>
         <div class="growth-story" id="growthStory" aria-label="生物成長故事">
           <strong id="growthStoryTitle">🥚 神秘蛋 · 準備孵化</strong>
           <span id="growthStoryDetail">收集兩點能量後，由你親手孵出牠。</span>
@@ -71,55 +72,15 @@
           <button id="saveBtn" class="action-btn" type="button">↓ 儲存生物明信片</button>
           <button id="resetBtn" class="action-btn danger-action" type="button">清除所有遊戲資料</button>
         </div>
-        <p>清除會永久移除本機的能量、生物圖鑑、禮物與聊天紀錄；想養下一隻請使用完全體的「開始養下一隻」。</p>
+        <p>清除會永久移除這台裝置的生物、能量、回憶與禮物紀錄；想養下一隻請使用完全體的「開始養下一隻」。</p>
       </details>
-      <div class="micro-help" id="growthHint">隨便聊聊就能蒐集能量！第一次進化會隨機決定生物，圖鑑可以查看各種出現機率。</div>
+      <div class="micro-help" id="growthHint">朋友與老師聊天可蒐集能量；孵化後會隨機遇見八種生物之一。</div>
     </section>
-    <section class="chat-panel" id="localChatPanel" aria-label="和 Zoe 本地文字聊天">
-      <div class="chat-top"><div class="avatar">Z</div><div class="chat-head"><strong>Zoe</strong><span>陪你聊天、陪生物長大</span></div><span class="local-label">本地回應</span><button id="openVoice" class="voice-open-btn" aria-expanded="false" aria-controls="voicePanel" type="button" hidden>🎙 語音</button></div>
-      <div class="messages" id="messages" role="log" aria-live="polite" aria-label="你和 Zoe 的聊天紀錄"><div class="message zoe"><span class="sender">Zoe</span><p>來！我們孵一顆蛋 🥚<br>聊聊天，蒐集能量，看看牠會變成誰？</p></div></div>
-      <div class="chat-bottom">
-        <div class="hatch-guide" id="hatchGuide" aria-label="第一隻生物孵化引導">
-           <strong id="hatchPrompt" aria-live="polite">先選一句話和 Zoe 聊聊，蛋就會有能量。</strong>
-           <div class="hatch-ideas" id="hatchIdeas">
-             <button type="button" data-say="我想帶你去海邊看夕陽！">🌊 去海邊</button>
-             <button type="button" data-say="今晚我們一起看星星，好嗎？">✨ 看星星</button>
-           </div>
-         </div>
-         <div class="care-panel" id="carePanel" hidden aria-label="繼續陪伴這隻生物">
-           <strong class="care-heading">💕 今天繼續陪牠</strong>
-           <p id="carePrompt">Zoe 想邀你陪牠玩一會兒。</p>
-           <div class="care-choices" id="careChoices"></div>
-           <small id="careStatus"></small>
-           <details class="care-memory-details" id="careMemoryDetails" hidden>
-             <summary id="careMemorySummary">📖 上次的回憶</summary>
-             <p class="care-memory" id="careMemory"></p>
-           </details>
-         </div>
-        <div class="idea-title"><span>不知道聊什麼？點一個試試</span><button id="ideaToggle" type="button" aria-expanded="false" aria-controls="ideaChips">更多話題 <span aria-hidden="true">▾</span></button></div>
-        <div class="idea-chips" id="ideaChips">
-          <button data-say="我昨天夢到在月亮上散步，超美的！" type="button">🌙 月亮夢境</button>
-          <button data-say="如果我們一起去宇宙旅行，會看到什麼？" type="button">🚀 宇宙冒險</button>
-          <button data-say="我家貓咪今天又偷吃我的魚！" type="button">🐱 貓咪日常</button>
-          <button data-say="我今天看到一朵超美的花，想種一整片！" type="button">🌸 花草自然</button>
-          <button data-say="今天下雪了，好想堆一個雪人！" type="button">❄️ 雪地冬天</button>
-          <button data-say="我在竹林裡散步，聽到竹葉沙沙響。" type="button">🎋 竹林散步</button>
-          <button data-say="夏天就想去海邊游泳、看海豚！" type="button">🌊 海邊游泳</button>
-          <button data-say="聽說鳳凰會在火焰裡重生，好神奇！" type="button">🔥 鳳凰重生</button>
-        </div>
-        <form id="chatForm" class="composer"><label class="sr-only" for="chatInput">對 Zoe 說話</label><input id="chatInput" autocomplete="off" maxlength="240" placeholder="跟 Zoe 說點什麼…"><button type="submit" id="sendBtn" aria-label="傳送訊息">↑</button></form>
-        <p class="chat-notice">這裡的文字由本機回應，聊天與照顧回憶存在這台裝置。想用麥克風和 Zoe 即時對話，點「和 Zoe 語音聊天」。</p>
-      </div>
-    </section>
-    <section id="voicePanel" class="chat-panel creature-voice-panel" aria-label="和 Zoe 即時聊天" hidden>
-      <div class="voice-toolbar">
-        <div class="voice-identity"><h2>和 Zoe 即時聊天</h2><p id="voiceProgress" aria-live="polite"></p></div>
-        <button id="voiceEvolve" class="action-btn" type="button" hidden>進化</button>
-        <button id="closeVoice" class="action-btn" type="button">關閉對話</button>
-      </div>
-      <p class="voice-notice">使用語音時需允許麥克風。和 Zoe 聊完一個來回可獲得 1 點能量，生物只記住話題。</p>
-      <p id="voiceStatus" class="voice-notice" role="status"></p>
-      <div id="voiceFrameHost"></div>
+    <section class="memory-archive" id="memoryArchive" aria-label="既有陪伴回憶" hidden>
+      <details id="memoryArchiveDetails">
+        <summary>📖 過去的陪伴回憶 <span id="memoryArchiveCount"></span></summary>
+        <div id="memoryArchiveList" class="memory-archive-list"></div>
+      </details>
     </section>
   </div>
   <section class="collection line-preview" aria-label="8 種生物一覽">
@@ -127,7 +88,7 @@
     <div id="linePreview" class="line-grid"></div>
   </section>
   <section class="collection" aria-label="我的生物收藏">
-    <div class="collection-head"><div><p class="overline">YOUR CREATURES</p><h2>我的生物 <span id="collectionCount">0</span></h2></div><span>完全體會留下來；你也能繼續陪牠聊天、收藏回憶</span></div>
+    <div class="collection-head"><div><p class="overline">YOUR CREATURES</p><h2>我的生物 <span id="collectionCount">0</span></h2></div><span>完全體會永久收藏，舊有陪伴回憶也會保留</span></div>
     <div id="gallery" class="gallery"><p class="empty-forest">還沒有完全體。把第一隻生物養到完全體，牠就會住進這裡。</p></div>
   </section>
   <section class="gift-collection" aria-label="禮物收藏">
@@ -162,7 +123,7 @@
       </div>
     </div>
   </div>
-  <footer>聊一句，存一點能量；按一下，看牠進化。每一隻生物，都是你說過的話長成的。 · Crew Creature Lab</footer>
+  <footer>在 Crew 日常聊天累積能量，在這裡孵化、進化並收藏每隻生物。 · Crew Creature Lab</footer>
 </main>
 </body>
 </html>
