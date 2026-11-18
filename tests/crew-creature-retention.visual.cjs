@@ -1,6 +1,7 @@
 'use strict';
-/* Browser acceptance: actual viewport, user clicks, storage reloads, next-day
- * time travel, plus side-by-side source-branch and master screenshots. */
+/* Browser acceptance for the collection-only Creature Lab: 360/390/desktop,
+ * external Crew chat awards, explicit evolution, daily supply, codex and
+ * read-only migration of old care memories. No local or embedded conversation. */
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
@@ -9,6 +10,7 @@ const ROOT='http://127.0.0.1:8787/crew-creature-lab/';
 const BASE='http://127.0.0.1:8788/crew-creature-lab/';
 fs.mkdirSync(OUT,{recursive:true});
 const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844}],['1280x800',{width:1280,height:800}]];
+const ledger=total=>JSON.stringify({version:1,total,day:'2026-11-16',todayCount:Math.min(total,8),seen:[]});
 (async()=>{
  const browser=await chromium.launch({headless:true,executablePath:process.env.CREW_CHROMIUM_PATH||undefined,args:['--no-sandbox','--disable-dev-shm-usage']});
  try{
@@ -16,7 +18,7 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
    const context=await browser.newContext({viewport,deviceScaleFactor:1,reducedMotion:'reduce'});
    const old=await context.newPage();
    await old.goto(BASE,{waitUntil:'domcontentloaded',timeout:30000});
-   await old.waitForTimeout(500);
+   await old.waitForTimeout(300);
    await old.screenshot({path:path.join(OUT,'before-master-'+name+'.png')});
    await old.close();
    const page=await context.newPage(),errors=[];
@@ -24,88 +26,75 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
    page.on('dialog',dialog=>dialog.accept());
    await page.goto(ROOT+'?qa=1',{waitUntil:'domcontentloaded',timeout:30000});
    await page.waitForFunction(()=>!!window.__CREATURE_QA__);
-   await page.waitForTimeout(500);
-   await page.screenshot({path:path.join(OUT,'after-first-visit-'+name+'.png')});
-   if(viewport.width<=390)await page.locator('.play-grid').screenshot({
-    path:path.join(OUT,'full-game-first-visit-'+name+'.png')
-   });
-   if(viewport.width<=390){
-    const art=await page.locator('#canvasWrap').boundingBox();
-    const history=await page.locator('#messages').boundingBox();
-    assert.ok(art&&art.width>=viewport.width*.40&&art.height>=225,
-      name+' creature art must be large: '+JSON.stringify(art));
-    assert.ok(Math.abs(art.height/art.width-2)<0.03,
-      name+' portrait must keep its 1:2 source ratio: '+JSON.stringify(art));
-    assert.ok(history&&history.height>=108&&history.height<=155,
-      name+' egg welcome should not hide starter choices under blank space: '+JSON.stringify(history));
-    await page.locator('#chatInput').scrollIntoViewIfNeeded();
-    assert.equal(await page.locator('#chatInput').isVisible(),true);
-    await page.evaluate(()=>scrollTo(0,0));
-    const sizes=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));
-    assert.ok(sizes.scroll<=sizes.viewport+1,name+' no horizontal overflow: '+JSON.stringify(sizes));
-    assert.equal(await page.locator('#progressHint').isVisible(),true);
-    const chat=await page.locator('#localChatPanel').boundingBox();
-    const form=await page.locator('#chatForm').boundingBox();
-    assert.ok(chat&&form&&chat.y+chat.height-(form.y+form.height)<=25,
-      name+' no empty panel beneath composer: '+JSON.stringify({chat,form}));
-    assert.equal(await page.locator('#ideaChips').isVisible(),false,'new egg has only two first-hatch choices');
+   await page.waitForTimeout(300);
+   for(const id of ['localChatPanel','chatForm','chatInput','hatchIdeas','careChoices','voicePanel','voiceFrameHost','openVoice']){
+    assert.equal(await page.locator('#'+id).count(),0,name+' must remove '+id);
    }
-   assert.equal(await page.locator('#hatchBtn').isVisible(),false);
-   const first=page.locator('#hatchIdeas button').first(),second=page.locator('#hatchIdeas button').last();
-   assert.equal(await first.isVisible(),true,'starter topics remain accessible');
-   await first.click();
-   assert.match(await page.locator('#hatchPrompt').innerText(),/再聊 1 句/);
-   await second.click();
-   assert.equal(await page.locator('#evolveBtn').innerText(),'🥚 孵出我的生物');
-   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.state().creature.stage),0);
-   await page.locator('#evolveBtn').click();
-   await page.waitForTimeout(650);
-   const hatched=await page.evaluate(()=>window.__CREATURE_QA__.state().creature);
-   assert.equal(hatched.stage,1);
-   assert.ok(hatched.line);
+   assert.equal(await page.locator('.play-grid>.creature-panel').count(),1);
+   assert.equal(await page.locator('#dailyGiftBtn').isVisible(),false,'new egg cannot claim daily supply');
+   await page.screenshot({path:path.join(OUT,'after-first-visit-'+name+'.png')});
+   if(viewport.width<=390){
+    const rect=await page.locator('#canvasWrap').boundingBox();
+    assert.ok(rect&&rect.height>=225&&Math.abs(rect.height/rect.width-2)<0.03,
+      name+' full-size 1:2 creature artwork: '+JSON.stringify(rect));
+    const sizes=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+    assert.ok(sizes.scrollWidth<=sizes.width+1,name+' no horizontal overflow '+JSON.stringify(sizes));
+   }
+   // Real app reward storage is written by completed friends/teacher exchanges.
+   // Here seed its aggregate ledger; the Lab imports the unclaimed difference.
+   await page.evaluate(value=>localStorage.setItem('crew-creature-chat-rewards-v1',value),ledger(18));
    await page.reload({waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!!window.__CREATURE_QA__);
-   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.state().creature.line),hatched.line);
-   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.state().creature.stage),1);
+   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.energy()),18,'Crew-wide reward imports');
+   assert.equal(await page.locator('#evolveBtn').innerText(),'🥚 孵出我的生物');
+   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.state().creature.stage),0,'no automatic hatch');
+   await page.locator('#evolveBtn').click();
+   await page.waitForTimeout(550);
+   const hatched=await page.evaluate(()=>window.__CREATURE_QA__.state().creature);
+   assert.equal(hatched.stage,1);assert.ok(hatched.line);
    assert.match(await page.locator('#linePreview').innerText(),/已遇見/);
-   await page.waitForTimeout(350);
+   assert.equal(await page.locator('#dailyGiftBtn').isVisible(),true);
+   await page.locator('#dailyGiftBtn').click();
+   assert.equal(await page.locator('#dailyGiftBtn').isVisible(),false,'daily supply hidden once claimed');
+   const afterSupply=await page.evaluate(()=>window.__CREATURE_QA__.gifts());
+   await page.reload({waitUntil:'domcontentloaded'});
+   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.state().creature.line),hatched.line);
+   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.energy()),16);
+   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.gifts()),afterSupply);
    await page.screenshot({path:path.join(OUT,'after-hatch-'+name+'.png')});
-   assert.equal(await page.locator('#hatchGuide').isVisible(),false);
-   assert.equal(await page.locator('#ideaChips').isVisible(),true,'growing creature uses conversation topics');
-   if(viewport.width<=390){
-    const history=await page.locator('#messages').boundingBox();
-    assert.ok(history&&history.height>=225,name+' growing creature chat history is tall: '+JSON.stringify(history));
+   // Energy is earned externally; progression remains a deliberate button press.
+   for(let stage=2;stage<=4;stage++){
+    assert.equal(await page.locator('#evolveBtn').isVisible(),true);
+    await page.locator('#evolveBtn').click();
+    await page.waitForTimeout(560);
+    assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.state().creature.stage),stage);
    }
-   if(viewport.width<=390){
-    assert.equal(await page.locator('#labSettings').getAttribute('open'),null,'bag tools start collapsed');
-    await page.locator('#labSettings summary').click();
-    assert.equal(await page.locator('#giftBtn').isVisible(),true,'gift remains reachable via bag');
-    await page.locator('#labSettings summary').click();
-   }
-   const gift=await page.evaluate(()=>{
+   assert.equal(await page.locator('#evolveBtn').isVisible(),false);
+   assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.energy()),2);
+   assert.match(await page.locator('#linePreview').innerText(),/已養成/);
+   assert.match(await page.locator('#gallery').innerText(),/完全體/);
+   await page.screenshot({path:path.join(OUT,'after-final-'+name+'.png')});
+   // Existing gift mechanics and all sixteen discoveries are unchanged.
+   const seen=await page.evaluate(()=>{
     const qa=window.__CREATURE_QA__,items=qa.giftItems();
-    const sum=items.reduce((s,item)=>s+item.weight,0);let before=0;
+    const total=items.reduce((sum,item)=>sum+item.weight,0);let offset=0;
     for(const item of items){
      qa.grantGift('evolve');
-     const r=(before+item.weight/3)/sum;
-     qa.openGift(()=>r);
-     before+=item.weight;
+     qa.openGift(()=>(offset+item.weight/3)/total);
+     offset+=item.weight;
     }
-    return {seen:qa.giftSeen(),inventory:qa.giftCollection()};
+    return Object.keys(qa.giftSeen());
    });
-   assert.equal(Object.keys(gift.seen).length,16,'all 16 seen, including energy and golden');
-   assert.equal(await page.locator('#giftCollectionCount').innerText(),'16/16');
-   await page.evaluate(()=>window.__CREATURE_QA__.hatch('cat'));
+   assert.equal(seen.length,16,'all 16 gift discoveries persist');
    assert.equal(await page.locator('#giftCollectionCount').innerText(),'16/16');
    await page.reload({waitUntil:'domcontentloaded'});
    assert.equal(await page.locator('#giftCollectionCount').innerText(),'16/16');
-   assert.deepEqual(errors,[],'browser exceptions');
-   await page.close();
-   await context.close();
-   console.log('CREATURE_HATCH_AND_16_GIFTS_OK '+name);
+   assert.deepEqual(errors,[],'browser JS exceptions');
+   await page.close();await context.close();
+   console.log('CREATURE_COLLECTION_ONLY_OK '+name);
   }
-  // Hold browser-local civil dates stable to prove daily award and exact
-  // creature persistence; clock changes only via this QA-only test context.
+  // Legacy care memories are preserved, but read-only. Daily supply uses
+  // the existing lastDailyGift marker, independent of conversation.
   const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
   await context.addInitScript(()=>{
    const NativeDate=Date;
@@ -120,97 +109,41 @@ const cases=[['360x640',{width:360,height:640}],['390x844',{width:390,height:844
     }
    };
   });
-  const page=await context.newPage();
-  page.on('dialog',dialog=>dialog.accept());
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  page.on('dialog',d=>d.accept());
   await page.goto(ROOT+'?qa=1');
-  await page.evaluate(()=>localStorage.setItem('__crew_visual_day','2026-11-14'));
+  const existing={line:'stardragon',stage:4,topics:['cosmos'],sentences:19,
+   memories:[{date:'2026-11-14',text:'星龍和你一起追流星，許了一個小願望。',topic:'cosmos'}]};
+  await page.evaluate(saved=>{
+   localStorage.setItem('__crew_visual_day','2026-11-15');
+   localStorage.setItem('crew-creature-lab-v1',JSON.stringify({
+    version:1,energy:7,externalEnergyClaimed:7,creature:saved,collection:[saved],
+    encountered:{stardragon:true},gifts:2,giftCollection:{},giftSeen:{},lastDailyGift:'2026-11-14'
+   }));
+  },existing);
+  await page.reload({waitUntil:'domcontentloaded'});
+  assert.equal(await page.locator('#memoryArchive').isVisible(),true);
+  assert.equal(await page.locator('#memoryArchiveList p').count(),1);
+  await page.locator('#memoryArchive summary').click();
+  assert.match(await page.locator('#memoryArchiveList').innerText(),/追流星/);
+  assert.equal(await page.locator('#dailyGiftBtn').isVisible(),true);
+  await page.locator('#dailyGiftBtn').click();
+  assert.equal(await page.locator('#dailyGiftBtn').isVisible(),false);
+  const gifts=await page.evaluate(()=>window.__CREATURE_QA__.gifts());
+  await page.screenshot({path:path.join(OUT,'after-legacy-memory-390x844.png')});
   await page.reload();
-  const first=await page.evaluate(()=>{
-   const qa=window.__CREATURE_QA__;
-   for(let i=0;i<16;i++)qa.post('我們去海邊看海豚');
-   qa.evolve(()=>0);qa.evolve();qa.evolve();qa.evolve();
-   return {creature:qa.state().creature,gifts:qa.gifts()};
-  });
-  assert.equal(first.creature.stage,4);
-  assert.equal(await page.locator('#carePanel').isVisible(),true);
-  assert.match(await page.locator('#carePrompt').innerText(),/海邊/);
-  await page.locator('#careChoices button').first().click();
-  assert.equal(await page.locator('#careMemoryDetails').isVisible(),true);
-  await page.locator('#careMemorySummary').click();
-  assert.match(await page.locator('#careMemory').innerText(),/撿貝殼/);
-  assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.gifts()),first.gifts);
-  await page.screenshot({path:path.join(OUT,'after-complete-care-390x844.png')});
-  await page.locator('#localChatPanel').screenshot({path:path.join(OUT,'chat-expanded-history-390x844.png')});
+  assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.gifts()),gifts);
+  assert.equal(await page.locator('#dailyGiftBtn').isVisible(),false);
+  await page.evaluate(()=>localStorage.setItem('__crew_visual_day','2026-11-16'));
   await page.reload();
-  assert.equal(await page.locator('#careMemoryDetails').isVisible(),true,'memory remains available after reload');
-  await page.locator('#careMemorySummary').click();
-  assert.match(await page.locator('#careMemory').innerText(),/撿貝殼/);
-  await page.locator('#careChoices button').last().click();
-  assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.gifts()),first.gifts);
-  await page.evaluate(()=>localStorage.setItem('__crew_visual_day','2026-11-15'));
-  await page.reload();
-  await page.locator('#careChoices button').first().click();
-  const tomorrow=await page.evaluate(()=>{
-   const qa=window.__CREATURE_QA__;
-   return {creature:qa.state().creature,gifts:qa.gifts()};
-  });
-  assert.equal(tomorrow.gifts,first.gifts+1);
-  assert.equal(tomorrow.creature.line,first.creature.line);
-  assert.equal(tomorrow.creature.stage,4);
-  assert.equal(tomorrow.creature.memories.length,3);
-  await page.locator('#careChoices button').last().click();
-  assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.gifts()),tomorrow.gifts);
-  await page.screenshot({path:path.join(OUT,'after-next-day-revisit-390x844.png')});
+  assert.equal(await page.locator('#dailyGiftBtn').isVisible(),true);
+  await page.locator('#dailyGiftBtn').click();
+  assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.gifts()),gifts+1);
+  assert.equal(await page.evaluate(()=>window.__CREATURE_QA__.state().creature.memories.length),1);
+  await page.screenshot({path:path.join(OUT,'after-next-day-supply-390x844.png')});
+  assert.deepEqual(errors,[],'legacy page has no JS exceptions');
   await context.close();
-  console.log('CREATURE_FULLY_GROWN_REVISIT_OK');
-
-  // Exercise the same-origin message bridge in a real browser. The child
-  // simulates a completed Zoe exchange; it does not request a microphone.
-  const voiceContext=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'});
-  await voiceContext.route(url=>url.pathname==='/friend/live',route=>route.fulfill({
-   status:200,contentType:'text/html',body:`<!doctype html><html><body>
-    <button id="exchange" disabled>Simulate completed exchange</button>
-    <script>
-     let channel='';
-     window.addEventListener('message',event=>{
-      if(event.origin!==location.origin||event.source!==parent)return;
-      if(event.data.type==='CREW_CREATURE_VOICE_CONTEXT'){
-       channel=event.data.channelId;
-       document.getElementById('exchange').disabled=false;
-       document.body.dataset.stage=String(event.data.creature.stage);
-      }
-      if(event.data.type==='CREW_CREATURE_VOICE_STOP'&&event.data.channelId===channel){
-       parent.postMessage({type:'CREW_CREATURE_VOICE_STOPPED',channelId:channel},location.origin);
-      }
-     });
-     document.getElementById('exchange').addEventListener('click',()=>{
-      const event={type:'CREW_CREATURE_VOICE_TURN',channelId:channel,turnId:'voice-turn-1',input:'一起去海邊',output:'好，我們去看海！'};
-      parent.postMessage(event,location.origin);
-      parent.postMessage(event,location.origin);
-     });
-     parent.postMessage({type:'CREW_CREATURE_VOICE_READY'},location.origin);
-    </script></body></html>`
-  }));
-  const voicePage=await voiceContext.newPage();
-  const voiceErrors=[];
-  voicePage.on('pageerror',error=>voiceErrors.push(error.message));
-  await voicePage.goto(ROOT+'?qa=1',{waitUntil:'domcontentloaded'});
-  await voicePage.waitForFunction(()=>!!window.__CREATURE_QA__);
-  await voicePage.locator('#openVoice').click();
-  const child=voicePage.frameLocator('#voiceFrameHost iframe');
-  const exchange=child.locator('#exchange');
-  await exchange.waitFor({state:'visible'});
-  await voicePage.waitForFunction(()=>document.querySelector('#voiceFrameHost iframe')?.contentDocument?.body.dataset.stage==='0');
-  assert.equal(await exchange.isEnabled(),true,'READY receives the initial creature context');
-  await exchange.click();
-  await voicePage.waitForFunction(()=>window.__CREATURE_QA__.energy()===1);
-  assert.equal(await voicePage.evaluate(()=>window.__CREATURE_QA__.state().creature.sentences),1,'duplicate turn counts once');
-  await voicePage.locator('#closeVoice').click();
-  await voicePage.waitForFunction(()=>!document.querySelector('#voiceFrameHost iframe'));
-  assert.equal(await voicePage.locator('#localChatPanel').isVisible(),true);
-  assert.equal(await voicePage.evaluate(()=>window.__CREATURE_QA__.energy()),1);
-  assert.deepEqual(voiceErrors,[],'voice bridge browser exceptions');
-  await voiceContext.close();
-  console.log('CREATURE_VOICE_FRAME_BRIDGE_OK');
+  console.log('CREATURE_READ_ONLY_MEMORY_DAILY_SUPPLY_OK');
  }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});
