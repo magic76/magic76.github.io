@@ -21,6 +21,9 @@ import {teacherLanguageHomeHint} from "../teacher/teacherLanguageUx";
 import {friendSpokenLanguage} from "../friends/friendLanguage";
 import "./crewExplore.css";
 import "./crewSections.css";
+import {history} from "../lib/runtime";
+import {completedLessons} from "../teacher/courseProgress";
+import {learningDeck} from "../teacher/learningDeck";
 
 // Only the product category is sent; the actual destination, query and identifiers stay local.
 function recordExploreEntry(to:string){
@@ -212,6 +215,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   {to:"/teacher/textbook",icon:"book" as IconName,title:tTeacher("learn.textbook"),desc:tTeacher("learn.textbookDesc")},
   {to:"/teacher/board",icon:"teacher" as IconName,title:tTeacher("board.entryTitle"),desc:tTeacher("board.entryDesc")}
  ];
+ const meStats=section==="me"&&clientReady?{sessions:history("teacher").length,lessons:completedLessons(),saved:learningDeck().length}:null;
  const speakingPath=clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak";
  return <div className={"crew-section-hub crew-section-"+section}>
   <header className={"crew-section-heading"+(section==="learn"?" crew-learn-heading":"")}>
@@ -229,7 +233,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     </>
     :section==="chat"?<h1>{x.title}</h1>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>
-  {section==="me"&&<Link className="crew-section-card crew-me-language-shortcut" to="/settings#settings-learning">
+  {false&&section==="me"&&<Link className="crew-section-card crew-me-language-shortcut" to="/settings#settings-learning">
    <span className="crew-section-card-icon"><Icon name="settings"/></span>
    <span className="crew-section-card-copy"><strong>{en?"Language & learning settings":"語言與學習設定"}</strong><small>{en?"Learning language, mother tongue and Chinese Pinyin":"學習語言、母語、中文拼音輔助"}</small></span>
    <span className="crew-section-arrow" aria-hidden="true">→</span>
@@ -322,12 +326,12 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
        <LearningFocusCard/>
        <div className="crew-learn-tool-grid-host"><LearnHubExtras tools={learnTools} speakingPath={speakingPath}/></div>
       </>:
-      <Link to={x.hero.to} className="crew-section-hero">
+      <>{section==="me"&&<section className="section panel" aria-label={en?"My learning snapshot":"我的學習摘要"}><div className="teacher-stats"><div><strong>{meStats?.sessions??"—"}</strong><span>{en?"Practices":"練習次數"}</span></div><div><strong>{meStats?.lessons??"—"}</strong><span>{en?"Lessons":"完成課程"}</span></div><div><strong>{meStats?.saved??"—"}</strong><span>{en?"Saved phrases":"收藏片語"}</span></div></div><Link className="btn secondary small" to="/teacher/me">{en?"View learning records":"查看完整學習紀錄"} →</Link></section>}<Link to={section==="me"?"/teacher/roles?mode=teacher":x.hero.to} className="crew-section-hero">
        <span className="crew-section-hero-icon"><Icon name={x.hero.icon}/></span>
        <span className="crew-section-hero-copy"><span className="crew-section-eyebrow">{x.hero.tag}</span>
-        <strong>{x.hero.title}</strong><small>{x.hero.desc}</small></span>
+        <strong>{section==="me"?(en?"Continue learning":"繼續學習"):x.hero.title}</strong><small>{section==="me"?(en?"Pick up a lesson or start another practice.":"回到課程或開始下一次練習。"):x.hero.desc}</small></span>
        <span className="crew-section-arrow" aria-hidden="true">→</span>
-      </Link>
+      </Link></>
     }
     {section!=="learn"&&<section className="crew-section-discover">
      <div className="crew-section-row-title"><h2>{t("sectionHubs.more")}</h2></div>
@@ -337,12 +341,12 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
        <span className="crew-section-card-copy"><strong>{tCommon("auth.account")}</strong><small>{tCommon("auth.intro")}</small></span>
        <span className="crew-section-arrow" aria-hidden="true">→</span>
       </Link>}
-      {x.items.filter(item=>section!=="chat"||item.to!=="/teacher/shorts").map(item=>
+      {x.items.filter(item=>(section!=="chat"||item.to!=="/teacher/shorts")&&(section!=="me"||item.to!=="/teacher/reports")).map(item=>
       <Link className="crew-section-card" to={item.to} key={item.to}>
        <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
        <span className="crew-section-card-copy"><strong>{item.title}</strong><small>{item.desc}</small></span>
        <span className="crew-section-arrow" aria-hidden="true">→</span>
-      </Link>)}{section==="me"&&<DeviceSettingsShortcut/>}</div>
+      </Link>)}</div>
     </section>}
    </>
   }
