@@ -150,7 +150,7 @@ export async function onRequestGet({request,env}:Context){
  try{
   // Browser identity is deduplicated ACROSS the entire reporting period by SQL.
   // Never sum the per-day distinct counts to infer unique browsers.
-  const [daily,active,eventUsers,chat,previousActive,previousChat,journeyClicks,journeyStarts,platformOpens,platformActive,platformChat,platformReturn,platformGames]=await Promise.all([
+  const [daily,active,eventUsers,chat,previousActive,previousChat,journeyClicks,journeyStarts,platformOpens,platformActive,platformChat,platformReturn,platformGames,magicSessions]=await Promise.all([
    sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Etc/UTC') AS day, blob1 AS event, blob3 AS detail, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event, detail ORDER BY day ASC, event ASC LIMIT 5000"),
    sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+activeEvents+")"),
    sql(env,"SELECT blob1 AS event, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY event LIMIT 100"),
@@ -164,7 +164,8 @@ export async function onRequestGet({request,env}:Context){
    sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 IN ("+activeEvents+") GROUP BY platform LIMIT 10"),
    sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 IN ("+chatEvents+") GROUP BY platform LIMIT 10"),
    sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 = 'user_returned' GROUP BY platform LIMIT 10"),
-   sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 = 'game_completed' GROUP BY platform LIMIT 10")
+   sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 = 'game_completed' GROUP BY platform LIMIT 10"),
+   sql(env,"SELECT COUNT(DISTINCT blob4) AS users FROM crew_usage WHERE "+bound+" AND blob1 = 'magic_enter'")
   ]);
   const rows=daily.map(row=>({day:String(row.day||""),event:String(row.event||""),detail:String(row.detail||""),
     count:Number(row.count||0),users:Number(row.users||0)}));
@@ -185,6 +186,7 @@ export async function onRequestGet({request,env}:Context){
     return {platform,opened:get(platformOpens),active:get(platformActive),chat:get(platformChat),
       returned:get(platformReturn),gamesCompleted:get(platformGames)};
    }),
+   magicDiagnostics:{entrySessions:Number(magicSessions[0]?.users||0)},
    rows,generatedAt:new Date().toISOString()
   });
  }catch{

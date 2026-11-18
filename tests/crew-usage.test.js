@@ -254,3 +254,16 @@ test("platform labels are strictly allowlisted; legacy clients remain compatible
  assert.match(report,/blob5 IN/);
  assert.match(report,/platformBreakdown:/);
 });
+
+
+test("Koolo production analytics and Magic diagnostic contract",()=>{
+ const client=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
+ const report=fs.readFileSync(path.join(root,"functions/api/usage/report.ts"),"utf8");
+ const dashboard=fs.readFileSync(path.join(root,"web-spa/src/analytics/UsageDashboardPage.tsx"),"utf8");
+ assert.match(client,/\["www\.3sssi\.com","3sssi\.com","koolo\.app"\]\.includes\(location\.hostname\)/);
+ assert.match(report,/COUNT\(DISTINCT blob4\) AS users FROM crew_usage WHERE /);
+ assert.match(report,/magicDiagnostics:\{entrySessions:/);
+ assert.match(dashboard,/Magic 事件診斷/);
+ assert.match(dashboard,/unique\("magic_enter"\)/);
+ assert.match(dashboard,/magicDiagnostics\.entrySessions/);
+});
