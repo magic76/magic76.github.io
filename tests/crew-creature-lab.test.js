@@ -780,7 +780,10 @@ test('legacy save keeps creature, gifts and collection when importing external c
 });
 
 // Regression: the collection-only lab still provides a clear route to earn energy.
-import { readFileSync as readCreatureLabHtml } from "node:fs";
-import { test as testCreatureEnergyCta } from "node:test";
-import { strict as creatureEnergyAssert } from "node:assert";
-testCreatureEnergyCta("collection-only lab links to Zoe text chat for energy",()=>{for(const path of ["web-spa/public/crew-creature-lab/index.html","crew-app/crew-creature-lab/index.html"]){const html=readCreatureLabHtml(path,"utf8");creatureEnergyAssert.match(html,/href="\/friend\/live\?id=zoe&amp;chat=text"/);creatureEnergyAssert.match(html,/去和 Zoe 聊天賺能量/);}});
+test('collection-only lab links to Zoe text chat for energy',()=>{
+ for(const file of ['web-spa/public/crew-creature-lab/index.html','crew-app/crew-creature-lab/index.html']){
+  const page=fs.readFileSync(path.join(__dirname,'..',file),'utf8');
+  assert.match(page,/href="\/friend\/live\?id=zoe&amp;chat=text"/);
+  assert.match(page,/去和 Zoe 聊天賺能量/);
+ }
+});
