@@ -56,7 +56,7 @@ let recent=new Map<string,number>();
 const local=(key:string)=>{try{return localStorage.getItem(key)}catch{return null}};
 const store=(key:string,value:string)=>{try{localStorage.setItem(key,value)}catch{/* storage blocked */}};
 const id=()=>crypto.randomUUID();
-const production=()=>typeof window!=="undefined"&&["www.3sssi.com","3sssi.com"].includes(location.hostname);
+const production=()=>typeof window!=="undefined"&&["www.3sssi.com","3sssi.com","koolo.app"].includes(location.hostname);
 const globalPrivacy=()=>Boolean((navigator as Navigator&{globalPrivacyControl?:boolean}).globalPrivacyControl)||navigator.doNotTrack==="1";
 export const usageDisabled=()=>local(OPT_OUT)==="1";
 export const developerUsageMode=()=>local(DEV)==="1";
