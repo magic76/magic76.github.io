@@ -1,10 +1,10 @@
-import{useEffect,useState}from"react";import{useTranslation}from"react-i18next";import{Link}from"react-router-dom";import{PlayStoreLink}from"../components/PlayStoreLink";import{ensureStoryServices}from"../lib/runtime";import{BUILT_IN_STORIES,type StoryBook}from"./catalog";
+import{useEffect,useState}from"react";import{useTranslation}from"react-i18next";import{Link}from"react-router-dom";import{PlayStoreLink}from"../components/PlayStoreLink";import{ensureStoryServices}from"../lib/runtime";import{BUILT_IN_STORIES}from"./catalog";
 const LANGS=[["zh-TW","繁體中文"],["en","English"],["ja","日本語"],["ko","한국어"],["fr","Français"],["de","Deutsch"],["es","Español"]];
 const VOICES=["Leda","Kore","Aoede","Puck","Charon","Fenrir"];
 export function StoryMyPage(){
  const {t}=useTranslation("story");
- const[books,setBooks]=useState<StoryBook[]>([]),[count,setCount]=useState(0),[language,setLanguage]=useState(localStorage.getItem("crew_story_language")||"zh-TW"),[voice,setVoice]=useState(localStorage.getItem("crew_story_voice")||"Leda"),[style,setStyle]=useState(localStorage.getItem("crew_story_style")||"溫暖冒險");
- useEffect(()=>{void ensureStoryServices().then(async()=>(async()=>{const saved=await window.CrewStoryStore!.list();setBooks(saved);setCount(saved.length)})())},[]);
+ const[books,setBooks]=useState<Array<{id:string;title:string;summary?:string;createdAt?:string}>>([]),[count,setCount]=useState(0),[language,setLanguage]=useState(localStorage.getItem("crew_story_language")||"zh-TW"),[voice,setVoice]=useState(localStorage.getItem("crew_story_voice")||"Leda"),[style,setStyle]=useState(localStorage.getItem("crew_story_style")||"溫暖冒險");
+ useEffect(()=>{void ensureStoryServices().then(async()=>(async()=>{const saved=await window.CrewStoryStore!.list();setBooks(saved.map(book=>({id:book.id,title:book.title,summary:book.summary,createdAt:book.createdAt})));setCount(saved.length)})())},[]);
  const save=(key:string,value:string,set:(v:string)=>void)=>{localStorage.setItem("crew_story_"+key,value);set(value)};
  return <><section className="hero"><span className="kicker">My Story</span><h1>{t("my.title")}</h1><p>{t("my.intro")}</p></section>
  <section className="section"><div className="teacher-stats"><div><strong>{count}</strong><span>{t("my.stories")}</span></div><div><strong>{BUILT_IN_STORIES.length}</strong><span>{t("my.builtIn")}</span></div><div><strong>{language}</strong><span>{t("my.narrationLanguage")}</span></div></div></section>
