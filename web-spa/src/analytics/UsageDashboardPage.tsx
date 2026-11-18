@@ -10,6 +10,7 @@ type Report={
  days:number;activeUsers:number;chatUsers:number;platformBreakdown?:PlatformUsage[];
  previousActiveUsers:number;previousChatUsers:number;
  eventUsers:EventUsers[];rows:Row[];generatedAt:string;
+ magicDiagnostics?:{entrySessions:number};
  journey?:JourneyCounts
 };
 type Category="all"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"souls"|"research"|"circle";
@@ -133,6 +134,17 @@ return Array.from({length:days},(_,i)=>{
   <PlatformUsagePanel rows={data.platformBreakdown}/>
   <UsageJourneySection days={days} journey={data.journey}/>
   <SoulsUsagePanel rows={rows} unique={unique}/>
+  <section className="panel section" aria-label="Magic 事件診斷">
+   <div className="section-head"><h2>Magic 事件診斷</h2><small>同一統計期間 · 不含個人識別資料</small></div>
+   <div className="usage-feature-list">
+    <div className="usage-feature"><span>頁面進入事件（加權）</span><strong>{num(total(rows,"magic_enter"))} 次</strong></div>
+    <div className="usage-feature"><span>進入過的不同瀏覽器</span><strong>{num(unique("magic_enter"))} 個</strong></div>
+    <div className="usage-feature"><span>進入過的不同工作階段</span><strong>{data.magicDiagnostics?num(data.magicDiagnostics.entrySessions)+" 個":"—"}</strong></div>
+    <div className="usage-feature"><span>施法／語音連線成功</span><strong>{num(total(rows,"magic_spell"))} / {num(total(rows,"magic_voice_connected"))} 次</strong></div>
+    <div className="usage-feature"><span>3D 降級</span><strong>{num(total(rows,"magic_3d_fallback"))} 次</strong></div>
+   </div>
+   <p className="usage-explain">進入事件在 Magic 頁面載入時送出，不代表已開始遊玩。次數使用 Analytics Engine 取樣加權；不同瀏覽器與工作階段是去重計數，不能直接視為真人數。正式站自動化瀏覽也可能計入。</p>
+  </section>
   <section className="panel section">
    <div className="section-head"><h2>每天實際發生了什麼</h2><small>UTC 日期 · 下方統計的是事件次數</small></div>
    <div className="usage-filter" role="group" aria-label="篩選產品類別">
