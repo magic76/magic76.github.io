@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-18",
+  "generatedAt": "2026-11-18T03:54:52.679Z",
+  "edition": "public",
+  "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 2 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
+  "items": [
+    {
+      "id": "ace31f3b0bb1b6f0",
+      "title": "Claude Code AI agent update: - Added Claude Fable 5.2 (`claude-fable-5-2`), now the default Fable model — 1M context, $8/$40 per Mtok with $0.20/Mtok cache rea",
+      "summary": "- Added Claude Fable 5.2 (`claude-fable-5-2`), now the default Fable model — 1M context, $8/$40 per Mtok with $0.20/Mtok cache reads - Fixed context usage estimates overcounting tool definitions when exact token counts are unavailable - Fixed project skills, commands and agents staying missing after their folder was removed and came back mid-session, such as with `git stash`, including after enter",
+      "publishedAt": "2026-11-09T19:22:30Z",
+      "topic": "Context & Memory",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Claude Code v2.1.321",
+          "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.321",
+          "publishedAt": "2026-11-09T19:22:30Z",
+          "kind": "官方產品更新"
+        }
+      ],
+      "score": 86,
+      "body": "- Added Claude Fable 5.2 (`claude-fable-5-2`), now the default Fable model — 1M context, $8/$40 per Mtok with $0.20/Mtok cache reads - Fixed context usage estimates overcounting tool definitions when exact token counts are unavailable - Fixed project skills, commands and agents staying missing after their folder was removed and came back mid-session, such as with `git stash`, including after entering a worktree - Fixed a large hook output pointing Claude to a file that held another hook's output from the same tool call"
+    },
+    {
+      "id": "ad076a99b8923baf",
+      "title": "Codex AI agent update: - Added WebRTC negotiation for realtime voice calls in the TUI. (#61172)",
+      "summary": "- Added WebRTC negotiation for realtime voice calls in the TUI. (#61172) - Improved automatic reconnection for Cloud conversations and preserved active recovery turns when clients reconnect. (#60969, #61014) - Fixed Windows file replacement, sandbox permission preservation, and runtime registration recovery. (#60872, #60943, #60944) - #60914 Reserve Guardian context budget for selected Code Mode e",
+      "publishedAt": "2026-11-18T03:40:48Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Codex rust-v0.170.0",
+          "url": "https://github.com/openai/codex/releases/tag/rust-v0.170.0",
+          "publishedAt": "2026-11-18T03:40:48Z",
+          "kind": "官方產品更新"
+        }
+      ],
+      "score": 82,
+      "body": "- Added WebRTC negotiation for realtime voice calls in the TUI. (#61172) - Improved automatic reconnection for Cloud conversations and preserved active recovery turns when clients reconnect. (#60969, #61014) - Fixed Windows file replacement, sandbox permission preservation, and runtime registration recovery. (#60872, #60943, #60944) - #60914 Reserve Guardian context budget for selected Code Mode exec results @felixxia-oai"
+    }
+  ]
+}
