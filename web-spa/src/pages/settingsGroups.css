@@ -65,3 +65,11 @@
  .crew-settings-nav a>span:last-child{display:none}
 }
 @media(prefers-reduced-motion:reduce){.crew-settings-advanced-summary>span:last-child{transition:none}}
+
+/* Category navigation: one focused panel at a time; preserve deep links. */
+.crew-settings-page.is-overview .crew-settings-content{display:none}
+.crew-settings-page.is-category .crew-settings-content>section,.crew-settings-page.is-category .crew-settings-content>div,.crew-settings-page.is-category .crew-settings-content>details{display:none}
+.crew-settings-content.active-settings-learning>#settings-learning,.crew-settings-content.active-settings-interface>#settings-interface,.crew-settings-content.active-settings-voice>#settings-voice,.crew-settings-content.active-settings-data>#settings-data,.crew-settings-content.active-settings-device>#settings-device,.crew-settings-content.active-settings-advanced>#settings-advanced{display:block}
+.crew-settings-back{display:inline-flex;align-items:center;min-height:44px;margin:0 0 14px;padding:8px 12px;border:1px solid var(--line,#d6dbe5);border-radius:12px;background:var(--surface,#fff);color:var(--text,#253044);font:inherit;cursor:pointer}
+.crew-settings-back:focus-visible{outline:2px solid var(--accent,#725bc4);outline-offset:2px}
+.crew-settings-page.is-category .hero{margin-bottom:12px}
