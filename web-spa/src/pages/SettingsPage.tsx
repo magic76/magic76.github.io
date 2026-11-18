@@ -27,6 +27,9 @@ export function SettingsPage(){
  const english=!i18n.language.startsWith("zh");
  const ready=useClientReady(),location=useLocation(),{hash}=location,navigate=useNavigate();
  const advancedRef=useRef<HTMLDetailsElement>(null);
+ const activeCategory=hash==="#memory-settings"?"settings-data":hash==="#live-model-settings"?"settings-advanced":hash.startsWith("#settings-")?hash.slice(1):"";
+ const showOverview=!activeCategory;
+ const backToOverview=()=>navigate("/settings");
  const target=useTeacherStore(s=>s.targetLanguage),setTarget=useTeacherStore(s=>s.setTargetLanguage);
  const native=useTeacherStore(s=>s.nativeLanguage),setNative=useTeacherStore(s=>s.setNativeLanguage);
  const pinyinMode=useTeacherStore(s=>s.pronunciationAidMode),setPinyinMode=useTeacherStore(s=>s.setPronunciationAidMode);
@@ -56,21 +59,23 @@ export function SettingsPage(){
   const frame=window.requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView?.({block:"start"}));
   return()=>window.cancelAnimationFrame(frame);
  },[hash,location.search,navigate]);
- return <><section className="hero"><span className="kicker">Koolo</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
-  <section className="section panel"><h2>{t("common:auth.title")}</h2><p className="meta">{t("common:auth.intro")}</p><Link className="btn secondary" to="/account">{t("common:auth.account")}</Link></section>
+ return <div className={"crew-settings-page"+(showOverview?" is-overview":" is-category")}><section className="hero"><span className="kicker">Koolo</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
+  {showOverview&&<section className="section panel"><h2>{t("common:auth.title")}</h2><p className="meta">{t("common:auth.intro")}</p><Link className="btn secondary" to="/account">{t("common:auth.account")}</Link></section>}
  {orbAvailable&&<Link to="/orb" className="crew-settings-orb-entry">
   <span className="crew-settings-orb-icon" aria-hidden="true">◉</span>
   <span className="crew-settings-orb-copy"><strong>{t("cyberOrb.title")}</strong><small>{t("cyberOrb.intro")}</small></span>
   <span className="crew-settings-orb-arrow" aria-hidden="true">→</span>
  </Link>}
- <nav className="crew-settings-nav" aria-label={t("group.navAria")}>
+ {showOverview&&<nav className="crew-settings-nav" aria-label={t("group.navAria")}>
   <a href="#settings-interface"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{english?"Interface language":"介面語言"}</strong><small>{english?"Change display language":"更改顯示語言"}</small></span><span aria-hidden="true">→</span></a>
   <a href="#settings-learning"><span className="crew-settings-nav-icon"><Icon name="teacher"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navLearning")}</strong><small>{t("group.learningIntro")}</small></span><span aria-hidden="true">→</span></a>
   <a href="#settings-voice"><span className="crew-settings-nav-icon"><Icon name="mic"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navVoice")}</strong><small>{t("group.voiceIntro")}</small></span><span aria-hidden="true">→</span></a>
   <a href="#settings-data"><span className="crew-settings-nav-icon"><Icon name="history"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navMemory")}</strong><small>{t("group.memoryIntro")}</small></span><span aria-hidden="true">→</span></a>
   <a href="#settings-device"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navDevice")}</strong><small>{t("device.heading")}</small></span><span aria-hidden="true">→</span></a>
   <a href="#settings-advanced"><span className="crew-settings-nav-icon"><Icon name="sparkles"/></span><span className="crew-settings-nav-copy"><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><span aria-hidden="true">→</span></a>
- </nav>
+ </nav>}
+ {!showOverview&&<button type="button" className="crew-settings-back" onClick={backToOverview}>‹ {english?"All settings":"所有設定"}</button>}
+ <div className={"crew-settings-content"+(activeCategory?" active-"+activeCategory:"")}>
  <section id="settings-learning" className="section panel crew-settings-category">
   <div className="section-head"><h2>{t("group.learningHeading")}</h2></div>
   <p className="meta">{t("group.learningIntro")}</p>
@@ -168,6 +173,7 @@ export function SettingsPage(){
  </section>
   </div>
  </details>
- <BuildVersion/>
-</>;
+ </div>
+ {showOverview&&<BuildVersion/>}
+</div>;
 }
