@@ -6,7 +6,7 @@ import{GeminiConnectionPanel}from"./GeminiConnectionPanel";
 type User={id:string;name:string;provider:"google"|"github"};
 type Session={enabled:boolean;providers:{google:boolean;github:boolean};user:User|null;trial?:{used:number;limit:number;lastUsedAt?:number}};
 export function AccountPage(){
- const {t}=useTranslation("common");const [query]=useSearchParams();const location=useLocation();
+ const {t,i18n}=useTranslation("common");const [query]=useSearchParams();const location=useLocation();
  const geminiFirst=location.hash==="#settings-gemini"||query.has("returnTo");
  useEffect(()=>{
   if(!geminiFirst)return;
@@ -70,6 +70,7 @@ export function AccountPage(){
   <section className="section panel crew-account-preferences">
    <h2>{t("auth.preferences")}</h2>
    <p className="meta">{t("auth.preferencesIntro")}</p>
+   <p className="meta">{i18n.language.startsWith("zh")?"登入不會自動同步這台裝置的學習紀錄；請在資料管理中自行備份。":"Signing in does not automatically sync learning records stored on this device. Back up your data in settings."}</p>
    <div className="crew-account-settings-links">
     <Link to="/settings#settings-voice">{t("auth.voiceSettings")}</Link>
     <Link to="/settings#settings-learning">{t("auth.learningSettings")}</Link>
