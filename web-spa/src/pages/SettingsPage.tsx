@@ -64,6 +64,7 @@ export function SettingsPage(){
   <span className="crew-settings-orb-arrow" aria-hidden="true">→</span>
  </Link>}
  <nav className="crew-settings-nav" aria-label={t("group.navAria")}>
+  <a href="#settings-interface"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{english?"Interface language":"介面語言"}</strong><small>{english?"Change display language":"更改顯示語言"}</small></span><span aria-hidden="true">→</span></a>
   <a href="#settings-learning"><span className="crew-settings-nav-icon"><Icon name="teacher"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navLearning")}</strong><small>{t("group.learningIntro")}</small></span><span aria-hidden="true">→</span></a>
   <a href="#settings-voice"><span className="crew-settings-nav-icon"><Icon name="mic"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navVoice")}</strong><small>{t("group.voiceIntro")}</small></span><span aria-hidden="true">→</span></a>
   <a href="#settings-data"><span className="crew-settings-nav-icon"><Icon name="history"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navMemory")}</strong><small>{t("group.memoryIntro")}</small></span><span aria-hidden="true">→</span></a>
