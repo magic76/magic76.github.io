@@ -13,11 +13,12 @@ export function StudentMemoryPage(){
  const [type,setType]=useState<MemoryKind>("goal"),[text,setText]=useState("");
  const consent=personalMemoryEnabled();
  const [edit,setEdit]=useState(""),[draft,setDraft]=useState("");
+ const [filter,setFilter]=useState<MemoryKind|"all">("all");
  const refresh=()=>setItems(studentMemories(lang));
  // Re-read storage whenever language changes; no cross-language leakage.
  const [currentLang,setCurrentLang]=useState(lang);
  if(currentLang!==lang){setCurrentLang(lang);setItems(studentMemories(lang));setEdit("")}
- const display=items;
+ const display=filter==="all"?items:items.filter(m=>m.type===filter);
  return <><section className="hero"><span className="kicker">Personalized Learning</span><h1>老師對我的了解</h1>
  <p>老師會在有意義的對話中或課後，自動整理明確提及的生活事實、學習進步與待加強項目，你可以隨時編輯或刪除。這些資訊只保存在目前瀏覽器，依學習語言分開儲存。</p></section>
  <section className="section panel teacher-memory-panel">
@@ -30,7 +31,7 @@ export function StudentMemoryPage(){
  <p className="meta">目前：{consent?"已開啟":"已關閉"}。記憶預設開啟，可到設定關閉；關閉後不再自動整理或提供個人偏好給老師與朋友，已保存的記憶仍可在此編輯或刪除。</p>
  <Link className="inline-link" to="/settings#memory-settings">前往設定調整記憶 →</Link>
  </section>
- <section className="section"><div className="section-head"><h2>目前記憶</h2><small>{display.length} 筆</small></div>
+ <section className="section"><div className="section-head"><h2>目前記憶</h2><small>{display.length} / {items.length} 筆</small></div><label className="label" htmlFor="memory-filter">篩選記憶類型</label><select id="memory-filter" className="field" value={filter} onChange={e=>setFilter(e.target.value as MemoryKind|"all")}><option value="all">全部類型</option>{(Object.keys(LABELS) as MemoryKind[]).map(kind=><option key={kind} value={kind}>{LABELS[kind]}</option>)}</select>
  {display.length?<div className="teacher-memory-list">{display.map(m=><article className="panel teacher-memory-item" key={m.id}>
  <div className="row" style={{justifyContent:"space-between",gap:8}}><span className="pill">{LABELS[m.type]} · {m.source==="self"?"我自己新增":"課後整理"}{!m.active?" · 已掌握":""}</span><span className="meta">{m.observations>1?m.observations+" 次觀察":""}</span></div>
  {edit===m.id?<div className="teacher-memory-form"><textarea className="field" rows={2} maxLength={180} value={draft} onChange={e=>setDraft(e.target.value)}/><div className="actions"><button className="btn small" onClick={()=>{updateStudentMemory(lang,m.id,{detail:draft});setEdit("");refresh()}}>儲存</button><button className="btn secondary small" onClick={()=>setEdit("")}>取消</button></div></div>:<p>{m.detail}</p>}
