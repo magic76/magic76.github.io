@@ -70,4 +70,6 @@ export function LiveControls({live,interruptLabel:customInterrupt,prominentInter
   <button type="button" className="live-volume-quick is-up" aria-label={t("controls.volumeUp")} onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300}>+</button>
   </div></div>}
  </>;
+}  </div></div>}
+ </>;
 }
