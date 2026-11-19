@@ -292,4 +292,13 @@
     "callControls": "Commandes d'appel",
     "hangUp": "Raccrocher"
   }
+ ,
+  "suggestReplies": {
+    "label": "Suggestions de réponse",
+    "on": "Activé",
+    "off": "Désactivé",
+    "nextCall": "Effectif au prochain appel",
+    "instructions": "Vous pouvez les dire à voix haute ou répondre avec vos propres mots",
+    "unavailable": "Ce modèle ne prend pas en charge les suggestions de réponse"
+  }
 }
