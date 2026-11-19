@@ -4,7 +4,7 @@ const VOICES=["Leda","Kore","Aoede","Puck","Charon","Fenrir"];
 export function StoryMyPage(){
  const {t}=useTranslation("story");
  const[books,setBooks]=useState<Array<{id:string;title:string;summary?:string;createdAt?:string}>>([]),[count,setCount]=useState(0),[language,setLanguage]=useState(localStorage.getItem("crew_story_language")||"zh-TW"),[voice,setVoice]=useState(localStorage.getItem("crew_story_voice")||"Leda"),[style,setStyle]=useState(localStorage.getItem("crew_story_style")||"溫暖冒險");
- useEffect(()=>{void ensureStoryServices().then(async()=>(async()=>{const saved=await window.CrewStoryStore!.list();setBooks(saved.map(book=>({id:book.id,title:book.title,summary:book.summary,createdAt:book.createdAt})));setCount(saved.length)})())},[]);
+ useEffect(()=>{void ensureStoryServices().then(async()=>(async()=>{const saved=await window.CrewStoryStore!.list();setBooks(saved.map(book=>({id:book.id,title:book.title||t("my.untitled",{defaultValue:"未命名故事"}),summary:book.summary})));setCount(saved.length)})())},[]);
  const save=(key:string,value:string,set:(v:string)=>void)=>{localStorage.setItem("crew_story_"+key,value);set(value)};
  return <><section className="hero"><span className="kicker">My Story</span><h1>{t("my.title")}</h1><p>{t("my.intro")}</p></section>
  <section className="section"><div className="teacher-stats"><div><strong>{count}</strong><span>{t("my.stories")}</span></div><div><strong>{BUILT_IN_STORIES.length}</strong><span>{t("my.builtIn")}</span></div><div><strong>{language}</strong><span>{t("my.narrationLanguage")}</span></div></div></section>

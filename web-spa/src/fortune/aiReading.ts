@@ -38,6 +38,22 @@ function sectionOverlap(first:string,second:string):number{
  return shared/Math.min(a.size,b.size);
 }
 
+/** Prefer recognizable calculated identifiers over generic sentiment as evidence. */
+function groundedTokens(facts:unknown,mode:"bazi"|"tarot"|"vedic"):string[]{
+ if(!facts||typeof facts!=="object")return [];
+ const r=facts as Record<string,any>;
+ const values:unknown[]=mode==="bazi"
+  ?[r.fourPillars,r.dayMaster,r.dayMasterElement,r.currentLuckPillar?.ganZhi,...(Array.isArray(r.annualTimeline)?r.annualTimeline.slice(0,3).map((x:any)=>x.ganZhi):[])]
+  :mode==="tarot"
+   ?[r.birthCardDisplay,r.personalityCardName,r.soulCardName,r.personalYearCardName,...(Array.isArray(r.birthCards)?r.birthCards.map((x:any)=>x.name):[])]
+   :[r.lagnaSign,r.moonSign,r.sunSign,r.lagnaNakshatra,r.moonNakshatra,r.currentMahadasha?.lord,r.currentAntardasha?.lord,...(Array.isArray(r.houses)?r.houses.map((x:any)=>x.sign):[])];
+ return [...new Set(values.filter((x):x is string=>typeof x==="string").map(x=>x.trim()).filter(x=>x.length>=2&&x!=="未提供"&&x!=="—"))];
+}
+function hasConcreteAnchor(section:string,tokens:string[]):boolean{
+ return tokens.some(token=>section.includes(token));
+}
+const EMPTY_CLAIMS=[/你(?:擁有|具有|具備)(?:很大|無限|不少)?(?:的)?潛力/,/只要(?:保持|相信|堅持)(?:自己|初心|努力)/,/機會與挑戰(?:並存|同時存在)/,/保持(?:積極|正向|樂觀)(?:的)?心態/];
+
 /** Checks the AI's actual output. Local computed facts remain the fallback on failure. */
 export function auditAiReading(text:string,facts:unknown,mode:"bazi"|"tarot"|"vedic"):FortuneAiAudit{
  const parsed=parseAiReading(text),issues:string[]=[];
@@ -49,6 +65,17 @@ export function auditAiReading(text:string,facts:unknown,mode:"bazi"|"tarot"|"ve
  if(parsed.next12.length!==3)issues.push("@next12 必須恰好三點");
  if(parsed.ask.length!==3)issues.push("@ask 必須恰好三題");
  if(parsed.work&&parsed.wealth&&sectionOverlap(parsed.work,parsed.wealth)>0.72)issues.push("工作與財務兩段高度重複");
+ const tokens=groundedTokens(facts,mode);
+ // Only enforce anchor presence when the calculation exposes usable identifiers.
+ if(tokens.length>=2){
+  const sections=[["work",parsed.work],["wealth",parsed.wealth],["love",parsed.love],["self",parsed.self]] as const;
+  const anchored=sections.filter(([,body])=>hasConcreteAnchor(body,tokens)).length;
+  if(anchored<2)issues.push("至少兩個主題段落需引用可核對的命盤標記，而非只有通用建議");
+ }
+ for(const [name,body] of [["work",parsed.work],["wealth",parsed.wealth],["love",parsed.love],["self",parsed.self]]){
+  if(EMPTY_CLAIMS.some(pattern=>pattern.test(body))&&!hasConcreteAnchor(body,tokens))issues.push("@"+name+" 有空泛敘述，請改為命盤依據與可驗證情境");
+ }
+
  if(mode==="bazi"&&facts&&typeof facts==="object"){
   const known=JSON.stringify(facts);
   const mentioned=new Set(String(text||"").match(/[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]/g)||[]);
