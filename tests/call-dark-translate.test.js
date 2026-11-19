@@ -69,7 +69,7 @@ test("#52 Android theme-color restores the exact previous value on unmount",()=>
 });
 test("#50 direct single-model streaming, minimal thinking, timeout, bounded RAM cache",()=>{
  for(const token of ["gemini-3.5-flash-lite","streamGenerateContent","alt=sse","thinkingLevel","minimal","x-goog-api-key","AbortController","maxOutputTokens:200","temperature:0","Map<string,string>","CACHE_LIMIT=50","response.status===400","response.status===401||response.status===403"])assert.ok(helper.includes(token),token);
- assert.match(helper,/setTimeout\(stop,(\d+)\)/);assert.ok(Number(helper.match(/setTimeout\(stop,(\d+)\)/)[1])<=4000);
+ assert.match(helper,/setTimeout\(stop,6000\)/);
  assert.match(helper,/reader\.read\(\)/);assert.match(helper,/line\.startsWith\("data:"\)/);
  assert.doesNotMatch(helper,/\/models\?|CrewAI|ensureCore|discover|localStorage|sessionStorage|gemini-(?!3\.5-flash-lite)\d/);
  assert.match(helper,/const id=source\+"\|"\+target\+"\|"\+sentence/);
@@ -125,4 +125,18 @@ test("#50 v3: Zoe original and speaker remain visible while translations scroll 
  assert.match(css,/\.friend-caption-speaker\{flex:none\}/);
  assert.match(css,/\.friend-caption-ai>p\{flex:1 1 0;min-height:3em;overflow-y:auto/);
  assert.match(css,/\.friend-caption-translation\{flex:0 1 auto;max-height:35%;min-height:0;overflow-y:auto/);
+});
+
+test("translation retries transient failures once with fresh deadlines and abort guard",()=>{
+ assert.match(helper,/for\(let attempt=0;attempt<2;attempt\+\+\)/);
+ assert.match(helper,/const request=async\(thinking:boolean\)/);
+ assert.match(helper,/const controller=new AbortController\(\)/);
+ assert.match(helper,/setTimeout\(stop,6000\)/);
+ assert.match(helper,/if\(signal\.aborted\)throw/);
+ assert.match(helper,/if\(error instanceof Error&&error\.message==="key"\)throw error/);
+ assert.match(helper,/response\.status===401\|\|response\.status===403/);
+ assert.match(helper,/request\(false\)/);
+ assert.match(helper,/一个→一個, 从→從, 说→說/);
+ assert.match(helper,/temperature:0/);
+ assert.ok(Buffer.byteLength(helper)<26000);
 });
