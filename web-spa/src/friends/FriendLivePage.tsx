@@ -1,5 +1,5 @@
 import {SuggestedReplies} from "../live/SuggestedReplies";
-import {SUGGEST_REPLIES_NAME,SUGGEST_REPLIES_TOOL,SUGGEST_REPLIES_PROMPT,parseSuggestedReplies} from "../live/suggestReplies";
+import {useSuggestedReplies,replyHintsLocked} from "../live/useSuggestedReplies";
 import {GroundingSources} from "../live/GroundingSources";
 import {LiveSearchAction} from "../live/LiveSearchAction";
 import {buildAccentPrompt} from "../teacher/teacherAccent";
@@ -148,19 +148,19 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
  const {ready:voiceRecapReady,messages:voiceRecap}=useVoiceTextRecap(!textMode,"friend:"+friend.id+(shortsPost?":"+shortsPost.id:""),friend.id);
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
- const [replyHintsEnabled,setReplyHintsEnabled]=useState(()=>{try{return localStorage.getItem("koolo_reply_hints")!=="off"}catch{return true}});
- const [suggestedReplies,setSuggestedReplies]=useState<ReturnType<typeof parseSuggestedReplies>>([]);
- const toggleReplyHints=()=>setReplyHintsEnabled(value=>{try{localStorage.setItem("koolo_reply_hints",value?"off":"on")}catch{}if(value)setSuggestedReplies([]);return !value});
+ const replyHints=useSuggestedReplies({allowed:true,language:language});
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
-   system:system+(replyHintsEnabled?SUGGEST_REPLIES_PROMPT:"")+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
+   system:system+replyHints.prompt+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
   openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
    shortsHook,selectedQuestion,lifeOpening,conversationHint:conversationOpening(intent,"friend"),
    conversationStyle:"one easy conversational observation",creatureContext,messages:voiceRecap}),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
-  tools:replyHintsEnabled?[{functionDeclarations:[SUGGEST_REPLIES_TOOL]}]:undefined,
-  onToolCall:call=>{if(call.name!==SUGGEST_REPLIES_NAME)return {ok:false,error:"unknown-tool"};const replies=parseSuggestedReplies(call.args);setSuggestedReplies(replies);return {ok:replies.length>0};},
+  tools:replyHints.tools,
+  onToolCall:replyHints.onToolCall,
+  onToolsUnavailable:replyHints.onToolsUnavailable,
+  onInputSpeech:replyHints.clear,
   onObservedExchange:turn=>{
    // Embedded creature voice already awards via its parent; count it once only.
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
@@ -168,6 +168,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   },
   onRecovered:creatureEmbed?creatureBridge.onRecovered:undefined,
   onTurnComplete:(_turn,completedTurns)=>{
+   replyHints.clear();
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("friend_conversation");
       if(shortsPost){
@@ -250,7 +251,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
     {!textMode?<VoiceTextRecap messages={voiceRecap} name={friend.name}/>:null}
-    {!textMode&&(live.state==="listening"||live.state==="speaking")?<SuggestedReplies replies={suggestedReplies} enabled={replyHintsEnabled} onToggle={toggleReplyHints} language={language}/>:null}
+    {!textMode&&!false&&<SuggestedReplies replies={replyHints.replies} enabled={replyHints.enabled} onToggle={replyHints.toggle} disabled={replyHintsLocked(live.state)} unavailable={replyHints.unavailable} language={language}/>}
     {homeFirstAction?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
     {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>
