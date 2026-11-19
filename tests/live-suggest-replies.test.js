@@ -26,41 +26,35 @@ test("rejects invalid arguments",()=>{
  assert.deepEqual(parseSuggestedReplies("hello"),[]);
  assert.deepEqual(parseSuggestedReplies({replies:{}}),[]);
 });
-test("shared hook retains preference and clears stale suggestions",()=>{
+test("friend voice generates text hints only after valid completed output",()=>{
+ const page=readFileSync("web-spa/src/friends/FriendLivePage.tsx","utf8");
+ assert.match(page,/if\(_turn\.hasValidOutput\)replyHints\.generate\(completedTurns\)/);
+ assert.match(page,/onInputSpeech:replyHints\.onInputSpeech/);
+ assert.doesNotMatch(page,/tools:replyHints\.tools|onToolCall:replyHints\.onToolCall|replyHints\.prompt|onMissingReplyHints/);
+ assert.ok(Buffer.byteLength(page)<26000);
+ const teacher=readFileSync("web-spa/src/teacher/LivePage.tsx","utf8");
+ assert.match(teacher,/allowed:false/);
+ assert.doesNotMatch(teacher,/tools:replyHints\.tools|replyHints\.prompt/);
+ assert.ok(Buffer.byteLength(teacher)<26000);
+});
+test("disabled and guest sessions do not generate hints",()=>{
  const hook=readFileSync("web-spa/src/live/useSuggestedReplies.ts","utf8");
  const live=readFileSync("web-spa/src/live/useLiveSession.ts","utf8");
- for(const snippet of ['koolo_reply_hints','localStorage.setItem(KEY','enabledRef.current','setReplies([])','onToolsUnavailable','replyHintsLocked'])assert.ok(hook.includes(snippet),snippet);
- assert.match(live,/onInputSpeech\?\.\(\)/);
- for(const path of ["web-spa/src/friends/FriendLivePage.tsx","web-spa/src/teacher/LivePage.tsx"]){
-  const page=readFileSync(path,"utf8");
-  assert.match(page,/useSuggestedReplies\(/);
-  assert.match(page,/onInputSpeech:replyHints\.(?:clear|onInputSpeech)/);
-  assert.match(page,/onTurnComplete:[^\n]*\n\s*replyHints\.clear\(\)/);
-  assert.match(page,/onToolsUnavailable:replyHints\.onToolsUnavailable/);
-  assert.ok(Buffer.byteLength(page)<26000,path);
- }
+ assert.match(hook,/if\(!activeRef\.current\)return/);
+ assert.match(hook,/localStorage\.setItem\(KEY/);
+ assert.match(live,/if\(!guestModeRef\.current\)configRef\.current\.onTurnComplete\?/);
+ assert.doesNotMatch(live,/REPLY_HINT_CONTROL|onMissingReplyHints|replyHintControlPendingRef/);
 });
-
-test("reply hint control sends at most once per learner exchange",async()=>{
- const gateSource=stripTypeScriptTypes(readFileSync("web-spa/src/live/replyHintTurnGate.ts","utf8"),{mode:"strip"});
- const {createReplyHintTurnGate}=await import("data:text/javascript;charset=utf-8,"+encodeURIComponent(gateSource));
- const gate=createReplyHintTurnGate();
- assert.equal(gate.takeRequest(true),true);
- assert.equal(gate.takeRequest(true),false);
- gate.onLearnerSpeech();
- assert.equal(gate.takeRequest(true),true);
-});
-test("reply hint control skips existing tool calls and disabled or guest modes",async()=>{
- const gateSource=stripTypeScriptTypes(readFileSync("web-spa/src/live/replyHintTurnGate.ts","utf8"),{mode:"strip"});
- const {createReplyHintTurnGate}=await import("data:text/javascript;charset=utf-8,"+encodeURIComponent(gateSource));
- const gate=createReplyHintTurnGate();
- assert.equal(gate.takeRequest(false),false);
- gate.onToolCall();
- assert.equal(gate.takeRequest(true),false);
- gate.onLearnerSpeech();
- assert.equal(gate.takeRequest(true),true);
- const live=readFileSync("web-spa/src/live/useLiveSession.ts","utf8");
- assert.match(live,/!guestModeRef\.current&&!replyHintControlPendingRef\.current/);
- assert.match(live,/!session\.micMuted&&!awaitingTutorRef\.current/);
- assert.match(live,/cancelRescue\(\);replyHintControlPendingRef\.current=true/);
+test("text generation is isolated from Live and failures are silent",()=>{
+ const source=readFileSync("web-spa/src/live/replyHintText.ts","utf8");
+ const hook=readFileSync("web-spa/src/live/useSuggestedReplies.ts","utf8");
+ assert.match(source,/window\.CrewAI\.call\(prompt/);
+ assert.match(source,/preferLive:false/);
+ assert.match(source,/if\(!geminiKey\(\)/);
+ assert.match(source,/parseSuggestedReplies\(data\)/);
+ assert.match(source,/catch\{return \[\]\}/);
+ assert.match(source,/8000/);
+ assert.match(hook,/version\.current===current&&activeRef\.current/);
+ assert.match(hook,/\.catch\(\(\)=>\{\}\)/);
+ assert.doesNotMatch(source,/sendControl|suggest_replies/);
 });
