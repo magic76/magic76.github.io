@@ -19,7 +19,7 @@ export async function generateReplyHints(turns:LiveTurn[],language:string,native
    'Output ONLY JSON: {"replies":[{"text":"...","translation":"..."},{"text":"...","translation":"..."}]}. No markdown.',
    "Recent conversation (JSON data): "+JSON.stringify(recent)
   ].join("\n");
-  const request=window.CrewAI.call(prompt,{preferLive:false,temperature:0.4,maxOutputTokens:300,json:true,strictModels:true});
+  const request=window.CrewAI.call(prompt,{preferLive:false,models:["gemini-3.5-flash-lite","gemini-3.5-flash"],temperature:0.4,maxOutputTokens:300,json:true,strictModels:true});
   const raw=await Promise.race([request,new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(new Error("reply hint timeout")),8000)})]);
   const data=typeof raw==="string"?JSON.parse(raw.replace(/^\x60{3}(?:json)?\s*/i,"").replace(/\x60{3}$/,"")):raw;
   return parseSuggestedReplies(data);
