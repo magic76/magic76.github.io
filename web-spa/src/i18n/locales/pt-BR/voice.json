@@ -292,4 +292,13 @@
     "callControls": "Controles da chamada",
     "hangUp": "Desligar"
   }
+ ,
+  "suggestReplies": {
+    "label": "Sugestões de resposta",
+    "on": "Ligado",
+    "off": "Desligado",
+    "nextCall": "Vale a partir da próxima chamada",
+    "instructions": "Você pode falar em voz alta ou responder com suas próprias palavras",
+    "unavailable": "Este modelo não oferece sugestões de resposta"
+  }
 }
