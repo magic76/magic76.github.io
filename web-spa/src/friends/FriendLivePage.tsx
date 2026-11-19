@@ -149,7 +149,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const {ready:voiceRecapReady,messages:voiceRecap}=useVoiceTextRecap(!textMode,"friend:"+friend.id+(shortsPost?":"+shortsPost.id:""),friend.id);
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
  const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
- useEffect(()=>{if(live.output.trim())replyHints.clear()},[live.output]);
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
    system:system+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
@@ -188,6 +187,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
   }
  });
+ useEffect(()=>{if(live.output.trim())replyHints.clear()},[live.output]);
  creatureBridge.bind(live);
  useCreatureStageSync(creatureEmbed,creatureBridge.creature,live.sendControl);
  useEffect(()=>{
