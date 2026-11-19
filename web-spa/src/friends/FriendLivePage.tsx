@@ -186,6 +186,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    void rememberFriendConversation(sessionId,language,completedTurns,0);
   },
   onSessionFinished:item=>{
+   replyHints.clear();
    if(!item)return;
    if(item.durationMs>0)trackUsageEvent("friend_session_end",sessionDurationDetail(item.durationMs));
    recordFriendChat(sessionId,language,item.turns,item.durationMs);
