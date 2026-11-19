@@ -5,6 +5,7 @@ import {stripTypeScriptTypes} from "node:module";
 import {callTranslationRows,splitCallSentences} from "../web-spa/src/friends/callSentence.mjs";
 const read=path=>fs.readFileSync(path,"utf8"),root="web-spa/src/friends/";
 const css=read(root+"friendCall.css"),captions=read(root+"FriendCallCaptions.tsx"),helper=read(root+"callTranslate.ts");
+const bubbleList=read(root+"FriendCallBubbleList.tsx"),bubbleCss=read(root+"friendCallBubbles.css");
 const dark=css.slice(css.indexOf("/* #52:"));
 function style(selector){
  const rules={};let matched=false;
@@ -115,16 +116,15 @@ test("#50 v3: four failed sentences show one error; successful translations stay
  assert.match(captions,/visibleTranslation\.map/);
  assert.doesNotMatch(captions,/parts\.map\(\(part,i\)/);
 });
-test("#50 v3: Zoe original and speaker remain visible while translations scroll inside the card",()=>{
- assert.match(captions,/ref=\{replyRef\} lang=\{source\}/);
- assert.match(captions,/ref=\{translationRef\} className="friend-caption-translation"/);
- assert.match(captions,/pane\.scrollTop=0/);
- assert.match(captions,/replyRef\.current/);
- assert.match(captions,/translationRef\.current/);
- assert.match(css,/\.friend-caption-ai\{flex:1 0 154px;min-height:154px;overflow:hidden/);
- assert.match(css,/\.friend-caption-speaker\{flex:none\}/);
- assert.match(css,/\.friend-caption-ai>p\{flex:1 1 0;min-height:3em;overflow-y:auto/);
- assert.match(css,/\.friend-caption-translation\{flex:0 1 auto;max-height:35%;min-height:0;overflow-y:auto/);
+test("#50 v3: Zoe original, translation and speaker remain visible in scrollable chat bubbles",()=>{
+ assert.match(captions,/FriendCallBubbleList/);
+ assert.match(bubbleList,/\{turn\.output\.trim\(\)\}<\/p>/);
+ assert.match(bubbleList,/renderTranslation\(turn\.output\.trim\(\)/);
+ assert.match(bubbleList,/speakerAvatar\?<div className="friend-caption-speaker"/);
+ assert.match(bubbleList,/pane\.scrollTop=pane\.scrollHeight/);
+ assert.match(bubbleCss,/overflow-y:auto/);
+ assert.match(bubbleCss,/overflow-x:hidden/);
+ assert.match(bubbleCss,/\.friend-bubble-ai\{align-self:flex-start/);
 });
 
 test("translation retries transient failures once with fresh deadlines and abort guard",()=>{
