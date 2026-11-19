@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from "react";
+import {UsageOverviewCards} from "./UsageOverviewCards";
 import {PlatformUsagePanel,type PlatformUsage} from "./PlatformUsagePanel";
 import "./usage-dashboard.css";
 import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
@@ -66,12 +67,7 @@ return Array.from({length:days},(_,i)=>{
 {loading?<section className="panel section" role="status">正在讀取匿名使用事件…</section>:
  error?<section className="panel section" role="alert"><strong>無法讀取使用資料</strong><p>{error}</p><p className="meta">請確認 Cloudflare Access、Analytics Engine Binding 與唯讀 Token，參考 docs/CREW_USAGE.md。</p></section>:
  data&&<>
-  <section className="usage-cards" aria-label="主要指標">
-   <article className="panel"><small>有效使用瀏覽器</small><strong>{num(data.activeUsers)}</strong><span>{comparison(data.activeUsers,data.previousActiveUsers)}</span></article>
-   <article className="panel"><small>真的聊過天的瀏覽器</small><strong>{num(data.chatUsers)}</strong><span>{comparison(data.chatUsers,data.previousChatUsers)}</span></article>
-   <article className="panel"><small>有效對話次數</small><strong>{num(totalMany(rows,chatEffective))}</strong><span>老師＋朋友＋Timeline＋Souls，雙方都有發言</span></article>
-   <article className="panel"><small>網站開啟次數</small><strong>{num(total(rows,"app_opened"))}</strong><span>每分頁工作階段最多一次，不是獨立人數</span></article>
-  </section>
+  <UsageOverviewCards data={data} rows={rows}/>
   <PlatformUsagePanel rows={data.platformBreakdown}/>
   <UsageJourneySection days={days} journey={data.journey}/>
   <SoulsUsagePanel rows={rows} unique={unique}/>
