@@ -177,7 +177,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       rememberShortsConversation(shortsPost); // Only after a real two-sided exchange.
      }
    }
-   // The Live ref contains the completed exchange before React updates live.turns.
    // Capture the first meaningful turn and every three more (up to three checkpoints).
    const learnerTurns=completedTurns.filter(t=>hasMeaningfulLearnerSpeech(t.input||"")).length;
    if(!learnerTurns||checkpointCountRef.current>=3||learnerTurns<=lastCheckpointTurnRef.current||
