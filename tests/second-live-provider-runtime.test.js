@@ -123,5 +123,5 @@ test("text-http flag never constructs a secondary session",async()=>{
 });
 test("JSON markdown fences are accepted before strict validation",()=>{
  const h=harness();
- assert.equal(h.api.parseAuxiliaryJson('\\u0060\\u0060\\u0060json\n{"translation":"你好"}\n\\u0060\\u0060\\u0060').translation,"你好");
+ assert.equal(h.api.parseAuxiliaryJson("\u0060\u0060\u0060json\n{\"translation\":\"你好\"}\n\u0060\u0060\u0060").translation,"你好");
 });
