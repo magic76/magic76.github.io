@@ -68,6 +68,8 @@ export function FriendLivePage(){
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
  const [guestStarted,setGuestStarted]=useState(false);
  const [showCallOptions,setShowCallOptions]=useState(false);
+ const [translationEnabled,setTranslationEnabled]=useState(()=>{try{return localStorage.getItem("crew_friend_call_translation_v1")!=="off"}catch{return true}});
+ const toggleTranslation=()=>setTranslationEnabled(value=>{try{localStorage.setItem("crew_friend_call_translation_v1",value?"off":"on")}catch{}return !value});
  const bubbleEffectiveRef=useRef(false);
  const creatureRewardSession=useRef("v"+Date.now().toString(36)+Math.random().toString(36).slice(2));
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
@@ -244,8 +246,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
+    {!textMode&&<SuggestedReplies replies={replyHints.replies} enabled={replyHints.enabled} unavailable={replyHints.unavailable} language={language}/>}
     {!textMode?<VoiceTextRecap messages={voiceRecap} name={friend.name}/>:null}
-    {!textMode&&<SuggestedReplies replies={replyHints.replies} enabled={replyHints.enabled} onToggle={replyHints.toggle} disabled={replyHintsLocked(live.state)} unavailable={replyHints.unavailable} language={language}/>}
     {homeFirstAction?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
     {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>
@@ -267,6 +269,11 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <small className="friend-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</small>
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
+    {!textMode&&<div className="friend-call-menu-preferences">
+     <button type="button" aria-pressed={replyHints.enabled} disabled={replyHintsLocked(live.state)} onClick={replyHints.toggle}>{t("suggestReplies.label")} {t(replyHints.enabled?"suggestReplies.on":"suggestReplies.off")}</button>
+     {replyHintsLocked(live.state)?<small>{t("suggestReplies.nextCall")}</small>:null}
+     <button type="button" aria-pressed={translationEnabled} onClick={toggleTranslation}>{t(translationEnabled?"callCaptions.hideTranslation":"callCaptions.showTranslation")}</button>
+    </div>}
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     </div>
     {!textMode?<>
@@ -293,7 +300,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       {live.voicePhase==="no-reply"&&!guestStarted?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
 
-    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} speaking={live.state==="speaking"}/>:null}
+    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled} speaking={live.state==="speaking"}/>:null}
     </>}
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{!textMode&&active&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
