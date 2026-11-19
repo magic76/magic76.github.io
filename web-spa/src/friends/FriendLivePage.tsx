@@ -36,6 +36,7 @@ import {HOME_FRIEND_IDS} from "../pages/homeDeepLink.mjs";
 import {getDailyTopic} from "../pages/dailyTopics";
 import {getDailyQuote} from "../pages/dailyQuotes";
 import {loadQuoteText} from "../pages/quoteCatalog";
+import {useFriendDailyFortuneContext} from "./useFriendDailyFortuneContext";
 import {nextFriendLifeOpening} from "../characters/lifeBook";
 import {friendLanguageReminder,friendLanguageTransition,friendBeginnerTextStart,type FriendChatLanguageMode} from "./friendLanguage";
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
@@ -100,24 +101,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const dailyHandoff=Boolean(dailyEntry&&params.get("from")==="fortune");
  const dailyKind=params.get("kind")==="bazi"||params.get("kind")==="numerology"?params.get("kind") as "bazi"|"numerology":null;
  const dailyLocale=locale.resolvedLanguage||locale.language;
- const dailyLookupKey=validDailyHash?dailyLocale+":"+personalChartHash+":"+String(dailyKind)+":"+String(dailyHandoff):"";
- const [dailyLookup,setDailyLookup]=useState<{key:string;context:string;hash:string;handoff?:string}|null>(null);
- useEffect(()=>{
-  if(!dailyLookupKey)return;
-  let active=true;
-  setDailyLookup(null);
-  void Promise.all([import("../pages/personalDailyLine"),import("../pages/dailyFortuneReader")])
-   .then(async ([{personalDailyLine},{buildDailyFortuneContext}])=>{
-    const line=await personalDailyLine(dailyLocale,undefined,personalChartHash).catch(()=>null);
-    const matching=!!line&&(!dailyHandoff||!dailyKind||line.card.kind===dailyKind);
-    const handoff=dailyHandoff?(await import("../fortune/fortuneChatHandoff")).buildFortuneChatHandoff(matching?line!.card:null,personalChartHash!,dailyKind,dailyLocale,locale.language):null;
-    const handoffContext=handoff?await handoff:"";
-    if(active)setDailyLookup({key:dailyLookupKey,hash:line?.hash||"",context:matching?buildDailyFortuneContext(line!.card):"",handoff:handoffContext});
-   }).catch(()=>{if(active)setDailyLookup({key:dailyLookupKey,hash:"",context:""})});
-  return()=>{active=false};
- },[dailyLookupKey,personalChartHash,dailyLocale,locale.language,dailyHandoff,dailyKind]);
- const dailyFortune=dailyLookup?.key===dailyLookupKey&&dailyLookup.hash===personalChartHash&&dailyLookup.context?dailyLookup:null;
- const dailyLookupPending=Boolean(dailyLookupKey&&dailyLookup?.key!==dailyLookupKey);
+ const {dailyLookup,dailyFortune,dailyLookupPending}=useFriendDailyFortuneContext({validDailyHash,personalChartHash,dailyLocale,dailyHandoff,dailyKind,language:locale.language});
  const [quoteText,setQuoteText]=useState<{id:string;language:string;text:string}|null>(null);
  useEffect(()=>{
   let active=true;
