@@ -160,7 +160,7 @@ test("runtime: successful SSE translation resolves and does not retry",async()=>
    calls++;
    const encoder=new TextEncoder();
    return new Response(new ReadableStream({start(controller){
-    controller.enqueue(encoder.encode('data: {"candidates":[{"content":{"parts":[{"text":"一個朋友說你好"}]}}]}\\n\\n'));
+    controller.enqueue(encoder.encode('data: {"candidates":[{"content":{"parts":[{"text":"一個朋友說你好"}]}}]}\n\n'));
     controller.close();
    }}),{status:200});
   };
