@@ -52,5 +52,5 @@ export function buildFortuneCardModel(
  const tagline=identity?(coreLocalized?identity.core:copy.symbolic):(safeOneLine(oneLine)||copy.fallback);
  return {mode,id:identity?.id||null,title,tagline,chips,
   artSrc:identity?identityArtworkUrl(identity.id):null,modeLabel:fortuneModeLabel(locale,mode),
-  cta:copy.question+" 3sssi.com/fortune",symbol:"✦",identity:identity||null};
+  cta:copy.question+" koolo.app/fortune",symbol:"✦",identity:identity||null};
 }
