@@ -57,8 +57,8 @@ test("phone captions do not repeat the friend identity; teachers keep their spea
  // The shared captions must not resolve/render a second friend avatar.
  assert.doesNotMatch(captions,/\bFriendAvatar\b/);
  // Explicit teacher-provided avatar is the only way the speaker row appears.
- assert.match(captions,/\bspeakerAvatar\s*\?\s*<div\b/);
- assert.match(captions,/\bspeakerAvatar\s*\?[\s\S]*?\bfriend-caption-speaker\b[\s\S]*?:\s*null\b/);
+ assert.match(bubbleList,/\bspeakerAvatar\s*\?\s*<div\b/);
+ assert.match(bubbleList,/\bspeakerAvatar\s*\?[\s\S]*?\bfriend-caption-speaker\b[\s\S]*?:\s*<small/);
  // Examine the JSX call sites, not the exact formatting or byte length.
  const calls=source=>[...source.matchAll(/<FriendCallCaptions\b([\s\S]*?)\/>/g)].map(match=>match[1]);
  const friendCalls=calls(page),teacherCalls=calls(teacher);
