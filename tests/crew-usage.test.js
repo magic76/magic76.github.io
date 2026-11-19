@@ -224,7 +224,7 @@ test("Souls anonymous funnel allows only fixed event/category combinations, incl
  assert.equal(points.length,steps.length+1);
  const usage=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
  // Verify the client production gate, not an obsolete pre-Koolo hostname list.
- assert.match(usage,/koolo\\.app/);
+ assert.ok(usage.includes('"koolo.app"'),"Koolo production hostname remains enabled");
  for(const host of ["www.3sssi.com","3sssi.com","koolo.app"]){
   const origin="https://"+host;
   const productionRequest=new Request(origin+"/api/usage/event",{
