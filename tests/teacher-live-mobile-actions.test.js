@@ -20,10 +20,8 @@ test("Live session offers a direct teacher-change entry with an explicit session
 
 test("Mobile live controls keep only conversation actions visible until options are expanded",()=>{
  assert.match(page,/<details className="teacher-live-quick-actions">/);
- assert.match(controls,/<details className="live-audio-settings"/);
- assert.match(controls,/<summary>\{t\("controls\.volumeSummary",\{v:live\.volume\}\)\}/);
+ assert.doesNotMatch(controls,/live-audio-settings|volumeSummary|type="range"|live\.setVolume/);
  assert.equal(voiceZh.controls.volumeSummary,"AI 音量 · {{v}}%");
- assert.match(controls,/<input type="range" min="0" max="300"/);
  assert.match(controls,/<button type="button" className="live-btn end crew-voice-end"/);
  assert.match(css,/grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\) minmax\(70px,\.72fr\)/);
  assert.match(css,/\.crew-voice-dock \.crew-voice-end\{grid-column:auto/);

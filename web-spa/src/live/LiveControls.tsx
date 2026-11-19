@@ -26,14 +26,6 @@ export function LiveControls({live,interruptLabel:customInterrupt,prominentInter
     <div className="crew-game-voice-actions">
      {prominentInterrupt&&speaking?<button type="button" className="crew-game-voice-btn is-interrupt" onClick={()=>live.interrupt()} aria-label={interruptLabel}>{t("compact.interrupt")}</button>:null}
      <button type="button" className={"crew-game-voice-btn"+(live.muted?" is-muted":"")} onClick={live.toggleMute} disabled={!speaking&&!listening} aria-pressed={live.muted} aria-label={t(live.muted?"compact.unmuteAria":"compact.muteAria")}>{t(live.muted?"compact.unmute":"compact.mute")}</button>
-     <details className="crew-game-voice-volume"><summary aria-label={t("compact.volumeAria")}>{t("compact.volume")}</summary>
-      <div className="crew-game-voice-volume-panel">
-       <div className="crew-game-voice-volume-caption"><strong>{t("compact.volumeCaption")}</strong><output>{live.volume}%</output></div>
-       <div className="crew-game-voice-volume-stepper"><button type="button" onClick={()=>live.setVolume(Math.max(0,live.volume-20))} disabled={live.volume===0} aria-label={t("compact.volumeDown")}>−</button>
-       <input type="range" min="0" max="300" step="5" aria-label={t("compact.volumeRange")} value={live.volume} onChange={e=>live.setVolume(Number(e.target.value))}/>
-       <button type="button" onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300} aria-label={t("compact.volumeUp")}>+</button></div>
-      </div>
-     </details>
      <button type="button" className="crew-game-voice-btn is-end" onClick={()=>void (onEnd?onEnd():live.stop())} disabled={live.state==="ending"||live.state==="reporting"}>{t(live.state==="reporting"?"compact.wrapping":"compact.end")}</button>
     </div>
    </div>
@@ -55,19 +47,6 @@ export function LiveControls({live,interruptLabel:customInterrupt,prominentInter
     {!prominentInterrupt&&<button className="live-tool-btn" onClick={()=>live.interrupt()} disabled={live.state!=="speaking"}>{interruptLabel}</button>}
    </div>
   </div><button type="button" className="live-btn end crew-voice-end" onClick={()=>void (onEnd?onEnd():live.stop())} disabled={live.state==="ending"||live.state==="reporting"}>{live.state==="reporting"?t("controls.finishing"):t("controls.end")}</button></div>
-  <div className="live-audio-bar"><details className="live-audio-settings" aria-label={t("controls.volumeAria")}>
-   <summary>{t("controls.volumeSummary",{v:live.volume})} <span aria-hidden="true">⌄</span></summary>
-   <div className="live-volume">
-    <span className="live-volume-label">{t("controls.volumeLabel")}</span>
-    <button type="button" className="live-volume-step" aria-label={t("controls.volumeDown")} onClick={()=>live.setVolume(Math.max(0,live.volume-20))} disabled={live.volume===0}>−</button>
-    <input type="range" min="0" max="300" step="5" aria-label={t("controls.volumeRange")} value={live.volume} onChange={e=>live.setVolume(Number(e.target.value))}/>
-    <button type="button" className="live-volume-step" aria-label={t("controls.volumeUp")} onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300}>+</button>
-    <span className="live-volume-value">{live.volume}%{live.volume>100?" ↑":""}</span>
-   </div>
-   <small className="live-audio-hint">{t("controls.volumeHint")}</small>
-  </details>
-  <button type="button" className="live-volume-quick is-down" aria-label={t("controls.volumeDown")} onClick={()=>live.setVolume(Math.max(0,live.volume-20))} disabled={live.volume===0}>−</button>
-  <button type="button" className="live-volume-quick is-up" aria-label={t("controls.volumeUp")} onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300}>+</button>
-  </div></div>}
+  </div>}
  </>;
 }

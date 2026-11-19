@@ -68,9 +68,7 @@ export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string
    ctx=new AudioCtor({sampleRate:48000});
    // Voice auditions share the same playback volume as Teacher/Friend Live.
    // Use a peak limiter above 100% instead of amplifying the microphone path.
-   const saved=Number(localStorage.getItem("crew_live_volume")??"100");
-   const percent=Number.isFinite(saved)?Math.max(0,Math.min(300,saved)):100;
-   const gain=ctx.createGain();gain.gain.value=percent/100;
+   const gain=ctx.createGain();gain.gain.value=1;
    let destination:AudioNode=ctx.destination;
    if(typeof ctx.createDynamicsCompressor==="function"){
     const limiter=ctx.createDynamicsCompressor();

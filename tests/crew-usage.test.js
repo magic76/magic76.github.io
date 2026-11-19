@@ -83,7 +83,8 @@ test("report aggregates browser uniqueness over the full period rather than summ
  assert.match(source,/previousChatUsers/);
  const dashboard=fs.readFileSync(path.join(root,"web-spa/src/analytics/UsageDashboardPage.tsx"),"utf8");
  assert.doesNotMatch(dashboard,/\.reduce\(\(a,b\)=>a\+b\.users/);
- assert.match(dashboard,/data\.chatUsers/);
+ const overview=fs.readFileSync(path.join(root,"web-spa/src/analytics/UsageOverviewCards.tsx"),"utf8");
+ assert.match(overview,/data\.chatUsers/);
 });
 
 test("frontend and Cloudflare ingest share one verified event/detail vocabulary",()=>{
@@ -188,7 +189,8 @@ test("guest trial completed turns count as chat without enabling memory callback
 test("guest usage summary counts are explicitly labeled as non-cohort ratios",()=>{
  const dashboard=fs.readFileSync(path.join(root,"web-spa/src/analytics/UsageDashboardPage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage-dashboard.css"),"utf8");
- assert.match(dashboard,/eventRatio=\(value:number,previous:number\)=>previous>0/);
+ const definitions=fs.readFileSync(path.join(root,"web-spa/src/analytics/usageDashboardDefinitions.ts"),"utf8");
+ assert.match(definitions,/eventRatio=\(value:number,previous:number\)=>previous>0/);
  assert.match(dashboard,/不是同一批訪客的精準轉換率/);
  assert.match(dashboard,/guest_trial_unavailable/);
  assert.match(css,/usage-guest-overview/);

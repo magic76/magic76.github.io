@@ -60,10 +60,6 @@ export function GeminiConnectionPanel({section="all"}:{section?:"key"|"voice"|"a
  const [micStatus,setMicStatus]=useState("");
  const [voiceResult,setVoiceResult]=useState<VoiceResult>("idle");
  const [voiceStatus,setVoiceStatus]=useState(t("gemini.initialVoice"));
- const [volume,setVolume]=useState(()=>{
-  const saved=Number(localStorage.getItem("crew_live_volume")??"100");
-  return Number.isFinite(saved)?Math.max(0,Math.min(300,saved)):100;
- });
  const [voiceBusy,setVoiceBusy]=useState(false);
  const [guestAvailable,setGuestAvailable]=useState(false);
  const mounted=useRef(true);
@@ -195,7 +191,7 @@ export function GeminiConnectionPanel({section="all"}:{section?:"key"|"voice"|"a
    if(!mounted.current)return;
    const session=new window.CrewLive.Session({
     system:"這是語音連線測試。請只用繁體中文說一句「連線成功」，不要延伸聊天。",
-    openingPrompt:"請現在說出測試句。",voice:"Kore",volume,manualInterruptOnly:true,
+    openingPrompt:"請現在說出測試句。",voice:"Kore",volume:100,manualInterruptOnly:true,
     maxLiveAttempts:2,connectTimeoutMs:8000,replyTimeoutMs:10000,
     onStatus:(value:string)=>{if(mounted.current&&!finished)setVoiceStatus(safeDetail(value))},
     onTurnComplete:async(turn:{hasValidOutput?:boolean})=>{
@@ -282,10 +278,6 @@ export function GeminiConnectionPanel({section="all"}:{section?:"key"|"voice"|"a
    {micStatus&&<p className="meta" role="status">{micStatus}</p>}
    <div className={"result settings-connection-result "+(voiceResult==="success"?"success":"")} role="status">{voiceStatus}</div>
    {micDenied&&<p className="meta settings-mic-advice" role="alert">{microphoneHelp()}</p>}
-   <div><label className="label" htmlFor="crew-live-volume">{t("gemini.volume")}</label><div className="range-row">
-    <input id="crew-live-volume" className="field" type="range" min="0" max="300" step="5" value={volume} onChange={event=>{const value=Number(event.target.value);setVolume(value);localStorage.setItem("crew_live_volume",String(value))}}/>
-    <strong>{volume}%</strong>
-   </div></div>
    <details className="settings-diagnostics">
     <summary>{t("gemini.diagnostics")}</summary>
     <p className="meta">{t("gemini.diagnosticsDesc")}</p>
