@@ -2,12 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import vm from "node:vm";
-import ts from "typescript";
+import {transformSync} from "esbuild";
 
 // Execute the real TS provider module with only its network/clock dependencies replaced.
 function harness({mode="live-ws",startError=false,send,clock=false}={}){
  const sessions=[],timeouts=new Map();
- let nextTimer=0,httpTranslations=0,httpHints=0,mainStops=0;
+ let nextTimer=0,httpTranslations=0,httpHints=0;
+ const mainSession={stops:0,stop(){this.stops++}};
  const storage=new Map([["koolo_aux_live_provider",mode]]);
  const localStorage={getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)};
  class Session{
@@ -34,7 +35,7 @@ function harness({mode="live-ws",startError=false,send,clock=false}={}){
  };
  const module={exports:{}};
  const source=readFileSync("web-spa/src/live/secondLiveProvider.ts","utf8");
- const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+ const js=transformSync(source,{loader:"ts",format:"cjs",target:"es2022"}).code;
  const context={module,exports:module.exports,require:name=>{
   if(!(name in dependencies))throw new Error("unexpected dependency: "+name);
   return dependencies[name];
@@ -46,7 +47,7 @@ function harness({mode="live-ws",startError=false,send,clock=false}={}){
  const api=module.exports;
  const translate=async(onText=()=>{})=>api.translateWithProvider("Hello","en","zh-TW",onText,new AbortController().signal);
  const suggest=()=>api.suggestWithProvider([{input:"Hello",output:"How are you?"}],"en","zh-TW");
- return {api,window,storage,sessions,translate,suggest,timeouts,stats:()=>({httpTranslations,httpHints,mainStops})};
+ return {api,window,storage,sessions,mainSession,translate,suggest,timeouts,stats:()=>({httpTranslations,httpHints,mainStops:mainSession.stops})};
 }
 const settle=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
 test("connected auxiliary WS supplies both translation and reply hints without HTTP",async()=>{
@@ -78,7 +79,7 @@ for(const event of ["onTerminal","onError"]){
   h.api.startAuxiliarySession();
   assert.equal(await h.translate(),"HTTP translation");
   assert.equal(h.stats().httpTranslations,1);
-  assert.equal(h.stats().mainStops,0);
+  assert.equal(h.mainSession.stops,0);
   h.api.stopAuxiliarySession();
  });
 }
