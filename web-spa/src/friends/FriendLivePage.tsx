@@ -24,6 +24,7 @@ import {friendVoiceStatusKey} from "./friendVoiceStatusKey";
 import {FriendChatHistory} from "./FriendChatHistory";
 import {FriendCallMenu,FriendCallMenuTrigger} from "./FriendCallMenu";
 import {FriendCallMenuPreferences} from "./FriendCallMenuPreferences";
+import {useCallTranslationPreference} from "./useCallTranslationPreference";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
 import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";
 import {geminiKey} from "../lib/runtime";
@@ -69,8 +70,7 @@ export function FriendLivePage(){
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
  const [guestStarted,setGuestStarted]=useState(false);
  const [showCallOptions,setShowCallOptions]=useState(false);
- const [translationEnabled,setTranslationEnabled]=useState(()=>{try{return localStorage.getItem("crew_friend_call_translation_v1")!=="off"}catch{return true}});
- const toggleTranslation=()=>setTranslationEnabled(value=>{try{localStorage.setItem("crew_friend_call_translation_v1",value?"off":"on")}catch{}return !value});
+ const {enabled:translationEnabled,toggle:toggleTranslation}=useCallTranslationPreference();
  const bubbleEffectiveRef=useRef(false);
  const creatureRewardSession=useRef("v"+Date.now().toString(36)+Math.random().toString(36).slice(2));
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
