@@ -1,7 +1,6 @@
 import {useCallback,useEffect,useRef,useState} from "react";
 import type {LiveTurn} from "../lib/runtime";
 import {suggestWithProvider} from "./secondLiveProvider";
-import {appendReplyGroup} from "./replyHintHistory";
 import type {SuggestedReply} from "./suggestReplies";
 const KEY="koolo_reply_hints";
 export const replyHintsLocked=(state:string)=>["connecting","listening","speaking"].includes(state);
@@ -15,13 +14,14 @@ export function useSuggestedReplies({allowed=true,language,nativeLanguage="zh-TW
  const clear=useCallback(()=>{version.current++;setGroups([])},[]);
  useEffect(()=>{clear()},[language,nativeLanguage,clear]);
  const toggle=useCallback(()=>{setEnabled(value=>{const next=!value;try{localStorage.setItem(KEY,next?"on":"off")}catch{}if(!next)clear();return next})},[clear]);
- const onInputSpeech=useCallback(()=>{},[]);
+ const onInputSpeech=useCallback(()=>{clear()},[clear]);
  const generate=useCallback((turns:LiveTurn[])=>{
   if(!activeRef.current)return;
+  clear();
   const current=version.current;
   void suggestWithProvider(turns,language,nativeLanguage).then(next=>{
-   if(version.current===current&&activeRef.current&&next.length>0)setGroups(previous=>appendReplyGroup(previous,next));
+   if(version.current===current&&activeRef.current&&next.length>0)setGroups([next]);
   }).catch(()=>{});
- },[language,nativeLanguage]);
+ },[language,nativeLanguage,clear]);
  return {enabled:enabled&&allowed,groups,unavailable,clear,onInputSpeech,toggle,generate};
 }
