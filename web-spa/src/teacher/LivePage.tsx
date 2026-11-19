@@ -1,3 +1,4 @@
+import {useAuxiliaryLiveSession} from "../live/useAuxiliaryLiveSession";
 import {useSuggestedReplies} from "../live/useSuggestedReplies";
 import{GroundingSources}from"../live/GroundingSources";
 import{LiveSearchAction}from"../live/LiveSearchAction";
@@ -181,6 +182,7 @@ export function TeacherLivePage(){
   }
  };
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ useAuxiliaryLiveSession(sessionActive,textMode);
  const openBoard=async()=>{
   if(openingBoard||changingTeacher||endingCourse)return;
   if(sessionActive&&!window.confirm(t("board.entryConfirm")))return;
