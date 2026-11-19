@@ -19,10 +19,4 @@ export function FriendCallControls({live,onEnd}:{live:ReturnTypeOfLive;onEnd:()=
     <small>{t("compact.interrupt")}</small>
    </button>
   </div>
-  <details className="friend-phone-volume"><summary>{t("controls.volumeLabel")} · {live.volume}%</summary><div className="friend-phone-volume-range">
-   <button type="button" onClick={()=>live.setVolume(Math.max(0,live.volume-20))} disabled={live.volume===0} aria-label={t("controls.volumeDown")}>−</button>
-   <input type="range" min="0" max="300" step="5" value={live.volume} onChange={e=>live.setVolume(Number(e.target.value))} aria-label={t("controls.volumeRange")}/>
-   <button type="button" onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300} aria-label={t("controls.volumeUp")}>＋</button>
-  </div></details>
- </div>;
-}
+
