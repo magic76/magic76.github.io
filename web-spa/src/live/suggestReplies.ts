@@ -2,7 +2,7 @@
 export type SuggestedReply={text:string;translation:string};
 export const SUGGEST_REPLIES_NAME="suggest_replies";
 export const SUGGEST_REPLIES_TOOL={name:SUGGEST_REPLIES_NAME,
- description:"When you ask the learner a question or invite them to speak, provide two or three short, distinct replies they could say aloud. Call once per question, preferably before finishing your spoken question. Never read the suggestions aloud. Do not call for statements that need no reply.",
+ description:"At the end of EVERY spoken assistant turn, call suggest_replies exactly once with 2–3 short, distinct things the learner could say next, whether you asked a question or simply told a story, made a statement, or shared a feeling. For questions, offer direct answers; otherwise offer natural reactions, feelings, follow-up questions, or ways to continue. Call after finishing your spoken words. Never speak the suggestions aloud, request repetition, or interrupt the conversation to explain the tool. Never reveal assessed answers.",
  parameters:{type:"OBJECT",properties:{replies:{type:"ARRAY",items:{type:"OBJECT",properties:{text:{type:"STRING",description:"A short natural response in the target learning language, ideally 5–12 words"},translation:{type:"STRING",description:"Meaning in the learner's native language"}},required:["text","translation"]}}},required:["replies"]}};
 export function parseSuggestedReplies(args:unknown):SuggestedReply[]{
  if(!args||typeof args!=="object"||Array.isArray(args))return [];
@@ -21,4 +21,4 @@ export function parseSuggestedReplies(args:unknown):SuggestedReply[]{
  }
  return valid.length>=2?valid:[];
 }
-export const SUGGEST_REPLIES_PROMPT="\\n[OPTIONAL SPEAKING HINTS] Whenever you ask the learner a question or invite them to respond, call suggest_replies with 2–3 different, short, speakable replies in the target language and translations in the learner's native language. Suggestions are optional; never demand repetition, never say them aloud, and never interrupt the conversation to explain the tool. For a lesson, avoid giving away assessed answers. If tools are unavailable, continue speaking normally.";
+export const SUGGEST_REPLIES_PROMPT="\\n[OPTIONAL SPEAKING HINTS] At the end of EVERY assistant spoken turn, call suggest_replies exactly once with 2–3 different, short, speakable replies in the target language and translations in the learner's native language, even if you only told a story, stated a fact, or shared a feeling without asking a question. For a question, suggest direct answers; for a story or statement, suggest reactions, feelings, follow-up questions, or natural ways to continue. Call after finishing your spoken words. Suggestions are optional for the learner; never demand repetition, never say them aloud, and never interrupt the conversation to explain the tool. For a lesson, avoid giving away assessed answers. If tools are unavailable, continue speaking normally.";
