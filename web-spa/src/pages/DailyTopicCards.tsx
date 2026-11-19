@@ -79,9 +79,9 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  return <section className={"daily-quote daily-quote--"+variant} aria-labelledby={"daily-quote-title-"+variant}>
   <div className="daily-quote-card">
    <div className="daily-quote-body">
-    {isPersonal&&dailyUpdated&&<span className="daily-quote-updated">{t("dailyQuote.updated")}</span>}
     <div className="daily-quote-heading">
      <h2 id={"daily-quote-title-"+variant}><span aria-hidden="true">✦</span> {title}</h2>
+     {isPersonal&&dailyUpdated&&<span className="daily-quote-updated">{t("dailyQuote.updated")}</span>}
      {isPersonal&&charts.length>1?<select className="daily-quote-chart" aria-label={t("dailyQuote.chooseChart")}
       value={personal!.hash} onChange={event=>selectChart(event.target.value)}>
       {charts.map(chart=><option key={chart.hash} value={chart.hash}>{chart.self?t("dailyQuote.me")+" · ":""}{chart.label}</option>)}
@@ -89,7 +89,7 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
      </select>:null}
     </div>
     {text?<p className="daily-quote-text">{text}</p>:<span className="daily-quote-placeholder" aria-hidden="true"/>}
-    {isPersonal?<p className="daily-quote-basis">{t(personal!.kind==="bazi"?"dailyQuote.basisBazi":"dailyQuote.basisNumerology")}</p>:<p className="daily-quote-benefit">{t("dailyQuote.setupHint")}</p>}
+    {!isPersonal&&<p className="daily-quote-benefit">{t("dailyQuote.setupHint")}</p>}
    </div>
    <div className={"daily-quote-actions"+(isPersonal?"":" daily-quote-actions--setup")}>
     {isPersonal?<>
