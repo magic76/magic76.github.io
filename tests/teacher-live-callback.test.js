@@ -10,7 +10,7 @@ const callback=source.match(/onTurnComplete:\(_turn,completedTurns\)=>\{([\s\S]*
 assert.ok(callback,"Teacher Live completed-turn callback not found");
 const makeCallback=new Function(
  "usageSentRef","trackUsageEvent","isRoleplay","memoryCheckpointRef","personalMemoryEnabled",
- "live","hasMeaningfulLearnerSpeech","rememberTeacherConversation","s","geminiKey",
+ "live","hasMeaningfulLearnerSpeech","rememberTeacherConversation","s","geminiKey","replyHints",
  "return (_turn,completedTurns)=>{"+callback[1]+"\n};"
 );
 function harness({roleplay=false,enabled=true}={}){
@@ -20,7 +20,7 @@ function harness({roleplay=false,enabled=true}={}){
   ()=>enabled,live,text=>text.includes("I enjoy hiking on weekends"),
   (language,turns,key)=>{checkpoints.push({language,turns,key});return Promise.resolve()},{
     targetLanguage:"英文"
-  },()=> "test-key");
+  },()=> "test-key",{clear(){}});
  return {onTurnComplete,checkpoints,usage,memoryCheckpointRef};
 }
 const completedTurns=[{input:"I enjoy hiking on weekends",output:"Where do you usually go?"}];

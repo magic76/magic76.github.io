@@ -1,3 +1,5 @@
+import {SuggestedReplies} from "../live/SuggestedReplies";
+import {useSuggestedReplies,replyHintsLocked} from "../live/useSuggestedReplies";
 import {GroundingSources} from "../live/GroundingSources";
 import {LiveSearchAction} from "../live/LiveSearchAction";
 import {buildAccentPrompt} from "../teacher/teacherAccent";
@@ -146,14 +148,19 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
  const {ready:voiceRecapReady,messages:voiceRecap}=useVoiceTextRecap(!textMode,"friend:"+friend.id+(shortsPost?":"+shortsPost.id:""),friend.id);
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
+ const replyHints=useSuggestedReplies({allowed:true,language:language});
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
-   system:system+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
+   system:system+replyHints.prompt+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
   openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
    shortsHook,selectedQuestion,lifeOpening,conversationHint:conversationOpening(intent,"friend"),
    conversationStyle:"one easy conversational observation",creatureContext,messages:voiceRecap}),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
+  tools:replyHints.tools,
+  onToolCall:replyHints.onToolCall,
+  onToolsUnavailable:replyHints.onToolsUnavailable,
+  onInputSpeech:replyHints.clear,
   onObservedExchange:turn=>{
    // Embedded creature voice already awards via its parent; count it once only.
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
@@ -161,6 +168,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   },
   onRecovered:creatureEmbed?creatureBridge.onRecovered:undefined,
   onTurnComplete:(_turn,completedTurns)=>{
+   replyHints.clear();
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("friend_conversation");
       if(shortsPost){
@@ -178,6 +186,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    void rememberFriendConversation(sessionId,language,completedTurns,0);
   },
   onSessionFinished:item=>{
+   replyHints.clear();
    if(!item)return;
    if(item.durationMs>0)trackUsageEvent("friend_session_end",sessionDurationDetail(item.durationMs));
    recordFriendChat(sessionId,language,item.turns,item.durationMs);
@@ -186,8 +195,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  });
  creatureBridge.bind(live);
  useCreatureStageSync(creatureEmbed,creatureBridge.creature,live.sendControl);
- // Guest trials intentionally skip onTurnComplete to avoid memory side effects.
- // Observe rendered turns instead, so BYOK and guests share the same conversion metric.
  useEffect(()=>{
   if(!bubbleEntry||bubbleEffectiveRef.current)return;
   if(live.turns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
@@ -201,7 +208,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   try{await live.stop(true)}finally{navigate(shortsReturnTo|| (intent==="speak"?"/learn":"/teacher/roles?mode=friends"))}
  };
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry)trackUsageEvent("home_live_bubble_connected")}},[live.state]);
- // Start once after mounting, without double-starting under React StrictMode.
  useEffect(()=>{if(textMode||!voiceRecapReady||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost,creatureEmbed,voiceRecapReady]);
  useFriendBodyTheme(creatureEmbed);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
@@ -243,6 +249,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
     {!textMode?<VoiceTextRecap messages={voiceRecap} name={friend.name}/>:null}
+    {!textMode&&<SuggestedReplies replies={replyHints.replies} enabled={replyHints.enabled} onToggle={replyHints.toggle} disabled={replyHintsLocked(live.state)} unavailable={replyHints.unavailable} language={language}/>}
     {homeFirstAction?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
     {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>

@@ -1,3 +1,4 @@
+import {useSuggestedReplies} from "../live/useSuggestedReplies";
 import{GroundingSources}from"../live/GroundingSources";
 import{LiveSearchAction}from"../live/LiveSearchAction";
 import{fortuneSpeakingOpening,fortuneSpeakingPolicy,readFortuneSpeakingContext,type FortuneSpeakingKind}from"./fortuneSpeaking";
@@ -74,11 +75,17 @@ export function TeacherLivePage(){
     ?conversationOpening(intent,"teacher")
     :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Either use one brief context-specific greeting that fits "+profile.name+"'s personality or skip the greeting and begin with a relevant short question.\n"+(lifeOpening||"");
  const creatureRewardSession=useRef("v"+Date.now().toString(36)+Math.random().toString(36).slice(2));
- const live=useLiveSession({pageKey:"teacher",title:(fortuneKind?"命理聊聊":isReview?t("learnToday.reviewTitle"):mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system:system+(!isRoleplay&&!fortuneKind?"\n[CURRENT FACTS] Do not claim to have live web access. Only use fresh facts when verified context is explicitly provided. Otherwise explain you cannot verify the current news. Preserve teacher language and practice policies.":""),openingPrompt:languageDirective+"\n"+opening+"\n"+languageDirective,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&(intent==="continue"||s.conversationMode==="natural")?"teacher":fortuneKind?"teacher":undefined,
+ const replyHints=useSuggestedReplies({allowed:false,language:s.targetLanguage});
+ const live=useLiveSession({pageKey:"teacher",title:(fortuneKind?"命理聊聊":isReview?t("learnToday.reviewTitle"):mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system:system+replyHints.prompt+(!isRoleplay&&!fortuneKind?"\n[CURRENT FACTS] Do not claim to have live web access. Only use fresh facts when verified context is explicitly provided. Otherwise explain you cannot verify the current news. Preserve teacher language and practice policies.":""),openingPrompt:languageDirective+"\n"+opening+"\n"+languageDirective,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&(intent==="continue"||s.conversationMode==="natural")?"teacher":fortuneKind?"teacher":undefined,
+  tools:replyHints.tools,
+  onToolCall:replyHints.onToolCall,
+  onToolsUnavailable:replyHints.onToolsUnavailable,
+  onInputSpeech:replyHints.clear,
   onObservedExchange:turn=>{
    if(turn.id)try{awardCreatureChatEnergy("teacher-voice",creatureRewardSession.current+":"+turn.id)}catch{}
   },
   onTurnComplete:(_turn,completedTurns)=>{
+   replyHints.clear();
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("teacher_conversation");
    }
@@ -89,11 +96,11 @@ export function TeacherLivePage(){
    void rememberTeacherConversation(s.targetLanguage,snapshot,geminiKey());
   },
   onSessionFinished:item=>{
+   replyHints.clear();
    if(!item)return;
    if(item.durationMs>0)trackUsageEvent("teacher_session_end",sessionDurationDetail(item.durationMs));
    if(isReview&&item.turns.filter(t=>Boolean(t.input?.trim())).length>=2)markReviewPracticed(s.targetLanguage,reviewFocus);
    if(isRoleplay)return;
-   // Long sessions have a richer report; short conversations still retain explicit facts.
    if(item.durationMs<60000||item.turns.filter(t=>Boolean(t.input?.trim())).length<3)
     void rememberTeacherConversation(s.targetLanguage,item.turns,geminiKey());
   }});
@@ -112,7 +119,6 @@ export function TeacherLivePage(){
   .finally(()=>{if(!cancelled)setEvaluating(false)});
   return()=>{cancelled=true};
  },[course?.id,live.state,live.report,live.turns,assessmentRetry,guestStarted]);
- // The selected teacher starts when the session page opens. Deferral avoids a StrictMode double-mount call.
  useEffect(()=>{if(textMode||!geminiKey())return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
  const tutorHistoryRecorded=useRef(false);
  useEffect(()=>{
@@ -149,7 +155,6 @@ export function TeacherLivePage(){
     setEvaluationError(t("live.noSpeech"));
     return;
    }
-   // Save grading results even if the learner navigates away.
    const grading=saved.completion
     .then(done=>evaluateCourseSession(course,done.turns,done.report))
     .then(result=>{
@@ -184,7 +189,6 @@ export function TeacherLivePage(){
   if(sessionActive&&!window.confirm(t("board.entryConfirm")))return;
   setOpeningBoard(true);setTeacherSwitchError("");
   try{
-   // The board starts its own Live session. Never leave the existing mic/socket running.
    if(!textMode&&sessionActive)await live.stop(true);
    navigate("/teacher/board");
   }catch{
@@ -243,6 +247,7 @@ export function TeacherLivePage(){
  return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={fortuneKind?"/teacher/fortune":"/learn"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("voice:friendLive.backAria")}>‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><div className="friend-call-header-actions"><span className="status connected" data-setup={live.state==="error"&&live.errorKind==="key"||undefined} data-state={presenceState} role="status" aria-live="polite"><i className="status-dot"/><span>{voiceStatus}</span></span><FriendCallMenuTrigger active={!textMode} open={callOptions} label={t("voice:callCaptions.more")} onToggle={()=>setCallOptions(v=>!v)}/></div></div></header>
  <main className="session-shell teacher-call-page friend-live-page">
  {textMode?missionNotes:null}
+ 
  <div className="desktop-live-workspace teacher-desktop-workspace friend-desktop-workspace"><section className={"live-stage teacher-live-stage"+(!textMode?" friend-phone-stage":"")} data-state={live.state} aria-label={t("live.status.idle")}>
    {!textMode&&<FriendCallMenu inCall open={callOptions} onClose={()=>setCallOptions(false)} title={t("voice:callCaptions.more")} closeLabel={t("voice:callCaptions.closeMenu")}>
   <div className="friend-call-settings">

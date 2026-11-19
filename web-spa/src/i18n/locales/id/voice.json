@@ -292,4 +292,13 @@
     "callControls": "Kontrol panggilan",
     "hangUp": "Akhiri panggilan"
   }
+ ,
+  "suggestReplies": {
+    "label": "Saran jawaban",
+    "on": "Aktif",
+    "off": "Nonaktif",
+    "nextCall": "Berlaku pada panggilan berikutnya",
+    "instructions": "Anda bisa mengucapkannya atau menjawab dengan kata-kata sendiri",
+    "unavailable": "Model ini tidak mendukung saran jawaban"
+  }
 }

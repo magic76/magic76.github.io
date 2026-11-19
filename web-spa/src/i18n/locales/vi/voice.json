@@ -292,4 +292,13 @@
     "callControls": "Điều khiển cuộc gọi",
     "hangUp": "Kết thúc"
   }
+ ,
+  "suggestReplies": {
+    "label": "Gợi ý trả lời",
+    "on": "Bật",
+    "off": "Tắt",
+    "nextCall": "Có hiệu lực từ cuộc gọi tiếp theo",
+    "instructions": "Bạn có thể đọc theo hoặc trả lời bằng lời của mình",
+    "unavailable": "Mô hình này không hỗ trợ gợi ý trả lời"
+  }
 }

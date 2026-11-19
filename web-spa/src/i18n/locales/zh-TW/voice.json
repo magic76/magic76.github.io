@@ -291,5 +291,13 @@
     "waitingForYou": "你說的話會顯示在這裡",
     "callControls": "通話控制",
     "hangUp": "掛斷"
+  },
+  "suggestReplies": {
+    "label": "回答提示",
+    "on": "開",
+    "off": "關",
+    "nextCall": "下次通話生效",
+    "instructions": "可以直接照著說，也可以自由回答",
+    "unavailable": "此模型不支援回答提示"
   }
 }

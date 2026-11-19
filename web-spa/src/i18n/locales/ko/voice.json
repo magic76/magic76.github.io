@@ -292,4 +292,13 @@
     "callControls": "통화 제어",
     "hangUp": "통화 종료"
   }
+ ,
+  "suggestReplies": {
+    "label": "답변 힌트",
+    "on": "켜짐",
+    "off": "꺼짐",
+    "nextCall": "다음 통화부터 적용",
+    "instructions": "그대로 말하거나 자신의 말로 답해도 됩니다",
+    "unavailable": "이 모델은 답변 힌트를 지원하지 않습니다"
+  }
 }

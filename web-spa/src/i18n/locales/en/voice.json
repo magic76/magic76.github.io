@@ -291,5 +291,13 @@
     "waitingForYou": "What you say will appear here",
     "callControls": "Call controls",
     "hangUp": "Hang up"
+  },
+  "suggestReplies": {
+    "label": "Reply hints",
+    "on": "On",
+    "off": "Off",
+    "nextCall": "Takes effect next call",
+    "instructions": "Say one aloud, or answer in your own words",
+    "unavailable": "This model does not support reply hints"
   }
 }

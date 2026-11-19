@@ -292,4 +292,13 @@
     "callControls": "Controles de llamada",
     "hangUp": "Colgar"
   }
+ ,
+  "suggestReplies": {
+    "label": "Sugerencias de respuesta",
+    "on": "Activado",
+    "off": "Desactivado",
+    "nextCall": "Se aplicará en la próxima llamada",
+    "instructions": "Puedes decirlo en voz alta o responder con tus propias palabras",
+    "unavailable": "Este modelo no admite sugerencias de respuesta"
+  }
 }
