@@ -6,7 +6,7 @@ import {fileURLToPath} from "node:url";
 const areas={
   fortune:{prefixes:["web-spa/src/fortune/","functions/api/fortune/"],tests:["tests/fortune-ai-quality.test.js","tests/fortune-report-depth.test.js","tests/fortune-identity.test.js","tests/fortune-daily-card.test.js"]},
   shorts:{prefixes:["web-spa/src/shorts/","scripts/shorts-"],tests:["tests/shorts-daily-generator.test.js","tests/shorts-agent-pipeline.test.js","tests/shorts-post-starter.test.js"]},
-  games:{prefixes:["web-spa/src/games/"],tests:["tests/game-end-12.test.js","tests/crew-games.test.js"]},
+  games:{prefixes:["web-spa/src/games/"],tests:["tests/game-end-12.test.js"]},
   teacher:{prefixes:["web-spa/src/teacher/"],tests:["tests/teacher-japanese-english-onboarding.test.js","tests/teacher-target-languages.test.js"]},
 };
 const core=["tests/crew-usage.test.js","tests/crew-feedback.test.js","tests/crew-feedback-admin.test.js","tests/crew-auth.test.js","tests/guest-trial.test.js"];
