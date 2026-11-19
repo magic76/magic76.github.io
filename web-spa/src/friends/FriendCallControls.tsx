@@ -20,3 +20,5 @@ export function FriendCallControls({live,onEnd}:{live:ReturnTypeOfLive;onEnd:()=
    </button>
   </div>
 
+ </div>;
+}
