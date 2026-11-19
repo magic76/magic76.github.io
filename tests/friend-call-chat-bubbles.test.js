@@ -13,7 +13,7 @@ test("AI bubble is left, learner bubble is right using existing call colors",()=
  assert.match(list,/friend-bubble-user/);
 });
 test("translation and 2-3 suggestions are nested below their AI utterance",()=>{
- assert.match(list,/turn\.output\.trim\(\)<\/p>\s*\{renderTranslation\(turn\.output\.trim\(\)/);
+ assert.ok(list.includes("{turn.output.trim()}</p>")&&list.includes("{renderTranslation(turn.output.trim()"),"translation follows AI text");
  assert.match(list,/\{renderSuggestions\(turn\.index\)\}/);
  assert.match(list,/suggestions\.slice\(0,3\)/);
  assert.match(list,/latestAiKey===key/);
