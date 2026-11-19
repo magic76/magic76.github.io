@@ -107,7 +107,6 @@
     "preparing": "Gespräch wird vorbereitet",
     "free": "Freies Gespräch"
   },
-  "kicker": "Koolo-Freunde",
   "textStarters": {
     "targetHint": "Du kannst zuerst auf Deutsch mit {{name}} schreiben oder unten einen kurzen Satz auf {{language}} wählen. {{name}} hilft dir beim Üben.",
     "meaning": {
