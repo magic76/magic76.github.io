@@ -113,7 +113,7 @@ test("#50 v3: four failed sentences show one error; successful translations stay
  assert.deepEqual(callTranslationRows([{text:"",status:"pending"},{text:"",status:"working"}]),[{kind:"message",value:"translating"}]);
  assert.deepEqual(callTranslationRows([{text:"partial text",status:"working"},{text:"",status:"pending"}]),[{kind:"text",value:"partial text"}]);
  assert.match(captions,/callTranslationRows\(parts\)/);
- assert.match(captions,/visibleTranslation\.map/);
+ assert.match(bubbleList,/translationRows\.map/);
  assert.doesNotMatch(captions,/parts\.map\(\(part,i\)/);
 });
 test("#50 v3: Zoe original, translation and speaker remain visible in scrollable chat bubbles",()=>{
