@@ -242,7 +242,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
-    {!textMode&&<SuggestedReplies replies={replyHints.replies} enabled={replyHints.enabled} unavailable={replyHints.unavailable} language={language}/>}
     {!textMode?<VoiceTextRecap messages={voiceRecap} name={friend.name}/>:null}
     {homeFirstAction?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
     {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">
@@ -293,6 +292,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      </div>:null}
 
     <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled} speaking={live.state==="speaking"}/>:null}
+    {!textMode&&active&&<SuggestedReplies groups={replyHints.groups} enabled={replyHints.enabled} language={language}/>}
     </>}
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{!textMode&&active&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
