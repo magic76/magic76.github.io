@@ -42,7 +42,12 @@ test('all 11 mobile hero headlines fit one line and retain each subtitle',()=>{
 
 test('mobile hero defines responsive headline styling without pinning exact CSS formatting',()=>{
  const css=read('web-spa/src/pages/mobileHomeHeroV3.css');
- assert.match(css,/\\.cmh-slide-copy\\s+h1\\s*\\{/,'hero heading selector must exist');
+ const headings=[...css.matchAll(/\\.cmh-slide(?:\\s+\\.cmh-slide-copy)?\\s+h1\\s*\\{([^}]*)\\}/g)];
+ assert.ok(headings.length,'hero heading selector must exist');
+ const finalHeading=headings.at(-1)[1];
+ const font=finalHeading.match(/font-size:\\s*(\\d+)px/);
+ assert.ok(font,'hero heading must set a concrete mobile font size');
+ assert.ok(Number(font[1])>=12&&Number(font[1])<=26,'effective phone heading must remain legible without overflowing');
  assert.match(css,/@media\\s*\\(max-width:\\s*380px\\)/,'small phone override must exist');
  const zh=JSON.parse(read('web-spa/src/i18n/locales/zh-TW/home.json'));
  assert.equal(typeof zh.layout2?.resumeTitle,'string');
