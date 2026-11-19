@@ -204,7 +204,7 @@
     opt=opt||{};if(!key())throw modelError("key","尚未設定 Gemini API key");
     var errs=[],lastFailure=null,quotaFailure=null,networkFailure=null;
     if(opt.preferLive!==false){for(var i=0;i<LIVE.length;i++){try{return await liveCall(LIVE[i],prompt,opt)}catch(e){errs.push(LIVE[i]+": "+e.message)}}}
-    var found=opt.strictModels?[]:await discover(),seen={},models=TEXT.concat(found).filter(function(m){if(!m||seen[m])return false;seen[m]=1;return true});
+    var found=opt.strictModels?[]:await discover(),seen={},preferred=Array.isArray(opt.models)&&opt.models.length?opt.models:TEXT,models=(Array.isArray(opt.models)&&opt.models.length?preferred:TEXT.concat(found)).filter(function(m){if(!m||seen[m])return false;seen[m]=1;return true});
     for(var j=0;j<models.length;j++){
       try{return await textCall(models[j],prompt,opt)}
       catch(e){

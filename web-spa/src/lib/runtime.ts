@@ -30,7 +30,7 @@ export interface LiveSession{
 }
 type StoryBook={id:string;title?:string;summary?:string;idea?:string;coverIndex?:number;images?:any[];pages?:any[];currentPage?:number;updatedAt?:string};
 declare global{interface Window{
- CrewAI?:{call:(prompt:string,opt?:{preferLive?:boolean;temperature?:number;maxOutputTokens?:number;timeoutMs?:number;requireComplete?:boolean;thinking?:string;strictModels?:boolean;system?:string;json?:boolean})=>Promise<string>;[key:string]:any} & any;CrewLive?:{Session:new(options:LiveSessionOptions)=>LiveSession};CrewLiveUI?:any;CrewTeacherReport?:any;
+ CrewAI?:{call:(prompt:string,opt?:{preferLive?:boolean;temperature?:number;maxOutputTokens?:number;timeoutMs?:number;requireComplete?:boolean;thinking?:string;strictModels?:boolean;models?:string[];system?:string;json?:boolean})=>Promise<string>;[key:string]:any} & any;CrewLive?:{Session:new(options:LiveSessionOptions)=>LiveSession};CrewLiveUI?:any;CrewTeacherReport?:any;
  CrewDB?:any;CrewGeminiVision?:any;CrewTextbookStore?:any;CrewTextbookLesson?:any;
  CrewStoryStore?:{save(book:StoryBook):Promise<StoryBook>;get(id:string):Promise<StoryBook|null>;list():Promise<StoryBook[]>;remove(id:string):Promise<void>;last():Promise<StoryBook|null>};
  CrewStoryGenerator?:any;CrewBookAnalyzer?:any;CrewFortuneProfile?:any;CrewFortuneBaZi?:any;CrewFortuneTarot?:any;CrewFortuneVedic?:any;CrewFortuneVedicEnrich?:any;
