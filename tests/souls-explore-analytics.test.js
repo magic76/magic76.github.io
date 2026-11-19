@@ -13,6 +13,7 @@ const usage=read("web-spa/src/analytics/usage.ts");
 const server=read("functions/api/usage/event.ts");
 const panel=read("web-spa/src/analytics/SoulsUsagePanel.tsx");
 const dashboard=read("web-spa/src/analytics/UsageDashboardPage.tsx");
+const definitions=read("web-spa/src/analytics/usageDashboardDefinitions.ts");
 
 test("Souls is a visible Explore tile, with a working existing route and entry click",()=>{
  assert.match(hub,/data-kind="souls" to="\/souls"/);
@@ -41,9 +42,9 @@ test("Souls lifecycle events are emitted only for meaningful browser actions",()
 
 test("private dashboard uses Souls event totals, distinct-browser count and non-cohort caveat",()=>{
  assert.match(dashboard,/<SoulsUsagePanel rows=\{rows\} unique=\{unique\}\/>/);
- assert.match(dashboard,/\{id:"souls",label:"Souls"/);
- assert.match(dashboard,/SOULS_USAGE_EVENTS/);
- assert.match(dashboard,/SOULS_USAGE_NAMES/);
+ assert.match(definitions,/\{id:"souls",label:"Souls"/);
+ assert.match(definitions,/SOULS_USAGE_EVENTS/);
+ assert.match(definitions,/SOULS_USAGE_NAMES/);
  assert.match(panel,/explore_entry_click/);
  assert.match(panel,/souls_open/);
  assert.match(panel,/souls_photo_ready/);
