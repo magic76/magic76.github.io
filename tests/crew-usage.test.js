@@ -223,7 +223,24 @@ test("Souls anonymous funnel allows only fixed event/category combinations, incl
  }
  assert.equal(points.length,steps.length+1);
  const usage=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
- assert.match(usage,/\["www\.3sssi\.com","3sssi\.com"\]/);
+ // Verify the client production gate, not an obsolete pre-Koolo hostname list.
+ assert.ok(usage.includes('"koolo.app"'),"Koolo production hostname remains enabled");
+ for(const host of ["www.3sssi.com","3sssi.com","koolo.app"]){
+  const origin="https://"+host;
+  const productionRequest=new Request(origin+"/api/usage/event",{
+   method:"POST",headers:{"Content-Type":"application/json","Origin":origin},
+   body:JSON.stringify({...payload,event:"souls_open",detail:""})
+  });
+  assert.equal((await onRequestPost({request:productionRequest,env})).status,204,host);
+ }
+ for(const host of ["evil.invalid","www.koolo.app"]){
+  const origin="https://"+host;
+  const rejected=new Request(origin+"/api/usage/event",{
+   method:"POST",headers:{"Content-Type":"application/json","Origin":origin},
+   body:JSON.stringify({...payload,event:"souls_open",detail:""})
+  });
+  assert.equal((await onRequestPost({request:rejected,env})).status,403,host);
+ }
  const report=fs.readFileSync(path.join(root,"functions/api/usage/report.ts"),"utf8");
  assert.match(report,/souls_created/);
  assert.match(report,/souls_live_connected/);
