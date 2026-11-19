@@ -3,7 +3,7 @@ import {useTranslation} from "react-i18next";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import type {SuggestedReply} from "./suggestReplies";
 import "./suggestedReplies.css";
-export function SuggestedReplies({replies,enabled,onToggle,disabled,unavailable,language}:{replies:SuggestedReply[];enabled:boolean;onToggle:()=>void;disabled:boolean;unavailable:boolean;language:string}){
+export function SuggestedReplies({replies,enabled,unavailable,language}:{replies:SuggestedReply[];enabled:boolean;unavailable:boolean;language:string}){
  const {t,i18n}=useTranslation("voice");
  const [expanded,setExpanded]=useState(false);
  const listId=useId();
@@ -13,8 +13,6 @@ export function SuggestedReplies({replies,enabled,onToggle,disabled,unavailable,
  return <section className="live-suggest" aria-label={t("suggestReplies.label")}>
   {unavailable?<small role="status">{t("suggestReplies.unavailable")}</small>:<>
    <div className="live-suggest-heading">
-    <button className="live-suggest-toggle" type="button" disabled={disabled} aria-pressed={enabled} onClick={onToggle}>{t("suggestReplies.label")} {t(enabled?"suggestReplies.on":"suggestReplies.off")}</button>
-    {disabled?<small>{t("suggestReplies.nextCall")}</small>:null}
     {hasReplies?<button className="live-suggest-expand" type="button" aria-expanded={expanded} aria-controls={listId} onClick={()=>setExpanded(value=>!value)}>
      <span>{countLabel}</span><span className="live-suggest-chevron" aria-hidden="true">⌄</span>
     </button>:null}
