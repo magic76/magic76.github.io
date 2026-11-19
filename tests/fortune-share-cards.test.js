@@ -38,6 +38,6 @@ test("daily card maintains its own privacy allowlist but stronger return URL",()
  const wrapper=read("web-spa/src/fortune/shareCard.ts");
  assert.match(wrapper,/DailyShareLabels/);
  assert.match(wrapper,/buildDailyShareFile\(card:import\("\.\/dailyCard"\)\.DailyCard,labels:DailyShareLabels\)/);
- assert.match(wrapper,/3sssi\.com\/fortune/);
+ assert.match(wrapper,/koolo\.app\/fortune/);
  assert.doesNotMatch(wrapper.slice(wrapper.indexOf("/** Daily sharing")),/birthDate|birthTime|reading\.profile/);
 });
