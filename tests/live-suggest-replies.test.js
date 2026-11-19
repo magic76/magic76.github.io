@@ -12,9 +12,10 @@ test("accepts two or three short unique replies",()=>{
  assert.equal(parseSuggestedReplies({replies:[reply("I like it."),reply("I prefer tea.")]}).length,2);
  assert.equal(parseSuggestedReplies({replies:[reply("One"),reply("Two"),reply("Three")]}).length,3);
 });
-test("rejects one reply and duplicate replies",()=>{
+test("rejects a single reply and keeps distinct replies after deduplication",()=>{
  assert.deepEqual(parseSuggestedReplies({replies:[reply("One")]}),[]);
- assert.deepEqual(parseSuggestedReplies({replies:[reply("One!"),reply("one."),reply("Two")]}),[]);
+ assert.deepEqual(parseSuggestedReplies({replies:[reply("One!"),reply("one."),reply("Two")]}),[reply("One!"),reply("Two")]);
+ assert.deepEqual(parseSuggestedReplies({replies:[reply("Cats"),reply("Cat"),reply("Two")]}),[reply("Cats"),reply("Cat"),reply("Two")]);
 });
 test("rejects overlong and untranslated replies",()=>{
  assert.deepEqual(parseSuggestedReplies({replies:[reply("x".repeat(81)),reply("Two")]}),[]);
