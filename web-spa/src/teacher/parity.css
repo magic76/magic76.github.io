@@ -18,7 +18,7 @@ body.teacher-theme .crew-setup-warning strong{font-size:14px}
 body.teacher-theme .crew-setup-warning span{font-size:12px;flex:1}
 body.teacher-theme .crew-continue-section{margin-top:16px}
 body.teacher-theme .crew-practice-shortcuts .feature-card{min-height:118px}
-body.teacher-theme .crew-role-switcher{display:flex;gap:5px;max-width:440px;margin:7px 0 18px;padding:5px;border-radius:16px;background:var(--surface-alt,#f2f5f8);border:1px solid var(--line,#e5e7eb)}
+body.teacher-theme .crew-role-switcher{display:flex;gap:5px;max-width:440px;margin:3px 0 8px;padding:5px;border-radius:16px;background:var(--surface-alt,#f2f5f8);border:1px solid var(--line,#e5e7eb)}
 body.teacher-theme .crew-role-switcher button{border:0;border-radius:12px;background:transparent;color:var(--muted,#667085);flex:1;cursor:pointer;min-height:44px;font:inherit;font-size:14px;font-weight:600;transition:background .15s ease,color .15s ease,box-shadow .15s ease}
 body.teacher-theme .crew-role-switcher button.active{background:var(--surface,#fff);color:var(--text,#222);box-shadow:0 2px 7px #1e2d4016}
 body.teacher-theme .crew-role-switcher button:focus-visible{outline:2px solid #4b86e7;outline-offset:2px}
