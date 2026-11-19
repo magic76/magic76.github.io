@@ -29,7 +29,7 @@ test("#52 activates black viewport and header only while a call stage exists",()
  assert.match(dark,/safe-area|100dvh/);
 });
 test("#52 the header, stage, transcript strip, history and desktop canvas are one uninterrupted black surface",()=>{
- const black="#000",selectors=["html:has(.friend-phone-stage)","html:has(.friend-phone-stage) body","body:has(.friend-phone-stage) #root","body:has(.friend-phone-stage) .app-header","body:has(.friend-phone-stage) .app-header .shell.inner","body.teacher-theme.session-page main.friend-live-page:has(.friend-phone-stage)",scope+".friend-phone-stage",scope+".friend-phone-stage .friend-caption-heading",scope+".friend-phone-stage>.friend-chat-history",scope+".friend-phone-stage>.friend-chat-history summary",scope+".desktop-live-panel"];
+ const black="#000",selectors=["html:has(.friend-phone-stage)","html:has(.friend-phone-stage) body","body:has(.friend-phone-stage) #root","body:has(.friend-phone-stage) .app-header","body:has(.friend-phone-stage) .app-header .shell.inner","body.teacher-theme.session-page main.friend-live-page:has(.friend-phone-stage)",scope+".friend-phone-stage",scope+".friend-phone-stage>.friend-chat-history",scope+".friend-phone-stage>.friend-chat-history summary",scope+".desktop-live-panel"];
  for(const selector of selectors)assert.equal(style(selector).background,black,selector);
  const stage=style(scope+".friend-phone-stage");
  for(const [prop,value] of [["border","0"],["border-radius","0"],["box-shadow","none"],["background-image","none"],["margin","0"],["max-width","none"],["height","auto"],["max-height","none"]])assert.equal(stage[prop],value,prop);
@@ -48,7 +48,6 @@ test("#52 primary text contrast is >= 4.5:1 against the actual call surfaces",()
   [scope+".friend-phone-stage .friend-caption-user",scope+".friend-phone-stage .friend-caption-user"],
   ["body:has(.friend-phone-stage) .app-header .app-title,body:has(.friend-phone-stage) .app-header .app-title strong,body:has(.friend-phone-stage) .app-header .app-title small","body:has(.friend-phone-stage) .app-header"],
   [scope+".friend-phone-duration,"+scope+".friend-phone-volume,"+scope+".friend-phone-button","html:has(.friend-phone-stage)"],
-  [scope+".friend-phone-stage .friend-caption-heading","html:has(.friend-phone-stage)"],
   [scope+".friend-phone-stage .friend-caption-user small",scope+".friend-phone-stage .friend-caption-user"],
   [scope+".friend-phone-stage .friend-caption-ai small",scope+".friend-phone-stage .friend-caption-ai"],
   ["body:has(.friend-phone-stage) .app-header .status span","body:has(.friend-phone-stage) .app-header .status"]
@@ -174,4 +173,13 @@ test("runtime: successful SSE translation resolves and does not retry",async()=>
   if(originalKey===undefined)delete globalThis.__testTranslationKey;else globalThis.__testTranslationKey=originalKey;
   if(originalName===undefined)delete globalThis.__testNativeLanguageName;else globalThis.__testNativeLanguageName=originalName;
  }
+});
+
+test("call transcript heading removed; translation preference lives in call menu",()=>{
+ const menu=read(root+"FriendCallMenuPreferences.tsx");
+ const page=read(root+"FriendLivePage.tsx");
+ assert.doesNotMatch(captions,/className="friend-caption-heading"|className="friend-caption-toggle"/);
+ assert.match(menu,/callCaptions\.hideTranslation/);
+ assert.match(menu,/aria-pressed=\{translationEnabled\}/);
+ assert.match(page,/translationEnabled=\{translationEnabled\}/);
 });

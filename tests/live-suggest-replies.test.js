@@ -72,11 +72,22 @@ test("reply hints default collapsed and expand independently of locked toggle",(
  assert.match(component,/onClick=\{\(\)=>setExpanded\(value=>!value\)\}/);
  assert.match(component,/hasReplies&&expanded\?/);
  assert.match(component,/hasReplies\?<button className="live-suggest-expand"/);
- assert.match(component,/className="live-suggest-toggle" type="button" disabled=\{disabled\} aria-pressed=\{enabled\}/);
- assert.match(component,/suggestReplies\.nextCall/);
+ const menu=readFileSync("web-spa/src/friends/FriendCallMenuPreferences.tsx","utf8");
+ assert.match(menu,/aria-pressed=\{hintsEnabled\} disabled=\{hintsLocked\}/);
+ assert.doesNotMatch(component,/live-suggest-toggle|suggestReplies\.nextCall/);
+ assert.match(menu,/suggestReplies\.nextCall/);
  assert.match(component,/reply\.translation/);
  assert.match(css,/\.live-suggest-expand/);
  assert.match(css,/\[aria-expanded="true"\]/);
  assert.ok(Buffer.byteLength(component)<26000);
  assert.ok(Buffer.byteLength(css)<26000);
+});
+
+test("suggestions render beneath avatar and above transcript, with smaller text",()=>{
+ const page=readFileSync("web-spa/src/friends/FriendLivePage.tsx","utf8");
+ const css=readFileSync("web-spa/src/live/suggestedReplies.css","utf8");
+ assert.ok(page.indexOf("<SuggestedReplies")>page.indexOf('className="live-identity"'));
+ assert.ok(page.indexOf("<SuggestedReplies")<page.indexOf("<FriendCallCaptions"));
+ assert.match(css,/\.live-suggest-item strong\s*\{\s*font-size: 13px/);
+ assert.match(css,/\.live-suggest-item small\s*\{\s*font-size: 11px/);
 });

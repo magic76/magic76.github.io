@@ -23,6 +23,8 @@ import {useFriendTextViewport,useFriendBodyTheme,useFriendVoiceTheme} from "./us
 import {friendVoiceStatusKey} from "./friendVoiceStatusKey";
 import {FriendChatHistory} from "./FriendChatHistory";
 import {FriendCallMenu,FriendCallMenuTrigger} from "./FriendCallMenu";
+import {FriendCallMenuPreferences} from "./FriendCallMenuPreferences";
+import {useCallTranslationPreference} from "./useCallTranslationPreference";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
 import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";
 import {geminiKey} from "../lib/runtime";
@@ -68,6 +70,7 @@ export function FriendLivePage(){
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
  const [guestStarted,setGuestStarted]=useState(false);
  const [showCallOptions,setShowCallOptions]=useState(false);
+ const {enabled:translationEnabled,toggle:toggleTranslation}=useCallTranslationPreference();
  const bubbleEffectiveRef=useRef(false);
  const creatureRewardSession=useRef("v"+Date.now().toString(36)+Math.random().toString(36).slice(2));
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
@@ -88,12 +91,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   (key,detail)=>t("home:shorts."+key,{detail})):"";
  const shortsHookText=shortsHook?t("home:shorts."+({details:"hooksDetails",feelings:"hooksFeelings",next:"hooksNext"}[shortsHook])):undefined;
  const shortsStarter=shortsPost?(selectedQuestion||shortsHookText||t("voice:friendLive.postStarter")):undefined;
- // Only known IDs can resolve a starter; Shorts always retains its own priority.
  const dailyTopic=!shortsPost&&friend.id==="zoe"?getDailyTopic(params.get("topic")):undefined;
  const dailyTopicStarter=dailyTopic?t("textStarters.topics."+dailyTopic.id,{name:friend.name}):undefined;
  const selectedQuote=!shortsPost&&friend.id==="zoe"?getDailyQuote(params.get("quote")):undefined;
- // A special allowlisted token is resolved from a hash that must exist on this device.
- // No birth details or generated fortune text ever travel in the URL.
  const personalChartHash=!shortsPost&&friend.id==="zoe"&&textMode&&params.get("quote")==="daily"?params.get("chart"):null;
  const validDailyHash=Boolean(personalChartHash&&/^[a-f0-9]{64}$/.test(personalChartHash));
  const dailyEntry=validDailyHash;
@@ -159,7 +159,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onInputSpeech:replyHints.onInputSpeech,
   onObservedExchange:turn=>{
-   // Embedded creature voice already awards via its parent; count it once only.
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
    if(turn.id)try{awardCreatureChatEnergy("friend-voice",creatureRewardSession.current+":"+turn.id)}catch{}
   },
@@ -173,7 +172,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       rememberShortsConversation(shortsPost); // Only after a real two-sided exchange.
      }
    }
-   // Capture the first meaningful turn and every three more (up to three checkpoints).
    const learnerTurns=completedTurns.filter(t=>hasMeaningfulLearnerSpeech(t.input||"")).length;
    if(!learnerTurns||checkpointCountRef.current>=3||learnerTurns<=lastCheckpointTurnRef.current||
       (lastCheckpointTurnRef.current>0&&learnerTurns-lastCheckpointTurnRef.current<3))return;
@@ -244,8 +242,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
+    {!textMode&&<SuggestedReplies replies={replyHints.replies} enabled={replyHints.enabled} unavailable={replyHints.unavailable} language={language}/>}
     {!textMode?<VoiceTextRecap messages={voiceRecap} name={friend.name}/>:null}
-    {!textMode&&<SuggestedReplies replies={replyHints.replies} enabled={replyHints.enabled} onToggle={replyHints.toggle} disabled={replyHintsLocked(live.state)} unavailable={replyHints.unavailable} language={language}/>}
     {homeFirstAction?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
     {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>
@@ -267,6 +265,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <small className="friend-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</small>
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
+    {!textMode&&<FriendCallMenuPreferences hintsEnabled={replyHints.enabled} hintsLocked={replyHintsLocked(live.state)} onHintsToggle={replyHints.toggle} translationEnabled={translationEnabled} onTranslationToggle={toggleTranslation}/>}
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     </div>
     {!textMode?<>
@@ -293,7 +292,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       {live.voicePhase==="no-reply"&&!guestStarted?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
 
-    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} speaking={live.state==="speaking"}/>:null}
+    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled} speaking={live.state==="speaking"}/>:null}
     </>}
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{!textMode&&active&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
