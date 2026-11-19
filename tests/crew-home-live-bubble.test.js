@@ -40,7 +40,7 @@ test("content entry preserves click analytics, mobile/notice safety and reduced 
  const live=read("web-spa/src/friends/FriendLivePage.tsx");
  for(const name of ["home_live_bubble_connected","home_live_bubble_conversation"]){
   assert.ok(live.includes('trackUsageEvent("'+name+'"'));
-  for(const file of ["web-spa/src/analytics/usage.ts","functions/api/usage/event.ts","web-spa/src/analytics/UsageDashboardPage.tsx"])
+  for(const file of ["web-spa/src/analytics/usage.ts","functions/api/usage/event.ts","web-spa/src/analytics/usageDashboardDefinitions.ts"])
    assert.ok(read(file).includes(name),file+" missing "+name);
  }
  assert.match(live,/params\.get\("entry"\)==="bubble"/);
