@@ -50,7 +50,7 @@ test("text generation is isolated from Live and failures are silent",()=>{
  const hook=readFileSync("web-spa/src/live/useSuggestedReplies.ts","utf8");
  assert.match(source,/window\.CrewAI\.call\(prompt/);
  assert.match(source,/preferLive:false/);
- assert.match(source,/models:\["gemini-3\\.5-flash-lite","gemini-3\\.5-flash"\]/);
+ assert.match(source,/models:\["gemini-3\.5-flash-lite","gemini-3\.5-flash"\]/);
  const core=readFileSync("crew.js","utf8");
  assert.match(core,/Array\\.isArray\\(opt\\.models\\)/);
  assert.match(core,/preferred:TEXT/);
