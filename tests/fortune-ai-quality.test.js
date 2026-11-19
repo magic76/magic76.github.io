@@ -58,3 +58,24 @@ test("report prompt, UI and generation flow maintain distinct topics and compute
  assert.match(page,/auditAiReading\(text,item\.result,item\.mode\)/);
  assert.match(page,/if\(!audit\.ok\)throw new Error/);
 });
+
+test("P0 rejects generic chapters when the chart exposes specific identifiers",()=>{
+ const facts={birthCardDisplay:"魔術師",personalityCardName:"女祭司",soulCardName:"皇后"};
+ const weak=report({work:career+" 你擁有很大的潛力。",wealth:wealth,love,self});
+ const result=auditAiReading(weak,facts,"tarot");
+ assert.equal(result.ok,false);
+ assert.ok(result.issues.some(x=>x.includes("命盤標記")));
+ assert.ok(result.issues.some(x=>x.includes("空泛")));
+});
+
+test("P0 accepts evidence anchored across multiple chapters",()=>{
+ const facts={birthCardDisplay:"魔術師",personalityCardName:"女祭司",soulCardName:"皇后"};
+ const grounded=report({work:career+" 魔術師對應的象徵可用來回顧實際工作經驗。",wealth:wealth+" 女祭司提醒先觀察自己的資源選擇。"});
+ assert.equal(auditAiReading(grounded,facts,"tarot").ok,true);
+});
+
+test("P0 prompt requests chart evidence, signal interactions and observable examples",()=>{
+ const prompt=read("web-spa/src/fortune/report.ts");
+ assert.match(prompt,/現實可觀察的情境/);
+ assert.match(prompt,/如何支持、限制或與其拉扯/);
+});
