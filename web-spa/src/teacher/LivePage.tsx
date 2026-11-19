@@ -101,7 +101,6 @@ export function TeacherLivePage(){
    if(item.durationMs>0)trackUsageEvent("teacher_session_end",sessionDurationDetail(item.durationMs));
    if(isReview&&item.turns.filter(t=>Boolean(t.input?.trim())).length>=2)markReviewPracticed(s.targetLanguage,reviewFocus);
    if(isRoleplay)return;
-   // Long sessions have a richer report; short conversations still retain explicit facts.
    if(item.durationMs<60000||item.turns.filter(t=>Boolean(t.input?.trim())).length<3)
     void rememberTeacherConversation(s.targetLanguage,item.turns,geminiKey());
   }});
@@ -120,7 +119,6 @@ export function TeacherLivePage(){
   .finally(()=>{if(!cancelled)setEvaluating(false)});
   return()=>{cancelled=true};
  },[course?.id,live.state,live.report,live.turns,assessmentRetry,guestStarted]);
- // The selected teacher starts when the session page opens. Deferral avoids a StrictMode double-mount call.
  useEffect(()=>{if(textMode||!geminiKey())return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
  const tutorHistoryRecorded=useRef(false);
  useEffect(()=>{
@@ -157,7 +155,6 @@ export function TeacherLivePage(){
     setEvaluationError(t("live.noSpeech"));
     return;
    }
-   // Save grading results even if the learner navigates away.
    const grading=saved.completion
     .then(done=>evaluateCourseSession(course,done.turns,done.report))
     .then(result=>{
@@ -192,7 +189,6 @@ export function TeacherLivePage(){
   if(sessionActive&&!window.confirm(t("board.entryConfirm")))return;
   setOpeningBoard(true);setTeacherSwitchError("");
   try{
-   // The board starts its own Live session. Never leave the existing mic/socket running.
    if(!textMode&&sessionActive)await live.stop(true);
    navigate("/teacher/board");
   }catch{
