@@ -6,7 +6,7 @@ import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
 import {SoulsUsagePanel} from "./SoulsUsagePanel";
 import {names,categories,games,eventRatio,chatStart,chatSpeech,chatReply,chatEffective,type Category} from "./usageDashboardDefinitions";
 import {UsageExportControls} from "./UsageExportControls";
-import {num,total,totalMany,comparison,type Row,type EventUsers} from "./usageExport";
+import {num,total,totalMany,type Row,type EventUsers} from "./usageExport";
 
 type Report={
  days:number;activeUsers:number;chatUsers:number;platformBreakdown?:PlatformUsage[];
