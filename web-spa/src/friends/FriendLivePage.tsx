@@ -91,12 +91,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   (key,detail)=>t("home:shorts."+key,{detail})):"";
  const shortsHookText=shortsHook?t("home:shorts."+({details:"hooksDetails",feelings:"hooksFeelings",next:"hooksNext"}[shortsHook])):undefined;
  const shortsStarter=shortsPost?(selectedQuestion||shortsHookText||t("voice:friendLive.postStarter")):undefined;
- // Only known IDs can resolve a starter; Shorts always retains its own priority.
  const dailyTopic=!shortsPost&&friend.id==="zoe"?getDailyTopic(params.get("topic")):undefined;
  const dailyTopicStarter=dailyTopic?t("textStarters.topics."+dailyTopic.id,{name:friend.name}):undefined;
  const selectedQuote=!shortsPost&&friend.id==="zoe"?getDailyQuote(params.get("quote")):undefined;
- // A special allowlisted token is resolved from a hash that must exist on this device.
- // No birth details or generated fortune text ever travel in the URL.
  const personalChartHash=!shortsPost&&friend.id==="zoe"&&textMode&&params.get("quote")==="daily"?params.get("chart"):null;
  const validDailyHash=Boolean(personalChartHash&&/^[a-f0-9]{64}$/.test(personalChartHash));
  const dailyEntry=validDailyHash;
@@ -162,7 +159,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onInputSpeech:replyHints.onInputSpeech,
   onObservedExchange:turn=>{
-   // Embedded creature voice already awards via its parent; count it once only.
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
    if(turn.id)try{awardCreatureChatEnergy("friend-voice",creatureRewardSession.current+":"+turn.id)}catch{}
   },
@@ -176,7 +172,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       rememberShortsConversation(shortsPost); // Only after a real two-sided exchange.
      }
    }
-   // Capture the first meaningful turn and every three more (up to three checkpoints).
    const learnerTurns=completedTurns.filter(t=>hasMeaningfulLearnerSpeech(t.input||"")).length;
    if(!learnerTurns||checkpointCountRef.current>=3||learnerTurns<=lastCheckpointTurnRef.current||
       (lastCheckpointTurnRef.current>0&&learnerTurns-lastCheckpointTurnRef.current<3))return;
