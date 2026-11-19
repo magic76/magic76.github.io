@@ -35,3 +35,11 @@ The Souls test previously asserted that the frontend source contained the exact 
 6. Re-run the entire suite and document measured before/after timings and the exact count of replaced brittle assertions.
 
 **Evidence limitations:** no full suite execution or timing measurements have been performed in this audit phase. Do not interpret this document as a completed repository-wide review.
+
+## Follow-up PR: independent full regression
+
+The existing `.github/workflows/crew-spa.yml` has a single `build` job. Typecheck, the always-on usage analytics test, and the Web build are sequential steps: a failure in analytics prevents the build and bundle checks from running. Several feature-specific checks use `contains(github.event.pull_request.head.ref, ...)` and therefore select tests based on branch naming, not changed paths; this must not be treated as reliable impact analysis.
+
+The first incremental CI architecture change introduces `.github/workflows/koolo-full-regression.yml`, scheduled nightly at 19:17 UTC and available via `workflow_dispatch`. It runs the entire existing Node test suite, TypeScript and locale checks, and Cloudflare build/deployment/bundle checks in three independent parallel jobs. This preserves the existing PR-required `build` check without modifying branch protection or silently changing its meaning.
+
+This is **not yet** changed-area PR selection or an optimized PR fast lane. Do not mark those tasks complete until path/dependency analysis and required-check migration are validated. Full regression durations and test counts must be recorded from actual Actions runs after this workflow is enabled.
