@@ -55,8 +55,7 @@ export async function translateCallSentence(sentence:string,source:string,target
      response=await request(false);
     }else throw new Error("failed");
    }
-   if(response.status===401||response.status===403)throw new Error("key");
-   if(!response.ok)throw new Error("failed");
+   if(response.status!==200)throw new Error("failed");
    const value=response.text.trim();
    if(!value)throw new Error("failed");
    if(signal.aborted)throw new DOMException("Aborted","AbortError");
