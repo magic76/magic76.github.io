@@ -148,20 +148,16 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
  const {ready:voiceRecapReady,messages:voiceRecap}=useVoiceTextRecap(!textMode,"friend:"+friend.id+(shortsPost?":"+shortsPost.id:""),friend.id);
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
- const replyHints=useSuggestedReplies({allowed:true,language:language});
+ const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
-   system:system+replyHints.prompt+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
+   system:system+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
   openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
    shortsHook,selectedQuestion,lifeOpening,conversationHint:conversationOpening(intent,"friend"),
    conversationStyle:"one easy conversational observation",creatureContext,messages:voiceRecap}),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
-  tools:replyHints.tools,
-  onToolCall:replyHints.onToolCall,
-  onToolsUnavailable:replyHints.onToolsUnavailable,
   onInputSpeech:replyHints.onInputSpeech,
-  onMissingReplyHints:replyHints.takeMissingTurn,
   onObservedExchange:turn=>{
    // Embedded creature voice already awards via its parent; count it once only.
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
@@ -169,7 +165,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   },
   onRecovered:creatureEmbed?creatureBridge.onRecovered:undefined,
   onTurnComplete:(_turn,completedTurns)=>{
-   replyHints.clear();
+   if(_turn.hasValidOutput)replyHints.generate(completedTurns);
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("friend_conversation");
       if(shortsPost){
