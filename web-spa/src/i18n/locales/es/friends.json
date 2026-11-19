@@ -107,7 +107,6 @@
     "preparing": "Preparando la conversación",
     "free": "Charla libre"
   },
-  "kicker": "Amigos Koolo",
   "textStarters": {
     "targetHint": "Puedes empezar en español con {{name}} o elegir una frase corta en {{language}}. {{name}} te ayudará a practicar.",
     "meaning": {

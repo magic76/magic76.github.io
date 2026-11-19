@@ -107,7 +107,6 @@
     "preparing": "会話を準備しています",
     "free": "フリートーク"
   },
-  "kicker": "Koolo の友だち",
   "textStarters": {
     "targetHint": "まず日本語で{{name}}と話しても大丈夫。下の短い{{language}}の文も使えます。{{name}}と気軽に練習しましょう。",
     "meaning": {

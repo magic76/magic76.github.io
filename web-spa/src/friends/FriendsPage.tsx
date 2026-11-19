@@ -66,7 +66,7 @@ export function FriendsPage(){
  const captureStatus=selected?getFriendCaptureStatus(selected.id,language):"";
  return <div className="crew-friends-page" data-revision={revision}>
   <header className="hero friends-intro">
-   <span className="kicker">{t("kicker")}</span><h1>{t("title")}</h1>
+   <h1>{t("title")}</h1>
    <p>{t("intro")}</p>
   </header>
   <section className="section teacher-precall-settings panel"><label>{t("language")}<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(v=><option key={v} value={v}>{t("languages."+v)}</option>)}</select></label><label>{t("pace")}<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">{t("slow")}</option><option value="normal">{t("normal")}</option><option value="fast">{t("fast")}</option></select></label><label>{t("chatModeTitle")}<select className="field" value={friendChatMode} onChange={e=>setFriendChatMode(e.target.value as FriendChatLanguageMode)}><option value="natural">{t("chatModeNatural")}</option><option value="bilingual">{t("chatModeBilingual")}</option><option value="immersion">{t("chatModeImmersion")}</option></select></label></section>

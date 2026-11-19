@@ -107,7 +107,6 @@
     "preparing": "正在準備對話",
     "free": "自由聊天"
   },
-  "kicker": "Koolo 朋友",
   "textStarters": {
     "targetHint": "可以先用中文跟 {{name}} 聊，或點下面的{{language}}短句；{{name}} 會陪你慢慢練。",
     "meaning": {

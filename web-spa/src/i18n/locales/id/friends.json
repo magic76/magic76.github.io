@@ -107,7 +107,6 @@
     "preparing": "Menyiapkan obrolan",
     "free": "Obrolan bebas"
   },
-  "kicker": "Teman Koolo",
   "textStarters": {
     "targetHint": "Kamu bisa mulai dalam bahasa Indonesia dengan {{name}} atau pilih kalimat pendek dalam {{language}}. {{name}} akan menemanimu berlatih.",
     "meaning": {

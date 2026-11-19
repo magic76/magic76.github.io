@@ -45,7 +45,7 @@ export function TutorPage(){
  }
  const startPath="/teacher/live"+(s.conversationMode==="scenario"?"?mission="+encodeURIComponent(scene):"");
  return <>
- <section className="hero teacher-home-heading"><span className="kicker">CREW TEACHER</span><h1>{t("tutor.title")}</h1><p>{t("tutor.intro")}</p></section>
+ <section className="hero teacher-home-heading"><h1>{t("tutor.title")}</h1><p>{t("tutor.intro")}</p></section>
  <section className="section teacher-home">
   <div className="panel teacher-home-hero">
    <div className="teacher-home-identity">
