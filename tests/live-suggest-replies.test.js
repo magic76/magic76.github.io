@@ -52,7 +52,7 @@ test("text generation is isolated from Live and failures are silent",()=>{
  assert.match(source,/preferLive:false/);
  assert.match(source,/models:\["gemini-3\.5-flash-lite","gemini-3\.5-flash"\]/);
  const core=readFileSync("crew.js","utf8");
- assert.match(core,/Array\\.isArray\\(opt\\.models\\)/);
+ assert.match(core,/Array\.isArray\(opt\.models\)/);
  assert.match(core,/preferred:TEXT/);
  assert.match(source,/if\(!geminiKey\(\)/);
  assert.match(source,/parseSuggestedReplies\(data\)/);
