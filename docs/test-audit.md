@@ -43,3 +43,33 @@ The existing `.github/workflows/crew-spa.yml` has a single `build` job. Typechec
 The first incremental CI architecture change introduces `.github/workflows/koolo-full-regression.yml`, scheduled nightly at 19:17 UTC and available via `workflow_dispatch`. It runs the entire existing Node test suite, TypeScript and locale checks, and Cloudflare build/deployment/bundle checks in three independent parallel jobs. This preserves the existing PR-required `build` check without modifying branch protection or silently changing its meaning.
 
 This is **not yet** changed-area PR selection or an optimized PR fast lane. Do not mark those tasks complete until path/dependency analysis and required-check migration are validated. Full regression durations and test counts must be recorded from actual Actions runs after this workflow is enabled.
+
+## Measured PR CI baseline (2026-11-20 review)
+
+Source: GitHub Actions run [44466525561](https://github.com/magic76/magic76.github.io/actions/runs/44466525561), PR #769 at commit `2293455`. This is a **historical snapshot**, not a fresh master run.
+
+- New `Koolo PR impact validation` workflow selected **full** regression because the PR modifies `scripts/`, `tests/`, and `.github/workflows/`. That is expected fail-closed behavior.
+- Node runner summary: **1,828 tests**, **1,760 passed**, **50 failed**, **18 skipped**; test process duration **38,892 ms**. The workflow itself failed.
+- A separate `Crew SPA build` run [44466525442](https://github.com/magic76/magic76.github.io/actions/runs/44466525442) failed at TypeScript typecheck. This is an independent blocker, not proof that the selector broke production code.
+- One full-suite failure was a parse-time `SyntaxError: Invalid regular expression flags` in `tests/phone-lab-route.test.js`. Fixed in PR #790, merged as `d74338e` after its PR CI succeeded.
+- Another failure asserted `UsageDashboardPage.tsx` must stay below 26 KB. At the time of this review the **current master source** was approximately 16.7K characters; the historical failure should **not** be assumed to persist without rerunning against current master.
+
+### Failure clusters from the historical run
+
+These are names of failed assertions, not verified root causes. Several appear to be source-shape checks that could have become stale after UI changes.
+
+| Cluster | Examples | Required next action |
+| --- | --- | --- |
+| Product navigation / UX | Home routes, private routes, settings deep links, PWA install, Shorts text entry, teacher biography | Compare against current routes and user journeys before changing assertions |
+| Live / chat | Call settings sheet, text-only microphone bypass, friend/teacher entry | Verify functional contracts and security invariants |
+| Fortune / tree / games | Daily card, 11 locales, postcard, art geometry and rendering | Validate current feature specification and deterministic outputs |
+| Analytics / architecture | Dashboard file-size threshold, private usage journey aggregates, route-scoped bundle | Keep privacy/security checks blocking; inspect architecture separately |
+| Test harness | Phone lab regex syntax | Fixed in #790; rerun to confirm |
+
+### Current gate policy
+
+1. Keep `Crew SPA build` required and unchanged until a replacement has a stable green baseline.
+2. Keep PR #769 open until its own selector tests and the full fallback suite can be evaluated against a known-good base. Its fail-closed fallback is correct; changing it to ignore failures would hide regressions.
+3. Do **not** mass-update 50 source-grep assertions or raise file-size limits solely to obtain green CI.
+4. Rerun full regression on current master (nightly/manual workflow); capture individual failed test names and job durations, compare to this snapshot, then repair small verified groups in separate PRs.
+5. Audit whether the workflow's required status and nightly schedule are actually enforced before declaring migration complete.
