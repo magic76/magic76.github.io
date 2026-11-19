@@ -427,6 +427,7 @@ export function useLiveSession(config:Config){
  },[]);
  const sendVideoFrame=useCallback((frame:unknown)=>sessionRef.current?.sendVideoFrame?.(frame)??false,[]);
  const setVolume=useCallback((_v:number)=>{sessionRef.current?.setVolume(100)},[]);
+ const getAudioDiagnostics=useCallback(()=>sessionRef.current?.getHealthSnapshot?.()??null,[]);
  useEffect(()=>()=>{
   const session=sessionRef.current;
   clearGuestTimer();guestDeadlineRef.current=0;
@@ -437,6 +438,6 @@ export function useLiveSession(config:Config){
   sessionRef.current=null;
   void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
  },[snapshot]);
- return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
+ return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume,getAudioDiagnostics};
 }
 
