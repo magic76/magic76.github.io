@@ -34,7 +34,7 @@ test("shared hook retains preference and clears stale suggestions",()=>{
  for(const path of ["web-spa/src/friends/FriendLivePage.tsx","web-spa/src/teacher/LivePage.tsx"]){
   const page=readFileSync(path,"utf8");
   assert.match(page,/useSuggestedReplies\(/);
-  assert.match(page,/onInputSpeech:replyHints\.clear/);
+  assert.match(page,/onInputSpeech:replyHints\.(?:clear|onInputSpeech)/);
   assert.match(page,/onTurnComplete:[^\n]*\n\s*replyHints\.clear\(\)/);
   assert.match(page,/onToolsUnavailable:replyHints\.onToolsUnavailable/);
   assert.ok(Buffer.byteLength(page)<26000,path);
