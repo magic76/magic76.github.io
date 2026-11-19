@@ -16,7 +16,7 @@ test("friend call uses actual two-way transcription and preserves the Live trans
  assert.match(captions,/splitCallSentences\(text\)/);
  assert.match(captions,/advance\(currentReply,false\)/);
  assert.match(captions,/advance\(complete,true\)/);
- assert.match(captions,/translateCallSentence\(part\.source,source,nativeLanguage/);
+ assert.match(captions,/translateWithProvider\(part\.source,source,nativeLanguage/);
  assert.doesNotMatch(captions,/sendText\(|sendControl\(/);
  assert.match(controls,/live\.toggleMute/);
  assert.match(controls,/live\.interrupt\(\)/);

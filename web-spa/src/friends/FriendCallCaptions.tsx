@@ -3,7 +3,7 @@ import {useTranslation} from "react-i18next";
 import {geminiKey} from "../lib/runtime";
 import type {NativeLanguage} from "../teacher/teacherLocale";
 import {callTranslationRows,splitCallSentences} from "./callSentence.mjs";
-import {translateCallSentence} from "./callTranslate";
+import {translateWithProvider} from "../live/secondLiveProvider";
 type Turn={input?:string;output?:string};
 type Props={name:string;turns:ReadonlyArray<Turn>;input:string;output:string;learningLanguage:string;nativeLanguage:NativeLanguage;speaking:boolean;speakerAvatar?:ReactNode;waitingText?:string;replyExtra?:ReactNode;headerAccessory?:ReactNode;translationEnabled?:boolean};
 type Translator={translate(text:string):Promise<string>;destroy?():void};
@@ -50,7 +50,7 @@ export function FriendCallCaptions({name,turns,input,output,learningLanguage,nat
    if(!useKey&&!browser?.instance){part.status="key";publish();continue}
    const epoch=epochRef.current,controller=new AbortController();activeRef.current.set(index,controller);part.status="working";publish();
    const onText=(value:string)=>{if(epoch!==epochRef.current||controller.signal.aborted)return;const item=partsRef.current[index];if(item){item.text=value;publish()}};
-   const task=useKey?translateCallSentence(part.source,source,nativeLanguage,onText,controller.signal):browser!.instance!.translate(part.source).then(value=>{onText(String(value).trim());return String(value).trim()});
+   const task=useKey?translateWithProvider(part.source,source,nativeLanguage,onText,controller.signal):browser!.instance!.translate(part.source).then(value=>{onText(String(value).trim());return String(value).trim()});
    void task.then(value=>{if(epoch!==epochRef.current)return;const item=partsRef.current[index];if(item){item.text=value;item.status=value?"done":"failed";publish()}}).catch(error=>{if(epoch!==epochRef.current)return;const item=partsRef.current[index];if(item){item.text="";item.status=error?.message==="key"?"key":"failed";publish()}}).finally(()=>{if(epoch!==epochRef.current)return;activeRef.current.delete(index);flushRef.current()});
   }
  };

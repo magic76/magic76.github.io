@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useRef,useState} from "react";
 import type {LiveTurn} from "../lib/runtime";
-import {generateReplyHints} from "./replyHintText";
+import {suggestWithProvider} from "./secondLiveProvider";
 import {appendReplyGroup} from "./replyHintHistory";
 import type {SuggestedReply} from "./suggestReplies";
 const KEY="koolo_reply_hints";
@@ -19,7 +19,7 @@ export function useSuggestedReplies({allowed=true,language,nativeLanguage="zh-TW
  const generate=useCallback((turns:LiveTurn[])=>{
   if(!activeRef.current)return;
   const current=version.current;
-  void generateReplyHints(turns,language,nativeLanguage).then(next=>{
+  void suggestWithProvider(turns,language,nativeLanguage).then(next=>{
    if(version.current===current&&activeRef.current&&next.length>0)setGroups(previous=>appendReplyGroup(previous,next));
   }).catch(()=>{});
  },[language,nativeLanguage]);
