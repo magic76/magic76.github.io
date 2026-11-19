@@ -62,3 +62,21 @@ test("text generation is isolated from Live and failures are silent",()=>{
  assert.match(hook,/\.catch\(\(\)=>\{\}\)/);
  assert.doesNotMatch(source,/sendControl|suggest_replies/);
 });
+
+test("reply hints default collapsed and expand independently of locked toggle",()=>{
+ const component=readFileSync("web-spa/src/live/SuggestedReplies.tsx","utf8");
+ const css=readFileSync("web-spa/src/live/suggestedReplies.css","utf8");
+ assert.match(component,/useState\(false\)/);
+ assert.match(component,/aria-expanded=\{expanded\}/);
+ assert.match(component,/aria-controls=\{listId\}/);
+ assert.match(component,/onClick=\{\(\)=>setExpanded\(value=>!value\)\}/);
+ assert.match(component,/hasReplies&&expanded\?/);
+ assert.match(component,/hasReplies\?<button className="live-suggest-expand"/);
+ assert.match(component,/className="live-suggest-toggle" type="button" disabled=\{disabled\} aria-pressed=\{enabled\}/);
+ assert.match(component,/suggestReplies\.nextCall/);
+ assert.match(component,/reply\.translation/);
+ assert.match(css,/\.live-suggest-expand/);
+ assert.match(css,/\[aria-expanded="true"\]/);
+ assert.ok(Buffer.byteLength(component)<26000);
+ assert.ok(Buffer.byteLength(css)<26000);
+});
