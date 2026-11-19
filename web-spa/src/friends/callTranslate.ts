@@ -8,7 +8,7 @@ export async function translateCallSentence(sentence:string,source:string,target
  const hit=cache.get(id);
  if(hit!==undefined){cache.delete(id);cache.set(id,hit);onText(hit);return hit}
  const body=(thinking:boolean)=>JSON.stringify({systemInstruction:{parts:[{text:"Translate only the actual spoken sentence from "+source+" into "+nativeLanguageName(target)+". Return only the translation; do not invent dialogue."+(target==="zh-TW"?" Use ONLY Traditional Chinese characters and Taiwan usage. NEVER use Simplified Chinese characters. Examples: 一个→一個, 从→從, 说→說.":"")}]},contents:[{role:"user",parts:[{text:sentence}]}],generationConfig:{temperature:0,maxOutputTokens:200,...(thinking?{thinkingConfig:{thinkingLevel:"minimal"}}:{})}});
- const request=async(thinking:boolean):Promise<Response>=>{
+ const request=async(thinking:boolean):Promise<{status:number;text:string}>=>{
   if(signal.aborted)throw new DOMException("Aborted","AbortError");
   const controller=new AbortController();
   const stop=()=>controller.abort();
@@ -18,7 +18,7 @@ export async function translateCallSentence(sentence:string,source:string,target
    const response=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":geminiKey()},body:body(thinking),signal:controller.signal});
    // Consume the response within this request's own deadline, including streaming.
    if(response.status===401||response.status===403)throw new Error("key");
-   if(!response.ok)return response;
+   if(!response.ok)return {status:response.status,text:await response.text()};
    if(!response.body)throw new Error("failed");
    const reader=response.body.getReader(),decoder=new TextDecoder();
    let buffer="",result="";
@@ -40,7 +40,7 @@ export async function translateCallSentence(sentence:string,source:string,target
    buffer+=decoder.decode();if(buffer)consume(buffer);
    const value=result.trim();if(!value)throw new Error("failed");
    // Return text in a Response so 400 thinking fallback uses the same request wrapper.
-   return new Response(value,{status:200});
+   return {status:200,text:value};
   }finally{clearTimeout(timeout);signal.removeEventListener("abort",stop);controller.abort()}
  };
  let lastError:unknown;
@@ -49,7 +49,7 @@ export async function translateCallSentence(sentence:string,source:string,target
   try{
    let response=await request(true);
    if(response.status===400){
-    const message=await response.text();
+    const message=response.text;
     if(/thinkingConfig|thinkingLevel|thinking/i.test(message)){
      if(signal.aborted)throw new DOMException("Aborted","AbortError");
      response=await request(false);
@@ -57,7 +57,7 @@ export async function translateCallSentence(sentence:string,source:string,target
    }
    if(response.status===401||response.status===403)throw new Error("key");
    if(!response.ok)throw new Error("failed");
-   const value=(await response.text()).trim();
+   const value=response.text.trim();
    if(!value)throw new Error("failed");
    if(signal.aborted)throw new DOMException("Aborted","AbortError");
    cache.set(id,value);if(cache.size>CACHE_LIMIT)cache.delete(cache.keys().next().value!);
