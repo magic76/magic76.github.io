@@ -1,0 +1,18 @@
+/* Existing call palette: pale AI cards and translucent navy learner cards. */
+.friend-phone-stage .friend-chat-bubbles{display:flex;flex-direction:column;align-items:stretch;gap:10px;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scroll-behavior:smooth;padding:8px 3px 12px;box-sizing:border-box}
+.friend-chat-bubbles .friend-bubble-turn{display:contents}
+.friend-chat-bubbles .friend-bubble{box-sizing:border-box;max-width:86%;min-width:0;flex:0 0 auto;padding:11px 13px;border-radius:16px;overflow-wrap:anywhere;white-space:pre-wrap}
+.friend-chat-bubbles .friend-bubble-ai{align-self:flex-start;background:#f6f9ff;color:#182640;border-bottom-left-radius:5px}
+.friend-chat-bubbles .friend-bubble-user{align-self:flex-end;background:#c9ddff18;border:1px solid #bed4f038;color:#fff;border-bottom-right-radius:5px}
+.friend-chat-bubbles .friend-bubble p{font-size:15px;line-height:1.5;margin:5px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.friend-chat-bubbles .friend-bubble-ai p{font-weight:650}
+.friend-chat-bubbles .friend-bubble small{display:block;font-size:12px;font-weight:700}
+.friend-chat-bubbles .friend-bubble-ai small{color:#4a6184}
+.friend-chat-bubbles .friend-bubble-user small{color:#c5d7f3}
+.friend-chat-bubbles .friend-bubble-translation{display:flex;flex-direction:column;gap:3px;border-top:1px solid #d5dfed;margin-top:9px;padding-top:8px;color:#42627b;font-size:14px;line-height:1.55}
+.friend-chat-bubbles .friend-bubble-suggestions{display:flex;flex-direction:column;gap:7px;border-top:1px solid #d5dfed;margin-top:9px;padding-top:8px}
+.friend-chat-bubbles .friend-bubble-suggestion{display:flex;gap:7px;font-size:13px;line-height:1.5;color:#182640}
+.friend-chat-bubbles .friend-bubble-suggestion strong{font-weight:650}
+.friend-chat-bubbles .friend-bubble-suggestion small{color:#42627b;font-weight:400;margin-top:2px}
+@media(max-width:640px){.friend-chat-bubbles .friend-bubble{max-width:92%;padding:9px 11px}}
+@media(prefers-reduced-motion:reduce){.friend-phone-stage .friend-chat-bubbles{scroll-behavior:auto}}
