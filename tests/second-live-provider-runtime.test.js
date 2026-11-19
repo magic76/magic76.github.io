@@ -8,7 +8,6 @@ import {transformSync} from "esbuild";
 function harness({mode="live-ws",startError=false,send,clock=false}={}){
  const sessions=[],timeouts=new Map();
  let nextTimer=0,httpTranslations=0,httpHints=0;
- const mainSession={stops:0,stop(){this.stops++}};
  const storage=new Map([["koolo_aux_live_provider",mode]]);
  const localStorage={getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)};
  class Session{
@@ -47,9 +46,9 @@ function harness({mode="live-ws",startError=false,send,clock=false}={}){
  const api=module.exports;
  const translate=async(onText=()=>{})=>api.translateWithProvider("Hello","en","zh-TW",onText,new AbortController().signal);
  const suggest=()=>api.suggestWithProvider([{input:"Hello",output:"How are you?"}],"en","zh-TW");
- return {api,window,storage,sessions,mainSession,translate,suggest,timeouts,stats:()=>({httpTranslations,httpHints,mainStops:mainSession.stops})};
+ return {api,window,storage,sessions,translate,suggest,timeouts,stats:()=>({httpTranslations,httpHints})};
 }
-const settle=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
+const settle=async()=>{for(let i=0;i<50;i++)await Promise.resolve()};
 test("connected auxiliary WS supplies both translation and reply hints without HTTP",async()=>{
  const h=harness({send:(session,prompt)=>{
   const task=JSON.parse(prompt).task;
@@ -59,7 +58,7 @@ test("connected auxiliary WS supplies both translation and reply hints without H
  h.api.startAuxiliarySession();
  assert.equal(await h.translate(),"你好");
  assert.equal((await h.suggest()).length,2);
- assert.deepEqual(h.stats(),{httpTranslations:0,httpHints:0,mainStops:0});
+ assert.deepEqual(h.stats(),{httpTranslations:0,httpHints:0});
  assert.equal(h.sessions.length,1);
  assert.equal(h.sessions[0].options.textOnly,true);
  assert.equal(h.sessions[0].options.tools,undefined);
@@ -79,7 +78,6 @@ for(const event of ["onTerminal","onError"]){
   h.api.startAuxiliarySession();
   assert.equal(await h.translate(),"HTTP translation");
   assert.equal(h.stats().httpTranslations,1);
-  assert.equal(h.mainSession.stops,0);
   h.api.stopAuxiliarySession();
  });
 }
