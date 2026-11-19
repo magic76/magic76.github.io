@@ -69,3 +69,8 @@
  .daily-quote--mobile .daily-quote-text,.daily-quote--mobile .daily-quote-placeholder{box-sizing:border-box;height:18px;min-height:18px;max-height:18px;margin:0;overflow:hidden}
  .daily-quote--mobile .daily-quote-text{line-height:18px;white-space:nowrap;text-overflow:ellipsis}
 }
+
+/* Keep the update cue in the top-right of the title row, without a separate line. */
+.daily-quote-heading .daily-quote-updated{margin-left:auto;align-self:center;white-space:nowrap}
+.daily-quote-heading:has(.daily-quote-chart) .daily-quote-updated{max-width:38%;white-space:normal;text-align:center}
+@media(max-width:380px){.daily-quote-heading .daily-quote-updated{font-size:11px;padding:3px 6px}}
