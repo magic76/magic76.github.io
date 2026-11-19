@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import {stripTypeScriptTypes} from "node:module";
 import {callTranslationRows,splitCallSentences} from "../web-spa/src/friends/callSentence.mjs";
 const read=path=>fs.readFileSync(path,"utf8"),root="web-spa/src/friends/";
 const css=read(root+"friendCall.css"),captions=read(root+"FriendCallCaptions.tsx"),helper=read(root+"callTranslate.ts");
@@ -69,7 +70,7 @@ test("#52 Android theme-color restores the exact previous value on unmount",()=>
 });
 test("#50 direct single-model streaming, minimal thinking, timeout, bounded RAM cache",()=>{
  for(const token of ["gemini-3.5-flash-lite","streamGenerateContent","alt=sse","thinkingLevel","minimal","x-goog-api-key","AbortController","maxOutputTokens:200","temperature:0","Map<string,string>","CACHE_LIMIT=50","response.status===400","response.status===401||response.status===403"])assert.ok(helper.includes(token),token);
- assert.match(helper,/setTimeout\(stop,(\d+)\)/);assert.ok(Number(helper.match(/setTimeout\(stop,(\d+)\)/)[1])<=4000);
+ assert.match(helper,/setTimeout\(stop,6000\)/);
  assert.match(helper,/reader\.read\(\)/);assert.match(helper,/line\.startsWith\("data:"\)/);
  assert.doesNotMatch(helper,/\/models\?|CrewAI|ensureCore|discover|localStorage|sessionStorage|gemini-(?!3\.5-flash-lite)\d/);
  assert.match(helper,/const id=source\+"\|"\+target\+"\|"\+sentence/);
@@ -125,4 +126,52 @@ test("#50 v3: Zoe original and speaker remain visible while translations scroll 
  assert.match(css,/\.friend-caption-speaker\{flex:none\}/);
  assert.match(css,/\.friend-caption-ai>p\{flex:1 1 0;min-height:3em;overflow-y:auto/);
  assert.match(css,/\.friend-caption-translation\{flex:0 1 auto;max-height:35%;min-height:0;overflow-y:auto/);
+});
+
+test("translation retries transient failures once with fresh deadlines and abort guard",()=>{
+ assert.match(helper,/for\(let attempt=0;attempt<2;attempt\+\+\)/);
+ assert.match(helper,/const request=async\(thinking:boolean\)/);
+ assert.match(helper,/const controller=new AbortController\(\)/);
+ assert.match(helper,/setTimeout\(stop,6000\)/);
+ assert.match(helper,/if\(signal\.aborted\)throw/);
+ assert.match(helper,/if\(error instanceof Error&&error\.message==="key"\)throw error/);
+ assert.match(helper,/response\.status===401\|\|response\.status===403/);
+ assert.match(helper,/request\(false\)/);
+ assert.match(helper,/一个→一個, 从→從, 说→說/);
+ assert.match(helper,/temperature:0/);
+ assert.ok(Buffer.byteLength(helper)<26000);
+});
+
+test("runtime: successful SSE translation resolves and does not retry",async()=>{
+ const originalFetch=globalThis.fetch;
+ const originalKey=globalThis.__testTranslationKey;
+ const originalName=globalThis.__testNativeLanguageName;
+ try{
+  globalThis.__testTranslationKey=()=>"test-key";
+  globalThis.__testNativeLanguageName=()=>"繁體中文";
+  const moduleSource=read(root+"callTranslate.ts")
+   .replace(/^import .*;\n/gm,"")
+   .replace("geminiKey()","globalThis.__testTranslationKey()")
+   .replace("nativeLanguageName(target)","globalThis.__testNativeLanguageName(target)");
+  const js=stripTypeScriptTypes(moduleSource,{mode:"strip"});
+  const {translateCallSentence}=await import("data:text/javascript;base64,"+Buffer.from(js).toString("base64"));
+  let calls=0;
+  globalThis.fetch=async()=>{
+   calls++;
+   const encoder=new TextEncoder();
+   return new Response(new ReadableStream({start(controller){
+    controller.enqueue(encoder.encode('data: {"candidates":[{"content":{"parts":[{"text":"一個朋友說你好"}]}}]}\n\n'));
+    controller.close();
+   }}),{status:200});
+  };
+  const partial=[];
+  const translated=await translateCallSentence("A friend says hello.","en","zh-TW",text=>partial.push(text),new AbortController().signal);
+  assert.equal(translated,"一個朋友說你好");
+  assert.deepEqual(partial,["一個朋友說你好"]);
+  assert.equal(calls,1,"successful translation must not retry");
+ }finally{
+  globalThis.fetch=originalFetch;
+  if(originalKey===undefined)delete globalThis.__testTranslationKey;else globalThis.__testTranslationKey=originalKey;
+  if(originalName===undefined)delete globalThis.__testNativeLanguageName;else globalThis.__testNativeLanguageName=originalName;
+ }
 });
