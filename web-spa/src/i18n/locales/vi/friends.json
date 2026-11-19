@@ -107,7 +107,6 @@
     "preparing": "Đang chuẩn bị cuộc trò chuyện",
     "free": "Trò chuyện tự do"
   },
-  "kicker": "Bạn Koolo",
   "textStarters": {
     "targetHint": "Bạn có thể bắt đầu bằng tiếng Việt với {{name}} hoặc chọn một câu {{language}} ngắn bên dưới. {{name}} sẽ cùng bạn luyện tập đơn giản.",
     "meaning": {
