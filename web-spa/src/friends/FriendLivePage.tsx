@@ -23,6 +23,7 @@ import {useFriendTextViewport,useFriendBodyTheme,useFriendVoiceTheme} from "./us
 import {friendVoiceStatusKey} from "./friendVoiceStatusKey";
 import {FriendChatHistory} from "./FriendChatHistory";
 import {FriendCallMenu,FriendCallMenuTrigger} from "./FriendCallMenu";
+import {FriendCallMenuPreferences} from "./FriendCallMenuPreferences";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
 import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";
 import {geminiKey} from "../lib/runtime";
@@ -269,11 +270,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <small className="friend-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</small>
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
-    {!textMode&&<div className="friend-call-menu-preferences">
-     <button type="button" aria-pressed={replyHints.enabled} disabled={replyHintsLocked(live.state)} onClick={replyHints.toggle}>{t("suggestReplies.label")} {t(replyHints.enabled?"suggestReplies.on":"suggestReplies.off")}</button>
-     {replyHintsLocked(live.state)?<small>{t("suggestReplies.nextCall")}</small>:null}
-     <button type="button" aria-pressed={translationEnabled} onClick={toggleTranslation}>{t(translationEnabled?"callCaptions.hideTranslation":"callCaptions.showTranslation")}</button>
-    </div>}
+    {!textMode&&<FriendCallMenuPreferences hintsEnabled={replyHints.enabled} hintsLocked={replyHintsLocked(live.state)} onHintsToggle={replyHints.toggle} translationEnabled={translationEnabled} onTranslationToggle={toggleTranslation}/>}
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     </div>
     {!textMode?<>
