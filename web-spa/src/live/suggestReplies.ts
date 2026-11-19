@@ -14,7 +14,7 @@ export function parseSuggestedReplies(args:unknown):SuggestedReply[]{
   if(!row||typeof row!=="object"||Array.isArray(row))continue;
   const {text,translation}=row as Record<string,unknown>;
   if(typeof text!=="string"||typeof translation!=="string")continue;
-  const clean=text.trim(),meaning=translation.trim(),key=clean.toLocaleLowerCase().replace(/[.!?。！？\\s]+$/g,"");
+  const clean=text.trim(),meaning=translation.trim(),key=clean.toLocaleLowerCase().replace(/[.!?。！？]+$/g,"");
   if(!clean||!meaning||clean.length>80||meaning.length>120||seen.has(key))continue;
   seen.add(key);valid.push({text:clean,translation:meaning});
   if(valid.length===3)break;
