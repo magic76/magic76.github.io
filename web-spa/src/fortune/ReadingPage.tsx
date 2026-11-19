@@ -3,7 +3,8 @@ import{FortuneIdentityCard}from"./FortuneIdentityCard";
 import{buildFortuneCardModel}from"./fortuneCardModel";
 import{fortuneCopy}from"./fortuneJourneyI18n";import{dailyProfileHash}from"./dailyCard";import{readDailyKindChoice,resolveDailyKind}from"./dailyStore";
 
-const AI_REPORT_CONFIG={maxOutputTokens:6500,timeoutMs:45000,requireComplete:true,temperature:.4,thinking:"low"} as const;
+const AI_REPORT_CONFIG={maxOutputTokens:6500,timeoutMs:25000,requireComplete:true,temperature:.4,thinking:"low"} as const;
+const AI_REPAIR_TIMEOUT_MS=12000;
 const copy:Record<FortuneMode,[string,string]>={bazi:["八字","看懂你的基本性格、做事方式，以及目前正走到哪一段。"],tarot:["塔羅生命靈數","從核心性格、人生主題與時間節奏，整理現在最值得看的重點。"],vedic:["印度星盤","從出生底盤、人生週期與目前行運，整理現在最值得看的重點。"]};
 const EMPTY:FortuneProfile={birthDate:"",birthTime:"",gender:"1",city:"",latitude:"",longitude:"",utcOffset:"",timeZoneId:"",aiStyle:"normal"};
 
@@ -66,7 +67,7 @@ export function FortuneReadingPage(){
    if(!audit.ok){
     // One bounded repair attempt. Never publish a malformed or ungrounded new report.
     const retryPrompt=prompt+"\n前次生成未符合報告規格，請重新輸出完整的八個標記段落；不同章節的分析必須獨立，干支只能引用固定計算資料。\n需修正："+audit.issues.join("；");
-    text=await window.CrewAI.call(retryPrompt,{preferLive:false,...AI_REPORT_CONFIG,temperature:0.25});
+    text=await window.CrewAI.call(retryPrompt,{preferLive:false,...AI_REPORT_CONFIG,timeoutMs:AI_REPAIR_TIMEOUT_MS,temperature:0.25});
     if(!isCurrentRequest(id,seq,activeRequest.current.id,activeRequest.current.seq))return;
     audit=auditAiReading(text,item.result,item.mode);
     if(!audit.ok)throw new Error("AI fortune reading failed quality checks: "+audit.issues.join("; "));
