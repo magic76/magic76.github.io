@@ -77,7 +77,7 @@ test("all 11 supported interface locales provide complete menu labels and descri
 test("menu analytics are accepted by the private usage endpoint without leaking URLs or personal content",()=>{
  const client=read("web-spa/src/analytics/usage.ts");
  const server=read("functions/api/usage/event.ts");
- const dashboard=read("web-spa/src/analytics/UsageDashboardPage.tsx");
+ const dashboard=read("web-spa/src/analytics/usageDashboardDefinitions.ts");
  for(const event of ["menu_open","menu_item_click"]){
   for(const src of [client,server,dashboard])assert.ok(src.includes('"'+event+'"')||src.includes(event+":"),event+" missing in analytics");
  }
