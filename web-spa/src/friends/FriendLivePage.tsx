@@ -194,8 +194,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  });
  creatureBridge.bind(live);
  useCreatureStageSync(creatureEmbed,creatureBridge.creature,live.sendControl);
- // Guest trials intentionally skip onTurnComplete to avoid memory side effects.
- // Observe rendered turns instead, so BYOK and guests share the same conversion metric.
  useEffect(()=>{
   if(!bubbleEntry||bubbleEffectiveRef.current)return;
   if(live.turns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
@@ -209,7 +207,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   try{await live.stop(true)}finally{navigate(shortsReturnTo|| (intent==="speak"?"/learn":"/teacher/roles?mode=friends"))}
  };
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry)trackUsageEvent("home_live_bubble_connected")}},[live.state]);
- // Start once after mounting, without double-starting under React StrictMode.
  useEffect(()=>{if(textMode||!voiceRecapReady||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost,creatureEmbed,voiceRecapReady]);
  useFriendBodyTheme(creatureEmbed);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
@@ -251,7 +248,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
     {!textMode?<VoiceTextRecap messages={voiceRecap} name={friend.name}/>:null}
-    {!textMode&&!false&&<SuggestedReplies replies={replyHints.replies} enabled={replyHints.enabled} onToggle={replyHints.toggle} disabled={replyHintsLocked(live.state)} unavailable={replyHints.unavailable} language={language}/>}
+    {!textMode&&<SuggestedReplies replies={replyHints.replies} enabled={replyHints.enabled} onToggle={replyHints.toggle} disabled={replyHintsLocked(live.state)} unavailable={replyHints.unavailable} language={language}/>}
     {homeFirstAction?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
     {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>
