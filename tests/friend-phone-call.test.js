@@ -12,7 +12,7 @@ test("friend call uses actual two-way transcription and preserves the Live trans
  assert.match(page,/FriendCallControls live=\{live\}/);
  assert.match(page,/friend-phone-stage/);
  assert.match(page,/textMode\?" friend-text-stage"/);
- assert.match(captions,/input\.trim\(\)\|\|latestInput/);
+ assert.match(bubbles,/const showCurrentInput=!!currentInput&&currentInput!==lastInput/);
  assert.match(captions,/output\.trim\(\)/);
  assert.match(captions,/splitCallSentences\(text\)/);
  assert.match(captions,/advance\(currentReply,false\)/);
