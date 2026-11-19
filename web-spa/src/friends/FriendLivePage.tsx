@@ -205,6 +205,13 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry)trackUsageEvent("home_live_bubble_connected")}},[live.state]);
  useEffect(()=>{if(textMode||!voiceRecapReady||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost,creatureEmbed,voiceRecapReady]);
  useFriendBodyTheme(creatureEmbed);
+ const audioDebug=params.get("audioDebug")==="1"&&!textMode;
+ const [audioDebugText,setAudioDebugText]=useState("");
+ const copyAudioDebug=async(route:"call"|"media"|"unknown")=>{
+  const report=JSON.stringify({version:1,scenario:"friend",userObservedVolume:route,sessionState:live.state,voicePhase:live.voicePhase,health:live.getAudioDiagnostics()},null,2);
+  setAudioDebugText(report);
+  try{await navigator.clipboard.writeText(report)}catch{ /* Select and copy the visible text manually. */ }
+ };
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  useAuxiliaryLiveSession(active,textMode);
  useFriendVoiceTheme(!textMode&&!creatureEmbed&&!active);
@@ -295,6 +302,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
 
     <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled} speaking={live.state==="speaking"} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled}/>:null}
     </>}
+    {audioDebug?<section aria-label="音訊診斷" style={{padding:"12px",border:"1px solid currentColor",borderRadius:12,margin:"12px 0"}}><strong>音訊診斷（僅供測試）</strong><p>AI 說話時，先測試哪個系統音量有效，再點選複製。報告不含錄音或對話。</p><div style={{display:"flex",gap:8,flexWrap:"wrap"}}><button type="button" onClick={()=>void copyAudioDebug("call")}>通話有效 · 複製</button><button type="button" onClick={()=>void copyAudioDebug("media")}>媒體有效 · 複製</button><button type="button" onClick={()=>void copyAudioDebug("unknown")}>不確定 · 複製</button></div>{audioDebugText?<textarea aria-label="可手動複製的診斷報告" readOnly value={audioDebugText} onFocus={e=>e.currentTarget.select()} rows={5} style={{width:"100%",marginTop:8}}/>:null}</section>:null}
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{!textMode&&active&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
   </main>
