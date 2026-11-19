@@ -1,4 +1,3 @@
-import {REPLY_HINT_CONTROL} from "./replyHintTurnGate";
 import {useTeacherStore} from "../store/teacherStore";
 import {trackUsageEvent} from "../analytics/usage";
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMemoryEnabled}from"../teacher/studentMemory";
@@ -20,7 +19,6 @@ type Config={
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
  onInputSpeech?:()=>void;
- onMissingReplyHints?:()=>boolean;
  onConfirmedTranscript?:(turn:LiveTurn)=>void; // optional board observer, read-only; no transport changes
  // Opt-in observer for a completed two-sided exchange, including guest trials.
  onObservedExchange?:(turn:LiveTurn)=>void;
@@ -79,7 +77,6 @@ export function useLiveSession(config:Config){
  const friendReplyTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const unrecognizedSpeechTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const friendReplyRescueSentRef=useRef(false);
- const replyHintControlPendingRef=useRef(false);
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
  const cancelFriendReplyTimer=()=>{if(friendReplyTimerRef.current!==null){window.clearTimeout(friendReplyTimerRef.current);friendReplyTimerRef.current=null}};
  const cancelUnrecognizedSpeechTimer=()=>{if(unrecognizedSpeechTimerRef.current!==null){window.clearTimeout(unrecognizedSpeechTimerRef.current);unrecognizedSpeechTimerRef.current=null}};
@@ -144,7 +141,7 @@ export function useLiveSession(config:Config){
    guestWrapUpSentRef.current=false;setGuestExpired(false);
    guestConnectedAtRef.current=0;guestEndedReportedRef.current=false;guestConnectFailedReportedRef.current=false;guestEffectiveReportedRef.current=false;
    cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();friendReplyRescueSentRef.current=false;setFriendPhase("idle");
-   cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;replyHintControlPendingRef.current=false;
+   cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
    turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setSearchSources([]);setSearchUnavailable(false);setSearchSuggestions("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
    setState("requesting-mic");setStatus("正在準備麥克風…");
    // Maximum two nudges per pause; never synthesize a transcript "user" turn.
@@ -152,10 +149,10 @@ export function useLiveSession(config:Config){
    const scheduleRescue=()=>{
     cancelRescue();
     const kind=configRef.current.conversationFlow;
-    if(replyHintControlPendingRef.current||!kind||rescueCountRef.current>=(kind==="friend"?1:2)||!cadenceRef.current.shouldRescue())return;
+    if(!kind||rescueCountRef.current>=(kind==="friend"?1:2)||!cadenceRef.current.shouldRescue())return;
     rescueTimerRef.current=window.setTimeout(()=>{
      rescueTimerRef.current=null;
-     if(replyHintControlPendingRef.current||sessionRef.current!==session||!session.ready||!session.running||session.micMuted||awaitingTutorRef.current||!cadenceRef.current.shouldRescue())return;
+     if(sessionRef.current!==session||!session.ready||!session.running||session.micMuted||awaitingTutorRef.current||!cadenceRef.current.shouldRescue())return;
      const directive=configRef.current.languageDirective?"\n"+configRef.current.languageDirective:"";
      if(session.sendControl?.(cadenceRef.current.rescue(kind,rescueCountRef.current)+directive))
       rescueCountRef.current+=1;
@@ -285,7 +282,6 @@ export function useLiveSession(config:Config){
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
     onInputTranscript:v=>{
      if(v.trim()){
-      replyHintControlPendingRef.current=false;
       configRef.current.onInputSpeech?.();
       const firstFragment=!awaitingTutorRef.current;
       cancelRescue();cancelUnrecognizedSpeechTimer();
@@ -367,14 +363,6 @@ export function useLiveSession(config:Config){
         try{configRef.current.onObservedExchange?.(observed)}catch{/* An observer must not interrupt the Live session. */}
        }
       if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
-      // Only the friend BYOK session has this tool. Never inject control into guest trials.
-      if(turn.hasValidOutput&&!guestModeRef.current&&!replyHintControlPendingRef.current&&
-       configRef.current.sessionKind==="friend"&&sessionRef.current===session&&session.ready&&session.running&&
-       !session.micMuted&&!awaitingTutorRef.current&&voicePhaseRef.current!=="hearing"&&!drift&&
-       configRef.current.onMissingReplyHints?.()){
-       cancelRescue();replyHintControlPendingRef.current=true;
-       session.sendControl?.(REPLY_HINT_CONTROL);
-      }
      },
     onError:e=>{recordGuestFailure();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
     onTerminal:info=>{if(info?.state==="error")recordGuestFailure();clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
