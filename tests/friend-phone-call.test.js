@@ -33,3 +33,21 @@ test("call captions exist in all 11 voice locales",()=>{
   for(const [key,value] of Object.entries(keys))assert.ok(typeof value==="string"&&value.trim(),locale+" "+key);
  }
 });
+
+test("friend and teacher call controls expose no app volume sliders",()=>{
+ const friend=read("web-spa/src/friends/FriendCallControls.tsx");
+ const teacher=read("web-spa/src/live/LiveControls.tsx");
+ const live=read("web-spa/src/live/useLiveSession.ts");
+ const settings=read("web-spa/src/pages/GeminiConnectionPanel.tsx");
+ const preview=read("web-spa/src/teacher/teacherVoicePreview.ts");
+ for(const [name,source] of [["friend",friend],["teacher",teacher]]){
+  assert.doesNotMatch(source,/type="range"|setVolume\(|volume-quick|volume-stepper|friend-phone-volume/,name);
+ }
+ assert.match(live,/const volume=100/);
+ assert.match(live,/session\.setVolume\(volume\)/);
+ assert.doesNotMatch(live,/crew_live_volume/);
+ assert.doesNotMatch(settings,/crew-live-volume|crew_live_volume|type="range"/);
+ assert.match(settings,/voice:"Kore",volume:100/);
+ assert.doesNotMatch(preview,/crew_live_volume/);
+ assert.match(preview,/gain\.gain\.value=1/);
+});
