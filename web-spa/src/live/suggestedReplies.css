@@ -70,3 +70,37 @@
     padding: 4px 8px;
   }
 }
+
+.live-suggest-expand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.live-suggest-expand:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.live-suggest-chevron {
+  display: inline-block;
+  font-size: 17px;
+  line-height: 1;
+  transition: transform .15s ease;
+}
+.live-suggest-expand[aria-expanded="true"] .live-suggest-chevron {
+  transform: rotate(180deg);
+}
+@media (max-width: 390px) {
+  .live-suggest-heading { gap: 5px; }
+  .live-suggest-toggle { padding: 6px 9px; }
+}
