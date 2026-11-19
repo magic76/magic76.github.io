@@ -34,9 +34,33 @@ test("shared hook retains preference and clears stale suggestions",()=>{
  for(const path of ["web-spa/src/friends/FriendLivePage.tsx","web-spa/src/teacher/LivePage.tsx"]){
   const page=readFileSync(path,"utf8");
   assert.match(page,/useSuggestedReplies\(/);
-  assert.match(page,/onInputSpeech:replyHints\.clear/);
+  assert.match(page,/onInputSpeech:replyHints\.(?:clear|onInputSpeech)/);
   assert.match(page,/onTurnComplete:[^\n]*\n\s*replyHints\.clear\(\)/);
   assert.match(page,/onToolsUnavailable:replyHints\.onToolsUnavailable/);
   assert.ok(Buffer.byteLength(page)<26000,path);
  }
+});
+
+test("reply hint control sends at most once per learner exchange",async()=>{
+ const gateSource=stripTypeScriptTypes(readFileSync("web-spa/src/live/replyHintTurnGate.ts","utf8"),{mode:"strip"});
+ const {createReplyHintTurnGate}=await import("data:text/javascript;charset=utf-8,"+encodeURIComponent(gateSource));
+ const gate=createReplyHintTurnGate();
+ assert.equal(gate.takeRequest(true),true);
+ assert.equal(gate.takeRequest(true),false);
+ gate.onLearnerSpeech();
+ assert.equal(gate.takeRequest(true),true);
+});
+test("reply hint control skips existing tool calls and disabled or guest modes",async()=>{
+ const gateSource=stripTypeScriptTypes(readFileSync("web-spa/src/live/replyHintTurnGate.ts","utf8"),{mode:"strip"});
+ const {createReplyHintTurnGate}=await import("data:text/javascript;charset=utf-8,"+encodeURIComponent(gateSource));
+ const gate=createReplyHintTurnGate();
+ assert.equal(gate.takeRequest(false),false);
+ gate.onToolCall();
+ assert.equal(gate.takeRequest(true),false);
+ gate.onLearnerSpeech();
+ assert.equal(gate.takeRequest(true),true);
+ const live=readFileSync("web-spa/src/live/useLiveSession.ts","utf8");
+ assert.match(live,/!guestModeRef\.current&&!replyHintControlPendingRef\.current/);
+ assert.match(live,/!session\.micMuted&&!awaitingTutorRef\.current/);
+ assert.match(live,/cancelRescue\(\);replyHintControlPendingRef\.current=true/);
 });
