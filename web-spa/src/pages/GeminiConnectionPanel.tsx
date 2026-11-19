@@ -195,7 +195,7 @@ export function GeminiConnectionPanel({section="all"}:{section?:"key"|"voice"|"a
    if(!mounted.current)return;
    const session=new window.CrewLive.Session({
     system:"這是語音連線測試。請只用繁體中文說一句「連線成功」，不要延伸聊天。",
-    openingPrompt:"請現在說出測試句。",voice:"Kore",volume,manualInterruptOnly:true,
+    openingPrompt:"請現在說出測試句。",voice:"Kore",volume:100,manualInterruptOnly:true,
     maxLiveAttempts:2,connectTimeoutMs:8000,replyTimeoutMs:10000,
     onStatus:(value:string)=>{if(mounted.current&&!finished)setVoiceStatus(safeDetail(value))},
     onTurnComplete:async(turn:{hasValidOutput?:boolean})=>{
