@@ -75,7 +75,7 @@ test("reply hints default collapsed and expand independently of locked toggle",(
  const menu=readFileSync("web-spa/src/friends/FriendCallMenuPreferences.tsx","utf8");
  assert.match(menu,/aria-pressed=\{hintsEnabled\} disabled=\{hintsLocked\}/);
  assert.doesNotMatch(component,/live-suggest-toggle|suggestReplies\.nextCall/);
- assert.match(component,/suggestReplies\.nextCall/);
+ assert.match(menu,/suggestReplies\.nextCall/);
  assert.match(component,/reply\.translation/);
  assert.match(css,/\.live-suggest-expand/);
  assert.match(css,/\[aria-expanded="true"\]/);
