@@ -47,6 +47,6 @@ export function LiveControls({live,interruptLabel:customInterrupt,prominentInter
     {!prominentInterrupt&&<button className="live-tool-btn" onClick={()=>live.interrupt()} disabled={live.state!=="speaking"}>{interruptLabel}</button>}
    </div>
   </div><button type="button" className="live-btn end crew-voice-end" onClick={()=>void (onEnd?onEnd():live.stop())} disabled={live.state==="ending"||live.state==="reporting"}>{live.state==="reporting"?t("controls.finishing"):t("controls.end")}</button></div>
-    </div></div>}
+  </div>}
  </>;
 }
