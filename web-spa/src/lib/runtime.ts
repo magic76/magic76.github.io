@@ -49,8 +49,20 @@ export function loadScript(src:string){
  void p.catch(()=>{if(loaded.get(src)===p)loaded.delete(src)});
  return p;
 }
-export async function ensureCore(){if(!window.CrewAI)await loadScript("/crew.js")}
-export async function ensureLive(){await ensureCore();if(!window.CrewLive)await loadScript("/crew-live.js");if(!window.CrewLiveUI)await loadScript("/crew-live-ui.js")}
+/** Validate the legacy global contract after loading rather than reporting a false success. */
+async function requireLegacyGlobal<T>(name:string,load:()=>Promise<void>,read:()=>T|undefined):Promise<T>{
+ const current=read();if(current)return current;
+ await load();
+ const result=read();
+ if(!result)throw new Error("Legacy runtime did not initialize: "+name);
+ return result;
+}
+export async function ensureCore(){await requireLegacyGlobal("CrewAI",()=>loadScript("/crew.js"),()=>window.CrewAI)}
+export async function ensureLive(){
+ await ensureCore();
+ await requireLegacyGlobal("CrewLive",()=>loadScript("/crew-live.js"),()=>window.CrewLive);
+ await requireLegacyGlobal("CrewLiveUI",()=>loadScript("/crew-live-ui.js"),()=>window.CrewLiveUI);
+}
 export async function ensureVision(){await ensureLive();if(!window.CrewDB)await loadScript("/features/shared/db.js");if(!window.CrewGeminiVision)await loadScript("/features/shared/gemini-vision.js")}
 export async function ensureTeacherServices(){await ensureVision();if(!window.CrewTextbookStore)await loadScript("/features/teacher/textbook/store.js");if(!window.CrewTextbookLesson)await loadScript("/features/teacher/textbook/lesson.js");if(!window.CrewTeacherReport)await loadScript("/features/teacher/reports/session-report.js")}
 export async function ensureStoryServices(){await ensureVision();if(!window.CrewStoryStore)await loadScript("/features/story/shelf/store.js");if(!window.CrewStoryGenerator)await loadScript("/features/story/create/generator.js");if(!window.CrewBookAnalyzer)await loadScript("/features/story/physical/analyzer.js")}
