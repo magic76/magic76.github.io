@@ -1,3 +1,4 @@
+import {currentBuild} from "../runtime/buildUpdates";
 export type LiveTurn={id?:string;input?:string;output?:string};
 export type LiveSessionOptions={
  guestAccessToken?:string; // one-use, memory-only v1beta credential
@@ -60,7 +61,7 @@ async function requireLegacyGlobal<T>(name:string,load:()=>Promise<void>,read:()
 export async function ensureCore(){await requireLegacyGlobal("CrewAI",()=>loadScript("/crew.js"),()=>window.CrewAI)}
 export async function ensureLive(){
  await ensureCore();
- await requireLegacyGlobal("CrewLive",()=>loadScript("/crew-live.js"),()=>window.CrewLive);
+ await requireLegacyGlobal("CrewLive",()=>loadScript("/crew-live.js?v="+encodeURIComponent(currentBuild.buildId||"dev")),()=>window.CrewLive);
  await requireLegacyGlobal("CrewLiveUI",()=>loadScript("/crew-live-ui.js"),()=>window.CrewLiveUI);
 }
 export async function ensureVision(){await ensureLive();if(!window.CrewDB)await loadScript("/features/shared/db.js");if(!window.CrewGeminiVision)await loadScript("/features/shared/gemini-vision.js")}
