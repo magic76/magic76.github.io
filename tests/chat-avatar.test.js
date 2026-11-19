@@ -5,6 +5,7 @@ const read=path=>fs.readFileSync(path,"utf8");
 const text=read("web-spa/src/live/TextChatPanel.tsx");
 const textCss=read("web-spa/src/live/TextChatPanel.css");
 const captions=read("web-spa/src/friends/FriendCallCaptions.tsx");
+const bubbleList=read("web-spa/src/friends/FriendCallBubbleList.tsx");
 const callCss=read("web-spa/src/friends/friendCall.css");
 const page=read("web-spa/src/friends/FriendLivePage.tsx");
 const styleRule=(css,selector)=>{
