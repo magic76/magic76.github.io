@@ -160,7 +160,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   tools:replyHints.tools,
   onToolCall:replyHints.onToolCall,
   onToolsUnavailable:replyHints.onToolsUnavailable,
-  onInputSpeech:replyHints.clear,
+  onInputSpeech:replyHints.onInputSpeech,
+  onMissingReplyHints:replyHints.takeMissingTurn,
   onObservedExchange:turn=>{
    // Embedded creature voice already awards via its parent; count it once only.
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
