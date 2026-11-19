@@ -111,3 +111,13 @@ body.teacher-theme.session-page .friend-call-menu-panel .live-more .live-config 
  .teacher-call-page .teacher-live-stage.friend-phone-stage .friend-caption-ai{padding:10px 12px}
  .teacher-call-page .teacher-live-stage.friend-phone-stage>.teacher-call-voice-dock{padding-bottom:0}
 }
+
+/* Keep lesson completion actions readable against their actual button surfaces. */
+.teacher-call-page:has(.friend-phone-stage)>.course-complete-card .actions .btn.secondary{background:#fff;color:#202124;border:1px solid #b8bdc5;opacity:1}
+.teacher-call-page:has(.friend-phone-stage)>.course-complete-card .actions .btn.primary{color:#fff;background:#6254e8}
+.teacher-call-page:has(.friend-phone-stage)>.course-complete-card .actions .btn:focus-visible{outline:3px solid #b8adff;outline-offset:2px}
+/* The end-of-call notice is a light surface even in the dark phone stage. */
+.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-call-voice-dock>.notice{background:#fff;color:#202124}
+.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-call-voice-dock>.notice b{color:#202124}
+.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-call-voice-dock>.notice p{color:#5f6368}
+.teacher-call-page .teacher-live-stage.friend-phone-stage .teacher-call-voice-dock>.notice .btn.secondary{background:#fff;color:#202124;border-color:#b8bdc5}
