@@ -1,4 +1,3 @@
-import {SuggestedReplies} from "../live/SuggestedReplies";
 import {useAuxiliaryLiveSession} from "../live/useAuxiliaryLiveSession";
 import {useSuggestedReplies,replyHintsLocked} from "../live/useSuggestedReplies";
 import {GroundingSources} from "../live/GroundingSources";
@@ -188,6 +187,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
   }
  });
+ useEffect(()=>{if(live.output.trim())replyHints.clear()},[live.output]);
  creatureBridge.bind(live);
  useCreatureStageSync(creatureEmbed,creatureBridge.creature,live.sendControl);
  useEffect(()=>{
@@ -293,8 +293,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       {live.voicePhase==="no-reply"&&!guestStarted?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
 
-    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled} speaking={live.state==="speaking"}/>:null}
-    {!textMode&&active&&<SuggestedReplies groups={replyHints.groups} enabled={replyHints.enabled} language={language}/>}
+    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled} speaking={live.state==="speaking"} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled}/>:null}
     </>}
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{!textMode&&active&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>

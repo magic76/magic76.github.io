@@ -63,41 +63,34 @@ test("text generation is isolated from Live and failures are silent",()=>{
  assert.doesNotMatch(source,/sendControl|suggest_replies/);
 });
 
-test("suggestions are visible, scrollable, and placed below captions on 360px calls",()=>{
- const component=readFileSync("web-spa/src/live/SuggestedReplies.tsx","utf8");
- const css=readFileSync("web-spa/src/live/suggestedReplies.css","utf8");
+test("latest suggestions are nested inside the AI bubble and transcript remains scrollable",()=>{
+ const bubbles=readFileSync("web-spa/src/friends/FriendCallBubbleList.tsx","utf8");
+ const css=readFileSync("web-spa/src/friends/friendCallBubbles.css","utf8");
  const page=readFileSync("web-spa/src/friends/FriendLivePage.tsx","utf8");
+ const hook=readFileSync("web-spa/src/live/useSuggestedReplies.ts","utf8");
  const menu=readFileSync("web-spa/src/friends/FriendCallMenuPreferences.tsx","utf8");
- assert.doesNotMatch(component,/live-suggest-expand|aria-expanded|setExpanded/);
- assert.match(component,/groups\.map\(\(group,groupIndex\)/);
- assert.match(component,/if\(!enabled\|\|groups\.length===0\)return null/);
- assert.match(component,/scrollTo\(\{top:element\.scrollHeight,behavior:"smooth"\}\)/);
- assert.match(css,/\.live-suggest-history\{[^}]*max-height:[^;]+;[^}]*overflow-y:auto/);
- assert.match(css,/\.friend-phone-stage>\.live-suggest\{order:4;/);
- assert.match(css,/\.friend-phone-stage>\.friend-call-settings,[^\n]*\{order:5\}/);
- assert.ok(page.indexOf("<SuggestedReplies")>page.indexOf("<FriendCallCaptions"));
- assert.match(page,/groups=\{replyHints\.groups\}/);
+ assert.match(bubbles,/friend-bubble-suggestions/);
+ assert.match(bubbles,/latestAiKey===key/);
+ assert.match(bubbles,/suggestions\.slice\(0,3\)/);
+ assert.match(bubbles,/renderTranslation\(turn\.output\.trim\(\)/);
+ assert.match(bubbles,/renderSuggestions\(turn\.index\)/);
+ assert.match(css,/overflow-y:auto/);
+ assert.match(css,/overflow-x:hidden/);
+ assert.match(hook,/setGroups\(\[next\]\)/);
+ assert.match(page,/suggestions=\{replyHints\.groups\.at\(-1\)\|\|\[\]\}/);
+ assert.doesNotMatch(page,/<SuggestedReplies/);
  assert.match(menu,/aria-pressed=\{hintsEnabled\} disabled=\{hintsLocked\}/);
- assert.match(css,/\.live-suggest-item strong\{font-size:13px/);
- assert.match(css,/\.live-suggest-item small\{font-size:11px/);
  assert.ok(Buffer.byteLength(page)<26000);
 });
 
-test("two completed generations append separate groups; speech never clears history",async()=>{
- const history=readFileSync("web-spa/src/live/replyHintHistory.ts","utf8");
- const js=stripTypeScriptTypes(history,{mode:"strip"}).replace(/^import type .*\n/m,"");
- const {appendReplyGroup}=await import("data:text/javascript;base64,"+Buffer.from(js).toString("base64"));
- const first=[reply("First"),reply("Second")];
- const second=[reply("Third"),reply("Fourth")];
- const once=appendReplyGroup([],first);
- const twice=appendReplyGroup(once,second);
- assert.deepEqual(twice,[first,second]);
- assert.equal(appendReplyGroup(twice,[]),twice,"failed generation must not replace history");
+test("two generations retain only the latest group; new speech clears old hints",()=>{
  const hook=readFileSync("web-spa/src/live/useSuggestedReplies.ts","utf8");
- assert.match(hook,/setGroups\(previous=>appendReplyGroup\(previous,next\)\)/);
- assert.doesNotMatch(hook,/onInputSpeech:clear|setReplies\(\[\]\)/);
- assert.match(hook,/const onInputSpeech=useCallback\(\(\)=>\{\},\[\]\)/);
+ const page=readFileSync("web-spa/src/friends/FriendLivePage.tsx","utf8");
+ assert.match(hook,/setGroups\(\[next\]\)/);
+ assert.doesNotMatch(hook,/appendReplyGroup/);
+ assert.match(hook,/const onInputSpeech=useCallback\(\(\)=>\{clear\(\)\}/);
  assert.match(hook,/const current=version\.current/);
  assert.match(hook,/if\(version\.current===current&&activeRef\.current&&next\.length>0\)/);
  assert.match(hook,/if\(!next\)clear\(\)/);
+ assert.match(page,/if\(live\.output\.trim\(\)\)replyHints\.clear\(\)/);
 });
