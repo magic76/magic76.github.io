@@ -1,6 +1,10 @@
 name: Koolo full regression
 
 on:
+  pull_request:
+    paths:
+      - 'docs/test-audit.md'
+      - '.github/workflows/koolo-full-regression.yml'
   workflow_dispatch:
   schedule:
     - cron: "17 19 * * *"
