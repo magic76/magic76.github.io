@@ -191,7 +191,7 @@ export function renderCollectibleCard(model:FortuneCardModel,art?:HTMLImageEleme
   if(ctx.measureText(footer).width<=available)break;
   size-=1;
  }
- if(ctx.measureText(footer).width>available)footer="3sssi.com/fortune";
+ if(ctx.measureText(footer).width>available)footer="koolo.app/fortune";
  ctx.font="750 "+size+"px system-ui,sans-serif";
  ctx.textAlign="right";ctx.fillText(footer,982,1249);ctx.textAlign="left";
  ctx.restore();
