@@ -737,7 +737,8 @@ test("Live product polish keeps one focal character and secondary tools collapse
  assert.equal(readUiLocale("lesson").live.tools.more,"更多功能");
  assert.ok(story.includes('<summary>{t("storyLive.more")}</summary>'));
  assert.equal(readUiLocale("voice").storyLive.more,"更多功能");
- assert.ok(controls.includes("live-audio-settings"));
+ assert.ok(!controls.includes("live-audio-settings"));
+ assert.ok(!controls.includes('type="range"'));
  assert.ok(settings.includes('t("gemini.configured")'));
  assert.ok(readUiLocale("settings").gemini.configured.includes("Gemini Key"));
  assert.ok(settings.includes('t("gemini.reconfigure")'));
