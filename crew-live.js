@@ -216,6 +216,8 @@
     // "received" means model PCM arrived; "started" is confirmed by the
     // output worklet. ScriptProcessor fallback can only confirm scheduling.
     this.firstAudioPlayback="none";
+    this.audioLifecycle=[];
+    this.audioLifecycleOrigin=0;
     this.resumeAttempts=0;
     this.maxResumeAttempts=this.guestMode?0:Math.max(0,Math.min(3,Number(this.options.maxResumeAttempts)==null?2:Number(this.options.maxResumeAttempts)));
     this.wakeLock=null;
@@ -239,6 +241,12 @@
   };
 
   // Coarse, content-free diagnostics; never include audio, transcripts or the API key.
+  LiveSession.prototype._recordAudioLifecycle=function(event){
+    if(!this.audioLifecycleOrigin)this.audioLifecycleOrigin=this._deps.now();
+    this.audioLifecycle.push({event:event,elapsedMs:Math.round(this._deps.now()-this.audioLifecycleOrigin)});
+    if(this.audioLifecycle.length>24)this.audioLifecycle.shift();
+  };
+
   LiveSession.prototype.getHealthSnapshot=function(){
     var now=this._deps.now();
     var audioTrack=this.mediaStream&&this.mediaStream.getAudioTracks?
@@ -258,7 +266,8 @@
       lastTranscriptAgoMs:age(this.lastInputTranscriptAt),
       lastModelOutputAgoMs:age(this.lastModelOutputAt),
       openingDecision:this.openingDecision,
-      firstAudioPlayback:this.firstAudioPlayback
+      firstAudioPlayback:this.firstAudioPlayback,
+      audioLifecycle:this.audioLifecycle.slice()
     };
   };
 
@@ -1483,6 +1492,7 @@
   };
 
   LiveSession.prototype._openMedia=async function(){
+    this._recordAudioLifecycle("mic-request-start");
     this._state("requesting-mic");
     this._status("正在開啟麥克風…");
 
@@ -1506,9 +1516,11 @@
       if(!/^(OverconstrainedError|NotReadableError|TypeError)$/.test(name))throw error;
       this.mediaStream=await this._requestMicrophone({audio:true});
     }
+    this._recordAudioLifecycle("mic-acquired");
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
     this.outputContext=this._deps.createAudioContext();
+    this._recordAudioLifecycle("output-context-created");
     this.inputContext=this.outputContext;
 
     this.outputGain=this.outputContext.createGain();
@@ -1567,6 +1579,7 @@
     }
 
     if(this.outputContext.resume)await this.outputContext.resume();
+    this._recordAudioLifecycle("output-context-resumed");
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
     // Prefer a continuously connected AudioWorklet. It renders silence while
@@ -1590,6 +1603,7 @@
   };
 
   LiveSession.prototype._cleanupMedia=async function(){
+    this._recordAudioLifecycle("cleanup-start");
     if(this.inputWorkletNode){
       try{this.inputWorkletNode.port.onmessage=null;this.inputWorkletNode.disconnect();}catch(_){}
       this.inputWorkletNode=null;
@@ -1653,6 +1667,7 @@
     this.outputContext=null;
     this.outputGain=null;
     this.nextPlayTime=0;
+    this._recordAudioLifecycle("cleanup-complete");
   };
 
   LiveSession.prototype._shutdown=async function(options){
