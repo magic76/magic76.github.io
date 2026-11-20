@@ -10,43 +10,6 @@ function createContext(){
   };
 }
 
-test("optional WebRTC playback routes only output and falls back if the route is lost",async()=>{
-  const context=createContext();
-  const routes=new Set();
-  context.createGain=()=>({
-    gain:{value:1},
-    connect(destination){routes.add(destination);},
-    disconnect(destination){if(destination)routes.delete(destination);else routes.clear();}
-  });
-  const destination={};
-  const modes=[];
-  let loseRoute;
-  let closes=0;
-  let stops=0;
-  const session=new CrewLive.Session({
-    createPlaybackRoute(ctx,onLost){
-      assert.equal(ctx,context);
-      loseRoute=onLost;
-      return {destination,ready:Promise.resolve(),close(){closes++;}};
-    },
-    onPlaybackRoute:mode=>modes.push(mode),
-    deps:{
-      getUserMedia:async()=>({getTracks:()=>[{stop(){stops++;}}]}),
-      createAudioContext:()=>context
-    }
-  });
-  session.running=true;
-  await session._openMedia();
-  assert.deepEqual([...routes],[destination]);
-  assert.equal(stops,0);
-  loseRoute();
-  assert.deepEqual([...routes],[context.destination]);
-  assert.deepEqual(modes,["rtc","standard"]);
-  await session.stop();
-  assert.equal(closes,1);
-  assert.equal(stops,1);
-});
-
 test("Live keeps the browser's default microphone and never forces a built-in device",async()=>{
   const events=[],requests=[];
   const track={
@@ -144,32 +107,43 @@ test("a constrained microphone error retries once while keeping the OS-selected 
   assert.equal(track.stopped,true);
 });
 
-for(const works of [true,false]){
-  test(`separate capture uses silent sinks and ${works?"plays through the element":"falls back when autoplay fails"}`,async()=>{
+for(const failure of [null,"autoplay","resume","resume timeout"]){
+  const name=failure?`rebuilds the default graph after ${failure} fails`:"plays through the element";
+  test(`separate capture ${name}`,async()=>{
     const contexts=[];
     const modes=[];
     const destination={};
+    let microphoneRequests=0;
     let stopped=0;
     let closed=0;
+    let sinkSwitches=0;
     const session=new CrewLive.Session({
       separateCaptureContext:true,
       createPlaybackRoute(context){
         assert.equal(context,contexts[0]);
         return {
           destination,
-          ready:works?Promise.resolve():Promise.reject(new Error("blocked")),
-          close(){closed++;}
+          ready:failure==="autoplay"?Promise.reject(new Error("blocked")):Promise.resolve(),
+          close(){closed++;if(failure==="autoplay")throw new Error("close failed");}
         };
       },
       onPlaybackRoute:mode=>modes.push(mode),
       deps:{
-        getUserMedia:async()=>({getTracks:()=>[{stop(){stopped++;}}]}),
+        getUserMedia:async()=>{
+          microphoneRequests++;
+          return {getTracks:()=>[{stop(){stopped++;}}]};
+        },
+        setTimeout(fn,ms){return setTimeout(fn,ms===2000?10:ms);},
         createAudioContext(sinkId){
-          assert.deepEqual(sinkId,{type:"none"});
+          const index=contexts.length;
           const outputs=new Set();
           const context={
             ...createContext(),sinkId,outputs,closed:false,
-            async setSinkId(sink){this.sinkId=sink;},
+            async resume(){
+              if(index===1&&failure==="resume")throw new Error("resume failed");
+              if(index===1&&failure==="resume timeout")await new Promise(()=>{});
+            },
+            async setSinkId(){sinkSwitches++;throw new Error("switch failed");},
             async close(){this.closed=true;},
             createMediaStreamSource(){return {connect(){},disconnect(){}};},
             createScriptProcessor(){return {connect(){},disconnect(){}};},
@@ -177,7 +151,7 @@ for(const works of [true,false]){
               return {
                 gain:{value:1},
                 connect(target){outputs.add(target);},
-                disconnect(target){outputs.delete(target);}
+                disconnect(target){if(target)outputs.delete(target);else outputs.clear();}
               };
             }
           };
@@ -188,17 +162,28 @@ for(const works of [true,false]){
     });
     session.running=true;
     await session._openMedia();
-    assert.equal(session.inputContext,contexts[1]);
-    assert.equal(session.outputContext,contexts[0]);
-    assert.deepEqual(contexts[1].sinkId,{type:"none"});
-    assert.ok(contexts[1].outputs.has(contexts[1].destination));
-    assert.deepEqual(contexts[0].sinkId,works?{type:"none"}:"");
-    assert.deepEqual([...contexts[0].outputs],[works?destination:contexts[0].destination]);
-    assert.deepEqual(modes,[works?"separate":"standard"]);
+    assert.equal(microphoneRequests,1);
+    assert.equal(stopped,0);
+    assert.equal(sinkSwitches,0,"startup fallback must not rely on a sink switch");
+    assert.deepEqual(contexts.slice(0,2).map(context=>context.sinkId),[{type:"none"},{type:"none"}]);
+    if(failure){
+      assert.equal(session.inputContext,contexts[2]);
+      assert.equal(session.outputContext,contexts[2]);
+      assert.equal(contexts[2].sinkId,undefined);
+      assert.deepEqual([...contexts[2].outputs],[contexts[2].destination]);
+      assert.ok(contexts.slice(0,2).every(context=>context.closed));
+      assert.deepEqual(modes,["standard"]);
+    }else{
+      assert.equal(session.inputContext,contexts[1]);
+      assert.equal(session.outputContext,contexts[0]);
+      assert.ok(contexts[1].outputs.has(contexts[1].destination));
+      assert.deepEqual([...contexts[0].outputs],[destination]);
+      assert.deepEqual(modes,["separate"]);
+    }
     await session.stop();
     assert.ok(contexts.every(context=>context.closed));
     assert.equal(stopped,1);
-    assert.equal(closed,1);
+    assert.equal(closed,(!failure||failure==="autoplay")?1:0);
   });
 }
 
@@ -227,4 +212,42 @@ test("separate playback uses the standard context when silent sinks are unsuppor
   assert.equal(session.outputContext,context);
   assert.deepEqual(modes,["standard"]);
   await session.stop();
+});
+
+test("stopping during startup fallback waits for context cleanup without reopening audio",async()=>{
+  let startedClosing;
+  let finishClosing;
+  const closeStarted=new Promise(resolve=>{startedClosing=resolve;});
+  const closePending=new Promise(resolve=>{finishClosing=resolve;});
+  const contexts=[];
+  let micStops=0;
+  const session=new CrewLive.Session({
+    separateCaptureContext:true,
+    createPlaybackRoute:()=>({
+      destination:{},ready:Promise.reject(new Error("play blocked")),close(){}
+    }),
+    deps:{
+      getUserMedia:async()=>({getTracks:()=>[{stop(){micStops++;}}]}),
+      createAudioContext(sinkId){
+        const context={
+          ...createContext(),sinkId,
+          async setSinkId(){},
+          async close(){this.closeCount=(this.closeCount||0)+1;if(this===contexts[1]){startedClosing();await closePending;}}
+        };
+        contexts.push(context);
+        return context;
+      }
+    }
+  });
+  session.running=true;
+  const startup=assert.rejects(session._openMedia(),/麥克風請求已取消/);
+  await closeStarted;
+  let stopped=false;
+  const stopping=session.stop().then(()=>{stopped=true;});
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(stopped,false);
+  assert.equal(micStops,1);
+  finishClosing();
+  await Promise.all([startup,stopping]);
+  assert.deepEqual(contexts.map(context=>context.closeCount),[1,1]);
 });
