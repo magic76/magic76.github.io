@@ -15,10 +15,10 @@
 <main class="page">
   <header class="top">
     <a class="brand" href="/" aria-label="返回 Crew 首頁"><span class="brand-mark">🥚</span><span><strong>生物實驗室</strong><small>孵化 · 進化 · 收藏</small></span></a>
-    <span class="tagline">用 Crew 聊天集能量，回來親手進化 <span class="live-dot"></span></span>
+    <button id="creatureSoundToggle" type="button" aria-label="切換生物實驗室音效" aria-pressed="true">🔊 音效開啟</button><span class="tagline">用 Crew 聊天集能量，回來親手進化 <span class="live-dot"></span></span>
   </header>
   <section class="intro">
-    <div><p class="overline">YOUR CREATURE COLLECTION</p><h1>孵出專屬生物，<br><em>收藏每次進化。</em></h1><p>平常在 Crew 和朋友或老師聊天可累積能量，回來孵化、進化，收集八種生物、成長禮物與共同回憶。</p></div>
+    <div><p class="overline">YOUR CREATURE COLLECTION</p><h1>每一次聊天，<br><em>都是牠成長的能量。</em></h1><p>和任何 Koolo 朋友或老師聊天，都能累積能量。回來孵蛋、升級寵物、開驚喜禮物！</p></div>
     <div class="tag-pair"><span>⚡ 全站聊天集能量</span><span>✦ 親手按進化</span></div>
   </section>
   <div class="play-grid">
@@ -47,7 +47,7 @@
         <p id="progressHint" class="progress-hint" aria-live="polite">還差 2 能量就能孵化</p>
          <button id="evolveBtn" class="evolve-btn" type="button" disabled>還需要 2 能量</button>
         <p class="evolve-hint" id="evolveHint">在 Crew 朋友或老師聊天可獲得能量，集滿後親手進化。</p>
-        <a class="earn-energy-chat-link" href="/friend/live?id=zoe&amp;chat=text">💬 去和 Zoe 聊天賺能量</a>
+        <a class="earn-energy-chat-link" href="/teacher/roles?mode=friends">💬 去找朋友聊天，收集能量</a>
         <button id="dailyGiftBtn" class="daily-supply-btn" type="button" hidden>🎁 領取今日補給</button>
         <div class="growth-story" id="growthStory" aria-label="生物成長故事">
           <strong id="growthStoryTitle">🥚 神秘蛋 · 準備孵化</strong>
@@ -125,6 +125,7 @@
   </div>
   <footer>在 Crew 日常聊天累積能量，在這裡孵化、進化並收藏每隻生物。 · Crew Creature Lab</footer>
 </main>
+<script src="./creature-sfx.js" defer></script>
 </body>
 </html>
 

@@ -1,7 +1,7 @@
 {
   "creatureLab": {
-    "discover": "Tetaskan makhluk bersama Zoe",
-    "intro": "Kirim dua pesan ke Zoe untuk menetaskan makhluk pertamamu. Dalam bahasa Mandarin tradisional.",
+    "discover": "Pelihara makhluk fantasi lewat obrolan",
+    "intro": "Mengobrollah dengan teman AI, latih bahasa, dan kumpulkan energi untuk menetaskan telur serta mengembangkan peliharaanmu. Lihat apa yang muncul!",
     "egg": "Lanjutkan menetaskan telur",
     "care": "Kunjungi makhlukmu · {{name}}",
     "needed": "Energi yang dibutuhkan untuk tahap berikutnya: {{energy}}",

@@ -1,7 +1,7 @@
 {
   "creatureLab": {
-    "discover": "Cùng Zoe ấp trứng",
-    "intro": "Gửi hai tin nhắn cho Zoe để sinh vật đầu tiên của bạn nở từ trứng. Trải nghiệm bằng tiếng Trung phồn thể.",
+    "discover": "Trò chuyện để nuôi thú cưng kỳ ảo",
+    "intro": "Trò chuyện với bạn AI, luyện ngôn ngữ và tích lũy năng lượng để ấp trứng, nâng cấp thú cưng. Khám phá xem bạn sẽ nuôi được gì!",
     "egg": "Tiếp tục ấp trứng",
     "care": "Ghé thăm {{name}}",
     "needed": "Cần thêm {{energy}} năng lượng để sang giai đoạn tiếp theo.",

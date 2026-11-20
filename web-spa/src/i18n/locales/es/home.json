@@ -1,7 +1,7 @@
 {
   "creatureLab": {
-    "discover": "Incuba una criatura con Zoe",
-    "intro": "Envía dos mensajes a Zoe y haz que nazca tu primera criatura. En chino tradicional.",
+    "discover": "Cría una mascota fantástica conversando",
+    "intro": "Habla con amigos de IA, practica idiomas y reúne energía para incubar y hacer evolucionar a tu mascota. ¡Descubre qué aparece!",
     "egg": "Sigue incubando tu huevo",
     "care": "Visita a tu criatura · {{name}}",
     "needed": "Energía para la próxima etapa: {{energy}}",

@@ -1,7 +1,7 @@
 {
   "creatureLab": {
-    "discover": "Mit Zoe ein Wesen ausbrüten",
-    "intro": "Schreib Zoe zwei Nachrichten und lass dein erstes Wesen schlüpfen. Auf traditionellem Chinesisch.",
+    "discover": "Zieh ein Fantasiewesen durch Gespräche groß",
+    "intro": "Sprich mit KI-Freunden, übe Sprachen und sammle Energie, um dein Ei auszubrüten und dein Wesen weiterzuentwickeln. Lass dich überraschen!",
     "egg": "Dein Ei weiter ausbrüten",
     "care": "Dein Wesen besuchen · {{name}}",
     "needed": "Bis zur nächsten Stufe fehlen noch {{energy}} Energiepunkte.",

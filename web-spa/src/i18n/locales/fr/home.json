@@ -1,7 +1,7 @@
 {
   "creatureLab": {
-    "discover": "Fais éclore un œuf avec Zoe",
-    "intro": "Envoie deux messages à Zoe pour faire naître ta première créature. En chinois traditionnel.",
+    "discover": "Élève une créature fantastique en discutant",
+    "intro": "Discute avec des amis IA, pratique les langues et gagne de l'énergie pour faire éclore et évoluer ton compagnon. Découvre ta surprise !",
     "egg": "Continue à couver ton œuf",
     "care": "Retrouve ta créature · {{name}}",
     "needed": "Énergie à gagner pour la prochaine étape : {{energy}}",
