@@ -96,6 +96,8 @@ export function useLiveSession(config:Config){
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
  const cancelFriendReplyTimer=()=>{if(friendReplyTimerRef.current!==null){window.clearTimeout(friendReplyTimerRef.current);friendReplyTimerRef.current=null}};
  const cancelUnrecognizedSpeechTimer=()=>{if(unrecognizedSpeechTimerRef.current!==null){window.clearTimeout(unrecognizedSpeechTimerRef.current);unrecognizedSpeechTimerRef.current=null}};
+ const [volume,setPlaybackVolume]=useState(100);
+ const volumeRef=useRef(volume);
  useEffect(()=>{const id=window.setInterval(()=>{
   if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs());
   if(guestModeRef.current&&guestDeadlineRef.current>0){
@@ -248,7 +250,7 @@ export function useLiveSession(config:Config){
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
-    openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume:100,
+    openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume:volumeRef.current,
     // Native Live Google Search is disabled: a server-side 1011 can close the audio session.
     // Grounding is fetched separately on explicit user actions, never in WebSocket setup.
     tools:grant?undefined:configRef.current.tools,
@@ -430,7 +432,7 @@ export function useLiveSession(config:Config){
    await session.start();
    if(!isActive()||!session.running)return;
    if(grant&&session.ready)recordGuestConnect();
-   setState("listening");
+   session.setVolume(volumeRef.current);setState("listening");
   }catch(e){
    if(!isActive())return;
    attempt.active=false;
@@ -488,6 +490,13 @@ export function useLiveSession(config:Config){
   }
  },[]);
  const sendVideoFrame=useCallback((frame:unknown)=>sessionRef.current?.sendVideoFrame?.(frame)??false,[]);
+ const setVolume=useCallback((value:number)=>{
+  if(!Number.isFinite(value))return;
+  const next=Math.max(0,Math.min(300,value));
+  volumeRef.current=next;
+  setPlaybackVolume(next);
+  sessionRef.current?.setVolume(next);
+ },[]);
  useEffect(()=>{
   mountedRef.current=true;
   return ()=>{
@@ -502,7 +511,7 @@ export function useLiveSession(config:Config){
    void closeSession(session,"page-leave");
   };
  },[closeSession,snapshot]);
- return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame};
+ return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
 
 
