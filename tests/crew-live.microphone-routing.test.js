@@ -143,3 +143,61 @@ test("a constrained microphone error retries once while keeping the OS-selected 
   await session._cleanupMedia();
   assert.equal(track.stopped,true);
 });
+
+for(const works of [true,false]){
+  test(`separate capture uses silent sinks and ${works?"plays through the element":"falls back when autoplay fails"}`,async()=>{
+    const contexts=[];
+    const modes=[];
+    const destination={};
+    let stopped=0;
+    let closed=0;
+    const session=new CrewLive.Session({
+      separateCaptureContext:true,
+      createPlaybackRoute(context){
+        assert.equal(context,contexts[0]);
+        return {
+          destination,
+          ready:works?Promise.resolve():Promise.reject(new Error("blocked")),
+          close(){closed++;}
+        };
+      },
+      onPlaybackRoute:mode=>modes.push(mode),
+      deps:{
+        getUserMedia:async()=>({getTracks:()=>[{stop(){stopped++;}}]}),
+        createAudioContext(sinkId){
+          assert.deepEqual(sinkId,{type:"none"});
+          const outputs=new Set();
+          const context={
+            ...createContext(),sinkId,outputs,closed:false,
+            async setSinkId(sink){this.sinkId=sink;},
+            async close(){this.closed=true;},
+            createMediaStreamSource(){return {connect(){},disconnect(){}};},
+            createScriptProcessor(){return {connect(){},disconnect(){}};},
+            createGain(){
+              return {
+                gain:{value:1},
+                connect(target){outputs.add(target);},
+                disconnect(target){outputs.delete(target);}
+              };
+            }
+          };
+          contexts.push(context);
+          return context;
+        }
+      }
+    });
+    session.running=true;
+    await session._openMedia();
+    assert.equal(session.inputContext,contexts[1]);
+    assert.equal(session.outputContext,contexts[0]);
+    assert.deepEqual(contexts[1].sinkId,{type:"none"});
+    assert.ok(contexts[1].outputs.has(contexts[1].destination));
+    assert.deepEqual(contexts[0].sinkId,works?{type:"none"}:"");
+    assert.deepEqual([...contexts[0].outputs],[works?destination:contexts[0].destination]);
+    assert.deepEqual(modes,[works?"separate":"standard"]);
+    await session.stop();
+    assert.ok(contexts.every(context=>context.closed));
+    assert.equal(stopped,1);
+    assert.equal(closed,1);
+  });
+}

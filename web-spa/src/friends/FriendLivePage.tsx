@@ -13,6 +13,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {detectNativeLanguage} from "../teacher/teacherLocale";
 import {useLiveSession} from "../live/useLiveSession";
 import {createRtcPlayback} from "../live/createRtcPlayback";
+import {createElementPlayback} from "../live/createElementPlayback";
 import {useCreatureStageSync,useCreatureVoiceBridge} from "./useCreatureVoiceBridge";
 import {creatureVoiceInstruction} from "./creatureVoiceBridge.mjs";
 import {CreatureVoicePanel} from "./CreatureVoicePanel";
@@ -134,11 +135,14 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const {ready:voiceRecapReady,messages:voiceRecap}=useVoiceTextRecap(!textMode,"friend:"+friend.id+(shortsPost?":"+shortsPost.id:""),friend.id);
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
  const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
- const rtcRequested=!textMode&&!creatureEmbed&&params.get("playback")==="rtc";
- const [playbackRoute,setPlaybackRoute]=useState<"rtc"|"standard">("standard");
+ const requestedPlayback=!textMode&&!creatureEmbed?params.get("playback"):null;
+ const rtcRequested=requestedPlayback==="rtc";
+ const separateRequested=requestedPlayback==="separate";
+ const [playbackRoute,setPlaybackRoute]=useState<"rtc"|"separate"|"standard">("standard");
  const live=useLiveSession({
-  createPlaybackRoute:rtcRequested?createRtcPlayback:undefined,
-  onPlaybackRoute:rtcRequested?setPlaybackRoute:undefined,
+  createPlaybackRoute:separateRequested?createElementPlayback:rtcRequested?createRtcPlayback:undefined,
+  separateCaptureContext:separateRequested,
+  onPlaybackRoute:rtcRequested||separateRequested?setPlaybackRoute:undefined,
   playbackVolumeStorageKey:"crew.friend.playback-volume",
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
    system:system+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
@@ -200,7 +204,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  useFriendVoiceTheme(!textMode&&!creatureEmbed&&!active);
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
- const playbackLabel=rtcRequested&&(live.state==="listening"||live.state==="speaking")?(playbackRoute==="rtc"?" · WebRTC":english?" · Standard audio":" · 一般播放"):"";
+ const playbackName=playbackRoute==="rtc"?"WebRTC":playbackRoute==="separate"
+  ?(english?"Separate playback":"獨立播放"):(english?"Standard audio":"一般播放");
+ const playbackLabel=(rtcRequested||separateRequested)&&(live.state==="listening"||live.state==="speaking")
+  ?` · ${playbackName}`:"";
  const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active))+playbackLabel;
  useFriendTextViewport(textMode,textStage);
  const changeFriendChatMode=(chosen:FriendChatLanguageMode)=>{

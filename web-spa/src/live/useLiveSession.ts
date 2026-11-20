@@ -16,6 +16,7 @@ export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
  createPlaybackRoute?:LiveSessionOptions["createPlaybackRoute"];
+ separateCaptureContext?:boolean;
  onPlaybackRoute?:LiveSessionOptions["onPlaybackRoute"];
  playbackVolumeStorageKey?:string;
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
@@ -231,6 +232,7 @@ export function useLiveSession(config:Config){
    let learnerSpoke=false,aiReplied=false;
    const session=new window.CrewLive.Session({
     createPlaybackRoute:configRef.current.createPlaybackRoute,
+    separateCaptureContext:configRef.current.separateCaptureContext,
     onPlaybackRoute:configRef.current.onPlaybackRoute,
     guestAccessToken:grant?.token,
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
