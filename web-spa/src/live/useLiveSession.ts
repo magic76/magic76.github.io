@@ -15,7 +15,7 @@ export type FriendVoicePhase="idle"|"hearing"|"pause"|"processing"|"recovering"|
 export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
- debugAudioOutput?:"element";
+ getDebugAudioElement?:()=>HTMLAudioElement|null;
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
@@ -221,7 +221,7 @@ export function useLiveSession(config:Config){
    let learnerSpoke=false,aiReplied=false;
    const session=new window.CrewLive.Session({
     guestAccessToken:grant?.token,
-    debugAudioOutput:configRef.current.debugAudioOutput,
+    debugAudioElement:configRef.current.getDebugAudioElement?.()??undefined,
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
