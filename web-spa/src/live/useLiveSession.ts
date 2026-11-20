@@ -14,6 +14,7 @@ export type LiveState="idle"|"requesting-mic"|"connecting"|"listening"|"speaking
 export type FriendVoicePhase="idle"|"hearing"|"pause"|"processing"|"recovering"|"no-transcript"|"no-reply";
 export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
+type LiveAttempt={active:boolean};
 type Config={
  createPlaybackRoute?:LiveSessionOptions["createPlaybackRoute"];
  separateCaptureContext?:boolean;
@@ -44,6 +45,19 @@ function classifyError(value:unknown):Exclude<LiveErrorKind,null>{
 export function useLiveSession(config:Config){
  const configRef=useRef(config);configRef.current=config;
  const sessionRef=useRef<LiveSession|null>(null),turnsRef=useRef<LiveTurn[]>([]),savedRef=useRef(false);
+ const attemptRef=useRef<LiveAttempt|null>(null),mountedRef=useRef(true);
+ const closingRef=useRef<{session:LiveSession;done:Promise<void>}|null>(null);
+ const closeSession=useCallback((session:LiveSession,reason:string)=>{
+  if(closingRef.current?.session===session)return closingRef.current.done;
+  const done=session.stop({reason,silentStatus:true,emitTerminal:false})
+   .catch(()=>{/* Still finalize saved speech when the transport is already closed. */})
+   .finally(()=>{
+    if(sessionRef.current===session)sessionRef.current=null;
+    if(closingRef.current?.session===session)closingRef.current=null;
+   });
+  closingRef.current={session,done};
+  return done;
+ },[]);
  const guestModeRef=useRef(false),guestDeadlineRef=useRef(0),guestTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const [guestSecondsLeft,setGuestSecondsLeft]=useState(0);
  const [guestExpired,setGuestExpired]=useState(false),guestWrapUpSentRef=useRef(false);
@@ -113,19 +127,20 @@ export function useLiveSession(config:Config){
   if(configRef.current.persistHistory!==false&&!guestModeRef.current)saveLive(configRef.current.pageKey,item);
   return item;
  },[]);
- const finish=useCallback(async(item:any)=>{
+ const finish=useCallback(async(item:any,attempt:LiveAttempt,finishedConfig:Config,guestMode:boolean)=>{
+  const updateView=()=>mountedRef.current&&attemptRef.current===attempt;
   let reportFailed=false;
   let completedReport:Record<string,unknown>|null=null;
   const personalEpoch=getPersonalMemoryEpoch();
   try{
-   if(item&&!guestModeRef.current&&configRef.current.teacherReport){
+   if(item&&!guestMode&&finishedConfig.teacherReport){
     await ensureTeacherServices();
     if(window.CrewTeacherReport?.eligible(item)){
-     setState("reporting");setStatus("正在整理課後學習報告…");
-     const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文",missions:configRef.current.missions||[],nativeLanguage:configRef.current.nativeLanguage||"zh-TW",priorMemory:reportMemoryContext(configRef.current.language||"英文"),pageKey:configRef.current.pageKey,trackSpeakingLevel:configRef.current.trackSpeakingLevel&&personalMemoryEnabled()});
-     if(r){completedReport=r;setReport(r);saveLive(configRef.current.pageKey,{...item,report:r});ingestStudentReport(configRef.current.language||"英文",r,item.turns||[],personalEpoch);
-      if(configRef.current.trackSpeakingLevel)recordSpeakingLevel(
-       configRef.current.language||"英文",String(item.id||item.ts||""),
+     if(updateView()){setState("reporting");setStatus("正在整理課後學習報告…")}
+     const r=await window.CrewTeacherReport.generate(item,{language:finishedConfig.language||"英文",missions:finishedConfig.missions||[],nativeLanguage:finishedConfig.nativeLanguage||"zh-TW",priorMemory:reportMemoryContext(finishedConfig.language||"英文"),pageKey:finishedConfig.pageKey,trackSpeakingLevel:finishedConfig.trackSpeakingLevel&&personalMemoryEnabled()});
+     if(r){completedReport=r;if(updateView())setReport(r);saveLive(finishedConfig.pageKey,{...item,report:r});ingestStudentReport(finishedConfig.language||"英文",r,item.turns||[],personalEpoch);
+      if(finishedConfig.trackSpeakingLevel)recordSpeakingLevel(
+       finishedConfig.language||"英文",String(item.id||item.ts||""),
        r.speaking_evidence,(item.turns||[]).map((t:LiveTurn)=>t.input||"").filter(Boolean),
        personalMemoryEnabled(),()=>personalMemoryEnabled()&&getPersonalMemoryEpoch()===personalEpoch);
      }
@@ -133,19 +148,26 @@ export function useLiveSession(config:Config){
    }
   }catch(_){
    reportFailed=true;
-   setStatus("練習已保存，但課後報告產生失敗，可從歷史紀錄繼續練習。");
+   if(updateView())setStatus("練習已保存，但課後報告產生失敗，可從歷史紀錄繼續練習。");
   }finally{
-   if(!reportFailed)setStatus("已結束。");
-   setState("ended");
-   if(!guestModeRef.current)configRef.current.onSessionFinished?.(item ? {turns:item.turns||[],durationMs:item.durationMs||0}:null);
+   if(updateView()){
+    if(!reportFailed)setStatus("已結束。");
+    setState("ended");
+   }
+   if(!guestMode)finishedConfig.onSessionFinished?.(item ? {turns:item.turns||[],durationMs:item.durationMs||0}:null);
   }
   return {turns:(item?.turns||[]) as LiveTurn[],durationMs:Number(item?.durationMs||0),report:completedReport};
  },[]);
  const start=useCallback(async(grant?:GuestTrialGrant)=>{
-  if(sessionRef.current)return;
+  if(!mountedRef.current||attemptRef.current?.active||sessionRef.current)return;
   if(!geminiKey()&&!grant){trackUsageEvent("gemini_key_missing");setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
+  const attempt={active:true};
+  attemptRef.current=attempt;
+  const isActive=()=>attempt.active&&attemptRef.current===attempt;
   try{
-   await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
+   await ensureLive();
+   if(!isActive())return;
+   if(!window.CrewLive)throw new Error("Live runtime 未載入");
    guestModeRef.current=Boolean(grant);setGuestSecondsLeft(grant?.seconds||0);
    guestWrapUpSentRef.current=false;setGuestExpired(false);
    guestConnectedAtRef.current=0;guestEndedReportedRef.current=false;guestConnectFailedReportedRef.current=false;guestEffectiveReportedRef.current=false;
@@ -233,7 +255,7 @@ export function useLiveSession(config:Config){
    const session=new window.CrewLive.Session({
     createPlaybackRoute:configRef.current.createPlaybackRoute,
     separateCaptureContext:configRef.current.separateCaptureContext,
-    onPlaybackRoute:configRef.current.onPlaybackRoute,
+     onPlaybackRoute:configRef.current.onPlaybackRoute?mode=>{if(isActive())configRef.current.onPlaybackRoute?.(mode)}:undefined,
     guestAccessToken:grant?.token,
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
@@ -242,18 +264,21 @@ export function useLiveSession(config:Config){
     // Native Live Google Search is disabled: a server-side 1011 can close the audio session.
     // Grounding is fetched separately on explicit user actions, never in WebSocket setup.
     tools:grant?undefined:configRef.current.tools,
-     onGrounding:metadata=>{setSearchSources(previous=>mergeGroundingSources(previous,extractGroundingSources(metadata)));const html=extractSearchSuggestions(metadata);if(html)setSearchSuggestions(html)},
-     onSearchUnavailable:()=>setSearchUnavailable(true),
-     onToolCall:call=>!grant?configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"}:{ok:false,error:"guest-tools-disabled"},
-    onToolsUnavailable:()=>configRef.current.onToolsUnavailable?.(),
+      onGrounding:metadata=>{if(!isActive())return;setSearchSources(previous=>mergeGroundingSources(previous,extractGroundingSources(metadata)));const html=extractSearchSuggestions(metadata);if(html)setSearchSuggestions(html)},
+      onSearchUnavailable:()=>{if(isActive())setSearchUnavailable(true)},
+      onToolCall:call=>isActive()&&!grant?configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"}:{ok:false,error:grant?"guest-tools-disabled":"session-ended"},
+     onToolsUnavailable:()=>{if(isActive())configRef.current.onToolsUnavailable?.()},
     // Crew Teacher/Friends only; other Crew products retain their current VAD.
     turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
     models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
     manualInterruptOnly:true,maxLiveAttempts:teacherVoiceSession?1:2,maxResumeAttempts:2,
     ...(grant?{models:[grant.model],maxLiveAttempts:1,maxResumeAttempts:0}:{}),
-    onOutputLevel:configRef.current.onOutputLevel?level=>configRef.current.onOutputLevel?.(level):undefined,
-    onStatus:v=>setStatus(uiMessage(v)),
+     onOutputLevel:configRef.current.onOutputLevel?level=>{
+      if(isActive()||(level===0&&mountedRef.current&&attemptRef.current===attempt))configRef.current.onOutputLevel?.(level);
+     }:undefined,
+     onStatus:v=>{if(isActive())setStatus(uiMessage(v))},
     onState:v=>{
+      if(!isActive())return;
      if(v==="connecting"||v==="error"){cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}
      if(v==="requesting-mic")setState("requesting-mic");
      else if(v==="connecting")setState("connecting");
@@ -261,6 +286,7 @@ export function useLiveSession(config:Config){
      else if(v==="error"){recordGuestFailure();setState("error")}
     },
     onSpeaking:v=>{
+      if(!isActive())return;
      setState(v?"speaking":"listening");
      if(v){
       cancelRescue();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");
@@ -268,7 +294,8 @@ export function useLiveSession(config:Config){
      }else scheduleRescue();
     },
     // UI microphone heuristics never finish Gemini's server-managed audio turn.
-    onListeningPhase:phase=>setStatus((()=>{
+     onListeningPhase:phase=>{
+      if(!isActive())return;
      if(configRef.current.sessionKind==="friend"){
       if(phase==="speaking"){
        cancelRescue();cancelUnrecognizedSpeechTimer();
@@ -279,20 +306,23 @@ export function useLiveSession(config:Config){
       }else if(!awaitingTutorRef.current)setFriendPhase("pause");
      }
      const shouldUpdate=!awaitingTutorRef.current;
-     return (previous:string)=>shouldUpdate
+      setStatus(previous=>shouldUpdate
        ?(phase==="speaking"?"🎙️ 正在聽你說…":"🎙️ 已收到聲音，等你說完後就會回應…")
-       :previous;
-    })()),
+        :previous);
+     },
     onLocalUtteranceEnd:()=>{
+      if(!isActive())return;
      if(configRef.current.sessionKind!=="friend"||awaitingTutorRef.current)return;
      cancelRescue();setFriendPhase("pause");scheduleUnrecognizedSpeechCheck();
     },
     onMicHealth:health=>{
+       if(!isActive())return;
       if(health.trackState!=="live"&&health.trackState!=="missing"&&!health.muted)
        setStatus("麥克風已停止收音，請重新開始語音對話。");
     },
-    onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
+     onMicMuted:()=>{if(isActive())setMuted(Boolean(sessionRef.current?.micMuted))},
     onInputTranscript:v=>{
+      if(!isActive())return;
      if(v.trim()){
       configRef.current.onInputSpeech?.();
       const firstFragment=!awaitingTutorRef.current;
@@ -311,6 +341,7 @@ export function useLiveSession(config:Config){
      setInput(v);
     },
     onOutputTranscript:v=>{
+      if(!isActive())return;
      cancelRescue();
      if(v.trim()&&configRef.current.sessionKind==="friend"){awaitingTutorRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}
      if(chatKind&&learnerSpoke&&!aiReplied&&v.trim()){
@@ -320,6 +351,7 @@ export function useLiveSession(config:Config){
      setOutput(v);
     },
     onRecovered:()=>{
+       if(!isActive())return;
       configRef.current.onRecovered?.();
       cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();
       setFriendPhase(awaitingTutorRef.current?"processing":"idle");
@@ -348,8 +380,9 @@ export function useLiveSession(config:Config){
        if(configRef.current.sessionKind==="friend")scheduleFriendReplyCheck();
       }else recoveryRequestRef.current=false;
     },
-    onTranscriptTurn:(turn,all)=>{cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());if(!guestModeRef.current)configRef.current.onConfirmedTranscript?.(turn)},
+     onTranscriptTurn:(turn,all)=>{if(!isActive())return;cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());if(!guestModeRef.current)configRef.current.onConfirmedTranscript?.(turn)},
     onTurnComplete:turn=>{
+       if(!isActive())return;
       if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}
       else if(configRef.current.sessionKind==="friend"&&awaitingTutorRef.current)scheduleFriendReplyCheck(3000);
       const drift=(configRef.current.languageDriftGuard?.(turn.output||"")||false)
@@ -376,8 +409,18 @@ export function useLiveSession(config:Config){
        }
       if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
      },
-    onError:e=>{recordGuestFailure();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
-    onTerminal:info=>{if(info?.state==="error")recordGuestFailure();clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
+     onError:e=>{if(!isActive())return;recordGuestFailure();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
+     onTerminal:info=>{
+      if(!isActive())return;
+      attempt.active=false;
+      if(info?.state==="error")recordGuestFailure();
+      clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);
+      cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");
+      const item=snapshot(info?.status||"terminal");
+      sessionRef.current=null;
+      if(info?.state==="error"){setState("error");return}
+      void finish(item,attempt,configRef.current,Boolean(grant));
+     }
    });
    sessionRef.current=session;
    if(grant){
@@ -387,32 +430,48 @@ export function useLiveSession(config:Config){
      Number.isFinite(lifetime)?Math.max(0,lifetime-1500):300000));
     guestDeadlineRef.current=performance.now()+ms;
     guestTimerRef.current=setTimeout(()=>{
-     if(sessionRef.current!==session)return;
+     if(!isActive())return;
+     attempt.active=false;
      clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);
+     cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();
      setGuestExpired(true);const item=snapshot("guest-limit");
-     sessionRef.current=null;
-     void session.stop({reason:"guest-limit",silentStatus:true,emitTerminal:false})
-      .catch(()=>{}).then(()=>finish(item));
+     const finishedConfig=configRef.current;
+     void closeSession(session,"guest-limit").then(()=>finish(item,attempt,finishedConfig,true));
     },ms);
    }
-    await session.start();if(sessionRef.current!==session||!session.running)return;if(grant&&session.ready)recordGuestConnect();session.setVolume(volumeRef.current);setState("listening");
-  }catch(e){recordGuestFailure();clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
- },[finish,snapshot]);
+   await session.start();
+   if(!isActive()||!session.running)return;
+   if(grant&&session.ready)recordGuestConnect();
+   session.setVolume(volumeRef.current);setState("listening");
+  }catch(e){
+   if(!isActive())return;
+   attempt.active=false;
+   recordGuestFailure();clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);
+   sessionRef.current=null;
+   const message=e instanceof Error?e.message:e,kind=classifyError(message);
+   if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);
+   setErrorKind(kind);setState("error");setStatus(uiMessage(message));
+  }
+ },[closeSession,finish,snapshot]);
  const stop=useCallback(async(deferReport=false)=>{
+  const closing=closingRef.current;
+  if(closing){await closing.done;return null}
+  const attempt=attemptRef.current;
+  if(!attempt)return null;
+  attempt.active=false;
   const s=sessionRef.current;if(!s)return null;
   clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);
   cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");setState("ending");setStatus("正在結束…");
   const item=snapshot("user-stop");
-  try{await s.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})}
-  catch{/* Still finalize saved speech when the transport is already closed. */}
-  finally{sessionRef.current=null}
+  const finishedConfig=configRef.current,guestMode=guestModeRef.current;
+  await closeSession(s,"user-stop");
   // A conversation page can close as soon as the voice transport and local
   // transcript are saved; AI reports and memory updates continue without
   // holding the user on the ended conversation screen.
-  const completion=finish(item);
+  const completion=finish(item,attempt,finishedConfig,guestMode);
   if(!deferReport)await completion;
   return {turns:(item?.turns||[]) as LiveTurn[],durationMs:Number(item?.durationMs||0),completion};
- },[finish,snapshot]);
+ },[closeSession,finish,snapshot]);
  const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");return sessionRef.current?.interrupt()??false},[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
  const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
@@ -450,16 +509,21 @@ export function useLiveSession(config:Config){
   sessionRef.current?.setVolume(next);
   try{window.localStorage.setItem(key,String(next))}catch{/* Volume still works in this call. */}
  },[]);
- useEffect(()=>()=>{
-  const session=sessionRef.current;
-  clearGuestTimer();guestDeadlineRef.current=0;
-  cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();
-  if(!session)return;
-  // Preserve the final completed transcript before closing the active transport.
-  snapshot("page-leave");
-  sessionRef.current=null;
-  void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
- },[snapshot]);
+ useEffect(()=>{
+  mountedRef.current=true;
+  return ()=>{
+   mountedRef.current=false;
+   if(attemptRef.current)attemptRef.current.active=false;
+   const session=sessionRef.current;
+   clearGuestTimer();guestDeadlineRef.current=0;
+   cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();
+   if(!session)return;
+   // Preserve the final completed transcript before closing the active transport.
+   snapshot("page-leave");
+   void closeSession(session,"page-leave");
+  };
+ },[closeSession,snapshot]);
  return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
+
 
