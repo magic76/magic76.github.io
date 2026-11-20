@@ -39,7 +39,7 @@ export function ShortsPage(){
 
  const [feed,setFeed]=useState<ShortFeed|null>(null);
  const restoreRef=useRef<{y:number;count:number}|null>(null);
- function saveProfileReturn(){try{sessionStorage.setItem("crew_shorts_profile_return",JSON.stringify({y:window.scrollY,count}))}catch{/* optional */}}
+ function saveProfileReturn(){try{sessionStorage.setItem("crew_shorts_profile_return",JSON.stringify({y:window.scrollY,count,ids:feed?.posts.map(post=>post.id)||[]}))}catch{/* optional */}}
 
  const [busy,setBusy]=useState(true);
  const [error,setError]=useState(false);
@@ -65,6 +65,7 @@ export function ShortsPage(){
   setBusy(true);setError(false);
   fetchShortsFeed(abort.signal)
    .then(async data=>{if(!abort.signal.aborted){const ordered=shuffleShortsPosts(data.posts);
+    if(!focusPostId){try{const raw=sessionStorage.getItem("crew_shorts_profile_return");if(raw){const ids=JSON.parse(raw).ids;if(Array.isArray(ids)){const positions=new Map(ids.map((id:string,i:number)=>[id,i]));ordered.sort((a,b)=>(positions.get(a.id)??Infinity)-(positions.get(b.id)??Infinity));}}}catch{/* optional */}}
     // Deep links can refer to a later archive page, not just the first 50 entries.
     if(focusPostId&&!ordered.some(post=>post.id===focusPostId)){
      const friendId=focusPostId.split("-")[0];
