@@ -493,7 +493,7 @@ test("guest trial 10-second guidance and completion UX preserve hard stop",()=>{
  assert.match(hook,/guestWrapUpSentRef\.current=true/);
  assert.match(hook,/left>0&&left<=10/);
  assert.match(hook,/setGuestExpired\(true\)/);
- assert.match(hook,/session\.stop\(\{reason:"guest-limit"/);
+ assert.match(hook,/closeSession\(session,"guest-limit"\)/);
  assert.match(component,/secondsLeft<=10/);
  assert.match(component,/role="timer"/);
  assert.match(component,/role="status"/);
@@ -760,3 +760,4 @@ test("five-minute free-trial offer is localized without changing lesson practice
  const lesson=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/zh-TW/teacher.json"),"utf8"));
  assert.match(lesson.learn.threeMinute,/3 分鐘/);
 });
+
