@@ -134,7 +134,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const {ready:voiceRecapReady,messages:voiceRecap}=useVoiceTextRecap(!textMode,"friend:"+friend.id+(shortsPost?":"+shortsPost.id:""),friend.id);
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
  const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
+ const audioDebug=params.get("audioDebug")==="1"&&!textMode;
+ const audioOutput=audioDebug&&params.get("audioOutput")==="element"?"element":undefined;
  const live=useLiveSession({
+  debugAudioOutput:audioOutput,
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
    system:system+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
   openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
@@ -190,10 +193,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry)trackUsageEvent("home_live_bubble_connected")}},[live.state]);
  useEffect(()=>{if(textMode||!voiceRecapReady||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost,creatureEmbed,voiceRecapReady]);
  useFriendBodyTheme(creatureEmbed);
- const audioDebug=params.get("audioDebug")==="1"&&!textMode;
  const [audioDebugText,setAudioDebugText]=useState("");
  const copyAudioDebug=async(route:"call"|"media"|"unknown")=>{
-   const report=JSON.stringify({version:3,scenario:"friend",userObservedVolume:route,observedAtUnixMs:Date.now(),appBuildId:currentBuild.buildId,appCommit:currentBuild.commit,sessionState:live.state,voicePhase:live.voicePhase,health:live.getAudioDiagnostics(),audioTrace:window.CrewLive?.getAudioDebugTrace?.()??[]},null,2);
+   const report=JSON.stringify({version:3,scenario:"friend",audioOutput:audioOutput??"web-audio",userObservedVolume:route,observedAtUnixMs:Date.now(),appBuildId:currentBuild.buildId,appCommit:currentBuild.commit,sessionState:live.state,voicePhase:live.voicePhase,health:live.getAudioDiagnostics(),audioTrace:window.CrewLive?.getAudioDebugTrace?.()??[]},null,2);
   setAudioDebugText(report);
   try{await navigator.clipboard.writeText(report)}catch{ /* Select and copy the visible text manually. */ }
  };

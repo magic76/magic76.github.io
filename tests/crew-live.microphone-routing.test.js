@@ -10,6 +10,37 @@ function createContext(){
   };
 }
 
+test("debug element output uses a separate sink and releases both streams at hangup",async()=>{
+  const routes=[];
+  const ctx=createContext();
+  ctx.createGain=()=>({gain:{value:1},connect:target=>routes.push(target),disconnect(){}});
+  ctx.createMediaStreamSource=()=>({connect(){},disconnect(){}});
+  ctx.createScriptProcessor=()=>({connect(){},disconnect(){}});
+  let micStops=0,outputStops=0,plays=0,pauses=0;
+  const sink={stream:{getTracks:()=>[{stop(){outputStops++;}}]}};
+  ctx.createMediaStreamDestination=()=>sink;
+  const audio={
+    srcObject:null,
+    async play(){assert.equal(this.srcObject,sink.stream);plays++;},
+    pause(){pauses++;}
+  };
+  const session=new CrewLive.Session({debugAudioOutput:"element",deps:{
+    getUserMedia:async()=>({getTracks:()=>[{stop(){micStops++;}}]}),
+    createAudioContext:()=>ctx,
+    createAudioElement:()=>audio
+  }});
+  session.running=true;
+  await session._openMedia();
+  assert.deepEqual(routes,[sink,sink]);
+  assert.equal(plays,1);
+  assert.ok(session.getHealthSnapshot().audioLifecycle.some(({event})=>event==="output-element-playing"));
+  await session.stop();
+  assert.equal(pauses,1);
+  assert.equal(audio.srcObject,null);
+  assert.equal(micStops,1);
+  assert.equal(outputStops,1);
+});
+
 test("audioDebug trace retains cleanup across calls and identifies guest preflight",async()=>{
   const originalLocation=Object.getOwnPropertyDescriptor(globalThis,"location");
   try{
