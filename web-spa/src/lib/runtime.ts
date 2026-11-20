@@ -1,6 +1,7 @@
 import {currentBuild} from "../runtime/buildUpdates";
 export type LiveTurn={id?:string;input?:string;output?:string};
 export type LiveSessionOptions={
+ debugAudioOutput?:"element";
  guestAccessToken?:string; // one-use, memory-only v1beta credential
  textOnly?:boolean; // Gemini Live text input with transcribed output, no microphone or playback
  system:string;openingPrompt:string;voice:string;volume:number;models?:string[];manualInterruptOnly?:boolean;

@@ -141,6 +141,7 @@
         try{return new AudioCtx({latencyHint:"interactive",sampleRate:48000});}
         catch(_){return new AudioCtx();}
       },
+      createAudioElement:deps.createAudioElement||function(){return global.document.createElement("audio");},
       createAudioWorkletNode:deps.createAudioWorkletNode||function(ctx,name,options){
         if(!global.AudioWorkletNode)return null;
         return new global.AudioWorkletNode(ctx,name,options);
@@ -871,7 +872,7 @@
           };
           this.inputSource.connect(node);
           node.connect(this.silentGain);
-          this.silentGain.connect(this.inputContext.destination);
+          this.silentGain.connect(this.outputElementDestination||this.inputContext.destination);
           this.captureMode="worklet";
           return;
         }
@@ -884,7 +885,7 @@
     this.processor=this.inputContext.createScriptProcessor(2048,1,1);
     this.inputSource.connect(this.processor);
     this.processor.connect(this.silentGain);
-    this.silentGain.connect(this.inputContext.destination);
+    this.silentGain.connect(this.outputElementDestination||this.inputContext.destination);
     this.captureMode="script";
     var rate=this.inputContext.sampleRate;
     this.processor.onaudioprocess=function(event){
@@ -1556,6 +1557,12 @@
     // Limit peaks to reduce clipping on loud voices; the gain is shared by both
     // AudioWorklet and AudioBufferSource playback paths.
     var playbackDestination=this.outputContext.destination;
+    if(this.options.debugAudioOutput==="element"){
+      this.outputElementDestination=this.outputContext.createMediaStreamDestination();
+      this.outputElement=this._deps.createAudioElement();
+      this.outputElement.srcObject=this.outputElementDestination.stream;
+      playbackDestination=this.outputElementDestination;
+    }
     if(typeof this.outputContext.createDynamicsCompressor==="function"){
       try{
         var limiter=this.outputContext.createDynamicsCompressor();
@@ -1626,6 +1633,15 @@
     this._startCapture();
     this._recordAudioLifecycle("capture-"+this.captureMode);
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+    if(this.outputElement){
+      try{await this.outputElement.play();}
+      catch(_){
+        this._recordAudioLifecycle("output-element-play-rejected");
+        throw new Error("測試播放器無法開始播放。");
+      }
+      if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+      this._recordAudioLifecycle("output-element-playing");
+    }
   };
 
   LiveSession.prototype._cleanupMedia=async function(){
@@ -1661,6 +1677,16 @@
     }
 
     this._clearPlayback();
+
+    if(this.outputElement){
+      this.outputElement.pause();
+      this.outputElement.srcObject=null;
+      this.outputElement=null;
+    }
+    if(this.outputElementDestination){
+      this.outputElementDestination.stream.getTracks().forEach(function(track){track.stop();});
+      this.outputElementDestination=null;
+    }
 
     if(this.outputWorkletNode){
       try{this.outputWorkletNode.port.postMessage({type:"clear-output"});}catch(_){}
