@@ -32,7 +32,7 @@ test("friend and teacher calls use the default gain without a playback slider",(
  assert.doesNotMatch(controls,/live-audio-settings|friend-phone-volume|live-volume-quick|type="range"|setVolume\(/);
  assert.doesNotMatch(friendControls,/type="range"|live\.setVolume/);
  assert.doesNotMatch(settings,/crew-live-volume|crew_live_volume/);
- assert.match(hook,/voice:configRef\.current\.voice,volume:100/);
+ assert.match(hook,/\[volume,setPlaybackVolume\]=useState\(100\)/);
  assert.doesNotMatch(hook,/crew_live_volume|playbackVolumeStorageKey/);
  assert.doesNotMatch(friend,/showPlaybackVolume|playbackVolumeStorageKey/);
  assert.doesNotMatch(teacher,/showPlaybackVolume|playbackVolumeStorageKey/);
