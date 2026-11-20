@@ -129,6 +129,7 @@ export function FortuneReadingPage(){
    <button className="fortune-ai-entry-button" type="button" onClick={openAiReading} disabled={aiStatus==="loading"}>
     {aiStatus==="loading"?t("reading.aiLoading"):reading!.ai?t("reading.aiCtaRead"):aiStatus==="error"?t("reading.aiRetry"):geminiKey()?t("reading.aiCtaGenerate"):t("reading.aiCtaSetup")} <span aria-hidden="true">→</span>
    </button>
+   <div className="fortune-conversation-actions">{teacherAction}</div>
    {aiStatus==="loading"&&<p className="fortune-ai-entry-status" role="status">{t("reading.aiLoadingDesc")}</p>}
    {aiStatus==="error"&&!reading!.ai&&<p className="fortune-ai-entry-error" role="alert">{t("reading.aiFailed")}</p>}
    {showAiSetup&&!geminiKey()&&<div className="fortune-ai-entry-setup" id="fortune-ai-setup"><p>{t("reading.needKey")}</p><GeminiSetupNotice returnTo={"/fortune/reading?history="+encodeURIComponent(reading!.id)}/></div>}
@@ -139,7 +140,7 @@ export function FortuneReadingPage(){
   <details className="fortune-reading-extra"><summary>{t("reading.tab.details")}</summary><div className="fortune-reading-extra-body"><Result result={reading!.result} ai={reading!.ai||""}/></div></details>
   <details className="fortune-reading-extra"><summary>{t("reading.followup.title")}</summary><div className="fortune-reading-extra-body"><FortuneFollowUp reading={reading!} isCurrent={()=>activeRequest.current.id===reading!.id} onSave={updated=>{const latest=readingRef.current;if(activeRequest.current.id!==updated.id||latest?.id!==updated.id)return;const merged={...latest,followups:updated.followups};readingRef.current=merged;setReading(merged);window.CrewFortuneProfile.addHistory(merged);localStorage.setItem("crew_fortune_live_context",JSON.stringify(merged));}}/></div></details>
   <footer className="fortune-reading-end">
-   <div className="fortune-reading-end-actions"><button className="fortune-reading-secondary-action" type="button" onClick={()=>setShareOpen(true)}>{labels.share}</button><div className="fortune-conversation-actions">{teacherAction}</div></div>
+   <div className="fortune-reading-end-actions"><button className="fortune-reading-secondary-action" type="button" onClick={()=>setShareOpen(true)}>{labels.share}</button></div>
    <button className="fortune-reading-edit" type="button" onClick={()=>{activeRequest.current.id=null;activeRequest.current.seq++;setShowAiSetup(false);setShareOpen(false);setShowInput(true)}}>{t("reading.edit")}</button>
   </footer>
  </section></section>}
