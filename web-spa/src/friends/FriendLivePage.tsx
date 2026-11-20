@@ -1,4 +1,3 @@
-import {currentBuild} from "../runtime/buildUpdates";
 import {useAuxiliaryLiveSession} from "../live/useAuxiliaryLiveSession";
 import {useSuggestedReplies,replyHintsLocked} from "../live/useSuggestedReplies";
 import {GroundingSources} from "../live/GroundingSources";
@@ -134,12 +133,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const {ready:voiceRecapReady,messages:voiceRecap}=useVoiceTextRecap(!textMode,"friend:"+friend.id+(shortsPost?":"+shortsPost.id:""),friend.id);
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
  const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
- const audioDebug=params.get("audioDebug")==="1"&&!textMode;
- const audioOutput=audioDebug&&!creatureEmbed&&params.get("audioOutput")==="element"?"element":undefined;
- const debugAudioElement=useRef<HTMLAudioElement>(null);
  const live=useLiveSession({
   playbackVolumeStorageKey:"crew.friend.playback-volume",
-  getDebugAudioElement:audioOutput?()=>debugAudioElement.current:undefined,
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
    system:system+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
   openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
@@ -195,12 +190,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry)trackUsageEvent("home_live_bubble_connected")}},[live.state]);
  useEffect(()=>{if(textMode||!voiceRecapReady||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost,creatureEmbed,voiceRecapReady]);
  useFriendBodyTheme(creatureEmbed);
- const [audioDebugText,setAudioDebugText]=useState("");
- const copyAudioDebug=async(route:"call"|"media"|"unknown")=>{
-   const report=JSON.stringify({version:3,scenario:"friend",audioOutput:audioOutput??"web-audio",userObservedVolume:route,observedAtUnixMs:Date.now(),appBuildId:currentBuild.buildId,appCommit:currentBuild.commit,sessionState:live.state,voicePhase:live.voicePhase,health:live.getAudioDiagnostics(),audioTrace:window.CrewLive?.getAudioDebugTrace?.()??[]},null,2);
-  setAudioDebugText(report);
-  try{await navigator.clipboard.writeText(report)}catch{ /* Select and copy the visible text manually. */ }
- };
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  useAuxiliaryLiveSession(active,textMode);
  useFriendVoiceTheme(!textMode&&!creatureEmbed&&!active);
@@ -291,7 +280,6 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
 
     <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled} speaking={live.state==="speaking"} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled}/>:null}
     </>}
-    {audioDebug?<section aria-label="音訊診斷" style={{padding:"12px",border:"1px solid currentColor",borderRadius:12,margin:"12px 0"}}><strong>音訊診斷（僅供測試）</strong>{audioOutput?<><p>播放器 B（若還沒播放，請按下播放）</p><audio ref={debugAudioElement} controls aria-label="測試播放器 B"/></>:null}<p>AI 說話時，先測試哪個系統音量有效，再點選複製。報告不含錄音或對話。</p><div style={{display:"flex",gap:8,flexWrap:"wrap"}}><button type="button" onClick={()=>void copyAudioDebug("call")}>通話有效 · 複製</button><button type="button" onClick={()=>void copyAudioDebug("media")}>媒體有效 · 複製</button><button type="button" onClick={()=>void copyAudioDebug("unknown")}>不確定 · 複製</button></div>{audioDebugText?<textarea aria-label="可手動複製的診斷報告" readOnly value={audioDebugText} onFocus={e=>e.currentTarget.select()} rows={5} style={{width:"100%",marginTop:8}}/>:null}</section>:null}
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{!textMode&&active&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
   </main>

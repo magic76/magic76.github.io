@@ -16,7 +16,6 @@ export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
  playbackVolumeStorageKey?:string;
- getDebugAudioElement?:()=>HTMLAudioElement|null;
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
@@ -230,7 +229,6 @@ export function useLiveSession(config:Config){
    let learnerSpoke=false,aiReplied=false;
    const session=new window.CrewLive.Session({
     guestAccessToken:grant?.token,
-    debugAudioElement:configRef.current.getDebugAudioElement?.()??undefined,
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
@@ -446,7 +444,6 @@ export function useLiveSession(config:Config){
   sessionRef.current?.setVolume(next);
   try{window.localStorage.setItem(key,String(next))}catch{/* Volume still works in this call. */}
  },[]);
- const getAudioDiagnostics=useCallback(()=>sessionRef.current?.getHealthSnapshot?.()??null,[]);
  useEffect(()=>()=>{
   const session=sessionRef.current;
   clearGuestTimer();guestDeadlineRef.current=0;
@@ -457,6 +454,6 @@ export function useLiveSession(config:Config){
   sessionRef.current=null;
   void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
  },[snapshot]);
- return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume,getAudioDiagnostics};
+ return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
 

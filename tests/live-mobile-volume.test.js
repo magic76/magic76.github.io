@@ -106,11 +106,8 @@ test("settings and voice auditions use fixed gain while Story and legacy retain 
 });
 
 // Regression: the deployed React bundle and dynamically loaded voice core must share a cache key.
-test("Live core is loaded with the current app build ID and debug reports identify that build",()=>{
+test("Live core is loaded with the current app build ID",()=>{
  const runtime=source("web-spa/src/lib/runtime.ts");
- const friend=source("web-spa/src/friends/FriendLivePage.tsx");
  assert.match(runtime,/crew-live\.js\?v=/);
  assert.match(runtime,/currentBuild\.buildId/);
- assert.match(friend,/appBuildId:currentBuild\.buildId/);
- assert.match(friend,/appCommit:currentBuild\.commit/);
 });
