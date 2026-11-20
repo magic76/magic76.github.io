@@ -1,7 +1,7 @@
 {
   "creatureLab": {
-    "discover": "和 Zoe 孵生物",
-    "intro": "和 Zoe 聊兩句，親手孵出你的第一隻生物。",
+    "discover": "聊天養出你的奇幻寵物",
+    "intro": "和 AI 朋友聊天、練習語言，累積能量孵蛋、升級，看看會養出什麼！",
     "egg": "繼續孵蛋",
     "care": "繼續照顧{{name}}",
     "needed": "下一階段還差 {{energy}} 點能量",
