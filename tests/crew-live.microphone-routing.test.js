@@ -201,3 +201,30 @@ for(const works of [true,false]){
     assert.equal(closed,1);
   });
 }
+
+test("separate playback uses the standard context when silent sinks are unsupported",async()=>{
+  const context=createContext();
+  const modes=[];
+  let contextCount=0;
+  let routeAttempts=0;
+  const session=new CrewLive.Session({
+    separateCaptureContext:true,
+    createPlaybackRoute(){routeAttempts++;},
+    onPlaybackRoute:mode=>modes.push(mode),
+    deps:{
+      getUserMedia:async()=>({getTracks:()=>[]}),
+      createAudioContext(){
+        contextCount++;
+        return context;
+      }
+    }
+  });
+  session.running=true;
+  await session._openMedia();
+  assert.equal(contextCount,1);
+  assert.equal(routeAttempts,0);
+  assert.equal(session.inputContext,context);
+  assert.equal(session.outputContext,context);
+  assert.deepEqual(modes,["standard"]);
+  await session.stop();
+});
