@@ -10,7 +10,7 @@ test("Live exit persists conversation and report failure still terminates",()=>{
  assert.ok(hook.includes('snapshot("page-leave")'));
  assert.ok(hook.includes("savedRef.current"));
  assert.ok(hook.includes("reportFailed"));
- assert.ok(hook.includes("saveLive(configRef.current.pageKey,{...item,report:r})"));
+ assert.ok(hook.includes("saveLive(finishedConfig.pageKey,{...item,report:r})"));
  assert.ok(hook.includes('setState("ended")'));
 });
 
@@ -85,3 +85,4 @@ test("Gemini Key is managed once globally, not separately per product",()=>{
   assert.ok(!source.includes("saveGeminiKey("),"products must not store a separate Key");
  }
 });
+
