@@ -12,7 +12,7 @@ test("phone lab stays isolated from the production home navigation",()=>{
  const styles=read("web-spa/src/pages/PhoneLabPage.css");
  assert.match(app,/path="\/phone" element=\{<PhoneLabPage\/>\}/);
  assert.match(app,/pathname!=="\/phone"/);
- assert.match(app,/<GlobalNav active=\{active\}\/>/);
+ assert.match(app,/<GlobalNav\s+active=\{active\}(?:\s+[^>]*)?\/>/);
  assert.match(page,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=phone&chat=text"/);
  for(const route of ["/learn","/games","/story","/fortune","/teacher/shorts","/me"]){
   assert.ok(page.includes(route),"missing live feature link "+route);
