@@ -842,24 +842,24 @@ function init(){
  setCreatureMood('idle');
  if($('messages')){restoreChat();syncInitialGreeting();}
  waitForArt();
- $('evolveBtn').addEventListener('click',doEvolve);
+ $('evolveBtn').addEventListener('click',ev=>{if(!ev.currentTarget.disabled)window.creatureSfx?.play('evolve');doEvolve();});
  $('nextBtn').addEventListener('click',doStartNext);
- $('canvasWrap').addEventListener('click',petCreature);
- $('petQuickBtn').addEventListener('click',ev=>{
+ $('canvasWrap').addEventListener('click',ev=>{window.creatureSfx?.play('pet');petCreature(ev);});
+ $('petQuickBtn').addEventListener('click',ev=>{window.creatureSfx?.play('pet');
   if(ev&&ev.stopPropagation)ev.stopPropagation();
   const r=$('canvasWrap').getBoundingClientRect();
   petCreature({target:null,clientX:(r.left||0)+r.width*.5,clientY:(r.top||0)+r.height*.55});
  });
- $('petBtn').addEventListener('click',ev=>{
+ $('petBtn').addEventListener('click',ev=>{window.creatureSfx?.play('pet');
   if(ev&&ev.stopPropagation)ev.stopPropagation();
   const r=$('canvasWrap').getBoundingClientRect();
   petCreature({target:null,clientX:(r.left||0)+r.width*.5,clientY:(r.top||0)+r.height*.55});
  });
- $('hatchBtn').addEventListener('click',askHatch);
+ $('hatchBtn').addEventListener('click',()=>{window.creatureSfx?.play('hatch');askHatch();});
  $('giftBtn').addEventListener('click',openGiftModal);
  $('dailyGiftBtn').addEventListener('click',claimDailySupply);
- $('giftOpenBtn').addEventListener('click',doOpenGift);
- $('giftAgainBtn').addEventListener('click',doOpenGift);
+ $('giftOpenBtn').addEventListener('click',()=>{window.creatureSfx?.play('gift');doOpenGift();});
+ $('giftAgainBtn').addEventListener('click',()=>{window.creatureSfx?.play('gift');doOpenGift();});
  $('giftCloseBtn').addEventListener('click',closeGiftModal);
  $('giftModal').addEventListener('click',ev=>{if(ev.target===$('giftModal'))closeGiftModal();});
  $('eggList').addEventListener('click',ev=>{
