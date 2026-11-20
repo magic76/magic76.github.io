@@ -173,6 +173,7 @@ export function ShortsPage(){
         <span className="crew-short-primary-cta">{t("shorts.chatThis",{name:post.friendName})} <span aria-hidden="true">↗</span></span>
        </span>
       </Link>
+      <Link className="crew-short-profile-link" to={"/teacher/shorts/"+post.friendId} aria-label={post.friendName+" profile"}><img src={"/assets/friends/crew_friend_"+post.friendId+".webp"} alt="" loading="lazy"/><span>{post.friendName} ↗</span></Link>
       <div className="crew-short-actions">
        <button type="button" className={"crew-short-like"+(celebratingLike===post.id?" is-celebrating":"")}
         aria-label={t("shorts.like")} title={t("shorts.like")}
@@ -182,7 +183,7 @@ export function ShortsPage(){
       </div>
      </div>
      <div className="crew-short-body">
-      <div className="crew-short-meta"><strong>{post.friendName}</strong><small>{post.publishedAt.slice(0,10)}</small></div>
+      <div className="crew-short-meta"><Link to={"/teacher/shorts/"+post.friendId}>{post.friendName} ↗</Link><small>{post.publishedAt.slice(0,10)}</small></div>
       {episodes.length>1?<div className="crew-short-episode">{t("shorts.ongoing")} · {t("shorts.part",{part:chapter+1,total:episodes.length})}</div>:null}
       <p lang={post.language}>{post.caption}</p>
       {showZhTranslation&&post.translationZh&&post.language!=="zh"?<div className="crew-short-translation-wrap">
