@@ -123,11 +123,16 @@
         }
         return global.navigator.mediaDevices.getUserMedia(constraints);
       },
-      createAudioContext:deps.createAudioContext||function(){
+      createAudioContext:deps.createAudioContext||function(sinkId){
         var AudioCtx=global.AudioContext||global.webkitAudioContext;
         if(!AudioCtx)throw new Error("瀏覽器不支援 Web Audio");
-        try{return new AudioCtx({latencyHint:"interactive",sampleRate:48000});}
-        catch(_){return new AudioCtx();}
+        var options={latencyHint:"interactive",sampleRate:48000};
+        if(sinkId)options.sinkId=sinkId;
+        try{return new AudioCtx(options);}
+        catch(error){
+          if(sinkId)throw error;
+          return new AudioCtx();
+        }
       },
       createAudioWorkletNode:deps.createAudioWorkletNode||function(ctx,name,options){
         if(!global.AudioWorkletNode)return null;
@@ -1504,8 +1509,33 @@
     }
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
-    this.outputContext=this._deps.createAudioContext();
-    this.inputContext=this.outputContext;
+    var separate=false;
+    if(this.options.separateCaptureContext&&this.options.createPlaybackRoute){
+      try{
+        // Both graphs must start without a hardware output. The audio element
+        // alone plays to the OS, while the capture graph still pulls PCM.
+        var silent={type:"none"};
+        this.outputContext=this._deps.createAudioContext(silent);
+        if(this.outputContext.sinkId?.type==="none"&&typeof this.outputContext.setSinkId==="function"){
+          this.inputContext=this._deps.createAudioContext(silent);
+          separate=this.inputContext.sinkId?.type==="none";
+        }
+      }catch(_){ /* Fall back to standard playback if either context fails. */ }
+      if(!separate){
+        var unusedInput=this.inputContext;
+        this.inputContext=null;
+        if(unusedInput?.close)await unusedInput.close().catch(function(){});
+        if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+        if(this.outputContext?.sinkId?.type==="none"){
+          var unusedOutput=this.outputContext;
+          this.outputContext=null;
+          if(unusedOutput.close)await unusedOutput.close().catch(function(){});
+          if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+        }
+      }
+    }
+    if(!this.outputContext)this.outputContext=this._deps.createAudioContext();
+    if(!separate)this.inputContext=this.outputContext;
 
     this.outputGain=this.outputContext.createGain();
     this.outputGain.gain.value=this.volume/100;
@@ -1562,10 +1592,12 @@
       }catch(_){ /* Playback must never depend on metering. */ }
     }
 
-    if(this.outputContext.resume)await this.outputContext.resume();
+    if(separate){
+      await Promise.all([this.inputContext.resume(),this.outputContext.resume()]);
+    }else if(this.outputContext.resume)await this.outputContext.resume();
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
-    if(this.options.createPlaybackRoute){
+    if(this.options.createPlaybackRoute&&(separate||!this.options.separateCaptureContext)){
       var ctx=this.outputContext;
       var endpoint=this.outputLimiter||this.outputGain;
       var session=this;
@@ -1579,7 +1611,15 @@
         }
         session.playbackRoute=null;
         route.close();
-        session.options.onPlaybackRoute?.("standard");
+        if(separate&&routed){
+          void ctx.setSinkId("").then(function(){
+            if(!session.stopping&&!session._startCanceled)session.options.onPlaybackRoute?.("standard");
+          },function(error){
+            if(!session.stopping&&!session._startCanceled)session._terminal("error",error,"語音播放中斷");
+          });
+        }else if(!separate){
+          session.options.onPlaybackRoute?.("standard");
+        }
       }
       try{
         route=this.options.createPlaybackRoute(ctx,restorePlayback);
@@ -1589,13 +1629,20 @@
           endpoint.connect(route.destination);
           endpoint.disconnect(ctx.destination);
           routed=true;
-          this.options.onPlaybackRoute?.("rtc");
+          this.options.onPlaybackRoute?.(separate?"separate":"rtc");
         }
       }catch(_){
         if(route)restorePlayback();
-        else this.options.onPlaybackRoute?.("standard");
+        else if(!separate)this.options.onPlaybackRoute?.("standard");
       }
       if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+      if(separate&&!routed){
+        await ctx.setSinkId("");
+        if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+        this.options.onPlaybackRoute?.("standard");
+      }
+    }else if(this.options.separateCaptureContext){
+      this.options.onPlaybackRoute?.("standard");
     }
 
     // Prefer a continuously connected AudioWorklet. It renders silence while
