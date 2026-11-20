@@ -14,6 +14,7 @@
     "volumeAria": "AI playback volume",
     "volumeSummary": "AI volume · {{v}}%",
     "volumeLabel": "AI volume",
+    "muteAiVoice": "Mute AI voice",
     "volumeDown": "Lower AI volume by 20%",
     "volumeRange": "Adjust AI playback volume",
     "volumeUp": "Raise AI volume by 20%",

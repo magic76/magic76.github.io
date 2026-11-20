@@ -14,6 +14,7 @@
     "volumeAria": "Volumen de la IA",
     "volumeSummary": "Volumen IA · {{v}}%",
     "volumeLabel": "Volumen IA",
+    "muteAiVoice": "Silenciar la voz de la IA",
     "volumeDown": "Bajar el volumen de la IA un 20 %",
     "volumeRange": "Ajustar el volumen de la IA",
     "volumeUp": "Subir el volumen de la IA un 20 %",

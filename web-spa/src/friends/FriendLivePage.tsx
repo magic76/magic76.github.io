@@ -18,6 +18,7 @@ import {creatureVoiceInstruction} from "./creatureVoiceBridge.mjs";
 import {CreatureVoicePanel} from "./CreatureVoicePanel";
 import {LiveControls} from "../live/LiveControls";
 import {FriendCallControls} from "./FriendCallControls";
+import {FriendVoiceMute} from "./FriendVoiceMute";
 import {FriendCallCaptions} from "./FriendCallCaptions";
 import {VoiceTextRecap,useVoiceTextRecap,buildFriendVoiceOpening,voiceTextContext} from "../live/VoiceTextRecap";
 import {useFriendTextViewport,useFriendBodyTheme,useFriendVoiceTheme} from "./useFriendTextViewport";
@@ -200,6 +201,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
  const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active));
+ const voiceMuteProps=!textMode&&(live.state==="listening"||live.state==="speaking")
+  ?{muted:live.volume===0,onToggle:()=>live.setVolume(live.volume===0?100:0)}:null;
  useFriendTextViewport(textMode,textStage);
  const changeFriendChatMode=(chosen:FriendChatLanguageMode)=>{
   if(chosen===friendChatMode)return;
@@ -225,12 +228,15 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    <div className="app-brand"><Link className="back-btn" to={shortsReturnTo||(intent==="speak"?"/learn":"/teacher/roles?mode=friends")} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}>‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>{t("friendLive.brand",{language:t("languages."+language,{defaultValue:language})})}</small></div>
    </div>
-   <div className="friend-call-header-actions"><span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span><FriendCallMenuTrigger active={!textMode} open={showCallOptions} label={t("callCaptions.more")} onToggle={()=>setShowCallOptions(v=>!v)}/></div>
+   <div className="friend-call-header-actions"><span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>{shortsPost&&voiceMuteProps&&<FriendVoiceMute {...voiceMuteProps} compact/>}<FriendCallMenuTrigger active={!textMode} open={showCallOptions} label={t("callCaptions.more")} onToggle={()=>setShowCallOptions(v=>!v)}/></div>
   </div></header>
   <main className="session-shell friend-live-page">
    <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(textMode?" friend-text-stage":active?" friend-phone-stage":" friend-precall-stage")+(textMode&&shortsPost?" friend-text-short-post":"")+(!textMode&&active&&shortsPost?" friend-shorts-voice-compact":"")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
     <div className="live-identity">
-     <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
+     <div className="friend-voice-avatar-anchor">
+      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
+      {voiceMuteProps&&<FriendVoiceMute {...voiceMuteProps}/>}
+     </div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
     {!textMode?<VoiceTextRecap messages={voiceRecap} name={friend.name}/>:null}

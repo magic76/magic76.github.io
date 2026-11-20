@@ -35,7 +35,7 @@ test("call captions exist in all 11 voice locales",()=>{
  }
 });
 
-test("call controls leave volume adjustment to the device",()=>{
+test("call controls use device volume and give AI playback a separate mute toggle",()=>{
  const friend=read("web-spa/src/friends/FriendCallControls.tsx");
  const friendPage=read("web-spa/src/friends/FriendLivePage.tsx");
  const teacher=read("web-spa/src/live/LiveControls.tsx");
@@ -43,6 +43,11 @@ test("call controls leave volume adjustment to the device",()=>{
  const preview=read("web-spa/src/teacher/teacherVoicePreview.ts");
  assert.doesNotMatch(friend,/type="range"|friend-phone-volume|setVolume\(/);
  assert.doesNotMatch(friendPage,/showPlaybackVolume|playbackVolumeStorageKey/);
+ const voiceMute=read("web-spa/src/friends/FriendVoiceMute.tsx");
+ assert.match(friendPage,/friend-voice-avatar-anchor[\s\S]*?<FriendAvatar[\s\S]*?<FriendVoiceMute/);
+ assert.match(friendPage,/live\.setVolume\(live\.volume===0\?100:0\)/);
+ assert.match(voiceMute,/aria-pressed=\{muted\}/);
+ assert.doesNotMatch(voiceMute,/toggleMute\(/);
  assert.doesNotMatch(teacher,/type="range"|setVolume\(|volume-quick|volume-stepper|friend-phone-volume/);
  assert.doesNotMatch(settings,/crew-live-volume|crew_live_volume|type="range"/);
  assert.match(settings,/voice:"Kore",volume:100/);

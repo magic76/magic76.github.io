@@ -14,6 +14,7 @@
     "volumeAria": "ระดับเสียง AI",
     "volumeSummary": "เสียง AI · {{v}}%",
     "volumeLabel": "เสียง AI",
+    "muteAiVoice": "ปิดเสียง AI",
     "volumeDown": "ลดเสียง AI 20%",
     "volumeRange": "ปรับระดับเสียง AI",
     "volumeUp": "เพิ่มเสียง AI 20%",
