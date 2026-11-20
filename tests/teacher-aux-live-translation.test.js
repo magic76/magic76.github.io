@@ -28,6 +28,6 @@ test("teacher captions use shared Live WS translator and HTTP fallback",()=>{
 });
 
 test("teacher hints remain disabled and TSX size stays below 26000 bytes",()=>{
- assert.match(page,/useSuggestedReplies\(\{allowed:false,language:s\.targetLanguage\}\)/);
+ assert.match(page,/useSuggestedReplies\(\{allowed:true,language:s\.targetLanguage,nativeLanguage:s\.nativeLanguage\}\)/);
  assert.ok(Buffer.byteLength(page)<=26000,"teacher/LivePage.tsx exceeds 26000 B");
 });
