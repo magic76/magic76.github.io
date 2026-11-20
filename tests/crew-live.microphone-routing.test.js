@@ -10,6 +10,43 @@ function createContext(){
   };
 }
 
+test("optional WebRTC playback routes only output and falls back if the route is lost",async()=>{
+  const context=createContext();
+  const routes=new Set();
+  context.createGain=()=>({
+    gain:{value:1},
+    connect(destination){routes.add(destination);},
+    disconnect(destination){if(destination)routes.delete(destination);else routes.clear();}
+  });
+  const destination={};
+  const modes=[];
+  let loseRoute;
+  let closes=0;
+  let stops=0;
+  const session=new CrewLive.Session({
+    createPlaybackRoute(ctx,onLost){
+      assert.equal(ctx,context);
+      loseRoute=onLost;
+      return {destination,ready:Promise.resolve(),close(){closes++;}};
+    },
+    onPlaybackRoute:mode=>modes.push(mode),
+    deps:{
+      getUserMedia:async()=>({getTracks:()=>[{stop(){stops++;}}]}),
+      createAudioContext:()=>context
+    }
+  });
+  session.running=true;
+  await session._openMedia();
+  assert.deepEqual([...routes],[destination]);
+  assert.equal(stops,0);
+  loseRoute();
+  assert.deepEqual([...routes],[context.destination]);
+  assert.deepEqual(modes,["rtc","standard"]);
+  await session.stop();
+  assert.equal(closes,1);
+  assert.equal(stops,1);
+});
+
 test("Live keeps the browser's default microphone and never forces a built-in device",async()=>{
   const events=[],requests=[];
   const track={

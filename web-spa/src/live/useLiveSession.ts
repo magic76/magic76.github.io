@@ -4,7 +4,7 @@ import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMe
 import{recordSpeakingLevel,effectiveSpeakingLevel}from"../teacher/speakingLevelMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import{turnTimingForLevel}from"./turnTiming";
 import {useCallback,useEffect,useRef,useState} from "react";
-import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveTurn} from "../lib/runtime";
+import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveSessionOptions,type LiveTurn} from "../lib/runtime";
 import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
 import {extractGroundingSources,extractSearchSuggestions,mergeGroundingSources,type GroundingSource} from "./grounding";
 
@@ -15,6 +15,8 @@ export type FriendVoicePhase="idle"|"hearing"|"pause"|"processing"|"recovering"|
 export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
+ createPlaybackRoute?:LiveSessionOptions["createPlaybackRoute"];
+ onPlaybackRoute?:LiveSessionOptions["onPlaybackRoute"];
  playbackVolumeStorageKey?:string;
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
@@ -228,6 +230,8 @@ export function useLiveSession(config:Config){
     :configRef.current.pageKey.startsWith("timeline-")?"timeline":null;
    let learnerSpoke=false,aiReplied=false;
    const session=new window.CrewLive.Session({
+    createPlaybackRoute:configRef.current.createPlaybackRoute,
+    onPlaybackRoute:configRef.current.onPlaybackRoute,
     guestAccessToken:grant?.token,
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
