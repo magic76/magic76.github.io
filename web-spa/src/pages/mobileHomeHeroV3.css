@@ -362,3 +362,48 @@
  .cmh-slide{padding-bottom:22px}
  .cmh-carousel-dots{margin-top:-10.5px;position:relative;z-index:2}
 }
+
+/* Koolo home micro-motion: decorative only; preserve all first-screen geometry. */
+@media (max-width:767px) and (prefers-reduced-motion:no-preference){
+ /* Animate the existing glow instead of adding a painted overlay or layout box. */
+ .cmh-slide[data-active="true"] .cmh-slide-glow{
+  animation:koolo-home-glow 9s ease-in-out infinite alternate;
+ }
+ /* A portrait cannot blink without separate artwork; a subtle breathing motion
+    makes Zoe feel present without distorting the canonical identity photo. */
+ .cmh-zoe[data-active="true"] .cmh-zoe-photo{
+  animation:koolo-zoe-breathe 5.6s ease-in-out infinite;
+ }
+ .cmh-slide[data-active="true"] .cmh-zoe-actions a svg{
+  transform-origin:center;
+ }
+ .cmh-zoe[data-active="true"] .cmh-zoe-secondary svg{
+  animation:koolo-voice-pulse 3.4s ease-in-out infinite;
+ }
+ .cmh-slide[data-active="true"] .cmh-slide-copy{
+  animation:koolo-copy-arrive 420ms ease-out both;
+ }
+ .cmh-zoe-actions a:active{transform:scale(.975)}
+}
+@keyframes koolo-home-glow{
+ from{transform:translate3d(-5px,3px,0) scale(.96);opacity:.24}
+ to{transform:translate3d(5px,-4px,0) scale(1.08);opacity:.37}
+}
+@keyframes koolo-zoe-breathe{
+ 0%,100%{transform:rotate(5deg) translate3d(0,0,0) scale(1)}
+ 50%{transform:rotate(5deg) translate3d(0,-3px,0) scale(1.012)}
+}
+@keyframes koolo-voice-pulse{
+ 0%,72%,100%{transform:scale(1)}
+ 80%{transform:scale(1.13)}
+ 90%{transform:scale(.96)}
+}
+@keyframes koolo-copy-arrive{
+ from{opacity:.75;transform:translate3d(0,5px,0)}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+@media(prefers-reduced-motion:reduce){
+ .cmh-slide-glow,.cmh-zoe-photo,.cmh-zoe-secondary svg,.cmh-slide-copy{
+  animation:none!important;
+ }
+}
