@@ -38,6 +38,9 @@ export function createRtcPlayback(context: AudioContext, onLost: () => void): Rt
     receiver.ontrack = event => {
       if (closed) return;
       player.srcObject = new MediaStream([event.track]);
+      player.autoplay = true;
+      player.hidden = true;
+      document.body.appendChild(player);
       void player.play().then(() => {
         if (closed) return;
         started = true;
@@ -68,6 +71,7 @@ export function createRtcPlayback(context: AudioContext, onLost: () => void): Rt
     cancel();
     player.pause();
     player.srcObject = null;
+    player.remove();
     track.stop();
     for (const peer of peers) {
       peer.onicecandidate = null;
