@@ -18,7 +18,6 @@ type LiveAttempt={active:boolean};
 type Config={
  createPlaybackRoute?:LiveSessionOptions["createPlaybackRoute"];
  separateCaptureContext?:boolean;
- onPlaybackRoute?:LiveSessionOptions["onPlaybackRoute"];
  playbackVolumeStorageKey?:string;
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
@@ -255,7 +254,6 @@ export function useLiveSession(config:Config){
    const session=new window.CrewLive.Session({
     createPlaybackRoute:configRef.current.createPlaybackRoute,
     separateCaptureContext:configRef.current.separateCaptureContext,
-     onPlaybackRoute:configRef.current.onPlaybackRoute?mode=>{if(isActive())configRef.current.onPlaybackRoute?.(mode)}:undefined,
     guestAccessToken:grant?.token,
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
