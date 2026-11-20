@@ -15,6 +15,7 @@ export type FriendVoicePhase="idle"|"hearing"|"pause"|"processing"|"recovering"|
 export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
+ playbackVolumeStorageKey?:string;
  getDebugAudioElement?:()=>HTMLAudioElement|null;
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
@@ -81,7 +82,15 @@ export function useLiveSession(config:Config){
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
  const cancelFriendReplyTimer=()=>{if(friendReplyTimerRef.current!==null){window.clearTimeout(friendReplyTimerRef.current);friendReplyTimerRef.current=null}};
  const cancelUnrecognizedSpeechTimer=()=>{if(unrecognizedSpeechTimerRef.current!==null){window.clearTimeout(unrecognizedSpeechTimerRef.current);unrecognizedSpeechTimerRef.current=null}};
- const volume=100;
+ const [volume,setPlaybackVolume]=useState(()=>{
+  const key=config.playbackVolumeStorageKey;
+  if(key)try{
+   const saved=window.localStorage.getItem(key);
+   if(saved!==null&&saved.trim()&&Number.isFinite(Number(saved)))return Math.max(0,Math.min(200,Number(saved)));
+  }catch{/* Storage may be disabled. */}
+  return 100;
+ });
+ const volumeRef=useRef(volume);
  useEffect(()=>{const id=window.setInterval(()=>{
   if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs());
   if(guestModeRef.current&&guestDeadlineRef.current>0){
@@ -225,7 +234,7 @@ export function useLiveSession(config:Config){
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
-    openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
+    openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume:volumeRef.current,
     // Native Live Google Search is disabled: a server-side 1011 can close the audio session.
     // Grounding is fetched separately on explicit user actions, never in WebSocket setup.
     tools:grant?undefined:configRef.current.tools,
@@ -382,9 +391,9 @@ export function useLiveSession(config:Config){
       .catch(()=>{}).then(()=>finish(item));
     },ms);
    }
-   await session.start();if(sessionRef.current!==session||!session.running)return;if(grant&&session.ready)recordGuestConnect();session.setVolume(volume);setState("listening");
+    await session.start();if(sessionRef.current!==session||!session.running)return;if(grant&&session.ready)recordGuestConnect();session.setVolume(volumeRef.current);setState("listening");
   }catch(e){recordGuestFailure();clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
- },[finish,snapshot,volume]);
+ },[finish,snapshot]);
  const stop=useCallback(async(deferReport=false)=>{
   const s=sessionRef.current;if(!s)return null;
   clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);
@@ -428,7 +437,15 @@ export function useLiveSession(config:Config){
   }
  },[]);
  const sendVideoFrame=useCallback((frame:unknown)=>sessionRef.current?.sendVideoFrame?.(frame)??false,[]);
- const setVolume=useCallback((_v:number)=>{sessionRef.current?.setVolume(100)},[]);
+ const setVolume=useCallback((value:number)=>{
+  const key=configRef.current.playbackVolumeStorageKey;
+  if(!key||!Number.isFinite(value))return;
+  const next=Math.max(0,Math.min(200,Math.round(value/5)*5));
+  volumeRef.current=next;
+  setPlaybackVolume(next);
+  sessionRef.current?.setVolume(next);
+  try{window.localStorage.setItem(key,String(next))}catch{/* Volume still works in this call. */}
+ },[]);
  const getAudioDiagnostics=useCallback(()=>sessionRef.current?.getHealthSnapshot?.()??null,[]);
  useEffect(()=>()=>{
   const session=sessionRef.current;

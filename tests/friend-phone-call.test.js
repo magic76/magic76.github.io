@@ -35,18 +35,16 @@ test("call captions exist in all 11 voice locales",()=>{
  }
 });
 
-test("friend and teacher call controls expose no app volume sliders",()=>{
+test("the playback slider is visible in Friend call controls and is opt-in",()=>{
  const friend=read("web-spa/src/friends/FriendCallControls.tsx");
+ const friendPage=read("web-spa/src/friends/FriendLivePage.tsx");
  const teacher=read("web-spa/src/live/LiveControls.tsx");
- const live=read("web-spa/src/live/useLiveSession.ts");
  const settings=read("web-spa/src/pages/GeminiConnectionPanel.tsx");
  const preview=read("web-spa/src/teacher/teacherVoicePreview.ts");
- for(const [name,source] of [["friend",friend],["teacher",teacher]]){
-  assert.doesNotMatch(source,/type="range"|setVolume\(|volume-quick|volume-stepper|friend-phone-volume/,name);
- }
- assert.match(live,/const volume=100/);
- assert.match(live,/session\.setVolume\(volume\)/);
- assert.doesNotMatch(live,/crew_live_volume/);
+ assert.match(friend,/showPlaybackVolume=false/);
+ assert.match(friend,/type="range"[\s\S]*className="friend-phone-buttons"/);
+ assert.match(friendPage,/<FriendCallControls[^>]+showPlaybackVolume/);
+ assert.doesNotMatch(teacher,/type="range"|setVolume\(|volume-quick|volume-stepper|friend-phone-volume/);
  assert.doesNotMatch(settings,/crew-live-volume|crew_live_volume|type="range"/);
  assert.match(settings,/voice:"Kore",volume:100/);
  assert.doesNotMatch(preview,/crew_live_volume/);

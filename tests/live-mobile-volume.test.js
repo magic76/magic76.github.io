@@ -22,20 +22,20 @@ test("a saved zero AI volume remains muted when a Live session starts",()=>{
   assert.equal(new CrewLive.Session({models:["mock"]}).volume,100);
 });
 
-test("Teacher and Friends mobile Live use fixed gain without app volume controls",()=>{
+test("only opted-in Friend calls expose a saved playback volume slider",()=>{
  const controls=source("web-spa/src/live/LiveControls.tsx");
  const friendControls=source("web-spa/src/friends/FriendCallControls.tsx");
  const settings=source("web-spa/src/pages/GeminiConnectionPanel.tsx");
  const hook=source("web-spa/src/live/useLiveSession.ts");
  const teacher=source("web-spa/src/teacher/LivePage.tsx");
  const friend=source("web-spa/src/friends/FriendLivePage.tsx");
- for(const control of [controls,friendControls]){
-  assert.doesNotMatch(control,/live-audio-settings|friend-phone-volume|live-volume-quick|type="range"|setVolume\(/);
- }
+ assert.doesNotMatch(controls,/live-audio-settings|friend-phone-volume|live-volume-quick|type="range"|setVolume\(/);
+ assert.match(friendControls,/showPlaybackVolume\?<label[\s\S]*?type="range"[\s\S]*?live\.setVolume/);
  assert.doesNotMatch(settings,/crew-live-volume|crew_live_volume/);
- assert.match(hook,/const volume=100/);
- assert.match(hook,/session\.setVolume\(volume\)/);
+ assert.match(hook,/session\.setVolume\(volumeRef\.current\)/);
  assert.doesNotMatch(hook,/crew_live_volume/);
+ assert.match(friend,/playbackVolumeStorageKey:"crew\.friend\.playback-volume"/);
+ assert.doesNotMatch(teacher,/showPlaybackVolume|playbackVolumeStorageKey/);
  assert.match(teacher,/<LiveControls live=\{live\}/);
  assert.match(friend,/<LiveControls live=\{live\}/);
 });

@@ -138,6 +138,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const audioOutput=audioDebug&&!creatureEmbed&&params.get("audioOutput")==="element"?"element":undefined;
  const debugAudioElement=useRef<HTMLAudioElement>(null);
  const live=useLiveSession({
+  playbackVolumeStorageKey:"crew.friend.playback-volume",
   getDebugAudioElement:audioOutput?()=>debugAudioElement.current:undefined,
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
    system:system+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
@@ -224,7 +225,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
   {!voiceRecapReady?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" precall focusStartOnVerified={homeFirstAction} textFallback={{href:alternateHref,name:friend.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
-   :<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}>{active?<FriendCallControls live={live} onEnd={endAndReturn}/>:<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}</div>}
+   :<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}>{active?<FriendCallControls live={live} onEnd={endAndReturn} showPlaybackVolume/>:<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}</div>}
  </>;
  return <>
   <header className="app-header"><div className="shell inner">
