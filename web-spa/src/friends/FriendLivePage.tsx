@@ -138,11 +138,15 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const requestedPlayback=!textMode&&!creatureEmbed?params.get("playback"):null;
  const rtcRequested=requestedPlayback==="rtc";
  const separateRequested=requestedPlayback==="separate";
+ const showPlaybackLabel=rtcRequested||separateRequested;
+ const androidDefault=!textMode&&!creatureEmbed&&requestedPlayback===null
+  &&typeof navigator!=="undefined"&&/\bAndroid\b/i.test(navigator.userAgent);
+ const separatePlayback=separateRequested||androidDefault;
  const [playbackRoute,setPlaybackRoute]=useState<"rtc"|"separate"|"standard">("standard");
  const live=useLiveSession({
-  createPlaybackRoute:separateRequested?createElementPlayback:rtcRequested?createRtcPlayback:undefined,
-  separateCaptureContext:separateRequested,
-  onPlaybackRoute:rtcRequested||separateRequested?setPlaybackRoute:undefined,
+  createPlaybackRoute:separatePlayback?createElementPlayback:rtcRequested?createRtcPlayback:undefined,
+  separateCaptureContext:separatePlayback,
+  onPlaybackRoute:showPlaybackLabel?setPlaybackRoute:undefined,
   playbackVolumeStorageKey:"crew.friend.playback-volume",
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
    system:system+voiceTextContext(voiceRecap)+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
@@ -206,7 +210,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
  const playbackName=playbackRoute==="rtc"?"WebRTC":playbackRoute==="separate"
   ?(english?"Separate playback":"獨立播放"):(english?"Standard audio":"一般播放");
- const playbackLabel=(rtcRequested||separateRequested)&&(live.state==="listening"||live.state==="speaking")
+ const playbackLabel=showPlaybackLabel&&(live.state==="listening"||live.state==="speaking")
   ?` · ${playbackName}`:"";
  const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active))+playbackLabel;
  useFriendTextViewport(textMode,textStage);
