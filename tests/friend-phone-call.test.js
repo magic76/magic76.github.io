@@ -35,15 +35,14 @@ test("call captions exist in all 11 voice locales",()=>{
  }
 });
 
-test("the playback slider is visible in Friend call controls and is opt-in",()=>{
+test("call controls leave volume adjustment to the device",()=>{
  const friend=read("web-spa/src/friends/FriendCallControls.tsx");
  const friendPage=read("web-spa/src/friends/FriendLivePage.tsx");
  const teacher=read("web-spa/src/live/LiveControls.tsx");
  const settings=read("web-spa/src/pages/GeminiConnectionPanel.tsx");
  const preview=read("web-spa/src/teacher/teacherVoicePreview.ts");
- assert.match(friend,/showPlaybackVolume=false/);
- assert.match(friend,/type="range"[\s\S]*className="friend-phone-buttons"/);
- assert.match(friendPage,/<FriendCallControls[^>]+showPlaybackVolume/);
+ assert.doesNotMatch(friend,/type="range"|friend-phone-volume|setVolume\(/);
+ assert.doesNotMatch(friendPage,/showPlaybackVolume|playbackVolumeStorageKey/);
  assert.doesNotMatch(teacher,/type="range"|setVolume\(|volume-quick|volume-stepper|friend-phone-volume/);
  assert.doesNotMatch(settings,/crew-live-volume|crew_live_volume|type="range"/);
  assert.match(settings,/voice:"Kore",volume:100/);
