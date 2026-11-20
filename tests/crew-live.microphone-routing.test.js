@@ -10,6 +10,44 @@ function createContext(){
   };
 }
 
+test("audioDebug trace retains cleanup across calls and identifies guest preflight",async()=>{
+  const originalLocation=Object.getOwnPropertyDescriptor(globalThis,"location");
+  try{
+    Object.defineProperty(globalThis,"location",{configurable:true,value:{search:""}});
+    CrewLive.markGuestMicDebug("request");
+    assert.equal(CrewLive.getAudioDebugTrace().length,0);
+    Object.defineProperty(globalThis,"location",{configurable:true,value:{search:"?audioDebug=1"}});
+    CrewLive.markGuestMicDebug("request");
+    CrewLive.markGuestMicDebug("acquired");
+    CrewLive.markGuestMicDebug("stopped");
+    const makeSession=()=>new CrewLive.Session({deps:{
+      getUserMedia:async()=>({getTracks:()=>[{stop(){}}]}),
+      createAudioContext:createContext
+    }});
+    for(let index=0;index<2;index++){
+      const session=makeSession();
+      session.running=true;
+      await session._openMedia();
+      await session.stop();
+    }
+    const trace=CrewLive.getAudioDebugTrace();
+    assert.deepEqual(trace.slice(0,3).map(({callId,event})=>[callId,event]),[
+      [null,"guest-preflight-request"],[null,"guest-preflight-acquired"],[null,"guest-preflight-stopped"]
+    ]);
+    const first=trace.slice(3).filter(entry=>entry.callId===1).map(entry=>entry.event);
+    assert.deepEqual(first.slice(-5),[
+      "cleanup-start","mic-tracks-stopped","shared-context-close-start",
+      "shared-context-close-resolved","cleanup-complete"
+    ]);
+    assert.equal(trace.find(entry=>entry.callId===2)?.event,"mic-request-start");
+    trace[0].event="changed";
+    assert.equal(CrewLive.getAudioDebugTrace()[0].event,"guest-preflight-request");
+  }finally{
+    if(originalLocation)Object.defineProperty(globalThis,"location",originalLocation);
+    else delete globalThis.location;
+  }
+});
+
 test("Live keeps the browser's default microphone and never forces a built-in device",async()=>{
   const events=[],requests=[];
   const track={
