@@ -14,6 +14,7 @@
     "volumeAria": "Volume suara AI",
     "volumeSummary": "Volume AI · {{v}}%",
     "volumeLabel": "Volume AI",
+    "muteAiVoice": "Bisukan suara AI",
     "volumeDown": "Turunkan volume AI 20%",
     "volumeRange": "Atur volume suara AI",
     "volumeUp": "Naikkan volume AI 20%",

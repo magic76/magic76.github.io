@@ -14,6 +14,7 @@
     "volumeAria": "AI の再生音量",
     "volumeSummary": "AI 音量 · {{v}}%",
     "volumeLabel": "AI 音量",
+    "muteAiVoice": "AIの音声をミュート",
     "volumeDown": "AI 音量を 20% 下げる",
     "volumeRange": "AI の再生音量を調整",
     "volumeUp": "AI 音量を 20% 上げる",

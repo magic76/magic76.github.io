@@ -14,6 +14,7 @@
     "volumeAria": "KI-Lautstärke",
     "volumeSummary": "KI-Lautstärke · {{v}}%",
     "volumeLabel": "KI-Lautstärke",
+    "muteAiVoice": "KI-Stimme stummschalten",
     "volumeDown": "KI-Lautstärke um 20 % senken",
     "volumeRange": "KI-Lautstärke anpassen",
     "volumeUp": "KI-Lautstärke um 20 % erhöhen",

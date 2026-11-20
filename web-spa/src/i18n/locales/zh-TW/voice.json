@@ -14,6 +14,7 @@
     "volumeAria": "AI 播放音量",
     "volumeSummary": "AI 音量 · {{v}}%",
     "volumeLabel": "AI 音量",
+    "muteAiVoice": "將 AI 聲音靜音",
     "volumeDown": "AI 音量降低 20%",
     "volumeRange": "調整 AI 播放音量",
     "volumeUp": "AI 音量提高 20%",

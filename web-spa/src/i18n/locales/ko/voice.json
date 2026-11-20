@@ -14,6 +14,7 @@
     "volumeAria": "AI 재생 음량",
     "volumeSummary": "AI 음량 · {{v}}%",
     "volumeLabel": "AI 음량",
+    "muteAiVoice": "AI 음성 음소거",
     "volumeDown": "AI 음량 20% 낮추기",
     "volumeRange": "AI 재생 음량 조절",
     "volumeUp": "AI 음량 20% 높이기",
