@@ -1,7 +1,7 @@
 {
   "creatureLab": {
-    "discover": "Hatch a creature with Zoe",
-    "intro": "Send Zoe two messages and hatch your first creature. In Traditional Chinese.",
+    "discover": "Raise a fantasy pet through conversation",
+    "intro": "Chat with AI friends, practice languages, and earn energy to hatch and evolve your pet. See what you'll discover!",
     "egg": "Keep hatching your egg",
     "care": "Visit your {{name}}",
     "needed": "Energy to the next stage: {{energy}}",
