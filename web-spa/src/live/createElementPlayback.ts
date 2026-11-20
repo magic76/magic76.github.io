@@ -1,4 +1,8 @@
-import type {PlaybackRoute} from "./createRtcPlayback";
+export type PlaybackRoute = {
+  destination: MediaStreamAudioDestinationNode;
+  ready: Promise<void>;
+  close(): void;
+};
 
 export function createElementPlayback(context: AudioContext, onLost: () => void): PlaybackRoute {
   const destination = context.createMediaStreamDestination();
