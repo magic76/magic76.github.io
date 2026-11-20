@@ -85,3 +85,9 @@
  .crew-short-like.is-celebrating .crew-short-like-heart,.crew-short-like.is-celebrating::after,.crew-short-translation,.crew-short-recap[open] p{animation:none!important}
  .crew-short-like.is-celebrating::after{display:none}
 }
+
+/* Separate profile navigation from the photo's existing chat CTA. */
+.crew-short-profile-link{position:absolute;z-index:3;bottom:92px;left:16px;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:4px 12px 4px 4px;border-radius:999px;background:rgba(8,20,35,.8);color:#fff;text-decoration:none;font-size:13px;font-weight:750;backdrop-filter:blur(6px)}
+.crew-short-profile-link img{width:36px;height:36px;object-fit:cover;border-radius:50%;border:1px solid white}
+.crew-short-profile-link:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.crew-short-meta a{font-size:14px;font-weight:750;color:var(--text);text-decoration:underline;text-underline-offset:3px}
