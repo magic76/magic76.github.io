@@ -33,7 +33,7 @@ test("friend voice generates text hints only after valid completed output",()=>{
  assert.doesNotMatch(page,/tools:replyHints\.tools|onToolCall:replyHints\.onToolCall|replyHints\.prompt|onMissingReplyHints/);
  assert.ok(Buffer.byteLength(page)<26000);
  const teacher=readFileSync("web-spa/src/teacher/LivePage.tsx","utf8");
- assert.match(teacher,/allowed:false/);
+ assert.match(teacher,/allowed:true/);
  assert.doesNotMatch(teacher,/tools:replyHints\.tools|replyHints\.prompt/);
  assert.ok(Buffer.byteLength(teacher)<26000);
 });
