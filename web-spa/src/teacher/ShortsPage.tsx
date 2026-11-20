@@ -38,6 +38,9 @@ export function ShortsPage(){
  },[]);
 
  const [feed,setFeed]=useState<ShortFeed|null>(null);
+ const restoreRef=useRef<{y:number;count:number}|null>(null);
+ function saveProfileReturn(){try{sessionStorage.setItem("crew_shorts_profile_return",JSON.stringify({y:window.scrollY,count}))}catch{/* optional */}}
+
  const [busy,setBusy]=useState(true);
  const [error,setError]=useState(false);
  const [retry,setRetry]=useState(0);
@@ -73,10 +76,19 @@ export function ShortsPage(){
     // Home photo opens its full approved story. Never interpret URL data as a story.
     if(focusPostId){const at=ordered.findIndex(post=>post.id===focusPostId);
      if(at>0)ordered.unshift(...ordered.splice(at,1));}
-    setFeed({...data,posts:ordered});setCount(PAGE_SIZE);setMoreError(false);setBusy(false);if(data.posts.length)trackUsageEvent("shorts_view","shorts_feed")}})
+    setFeed({...data,posts:ordered});
+    let saved:null|{y:number;count:number}=null;
+    if(!focusPostId){try{const raw=sessionStorage.getItem("crew_shorts_profile_return");if(raw){const value=JSON.parse(raw);if(Number.isFinite(value.y)&&Number.isSafeInteger(value.count)&&value.count>0){saved={y:Math.max(0,value.y),count:Math.min(value.count,ordered.length)};}sessionStorage.removeItem("crew_shorts_profile_return")}}catch{/* optional */}}
+    restoreRef.current=saved;
+    setCount(saved?.count||PAGE_SIZE);setMoreError(false);setBusy(false);if(data.posts.length)trackUsageEvent("shorts_view","shorts_feed")}})
    .catch(()=>{if(!abort.signal.aborted){setBusy(false);setError(true)}});
   return()=>abort.abort();
  },[retry,focusPostId]);
+ useEffect(()=>{if(busy||!feed||!restoreRef.current)return;
+  const saved=restoreRef.current;restoreRef.current=null;
+  const frame=requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:saved.y,behavior:"instant"})));
+  return()=>cancelAnimationFrame(frame);
+ },[busy,feed]);
  // On returning from a call, restore the approved post instead of the shuffled top.
  useEffect(()=>{
   if(!focusPostId||!feed?.posts.some(post=>post.id===focusPostId)||busy)return;
@@ -173,7 +185,7 @@ export function ShortsPage(){
         <span className="crew-short-primary-cta">{t("shorts.chatThis",{name:post.friendName})} <span aria-hidden="true">↗</span></span>
        </span>
       </Link>
-      <Link className="crew-short-profile-link" to={"/teacher/shorts/"+post.friendId} aria-label={post.friendName+" profile"}><img src={"/assets/friends/crew_friend_"+post.friendId+".webp"} alt="" loading="lazy"/><span>{post.friendName} ↗</span></Link>
+      <Link className="crew-short-profile-link" to={"/teacher/shorts/"+post.friendId} aria-label={post.friendName+" profile"} onClick={saveProfileReturn}><img src={"/assets/friends/crew_friend_"+post.friendId+".webp"} alt="" loading="lazy"/><span>{post.friendName} ↗</span></Link>
       <div className="crew-short-actions">
        <button type="button" className={"crew-short-like"+(celebratingLike===post.id?" is-celebrating":"")}
         aria-label={t("shorts.like")} title={t("shorts.like")}
@@ -183,7 +195,7 @@ export function ShortsPage(){
       </div>
      </div>
      <div className="crew-short-body">
-      <div className="crew-short-meta"><Link to={"/teacher/shorts/"+post.friendId}>{post.friendName} ↗</Link><small>{post.publishedAt.slice(0,10)}</small></div>
+      <div className="crew-short-meta"><Link to={"/teacher/shorts/"+post.friendId} onClick={saveProfileReturn}>{post.friendName} ↗</Link><small>{post.publishedAt.slice(0,10)}</small></div>
       {episodes.length>1?<div className="crew-short-episode">{t("shorts.ongoing")} · {t("shorts.part",{part:chapter+1,total:episodes.length})}</div>:null}
       <p lang={post.language}>{post.caption}</p>
       {showZhTranslation&&post.translationZh&&post.language!=="zh"?<div className="crew-short-translation-wrap">
