@@ -37,11 +37,10 @@
 .friend-phone-button svg{width:52px;height:52px;box-sizing:border-box;padding:14px;border-radius:50%;background:#455774}
 .friend-phone-button.is-end svg{background:#df465b}.friend-phone-button.is-muted svg{background:#798bab}
 .friend-phone-button:disabled{opacity:.45;cursor:default}.friend-phone-button small{font-size:12px}
-.friend-phone-volume{width:min(280px,100%);text-align:center;font-size:12px;color:#d3e0f5}
-.friend-phone-stage .friend-phone-volume summary{min-height:44px;min-width:44px;cursor:pointer;display:grid;place-items:center}
-.friend-phone-volume-range{display:flex;align-items:center;gap:8px}
-.friend-phone-volume-range input{min-width:0;flex:1;accent-color:#aac7fa}
-.friend-phone-volume-range button{min-height:44px;min-width:44px;border:0;border-radius:10px;background:#4e6285;color:#fff}
+.friend-phone-volume{width:min(340px,100%);display:grid;grid-template-columns:auto minmax(0,1fr) 5ch;align-items:center;gap:10px;font-size:12px;color:#d3e0f5}
+.friend-phone-volume input{box-sizing:border-box;width:100%;min-width:0;height:44px;margin:0;accent-color:#aac7fa}
+.friend-phone-volume input:focus-visible{outline:2px solid #bad5ff;outline-offset:2px}
+.friend-phone-volume span:last-child{text-align:end;font-variant-numeric:tabular-nums}
 .friend-phone-stage button:focus-visible,.friend-phone-stage summary:focus-visible{outline:3px solid #bad5ff;outline-offset:2px}
 .friend-text-stage .friend-call-settings{display:contents}
 @media(max-width:640px){body.teacher-theme.session-page .friend-live-page:has(.friend-phone-stage){padding:8px 9px 12px}.friend-phone-stage{min-height:calc(100dvh - 95px);padding:15px 12px;gap:9px}.friend-phone-stage .friend-live-avatar{width:96px;height:96px}.friend-phone-stage .live-identity h1{font-size:18px}}
@@ -105,7 +104,6 @@ body.teacher-theme.session-page main.friend-live-page:has(.friend-phone-stage){d
 .friend-live-page:has(.friend-phone-stage) .friend-phone-button.is-muted svg{background:#465568}
 .friend-live-page:has(.friend-phone-stage) .friend-phone-button:disabled{opacity:1;color:#dce2e9}
 .friend-live-page:has(.friend-phone-stage) .friend-phone-button:disabled svg{background:#2b3039;color:#dce2e9}
-.friend-live-page:has(.friend-phone-stage) .friend-phone-volume-range button{background:#303b4d;color:#fff}
 .friend-live-page:has(.friend-phone-stage) .friend-language-switch,.friend-live-page:has(.friend-phone-stage) .crew-chat-mode-switch{background:#000;color:#f5f5f5;border-color:#424242}
 .friend-live-page:has(.friend-phone-stage) .friend-language-switch-title,.friend-live-page:has(.friend-phone-stage) .friend-language-switch>small,.friend-live-page:has(.friend-phone-stage) .crew-chat-mode-switch span{color:#dce4ee}
 .friend-live-page:has(.friend-phone-stage) .friend-language-options{background:#181818;border-color:#505050}
