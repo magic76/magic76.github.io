@@ -184,6 +184,7 @@
     this.captureMode="none";
 
     this.outputContext=null;
+    this.audioContextsClosing=null;
     this.outputGain=null;
     this.outputLimiter=null;
     this.outputMeter=null;
@@ -454,6 +455,7 @@
     if(!ctx||!ctx.audioWorklet||typeof ctx.audioWorklet.addModule!=="function")return false;
     try{
       await ctx.audioWorklet.addModule(this.options.outputWorkletUrl||"crew-live-output-worklet.js?v=20261004b");
+      if(this.outputContext!==ctx||this.stopping||this._startCanceled)return false;
       var node=this._deps.createAudioWorkletNode(ctx,"crew-live-output",{
         numberOfInputs:0,
         numberOfOutputs:1,
@@ -1509,33 +1511,59 @@
     }
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
-    var separate=false;
     if(this.options.separateCaptureContext&&this.options.createPlaybackRoute){
       try{
-        // Both graphs must start without a hardware output. The audio element
-        // alone plays to the OS, while the capture graph still pulls PCM.
-        var silent={type:"none"};
-        this.outputContext=this._deps.createAudioContext(silent);
-        if(this.outputContext.sinkId?.type==="none"&&typeof this.outputContext.setSinkId==="function"){
-          this.inputContext=this._deps.createAudioContext(silent);
-          separate=this.inputContext.sinkId?.type==="none";
-        }
-      }catch(_){ /* Fall back to standard playback if either context fails. */ }
-      if(!separate){
-        var unusedInput=this.inputContext;
-        this.inputContext=null;
-        if(unusedInput?.close)await unusedInput.close().catch(function(){});
+        var separate=await this._openAudioGraph(true);
         if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
-        if(this.outputContext?.sinkId?.type==="none"){
-          var unusedOutput=this.outputContext;
-          this.outputContext=null;
-          if(unusedOutput.close)await unusedOutput.close().catch(function(){});
-          if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
-        }
+        this.options.onPlaybackRoute?.(separate?"separate":"standard");
+      }catch(error){
+        if(!this.running||this.stopping||this._startCanceled)throw error;
+        // Rebuild the default graph without relying on setSinkId() succeeding.
+        // Capture has not started, so keep the original microphone stream.
+        await this._cleanupMedia(true);
+        if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+        await this._openAudioGraph(false);
+        if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+        this.options.onPlaybackRoute?.("standard");
+      }
+    }else{
+      await this._openAudioGraph(false);
+    }
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+
+    // Prefer a continuously connected AudioWorklet. It renders silence while
+    // idle, keeping the device output route warm so the first spoken words are
+    // not consumed while the speaker wakes up. Old BufferSource playback stays
+    // as a compatibility fallback.
+    await this._initOutputWorklet();
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+    if(this.inputContext.audioWorklet&&typeof this.inputContext.audioWorklet.addModule==="function"){
+      try{
+        await this.inputContext.audioWorklet.addModule(this.options.inputWorkletUrl||"crew-live-input-worklet.js?v=20261024a");
+        this.inputWorkletReady=true;
+      }catch(error){
+        this.inputWorkletReady=false;
+        if(this._deps.logger&&this._deps.logger.warn)this._deps.logger.warn("[CrewLive] input worklet unavailable",error);
       }
     }
-    if(!this.outputContext)this.outputContext=this._deps.createAudioContext();
-    if(!separate)this.inputContext=this.outputContext;
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+    // Begin capture before setup; frames are buffered locally until ready.
+    this._startCapture();
+  };
+
+  LiveSession.prototype._openAudioGraph=async function(separate){
+    // Keep both graphs off the physical sink when the audio element is output.
+    var silent={type:"none"};
+    var ctx=this._deps.createAudioContext(separate?silent:undefined);
+    this.outputContext=ctx;
+    this.inputContext=ctx;
+    if(separate&&ctx.sinkId?.type==="none"){
+      if(typeof ctx.setSinkId!=="function")throw new Error("Audio sink switching is unavailable");
+      this.inputContext=this._deps.createAudioContext(silent);
+      if(this.inputContext.sinkId?.type!=="none")throw new Error("Silent capture is unavailable");
+    }else{
+      separate=false;
+    }
 
     this.outputGain=this.outputContext.createGain();
     this.outputGain.gain.value=this.volume/100;
@@ -1592,85 +1620,55 @@
       }catch(_){ /* Playback must never depend on metering. */ }
     }
 
-    if(separate){
-      await Promise.all([this.inputContext.resume(),this.outputContext.resume()]);
-    }else if(this.outputContext.resume)await this.outputContext.resume();
-    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
-
-    if(this.options.createPlaybackRoute&&(separate||!this.options.separateCaptureContext)){
-      var ctx=this.outputContext;
-      var endpoint=this.outputLimiter||this.outputGain;
-      var session=this;
-      var route;
-      var routed=false;
-      function restorePlayback(){
-        if(session.playbackRoute!==route||session.stopping)return;
-        if(routed){
-          endpoint.disconnect(route.destination);
-          endpoint.connect(ctx.destination);
-        }
-        session.playbackRoute=null;
-        route.close();
-        if(separate&&routed){
-          void ctx.setSinkId("").then(function(){
-            if(!session.stopping&&!session._startCanceled)session.options.onPlaybackRoute?.("standard");
-          },function(error){
-            if(!session.stopping&&!session._startCanceled)session._terminal("error",error,"語音播放中斷");
-          });
-        }else if(!separate){
-          session.options.onPlaybackRoute?.("standard");
-        }
-      }
-      try{
-        route=this.options.createPlaybackRoute(ctx,restorePlayback);
-        this.playbackRoute=route;
-        await route.ready;
-        if(this.playbackRoute===route&&!this.stopping){
-          endpoint.connect(route.destination);
-          endpoint.disconnect(ctx.destination);
-          routed=true;
-          this.options.onPlaybackRoute?.(separate?"separate":"rtc");
-        }
-      }catch(_){
-        if(route)restorePlayback();
-        else if(!separate)this.options.onPlaybackRoute?.("standard");
-      }
-      if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
-      if(separate&&!routed){
-        await ctx.setSinkId("");
-        if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
-        this.options.onPlaybackRoute?.("standard");
-      }
-    }else if(this.options.separateCaptureContext){
-      this.options.onPlaybackRoute?.("standard");
+    if(!separate){
+      if(ctx.resume)await ctx.resume();
+      return false;
     }
 
-    // Prefer a continuously connected AudioWorklet. It renders silence while
-    // idle, keeping the device output route warm so the first spoken words are
-    // not consumed while the speaker wakes up. Old BufferSource playback stays
-    // as a compatibility fallback.
-    await this._initOutputWorklet();
-    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
-    if(this.inputContext.audioWorklet&&typeof this.inputContext.audioWorklet.addModule==="function"){
-      try{
-        await this.inputContext.audioWorklet.addModule(this.options.inputWorkletUrl||"crew-live-input-worklet.js?v=20261024a");
-        this.inputWorkletReady=true;
-      }catch(error){
-        this.inputWorkletReady=false;
-        if(this._deps.logger&&this._deps.logger.warn)this._deps.logger.warn("[CrewLive] input worklet unavailable",error);
-      }
+    var inputContext=this.inputContext;
+    var timeout;
+    var deps=this._deps;
+    try{
+      await Promise.race([
+        new Promise(function(_,reject){
+          timeout=deps.setTimeout(function(){reject(new Error("Audio context resume timed out"));},2000);
+        }),
+        Promise.all([Promise.resolve().then(()=>inputContext.resume()),Promise.resolve().then(()=>ctx.resume())])
+      ]);
+    }finally{
+      deps.clearTimeout(timeout);
     }
-    // Begin capture before setup; frames are buffered locally until ready.
-    this._startCapture();
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+
+    var endpoint=this.outputLimiter||this.outputGain;
+    var session=this;
+    var route=this.options.createPlaybackRoute(ctx,function(){
+      if(session.playbackRoute!==route||session.stopping||session._startCanceled)return;
+      endpoint.disconnect(route.destination);
+      endpoint.connect(ctx.destination);
+      session._closePlaybackRoute();
+      void ctx.setSinkId("").then(function(){
+        if(!session.stopping&&!session._startCanceled)session.options.onPlaybackRoute?.("standard");
+      },function(error){
+        if(!session.stopping&&!session._startCanceled)session._terminal("error",error,"語音播放中斷");
+      });
+    });
+    this.playbackRoute=route;
+    await route.ready;
+    if(this.playbackRoute!==route||this.stopping||this._startCanceled)throw new Error("Audio playback was canceled");
+    endpoint.connect(route.destination);
+    endpoint.disconnect(ctx.destination);
+    return true;
   };
 
-  LiveSession.prototype._cleanupMedia=async function(){
-    if(this.playbackRoute){
-      var route=this.playbackRoute;
-      this.playbackRoute=null;
-      route.close();
-    }
+  LiveSession.prototype._closePlaybackRoute=function(){
+    var route=this.playbackRoute;
+    this.playbackRoute=null;
+    try{if(route)route.close();}catch(_){}
+  };
+
+  LiveSession.prototype._cleanupMedia=async function(keepMicrophone){
+    this._closePlaybackRoute();
     if(this.inputWorkletNode){
       try{this.inputWorkletNode.port.onmessage=null;this.inputWorkletNode.disconnect();}catch(_){}
       this.inputWorkletNode=null;
@@ -1693,7 +1691,7 @@
       try{this.silentGain.disconnect();}catch(_){}
       this.silentGain=null;
     }
-    if(this.mediaStream){
+    if(!keepMicrophone&&this.mediaStream){
       try{
         this.mediaStream.getTracks().forEach(function(track){track.stop();});
       }catch(_){}
@@ -1712,14 +1710,12 @@
     this.outputWorkletPending=false;
     this.outputWorkletQueuedMs=0;
 
-    var sharedContext=this.inputContext&&this.outputContext&&this.inputContext===this.outputContext;
-    if(this.inputContext){
-      try{if(this.inputContext.close)await this.inputContext.close();}catch(_){}
-      this.inputContext=null;
-    }
-    if(this.outputContext&&!sharedContext){
-      try{if(this.outputContext.close)await this.outputContext.close();}catch(_){}
-    }
+    // Detach before awaiting close so a concurrent stop cannot close the
+    // same contexts or clear a new graph's references.
+    var inputContext=this.inputContext;
+    var outputContext=this.outputContext;
+    this.inputContext=null;
+    this.outputContext=null;
     if(this.outputMeterTimer!==null){global.clearInterval(this.outputMeterTimer);this.outputMeterTimer=null;}
     if(this.outputMeter){try{this.outputMeter.disconnect();}catch(_){}this.outputMeter=null;}
     if(this.outputMeterSink){try{this.outputMeterSink.disconnect();}catch(_){}this.outputMeterSink=null;}
@@ -1731,9 +1727,20 @@
       try{this.outputLimiter.disconnect();}catch(_){}
       this.outputLimiter=null;
     }
-    this.outputContext=null;
     this.outputGain=null;
     this.nextPlayTime=0;
+
+    if(!inputContext&&!outputContext){
+      if(this.audioContextsClosing)await this.audioContextsClosing;
+      return;
+    }
+    var closing=(async function(){
+      try{if(inputContext?.close)await inputContext.close();}catch(_){}
+      try{if(outputContext!==inputContext&&outputContext?.close)await outputContext.close();}catch(_){}
+    })();
+    this.audioContextsClosing=closing;
+    await closing;
+    if(this.audioContextsClosing===closing)this.audioContextsClosing=null;
   };
 
   LiveSession.prototype._shutdown=async function(options){

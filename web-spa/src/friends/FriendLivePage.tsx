@@ -12,7 +12,6 @@ import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {detectNativeLanguage} from "../teacher/teacherLocale";
 import {useLiveSession} from "../live/useLiveSession";
-import {createRtcPlayback} from "../live/createRtcPlayback";
 import {createElementPlayback} from "../live/createElementPlayback";
 import {useCreatureStageSync,useCreatureVoiceBridge} from "./useCreatureVoiceBridge";
 import {creatureVoiceInstruction} from "./creatureVoiceBridge.mjs";
@@ -136,15 +135,15 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
  const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
  const requestedPlayback=!textMode&&!creatureEmbed?params.get("playback"):null;
- const rtcRequested=requestedPlayback==="rtc";
  const separateRequested=requestedPlayback==="separate";
- const showPlaybackLabel=rtcRequested||separateRequested;
- const androidDefault=!textMode&&!creatureEmbed&&requestedPlayback===null
+ const standardRequested=requestedPlayback==="standard";
+ const showPlaybackLabel=separateRequested||standardRequested;
+ const androidDefault=!textMode&&!creatureEmbed&&!standardRequested
   &&typeof navigator!=="undefined"&&/\bAndroid\b/i.test(navigator.userAgent);
  const separatePlayback=separateRequested||androidDefault;
- const [playbackRoute,setPlaybackRoute]=useState<"rtc"|"separate"|"standard">("standard");
+ const [playbackRoute,setPlaybackRoute]=useState<"separate"|"standard">("standard");
  const live=useLiveSession({
-  createPlaybackRoute:separatePlayback?createElementPlayback:rtcRequested?createRtcPlayback:undefined,
+  createPlaybackRoute:separatePlayback?createElementPlayback:undefined,
   separateCaptureContext:separatePlayback,
   onPlaybackRoute:showPlaybackLabel?setPlaybackRoute:undefined,
   playbackVolumeStorageKey:"crew.friend.playback-volume",
@@ -208,7 +207,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  useFriendVoiceTheme(!textMode&&!creatureEmbed&&!active);
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
- const playbackName=playbackRoute==="rtc"?"WebRTC":playbackRoute==="separate"
+ const playbackName=playbackRoute==="separate"
   ?(english?"Separate playback":"獨立播放"):(english?"Standard audio":"一般播放");
  const playbackLabel=showPlaybackLabel&&(live.state==="listening"||live.state==="speaking")
   ?` · ${playbackName}`:"";
