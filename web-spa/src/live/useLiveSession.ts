@@ -294,8 +294,8 @@ export function useLiveSession(config:Config){
      }else scheduleRescue();
     },
     // UI microphone heuristics never finish Gemini's server-managed audio turn.
-     onListeningPhase:phase=>{
-      if(!isActive())return;
+    onListeningPhase:phase=>setStatus((()=>{
+     if(!isActive())return (previous:string)=>previous;
      if(configRef.current.sessionKind==="friend"){
       if(phase==="speaking"){
        cancelRescue();cancelUnrecognizedSpeechTimer();
@@ -306,10 +306,10 @@ export function useLiveSession(config:Config){
       }else if(!awaitingTutorRef.current)setFriendPhase("pause");
      }
      const shouldUpdate=!awaitingTutorRef.current;
-      setStatus(previous=>shouldUpdate
+     return (previous:string)=>isActive()&&shouldUpdate
        ?(phase==="speaking"?"🎙️ 正在聽你說…":"🎙️ 已收到聲音，等你說完後就會回應…")
-        :previous);
-     },
+       :previous;
+    })()),
     onLocalUtteranceEnd:()=>{
       if(!isActive())return;
      if(configRef.current.sessionKind!=="friend"||awaitingTutorRef.current)return;
