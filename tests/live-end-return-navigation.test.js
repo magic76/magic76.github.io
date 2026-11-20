@@ -42,7 +42,8 @@ test("end control allows navigation on conversation pages without changing inlin
   assert.match(code,/onEnd=\{async\(\)=>\{await live\.stop\(true\)/);
   assert.match(code,/navigate\("\/learn"\)/);
  }
- assert.match(session,/const completion=finish\(item\)/);
+ assert.match(session,/const completion=finish\(item,attempt,finishedConfig,guestMode\)/);
  assert.match(session,/if\(!deferReport\)await completion/);
  assert.match(session,/return \{turns:\(item\?\.turns\|\|\[\]\)/);
 });
+
