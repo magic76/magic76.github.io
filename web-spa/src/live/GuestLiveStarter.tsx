@@ -122,8 +122,11 @@ export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerifie
   try{
    if(!navigator.mediaDevices?.getUserMedia)throw new Error("microphone unavailable");
    await ensureLive();
+   window.CrewLive?.markGuestMicDebug?.("request");
    const mic=await navigator.mediaDevices.getUserMedia({audio:true});
+   window.CrewLive?.markGuestMicDebug?.("acquired");
    mic.getTracks().forEach(track=>track.stop());
+   window.CrewLive?.markGuestMicDebug?.("stopped");
    if(!active.current)return;
    let authTicket="";
    if(signinRequired||memberSignedIn){

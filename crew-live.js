@@ -7,6 +7,18 @@
   "use strict";
 
   var DEFAULT_MODELS=["gemini-3.8-live","gemini-3.1-flash-live-preview"];
+  var audioDebugTrace=[];
+  var nextAudioDebugId=0;
+
+  function audioDebugEnabled(){
+    return !!global.location&&new URLSearchParams(global.location.search).get("audioDebug")==="1";
+  }
+
+  function appendAudioDebugTrace(callId,event){
+    audioDebugTrace.push({callId:callId,event:event,unixMs:Date.now(),
+      pageMs:global.performance?Math.round(global.performance.now()):null});
+    if(audioDebugTrace.length>160)audioDebugTrace.shift();
+  }
 
   function sanitizeDetail(value){
     var text=String(value==null?"":value);
@@ -245,6 +257,12 @@
     if(!this.audioLifecycleOrigin)this.audioLifecycleOrigin=this._deps.now();
     this.audioLifecycle.push({event:event,elapsedMs:Math.round(this._deps.now()-this.audioLifecycleOrigin)});
     if(this.audioLifecycle.length>24)this.audioLifecycle.shift();
+    if(this.textOnly)return;
+    if(!this.audioDebugId){
+      if(!audioDebugEnabled())return;
+      this.audioDebugId=++nextAudioDebugId;
+    }
+    appendAudioDebugTrace(this.audioDebugId,event);
   };
 
   LiveSession.prototype.getHealthSnapshot=function(){
@@ -473,6 +491,7 @@
         var message=event&&event.data||{};
         if(message.type==="output-started"){
           if(self.interruptPending||!self.outputWorkletPending)return;
+          if(self.firstAudioPlayback!=="started")self._recordAudioLifecycle("first-worklet-render");
           self.firstAudioPlayback="started";
           if(self.options.onSpeaking)self.options.onSpeaking(true);
         }else if(message.type==="queue-state"){
@@ -565,7 +584,10 @@
 
     var start=Math.max((this.outputContext.currentTime||0)+0.06,this.nextPlayTime||0);
     source.start(start);
-    if(this.firstAudioPlayback!=="started")this.firstAudioPlayback="scheduled";
+    if(this.firstAudioPlayback!=="started"){
+      if(this.firstAudioPlayback!=="scheduled")this._recordAudioLifecycle("first-buffer-scheduled");
+      this.firstAudioPlayback="scheduled";
+    }
     this.nextPlayTime=start+buffer.duration;
     this.sources.push(source);
 
@@ -1452,7 +1474,10 @@
       self.pendingMicRequest=pending;
       function stopLateStream(stream){
         if(!stream||!stream.getTracks)return;
-        try{stream.getTracks().forEach(function(track){track.stop();});}catch(_){}
+        try{
+          stream.getTracks().forEach(function(track){track.stop();});
+          self._recordAudioLifecycle("late-mic-tracks-stopped");
+        }catch(_){self._recordAudioLifecycle("late-mic-stop-failed");}
       }
       function settle(error,stream){
         if(pending.done){stopLateStream(stream);return;}
@@ -1599,6 +1624,7 @@
     }
     // Begin capture before setup; frames are buffered locally until ready.
     this._startCapture();
+    this._recordAudioLifecycle("capture-"+this.captureMode);
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
   };
 
@@ -1629,7 +1655,8 @@
     if(this.mediaStream){
       try{
         this.mediaStream.getTracks().forEach(function(track){track.stop();});
-      }catch(_){}
+        this._recordAudioLifecycle("mic-tracks-stopped");
+      }catch(_){this._recordAudioLifecycle("mic-track-stop-failed");}
       this.mediaStream=null;
     }
 
@@ -1647,11 +1674,22 @@
 
     var sharedContext=this.inputContext&&this.outputContext&&this.inputContext===this.outputContext;
     if(this.inputContext){
-      try{if(this.inputContext.close)await this.inputContext.close();}catch(_){}
+      if(this.inputContext.close){
+        var kind=sharedContext?"shared-context":"input-context";
+        this._recordAudioLifecycle(kind+"-close-start");
+        try{
+          await this.inputContext.close();
+          this._recordAudioLifecycle(kind+"-close-resolved");
+        }catch(_){this._recordAudioLifecycle(kind+"-close-rejected");}
+      }
       this.inputContext=null;
     }
-    if(this.outputContext&&!sharedContext){
-      try{if(this.outputContext.close)await this.outputContext.close();}catch(_){}
+    if(this.outputContext&&!sharedContext&&this.outputContext.close){
+      this._recordAudioLifecycle("output-context-close-start");
+      try{
+        await this.outputContext.close();
+        this._recordAudioLifecycle("output-context-close-resolved");
+      }catch(_){this._recordAudioLifecycle("output-context-close-rejected");}
     }
     if(this.outputMeterTimer!==null){global.clearInterval(this.outputMeterTimer);this.outputMeterTimer=null;}
     if(this.outputMeter){try{this.outputMeter.disconnect();}catch(_){}this.outputMeter=null;}
@@ -1674,6 +1712,8 @@
     options=options||{};
     var reason=options.reason||"user-stop";
     var attempt=this.activeAttempt;
+    var debugReason=/^(user-stop|page-leave|guest-limit|start-failed|terminal-error|server-complete)$/.test(reason)?reason:"other";
+    this._recordAudioLifecycle("shutdown-"+debugReason);
 
     if(reason==="user-stop"||reason==="page-leave")this._startCanceled=true;
     this.stopping=true;
@@ -1796,6 +1836,12 @@
 
   return {
     Session:LiveSession,
+    getAudioDebugTrace:function(){return audioDebugTrace.map(function(entry){return Object.assign({},entry);});},
+    markGuestMicDebug:function(stage){
+      if((stage==="request"||stage==="acquired"||stage==="stopped")&&audioDebugEnabled()){
+        appendAudioDebugTrace(null,"guest-preflight-"+stage);
+      }
+    },
     models:DEFAULT_MODELS.slice(),
     sanitizeDetail:sanitizeDetail,
     bytesToBase64:bytesToBase64,

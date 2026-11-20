@@ -193,7 +193,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const audioDebug=params.get("audioDebug")==="1"&&!textMode;
  const [audioDebugText,setAudioDebugText]=useState("");
  const copyAudioDebug=async(route:"call"|"media"|"unknown")=>{
-  const report=JSON.stringify({version:2,scenario:"friend",userObservedVolume:route,appBuildId:currentBuild.buildId,appCommit:currentBuild.commit,sessionState:live.state,voicePhase:live.voicePhase,health:live.getAudioDiagnostics()},null,2);
+   const report=JSON.stringify({version:3,scenario:"friend",userObservedVolume:route,observedAtUnixMs:Date.now(),appBuildId:currentBuild.buildId,appCommit:currentBuild.commit,sessionState:live.state,voicePhase:live.voicePhase,health:live.getAudioDiagnostics(),audioTrace:window.CrewLive?.getAudioDebugTrace?.()??[]},null,2);
   setAudioDebugText(report);
   try{await navigator.clipboard.writeText(report)}catch{ /* Select and copy the visible text manually. */ }
  };
