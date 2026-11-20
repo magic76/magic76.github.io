@@ -1513,9 +1513,7 @@
 
     if(this.options.separateCaptureContext&&this.options.createPlaybackRoute){
       try{
-        var separate=await this._openAudioGraph(true);
-        if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
-        this.options.onPlaybackRoute?.(separate?"separate":"standard");
+        await this._openAudioGraph(true);
       }catch(error){
         if(!this.running||this.stopping||this._startCanceled)throw error;
         // Rebuild the default graph without relying on setSinkId() succeeding.
@@ -1523,8 +1521,6 @@
         await this._cleanupMedia(true);
         if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
         await this._openAudioGraph(false);
-        if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
-        this.options.onPlaybackRoute?.("standard");
       }
     }else{
       await this._openAudioGraph(false);
@@ -1622,7 +1618,7 @@
 
     if(!separate){
       if(ctx.resume)await ctx.resume();
-      return false;
+      return;
     }
 
     var inputContext=this.inputContext;
@@ -1647,9 +1643,7 @@
       endpoint.disconnect(route.destination);
       endpoint.connect(ctx.destination);
       session._closePlaybackRoute();
-      void ctx.setSinkId("").then(function(){
-        if(!session.stopping&&!session._startCanceled)session.options.onPlaybackRoute?.("standard");
-      },function(error){
+      void ctx.setSinkId("").catch(function(error){
         if(!session.stopping&&!session._startCanceled)session._terminal("error",error,"語音播放中斷");
       });
     });
@@ -1658,7 +1652,6 @@
     if(this.playbackRoute!==route||this.stopping||this._startCanceled)throw new Error("Audio playback was canceled");
     endpoint.connect(route.destination);
     endpoint.disconnect(ctx.destination);
-    return true;
   };
 
   LiveSession.prototype._closePlaybackRoute=function(){

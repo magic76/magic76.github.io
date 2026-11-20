@@ -18,8 +18,6 @@ type LiveAttempt={active:boolean};
 type Config={
  createPlaybackRoute?:LiveSessionOptions["createPlaybackRoute"];
  separateCaptureContext?:boolean;
- onPlaybackRoute?:LiveSessionOptions["onPlaybackRoute"];
- playbackVolumeStorageKey?:string;
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
@@ -98,14 +96,7 @@ export function useLiveSession(config:Config){
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
  const cancelFriendReplyTimer=()=>{if(friendReplyTimerRef.current!==null){window.clearTimeout(friendReplyTimerRef.current);friendReplyTimerRef.current=null}};
  const cancelUnrecognizedSpeechTimer=()=>{if(unrecognizedSpeechTimerRef.current!==null){window.clearTimeout(unrecognizedSpeechTimerRef.current);unrecognizedSpeechTimerRef.current=null}};
- const [volume,setPlaybackVolume]=useState(()=>{
-  const key=config.playbackVolumeStorageKey;
-  if(key)try{
-   const saved=window.localStorage.getItem(key);
-   if(saved!==null&&saved.trim()&&Number.isFinite(Number(saved)))return Math.max(0,Math.min(200,Number(saved)));
-  }catch{/* Storage may be disabled. */}
-  return 100;
- });
+ const [volume,setPlaybackVolume]=useState(100);
  const volumeRef=useRef(volume);
  useEffect(()=>{const id=window.setInterval(()=>{
   if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs());
@@ -255,7 +246,6 @@ export function useLiveSession(config:Config){
    const session=new window.CrewLive.Session({
     createPlaybackRoute:configRef.current.createPlaybackRoute,
     separateCaptureContext:configRef.current.separateCaptureContext,
-     onPlaybackRoute:configRef.current.onPlaybackRoute?mode=>{if(isActive())configRef.current.onPlaybackRoute?.(mode)}:undefined,
     guestAccessToken:grant?.token,
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
@@ -501,13 +491,11 @@ export function useLiveSession(config:Config){
  },[]);
  const sendVideoFrame=useCallback((frame:unknown)=>sessionRef.current?.sendVideoFrame?.(frame)??false,[]);
  const setVolume=useCallback((value:number)=>{
-  const key=configRef.current.playbackVolumeStorageKey;
-  if(!key||!Number.isFinite(value))return;
-  const next=Math.max(0,Math.min(200,Math.round(value/5)*5));
+  if(!Number.isFinite(value))return;
+  const next=Math.max(0,Math.min(300,value));
   volumeRef.current=next;
   setPlaybackVolume(next);
   sessionRef.current?.setVolume(next);
-  try{window.localStorage.setItem(key,String(next))}catch{/* Volume still works in this call. */}
  },[]);
  useEffect(()=>{
   mountedRef.current=true;

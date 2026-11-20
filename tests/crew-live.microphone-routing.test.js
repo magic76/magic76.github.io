@@ -111,7 +111,6 @@ for(const failure of [null,"autoplay","resume","resume timeout"]){
   const name=failure?`rebuilds the default graph after ${failure} fails`:"plays through the element";
   test(`separate capture ${name}`,async()=>{
     const contexts=[];
-    const modes=[];
     const destination={};
     let microphoneRequests=0;
     let stopped=0;
@@ -127,7 +126,6 @@ for(const failure of [null,"autoplay","resume","resume timeout"]){
           close(){closed++;if(failure==="autoplay")throw new Error("close failed");}
         };
       },
-      onPlaybackRoute:mode=>modes.push(mode),
       deps:{
         getUserMedia:async()=>{
           microphoneRequests++;
@@ -172,13 +170,11 @@ for(const failure of [null,"autoplay","resume","resume timeout"]){
       assert.equal(contexts[2].sinkId,undefined);
       assert.deepEqual([...contexts[2].outputs],[contexts[2].destination]);
       assert.ok(contexts.slice(0,2).every(context=>context.closed));
-      assert.deepEqual(modes,["standard"]);
     }else{
       assert.equal(session.inputContext,contexts[1]);
       assert.equal(session.outputContext,contexts[0]);
       assert.ok(contexts[1].outputs.has(contexts[1].destination));
       assert.deepEqual([...contexts[0].outputs],[destination]);
-      assert.deepEqual(modes,["separate"]);
     }
     await session.stop();
     assert.ok(contexts.every(context=>context.closed));
@@ -189,13 +185,11 @@ for(const failure of [null,"autoplay","resume","resume timeout"]){
 
 test("separate playback uses the standard context when silent sinks are unsupported",async()=>{
   const context=createContext();
-  const modes=[];
   let contextCount=0;
   let routeAttempts=0;
   const session=new CrewLive.Session({
     separateCaptureContext:true,
     createPlaybackRoute(){routeAttempts++;},
-    onPlaybackRoute:mode=>modes.push(mode),
     deps:{
       getUserMedia:async()=>({getTracks:()=>[]}),
       createAudioContext(){
@@ -210,7 +204,6 @@ test("separate playback uses the standard context when silent sinks are unsuppor
   assert.equal(routeAttempts,0);
   assert.equal(session.inputContext,context);
   assert.equal(session.outputContext,context);
-  assert.deepEqual(modes,["standard"]);
   await session.stop();
 });
 

@@ -4,7 +4,6 @@ export type LiveTurn={id?:string;input?:string;output?:string};
 export type LiveSessionOptions={
  createPlaybackRoute?:(context:AudioContext,onLost:()=>void)=>PlaybackRoute;
  separateCaptureContext?:boolean;
- onPlaybackRoute?:(mode:"separate"|"standard")=>void;
  guestAccessToken?:string; // one-use, memory-only v1beta credential
  textOnly?:boolean; // Gemini Live text input with transcribed output, no microphone or playback
  system:string;openingPrompt:string;voice:string;volume:number;models?:string[];manualInterruptOnly?:boolean;
