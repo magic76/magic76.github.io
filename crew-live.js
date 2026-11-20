@@ -1565,6 +1565,39 @@
     if(this.outputContext.resume)await this.outputContext.resume();
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
+    if(this.options.createPlaybackRoute){
+      var ctx=this.outputContext;
+      var endpoint=this.outputLimiter||this.outputGain;
+      var session=this;
+      var route;
+      var routed=false;
+      function restorePlayback(){
+        if(session.playbackRoute!==route||session.stopping)return;
+        if(routed){
+          endpoint.disconnect(route.destination);
+          endpoint.connect(ctx.destination);
+        }
+        session.playbackRoute=null;
+        route.close();
+        session.options.onPlaybackRoute?.("standard");
+      }
+      try{
+        route=this.options.createPlaybackRoute(ctx,restorePlayback);
+        this.playbackRoute=route;
+        await route.ready;
+        if(this.playbackRoute===route&&!this.stopping){
+          endpoint.connect(route.destination);
+          endpoint.disconnect(ctx.destination);
+          routed=true;
+          this.options.onPlaybackRoute?.("rtc");
+        }
+      }catch(_){
+        if(route)restorePlayback();
+        else this.options.onPlaybackRoute?.("standard");
+      }
+      if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+    }
+
     // Prefer a continuously connected AudioWorklet. It renders silence while
     // idle, keeping the device output route warm so the first spoken words are
     // not consumed while the speaker wakes up. Old BufferSource playback stays
@@ -1586,6 +1619,11 @@
   };
 
   LiveSession.prototype._cleanupMedia=async function(){
+    if(this.playbackRoute){
+      var route=this.playbackRoute;
+      this.playbackRoute=null;
+      route.close();
+    }
     if(this.inputWorkletNode){
       try{this.inputWorkletNode.port.onmessage=null;this.inputWorkletNode.disconnect();}catch(_){}
       this.inputWorkletNode=null;
