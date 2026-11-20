@@ -1,7 +1,6 @@
 import {currentBuild} from "../runtime/buildUpdates";
 export type LiveTurn={id?:string;input?:string;output?:string};
 export type LiveSessionOptions={
- debugAudioElement?:HTMLAudioElement;
  guestAccessToken?:string; // one-use, memory-only v1beta credential
  textOnly?:boolean; // Gemini Live text input with transcribed output, no microphone or playback
  system:string;openingPrompt:string;voice:string;volume:number;models?:string[];manualInterruptOnly?:boolean;
@@ -32,7 +31,7 @@ export interface LiveSession{
 }
 type StoryBook={id:string;title?:string;summary?:string;idea?:string;coverIndex?:number;images?:any[];pages?:any[];currentPage?:number;updatedAt?:string};
 declare global{interface Window{
- CrewAI?:{call:(prompt:string,opt?:{preferLive?:boolean;temperature?:number;maxOutputTokens?:number;timeoutMs?:number;requireComplete?:boolean;thinking?:string;strictModels?:boolean;models?:string[];system?:string;json?:boolean})=>Promise<string>;[key:string]:any} & any;CrewLive?:{Session:new(options:LiveSessionOptions)=>LiveSession;getAudioDebugTrace?:()=>Array<{callId:number|null;event:string;unixMs:number;pageMs:number|null}>;markGuestMicDebug?:(stage:"request"|"acquired"|"stopped")=>void};CrewLiveUI?:any;CrewTeacherReport?:any;
+ CrewAI?:{call:(prompt:string,opt?:{preferLive?:boolean;temperature?:number;maxOutputTokens?:number;timeoutMs?:number;requireComplete?:boolean;thinking?:string;strictModels?:boolean;models?:string[];system?:string;json?:boolean})=>Promise<string>;[key:string]:any} & any;CrewLive?:{Session:new(options:LiveSessionOptions)=>LiveSession};CrewLiveUI?:any;CrewTeacherReport?:any;
  CrewDB?:any;CrewGeminiVision?:any;CrewTextbookStore?:any;CrewTextbookLesson?:any;
  CrewStoryStore?:{save(book:StoryBook):Promise<StoryBook>;get(id:string):Promise<StoryBook|null>;list():Promise<StoryBook[]>;remove(id:string):Promise<void>;last():Promise<StoryBook|null>};
  CrewStoryGenerator?:any;CrewBookAnalyzer?:any;CrewFortuneProfile?:any;CrewFortuneBaZi?:any;CrewFortuneTarot?:any;CrewFortuneVedic?:any;CrewFortuneVedicEnrich?:any;

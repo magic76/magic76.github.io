@@ -7,18 +7,6 @@
   "use strict";
 
   var DEFAULT_MODELS=["gemini-3.8-live","gemini-3.1-flash-live-preview"];
-  var audioDebugTrace=[];
-  var nextAudioDebugId=0;
-
-  function audioDebugEnabled(){
-    return !!global.location&&new URLSearchParams(global.location.search).get("audioDebug")==="1";
-  }
-
-  function appendAudioDebugTrace(callId,event){
-    audioDebugTrace.push({callId:callId,event:event,unixMs:Date.now(),
-      pageMs:global.performance?Math.round(global.performance.now()):null});
-    if(audioDebugTrace.length>160)audioDebugTrace.shift();
-  }
 
   function sanitizeDetail(value){
     var text=String(value==null?"":value);
@@ -228,8 +216,6 @@
     // "received" means model PCM arrived; "started" is confirmed by the
     // output worklet. ScriptProcessor fallback can only confirm scheduling.
     this.firstAudioPlayback="none";
-    this.audioLifecycle=[];
-    this.audioLifecycleOrigin=0;
     this.resumeAttempts=0;
     this.maxResumeAttempts=this.guestMode?0:Math.max(0,Math.min(3,Number(this.options.maxResumeAttempts)==null?2:Number(this.options.maxResumeAttempts)));
     this.wakeLock=null;
@@ -253,18 +239,6 @@
   };
 
   // Coarse, content-free diagnostics; never include audio, transcripts or the API key.
-  LiveSession.prototype._recordAudioLifecycle=function(event){
-    if(!this.audioLifecycleOrigin)this.audioLifecycleOrigin=this._deps.now();
-    this.audioLifecycle.push({event:event,elapsedMs:Math.round(this._deps.now()-this.audioLifecycleOrigin)});
-    if(this.audioLifecycle.length>24)this.audioLifecycle.shift();
-    if(this.textOnly)return;
-    if(!this.audioDebugId){
-      if(!audioDebugEnabled())return;
-      this.audioDebugId=++nextAudioDebugId;
-    }
-    appendAudioDebugTrace(this.audioDebugId,event);
-  };
-
   LiveSession.prototype.getHealthSnapshot=function(){
     var now=this._deps.now();
     var audioTrack=this.mediaStream&&this.mediaStream.getAudioTracks?
@@ -274,18 +248,13 @@
       socketState:this.ws?this.ws.readyState:null,
       audioContextState:this.inputContext?this.inputContext.state||"unknown":null,
       micTrackState:audioTrack?audioTrack.readyState||"unknown":null,
-      micTrackMuted:audioTrack?Boolean(audioTrack.muted):null,
-      outputContextState:this.outputContext?this.outputContext.state||"unknown":null,
-      outputSampleRate:this.outputContext?this.outputContext.sampleRate||null:null,
-      outputBaseLatencyMs:this.outputContext&&Number.isFinite(this.outputContext.baseLatency)?Math.round(this.outputContext.baseLatency*1000):null,
       bufferedBytes:this.ws&&Number.isFinite(this.ws.bufferedAmount)?this.ws.bufferedAmount:0,
       lastAudioSentAgoMs:age(this.lastAudioSentAt),
       lastServerEventAgoMs:age(this.lastServerEventAt),
       lastTranscriptAgoMs:age(this.lastInputTranscriptAt),
       lastModelOutputAgoMs:age(this.lastModelOutputAt),
       openingDecision:this.openingDecision,
-      firstAudioPlayback:this.firstAudioPlayback,
-      audioLifecycle:this.audioLifecycle.slice()
+      firstAudioPlayback:this.firstAudioPlayback
     };
   };
 
@@ -491,7 +460,6 @@
         var message=event&&event.data||{};
         if(message.type==="output-started"){
           if(self.interruptPending||!self.outputWorkletPending)return;
-          if(self.firstAudioPlayback!=="started")self._recordAudioLifecycle("first-worklet-render");
           self.firstAudioPlayback="started";
           if(self.options.onSpeaking)self.options.onSpeaking(true);
         }else if(message.type==="queue-state"){
@@ -584,10 +552,7 @@
 
     var start=Math.max((this.outputContext.currentTime||0)+0.06,this.nextPlayTime||0);
     source.start(start);
-    if(this.firstAudioPlayback!=="started"){
-      if(this.firstAudioPlayback!=="scheduled")this._recordAudioLifecycle("first-buffer-scheduled");
-      this.firstAudioPlayback="scheduled";
-    }
+    if(this.firstAudioPlayback!=="started")this.firstAudioPlayback="scheduled";
     this.nextPlayTime=start+buffer.duration;
     this.sources.push(source);
 
@@ -1474,10 +1439,7 @@
       self.pendingMicRequest=pending;
       function stopLateStream(stream){
         if(!stream||!stream.getTracks)return;
-        try{
-          stream.getTracks().forEach(function(track){track.stop();});
-          self._recordAudioLifecycle("late-mic-tracks-stopped");
-        }catch(_){self._recordAudioLifecycle("late-mic-stop-failed");}
+        try{stream.getTracks().forEach(function(track){track.stop();});}catch(_){}
       }
       function settle(error,stream){
         if(pending.done){stopLateStream(stream);return;}
@@ -1517,7 +1479,6 @@
   };
 
   LiveSession.prototype._openMedia=async function(){
-    this._recordAudioLifecycle("mic-request-start");
     this._state("requesting-mic");
     this._status("正在開啟麥克風…");
 
@@ -1541,11 +1502,9 @@
       if(!/^(OverconstrainedError|NotReadableError|TypeError)$/.test(name))throw error;
       this.mediaStream=await this._requestMicrophone({audio:true});
     }
-    this._recordAudioLifecycle("mic-acquired");
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
     this.outputContext=this._deps.createAudioContext();
-    this._recordAudioLifecycle("output-context-created");
     this.inputContext=this.outputContext;
 
     this.outputGain=this.outputContext.createGain();
@@ -1556,12 +1515,6 @@
     // Limit peaks to reduce clipping on loud voices; the gain is shared by both
     // AudioWorklet and AudioBufferSource playback paths.
     var playbackDestination=this.outputContext.destination;
-    if(this.options.debugAudioElement){
-      this.outputElementDestination=this.outputContext.createMediaStreamDestination();
-      this.outputElement=this.options.debugAudioElement;
-      this.outputElement.srcObject=this.outputElementDestination.stream;
-      playbackDestination=this.outputElementDestination;
-    }
     if(typeof this.outputContext.createDynamicsCompressor==="function"){
       try{
         var limiter=this.outputContext.createDynamicsCompressor();
@@ -1610,7 +1563,6 @@
     }
 
     if(this.outputContext.resume)await this.outputContext.resume();
-    this._recordAudioLifecycle("output-context-resumed");
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
     // Prefer a continuously connected AudioWorklet. It renders silence while
@@ -1630,21 +1582,10 @@
     }
     // Begin capture before setup; frames are buffered locally until ready.
     this._startCapture();
-    this._recordAudioLifecycle("capture-"+this.captureMode);
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
-    if(this.outputElement){
-      var element=this.outputElement;
-      var session=this;
-      element.play().then(function(){
-        if(session.outputElement===element)session._recordAudioLifecycle("output-element-playing");
-      },function(){
-        if(session.outputElement===element)session._recordAudioLifecycle("output-element-play-rejected");
-      });
-    }
   };
 
   LiveSession.prototype._cleanupMedia=async function(){
-    this._recordAudioLifecycle("cleanup-start");
     if(this.inputWorkletNode){
       try{this.inputWorkletNode.port.onmessage=null;this.inputWorkletNode.disconnect();}catch(_){}
       this.inputWorkletNode=null;
@@ -1670,22 +1611,11 @@
     if(this.mediaStream){
       try{
         this.mediaStream.getTracks().forEach(function(track){track.stop();});
-        this._recordAudioLifecycle("mic-tracks-stopped");
-      }catch(_){this._recordAudioLifecycle("mic-track-stop-failed");}
+      }catch(_){}
       this.mediaStream=null;
     }
 
     this._clearPlayback();
-
-    if(this.outputElement){
-      this.outputElement.pause();
-      this.outputElement.srcObject=null;
-      this.outputElement=null;
-    }
-    if(this.outputElementDestination){
-      this.outputElementDestination.stream.getTracks().forEach(function(track){track.stop();});
-      this.outputElementDestination=null;
-    }
 
     if(this.outputWorkletNode){
       try{this.outputWorkletNode.port.postMessage({type:"clear-output"});}catch(_){}
@@ -1699,22 +1629,11 @@
 
     var sharedContext=this.inputContext&&this.outputContext&&this.inputContext===this.outputContext;
     if(this.inputContext){
-      if(this.inputContext.close){
-        var kind=sharedContext?"shared-context":"input-context";
-        this._recordAudioLifecycle(kind+"-close-start");
-        try{
-          await this.inputContext.close();
-          this._recordAudioLifecycle(kind+"-close-resolved");
-        }catch(_){this._recordAudioLifecycle(kind+"-close-rejected");}
-      }
+      try{if(this.inputContext.close)await this.inputContext.close();}catch(_){}
       this.inputContext=null;
     }
-    if(this.outputContext&&!sharedContext&&this.outputContext.close){
-      this._recordAudioLifecycle("output-context-close-start");
-      try{
-        await this.outputContext.close();
-        this._recordAudioLifecycle("output-context-close-resolved");
-      }catch(_){this._recordAudioLifecycle("output-context-close-rejected");}
+    if(this.outputContext&&!sharedContext){
+      try{if(this.outputContext.close)await this.outputContext.close();}catch(_){}
     }
     if(this.outputMeterTimer!==null){global.clearInterval(this.outputMeterTimer);this.outputMeterTimer=null;}
     if(this.outputMeter){try{this.outputMeter.disconnect();}catch(_){}this.outputMeter=null;}
@@ -1730,15 +1649,12 @@
     this.outputContext=null;
     this.outputGain=null;
     this.nextPlayTime=0;
-    this._recordAudioLifecycle("cleanup-complete");
   };
 
   LiveSession.prototype._shutdown=async function(options){
     options=options||{};
     var reason=options.reason||"user-stop";
     var attempt=this.activeAttempt;
-    var debugReason=/^(user-stop|page-leave|guest-limit|start-failed|terminal-error|server-complete)$/.test(reason)?reason:"other";
-    this._recordAudioLifecycle("shutdown-"+debugReason);
 
     if(reason==="user-stop"||reason==="page-leave")this._startCanceled=true;
     this.stopping=true;
@@ -1861,12 +1777,6 @@
 
   return {
     Session:LiveSession,
-    getAudioDebugTrace:function(){return audioDebugTrace.map(function(entry){return Object.assign({},entry);});},
-    markGuestMicDebug:function(stage){
-      if((stage==="request"||stage==="acquired"||stage==="stopped")&&audioDebugEnabled()){
-        appendAudioDebugTrace(null,"guest-preflight-"+stage);
-      }
-    },
     models:DEFAULT_MODELS.slice(),
     sanitizeDetail:sanitizeDetail,
     bytesToBase64:bytesToBase64,
