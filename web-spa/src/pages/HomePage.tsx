@@ -1,6 +1,5 @@
 import {useEffect,useMemo,useState} from "react";
 import {Arrow} from "../components/Arrow";
-import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
@@ -178,7 +177,7 @@ export function HomePage(){
       <b className="crew-home-start-action">{t("setup.cta")} <Arrow/></b>
      </Link>
     </section>:ready&&configured&&!verified?<Link to="/account#settings-gemini" className="crew-home-start-verify">
-     <Icon name="settings"/><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b>
+     <Icon name="settings"/><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true"><Arrow/></b>
     </Link>:null}
     {recents.length||creatureProgress?<section className="crew-home-continue" aria-label={t("continue")}>
      <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
