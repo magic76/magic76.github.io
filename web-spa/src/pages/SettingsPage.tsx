@@ -1,4 +1,5 @@
 import {useTeacherStore} from "../store/teacherStore";
+import {Arrow} from "../components/Arrow";
 import{useEffect,useRef,useState}from"react";
 import{useTranslation}from"react-i18next";
 import{LanguageSwitcher}from"../i18n/LanguageSwitcher";
@@ -64,7 +65,7 @@ export function SettingsPage(){
  {orbAvailable&&<Link to="/orb" className="crew-settings-orb-entry">
   <span className="crew-settings-orb-icon" aria-hidden="true">◉</span>
   <span className="crew-settings-orb-copy"><strong>{t("cyberOrb.title")}</strong><small>{t("cyberOrb.intro")}</small></span>
-  <span className="crew-settings-orb-arrow" aria-hidden="true">→</span>
+  <Arrow className="crew-settings-orb-arrow"/>
  </Link>}
  {showOverview&&<nav className="crew-settings-nav" aria-label={t("group.navAria")}>
   <a href="#settings-interface"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{english?"Interface language":"介面語言"}</strong><small>{english?"Change display language":"更改顯示語言"}</small></span><span aria-hidden="true">→</span></a>
