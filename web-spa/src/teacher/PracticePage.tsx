@@ -49,7 +49,7 @@ export function PracticePage(){
   </Link>
   {showContinue&&<Link className="crew-role-entry teacher" to="/teacher/live?intent=continue">
    <span className="crew-role-symbol"><Icon name="chat"/></span><strong>{t("practiceEntry.continueTitle")}</strong>
-   <span>{t("practiceEntry.continueDesc")}</span><small>{t("practice.next")} ↗</small>
+   <span>{t("practiceEntry.continueDesc")}</span><small>{t("practice.next")} <Arrow direction="up-right"/></small>
   </Link>}
  </section>
  {showContinue&&<section className="section crew-continue-section"><div className="section-head"><h2>{t("practice.continue")}</h2><Link to="/learn">{tToday("learnToday.backToLearn")} <Arrow/></Link></div><ContinueLearningCard compact/></section>}
