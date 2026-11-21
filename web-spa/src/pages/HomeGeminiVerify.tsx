@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {Icon} from "../components/Icon";
@@ -13,6 +14,6 @@ export function HomeGeminiVerify({variant}:{variant:"desktop"|"mobile"}){
  return <Link to="/account#settings-gemini" className={"home-gemini-verify home-gemini-verify--"+variant}>
   <span className="home-gemini-verify-icon" aria-hidden="true"><Icon name="settings"/></span>
   <span className="home-gemini-verify-copy"><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span>
-  <span className="home-gemini-verify-arrow" aria-hidden="true">→</span>
+  <Arrow className="home-gemini-verify-arrow"/>
  </Link>;
 }
