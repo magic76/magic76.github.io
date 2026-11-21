@@ -75,7 +75,7 @@ export function SettingsPage(){
   <a href="#settings-device"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navDevice")}</strong><small>{t("device.heading")}</small></span><Arrow/></a>
   <a href="#settings-advanced"><span className="crew-settings-nav-icon"><Icon name="sparkles"/></span><span className="crew-settings-nav-copy"><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><Arrow/></a>
  </nav>}
- {!showOverview&&<button type="button" className="crew-settings-back" onClick={backToOverview}>‹ {english?"All settings":"所有設定"}</button>}
+ {!showOverview&&<button type="button" className="crew-settings-back" onClick={backToOverview}><Arrow direction="left" className="crew-arrow--plain"/> {english?"All settings":"所有設定"}</button>}
  <div className={"crew-settings-content"+(activeCategory?" active-"+activeCategory:"")}>
  <section id="settings-learning" className="section panel crew-settings-category">
   <div className="section-head"><h2>{t("group.learningHeading")}</h2></div>
