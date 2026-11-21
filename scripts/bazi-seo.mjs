@@ -1,0 +1,79 @@
+/**
+ * Public educational BaZi pages only. Never serialize a visitor's birth chart
+ * or expose /fortune/reading, /fortune/live or history as crawlable documents.
+ */
+import {mkdirSync,writeFileSync} from "node:fs";
+import {join} from "node:path";
+
+export const BAZI_STEMS=[
+ ["jia-wood","甲木","Yang Wood","參天大樹","upright tree","成長、原則與方向感","growth, principles and direction","常被比喻為向上生長的大樹，著重長期方向與承擔。","Often compared with a tall tree: steady growth, direction and responsibility.","木","Wood"],
+ ["yi-wood","乙木","Yin Wood","柔韌花草","adaptable plants","彈性、連結與細節","flexibility, relationships and detail","常以藤蔓花草作比喻，重視適應環境與持續調整。","Compared with climbing vines and flowers: adaptability and attentive care.","木","Wood"],
+ ["bing-fire","丙火","Yang Fire","明亮太陽","radiant sun","熱情、能見度與分享","warmth, visibility and sharing","像太陽向外散發光熱，象徵開放表達與帶動氣氛。","Compared with sunshine: expressive warmth, openness and energy.","火","Fire"],
+ ["ding-fire","丁火","Yin Fire","細緻燈火","focused lamplight","觀察、專注與溫度","insight, focus and warmth","像燈火在適當位置照亮細節，象徵專注與細微理解。","Compared with lamplight: focused attention and noticing subtle details.","火","Fire"],
+ ["wu-earth","戊土","Yang Earth","厚實高山","solid mountain","穩定、界線與承載","stability, boundaries and support","常以山岳比喻，重視可靠的基礎及清楚界線。","Compared with a mountain: steadiness, structure and dependable support.","土","Earth"],
+ ["ji-earth","己土","Yin Earth","滋養田園","fertile garden soil","培育、整理與耐心","nurturing, organization and patience","像細心耕作的田土，重視照顧資源與日常累積。","Compared with cultivated soil: nurturing progress and practical care.","土","Earth"],
+ ["geng-metal","庚金","Yang Metal","剛毅礦石","strong forged metal","行動、決斷與規範","action, decisiveness and standards","常與礦石、鍛鍊相關，象徵面對問題時的果斷。","Compared with forged metal: direct action, refinement and resolve.","金","Metal"],
+ ["xin-metal","辛金","Yin Metal","精緻珠玉","polished jewel","精準、品質與審美","precision, quality and aesthetics","像打磨的珠玉，重視細節、判斷與適切表達。","Compared with a polished jewel: discernment, refinement and precision.","金","Metal"],
+ ["ren-water","壬水","Yang Water","奔流江海","expansive river","視野、流動與探索","perspective, movement and exploration","常以江河大海為喻，象徵整合資訊與開拓視野。","Compared with a great river or sea: movement, breadth and exploration.","水","Water"],
+ ["gui-water","癸水","Yin Water","細雨甘露","gentle rain","感受、洞察與滋養","sensitivity, insight and nourishment","像細雨或露水，象徵細膩感受與持續滋養。","Compared with gentle rain: sensitivity, subtle insight and renewal.","水","Water"]
+];
+const CONCEPTS=[
+ {slug:"five-elements",zh:"八字五行怎麼看？木火土金水的生剋與平衡",en:"Five Elements in BaZi: Wood, Fire, Earth, Metal and Water",introZh:"五行不是五種固定性格標籤，而是傳統命理用來描述元素關係、季節力量與互動的語言。",introEn:"The Five Elements are a traditional framework for relationships, seasonality and interaction, not fixed personality labels.",bodyZh:["木、火、土、金、水之間有相生與相剋關係：木生火、火生土、土生金、金生水、水生木；木剋土、土剋水、水剋火、火剋金、金剋木。","八字五行判讀不能只數每個字出現幾次。月令、天干地支、藏干和整體組合都會影響傳統判讀。","所謂缺一種五行不等於一定要補一種元素；需要看整個命盤，不宜只靠單一數字下結論。"],bodyEn:["The generating cycle runs Wood → Fire → Earth → Metal → Water → Wood. The controlling cycle runs Wood → Earth → Water → Fire → Metal → Wood.","BaZi interpretation considers season, heavenly stems, earthly branches and hidden stems. Counting character occurrences alone is incomplete.","An apparently missing element is not automatically something to supplement. The whole chart matters more than a single tally."]},
+ {slug:"ten-gods",zh:"八字十神是什麼？比肩、食傷、財官印入門",en:"The Ten Gods in BaZi: A Practical Introduction",introZh:"十神是以日主為基準，依五行生剋及陰陽關係建立的十種相對角色，不是十位神明。",introEn:"The Ten Gods are ten relational categories derived from the Day Master, element interactions and yin-yang polarity—not literal deities.",bodyZh:["十神包括比肩、劫財、食神、傷官、正財、偏財、正官、七殺、正印與偏印。","同一個天干對不同日主可能對應不同十神，因此必須先知道日主，再談十神分布。","十神可用來整理資源、表達、規範及同儕關係等傳統命理主題，但不能直接判定職業、婚姻或財富結果。"],bodyEn:["The ten categories are Friend, Rob Wealth, Eating God, Hurting Officer, Direct Wealth, Indirect Wealth, Direct Officer, Seven Killings, Direct Resource and Indirect Resource.","A stem maps to different Ten Gods depending on the Day Master. Identify the Day Master before interpreting those relationships.","These are symbolic lenses on expression, resources, structure and peers, not deterministic predictions about career, marriage or money."]},
+ {slug:"luck-cycles",zh:"八字大運流年怎麼看？十年大運與每年變化",en:"BaZi Luck Pillars and Annual Cycles Explained",introZh:"大運通常分十年階段，流年則以每年的干支為觀察單位；解讀時要和出生四柱一起看。",introEn:"Luck pillars are traditionally read in roughly ten-year periods; annual cycles refer to each year's stem and branch in relation to the natal chart.",bodyZh:["起運時間和大運順逆的推算涉及出生日期、時間、節氣及所採用的計算規則，並非人人從整數年齡開始。","看流年時不能只以生肖或當年五行判斷，還會比對日主、原局四柱、大運與干支關係。","時間週期適合拿來整理人生規劃的提問，但不能作為保證發生事件的預言。"],bodyEn:["The starting age and direction of luck pillars depend on birth data, solar terms and the calculation convention. They do not necessarily begin at a round-number age.","Annual interpretation compares the year with the Day Master, natal four pillars and the active luck pillar—not just the zodiac animal.","Treat these cycles as prompts for reflection and planning, not guaranteed forecasts of future events."]}
+];
+export const BAZI_SEO_SLUGS=["bazi",...BAZI_STEMS.map(s=>"bazi/"+s[0]),...CONCEPTS.map(c=>"bazi/"+c.slug)];
+const ORIGIN="https://koolo.app";
+const esc=s=>String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+const url=(slug,lang)=>ORIGIN+"/"+(lang==="en"?"en/":"")+"fortune/"+slug+"/";
+const localePath=(slug,lang)=>"/"+(lang==="en"?"en/":"")+"fortune/"+slug+"/";
+const disclaimer=(lang)=>lang==="en"?"Traditional cultural interpretation for reflection only; not medical, legal or financial advice.":"內容屬傳統文化與自我探索，不應替代醫療、法律或財務專業建議。";
+function pageData(slug,lang){
+ const en=lang==="en";
+ if(slug==="bazi")return {title:en?"Free BaZi Chart: Four Pillars and Day Master | Koolo":"免費八字排盤｜四柱、日主、五行與大運｜Koolo",description:en?"Learn what a BaZi Four Pillars chart contains, then use Koolo's birth-chart tool to explore Day Master, elements, Ten Gods and luck cycles.":"認識四柱八字、日主、五行、十神與大運，再到 Koolo 輸入出生資料免費排盤。提供十天干入門與傳統命理知識。",heading:en?"BaZi: understand your Four Pillars":"八字排盤：從四柱認識自己的命盤",intro:en?"BaZi uses birth year, month, day and hour to construct four stem-and-branch pillars. Start by identifying the Day Master, then explore relationships among elements, Ten Gods and time cycles.":"八字依出生年、月、日、時組成四柱。先認識日主，再從五行、十神與時間週期理解傳統命理的觀察方式。",body:en?["Each pillar combines a Heavenly Stem and an Earthly Branch. The day pillar's Heavenly Stem is called the Day Master.","Accurate chart calculations require a birth date and time as well as an applicable timezone and solar-term convention. An unknown hour can limit interpretation.","A single Day Master label is not a complete reading: month season, other pillars and their relationships provide important context."]:["每柱由天干與地支組成，共有年柱、月柱、日柱與時柱。日柱的天干稱為「日主」。","排盤需要出生年月日、時間及時區資訊，部分計算還涉及節氣。若出生時辰未知，解讀會受到限制。","日主只是起點，月令、其他干支與彼此關係也重要，不應只用單一命格標籤概括一個人。"]};
+ const stem=BAZI_STEMS.find(s=>slug==="bazi/"+s[0]);
+ if(stem){
+  const name=en?stem[2]:stem[1];
+  const element=en?stem[10]:stem[9];
+  return {title:en?name+" Day Master Meaning and Traits | Koolo BaZi":stem[1]+"日主是什麼？"+stem[3]+"的命格解析｜Koolo 八字",
+   description:en?"Explore the traditional meaning of the "+name+" Day Master ("+stem[4]+"), its "+element+" symbolism, and how to read it in a full Four Pillars chart.":stem[1]+"屬"+element+"，以「"+stem[3]+"」為常見意象。了解"+stem[1]+"日主的象徵、五行關係，以及為何需配合完整八字解讀。",
+   heading:en?name+" Day Master":stem[1]+"日主："+stem[3],
+   intro:en?stem[8]:stem[7],
+   body:en?["This is the "+(stem[0].startsWith("jia")||stem[0].startsWith("bing")||stem[0].startsWith("wu")||stem[0].startsWith("geng")||stem[0].startsWith("ren")?"yang":"yin")+" expression of "+element+" within the Ten Heavenly Stems.","In traditional BaZi, the Day Master describes one symbolic reference point. Season, supporting elements, and all four pillars modify the interpretation.","The themes often associated with this stem include "+stem[6]+". They are prompts for self-reflection, not a test of a person's personality or fate."]:["在十天干中，"+stem[1]+"屬"+element+"，以"+stem[3]+"描繪其傳統意象。","日主代表八字日柱的天干，並非獨立的性格測驗。月令、四柱與五行互動都會改變實際命盤的判讀。","此日主常被用來討論「"+stem[5]+"」等主題；這是文化象徵，不是對人格或人生結果的確定預測。"]};
+ }
+ const concept=CONCEPTS.find(c=>slug==="bazi/"+c.slug);
+ if(!concept)throw Error("Unknown BaZi SEO slug: "+slug);
+ return {title:(en?concept.en:concept.zh)+"｜Koolo",description:en?concept.introEn+" Read a practical explanation and start a free BaZi chart.":concept.introZh+"附基本觀念、常見誤解與八字排盤入口。",heading:en?concept.en:concept.zh,intro:en?concept.introEn:concept.introZh,body:en?concept.bodyEn:concept.bodyZh};
+}
+function head(slug,lang,d){
+ const en=lang==="en",canonical=url(slug,lang),other=url(slug,en?"zh":"en");
+ const structured={"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":canonical+"#webpage",url:canonical,name:d.title,description:d.description,inLanguage:en?"en":"zh-Hant",isPartOf:{"@id":ORIGIN+"/#website"}},{"@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:en?"Home":"首頁",item:ORIGIN+(en?"/en/":"/")},{"@type":"ListItem",position:2,name:en?"BaZi":"八字",item:url("bazi",lang)},{"@type":"ListItem",position:3,name:d.heading,item:canonical}]}]};
+ return '<title>'+esc(d.title)+'</title>\n<meta name="description" content="'+esc(d.description)+'">\n<meta name="robots" content="index,follow">\n<link rel="canonical" href="'+canonical+'">\n<link rel="alternate" hreflang="zh-Hant" href="'+url(slug,"zh")+'">\n<link rel="alternate" hreflang="en" href="'+url(slug,"en")+'">\n<link rel="alternate" hreflang="x-default" href="'+url(slug,"zh")+'">\n<meta property="og:type" content="article">\n<meta property="og:title" content="'+esc(d.title)+'">\n<meta property="og:description" content="'+esc(d.description)+'">\n<meta property="og:url" content="'+canonical+'">\n<meta property="og:locale" content="'+(en?"en_US":"zh_TW")+'">\n<script type="application/ld+json">'+JSON.stringify(structured).replaceAll("<","\\u003c")+'</script>';
+}
+function render(slug,lang){
+ const d=pageData(slug,lang),en=lang==="en",links=BAZI_SEO_SLUGS.filter(x=>x!==slug).map(x=>'<li><a href="'+localePath(x,lang)+'">'+esc(pageData(x,lang).heading)+'</a></li>').join("");
+ const paragraphs=d.body.map(p=>'<p>'+esc(p)+'</p>').join("");
+ const cta=en?"Start your BaZi chart":"開始免費八字排盤";
+ const navTitle=en?"Explore related BaZi topics":"延伸閱讀：八字相關主題";
+ return '<!doctype html>\n<html lang="'+(en?"en":"zh-Hant")+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+head(slug,lang,d)+
+ '<style>:root{font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#1d2841;background:#f8f9fd}*{box-sizing:border-box}body{margin:0;line-height:1.85}a{color:#344fa5}header,main,footer{max-width:940px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid #e3e7f0}header a{text-decoration:none;font-weight:650}.brand{font-size:24px;font-weight:850}.lang{display:flex;gap:12px}article{background:white;border:1px solid #e3e7f0;border-radius:22px;padding:clamp(22px,5vw,54px);margin:24px 0}h1{font-size:clamp(28px,5vw,42px);line-height:1.28;letter-spacing:-.025em}h2{font-size:22px}p{color:#4c5770}.lead{font-size:18px;color:#303d59}.cta{display:inline-block;margin:12px 0;background:#253a77;color:white;border-radius:12px;padding:11px 24px;text-decoration:none;font-weight:750}nav ul{columns:2;column-gap:35px;padding-left:22px}nav li{break-inside:avoid;margin:7px 0}.notice{font-size:13px;background:#f1f4fb;border-radius:12px;padding:12px 16px}footer{font-size:13px;color:#606d81}@media(max-width:600px){nav ul{columns:1}}</style></head><body>'+
+ '<header><a class="brand" href="'+(en?"/en/":"/")+'">Koolo</a><div class="lang"><a href="'+url(slug,"zh")+'" lang="zh-Hant" '+(!en?'aria-current="page"':"")+'>中文</a><a href="'+url(slug,"en")+'" lang="en" '+(en?'aria-current="page"':"")+'>EN</a></div></header>'+
+ '<main><article><a href="'+localePath("bazi",lang)+'">'+(en?"BaZi guide":"八字入門")+'</a><h1>'+esc(d.heading)+'</h1><p class="lead">'+esc(d.intro)+'</p><h2>'+(en?"How to interpret it":"如何理解這個概念")+'</h2>'+paragraphs+
+ '<p class="notice">'+disclaimer(lang)+'</p><a class="cta" href="/fortune/reading?mode=bazi">'+cta+'</a><p>'+(en?"The chart requires your own birth details. This guide never publishes personal birth data.":"排盤需自行填寫出生資料；本知識頁不公開任何個人命盤。")+'</p></article>'+
+ '<nav aria-label="'+navTitle+'"><h2>'+navTitle+'</h2><ul>'+links+'</ul></nav></main><footer>© Koolo · '+(en?"BaZi cultural learning":"八字文化知識")+'</footer></body></html>';
+}
+export function writeBaziSeoPages(out){
+ for(const slug of BAZI_SEO_SLUGS)for(const lang of ["zh","en"]){
+  const target=join(out,(lang==="en"?"en/":"")+"fortune/"+slug+"/index.html");
+  mkdirSync(join(target,".."),{recursive:true});
+  writeFileSync(target,render(slug,lang),"utf8");
+ }
+}
+export function baziSitemapEntries(lastmod){
+ return BAZI_SEO_SLUGS.flatMap(slug=>["zh","en"].map(lang=>
+  '  <url><loc>'+url(slug,lang)+'</loc><lastmod>'+lastmod("fortune/"+slug)+'</lastmod>'+
+  '<xhtml:link rel="alternate" hreflang="zh-Hant" href="'+url(slug,"zh")+'"/>'+
+  '<xhtml:link rel="alternate" hreflang="en" href="'+url(slug,"en")+'"/>'+
+  '<xhtml:link rel="alternate" hreflang="x-default" href="'+url(slug,"zh")+'"/></url>'
+ )).join("\n");
+}
