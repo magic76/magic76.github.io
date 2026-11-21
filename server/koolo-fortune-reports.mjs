@@ -54,7 +54,7 @@ export async function listFortuneReports(context){
 export async function readFortuneReport(context){
  const auth=await owner(context);if(auth.error)return auth.error;
  const id=context.params?.id;
- if(typeof id!=="string"||!/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i.test(id))return response({error:"REPORT_NOT_FOUND"},404);
+ if(typeof id!=="string"||!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id))return response({error:"REPORT_NOT_FOUND"},404);
  try{
   const report=await auth.db.prepare(
    "SELECT r.id,r.mode,r.title,r.version,r.content_json,r.created_at "+
