@@ -166,7 +166,7 @@ export function TeacherBoardPage(){
   speechAssessmentRef.current=null;setSpeakingAssessment(null);
   changeDirector(EMPTY_DIRECTOR);setLatestId(null);setFocusedId(null);setFollowing(true);
   setTopicEnded(false);setHint("");setHasLivePatch(false);
-  if(active)live.sendText("[NEW LEARNER-CHOSEN TOPIC] The learner ended the previous topic. Start teaching ONLY this new topic: "+topic+". Introduce one concise concept and use the board tools to create appropriate material. Do not return to the previous topic unless asked.\\n"+localeHelp);
+  if(active)live.sendText("[NEW LEARNER-CHOSEN TOPIC] The learner ended the previous topic. Start teaching ONLY this new topic: "+topic+". Introduce one concise concept and use the board tools to create appropriate material. Do not return to the previous topic unless asked.\n"+localeHelp);
  }
  function startLesson(id:LessonId){
   const lesson=findLesson(id);
@@ -187,7 +187,7 @@ export function TeacherBoardPage(){
  function goLessonStep(index:number){
   const lesson=lessonRef.current?findLesson(lessonRef.current):undefined;
   if(!lesson||index<0||index>=lesson.cards.length)return;
-  setTopicEnded(false);
+  topicEndedRef.current=false;setTopicEnded(false);
   if(active)live.interrupt();
   setLessonTransitioning(active);setLessonExplained(false);
   setLessonStep(index);
