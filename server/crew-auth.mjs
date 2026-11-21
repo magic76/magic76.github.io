@@ -96,7 +96,7 @@ async function profile(provider,token){
  if(!r.ok)return null;
  const info=await r.json(),id=provider==="google"?info?.sub:info?.id;
  if(provider==="google"?(typeof id!=="string"||!id||id.length>180):(!Number.isSafeInteger(id)||id<=0))return null;
- return {id:String(id),name:String(info.name||info.login||"Crew member").trim().slice(0,100)||"Crew member"};
+ return {id:String(id),name:String(info.name||info.login||"Crew member").trim().slice(0,100)||"Crew member",verifiedEmail:provider==="google"&&info.email_verified===true&&typeof info.email==="string"?info.email.trim().toLowerCase():null};
 }
 async function account(db,provider,p){
  let row=await db.prepare("SELECT user_id FROM crew_auth_identities WHERE provider=? AND provider_id=?").bind(provider,p.id).first();
@@ -140,6 +140,11 @@ export async function callbackHandler({request,env},provider){
   if(!info)return failStage(bounce,provider,stage);
   stage="account";
   const uid=await account(env.CREW_AUTH_DB,provider,info);
+  if(provider==="google"&&info.verifiedEmail){
+   // Only Google-verified email is eligible for admin access; never trust a client claim.
+   await env.CREW_AUTH_DB.prepare("INSERT INTO crew_auth_verified_emails(provider,provider_id,email,verified_at) VALUES(?,?,?,?) ON CONFLICT(provider,provider_id) DO UPDATE SET email=excluded.email,verified_at=excluded.verified_at")
+    .bind("google",info.id,info.verifiedEmail,Math.floor(Date.now()/1000)).run();
+  }
   stage="session";
   const session=random(),now=Math.floor(Date.now()/1000);
   await env.CREW_AUTH_DB.prepare("INSERT INTO crew_auth_sessions(token_hash,user_id,created_at,expires_at) VALUES(?,?,?,?)")
