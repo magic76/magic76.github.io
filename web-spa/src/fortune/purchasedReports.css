@@ -1,0 +1,18 @@
+.fortune-purchases{max-width:920px;margin:0 auto;padding:24px 20px 90px}
+.fortune-purchases .hero{padding:12px 0 18px}
+.fortune-purchases .hero h1{margin:8px 0}
+.fortune-purchases-list{display:grid;gap:14px}
+.fortune-purchases-item{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px}
+.fortune-purchases-item>div{min-width:0}
+.fortune-purchases-item small{font-size:12px;color:var(--text-muted,#627088)}
+.fortune-purchases-item h2{margin:7px 0;font-size:19px;overflow-wrap:anywhere}
+.fortune-purchases-item p{margin:0;line-height:1.6;font-size:13px;color:var(--text-muted,#627088)}
+.fortune-purchases-item .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+.fortune-purchases-message{display:grid;gap:14px}
+.fortune-purchases-message h2,.fortune-purchases-message p{margin:0}
+.fortune-purchases-message .btn{justify-self:start;min-height:44px}
+.fortune-purchases-section{margin-top:16px}
+.fortune-purchases-section h2{font-size:19px;margin:0 0 14px}
+.fortune-purchases-section p{line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.fortune-purchases-note{font-size:12px;line-height:1.6;margin-top:20px;color:var(--text-muted,#627088)}
+@media(max-width:520px){.fortune-purchases{padding:16px 15px 90px}.fortune-purchases-item{padding:16px;align-items:stretch;flex-direction:column}.fortune-purchases-item .btn{width:100%}}
