@@ -1,4 +1,5 @@
 import {useMagicT} from "./useMagicT";
+import {Arrow} from "../components/Arrow";
 import type {RefObject} from "react";
 
 // Guide copy lives in its own presentation component; the parent still owns
@@ -24,7 +25,7 @@ export function MagicHelpDialog({zh,onClose,onStart,action,helpClose}:{
     </ol>
     <p>{tr("Connect to Lumi for free-form voice or text magic.")}</p>
     <button type="button" className="magic-help-start" onClick={onStart}>
-     {action} →</button>
+     {action} <Arrow/></button>
    </section>
   </div>;
 }
