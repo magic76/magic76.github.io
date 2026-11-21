@@ -2,6 +2,8 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {COURSE_SEO} from "./course-seo.mjs";
+import {GAME_SEO_SLUGS} from "./game-seo.mjs";
+import {seoLastmod} from "./seo-lastmod.mjs";
 import {previewUrl} from "./social-og.mjs";
 // Public static landing pages are separate from the Web App HashRouter.
 const ORIGIN = "https://koolo.app";
@@ -767,9 +769,9 @@ return `<!doctype html>
 `;
 }
 
-const GAME_SLUGS=["games","games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"];
+const GAME_SLUGS=["games",...GAME_SEO_SLUGS.map(slug=>"games/"+slug)];
 function renderSitemap(){const xml=(slug,locale)=>`    <xhtml:link rel="alternate" hreflang="zh-Hant" href="${pageUrl(slug,"zh")}"/>\n    <xhtml:link rel="alternate" hreflang="en" href="${pageUrl(slug,"en")}"/>\n    <xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl(slug,"zh")}"/>`;
-return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${PAGES.map(p=>p.slug).concat(GAME_SLUGS,COURSE_SEO.map(c=>"teacher/course/"+c.slug)).flatMap(slug=>["zh","en"].map(locale=>`  <url>\n    <loc>${pageUrl(slug,locale)}</loc>\n${xml(slug,locale)}\n  </url>`)).join("\n")}\n</urlset>\n`}
+return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${PAGES.map(p=>p.slug).concat(GAME_SLUGS,COURSE_SEO.map(c=>"teacher/course/"+c.slug)).flatMap(slug=>["zh","en"].map(locale=>`  <url>\n    <loc>${pageUrl(slug,locale)}</loc>\n    <lastmod>${seoLastmod(slug)}</lastmod>\n${xml(slug,locale)}\n  </url>`)).join("\n")}\n</urlset>\n`}
 
 function renderRobots(){return `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`}
 
@@ -782,7 +784,10 @@ for(const [path,content] of Object.entries(outputs())){
   if(checkOnly){
     let actual="";
     try{actual=readFileSync(absolute,"utf8")}catch{/* missing output */}
-    if(actual!==content){console.error("SEO output is stale: "+path);failed=true}
+    // Git source history and ZIP mtimes can yield different but valid lastmod dates.
+    // Still check exact URL coverage, markup, alternates and date presence.
+    const normalize=xml=>path==="sitemap.xml"?xml.replace(/<lastmod>\\d{4}-\\d{2}-\\d{2}<\\/lastmod>/g,"<lastmod>DATE</lastmod>"):xml;
+    if(normalize(actual)!==normalize(content)){console.error("SEO output is stale: "+path);failed=true}
   }else{
     mkdirSync(dirname(absolute),{recursive:true});
     writeFileSync(absolute,content,"utf8");
