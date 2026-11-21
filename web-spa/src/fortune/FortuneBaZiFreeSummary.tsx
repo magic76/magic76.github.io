@@ -4,12 +4,11 @@ import{buildFortuneIdentity}from"./identity";
 import{useRouteNamespace}from"../i18n/useRouteNamespace";
 export function FortuneBaZiFreeSummary({result}:{result:any}){
  const{t,i18n}=useTranslation("fortune");
- const{t:rt}=useTranslation("fortuneReport");
  const ready=useRouteNamespace("fortuneReport");
  const zh=/^zh(?:-|$)/i.test(i18n.resolvedLanguage||i18n.language);
  const identity=buildFortuneIdentity("bazi",result,i18n.resolvedLanguage||i18n.language);
  const words=(z:string,e:string)=>zh?z:e;
- const career=result?.careerProfile||{},wealth=result?.wealthProfile||{},love=result?.relationshipProfile||{};
+ const career=result?.careerProfile||{},wealth=result?.wealthProfile||{};
  const number=(x:unknown)=>typeof x==="number"&&Number.isFinite(x)?x:0;
  const resources=number(career.resourceCount),output=number(career.outputCount),officer=number(career.officerCount);
  const careerText=resources>=Math.max(output,officer)?words("你可能擅長先弄懂原理再開始行動；試著把準備時間留一部分給實作。","You may prefer learning the principles before acting. Leave some time to test ideas in practice."):output>officer?words("你可能更喜歡自己找方法解決問題；試著把想法整理成可完成的小步驟。","You may enjoy finding your own approach. Try turning ideas into achievable steps."):words("責任與目標清楚時，你可能更容易投入；也要記得留出休息空間。","Clear responsibilities may help you focus. Remember to leave room for rest.");
