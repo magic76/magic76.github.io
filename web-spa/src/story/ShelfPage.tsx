@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import{useEffect,useState}from"react";import{useTranslation}from"react-i18next";import{Link}from"react-router-dom";import{ensureStoryServices}from"../lib/runtime";import{BUILT_IN_STORIES}from"./catalog";
 import{ProductDiscoverability}from"../components/ProductDiscoverability";
 
