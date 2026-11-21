@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useState} from "react";
 import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -58,7 +59,7 @@ export function PhoneLabPage(){
    <span className="cpl-hero-chip"><i/>{label("Zoe 正在等你","Zoe is here")}</span>
    <h1>{label("一起聊聊吧！","Let's chat!")}</h1>
    <p>{label("不用先認識所有功能，從一句話開始就好。","No need to learn every feature. Start with hello.")}</p>
-   <Link className="cpl-hero-cta" to={ZOE_TEXT}>{label("打字和 Zoe 開聊","Text Zoe")} <span aria-hidden="true">↗</span></Link>
+   <Link className="cpl-hero-cta" to={ZOE_TEXT}>{label("打字和 Zoe 開聊","Text Zoe")} <Arrow direction="up-right"/></Link>
    <img className="cpl-zoe" src={zoePhoto} alt="Zoe" width="94" height="112"/>
   </section>
   <div className="cpl-section-title"><h2>{label("想玩什麼？","What sounds fun?")}</h2></div>
@@ -72,7 +73,7 @@ export function PhoneLabPage(){
  </>;
  const body=view==="home"?home:all;
  return <main className="crew-phone-lab">
-  <aside className="cpl-aside cpl-intro" aria-label="Prototype details"><span className="cpl-side-kicker">CREW · EXPERIENCE LAB</span><h2>{label("把所有功能，<br/>放進一個熟悉的世界。","All your experiences,<br/>in a familiar place.").split("<br/>").map((s,i)=><span key={i}>{s}{i===0&&<br/>}</span>)}</h2><p>{label("這是獨立的手機桌面實驗。先讓使用者找到 Zoe，再自然探索老師、遊戲、故事與其他功能。","An independent phone-style experiment. Start with Zoe, then explore lessons, games and stories.")}</p><Link to="/" className="cpl-original-link">← {label("返回原本首頁","Back to original home")}</Link></aside>
+  <aside className="cpl-aside cpl-intro" aria-label="Prototype details"><span className="cpl-side-kicker">CREW · EXPERIENCE LAB</span><h2>{label("把所有功能，<br/>放進一個熟悉的世界。","All your experiences,<br/>in a familiar place.").split("<br/>").map((s,i)=><span key={i}>{s}{i===0&&<br/>}</span>)}</h2><p>{label("這是獨立的手機桌面實驗。先讓使用者找到 Zoe，再自然探索老師、遊戲、故事與其他功能。","An independent phone-style experiment. Start with Zoe, then explore lessons, games and stories.")}</p><Link to="/" className="cpl-original-link"><Arrow direction="left"/> {label("返回原本首頁","Back to original home")}</Link></aside>
   <div className="cpl-device">
    <div className="cpl-screen"><div className="cpl-scroll" key={view}>{body}</div><nav className="cpl-dock" aria-label={label("手機桌面導覽","Phone navigation")}>{tabs.map(t=>
     t.id==="chat"||t.id==="me"?
