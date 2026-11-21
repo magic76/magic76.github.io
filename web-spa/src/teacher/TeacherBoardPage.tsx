@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {Arrow} from "../components/Arrow";
+import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
@@ -375,7 +376,7 @@ export function TeacherBoardPage(){
  }
  const phase=live.state==="speaking"?t("board.speaking"):live.state==="listening"?t("board.listening"):live.state==="connecting"||live.state==="requesting-mic"?t("board.connecting"):live.state==="error"?t("board.offline"):t("board.ready");
  return <>
-  <header className="teaching-board-top"><Link to="/learn" className="teaching-board-back" aria-label={t("board.back")}>‹</Link>
+  <header className="teaching-board-top"><Link to="/learn" className="teaching-board-back" aria-label={t("board.back")}><Arrow direction="left"/></Link>
    <div><strong>{t("board.title")}</strong><small>{s.targetLanguage} · {s.learnerSpeakingLevel} · {profile.name}</small></div>
    <span className="teaching-board-connection" data-state={live.state}>{phase}</span>
   </header>
