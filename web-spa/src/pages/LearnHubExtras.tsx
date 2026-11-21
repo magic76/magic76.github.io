@@ -1,4 +1,5 @@
 import {Link} from "react-router-dom";
+import {Arrow} from "../components/Arrow";
 import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
@@ -19,7 +20,7 @@ export function LearnHubExtras({tools,speakingPath}:{tools:Tool[];speakingPath:s
   <Link className="crew-learn-three-minute" to={speakingPath}>
    <span className="crew-section-card-icon crew-learn-three-minute-icon"><Icon name="chat"/></span>
    <span className="crew-learn-three-minute-copy"><strong>{t("learnToday.threeMinute")}</strong><small>{t("learnToday.threeMinuteDesc")}</small></span>
-   <span className="crew-learn-three-minute-arrow" aria-hidden="true">→</span>
+   <Arrow className="crew-learn-three-minute-arrow"/>
   </Link>
   <nav className="crew-learn-secondary-links" aria-label={t("learnToday.more")}>
    <Link to="/teacher/reading-library">{tTeacher("learn.library")}</Link>
