@@ -37,6 +37,6 @@ export function publicFortuneCard(invite:FortunePublicInvite,locale:string){
  return buildFortuneCardModel(invite.mode,result,locale,"",identity);
 }
 /** The safe, one-way continuation starts a fresh local calculation without re-sharing any birth data. */
-export function fortuneInviteNextUrl(_invite:FortunePublicInvite):string{
- return "/fortune/reading?mode=tarot&src=card";
+export function fortuneInviteNextUrl(invite:FortunePublicInvite):string{
+ return "/fortune/reading?mode="+invite.mode+"&src=card";
 }

@@ -1,9 +1,7 @@
 name: Crew SPA full tests
 
 on:
-  # Full regression tests run once per day on the default branch.
-  schedule:
-    - cron: "37 19 * * *"
+  # Manual-only: the scheduled Koolo full regression already runs npm test daily.
   # To test a PR manually, select its source branch in the Actions UI.
   workflow_dispatch:
 

@@ -17,7 +17,7 @@ export type UsageEvent=
   |"vocabulary_practice"|"textbook_open"|"textbook_study"
   |"shorts_view"|"shorts_chat_click"|"shorts_conversation"|"shorts_hook_click"|"shorts_story_followup"
   |"story_reading"|"story_narration"|"story_created"
-  |"fortune_calculated"|"fortune_ai_interpreted"|"fortune_identity_shared"|"fortune_identity_feedback"|"fortune_identity_copy_link"
+  |"fortune_calculated"|"fortune_ai_interpreted"|"fortune_price_view"|"fortune_price_interest"|"fortune_identity_shared"|"fortune_identity_feedback"|"fortune_identity_copy_link"
   |"gemini_key_missing"|"gemini_key_verified"
   |"guest_trial_entry_view"|"guest_trial_unavailable"|"guest_trial_start_click"|"guest_trial_mic_denied"|"guest_trial_setup_failed"
   |"guest_trial_token_issued"|"guest_trial_token_failed"|"guest_trial_connected"|"guest_trial_connect_failed"|"guest_trial_ended"

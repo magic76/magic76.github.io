@@ -12,10 +12,12 @@ concurrency:
   group: koolo-full-regression-${{ github.ref }}
   cancel-in-progress: true
 
+# Run the full daily safety suite in one hosted runner to avoid three
+# separate checkouts, Node setups and npm ci installations.
 jobs:
-  unit-regression:
+  full-regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,31 +25,14 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - run: npm test
-
-  typecheck-and-locales:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-      - run: npm ci
-      - run: npm run check:web
-      - run: npm run check:i18n
-
-  cloudflare-contract:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-      - run: npm ci
-      - run: npm run build:cloudflare
-      - run: npm run test:cloudflare
-      - run: npm run check:bundle
+      - name: Full unit regression
+        run: npm test
+      - name: TypeScript and translation checks
+        run: |
+          npm run check:web
+          npm run check:i18n
+      - name: Cloudflare build and contract checks
+        run: |
+          npm run build:cloudflare
+          npm run test:cloudflare
+          npm run check:bundle

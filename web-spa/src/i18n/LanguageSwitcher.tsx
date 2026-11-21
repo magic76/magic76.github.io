@@ -1,5 +1,5 @@
-import {useRef,useState} from "react";
 import {Arrow} from "../components/Arrow";
+import {useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useLocation} from "react-router-dom";
 import i18n,{loadUiLocale,type UiLocale,UI_LOCALES} from "./index";

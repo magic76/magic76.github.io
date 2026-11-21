@@ -1,5 +1,5 @@
-import {useEffect,useRef,useState,type TouchEvent} from "react";
 import {Arrow} from "../components/Arrow";
+import {useEffect,useRef,useState,type TouchEvent} from "react";
 import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";

@@ -1,5 +1,5 @@
-import {useTeacherStore} from "../store/teacherStore";
 import {Arrow} from "../components/Arrow";
+import {useTeacherStore} from "../store/teacherStore";
 import{useEffect,useRef,useState}from"react";
 import{useTranslation}from"react-i18next";
 import{LanguageSwitcher}from"../i18n/LanguageSwitcher";

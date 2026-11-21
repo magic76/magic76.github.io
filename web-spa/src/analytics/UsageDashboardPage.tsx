@@ -1,5 +1,8 @@
 import {useEffect,useMemo,useState} from "react";
+import {AccountStatsPanel} from "./AccountStatsPanel";
+import {MembershipDiagnosticsPanel} from "./MembershipDiagnosticsPanel";
 import {UsageOverviewCards} from "./UsageOverviewCards";
+import {FortuneUsagePanel} from "./FortuneUsagePanel";
 import {PlatformUsagePanel,type PlatformUsage} from "./PlatformUsagePanel";
 import "./usage-dashboard.css";
 import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
@@ -58,6 +61,7 @@ return Array.from({length:days},(_,i)=>{
  <div className="usage-toolbar" role="group" aria-label="統計期間">
   <button type="button" aria-pressed={days===7} onClick={()=>setDays(7)}>最近 7 天</button>
   <button type="button" aria-pressed={days===30} onClick={()=>setDays(30)}>最近 30 天</button>
+  <a href="#fortune-usage" className="usage-jump">命理成效</a>
   <a href="#guest-trial-stats" className="usage-jump">免費試用統計</a>
   <a href="/usage/feedback" className="usage-jump">意見回饋管理</a>
   <UsageExportControls data={data} days={days} category={selected} bars={bars} categoryEventTotal={totalMany(rows,selected.events)} disabled={loading||!!error||!data||data.days!==days}/>
@@ -68,6 +72,9 @@ return Array.from({length:days},(_,i)=>{
  error?<section className="panel section" role="alert"><strong>無法讀取使用資料</strong><p>{error}</p><p className="meta">請確認 Cloudflare Access、Analytics Engine Binding 與唯讀 Token，參考 docs/CREW_USAGE.md。</p></section>:
  data&&<>
   <UsageOverviewCards data={data} rows={rows}/>
+  <FortuneUsagePanel rows={rows} eventUsers={data.eventUsers}/>
+  <AccountStatsPanel/>
+  <MembershipDiagnosticsPanel/>
   <PlatformUsagePanel rows={data.platformBreakdown}/>
   <UsageJourneySection days={days} journey={data.journey}/>
   <SoulsUsagePanel rows={rows} unique={unique}/>

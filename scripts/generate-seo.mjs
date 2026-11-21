@@ -2,6 +2,8 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {COURSE_SEO} from "./course-seo.mjs";
+import {GAME_SEO_SLUGS} from "./game-seo.mjs";
+import {seoLastmod} from "./seo-lastmod.mjs";
 import {previewUrl} from "./social-og.mjs";
 // Public static landing pages are separate from the Web App HashRouter.
 const ORIGIN = "https://koolo.app";
@@ -22,7 +24,7 @@ const PAGES = [
       "text": "探索語言學習",
       "href": "/teacher/"
     },
-    "visualLabel": "CREW SPACE",
+    "visualLabel": "KOOLO",
     "visualTitle": "挑一件今天想做的事",
     "visualDetail": "語言對話 · 故事陪讀 · 命盤探索 · AI 研究",
     "sectionTitle": "四個入口，各有不同的探索方式",
@@ -64,18 +66,18 @@ const PAGES = [
         "body": "從 Teacher、Story 或 Fortune 選擇自己的入口。"
       },
       {
-        "title": "設定 Gemini API Key",
-        "body": "有 Google 帳號即可前往 Google AI Studio 建立 API Key，免費配額與費率依 Google 公告。"
+        "title": "開始免費體驗",
+        "body": "先與 AI 朋友免費文字聊天，也可以試用語音口說練習；不必先申請 API Key。"
       },
       {
         "title": "直接在瀏覽器體驗",
-        "body": "設定完成後即可使用對應功能；介面語言與對話學習語言分開管理。"
+        "body": "直接在瀏覽器開始聊天、練習或探索；需要更多用量時可查看會員方案。"
       }
     ],
     "faq": [
       {
         "q": "使用 Koolo 需要先建立帳號嗎？",
-        "a": "Web 版可直接進入體驗頁面。使用 Gemini 功能前，需要先設定自己的 API Key。"
+        "a": "可以直接開始免費文字聊天及語音試用，不需要自行申請 API Key；部分進階功能可能需要額外設定。"
       },
       {
         "q": "Gemini API Key 是免費的嗎？",
@@ -88,7 +90,7 @@ const PAGES = [
     "nav": "Teacher",
     "title": "AI 英文口說練習｜和老師、AI 朋友自然對話｜Koolo Teacher",
     "description": "想練英文卻找不到語伴？和 Koolo Teacher 的 AI 老師練習發音、日常情境，也能和不同個性的 AI 朋友自然聊天。語音提供免費試用。",
-    "eyebrow": "CREW TEACHER",
+    "eyebrow": "KOOLO LEARN",
     "heading": "讓語言練習，更像真的在對話。",
     "intro": "想認真學習時，找 Koolo 老師；想自在聊天時，找有不同個性與背景的 Koolo 朋友。透過語音互動，練習日常與實際情境。",
     "primary": {
@@ -132,8 +134,8 @@ const PAGES = [
         "body": "依需要選擇語言、語速與互動方式。"
       },
       {
-        "title": "用自己的 Gemini Key 開始",
-        "body": "於共用設定頁完成 Key 驗證，再開始語音體驗。"
+        "title": "開始免費練習",
+        "body": "直接開始免費語音試用；需要更多用量時可查看可用方案，自備 API Key 僅供進階使用者選擇。"
       }
     ],
     "faq": [
@@ -152,7 +154,7 @@ const PAGES = [
     "nav": "Story",
     "title": "Koolo Story｜AI 故事創作、語音朗讀與親子陪讀",
     "description": "Koolo Story 讓你和 AI 一起創作故事、聆聽語音朗讀，也能用照片搭配手邊的實體書進行陪讀。探索 Web 故事書架與閱讀體驗。",
-    "eyebrow": "CREW STORY",
+    "eyebrow": "KOOLO STORY",
     "heading": "從一個想法，走進一段故事。",
     "intro": "和阿奇一起創作、閱讀，或拿起手邊的故事書。保留故事閱讀的樂趣，把語音互動融入共讀時間。",
     "primary": {
@@ -216,7 +218,7 @@ const PAGES = [
     "nav": "Fortune",
     "title": "Koolo Fortune｜八字、塔羅生命靈數與印度星盤",
     "description": "使用 Koolo Fortune 探索八字、塔羅生命靈數與印度星盤，整理性格、人生主題與不同時期的解讀。透過 Web 進行個人命盤探索。",
-    "eyebrow": "CREW FORTUNE",
+    "eyebrow": "KOOLO FORTUNE",
     "heading": "從不同角度，看懂自己的節奏。",
     "intro": "選一種方式，從性格、人生主題或時間週期探索個人命盤。把資料與解讀整理在一起，當作自我觀察的另一種參考。",
     "primary": {
@@ -280,7 +282,7 @@ const PAGES = [
     "nav": "Research",
     "title": "Koolo Research｜每日 AI 論文與工程研發情報",
     "description": "閱讀 Koolo 每日精選 AI 論文、技術報告與深度分析，聚焦 AI Agent、記憶、即時語音、開發工具與產品實作。",
-    "eyebrow": "CREW RESEARCH",
+    "eyebrow": "KOOLO RESEARCH",
     "heading": "每天找出真正值得研究的事。",
     "intro": "從 AI 論文、技術報告到工程實作，挑選值得深入的方向。不只追新消息，也關心它能否對實際產品開發帶來幫助。",
     "primary": {
@@ -357,7 +359,7 @@ const EN_PAGES = [
       "text": "Explore language learning",
       "href": "/en/teacher/"
     },
-    "visualLabel": "CREW SPACE",
+    "visualLabel": "KOOLO",
     "visualTitle": "Choose what to explore today",
     "visualDetail": "Language · Stories · Reflection · AI research",
     "sectionTitle": "Four ways to explore, one Koolo experience",
@@ -399,18 +401,18 @@ const EN_PAGES = [
         "body": "Start with Teacher, Story, or Fortune, depending on what you want to do."
       },
       {
-        "title": "Set up your Gemini API key",
-        "body": "Create an API key with Google AI Studio. Free-tier eligibility and pricing depend on Google's current terms."
+        "title": "Start with a free trial",
+        "body": "Start a free text chat with an AI friend or try speaking practice. No API key is needed to get started."
       },
       {
         "title": "Explore in your browser",
-        "body": "Continue to Koolo Web. Interface language and conversation or learning language are managed separately."
+        "body": "Continue in your browser and explore Koolo. More usage options are available when you need them."
       }
     ],
     "faq": [
       {
         "q": "Do I need to sign up for a Koolo account?",
-        "a": "You can open the Web App without creating a Koolo account. Gemini-powered features require you to configure your own API key."
+        "a": "You can start a free text chat or try a voice session without bringing your own API key. Some advanced features may require additional setup."
       },
       {
         "q": "Can I get a Gemini API key for free?",
@@ -423,7 +425,7 @@ const EN_PAGES = [
     "nav": "Teacher",
     "title": "AI English Speaking Practice with Tutors & Friends | Koolo Teacher",
     "description": "Practice spoken English with an AI tutor or talk naturally with Koolo Friends. Build confidence with real-life scenarios and try a free voice session.",
-    "eyebrow": "CREW TEACHER",
+    "eyebrow": "KOOLO LEARN",
     "heading": "Language practice that feels like a real conversation.",
     "intro": "Choose a Koolo teacher when you want guided learning and feedback. Pick a Koolo Friend when you'd rather chat naturally with a character who has their own personality and background.",
     "primary": {
@@ -487,7 +489,7 @@ const EN_PAGES = [
     "nav": "Story",
     "title": "Koolo Story | AI Storytelling, Narration and Family Reading",
     "description": "Create stories, enjoy AI narration, and read together with Koolo Story. You can also photograph pages from a physical book and explore a guided reading experience.",
-    "eyebrow": "CREW STORY",
+    "eyebrow": "KOOLO STORY",
     "heading": "Turn a simple idea into a story worth sharing.",
     "intro": "Create a new story, browse your reading shelf, or pick up a book you already own. Koolo Story brings voice interaction into reading time.",
     "primary": {
@@ -551,7 +553,7 @@ const EN_PAGES = [
     "nav": "Fortune",
     "title": "Koolo Fortune | BaZi, Numerology and Vedic Astrology",
     "description": "Explore BaZi, tarot-inspired life-path numerology, and Vedic astrology with Koolo Fortune. Consider personality themes, life cycles, and different traditions of self-reflection.",
-    "eyebrow": "CREW FORTUNE",
+    "eyebrow": "KOOLO FORTUNE",
     "heading": "Explore your story from different perspectives.",
     "intro": "Look at personality, life themes, and personal cycles through three different interpretive traditions. Use the readings as prompts for reflection rather than certain predictions.",
     "primary": {
@@ -615,7 +617,7 @@ const EN_PAGES = [
     "nav": "Research",
     "title": "Koolo Research | Daily AI Papers and Engineering Briefings",
     "description": "Read selected AI research papers, technical reports, and deeper engineering analysis covering AI agents, memory, context management, real-time voice, and practical product development.",
-    "eyebrow": "CREW RESEARCH",
+    "eyebrow": "KOOLO RESEARCH",
     "heading": "Find the AI research that's worth your time.",
     "intro": "Explore selected papers, technical reports, and engineering lessons. Beyond news headlines, focus on evidence and ideas that could improve real products.",
     "primary": {
@@ -767,9 +769,9 @@ return `<!doctype html>
 `;
 }
 
-const GAME_SLUGS=["games","games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"];
+const GAME_SLUGS=["games",...GAME_SEO_SLUGS.map(slug=>"games/"+slug)];
 function renderSitemap(){const xml=(slug,locale)=>`    <xhtml:link rel="alternate" hreflang="zh-Hant" href="${pageUrl(slug,"zh")}"/>\n    <xhtml:link rel="alternate" hreflang="en" href="${pageUrl(slug,"en")}"/>\n    <xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl(slug,"zh")}"/>`;
-return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${PAGES.map(p=>p.slug).concat(GAME_SLUGS,COURSE_SEO.map(c=>"teacher/course/"+c.slug)).flatMap(slug=>["zh","en"].map(locale=>`  <url>\n    <loc>${pageUrl(slug,locale)}</loc>\n${xml(slug,locale)}\n  </url>`)).join("\n")}\n</urlset>\n`}
+return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${PAGES.map(p=>p.slug).concat(GAME_SLUGS,COURSE_SEO.map(c=>"teacher/course/"+c.slug)).flatMap(slug=>["zh","en"].map(locale=>`  <url>\n    <loc>${pageUrl(slug,locale)}</loc>\n    <lastmod>${seoLastmod(slug)}</lastmod>\n${xml(slug,locale)}\n  </url>`)).join("\n")}\n</urlset>\n`}
 
 function renderRobots(){return `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`}
 
@@ -782,7 +784,10 @@ for(const [path,content] of Object.entries(outputs())){
   if(checkOnly){
     let actual="";
     try{actual=readFileSync(absolute,"utf8")}catch{/* missing output */}
-    if(actual!==content){console.error("SEO output is stale: "+path);failed=true}
+    // Git source history and ZIP mtimes can yield different but valid lastmod dates.
+    // Still check exact URL coverage, markup, alternates and date presence.
+    const normalize=xml=>path==="sitemap.xml"?xml.replace(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/g,"<lastmod>DATE</lastmod>"):xml;
+    if(normalize(actual)!==normalize(content)){console.error("SEO output is stale: "+path);failed=true}
   }else{
     mkdirSync(dirname(absolute),{recursive:true});
     writeFileSync(absolute,content,"utf8");

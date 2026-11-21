@@ -1,6 +1,6 @@
 import {Arrow} from "../../components/Arrow";
 import{useCallback,useEffect,useRef,useState}from"react";
-import{Link,useNavigate,useSearchParams}from"react-router-dom";
+import{Link,useNavigate}from"react-router-dom";
 import{addHistory}from"../../lib/runtime";
 import{trackUsageEvent}from"../../analytics/usage";
 import type{StoryBook,StoryPage}from"../catalog";
@@ -28,8 +28,8 @@ function playLabel(state:string,paused:boolean,finished:boolean){
 }
 
 export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
- const[params]=useSearchParams(),requestedPage=Number(params.get("page"));
- const startPage=Number.isFinite(requestedPage)&&params.has("page")?requestedPage:Number(initialBook.currentPage)||0;
+ // New visits always start on the first page, regardless of saved progress or URL page.
+ const startPage=0;
  const[book,setBook]=useState(initialBook),[index,setIndex]=useState(Math.max(0,Math.min(startPage,(initialBook.pages||[]).length-1))),nav=useNavigate();
  const page:StoryPage=book.pages[index]||{text:""};
  const image=(book.images||[])[Number(page.imageIndex)];
@@ -84,7 +84,7 @@ export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
    <p className="page-text story-page-motion" key={"text-"+index}>{page.text||page.context?.currentEvent||"這一頁還沒有文字。"}</p>
    {page.characterName&&<div className="story-dialogue story-page-motion" key={"dialogue-"+index}><strong>{page.characterName}</strong>{page.dialogue&&<span>「{page.dialogue}」</span>}</div>}
    {(live.state==="requesting-mic"||live.state==="connecting"||live.state==="speaking"||live.paused||live.finished||live.state==="error")&&<div className="story-player-live-status" data-state={live.state}><i/><span>{live.finished?"故事說完了":live.paused?"故事已暫停":live.state==="speaking"?"阿奇在說故事":live.state==="error"?live.status:"阿奇正在準備故事…"}</span></div>}
-   {!sleepMinutes&&active(live.state)&&!live.paused&&!live.finished&&<><button className="btn story-talk-btn" disabled={live.state!=="speaking"} onClick={live.interrupt}>{live.state==="speaking"?"跟阿奇說話":"可以直接說話"}</button><p className="story-player-interaction-hint">{live.state==="speaking"?"想插話時按一下，阿奇會停下來聽你說。":"阿奇正在聽，你可以直接說。"}</p></>}
+   {!sleepMinutes&&active(live.state)&&!live.paused&&!live.finished&&<><button className="btn story-talk-btn" disabled={live.state!=="speaking"} onClick={live.interrupt}>{live.state==="speaking"?"打斷並說話":"可以直接說話"}</button><p className="story-player-interaction-hint">{live.state==="speaking"?"阿奇說完這頁會自動翻下一頁；想插話可按打斷。":"阿奇正在聽，你可以直接說話；故事會自動接續。"}</p></>}
    {book.readingMode!=="physical"&&<div className="story-bedtime-control"><span>☾ {sleepMinutes?("睡前模式 · "+sleepMinutes+" 分鐘後暫停"):"睡前模式"}</span><div className="actions">{(sleepMinutes?[0]:[5,10,15]).map(minutes=><button key={minutes} className="btn secondary small" onClick={()=>setSleepMinutes(minutes)}>{minutes===0?"關閉":minutes+" 分鐘"}</button>)}</div></div>}
    <div className="story-player-controls"><button className="btn secondary small" disabled={index===0} onClick={()=>go(index-1)}>上一頁</button><button className="btn story-play-primary" disabled={live.state==="requesting-mic"||live.state==="connecting"||live.state==="ending"} onClick={()=>void live.startOrResume()}>{playLabel(live.state,live.paused,live.finished)}</button><button className="btn secondary small" disabled={index>=book.pages.length-1} onClick={()=>go(index+1)}>下一頁</button></div>
    <details className="story-player-more-controls"><summary>更多</summary><div className="story-player-secondary">

@@ -2,6 +2,8 @@ import {COURSE_SEO} from "./course-seo.mjs";
 import {prerenderPublicRoutes} from "./ssg-renderer.mjs";
 import {articleHead,articlePath,escapeHtml,safeJson,indexableArticle} from "./research-seo.mjs";
 import {GAME_SEO_PAGES,GAME_SEO_SLUGS} from "./game-seo.mjs";
+import {writeBaziSeoPages,baziSitemapEntries} from "./bazi-seo.mjs";
+import {seoLastmod} from "./seo-lastmod.mjs";
 import {previewUrl,writePreview,writeStaticPreviews,replacePreviewMeta} from "./social-og.mjs";
 import {readFileSync, writeFileSync, cpSync, existsSync, mkdirSync, rmSync, readdirSync} from "node:fs";
 import {dirname, join, resolve} from "node:path";
@@ -56,6 +58,12 @@ const ssgRouteEntries={
  "/games/friend-gomoku":["src/games/FriendGomokuPage.tsx"],
  "/games/1a2b":["src/games/NumberGamePage.tsx"],
  "/games/taboo":["src/games/TabooGamePage.tsx"],
+ "/games/number-bomb":["src/games/QuickPlayGamePage.tsx"],
+ "/games/memory":["src/games/QuickPlayGamePage.tsx"],
+ "/games/crazy-court":["src/games/CrazyCourtPage.tsx"],
+ "/games/werewolf":["src/games/WerewolfPage.tsx"],
+ "/games/truth-news":["src/games/TruthNewsPage.tsx"],
+ "/games/nonsense":["src/games/NonsenseLiveNewsPage.tsx"],
  "/games/connect4":["src/games/CrewPlayGamePage.tsx"],
  "/games/twenty-questions":["src/games/CrewPlayGamePage.tsx"],
  "/games/reversi":["src/games/CrewPlayGamePage.tsx"],
@@ -193,11 +201,11 @@ const privatePaths=[
  ...["practice","fortune","shorts","friends","roles","learn","tutor","me","vocabulary","course","pronunciation","textbook","phrasebook","reports","memory","reading-library"].map(s=>"/teacher/"+s),
  ...["shelf","me","create","physical","live"].map(s=>"/story/"+s),
  ...["history","reading","live"].map(s=>"/fortune/"+s),
- ...["nonsense","crazy-court","werewolf","gomoku"].map(s=>"/games/"+s),
+ ...["gomoku"].map(s=>"/games/"+s),
  "/timeline","/timeline/compare","/timeline/live"
 ];
 const privatePatterns=["/story/edit/*","/story/read/*","/story/physical/*","/briefing/*"];
-const privateShell=viteHtml.replace("<title>Crew</title>","<title>Crew · Interactive App</title>");
+const privateShell=viteHtml.replace("<title>Crew</title>","<title>Koolo · Interactive App</title>");
 if(!privateShell.includes('name="robots" content="noindex,follow"'))throw Error("Private shell must be noindex");
 // Cloudflare Pages canonicalizes *.html to extensionless URLs, even when
 // the filename is used as a 200 proxy destination. That leaked /_app-noindex
@@ -433,7 +441,7 @@ const sitemapEntries=[...articles.values()].filter(({item})=>indexableArticle(it
 const guideSitemapEntries=[...new Set([...guides.values()].map(({slug})=>slug))].flatMap(slug=>
  ["zh-TW","en"].map(locale=>{
   const canonical=guideUrl(slug,locale),zhHref=guideUrl(slug,"zh-TW"),enHref=guideUrl(slug,"en");
-  return '  <url><loc>'+canonical+'</loc>'+
+  return '  <url><loc>'+canonical+'</loc><lastmod>'+seoLastmod('guides/'+slug)+'</lastmod>'+
    '<xhtml:link rel="alternate" hreflang="zh-Hant" href="'+zhHref+'"/>'+
    '<xhtml:link rel="alternate" hreflang="en" href="'+enHref+'"/>'+
    '<xhtml:link rel="alternate" hreflang="x-default" href="'+zhHref+'"/>'+
@@ -442,14 +450,15 @@ const guideSitemapEntries=[...new Set([...guides.values()].map(({slug})=>slug))]
 ).join(newline);
 const sitemap=read("sitemap.xml");
 if(!sitemap.includes("</urlset>"))throw Error("Missing sitemap closing tag");
-writeFileSync(join(out,"sitemap.xml"),sitemap.replace("</urlset>",guideSitemapEntries+newline+sitemapEntries+newline+"</urlset>"));
+writeBaziSeoPages(out);
+writeFileSync(join(out,"sitemap.xml"),sitemap.replace("</urlset>",guideSitemapEntries+newline+baziSitemapEntries(seoLastmod)+newline+sitemapEntries+newline+"</urlset>"));
 
 // Preserve bookmarks shared from GitHub Pages, including HashRouter query string.
 // Cloudflare deploys a redirect-only compatibility document, not a second app.
 const oldPath=join(out,"crew-app");mkdirSync(oldPath,{recursive:true});
 writeFileSync(join(oldPath,"index.html"),`<!doctype html>
-<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><title>Moving to Crew</title></head>
-<body><p>正在前往新的 Crew 網址… <a href="/">開啟 Crew</a></p>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><title>Moving to Koolo</title></head>
+<body><p>正在前往新的 Koolo 網址… <a href="/">開啟 Koolo</a></p>
 <script>
 (function(){
  var old=(location.hash||"").replace(/^#/,"")||"/";

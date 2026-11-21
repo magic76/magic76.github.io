@@ -4,6 +4,9 @@
     "/api/usage/*",
     "/api/feedback",
     "/api/auth/*",
+    "/api/membership/*",
+    "/api/fortune/*",
+    "/api/voice/*",
     "/api/books",
     "/"
   ],

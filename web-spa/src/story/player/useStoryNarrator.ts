@@ -43,6 +43,7 @@ export function useStoryNarrator(book:StoryBook,index:number,page:StoryPage,imag
   pendingAdvanceRef.current=nextIndex;
  };
 
+ // Advance only after a valid narrated page finishes and the session returns to listening.
  useEffect(()=>{
   if(live.state!=="listening"||pausedRef.current)return;
   if(pendingFinishRef.current){

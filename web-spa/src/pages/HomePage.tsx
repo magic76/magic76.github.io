@@ -1,5 +1,5 @@
-import {useEffect,useMemo,useState} from "react";
 import {Arrow} from "../components/Arrow";
+import {useEffect,useMemo,useState} from "react";
 import {Link} from "react-router-dom";
 import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
@@ -219,10 +219,10 @@ export function HomePage(){
   </div>
   <div className="crew-home-content">
   <section className="crew-home-search-summary" aria-labelledby="crew-home-search-summary-title">
-   <h2 id="crew-home-search-summary-title">{locale.language.startsWith("zh")?"Crew：AI 朋友聊天、語言學習、互動遊戲與故事創作":"Crew: AI Friends, Language Practice, Games and Stories"}</h2>
+   <h2 id="crew-home-search-summary-title">{locale.language.startsWith("zh")?"Koolo：AI 朋友聊天、語言學習、互動遊戲與故事創作":"Koolo: AI Friends, Language Practice, Games and Stories"}</h2>
    <p>{locale.language.startsWith("zh")
-    ?"在 Crew，你可以和不同個性的 AI 朋友自然聊天、透過 Crew Teacher 練習英文口說、在 Crew Play 玩棋盤和猜題遊戲，也能和 AI 一起創作、閱讀故事。"
-    :"Talk with AI characters, practice spoken English with Crew Teacher, play board and guessing games in Crew Play, and create or read stories together with AI."}</p>
+    ?"在 Koolo，你可以和不同個性的 AI 朋友自然聊天、透過 Koolo Teacher 練習英文口說、在 Koolo Play 玩棋盤和猜題遊戲，也能和 AI 一起創作、閱讀故事。"
+    :"Talk with AI characters, practice spoken English with Koolo Teacher, play board and guessing games in Koolo Play, and create or read stories together with AI."}</p>
    <nav aria-label={t("explore")}>
     <Link to="/teacher">{t("product.teacher")}</Link>
     <Link to="/games">{t("product.play")}</Link>

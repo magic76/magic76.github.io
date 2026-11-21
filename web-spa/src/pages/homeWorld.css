@@ -1,3 +1,9 @@
+
+.crew-home-world .crew-home-shorts-controls{gap:10px}
+.crew-home-world .crew-home-shorts-controls button:disabled{opacity:1;background:#e2e6e3;border-color:#aab8ad;color:#68776d}
+.crew-home-world .crew-home-shorts-controls .crew-arrow{background:#285a48;color:#fff}
+.crew-home-world .crew-home-shorts-controls button:disabled .crew-arrow{background:#e2e6e3;color:#68776d}
+.crew-home-world .crew-arrow.crew-home-world-explore-arrow{color:#fff;background:#285a48;font-size:inherit}
 /* The portal and real Shorts feed share one world. Everything is scoped to this
    homepage wrapper; the full Shorts page and existing app surfaces stay intact. */
 .crew-home-world{
@@ -204,9 +210,3 @@
 .crew-home-world .crew-home-short-question{min-width:0}
 .crew-home-world .crew-home-short-question>span:first-child{min-width:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .crew-home-world-bridge,.crew-home-world .crew-home-shorts-heading .kicker,.crew-home-world-explore-card small{letter-spacing:.08em}
-
-.crew-home-world .crew-home-shorts-controls{gap:10px}
-.crew-home-world .crew-home-shorts-controls button:disabled{opacity:1;background:#e2e6e3;border-color:#aab8ad;color:#68776d}
-.crew-home-world .crew-home-shorts-controls .crew-arrow{background:#285a48;color:#fff}
-.crew-home-world .crew-home-shorts-controls button:disabled .crew-arrow{background:#e2e6e3;color:#68776d}
-.crew-home-world .crew-arrow.crew-home-world-explore-arrow{color:#fff;background:#285a48;font-size:inherit}

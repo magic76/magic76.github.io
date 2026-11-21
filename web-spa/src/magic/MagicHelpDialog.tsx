@@ -1,5 +1,5 @@
-import {useMagicT} from "./useMagicT";
 import {Arrow} from "../components/Arrow";
+import {useMagicT} from "./useMagicT";
 import type {RefObject} from "react";
 
 // Guide copy lives in its own presentation component; the parent still owns

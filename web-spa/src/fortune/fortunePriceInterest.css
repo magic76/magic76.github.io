@@ -1,0 +1,14 @@
+.fortune-price-interest{margin:16px 0;padding:18px;border:1px solid var(--border,#d9e2eb);border-radius:18px;background:var(--surface,#fff);display:grid;gap:12px}
+.fortune-price-interest-heading{display:flex;justify-content:space-between;align-items:start;gap:12px}
+.fortune-price-interest-heading h3{font-size:1.1rem;margin:4px 0 0}
+.fortune-price-interest-heading strong{white-space:nowrap;font-size:1.2rem}
+.fortune-price-interest-heading strong small{display:block;font-size:.7rem;font-weight:400;text-align:right}
+.fortune-price-interest-eyebrow{font-size:.75rem;opacity:.8}
+.fortune-price-interest p{margin:0;line-height:1.6}
+.fortune-price-interest-button{width:100%;min-height:44px;border:0;border-radius:12px;background:#244b76;color:#fff;font-weight:700;cursor:pointer}
+.fortune-price-interest-thanks{font-weight:700}
+.fortune-price-interest>small{font-size:.75rem;line-height:1.5;opacity:.8}
+@media(max-width:380px){.fortune-price-interest-heading{flex-direction:column}.fortune-price-interest-heading strong small{display:inline;text-align:left;margin-left:6px}}
+
+.fortune-price-interest-preview{border:1px solid var(--border,#d9e2eb);border-radius:12px;padding:12px;font-size:.9rem}
+.fortune-price-interest-preview ul{margin:8px 0 0;padding-left:20px;line-height:1.6}

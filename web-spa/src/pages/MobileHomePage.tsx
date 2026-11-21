@@ -229,8 +229,8 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
   <div className="cmh-shorts"><HomeShortsPreview maxPosts={6} sharedFeed={shortsFeed} sharedStatus={shortsStatus}/></div>
   {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
   <section className="cmh-seo" aria-labelledby="cmh-seo-heading">
-   <h2 id="cmh-seo-heading">{copy("Crew：AI 朋友聊天、語言學習、互動遊戲與故事創作","Crew: AI Friends, Language Practice, Games and Stories")}</h2>
-   <p>{copy("在 Crew，你可以和不同個性的 AI 朋友自然聊天、用 Crew Teacher 練習外語口說、一起玩猜數字或棋盤遊戲，也能探索命理、創作及閱讀故事。","Talk to AI friends, practice languages, play interactive games, explore fortune readings and create stories together.")}</p>
+   <h2 id="cmh-seo-heading">{copy("Koolo：AI 朋友聊天、語言學習、互動遊戲與故事創作","Koolo: AI Friends, Language Practice, Games and Stories")}</h2>
+   <p>{copy("在 Koolo，你可以和不同個性的 AI 朋友自然聊天、用 Koolo Teacher 練習外語口說、一起玩猜數字或棋盤遊戲，也能探索命理、創作及閱讀故事。","Talk to AI friends, practice languages, play interactive games, explore fortune readings and create stories together.")}</p>
    <nav aria-label={copy("探索 Koolo","Explore Koolo")}>
     <Link to="/teacher/roles?mode=friends">{copy("AI 朋友","AI Friends")}</Link>
     <Link to="/learn">{copy("語言學習","Learn languages")}</Link>

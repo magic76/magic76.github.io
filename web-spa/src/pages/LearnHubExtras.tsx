@@ -1,5 +1,6 @@
-import {Link} from "react-router-dom";
 import {Arrow} from "../components/Arrow";
+    <Arrow className="crew-learn-tool-arrow"/>
+import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
@@ -15,7 +16,6 @@ export function LearnHubExtras({tools,speakingPath}:{tools:Tool[];speakingPath:s
    {tools.map(tool=><Link className="crew-section-card crew-learn-tool" key={tool.to} to={tool.to}>
     <span className="crew-section-card-icon"><Icon name={tool.icon}/></span>
     <span className="crew-section-card-copy"><strong>{tool.title}</strong><small>{tool.desc}</small></span>
-    <Arrow className="crew-learn-tool-arrow"/>
    </Link>)}
   </div>
   <Link className="crew-learn-three-minute" to={speakingPath}>

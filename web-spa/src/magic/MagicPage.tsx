@@ -1,5 +1,5 @@
-import {Component,lazy,Suspense,useCallback,useEffect,useRef,useState} from "react";
 import {Arrow} from "../components/Arrow";
+import {Component,lazy,Suspense,useCallback,useEffect,useRef,useState} from "react";
 import type {FormEvent,ReactNode} from "react";
 import {Link} from "react-router-dom";
 import {useMagicT} from "./useMagicT";

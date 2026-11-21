@@ -267,7 +267,7 @@ check("Crew Play SSG has real game cards with correct bilingual canonical and JS
 
 
 check("indexed game URLs each ship route-specific hydrated SSG HTML, metadata and accessible links",()=>{
- const games=["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo"];
+ const games=["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo","number-bomb","memory","crazy-court","werewolf","truth-news","nonsense"];
  const sitemap=read("sitemap.xml");
  for(const locale of ["","en/"])for(const game of games){
   const path=locale+"games/"+game+"/";
@@ -306,7 +306,7 @@ check("deep interactive routes keep their URLs and noindex SPA shell, including 
 
  // Physical files are served by Pages at their clean, extensionless paths.
  // /teacher/roles?mode=friends must never become /_app-noindex?mode=friends.
- for(const route of ["/chat","/learn","/magic","/settings","/teacher/live","/teacher/roles","/games/nonsense"]){
+ for(const route of ["/chat","/learn","/magic","/settings","/teacher/live","/teacher/roles"]){
   for(const prefix of ["","/en"]){
    const publicPath=prefix+route;
    const file=publicPath.slice(1)+".html";
@@ -318,7 +318,7 @@ check("deep interactive routes keep their URLs and noindex SPA shell, including 
   assert.ok(redirects.includes(route+" /_app-noindex 200"),"missing clean-path dynamic route proxy "+route);
  }
  assert.doesNotMatch(redirects,/\.html 200(?:\n|$)/,"HTML rewrite targets trigger Cloudflare's clean URL redirect");
- for(const route of ["/games/friend-gomoku","/games/connect4","/games/1a2b","/research/*"]){
+ for(const route of ["/games/friend-gomoku","/games/connect4","/games/1a2b","/games/nonsense","/research/*"]){
   assert.ok(!redirects.split("\n").some(line=>line.startsWith(route+" ")),"indexable page incorrectly rewritten "+route);
  }
 });
@@ -424,9 +424,10 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
   expected.push(domain+"/guides/"+slug+"/");
   expected.push(domain+"/en/guides/"+slug+"/");
  }
- for(const slug of ["games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"]){
+ for(const slug of ["games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo","games/number-bomb","games/memory","games/crazy-court","games/werewolf","games/truth-news","games/nonsense"]){
   expected.push(domain+"/"+slug+"/");expected.push(domain+"/en/"+slug+"/");
  }
+ for(const slug of ["bazi","bazi/jia-wood","bazi/yi-wood","bazi/bing-fire","bazi/ding-fire","bazi/wu-earth","bazi/ji-earth","bazi/geng-metal","bazi/xin-metal","bazi/ren-water","bazi/gui-water","bazi/five-elements","bazi/ten-gods","bazi/luck-cycles"]){expected.push(domain+"/fortune/"+slug+"/",domain+"/en/fortune/"+slug+"/")}
  for(const slug of ["travel","business","daily","teamwork","tickets","services"]){expected.push(domain+"/teacher/course/"+slug+"/",domain+"/en/teacher/course/"+slug+"/")}
  assert.equal(urls.length,expected.length,"sitemap should enumerate all public and playable game routes");
  assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
@@ -508,7 +509,7 @@ check("all published SSG OG images are present, 1200x630 PNG, and route-specific
   for(const slug of pages)push(lang+(slug?slug+"/":""));
   for(const slug of ["travel","business","daily","teamwork","tickets","services"])push(lang+"teacher/course/"+slug+"/");
   for(const slug of ["ai-english-speaking","ai-conversation-partner","travel-english-dialogues","english-pronunciation","gemini-key-for-ai-practice"])push(lang+"guides/"+slug+"/");
-  for(const slug of ["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo"])push(lang+"games/"+slug+"/");
+  for(const slug of ["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo","number-bomb","memory","crazy-court","werewolf","truth-news","nonsense"])push(lang+"games/"+slug+"/");
  }
  const {readPublishedResearch}=await import("../scripts/research-seo.mjs");
  const {days}=readPublishedResearch(ROOT);

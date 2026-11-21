@@ -58,6 +58,7 @@ export function AccountPage(){
    {authError&&<p role="alert" className="crew-account-error">{t(authError==="cancelled"?"auth.cancelled":"auth.failed")}</p>}
    {error&&<p role="alert" className="crew-account-error">{error}</p>}
    <p className="crew-account-privacy">{t("auth.localData")}</p>
+   <Link className="btn secondary" to="/fortune/purchases">{/^zh/.test(i18n.resolvedLanguage||i18n.language)?"查看已購買命理報告":"View purchased fortune reports"}</Link>
    <Link className="crew-account-back" to="/settings">{t("auth.backSettings")}</Link>
   </section>;
  const aiPanel=<section className="crew-account-ai" aria-label={t("auth.aiSettings")}>
