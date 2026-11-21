@@ -40,30 +40,11 @@ export function useStoryNarrator(book:StoryBook,index:number,page:StoryPage,imag
    pendingFinishRef.current=true;
    return;
   }
-  pendingAdvanceRef.current=nextIndex;
+  pendingAdvanceRef.current=nextIndex; // available for manual navigation, not an automatic timer
  };
 
- useEffect(()=>{
-  if(live.state!=="listening"||pausedRef.current)return;
-  if(pendingFinishRef.current){
-   pendingFinishRef.current=false;
-   pendingAdvanceRef.current=null;
-   setFinished(true);
-   return;
-  }
-  const nextIndex=pendingAdvanceRef.current;
-  if(nextIndex===null)return;
-  const timer=window.setTimeout(()=>{
-   if(pausedRef.current||pendingAdvanceRef.current!==nextIndex)return;
-   pendingAdvanceRef.current=null;
-   const nextPage=book.pages[nextIndex]||{text:""};
-   const nextImage=(book.images||[])[Number(nextPage.imageIndex)];
-   setFinished(false);
-   onPageAdvance?.(nextIndex);
-   sendNarration(nextPage,nextIndex,nextImage);
-  },650);
-  return()=>window.clearTimeout(timer);
- },[live.state,book,onPageAdvance]);
+ // Story narration is deliberately page-by-page. Never auto-advance after 650ms:
+ // the listener needs an unhurried chance to speak before choosing the next page.
 
  async function startOrResume(){
   if(finished){
