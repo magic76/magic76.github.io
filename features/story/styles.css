@@ -31,3 +31,16 @@
  .story-player .story-player-controls{min-width:0;max-width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr);gap:6px}
  .story-player .story-player-controls button{min-width:0;white-space:normal}
 }
+
+/* Story reader: intrinsic-width media must never expand the mobile grid track. */
+.story-reader{min-width:0;max-width:100%;grid-template-columns:minmax(0,400px) minmax(0,1fr)}
+.story-reader-media,.story-reader-copy{box-sizing:border-box;min-width:0;max-width:100%}
+.story-reader-media{overflow:hidden}
+.story-reader-media>img,.story-reader-media>.story-player-placeholder{box-sizing:border-box;display:block;width:100%;max-width:100%;min-width:0}
+.story-reader-media>img{height:auto;object-fit:contain}
+.story-reader-media>.story-player-placeholder{overflow:hidden}
+@media(max-width:720px){
+ .story-reader{width:100%;grid-template-columns:minmax(0,1fr)}
+ .story-reader-media{width:100%;min-width:0}
+ .story-reader-media>.story-player-placeholder{max-width:100%;}
+}
