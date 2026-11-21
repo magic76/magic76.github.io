@@ -2,6 +2,7 @@ import {COURSE_SEO} from "./course-seo.mjs";
 import {prerenderPublicRoutes} from "./ssg-renderer.mjs";
 import {articleHead,articlePath,escapeHtml,safeJson,indexableArticle} from "./research-seo.mjs";
 import {GAME_SEO_PAGES,GAME_SEO_SLUGS} from "./game-seo.mjs";
+import {writeBaziSeoPages,baziSitemapEntries} from "./bazi-seo.mjs";
 import {seoLastmod} from "./seo-lastmod.mjs";
 import {previewUrl,writePreview,writeStaticPreviews,replacePreviewMeta} from "./social-og.mjs";
 import {readFileSync, writeFileSync, cpSync, existsSync, mkdirSync, rmSync, readdirSync} from "node:fs";
@@ -449,7 +450,8 @@ const guideSitemapEntries=[...new Set([...guides.values()].map(({slug})=>slug))]
 ).join(newline);
 const sitemap=read("sitemap.xml");
 if(!sitemap.includes("</urlset>"))throw Error("Missing sitemap closing tag");
-writeFileSync(join(out,"sitemap.xml"),sitemap.replace("</urlset>",guideSitemapEntries+newline+sitemapEntries+newline+"</urlset>"));
+writeBaziSeoPages(out);
+writeFileSync(join(out,"sitemap.xml"),sitemap.replace("</urlset>",guideSitemapEntries+newline+baziSitemapEntries(seoLastmod)+newline+sitemapEntries+newline+"</urlset>"));
 
 // Preserve bookmarks shared from GitHub Pages, including HashRouter query string.
 // Cloudflare deploys a redirect-only compatibility document, not a second app.
