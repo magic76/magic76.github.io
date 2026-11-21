@@ -24,7 +24,7 @@ function db({sessionUser="user-1",walletUser="user-1",walletRow=wallet,events=[s
   if(sql.includes("FROM koolo_voice_credit_ledger")){
    assert.match(sql,/WHERE user_id=\?/);
    assert.match(sql,/LIMIT 30/);
-   return {bind(id){return {async all(){return {results:id===walletUser?events:[]}}}};
+   return {bind(id){return {async all(){return {results:id===walletUser?events:[]}}}}};
   }
   throw Error("Unexpected wallet query: "+sql);
  }};
