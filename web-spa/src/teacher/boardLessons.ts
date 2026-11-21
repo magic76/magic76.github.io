@@ -110,6 +110,13 @@ export function lessonPrompt(lesson:Lesson,step:number):string{
   "Success criteria: "+lesson.success,
   "Current stage "+(step+1)+"/"+lesson.cards.length+": "+card.title+".",
   "Follow this already displayed teaching card. Do not reset the board, invent personal facts, or advance without learner action.",
+  "Exact visible card material (use only the current stage):",
+  card.body,
+  ...card.pairs.map(p=>p.source+" — "+p.target),
+  ...card.points.map(p=>p.label+": "+p.note),
+  ...card.questions.map(q=>q.question+" | choices: "+q.options.join(" / ")),
+  ...(card.speaking?[card.speaking.prompt,card.speaking.goal]:[]),
+  "Do not reveal quiz answers before the learner answers. Explain the visible items in order and pause for learner input. Do not call board or director tools for this guided lesson.",
   card.type==="quiz"?"Ask the quiz question briefly and WAIT for student input. Never state or imply the answer until the student responds.":
   card.type==="speaking"?"Act as a conversation partner. Ask the student to say an original complete answer. Wait, then provide one actionable pronunciation or grammar tip. Do not claim rubric success without checking the learner's words.":
   "Explain this stage briefly, refer to its visual items, then ask whether the learner wants to move on."
