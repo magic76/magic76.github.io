@@ -6,7 +6,7 @@
 type Context={request:Request;env:{
   CREW_USAGE_ACCESS_ISS?:string;CREW_USAGE_ACCESS_AUD?:string;
   CREW_USAGE_ADMIN_EMAIL?:string;CREW_USAGE_ACCOUNT_ID?:string;CREW_USAGE_SQL_TOKEN?:string;
-  CREW_FEEDBACK_DB?:FeedbackDb;
+  CREW_FEEDBACK_DB?:FeedbackDb;CREW_AUTH_DB?:FeedbackDb;
 }};
 const respond=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{
  "Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"
@@ -132,6 +132,18 @@ export async function onRequestGet({request,env}:Context){
  if(!await verifyAccess(request,env))return respond({error:"Access denied or not configured"},403);
  const view=new URL(request.url).searchParams.get("view");
  if(view==="feedback")return listFeedback(request,env);
+ if(view==="accounts"){
+  const db=env.CREW_AUTH_DB;
+  if(!db||typeof db.prepare!=="function")return respond({error:"Auth D1 binding unavailable"},503);
+  try{
+   const now=Math.floor(Date.now()/1000);
+   const day=86400;
+   const stats=await db.prepare("SELECT COUNT(*) AS total, SUM(CASE WHEN created_at>=? THEN 1 ELSE 0 END) AS new7, SUM(CASE WHEN created_at>=? THEN 1 ELSE 0 END) AS new30 FROM crew_auth_users").bind(now-7*day,now-30*day).first<{total:number;new7:number;new30:number}>();
+   const sessions=await db.prepare("SELECT COUNT(DISTINCT user_id) AS activeSessions FROM crew_auth_sessions WHERE expires_at>?").bind(now).first<{activeSessions:number}>();
+   return respond({total:Number(stats?.total||0),new7:Number(stats?.new7||0),new30:Number(stats?.new30||0),activeSessions:Number(sessions?.activeSessions||0),generatedAt:new Date().toISOString()});
+  }catch{return respond({error:"Account statistics unavailable"},502)}
+ }
+
  if(view!==null)return respond({error:"Invalid report view"},400);
  if(!/^[0-9a-f]{32}$/i.test(env.CREW_USAGE_ACCOUNT_ID||"")||!env.CREW_USAGE_SQL_TOKEN){
   return respond({error:"Analytics query credentials not configured"},503);
