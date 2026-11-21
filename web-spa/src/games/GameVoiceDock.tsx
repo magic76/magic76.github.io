@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useState,type ReactNode} from "react";
 import {useTranslation} from "react-i18next";
 import {Link,useLocation} from "react-router-dom";
@@ -19,7 +20,7 @@ export function GameVoiceDock({className,label,children}:{className:string;label
  return <section className={className+" game-voice-dock"+(collapsed?" is-collapsed":"")} aria-label={label||t("playHub.mini.voiceRegion")}>
   <button type="button" className="game-voice-dock-toggle" aria-expanded={!collapsed} onClick={()=>setCollapsed(value=>!value)}
    aria-label={collapsed?t("playHub.voiceDock.expand"):t("playHub.voiceDock.collapse")} title={collapsed?t("playHub.voiceDock.expand"):t("playHub.voiceDock.collapse")}>
-   <span aria-hidden="true">{collapsed?"⌃":"⌄"}</span>
+   <Arrow direction={collapsed?"up":"down"} className="crew-arrow--plain"/>
   </button>
   {children}
   <Link className="game-voice-dock-chat" to={"/friend/live?id=zoe&chat=text&topic="+topic}>{t("contentChat.gameText",{ns:"friends"})}</Link>
