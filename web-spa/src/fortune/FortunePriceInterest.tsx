@@ -1,5 +1,6 @@
 import{useEffect,useRef,useState}from"react";
 import{useTranslation}from"react-i18next";
+import{Link}from"react-router-dom";
 import{trackUsageEvent}from"../analytics/usage";
 import"./fortunePriceInterest.css";
 const INTEREST_KEY="koolo_fortune_bazi_interest_v1";
