@@ -1,28 +1,36 @@
 import{useEffect,useRef,useState}from"react";
+import{useTranslation}from"react-i18next";
 import{trackUsageEvent}from"../analytics/usage";
 import"./fortunePriceInterest.css";
-
-/** Interest-only pricing experiment: never initiates payment or gates the free report. */
+const INTEREST_KEY="koolo_fortune_bazi_interest_v1";
+const viewed=new Set<string>();
+function savedInterest(){try{return localStorage.getItem(INTEREST_KEY)==="yes"}catch{return false}}
 export function FortunePriceInterest({readingId}:{readingId:string}){
- const[interested,setInterested]=useState(false);
+ const{i18n}=useTranslation();
+ const zh=/^zh(?:-|$)/i.test(i18n.resolvedLanguage||i18n.language);
+ const copy=(z:string,e:string)=>zh?z:e;
+ const[interested,setInterested]=useState(savedInterest);
  const seen=useRef(new Set<string>());
  useEffect(()=>{
-  if(seen.current.has(readingId))return;
-  seen.current.add(readingId);
+  if(seen.current.has(readingId)||viewed.has(readingId))return;
+  seen.current.add(readingId);viewed.add(readingId);
   trackUsageEvent("fortune_price_view","bazi");
  },[readingId]);
- return <section className="fortune-price-interest" aria-label="八字深度報告意願調查">
-  <div className="fortune-price-interest-heading">
-   <div><span className="fortune-price-interest-eyebrow">即將推出 · 意願調查</span>
-    <h3>想更深入了解自己的命格？</h3></div>
-   <strong>NT$79 <small>預計售價</small></strong>
+ return <section className="fortune-price-interest" aria-label={copy("八字深度報告意願調查","BaZi report interest survey")}>
+  <div className="fortune-price-interest-heading"><div><span className="fortune-price-interest-eyebrow">{copy("即將推出 · 意願調查","Coming soon · Interest survey")}</span>
+   <h3>{copy("想更深入了解自己的命格？","Want to explore your chart in more depth?")}</h3></div>
+   <strong>NT$79 <small>{copy("預計售價","Planned price")}</small></strong>
   </div>
-  <p>我們正在評估「八字完整深度報告」，包含性格、事業、人際與人生階段的延伸解析。基本命盤與免費摘要仍可查看；完整分析與未來三年逐年解讀將規劃於深度版。</p>
-  {interested?<p className="fortune-price-interest-thanks" role="status">收到你的意願！目前尚未開放購買，也不會收取任何費用。</p>:
+  <p>{copy("預計提供：性格與職涯深度解析、兩個你最在意的問題、未來三年的重點與 30 天行動建議。這些內容尚未開放。","Planned: deeper personality and career insights, two questions you care about, three-year themes, and a 30-day action plan. Not yet available.")}</p>
+  <div className="fortune-price-interest-preview"><strong>{copy("報告內容預覽（規劃中）","Planned report preview")}</strong>
+   <ul><li>{copy("你的優勢與容易卡住的情境","Strengths and common challenges")}</li><li>{copy("兩個自選主題的命盤依據與生活建議","Chart-based reflections on two chosen topics")}</li><li>{copy("未來三年各一個關注重點（非事件預言）","One focus per year for the next three years (not predictions)")}</li></ul>
+  </div>
+  {interested?<p className="fortune-price-interest-thanks" role="status">{copy("已記下你的意願！目前無法購買，也不會收費。","Interest noted! Purchasing is not available and no payment is taken.")}</p>:
    <button type="button" className="fortune-price-interest-button" onClick={()=>{
-    setInterested(true);
-    trackUsageEvent("fortune_price_interest","bazi");
-   }}>我有興趣</button>}
-  <small>這是價格意願測試，非正式商品。點擊不會付款、預訂或解鎖付費內容。</small>
+    if(savedInterest()){setInterested(true);return}
+    try{localStorage.setItem(INTEREST_KEY,"yes")}catch{}
+    setInterested(true);trackUsageEvent("fortune_price_interest","bazi");
+   }}>{copy("我有興趣 · NT$79","I'm interested · NT$79")}</button>}
+  <small>{copy("這只是意願調查，不是預購或付款。報告內容與交付方式仍在規劃。","Interest survey only: no purchase, preorder, or payment. Content and delivery are still being planned.")}</small>
  </section>;
 }
