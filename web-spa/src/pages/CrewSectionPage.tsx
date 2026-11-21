@@ -10,6 +10,7 @@ import {creatureLabHref} from "./creatureLabProgress";
 import {CurrentTeacherCard} from "../teacher/CurrentTeacherCard";
 import {LearningFocusCard} from "../teacher/LearningFocusCard";
 import {LearningSnapshot} from "../teacher/LearningSnapshot";
+import {KooloAdminEntry} from "./KooloAdminEntry";
 import {LearnHubExtras} from "./LearnHubExtras";
 import {FriendIntentCards} from "../friends/FriendIntentCards";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
@@ -327,6 +328,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
        <span className="crew-section-card-copy"><strong>{tCommon("auth.account")}</strong><small>{tCommon("auth.intro")}</small></span>
        <span className="crew-section-arrow" aria-hidden="true">→</span>
       </Link>}
+      {section==="me"&&<KooloAdminEntry english={en}/>}
       {x.items.filter(item=>(section!=="chat"||item.to!=="/teacher/shorts")&&(section!=="me"||item.to!=="/teacher/reports")).map(item=>
       <Link className="crew-section-card" to={item.to} key={item.to}>
        <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
