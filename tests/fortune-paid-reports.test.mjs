@@ -82,6 +82,8 @@ test("future checkout remains disabled; source routes and migration do not grant
  assert.ok(routes.include.includes("/api/fortune/*"));
  assert.match(schema,/CHECK\(status<>'paid' OR paid_at IS NOT NULL\)/);
  assert.match(schema,/provider_event_hash TEXT NOT NULL UNIQUE/);
+ assert.match(schema,/CREATE TRIGGER IF NOT EXISTS koolo_fortune_reports_lock_ready/);
+ assert.match(schema,/RAISE\(ABORT,'ready_report_immutable'\)/);
  assert.match(schema,/CHECK\(status<>'ready' OR content_json IS NOT NULL\)/);
  assert.ok(app.includes('path="purchases"'));
  assert.ok(app.includes('path="purchases/:reportId"'));
