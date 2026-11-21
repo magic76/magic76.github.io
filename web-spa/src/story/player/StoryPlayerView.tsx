@@ -1,3 +1,4 @@
+import {Arrow} from "../../components/Arrow";
 import{useCallback,useEffect,useRef,useState}from"react";
 import{Link,useNavigate,useSearchParams}from"react-router-dom";
 import{addHistory}from"../../lib/runtime";
@@ -75,7 +76,7 @@ export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
      <div className="story-placeholder-stars" aria-hidden="true"><i/><i/><i/><i/><i/></div>
      <span aria-hidden="true">{sceneSymbol(book,page)}</span>
      <small>故事場景示意 · 尚未加入插圖</small>
-     {book.sourceType!=="built-in"&&book.readingMode!=="physical"&&<Link className="story-placeholder-edit" to={"/story/edit/"+encodeURIComponent(book.id)}>為故事加入圖片 →</Link>}
+     {book.sourceType!=="built-in"&&book.readingMode!=="physical"&&<Link className="story-placeholder-edit" to={"/story/edit/"+encodeURIComponent(book.id)}>為故事加入圖片 <Arrow/></Link>}
     </div>}</div>
   <section className="story-reader-copy">
    <div className="story-player-meta"><span className="kicker">{index+1} / {Math.max(1,book.pages.length)}</span>{page.emotion&&<span className="pill">{page.emotion}</span>}</div>
