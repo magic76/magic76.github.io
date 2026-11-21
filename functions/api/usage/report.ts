@@ -15,7 +15,7 @@ function decode(value:string){
  const raw=atob(value.replace(/-/g,"+").replace(/_/g,"/").padEnd(Math.ceil(value.length/4)*4,"="));
  return Uint8Array.from(raw,x=>x.charCodeAt(0));
 }
-async function verifyAccess(request:Request,env:Context["env"]):Promise<boolean>{
+export async function verifyAccess(request:Request,env:Context["env"]):Promise<boolean>{
  const issuer=env.CREW_USAGE_ACCESS_ISS?.replace(/\/+$/,"");
  const aud=env.CREW_USAGE_ACCESS_AUD,email=env.CREW_USAGE_ADMIN_EMAIL?.toLowerCase();
  if(!issuer||!/^https:\/\/[a-z0-9-]+\.cloudflareaccess\.com$/.test(issuer)||!aud||!email)return false;
