@@ -2,228 +2,350 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://koolo.app/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/"/>
   </url>
   <url>
     <loc>https://koolo.app/teacher/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/teacher/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/"/>
   </url>
   <url>
     <loc>https://koolo.app/story/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/story/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/story/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/story/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/story/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/story/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/story/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/story/"/>
   </url>
   <url>
     <loc>https://koolo.app/fortune/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/fortune/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/fortune/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/fortune/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/fortune/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/fortune/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/fortune/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/fortune/"/>
   </url>
   <url>
     <loc>https://koolo.app/research/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/research/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/research/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/research/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/research/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/research/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/research/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/research/"/>
   </url>
   <url>
     <loc>https://koolo.app/games/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/games/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/"/>
   </url>
   <url>
     <loc>https://koolo.app/games/friend-gomoku/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/friend-gomoku/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/friend-gomoku/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/friend-gomoku/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/games/friend-gomoku/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/friend-gomoku/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/friend-gomoku/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/friend-gomoku/"/>
   </url>
   <url>
     <loc>https://koolo.app/games/connect4/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/connect4/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/connect4/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/connect4/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/games/connect4/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/connect4/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/connect4/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/connect4/"/>
   </url>
   <url>
     <loc>https://koolo.app/games/twenty-questions/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/twenty-questions/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/twenty-questions/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/twenty-questions/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/games/twenty-questions/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/twenty-questions/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/twenty-questions/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/twenty-questions/"/>
   </url>
   <url>
     <loc>https://koolo.app/games/reversi/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/reversi/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/reversi/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/reversi/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/games/reversi/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/reversi/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/reversi/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/reversi/"/>
   </url>
   <url>
     <loc>https://koolo.app/games/mystery/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/mystery/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/mystery/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/mystery/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/games/mystery/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/mystery/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/mystery/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/mystery/"/>
   </url>
   <url>
     <loc>https://koolo.app/games/1a2b/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/1a2b/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/1a2b/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/1a2b/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/games/1a2b/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/1a2b/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/1a2b/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/1a2b/"/>
   </url>
   <url>
+    <loc>https://koolo.app/games/number-bomb/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/number-bomb/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/number-bomb/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/number-bomb/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/en/games/number-bomb/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/number-bomb/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/number-bomb/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/number-bomb/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/games/memory/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/memory/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/memory/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/memory/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/en/games/memory/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/memory/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/memory/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/memory/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/games/crazy-court/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/crazy-court/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/crazy-court/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/crazy-court/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/en/games/crazy-court/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/crazy-court/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/crazy-court/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/crazy-court/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/games/werewolf/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/werewolf/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/werewolf/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/werewolf/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/en/games/werewolf/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/werewolf/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/werewolf/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/werewolf/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/games/truth-news/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/truth-news/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/truth-news/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/truth-news/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/en/games/truth-news/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/truth-news/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/truth-news/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/truth-news/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/games/nonsense/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/nonsense/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/nonsense/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/nonsense/"/>
+  </url>
+  <url>
+    <loc>https://koolo.app/en/games/nonsense/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/nonsense/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/nonsense/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/nonsense/"/>
+  </url>
+  <url>
     <loc>https://koolo.app/games/taboo/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/taboo/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/taboo/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/taboo/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/games/taboo/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/games/taboo/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/games/taboo/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/games/taboo/"/>
   </url>
   <url>
     <loc>https://koolo.app/teacher/course/travel/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/travel/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/travel/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/travel/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/teacher/course/travel/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/travel/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/travel/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/travel/"/>
   </url>
   <url>
     <loc>https://koolo.app/teacher/course/business/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/business/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/business/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/business/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/teacher/course/business/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/business/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/business/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/business/"/>
   </url>
   <url>
     <loc>https://koolo.app/teacher/course/daily/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/daily/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/daily/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/daily/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/teacher/course/daily/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/daily/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/daily/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/daily/"/>
   </url>
   <url>
     <loc>https://koolo.app/teacher/course/teamwork/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/teamwork/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/teamwork/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/teamwork/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/teacher/course/teamwork/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/teamwork/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/teamwork/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/teamwork/"/>
   </url>
   <url>
     <loc>https://koolo.app/teacher/course/tickets/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/tickets/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/tickets/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/tickets/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/teacher/course/tickets/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/tickets/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/tickets/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/tickets/"/>
   </url>
   <url>
     <loc>https://koolo.app/teacher/course/services/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/services/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/services/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/services/"/>
   </url>
   <url>
     <loc>https://koolo.app/en/teacher/course/services/</loc>
+    <lastmod>2026-11-21</lastmod>
     <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://koolo.app/teacher/course/services/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://koolo.app/en/teacher/course/services/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://koolo.app/teacher/course/services/"/>

@@ -47,11 +47,14 @@ test("each locale has crawlable content with its own canonical and reciprocal hr
   }}
 });
 test("sitemap enumerates public and game URLs with matching language alternates",()=>{
-  const games=["games","games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"];
+  const games=["games","games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/number-bomb","games/memory","games/crazy-court","games/werewolf","games/truth-news","games/nonsense","games/taboo"];
   const xml=read("sitemap.xml");
   const actual=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
   assert.deepEqual(actual,[...slugs,...games,...courses].flatMap(slug=>[url(slug,"zh"),url(slug,"en")]));
   assert.equal((xml.match(/hreflang="x-default"/g)||[]).length,(slugs.length+games.length+courses.length)*2);
+  const dates=[...xml.matchAll(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/g)];
+  assert.equal(dates.length,actual.length,"every indexable URL has lastmod");
+  assert.ok(!actual.some(link=>link.endsWith("/games/gomoku/")),"redirect alias must not be indexed");
   assert.match(xml,/xmlns:xhtml="http:\/\/www\.w3\.org\/1999\/xhtml"/);
   assert.match(read("robots.txt"),/Sitemap: https:\/\/koolo\.app\/sitemap\.xml/);
 });
