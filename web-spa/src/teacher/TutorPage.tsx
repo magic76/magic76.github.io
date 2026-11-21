@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import{useEffect,useRef,useState}from"react";import{useClientReady}from"../lib/useClientReady";import{useTranslation}from"react-i18next";
 import{Link,useLocation}from"react-router-dom";
 import{useTeacherStore,type ConversationMode,type SpeakingPace}from"../store/teacherStore";
@@ -61,7 +62,7 @@ export function TutorPage(){
       aria-live="polite">{preview?.state==="connecting"?t("tutor.connecting"):preview?.state==="playing"?t("tutor.stop"):preview?.state==="finished"?t("tutor.again"):preview?.state==="error"?t("tutor.retry"):t("tutor.listen")}</button>
    </div>
    {preview?.state==="error"&&<p className="teacher-preview-error" role="alert">{preview.message}</p>}
-   <Link className="primary-wide teacher-home-start" to={startPath} onClick={stopPreview}>{t("tutor.start",{name:profile.name})} <span aria-hidden="true">→</span></Link>
+   <Link className="primary-wide teacher-home-start" to={startPath} onClick={stopPreview}>{t("tutor.start",{name:profile.name})} <Arrow/></Link>
   </div>
  </section>
  <section className="section teacher-precall-settings panel"><label>{t("tutor.language")}<select className="field" value={displayTarget} onChange={e=>s.setTargetLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(v=><option key={v} value={v}>{t("friends:languages."+v)}</option>)}</select></label><label>{t("tutor.pace")}<select className="field" value={s.speakingPace} onChange={e=>s.setSpeakingPace(e.target.value as SpeakingPace)}><option value="slow">{t("tutor.speed.slow")}</option><option value="normal">{t("tutor.shortSpeed.normal")}</option><option value="fast">{t("tutor.speed.fast")}</option></select></label><label>{t("tutor.speakingLevel")}<select className="field" value={s.learnerSpeakingLevel} onChange={e=>s.setLearnerSpeakingLevel(e.target.value as typeof s.learnerSpeakingLevel)}><option value="auto">{t("tutor.speakingLevelAuto")}</option><option value="A1">A1 · {t("tutor.levels.A1")}</option><option value="A2">A2 · {t("tutor.levels.A2")}</option><option value="B1">B1 · {t("tutor.levels.B1")}</option><option value="B2">B2+ · {t("tutor.levels.B2")}</option></select></label><TeacherPinyinSetting targetLanguage={displayTarget} value={s.pronunciationAidMode} onChange={s.setPronunciationAidMode} english={english} /></section>
