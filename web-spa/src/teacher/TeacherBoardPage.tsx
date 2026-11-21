@@ -1,6 +1,5 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {Arrow} from "../components/Arrow";
-import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
