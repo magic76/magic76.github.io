@@ -9,3 +9,6 @@
 .fortune-price-interest-thanks{font-weight:700}
 .fortune-price-interest>small{font-size:.75rem;line-height:1.5;opacity:.8}
 @media(max-width:380px){.fortune-price-interest-heading{flex-direction:column}.fortune-price-interest-heading strong small{display:inline;text-align:left;margin-left:6px}}
+
+.fortune-price-interest-preview{border:1px solid var(--border,#d9e2eb);border-radius:12px;padding:12px;font-size:.9rem}
+.fortune-price-interest-preview ul{margin:8px 0 0;padding-left:20px;line-height:1.6}
