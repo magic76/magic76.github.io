@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -35,6 +36,6 @@ export function FortuneDailyStrip({reading}:{reading:FortuneReading}){
  return <section className="fortune-daily-strip" aria-label={t("today")}>
   <div><small>{t("today")} · {t(actualKind)}</small><strong>{card.headline}</strong>
    <span>{t("colorSummary",{color:card.luckyColor.name})}</span></div>
-  <Link to="/fortune">{t("viewDaily")} →</Link>
+  <Link to="/fortune">{t("viewDaily")} <Arrow/></Link>
  </section>;
 }
