@@ -122,7 +122,7 @@ export function FortuneHomePage(){
      {list.slice(0,3).map(x=><Link className="fortune-history-row" to={readingUrl(x.id)} key={x.id}>
       <span className={"fortune-history-mark "+x.mode}/>
       <span><strong>{name(x.mode,t)}</strong><small>{x.summary||t("home.reading")}</small></span>
-      <b>{x.createdAt?new Date(x.createdAt).toLocaleDateString(i18n.language):""} ›</b>
+      <b>{x.createdAt?new Date(x.createdAt).toLocaleDateString(i18n.language):""} <Arrow/></b>
      </Link>)}
     </div>:
     <div className="fortune-home-empty"><strong>{t("home.empty")}</strong><span>{t("home.emptyDesc")}</span></div>}
