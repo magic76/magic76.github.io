@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useMemo,useState} from "react";
 import {Link} from "react-router-dom";
 import type {FortunePublicInvite} from "./fortuneInvite";
@@ -23,7 +24,7 @@ export function FortuneInviteLanding({invite,locale}:{invite:FortunePublicInvite
     <p>{model.tagline}</p>
     <div className="fortune-identity-chips">{model.chips.slice(0,2).map(chip=><span key={chip}>{chip}</span>)}</div>
     <p className="fortune-invite-note">{labels.symbolic}</p>
-    <Link className="btn fortune-invite-primary" to={fortuneInviteNextUrl(invite)}>{labels.mine} →</Link>
+    <Link className="btn fortune-invite-primary" to={fortuneInviteNextUrl(invite)}>{labels.mine} <Arrow/></Link>
     <div className="fortune-invite-alternatives">
      <Link to="/fortune/reading?mode=bazi&src=card">{labels.bazi}</Link>
      <Link to="/fortune/reading?mode=vedic&src=card">{labels.vedic}</Link>
