@@ -253,3 +253,7 @@
  .teacher-my-summary .actions{margin-bottom:14px}
  .teacher-my-summary .teacher-stats+.teacher-stats{margin-top:10px}
 }
+
+/* Four learning-method cards use the same 32px arrow slot. */
+.crew-section-learn .crew-learn-tool{position:relative;padding-right:42px}
+.crew-section-learn .crew-learn-tool .crew-learn-tool-arrow{position:absolute;right:10px;bottom:10px;width:32px;height:32px;background:#285a48;color:#fff}
