@@ -1,4 +1,5 @@
 import {useRef,useState} from "react";
+import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
@@ -228,12 +229,12 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     {[x.hero,...x.items].map((item,i)=><Link className="crew-explore-tile" key={item.to} to={item.to} onClick={()=>recordExploreEntry(item.to)} data-kind={exploreKinds[i]}>
      <div className="crew-explore-art"><ExploreArtwork kind={exploreKinds[i]}/></div>
      <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
-     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+     <Arrow direction="up-right" className="crew-explore-arrow"/>
     </Link>)}
     <a className="crew-explore-tile" data-kind="creature" href={creatureLabHref()} onClick={()=>trackUsageEvent("explore_entry_click","play")}>
      <div className="crew-explore-art" aria-hidden="true"><img className="crew-explore-creature-art" src={creatureLabHref()+"art/creatures/moonfox-egg.webp"} width="180" height="240" alt="" loading="lazy" decoding="async"/></div>
      <span className="crew-explore-text"><strong>{t("creatureLab.discover")}</strong><small>{t("creatureLab.intro")}</small></span>
-     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+     <Arrow direction="up-right" className="crew-explore-arrow"/>
     </a>
     <Link className="crew-explore-tile crew-explore-mate" data-kind="mate" onClick={()=>trackUsageEvent("explore_entry_click","mate")} to="/mate">
      <div className="crew-explore-art"><ExploreArtwork kind="mate"/></div>
@@ -241,7 +242,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       <strong>{en?"Koolo Mate · Speak for me":"Koolo Mate · AI 幫你溝通"}</strong>
       <small>{en?"Brief privately, then let Mate talk to someone in another language.":"私下交代任務，再交給 Mate 用對方的語言溝通。"}</small>
      </span>
-     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+     <Arrow direction="up-right" className="crew-explore-arrow"/>
     </Link>
     <Link className="crew-explore-tile crew-explore-souls" data-kind="souls" to="/souls" onClick={()=>trackUsageEvent("explore_entry_click","souls")}>
      <div className="crew-explore-art"><ExploreArtwork kind="souls"/></div>
@@ -249,7 +250,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       <strong>{en?"Koolo Souls · Bring photos to life":"Koolo Souls · 讓照片活過來"}</strong>
       <small>{en?"Give an object or portrait a personality, then talk to it with AI.":"拍下物品或人物，打造有個性的角色，直接用 AI 語音聊天。"}</small>
      </span>
-     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+     <Arrow direction="up-right" className="crew-explore-arrow"/>
     </Link>
     <Link className="crew-explore-tile crew-explore-town" data-kind="town" onClick={()=>trackUsageEvent("explore_entry_click","town")} to="/town">
      <div className="crew-explore-art"><ExploreArtwork kind="town"/></div>
@@ -257,7 +258,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       <strong>{en?"Koolo Town · A living little world":"Koolo Town · 朋友生活小鎮"}</strong>
       <small>{en?"Explore a 3D town with 16 AI friends.":"走進 3D 小鎮，探索街區並與 16 位 AI 朋友互動。"}</small>
      </span>
-     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+     <Arrow direction="up-right" className="crew-explore-arrow"/>
     </Link>
     <Link className="crew-explore-tile crew-explore-magic" data-kind="magic" onClick={()=>trackUsageEvent("explore_entry_click","magic")} to="/magic">
      <div className="crew-explore-art"><ExploreArtwork kind="magic"/></div>
@@ -265,11 +266,11 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       <strong>{en?"Koolo Magic · Speak worlds into life":"Koolo Magic · 用聲音創造世界"}</strong>
       <small>{en?"Summon dragons, change the sky and create live adventures with an AI guide.":"召喚飛龍、改變天空，和 AI 嚮導一起創造即時冒險。"}</small>
      </span>
-     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+     <Arrow direction="up-right" className="crew-explore-arrow"/>
     </Link>
     <Link className="crew-explore-tile crew-explore-discover" data-kind="discover" to="/discover" onClick={()=>trackUsageEvent("explore_entry_click","briefing")}>
       <div className="crew-explore-art" aria-hidden="true" style={{display:"grid",placeItems:"center",fontSize:"clamp(48px,7vw,90px)",background:"linear-gradient(135deg,#e8d6f4,#b9d9de)"}}>✦</div>
-      <span className="crew-explore-text"><strong>{en?"Koolo Discover · Explore real life":"Koolo Discover · 探索真實世界"}</strong><small>{en?"Search real news by text or voice.":"搜尋真實新聞、文化與新知，和 AI 用文字或語音一起探索。"}</small></span><span className="crew-explore-arrow" aria-hidden="true">↗</span>
+      <span className="crew-explore-text"><strong>{en?"Koolo Discover · Explore real life":"Koolo Discover · 探索真實世界"}</strong><small>{en?"Search real news by text or voice.":"搜尋真實新聞、文化與新知，和 AI 用文字或語音一起探索。"}</small></span><Arrow direction="up-right" className="crew-explore-arrow"/>
     </Link>
    </section>:
    <>
@@ -278,10 +279,10 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       <section className="crew-section-people" aria-label={t("sectionHubs.chat.meetFriends")}>
        <div className="crew-section-row-title"><h2>{t("sectionHubs.chat.meetFriends")}</h2>
         <div className="crew-section-people-toolbar">
-         <Link to="/teacher/roles?mode=friends">{t("sectionHubs.chat.allFriends")} →</Link>
+         <Link to="/teacher/roles?mode=friends">{t("sectionHubs.chat.allFriends")} <Arrow/></Link>
          <div className="crew-section-carousel-actions">
-          <button type="button" onClick={()=>browseFriends(-1)} disabled={friendsPosition.start} aria-label={t("sectionHubs.chat.previous",{defaultValue:"Previous friends"})}>←</button>
-          <button type="button" onClick={()=>browseFriends(1)} disabled={friendsPosition.end} aria-label={t("sectionHubs.chat.next",{defaultValue:"Next friends"})}>→</button>
+          <button type="button" onClick={()=>browseFriends(-1)} disabled={friendsPosition.start} aria-label={t("sectionHubs.chat.previous",{defaultValue:"Previous friends"})}><Arrow direction="left" disabled={friendsPosition.start}/></button>
+          <button type="button" onClick={()=>browseFriends(1)} disabled={friendsPosition.end} aria-label={t("sectionHubs.chat.next",{defaultValue:"Next friends"})}><Arrow disabled={friendsPosition.end}/></button>
          </div>
         </div>
        </div>
@@ -296,7 +297,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
            <strong>{friend.name}</strong>
            <small>{t("sectionHubs.chat.friendTitles."+friend.id,{defaultValue:en?friend.titleEn:friend.titleZh})}</small>
            <span className="crew-section-friend-bio">{t("sectionHubs.chat.friendBios."+friend.id,{defaultValue:en?friend.bioEn:friend.bioZh})}</span>
-           <span className="crew-section-friend-cta">{t("sectionHubs.chat.chatWith",{name:friend.name,defaultValue:"Chat with "+friend.name})} →</span>
+           <span className="crew-section-friend-cta">{t("sectionHubs.chat.chatWith",{name:friend.name,defaultValue:"Chat with "+friend.name})} <Arrow/></span>
           </span>
          </Link>
         )}
@@ -312,11 +313,11 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
        <LearningSnapshot/>
        <div className="crew-learn-tool-grid-host"><LearnHubExtras tools={learnTools} speakingPath={speakingPath}/></div>
       </>:
-      <>{section==="me"&&<section className="section panel crew-me-summary" aria-label={en?"My learning snapshot":"我的學習摘要"}><div className="teacher-stats"><div><strong>{meStats?.sessions??"—"}</strong><span>{en?"Practices":"練習次數"}</span></div><div><strong>{meStats?.lessons??"—"}</strong><span>{en?"Lessons":"完成課程"}</span></div><div><strong>{meStats?.saved??"—"}</strong><span>{en?"Saved phrases":"收藏片語"}</span></div></div><Link className="btn secondary small" to="/teacher/me">{en?"View learning records":"查看完整學習紀錄"} →</Link></section>}<Link to={section==="me"?"/teacher/roles?mode=teacher":x.hero.to} className="crew-section-hero">
+      <>{section==="me"&&<section className="section panel crew-me-summary" aria-label={en?"My learning snapshot":"我的學習摘要"}><div className="teacher-stats"><div><strong>{meStats?.sessions??"—"}</strong><span>{en?"Practices":"練習次數"}</span></div><div><strong>{meStats?.lessons??"—"}</strong><span>{en?"Lessons":"完成課程"}</span></div><div><strong>{meStats?.saved??"—"}</strong><span>{en?"Saved phrases":"收藏片語"}</span></div></div><Link className="btn secondary small" to="/teacher/me">{en?"View learning records":"查看完整學習紀錄"} <Arrow/></Link></section>}<Link to={section==="me"?"/teacher/roles?mode=teacher":x.hero.to} className="crew-section-hero">
        <span className="crew-section-hero-icon"><Icon name={x.hero.icon}/></span>
        <span className="crew-section-hero-copy"><span className="crew-section-eyebrow">{x.hero.tag}</span>
         <strong>{section==="me"?(en?"Continue learning":"繼續學習"):x.hero.title}</strong><small>{section==="me"?(en?"Pick up a lesson or start another practice.":"回到課程或開始下一次練習。"):x.hero.desc}</small></span>
-       <span className="crew-section-arrow" aria-hidden="true">→</span>
+       <Arrow className="crew-section-arrow"/>
       </Link></>
     }
     {section!=="learn"&&<section className="crew-section-discover">
@@ -325,13 +326,13 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       {section==="me"&&<Link className="crew-section-card" to="/account" aria-label={tCommon("auth.accountAi")}>
        <span className="crew-section-card-icon"><Icon name="teacher"/></span>
        <span className="crew-section-card-copy"><strong>{tCommon("auth.account")}</strong><small>{tCommon("auth.intro")}</small></span>
-       <span className="crew-section-arrow" aria-hidden="true">→</span>
+       <Arrow className="crew-section-arrow"/>
       </Link>}
       {x.items.filter(item=>(section!=="chat"||item.to!=="/teacher/shorts")&&(section!=="me"||item.to!=="/teacher/reports")).map(item=>
       <Link className="crew-section-card" to={item.to} key={item.to}>
        <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
        <span className="crew-section-card-copy"><strong>{item.title}</strong><small>{item.desc}</small></span>
-       <span className="crew-section-arrow" aria-hidden="true">→</span>
+       <Arrow className="crew-section-arrow"/>
       </Link>)}</div>
     </section>}
    </>
