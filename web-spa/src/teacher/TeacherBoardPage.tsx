@@ -165,7 +165,6 @@ export function TeacherBoardPage(){
   const lesson=lessonRef.current?findLesson(lessonRef.current):undefined;
   if(!lesson||index<0||index>=lesson.cards.length)return;
   if(active)live.interrupt();
-  lessonGenerationRef.current++;
   setLessonTransitioning(active);setLessonExplained(false);
   setLessonStep(index);
   speechAssessmentRef.current=null;setSpeakingAssessment(null);
