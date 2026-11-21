@@ -29,7 +29,7 @@ export function BriefingPage(){
  return <div className="briefing briefing-reader">
   <header className="briefing-head">
    <div><span className="kicker">CREW BRIEFING · 每日 AI 研究</span><h1>每天一份，值得深入的 AI 研究</h1><p>從 Agent、記憶、語音到 AI 產品體驗，挑選值得閱讀、值得驗證的技術方向。</p></div>
-   <div className="briefing-head-actions"><Link className="btn secondary" to="/research/board">我的閱讀清單</Link><a className="btn secondary" href={import.meta.env.BASE_URL+"briefings/feed.xml"} target="_blank" rel="noopener noreferrer">RSS 訂閱 ↗</a></div>
+   <div className="briefing-head-actions"><Link className="btn secondary" to="/research/board">我的閱讀清單</Link><a className="btn secondary" href={import.meta.env.BASE_URL+"briefings/feed.xml"} target="_blank" rel="noopener noreferrer">RSS 訂閱 <Arrow direction="up-right"/></a></div>
   </header>
   <div className="briefing-layout">
    <nav className="briefing-side" aria-label="選擇報告日期"><h2>歷史報告</h2>{dates.length?dates.map((date,i)=><button key={date} className={"briefing-date "+(date===selected?"active":"")} aria-current={date===selected?"date":undefined} onClick={()=>setSelected(date)}><strong>{dateLabel(date)}</strong>{i===0&&<small>最新一期</small>}</button>):<p className="meta">目前還沒有報告。</p>}</nav>
