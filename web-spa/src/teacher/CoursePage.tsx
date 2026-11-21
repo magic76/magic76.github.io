@@ -128,7 +128,7 @@ export function CoursePage(){
      <summary>
       <span className="crew-course-unit-number">{ui+1}</span>
       <span className="crew-course-unit-title"><strong>{title(unit)}</strong><small>{count} / {lessons.length} · {description(unit)}</small></span>
-      <span className="crew-course-unit-chevron" aria-hidden="true">⌄</span>
+      <Arrow direction="down" className="crew-course-unit-chevron crew-arrow--plain"/>
      </summary>
      <div className="crew-course-lessons">
       {lessons.map((lesson,li)=>{
