@@ -145,7 +145,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
      <h2 id="crew-onboarding-title">{c.welcomeTitle}</h2>
      <p className="crew-onboarding-lead">{c.welcomeDesc}</p>
      <div className="crew-onboarding-preview">
-      {goalCards.map(item=><button type="button" className="crew-onboarding-preview-item" key={item.id} onClick={()=>finish(true,item.id)}><span aria-hidden="true">{item.symbol}</span><strong>{item.title}</strong><span className="crew-onboarding-preview-arrow" aria-hidden="true">→</span></button>)}
+      {goalCards.map(item=><button type="button" className="crew-onboarding-preview-item" key={item.id} onClick={()=>finish(true,item.id)}><span aria-hidden="true">{item.symbol}</span><strong>{item.title}</strong><Arrow className="crew-onboarding-preview-arrow"/></button>)}
      </div>
      <p className="crew-onboarding-note">{c.welcomeNote}</p>
     </section>:null}
