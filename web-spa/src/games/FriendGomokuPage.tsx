@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -271,7 +272,7 @@ export function FriendGomokuPage(){
 
   return <div className="friend-gomoku-page">
     <header className={`friend-gomoku-heading${gameStarted?" is-playing":""}`}>
-      <Link to="/games" className="friend-gomoku-back">← <span>{t("playHub.allGames")}</span></Link>
+      <Link to="/games" className="friend-gomoku-back"><Arrow direction="left"/> <span>{t("playHub.allGames")}</span></Link>
       <span className="friend-gomoku-kicker">{t("playHub.gomoku.eyebrow")}</span>
       <h1>{gameStarted?(english?`Gomoku with ${friend.name}`:`和 ${friend.name} 下五子棋`):(english?"A game with a friend":"和朋友下一局")}</h1>
       {!gameStarted?<p>{loading?(english?"Preparing your board…":"正在準備棋盤…"):t("playHub.gomoku.intro")}</p>:null}
