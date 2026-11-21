@@ -42,7 +42,16 @@ export function bestNextLesson(){
  return best?.lesson||null
 }
 export function scoreCourseSession(lesson:CourseLesson,turns:Array<{input?:string;output?:string}>){
- const student=turns.map(x=>x.input||"").join(" ").toLowerCase(),hits=lesson.missions.map(m=>m.keywords.some(k=>student.includes(k.toLowerCase())));
+ // Match complete words/phrases, not substrings (e.g. "tea" inside "teacher").
+ // Keep scoring deterministic; synonyms require explicit curriculum evidence.
+ const student=turns.map(x=>x.input||"").join(" ").toLocaleLowerCase().normalize("NFKC");
+ const tokens=(s:string)=>s.toLocaleLowerCase().normalize("NFKC").match(/[\\p{L}\\p{N}]+/gu)||[];
+ const words=tokens(student);
+ const hits=lesson.missions.map(m=>m.keywords.some(keyword=>{
+  const phrase=tokens(keyword);
+  if(!phrase.length)return false;
+  return words.some((_,i)=>phrase.every((part,j)=>words[i+j]===part));
+ }));
  const done=hits.filter(Boolean).length,total=Math.max(1,lesson.missions.length),score=Math.round(done/total*100);
  const stars=done===total&&done>0?3:done>=Math.ceil(total*2/3)?2:done>=1&&turns.filter(x=>x.input).length>=2?1:0;
  return{hits,done,total,score,stars}
