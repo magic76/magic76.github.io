@@ -109,7 +109,7 @@ export function TimelineComparePage(){
        ?<blockquote>“{tr(question.answers[String(age)],en)}”</blockquote>
        :<p>{tr(question.answers[String(age)],en)}</p>}
      <Link to={"/timeline/live?character="+personId+"&age="+age}>
-      {t("timeline.talk",{name:person.name,age})} →
+      {t("timeline.talk",{name:person.name,age})} <Arrow/>
      </Link>
     </div>
    </article>)}
