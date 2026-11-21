@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState,type TouchEvent} from "react";
+import {Arrow} from "../components/Arrow";
 import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
@@ -96,21 +97,21 @@ export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[],sharedFeed,sha
     <h2 id="crew-home-shorts-title">{t("practice.shortsTitle")}</h2>
     <p>{t("practice.shortsIntro")}</p></div>
    <div className="crew-home-shorts-controls">
-    <button type="button" disabled={!canPrev||status!=="ready"} onClick={()=>moveArrows(-1)} aria-label={en?"Previous Shorts":"上一則動態"}>←</button>
-    <button type="button" disabled={!canNext||status!=="ready"} onClick={()=>moveArrows(1)} aria-label={en?"Next Shorts":"下一則動態"}>→</button>
+    <button type="button" disabled={!canPrev||status!=="ready"} onClick={()=>moveArrows(-1)} aria-label={en?"Previous Shorts":"上一則動態"}><Arrow direction="left" disabled={!canPrev||status!=="ready"}/></button>
+    <button type="button" disabled={!canNext||status!=="ready"} onClick={()=>moveArrows(1)} aria-label={en?"Next Shorts":"下一則動態"}><Arrow disabled={!canNext||status!=="ready"}/></button>
    </div>
-   <Link to="/teacher/shorts" className="crew-home-shorts-all">{t("practice.shortsAll")} <span aria-hidden="true">→</span></Link>
+   <Link to="/teacher/shorts" className="crew-home-shorts-all">{t("practice.shortsAll")} <Arrow/></Link>
   </div>
   {status==="loading"&&<div className="crew-home-shorts-loading" role="status" aria-label={t("practice.shortsLoading")}>
    {Array.from({length:maxPosts},(_,i)=>i).map(i=><div className="crew-home-short-placeholder" key={i} aria-hidden="true"><div/><span/><span/></div>)}
   </div>}
-  {status==="error"&&<Link className="crew-home-shorts-unavailable" to="/teacher/shorts">{t("practice.shortsUnavailable")} →</Link>}
+  {status==="error"&&<Link className="crew-home-shorts-unavailable" to="/teacher/shorts">{t("practice.shortsUnavailable")} <Arrow/></Link>}
   {status==="ready"&&posts.length>0&&<>
    {followUps.length?<div className="crew-home-shorts-update">
     <span>{en?"New story chapter":"你聊過的故事更新了"}</span>
     <Link to={shortsChatUrl(followUps[0].post,"next")}
      onClick={()=>{trackUsageEvent("shorts_story_followup","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home")}}>
-     {en?"Ask "+followUps[0].post.friendName+" what happened next":"問 "+followUps[0].post.friendName+" 後來呢"} →
+     {en?"Ask "+followUps[0].post.friendName+" what happened next":"問 "+followUps[0].post.friendName+" 後來呢"} <Arrow/>
     </Link>
    </div>:null}
    <div ref={sliderRef} onScroll={syncArrows} className="crew-home-shorts-grid" role="group" aria-label={t("practice.shortsTitle")}
@@ -137,14 +138,14 @@ export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[],sharedFeed,sha
       <Link className="crew-home-short-question" onClick={()=>{
        trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home");
       }} to={shortsChatUrl(post,undefined,0)}>
-       {t("practice.shortsChatThis",{name:post.friendName})} <span aria-hidden="true">→</span>
+       {t("practice.shortsChatThis",{name:post.friendName})} <Arrow/>
       </Link>
      </div>
     </article>)}
     <div className="crew-home-short-end"
      style={{transform:`translateX(${-Math.min(28,pullDistance*.36)}px) scale(${1+pullDistance/600})`}}>
      <Link to="/teacher/shorts" className="crew-home-short-end-link">
-      <span aria-hidden="true" className="crew-home-short-end-arrow">→</span>
+      <Arrow className="crew-home-short-end-arrow"/>
       <strong>{t("practice.shortsAll")}</strong>
       <small>{t(pullDistance>=72?"practice.shortsReleaseHint":"practice.shortsPullHint")}</small>
      </Link>
