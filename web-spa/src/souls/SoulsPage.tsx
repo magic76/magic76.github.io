@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useCallback,useEffect,useRef,useState,type ChangeEvent,type FormEvent,type MouseEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -259,7 +260,7 @@ export function SoulsPage(){
  const selectedImage=selected?.cutout||selected?.photos[0]?.image||"";
  return <main className="souls-page souls-photo-first">
   <header className="souls-header">
-   <Link to="/explore">← {t("探索","Explore")}</Link>
+   <Link to="/explore"><Arrow direction="left"/> {t("探索","Explore")}</Link>
    <small>CREW SOULS · LIVING PORTRAITS</small>
    <h1>{t("讓照片裡的角色，活過來。","Bring a portrait to life.")}</h1>
    <p>{t("物品或人物照片都可以。去背、修補輪廓、設定個性，創造能說話的虛構角色。","Use an object or a person photo. Remove and repair the background, then create a fictional character you can talk to.")}</p>
