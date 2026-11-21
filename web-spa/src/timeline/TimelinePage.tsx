@@ -158,7 +158,7 @@ export function TimelinePage(){
     </div>
    </div>
    <div className="timeline-visual-nav">
-     <button type="button" onClick={()=>changeBy(-1)} disabled={index===0} aria-label={t("timeline.previous")}>‹</button>
+     <button type="button" onClick={()=>changeBy(-1)} disabled={index===0} aria-label={t("timeline.previous")}><Arrow direction="left" disabled={index===0} className="crew-arrow--plain"/></button>
      <span>{t("timeline.swipe")}</span>
      <button type="button" onClick={()=>changeBy(1)} disabled={index===AGES.length-1} aria-label={t("timeline.next")}><Arrow disabled={index===AGES.length-1}/></button>
     </div>
@@ -188,7 +188,7 @@ export function TimelinePage(){
    </div>
 
   </section>
-  <details className="timeline-overview section panel"><summary>{t("timeline.jump")} <span aria-hidden="true">⌄</span></summary>
+  <details className="timeline-overview section panel"><summary>{t("timeline.jump")} <Arrow direction="down" className="crew-arrow--plain"/></summary>
    <div className="timeline-era-grid">{eras.map(era=><div className="timeline-era" key={era.label[1]}>
     <h3>{t("timeline.era"+({Childhood:"Child",Teens:"Teens","Young adult":"Young",Adulthood:"Adult","Later life":"Later"} as Record<string,string>)[era.label[1]])}</h3><div>{era.ages.map(a=><button type="button" key={a} className={a===age?"selected":""} aria-pressed={a===age} onClick={()=>{chooseAge(a);document.getElementById("timeline-current")?.scrollIntoView({behavior:motion(),block:"start"})}}>
      <TimelinePortrait characterId={characterId} age={a}/><span>{a} {en?"years":"歲"}</span></button>)}</div>
