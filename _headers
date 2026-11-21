@@ -15,6 +15,15 @@ https://:version.magic76-github-io.pages.dev/*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: private, no-store
 
+# Authenticated voice credits are private account information.
+/me/voice-credits*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
+/api/voice/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: private, no-store
+
 # Private analytics is not a public SEO entry point.
 /usage*
   X-Robots-Tag: noindex

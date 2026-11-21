@@ -30,7 +30,7 @@ const FortuneLayout=lazy(()=>import("./fortune/FortuneLayout").then(m=>({default
 const VoiceLabPage=lazy(()=>import("./teacher/VoiceLabPage").then(m=>({default:m.VoiceLabPage})));
 const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(m=>({default:m.UsageDashboardPage})));
 const FeedbackInboxPage=lazy(()=>import("./analytics/FeedbackInboxPage").then(m=>({default:m.FeedbackInboxPage})));
-const AccountPage=lazy(()=>import("./pages/AccountPage").then(m=>({default:m.AccountPage})));
+const AccountPage=lazy(()=>import("./pages/AccountPage").then(m=>({default:m.AccountPage})));const VoiceCreditsPage=lazy(()=>import("./pages/VoiceCreditsPage").then(m=>({default:m.VoiceCreditsPage})));
 const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:m.TimelinePage})));
 
 
@@ -96,6 +96,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/try" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/>
 <Route path="/settings" element={<AppChrome product="settings"><SettingsPage/></AppChrome>}/>
 <Route path="/account" element={<AppChrome product="settings"><AccountPage/></AppChrome>}/>
+<Route path="/me/voice-credits" element={<AppChrome product="settings"><VoiceCreditsPage/></AppChrome>}/>
 <Route path="/feedback" element={<AppChrome product="settings"><FeedbackPage/></AppChrome>}/>
 <Route path="/privacy" element={<AppChrome product="settings"><PrivacyPage/></AppChrome>}/>
 <Route path="/guides/:slug" element={<AppChrome product="teacher"><GuidePage/></AppChrome>}/>
