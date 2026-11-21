@@ -337,14 +337,14 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       {section==="me"&&<Link className="crew-section-card" to="/me/voice-credits">
        <span className="crew-section-card-icon"><Icon name="mic"/></span>
        <span className="crew-section-card-copy"><strong>{en?"Voice credits":"我的語音額度"}</strong><small>{en?"Balance and top-up history (payments coming later).":"查看秒數餘額與儲值紀錄，目前尚未開放購買。"}</small></span>
-       <span className="crew-section-arrow" aria-hidden="true">→</span>
+       <Arrow className="crew-section-arrow"/>
       </Link>}
       {section==="me"&&<KooloAdminEntry english={en}/>}
       {x.items.filter(item=>(section!=="chat"||item.to!=="/teacher/shorts")&&(section!=="me"||item.to!=="/teacher/reports")).map(item=>
       <Link className="crew-section-card" to={item.to} key={item.to}>
        <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
        <span className="crew-section-card-copy"><strong>{item.title}</strong><small>{item.desc}</small></span>
-       <span className="crew-section-arrow" aria-hidden="true">→</span>
+       <Arrow className="crew-section-arrow"/>
       </Link>)}</div>
     </section>}
    </>
