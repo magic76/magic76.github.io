@@ -267,7 +267,7 @@ check("Crew Play SSG has real game cards with correct bilingual canonical and JS
 
 
 check("indexed game URLs each ship route-specific hydrated SSG HTML, metadata and accessible links",()=>{
- const games=["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo"];
+ const games=["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo","number-bomb","memory","crazy-court","werewolf","truth-news","nonsense"];
  const sitemap=read("sitemap.xml");
  for(const locale of ["","en/"])for(const game of games){
   const path=locale+"games/"+game+"/";
@@ -424,7 +424,7 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
   expected.push(domain+"/guides/"+slug+"/");
   expected.push(domain+"/en/guides/"+slug+"/");
  }
- for(const slug of ["games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"]){
+ for(const slug of ["games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo","games/number-bomb","games/memory","games/crazy-court","games/werewolf","games/truth-news","games/nonsense"]){
   expected.push(domain+"/"+slug+"/");expected.push(domain+"/en/"+slug+"/");
  }
  for(const slug of ["travel","business","daily","teamwork","tickets","services"]){expected.push(domain+"/teacher/course/"+slug+"/",domain+"/en/teacher/course/"+slug+"/")}
@@ -508,7 +508,7 @@ check("all published SSG OG images are present, 1200x630 PNG, and route-specific
   for(const slug of pages)push(lang+(slug?slug+"/":""));
   for(const slug of ["travel","business","daily","teamwork","tickets","services"])push(lang+"teacher/course/"+slug+"/");
   for(const slug of ["ai-english-speaking","ai-conversation-partner","travel-english-dialogues","english-pronunciation","gemini-key-for-ai-practice"])push(lang+"guides/"+slug+"/");
-  for(const slug of ["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo"])push(lang+"games/"+slug+"/");
+  for(const slug of ["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo","number-bomb","memory","crazy-court","werewolf","truth-news","nonsense"])push(lang+"games/"+slug+"/");
  }
  const {readPublishedResearch}=await import("../scripts/research-seo.mjs");
  const {days}=readPublishedResearch(ROOT);
