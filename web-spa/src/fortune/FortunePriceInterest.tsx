@@ -4,12 +4,14 @@ import{trackUsageEvent}from"../analytics/usage";
 import"./fortunePriceInterest.css";
 const INTEREST_KEY="koolo_fortune_bazi_interest_v1";
 const viewed=new Set<string>();
+let interestRecordedThisSession=false;
 function savedInterest(){try{return localStorage.getItem(INTEREST_KEY)==="yes"}catch{return false}}
 export function FortunePriceInterest({readingId}:{readingId:string}){
  const{i18n}=useTranslation();
  const zh=/^zh(?:-|$)/i.test(i18n.resolvedLanguage||i18n.language);
  const copy=(z:string,e:string)=>zh?z:e;
- const[interested,setInterested]=useState(savedInterest);
+ const[interested,setInterested]=useState(false);
+ useEffect(()=>setInterested(savedInterest()),[]);
  const seen=useRef(new Set<string>());
  useEffect(()=>{
   if(seen.current.has(readingId)||viewed.has(readingId))return;
@@ -27,7 +29,8 @@ export function FortunePriceInterest({readingId}:{readingId:string}){
   </div>
   {interested?<p className="fortune-price-interest-thanks" role="status">{copy("已記下你的意願！目前無法購買，也不會收費。","Interest noted! Purchasing is not available and no payment is taken.")}</p>:
    <button type="button" className="fortune-price-interest-button" onClick={()=>{
-    if(savedInterest()){setInterested(true);return}
+    if(savedInterest()||interestRecordedThisSession){setInterested(true);return}
+    interestRecordedThisSession=true;
     try{localStorage.setItem(INTEREST_KEY,"yes")}catch{}
     setInterested(true);trackUsageEvent("fortune_price_interest","bazi");
    }}>{copy("我有興趣 · NT$79","I'm interested · NT$79")}</button>}
