@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useAuxiliaryLiveSession} from "../live/useAuxiliaryLiveSession";
 import {useSuggestedReplies} from "../live/useSuggestedReplies";
 import{GroundingSources}from"../live/GroundingSources";
@@ -235,7 +236,7 @@ export function TeacherLivePage(){
  const teacherOptions=<>
  <div className="teacher-live-entry-actions">
      <button type="button" className="teacher-live-change-action" onClick={()=>void changeTeacher()} disabled={changingTeacher||openingBoard||endingCourse}>{changingTeacher?t("live.switching"):t("live.changeTeacher")}</button>
-     {!course&&!fortuneKind&&!guestStarted&&<button type="button" className="teacher-live-change-action teacher-live-board-entry" onClick={()=>void openBoard()} disabled={changingTeacher||openingBoard||endingCourse}>{openingBoard?t("board.entryOpening"):t("board.entryAction")} →</button>}
+     {!course&&!fortuneKind&&!guestStarted&&<button type="button" className="teacher-live-change-action teacher-live-board-entry" onClick={()=>void openBoard()} disabled={changingTeacher||openingBoard||endingCourse}>{openingBoard?t("board.entryOpening"):t("board.entryAction")} <Arrow/></button>}
     </div>
     {teacherSwitchError&&<p className="teacher-switch-error" role="alert">{teacherSwitchError}</p>}
    <p>{fortuneKind?t("live.fortuneDesc"):mission?t("live.missionDesc"):teacherProfileDisplay(profile,locale.resolvedLanguage||"en").description}</p>
@@ -243,7 +244,7 @@ export function TeacherLivePage(){
     s.teachingMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),
     zh?s.targetLanguage:friendSpokenLanguage(s.targetLanguage),english,locale.resolvedLanguage||"en")}</p>}
  </>;
- return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={fortuneKind?"/teacher/fortune":"/learn"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("voice:friendLive.backAria")}>‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><div className="friend-call-header-actions"><span className="status connected" data-setup={live.state==="error"&&live.errorKind==="key"||undefined} data-state={presenceState} role="status" aria-live="polite"><i className="status-dot"/><span>{voiceStatus}</span></span><FriendCallMenuTrigger active={!textMode} open={callOptions} label={t("voice:callCaptions.more")} onToggle={()=>setCallOptions(v=>!v)}/></div></div></header>
+ return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={fortuneKind?"/teacher/fortune":"/learn"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("voice:friendLive.backAria")}><Arrow direction="left" className="crew-arrow--plain"/></Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><div className="friend-call-header-actions"><span className="status connected" data-setup={live.state==="error"&&live.errorKind==="key"||undefined} data-state={presenceState} role="status" aria-live="polite"><i className="status-dot"/><span>{voiceStatus}</span></span><FriendCallMenuTrigger active={!textMode} open={callOptions} label={t("voice:callCaptions.more")} onToggle={()=>setCallOptions(v=>!v)}/></div></div></header>
  <main className="session-shell teacher-call-page friend-live-page">
  {textMode?missionNotes:null}
  
