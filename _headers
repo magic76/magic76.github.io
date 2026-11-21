@@ -6,6 +6,15 @@ https://magic76-github-io.pages.dev/*
 https://:version.magic76-github-io.pages.dev/*
   X-Robots-Tag: noindex
 
+# Purchased report library is private account content; never index or cache it.
+/fortune/purchases*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
+/api/fortune/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: private, no-store
+
 # Private analytics is not a public SEO entry point.
 /usage*
   X-Robots-Tag: noindex
