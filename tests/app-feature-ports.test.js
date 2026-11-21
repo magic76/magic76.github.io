@@ -525,7 +525,7 @@ test("Teacher Live follows latest Android tutor portrait hierarchy",()=>{
  assert.ok(live.includes("teacher-presence"));
  assert.ok(live.includes("presenceState"));
  assert.ok(strip.includes("profile.bestFor"));
- assert.ok(strip.includes("更換 ›"));
+ assert.match(strip,/<b>更換\s*<Arrow\s*\/><\/b>/);
  assert.ok(picker.includes("detail.bestFor"));
  assert.ok(styles.includes("teacher-presence-speaking"));
  assert.ok(styles.includes(".teacher-profile-option img,.teacher-profile-image{width:68px;height:68px;object-fit:cover;border-radius:50%}"));

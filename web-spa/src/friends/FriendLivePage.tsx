@@ -136,8 +136,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const {ready:voiceRecapReady,messages:voiceRecap}=useVoiceTextRecap(!textMode,"friend:"+friend.id+(shortsPost?":"+shortsPost.id:""),friend.id);
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
  const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
- // Restore direct Web Audio playback: the Android HTML audio route introduced in #804
- // can distort Bluetooth headset output. Keep microphone capture unchanged.
+ // Direct Web Audio avoids Bluetooth distortion; keep mic capture.
  const separatePlayback=false;
  const live=useLiveSession({
   createPlaybackRoute:separatePlayback?createElementPlayback:undefined,
