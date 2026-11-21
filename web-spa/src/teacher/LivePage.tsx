@@ -93,8 +93,8 @@ const snapshot=completedTurns.slice();
 if(!hasMeaningfulLearnerSpeech(snapshot.map(t=>t.input||"").join(" ")))return;
    memoryCheckpointRef.current=true;
 void rememberTeacherConversation(s.targetLanguage,snapshot,geminiKey());
-},
-onSessionFinished:item=>{
+ },
+ onSessionFinished:item=>{
    replyHints.clear();
 if(!item)return;
 if(item.durationMs>0)trackUsageEvent("teacher_session_end",sessionDurationDetail(item.durationMs));
