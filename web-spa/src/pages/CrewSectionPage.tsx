@@ -309,9 +309,9 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      </>:
      section==="learn"?
       <>
-       <CurrentTeacherCard/>
        <LearningFocusCard/>
-       <LearningSnapshot/>
+       <LearningSnapshot compact/>
+       <CurrentTeacherCard/>
        <div className="crew-learn-tool-grid-host"><LearnHubExtras tools={learnTools} speakingPath={speakingPath}/></div>
       </>:
       <>{section==="me"&&<section className="section panel crew-me-summary" aria-label={en?"My learning snapshot":"我的學習摘要"}><div className="teacher-stats"><div><strong>{meStats?.sessions??"—"}</strong><span>{en?"Practices":"練習次數"}</span></div><div><strong>{meStats?.lessons??"—"}</strong><span>{en?"Lessons":"完成課程"}</span></div><div><strong>{meStats?.saved??"—"}</strong><span>{en?"Saved phrases":"收藏片語"}</span></div></div><Link className="btn secondary small" to="/teacher/me">{en?"View learning records":"查看完整學習紀錄"} <Arrow/></Link></section>}<Link to={section==="me"?"/teacher/roles?mode=teacher":x.hero.to} className="crew-section-hero">
