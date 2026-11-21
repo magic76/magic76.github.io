@@ -380,3 +380,9 @@ details.teaching-board-lesson-picker .teaching-board-lesson-options{padding:2px 
  .teaching-board-quick{max-height:min(70dvh,520px)}
  .teaching-board-topic-chooser{max-height:calc(min(70dvh,520px) - 74px)}
 }
+
+@media(max-width:800px){
+ .teaching-board-quick{bottom:var(--board-keyboard-inset,0px);max-height:min(70dvh,calc(var(--board-visible-height,100dvh) * .7),520px)}
+ .teaching-board-voice{bottom:calc(64px + env(safe-area-inset-bottom) + var(--board-keyboard-inset,0px))}
+ .teaching-board-topic-chooser{max-height:calc(min(70dvh,calc(var(--board-visible-height,100dvh) * .7),520px) - 74px)}
+}
