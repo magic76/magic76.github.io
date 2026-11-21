@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {Icon} from "../components/Icon";
@@ -44,14 +45,14 @@ export function PracticePage(){
   <Link className="crew-role-entry teacher" to="/teacher/roles?mode=teacher">
    <span className="crew-role-symbol crew-role-portrait"><TeacherAvatar profile={profile}/></span>
    <strong>{t("practice.teacher")} <span className="crew-role-name">· {profile.name}</span></strong><span>{t("practice.teacherDesc")}</span>
-   <small>{t("practice.teacherAction")} <b aria-hidden="true">↗</b></small>
+   <small>{t("practice.teacherAction")} <Arrow direction="up-right"/></small>
   </Link>
   {showContinue&&<Link className="crew-role-entry teacher" to="/teacher/live?intent=continue">
    <span className="crew-role-symbol"><Icon name="chat"/></span><strong>{t("practiceEntry.continueTitle")}</strong>
    <span>{t("practiceEntry.continueDesc")}</span><small>{t("practice.next")} ↗</small>
   </Link>}
  </section>
- {showContinue&&<section className="section crew-continue-section"><div className="section-head"><h2>{t("practice.continue")}</h2><Link to="/learn">{tToday("learnToday.backToLearn")} →</Link></div><ContinueLearningCard compact/></section>}
+ {showContinue&&<section className="section crew-continue-section"><div className="section-head"><h2>{t("practice.continue")}</h2><Link to="/learn">{tToday("learnToday.backToLearn")} <Arrow/></Link></div><ContinueLearningCard compact/></section>}
  {target==="英文"&&<section className="section crew-course-tracks" aria-label={tToday("learnToday.courseTracks")}>
   <div className="section-head"><h2>{tToday("learnToday.courseTracks")}</h2></div>
   <div className="grid two-col">{COURSE_TRACKS.map(track=>{
@@ -64,7 +65,7 @@ export function PracticePage(){
  {/* Secondary escape hatch only: /chat owns primary Friend entry and Shorts.
      Keep these two real, accessible links while Android owns the contract. */}
  <section className="section crew-practice-friend-links" aria-label={t("practice.friend")}>
-  <div className="section-head"><h2>{t("practice.friend")}</h2><Link to="/chat">{t("practice.friendAction")} →</Link></div>
+  <div className="section-head"><h2>{t("practice.friend")}</h2><Link to="/chat">{t("practice.friendAction")} <Arrow/></Link></div>
   <div className="crew-learn-focus-secondary">
    <Link to={"/friend/live?id="+selectedFriend+"&intent=share"}>{t("practiceEntry.shareTitle")}</Link>
    <Link to={"/friend/live?id="+selectedFriend+"&intent=speak"}>{t("practiceEntry.speakTitle")}</Link>
