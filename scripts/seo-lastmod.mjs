@@ -29,7 +29,8 @@ const SOURCE_PATHS={
 };
 const cache=new Map();
 export function seoLastmod(slug){
- const source=slug.startsWith("guides/")?"web-spa/src/guides/catalog.ts":
+ const source=slug.startsWith("fortune/bazi")?"scripts/bazi-seo.mjs":
+  slug.startsWith("guides/")?"web-spa/src/guides/catalog.ts":
    slug.startsWith("teacher/course/")?"scripts/course-seo.mjs":SOURCE_PATHS[slug];
  if(!source)throw Error("Missing lastmod source mapping: "+slug);
  if(cache.has(source))return cache.get(source);
