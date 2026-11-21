@@ -34,18 +34,9 @@ CREATE TABLE IF NOT EXISTS koolo_fortune_reports(
 );
 CREATE INDEX IF NOT EXISTS koolo_fortune_reports_user_created ON koolo_fortune_reports(user_id,created_at DESC);
 
--- Prevent accidental overwrites of a report already delivered to the buyer.
--- Refund/revocation may update status, but never rewrite its original text.
-CREATE TRIGGER IF NOT EXISTS koolo_fortune_reports_lock_ready
-BEFORE UPDATE ON koolo_fortune_reports
-WHEN OLD.status='ready' AND (
- NEW.content_json IS NOT OLD.content_json OR NEW.title IS NOT OLD.title OR
- NEW.version IS NOT OLD.version OR NEW.order_id IS NOT OLD.order_id OR
- NEW.user_id IS NOT OLD.user_id OR NEW.mode IS NOT OLD.mode
-)
-BEGIN
- SELECT RAISE(ABORT,'ready_report_immutable');
-END;
+-- The immutable-content trigger is an OPTIONAL separate follow-up (0007).
+-- D1 dashboard Console may fail to split CREATE TRIGGER ... BEGIN/END in a batch.
+-- Build these tables first; never run an incomplete trigger body here.
 
 -- Future verified ECPay notification reconciliation, unique to survive retries.
 -- Never grant access from the browser redirect alone.
