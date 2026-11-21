@@ -150,3 +150,8 @@
 
 /* Crew Souls shares the same full-bleed picture treatment as Mate and other destinations. */
 .crew-explore-tile[data-kind="souls"]{--art:#f4e6f6;--art-2:#ead8f1;--art-ink:#875a9f;--art-border:#eadbef}
+
+/* Shared arrow geometry and contrast, independent of artwork palette. */
+.crew-explore-tile .crew-arrow.crew-explore-arrow{width:32px;height:32px;bottom:14px;right:12px;background:#285a48;color:#fff;font-size:inherit}
+.crew-explore-tile[data-kind="town"] .crew-arrow.crew-explore-arrow,.crew-explore-tile[data-kind="magic"] .crew-arrow.crew-explore-arrow{bottom:14px}
+.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-arrow.crew-explore-arrow{background:#285a48}
