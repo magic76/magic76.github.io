@@ -316,3 +316,27 @@ details.teaching-board-lesson-picker .teaching-board-lesson-options{padding:2px 
 @keyframes crew-board-gentle-shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-3px)}65%{transform:translateX(3px)}}
 @media(prefers-reduced-motion:reduce){.teaching-board-stage .teaching-board-card-content>*,
 .teaching-board-options button.correct,.teaching-board-options button.incorrect{animation:none!important}}
+
+
+/* Learner-owned whiteboard controls: actions precede long lesson content. */
+.teaching-board-quick{display:grid;gap:10px;margin:0 0 14px;padding:12px;border:1px solid #c9e1d0;border-radius:16px;background:#f3faf5}
+.teaching-board-quick-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:9px}
+.teaching-board-quick button{min-height:44px;border:1px solid #b9d4c1;border-radius:11px;padding:9px 13px;background:#fff;color:#285d40;font-size:14px;font-weight:650;cursor:pointer}
+.teaching-board-quick button.is-primary{background:#337951;border-color:#337951;color:#fff}
+.teaching-board-quick button:disabled{opacity:.45;cursor:not-allowed}
+.teaching-board-quick button:focus-visible,.teaching-board-quick input:focus-visible{outline:3px solid #6aa780;outline-offset:2px}
+.teaching-board-topic-chooser{display:grid;gap:10px;border-top:1px solid #d3e7d7;padding-top:12px}
+.teaching-board-topic-chooser strong{font-size:14px;color:#315d42}
+.teaching-board-topic-courses{display:flex;gap:8px;overflow-x:auto;padding-bottom:3px}
+.teaching-board-topic-courses button{flex:none;min-height:40px;font-size:12px}
+.teaching-board-topic-chooser form{display:grid;gap:7px}
+.teaching-board-topic-chooser label{font-size:12px;color:#4e6e59}
+.teaching-board-topic-chooser form>div{display:flex;gap:8px;min-width:0}
+.teaching-board-topic-chooser input{min-width:0;flex:1;border:1px solid #b9d4c1;border-radius:10px;padding:10px 12px;background:#fff;color:#254632;font:inherit;font-size:14px}
+.teaching-board-topic-ended{margin:0 0 12px;padding:12px;border-radius:12px;background:#edf5ee;color:#356044;font-size:13px;line-height:1.5}
+@media(max-width:800px){
+ .teaching-board-quick{padding:10px;margin-bottom:10px}
+ .teaching-board-quick-row{gap:7px}
+ .teaching-board-quick button{font-size:13px;padding:9px 8px}
+ .teaching-board-curriculum-note{margin:8px 0}
+}
