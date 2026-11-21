@@ -18,7 +18,7 @@ export function CourseBriefing({lesson}:{lesson:CourseLesson}){
  const ready=useClientReady(),target=useTeacherStore(s=>s.targetLanguage),native=useTeacherStore(s=>s.nativeLanguage);
  return <div className="crew-learning-focus crew-course-briefing">
   <div className="crew-course-briefing-top">
-   <Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(lesson.id)} aria-label={t("briefing.back")}>‹ {t("briefing.back")}</Link>
+   <Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(lesson.id)} aria-label={t("briefing.back")}><Arrow direction="left" className="crew-arrow--plain"/> {t("briefing.back")}</Link>
    <span className="kicker">{t("briefing.kicker")}</span>
   </div>
   <section className="crew-course-briefing-card" aria-labelledby="crew-briefing-title">
