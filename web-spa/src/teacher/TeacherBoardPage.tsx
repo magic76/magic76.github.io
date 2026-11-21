@@ -44,7 +44,6 @@ export function TeacherBoardPage(){
  const [completedSteps,setCompletedSteps]=useState<Record<string,boolean>>({});
  const [lessonExplained,setLessonExplained]=useState(false);
  const [lessonTransitioning,setLessonTransitioning]=useState(false);
- const lessonGenerationRef=useRef(0);
  const [speakingAssessment,setSpeakingAssessment]=useState<SpeakingAssessment|null>(null);
  const [reviewReturn,setReviewReturn]=useState<{cardId:string;index:number}|null>(null);
  const directorRef=useRef<DirectorState>(EMPTY_DIRECTOR);
@@ -152,7 +151,6 @@ export function TeacherBoardPage(){
   const lesson=findLesson(id);
   if(!lesson)return;
   if(active)live.interrupt();
-  lessonGenerationRef.current++;
   setLessonTransitioning(active);setLessonExplained(false);setCompletedSteps({});
   lessonRef.current=id;setLessonId(id);setLessonStep(0);
   cardRef.current=lesson.cards;setCards(lesson.cards);
@@ -161,7 +159,7 @@ export function TeacherBoardPage(){
   reviewReturnRef.current=null;setReviewReturn(null);
   moveToCard(lesson.cards[0].id);
   pendingQuizRef.current=null;setHasLivePatch(false);setNotesOpen(false);setHint("");
-  if(active)live.sendText(lessonPrompt(lesson,0)+"\n"+localeHelp);
+  if(active&&!live.sendText(lessonPrompt(lesson,0)+"\n"+localeHelp))setLessonTransitioning(false);
  }
  function goLessonStep(index:number){
   const lesson=lessonRef.current?findLesson(lessonRef.current):undefined;
@@ -170,8 +168,9 @@ export function TeacherBoardPage(){
   lessonGenerationRef.current++;
   setLessonTransitioning(active);setLessonExplained(false);
   setLessonStep(index);
+  speechAssessmentRef.current=null;setSpeakingAssessment(null);
   moveToCard(lesson.cards[index].id);
-  if(active)live.sendText(lessonPrompt(lesson,index)+"\n"+localeHelp);
+  if(active&&!live.sendText(lessonPrompt(lesson,index)+"\n"+localeHelp))setLessonTransitioning(false);
  }
  const live=useLiveSession({
   pageKey:"teacher-board",title:"AI 即時教學板 · "+profile.name,
