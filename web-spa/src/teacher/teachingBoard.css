@@ -386,3 +386,10 @@ details.teaching-board-lesson-picker .teaching-board-lesson-options{padding:2px 
  .teaching-board-voice{bottom:calc(64px + env(safe-area-inset-bottom) + var(--board-keyboard-inset,0px))}
  .teaching-board-topic-chooser{max-height:calc(min(70dvh,calc(var(--board-visible-height,100dvh) * .7),520px) - 74px)}
 }
+
+/* Whiteboard question navigation: balanced 44px targets and visible disabled state. */
+.teaching-board-pager button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
+.teaching-board-pager button:disabled{opacity:1;background:#e8ece9;border-color:#aebdb2;color:#65766b;cursor:not-allowed}
+.teaching-board-pager button:disabled .crew-arrow{background:#e2e6e3;color:#68776d;box-shadow:inset 0 0 0 1px #aab8ad}
+.teaching-board-follow{display:inline-flex;align-items:center;gap:7px;min-height:44px;color:#285a48}
+.teaching-board-back{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
