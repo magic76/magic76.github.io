@@ -59,7 +59,7 @@ export function BriefingDetailPage(){
  if(!item||item.id!==id)return <div className="briefing briefing-empty"><p>{error||"找不到文章"}</p><Link to="/research">返回每日研究</Link></div>;
  const done=getStatus(review)==="finished"||getStatus(review)==="adopted";
  return <article className="briefing briefing-detail">
-  <nav className="briefing-breadcrumb" aria-label="返回"><Link to="/research">← 返回每日研究</Link></nav>
+  <nav className="briefing-breadcrumb" aria-label="返回"><Link to="/research"><Arrow direction="left" className="crew-arrow--plain"/> 返回每日研究</Link></nav>
   <header className="briefing-detail-head">
    <div className="briefing-detail-meta"><span className="briefing-topic">{item.topic}</span><span>{sourceDate(item.publishedAt)}</span><span>{item.sources.length} 個來源</span></div>
    <h1>{item.title}</h1>
