@@ -456,7 +456,7 @@ writeFileSync(join(out,"sitemap.xml"),sitemap.replace("</urlset>",guideSitemapEn
 const oldPath=join(out,"crew-app");mkdirSync(oldPath,{recursive:true});
 writeFileSync(join(oldPath,"index.html"),`<!doctype html>
 <html lang="zh-Hant"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><title>Moving to Koolo</title></head>
-<body><p>正在前往新的 Crew 網址… <a href="/">開啟 Crew</a></p>
+<body><p>正在前往新的 Koolo 網址… <a href="/">開啟 Koolo</a></p>
 <script>
 (function(){
  var old=(location.hash||"").replace(/^#/,"")||"/";
