@@ -41,6 +41,10 @@ export function TeacherBoardPage(){
  const [director,setDirector]=useState<DirectorState>(EMPTY_DIRECTOR);
  const [lessonId,setLessonId]=useState<LessonId|null>(null);
  const [lessonStep,setLessonStep]=useState(0);
+ const [completedSteps,setCompletedSteps]=useState<Record<string,boolean>>({});
+ const [lessonExplained,setLessonExplained]=useState(false);
+ const [lessonTransitioning,setLessonTransitioning]=useState(false);
+ const lessonGenerationRef=useRef(0);
  const [speakingAssessment,setSpeakingAssessment]=useState<SpeakingAssessment|null>(null);
  const [reviewReturn,setReviewReturn]=useState<{cardId:string;index:number}|null>(null);
  const directorRef=useRef<DirectorState>(EMPTY_DIRECTOR);
@@ -147,6 +151,9 @@ export function TeacherBoardPage(){
  function startLesson(id:LessonId){
   const lesson=findLesson(id);
   if(!lesson)return;
+  if(active)live.interrupt();
+  lessonGenerationRef.current++;
+  setLessonTransitioning(active);setLessonExplained(false);setCompletedSteps({});
   lessonRef.current=id;setLessonId(id);setLessonStep(0);
   cardRef.current=lesson.cards;setCards(lesson.cards);
   answersRef.current={};setAnswers({});
@@ -159,6 +166,9 @@ export function TeacherBoardPage(){
  function goLessonStep(index:number){
   const lesson=lessonRef.current?findLesson(lessonRef.current):undefined;
   if(!lesson||index<0||index>=lesson.cards.length)return;
+  if(active)live.interrupt();
+  lessonGenerationRef.current++;
+  setLessonTransitioning(active);setLessonExplained(false);
   setLessonStep(index);
   moveToCard(lesson.cards[index].id);
   if(active)live.sendText(lessonPrompt(lesson,index)+"\n"+localeHelp);
@@ -198,6 +208,10 @@ export function TeacherBoardPage(){
    live.sendControl("[BOARD CONTINUITY] Reconnected. Preserve lesson and stage. Current phase="+directorRef.current.phase+", focused card="+directorRef.current.cardId+", quiz question="+(directorRef.current.quizIndex+1)+". If awaiting, wait for learner and do not change cards. "+summary+"\n"+localeHelp);
   },
   onTurnComplete:(turn)=>{
+   if(lessonRef.current){
+    setLessonTransitioning(false);
+    if(turn.hasValidOutput&&turn.output?.trim())setLessonExplained(true);
+   }
    processConfirmedSpeech(turn.input||"");
    const updatedByLive=patchCountRef.current!==lastTurnPatchRef.current;
    lastTurnPatchRef.current=patchCountRef.current;
@@ -226,6 +240,15 @@ export function TeacherBoardPage(){
  const focusedCard=cards.find(c=>c.id===(following?latestId:focusedId))||cards[cards.length-1];
  const lesson=lessonId?findLesson(lessonId):undefined;
  const progress=lesson?lessonProgress(lesson,answers,speakingAssessment):null;
+ const currentStepDone=!!lesson&&!!completedSteps[lesson.cards[lessonStep]?.id];
+ function completeCurrentStep(){
+  if(!lesson)return;
+  const card=lesson.cards[lessonStep];
+  if(card.type==="quiz"&&!card.questions.every((q,i)=>answers[card.id+":"+i]===q.answerIndex))return;
+  if(card.type==="speaking"&&!speakingAssessment?.met)return;
+  if(card.type!=="quiz"&&card.type!=="speaking"&&!lessonExplained)return;
+  setCompletedSteps(old=>({...old,[card.id]:true}));
+ }
  useEffect(()=>{
   const rail=deckRef.current,selected=rail?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
   if(!rail||!selected)return;
@@ -358,7 +381,7 @@ export function TeacherBoardPage(){
       </button>)}
      </div>
     </div>}
-    {lesson&&<p className="teaching-board-curriculum-note">{english?"Step":"教材"} {lessonStep+1} / {lesson.cards.length} · {lesson.goal}</p>}
+    {lesson&&<div className="teaching-board-curriculum-note" role="status"><p>{english?"Step":"教材"} {lessonStep+1} / {lesson.cards.length} · {lesson.goal}</p><p>{lessonTransitioning?(english?"Switching explanation…":"正在切換講解…"):(lessonExplained?(english?"Explanation ready":"老師已完成本段講解"):(english?"Listen to this lesson before completing it":"先聽老師講解這份教材"))}</p><button type="button" disabled={currentStepDone||lessonTransitioning||((focusedCard?.type==="quiz")?!progress?.quiz:(focusedCard?.type==="speaking")?!progress?.speaking:!lessonExplained)} onClick={completeCurrentStep}>{currentStepDone?(english?"Completed ✓":"已完成 ✓"):(english?"Mark this step complete":"完成這一節")}</button><span>{Object.keys(completedSteps).filter(id=>completedSteps[id]&&lesson.cards.some(card=>card.id===id)).length} / {lesson.cards.length}</span></div>}
      <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} data-following={following} role="tabpanel" id="teaching-board-active-panel"
      aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
      {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
