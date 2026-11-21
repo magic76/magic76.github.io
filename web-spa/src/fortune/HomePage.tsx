@@ -1,4 +1,5 @@
 import {useEffect,useState} from "react";
+import {Arrow} from "../components/Arrow";
 import {useTranslation} from "react-i18next";
 import {Link,useNavigate} from "react-router-dom";
 import {geminiKey} from "../lib/runtime";
@@ -102,19 +103,19 @@ export function FortuneHomePage(){
       </div>
      </div>
      <div className="fortune-journey-actions">
-      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")} →</Link>
+      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")} <Arrow/></Link>
       <button className="btn secondary" type="button" disabled={Boolean(openingId)} onClick={()=>void explain(latest.id)}>
-       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")} →
+       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")} <Arrow/>
       </button>
      </div>
     </div>:
     null}
-   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{t("landing.openSettings")} →</Link>}</div>}
+   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{t("landing.openSettings")} <Arrow/></Link>}</div>}
   </section>}
   <section className="section fortune-journey-history" aria-label={t("landing.saved")}>
    <div className="section-head">
     <h2>{t("landing.myCharts")}</h2>
-    <Link className="fortune-journey-all" to="/fortune/history">{t("landing.viewAll")} →</Link>
+    <Link className="fortune-journey-all" to="/fortune/history">{t("landing.viewAll")} <Arrow/></Link>
    </div>
    {list===null?<div className="spa-loading">{t("home.loading")}</div>:list.length?
     <div className="fortune-history-list">
@@ -133,8 +134,8 @@ export function FortuneHomePage(){
   <section className="section fortune-journey-other">
    <div className="section-head"><h2>{t("landing.exploreOther")}</h2></div>
    <div className="fortune-journey-other-links">
-    <Link to="/fortune/live?from=culture">{t("landing.talkCulture")} →</Link>
-    <Link to="/fortune/live?from=daily">{t("landing.todayReflection")} →</Link>
+    <Link to="/fortune/live?from=culture">{t("landing.talkCulture")} <Arrow/></Link>
+    <Link to="/fortune/live?from=daily">{t("landing.todayReflection")} <Arrow/></Link>
    </div>
    <p>{t("landing.disclaimer")}</p>
   </section>
