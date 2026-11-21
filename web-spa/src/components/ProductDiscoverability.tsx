@@ -1,3 +1,4 @@
+import {Arrow} from "./Arrow";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 
@@ -33,8 +34,8 @@ export function ProductDiscoverability({product}:{product:Product}){
    <div className="notice"><strong>{text.second}</strong><p>{text.secondBody}</p></div>
   </div>
   <nav aria-label={text.heading} className="crew-product-about-links">
-   <Link className="btn secondary" to={links[product][0]}>{text.action} →</Link>
-   <Link className="btn secondary" to={links[product][1]}>{text.action2} →</Link>
+   <Link className="btn secondary" to={links[product][0]}>{text.action} <Arrow/></Link>
+   <Link className="btn secondary" to={links[product][1]}>{text.action2} <Arrow/></Link>
   </nav>
  </section>;
 }
