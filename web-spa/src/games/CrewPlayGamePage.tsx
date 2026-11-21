@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {Link,useParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -53,7 +54,7 @@ export function CrewPlayGamePage(){
  const changeFriend=(id:string)=>{localStorage.setItem(FRIEND_KEY,id);setFriendId(id);setRound(x=>x+1)};
  return <div className={"crew-play-page"+(wordGame?" crew-play-page--voice-required":"")+(gameId==="twenty-questions"?" crew-play-page--twenty":"")}>
   <header className="crew-play-game-header">
-   <Link to="/games" className="crew-play-back">← {t("playHub.allGames")}</Link>
+   <Link to="/games" className="crew-play-back"><Arrow direction="left"/> {t("playHub.allGames")}</Link>
    <span className="crew-play-eyebrow">{t("playHub.eyebrow")}</span>
    <h1>{t("playHub.games."+game.id+".title")}</h1>
    <p>{t("playHub.games."+game.id+".desc")}</p>
