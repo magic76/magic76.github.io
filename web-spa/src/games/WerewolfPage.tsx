@@ -267,7 +267,7 @@ export function WerewolfPage(){
     </div>
    </section>:null}
    {game.phase==="day"?<section className="wolf-control">
-    <div className="wolf-control-title"><h2>{L(isZh,"村莊討論","Village debate")}</h2><button type="button" className="wolf-secondary" disabled={busy} onClick={openVote}>{L(isZh,"結束討論，投票 →","Start voting →")}</button></div>
+    <div className="wolf-control-title"><h2>{L(isZh,"村莊討論","Village debate")}</h2><button type="button" className="wolf-secondary" disabled={busy} onClick={openVote}>{L(isZh,"結束討論，投票","Start voting")} <Arrow/></button></div>
     {human!.alive?<form onSubmit={submit} className="wolf-compose">
      {latestNpc?<div className="wolf-latest-reply" role="status" aria-live="polite">
       <div className="wolf-latest-reply-top"><strong>{latestNpcName} · {L(isZh,"最新回覆","Latest reply")}</strong>
