@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {lazy,Suspense,useEffect,useRef,useState,type MouseEvent} from "react";
 import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
