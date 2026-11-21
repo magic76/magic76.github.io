@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useAuxiliaryLiveSession} from "../live/useAuxiliaryLiveSession";
 import {useSuggestedReplies,replyHintsLocked} from "../live/useSuggestedReplies";
 import {GroundingSources} from "../live/GroundingSources";
@@ -225,7 +226,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  </>;
  return <>
   <header className="app-header"><div className="shell inner">
-   <div className="app-brand"><Link className="back-btn" to={shortsReturnTo||(intent==="speak"?"/learn":"/teacher/roles?mode=friends")} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}>‹</Link>
+   <div className="app-brand"><Link className="back-btn" to={shortsReturnTo||(intent==="speak"?"/learn":"/teacher/roles?mode=friends")} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}><Arrow direction="left" className="crew-arrow--plain"/></Link>
     <div className="app-title"><strong>{friend.name}</strong><small>{t("friendLive.brand",{language:t("languages."+language,{defaultValue:language})})}</small></div>
    </div>
    <div className="friend-call-header-actions"><span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>{shortsPost&&voiceMuteProps&&<FriendVoiceMute {...voiceMuteProps} compact/>}<FriendCallMenuTrigger active={!textMode} open={showCallOptions} label={t("callCaptions.more")} onToggle={()=>setShowCallOptions(v=>!v)}/></div>
