@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import{useCallback,useEffect,useRef,useState}from"react";
 import{useTranslation}from"react-i18next";
 import{useNavigate}from"react-router-dom";
@@ -82,7 +83,7 @@ export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTyp
    {!active&&<div className="material-camera-placeholder">
     <span className="material-camera-orbit" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><rect x="9" y="20" width="46" height="34" rx="10" stroke="currentColor" strokeWidth="2.5"/><path d="M22 20l4-7h12l4 7" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/><circle cx="32" cy="36.5" r="10" stroke="currentColor" strokeWidth="2.5"/><circle cx="32" cy="36.5" r="4" fill="currentColor" opacity=".32"/></svg></span>
     <strong>{t("textbook.camera.placeholderTitle")}</strong><span className="material-camera-placeholder-copy">{t("textbook.camera.placeholderCopy")}</span>
-    <button type="button" className="material-camera-activate" onClick={()=>void openCamera()} disabled={requesting}>{requesting?t("textbook.camera.starting"):t("textbook.camera.open")} <span aria-hidden="true">↗</span></button>
+    <button type="button" className="material-camera-activate" onClick={()=>void openCamera()} disabled={requesting}>{requesting?t("textbook.camera.starting"):t("textbook.camera.open")} <Arrow direction="up-right"/></button>
     <small>{t("textbook.camera.consent")}</small>
    </div>}
   </div>
