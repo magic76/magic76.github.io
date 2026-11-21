@@ -306,7 +306,7 @@ check("deep interactive routes keep their URLs and noindex SPA shell, including 
 
  // Physical files are served by Pages at their clean, extensionless paths.
  // /teacher/roles?mode=friends must never become /_app-noindex?mode=friends.
- for(const route of ["/chat","/learn","/magic","/settings","/teacher/live","/teacher/roles","/games/nonsense"]){
+ for(const route of ["/chat","/learn","/magic","/settings","/teacher/live","/teacher/roles"]){
   for(const prefix of ["","/en"]){
    const publicPath=prefix+route;
    const file=publicPath.slice(1)+".html";
@@ -318,7 +318,7 @@ check("deep interactive routes keep their URLs and noindex SPA shell, including 
   assert.ok(redirects.includes(route+" /_app-noindex 200"),"missing clean-path dynamic route proxy "+route);
  }
  assert.doesNotMatch(redirects,/\.html 200(?:\n|$)/,"HTML rewrite targets trigger Cloudflare's clean URL redirect");
- for(const route of ["/games/friend-gomoku","/games/connect4","/games/1a2b","/research/*"]){
+ for(const route of ["/games/friend-gomoku","/games/connect4","/games/1a2b","/games/nonsense","/research/*"]){
   assert.ok(!redirects.split("\n").some(line=>line.startsWith(route+" ")),"indexable page incorrectly rewritten "+route);
  }
 });
