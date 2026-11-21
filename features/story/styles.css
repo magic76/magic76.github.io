@@ -12,3 +12,22 @@
 @media(max-width:720px){.story-shelf-grid{grid-template-columns:1fr}.story-create-grid,.story-reader{grid-template-columns:1fr}.story-photo-row{grid-template-columns:70px 1fr auto}.story-photo-row img{width:70px;height:70px}.story-reader-copy .page-text{font-size:16px}}
 
 @media(pointer:coarse){.story-photo-actions button{min-height:44px;min-width:44px}.story-filmstrip button{min-height:44px;min-width:44px}}
+
+/* Story mobile viewport containment: avoid 100vw + padding and fixed 100vh overflow. */
+.story-theme.session-page{max-width:100%;overflow-x:clip}
+.story-theme .session-shell,.story-theme .story-desktop-workspace,.story-theme .story-live-stage{box-sizing:border-box;min-width:0;max-width:100%}
+.story-theme .session-shell{min-height:0}
+.story-theme .story-live-stage .live-transcript,.story-theme .story-live-stage .live-line,.story-theme .story-live-stage .live-presets{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.story-theme .story-live-stage .field{box-sizing:border-box;max-width:100%;min-width:0}
+@media(max-width:720px){
+ .story-theme .session-shell{width:100%;min-height:calc(100dvh - 120px);height:auto;padding-inline:12px;overflow-x:clip}
+ .story-theme .story-desktop-workspace{display:block;width:100%;max-width:100%;min-height:0;height:auto}
+ .story-theme .story-live-stage{width:100%;height:auto;min-height:0;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+ .story-theme .story-live-stage .live-presets{display:flex;flex-wrap:wrap;gap:8px}
+ .story-theme .story-live-stage .live-presets button{min-width:0;max-width:100%;white-space:normal}
+ .story-player-head,.story-player,.story-reader-copy,.story-reader-media{box-sizing:border-box;min-width:0;max-width:100%}
+ .story-player-head{flex-wrap:wrap;overflow-wrap:anywhere}
+ .story-player .page-text,.story-player .story-dialogue,.story-player-transcript{overflow-wrap:anywhere}
+ .story-player .story-player-controls{min-width:0;max-width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr);gap:6px}
+ .story-player .story-player-controls button{min-width:0;white-space:normal}
+}
