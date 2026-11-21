@@ -93,7 +93,7 @@ export function BriefingDetailPage(){
     <details className="briefing-notes"><summary>我的筆記（選填）</summary>
       <textarea aria-label="我的研究筆記" value={review.notes||""} onChange={e=>change({notes:e.target.value})} placeholder="記下值得回頭看的想法…" rows={4}/>
     </details>
-    <Link className="briefing-side-link" to="/research/board">前往我的閱讀清單 →</Link>
+    <Link className="briefing-side-link" to="/research/board">前往我的閱讀清單 <Arrow/></Link>
    </div>
   </aside></div>
  </article>;
