@@ -27,6 +27,12 @@ test("BaZi SEO generator emits 14 bilingual public pages and reciprocal language
    assert.ok(html.includes('name="robots" content="index,follow"'),part);
    assert.ok(!html.includes("birthDate")&&!html.includes("birthTime")&&!html.includes("chartHash"),part);
    assert.ok(html.includes('application/ld+json'),part);
+   const image=slug.startsWith("bazi/")&& !["five-elements","ten-gods","luck-cycles"].includes(slug.split("/")[1])
+    ?"/fortune/identity/art/bazi-"+({"jia-wood":"jia","yi-wood":"yi","bing-fire":"bing","ding-fire":"ding","wu-earth":"wu","ji-earth":"ji","geng-metal":"geng","xin-metal":"xin","ren-water":"ren","gui-water":"gui"}[slug.split("/")[1]])+".webp"
+    :"/fortune/modes/fortune-bazi-cover.webp";
+   assert.ok(html.includes('src="'+image+'"'),"missing hero image "+part);
+   assert.ok(html.includes('alt="'),"missing image alt "+part);
+   assert.ok(html.includes('<meta property="og:image" content="https://koolo.app'+image+'">'),"missing OG image "+part);
    links.push(canonical);
   }
   assert.equal(links.length,28);
