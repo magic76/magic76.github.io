@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useTranslation} from "react-i18next";
 import {Link} from "react-router-dom";
 import type {CourseLesson} from "./courseCatalog";
@@ -25,7 +26,7 @@ export function CourseBriefing({lesson}:{lesson:CourseLesson}){
    <h1 id="crew-briefing-title">{title}</h1>
    <p className="crew-course-briefing-description">{courseDisplayDescription(lesson,locale)}</p>
    <Link className="btn primary crew-learning-full-cta" to={"/teacher/live?mode=course&lesson="+encodeURIComponent(lesson.id)}>
-    {t("briefing.start")} →
+    {t("briefing.start")} <Arrow/>
    </Link>
    {ready&&target!=="英文"&&<p className="crew-course-language-note" role="note">{t("course.materialNotice",{language:t("friends:languages."+target,{defaultValue:target}),native:localizedNativeName(native,locale)})}</p>}
    <h2>{t("briefing.goals",{count:lesson.missions.length})}</h2>
