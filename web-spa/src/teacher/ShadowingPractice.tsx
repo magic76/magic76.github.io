@@ -52,7 +52,6 @@ export function ShadowingPractice(){
    if(!alive.current||session!==generation.current){media.getTracks().forEach(track=>track.stop());return}
    stream.current=media;chunks.current=[];
    const r=new MediaRecorder(media);recorder.current=r;
-   const session=generation.current;
    r.ondataavailable=e=>{if(e.data.size)chunks.current.push(e.data)};
    r.onstop=()=>{
     media.getTracks().forEach(track=>track.stop());
@@ -62,7 +61,7 @@ export function ShadowingPractice(){
     setRecording(false);
    };
    r.start();setRecording(true);
-  }catch{setError("無法使用麥克風，請檢查權限，或先聽示範練習。")}
+  }catch{release();setRecording(false);setError("無法使用麥克風，請檢查權限，或先聽示範練習。")}
  };
  const stop=()=>{if(recorder.current?.state==="recording")recorder.current.stop()};
  return <section className="section panel" aria-label="跟讀練習" style={{display:"grid",gap:12}}>
