@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import{useEffect,useRef,useState}from"react";import{trackUsageEvent}from"../analytics/usage";import{GeminiSetupNotice}from"../components/GeminiSetupNotice";import{useTranslation}from"react-i18next";import{Link,useNavigate,useSearchParams}from"react-router-dom";import{addHistory,ensureFortuneServices,geminiKey,setGeminiVerified,emitGeminiKeyChanged}from"../lib/runtime";import{BaZiTabs}from"./result/BaZiTabs";import{TarotTabs}from"./result/TarotTabs";import{VedicTabs}from"./result/VedicTabs";import{formatFortuneShareDate}from"./shareCard";import{FortuneProfileTools}from"./ProfileTools";import{FortuneYearHighlights}from"./YearHighlights";import{FortuneReadingOverview}from"./ReadingOverview";import type{FortuneMode,FortuneProfile,FortuneReading}from"./types";import{buildReportPrompt}from"./report";import{computeCurrentPhase}from"./currentPhase";import{FortuneSummaryCard}from"./FortuneSummaryCard";import{FortuneFollowUp}from"./FortuneFollowUp";import{isCurrentRequest,formatFortuneLocalDate,auditAiReading}from"./aiReading";import{resolveBirthOffset}from"./birthPlaceSearch";import{UI_LOCALE_CATALOG}from"../i18n/localeCatalog";import"./result/depth.css";import{FortuneDailyStrip}from"./FortuneDailyStrip";import{FortuneShareDialog}from"./FortuneShareDialog";
 import{FortuneIdentityCard}from"./FortuneIdentityCard";
 import{buildFortuneCardModel}from"./fortuneCardModel";
@@ -85,7 +86,7 @@ export function FortuneReadingPage(){
  }
  function ask(topic?:string){if(!reading)return;if(!geminiKey()){setShowAiSetup(true);window.requestAnimationFrame(()=>document.getElementById("fortune-ai-setup")?.scrollIntoView({behavior:"smooth",block:"center"}));return}if(topic){const topics:Record<string,string>={overview:"整體底盤",personality:"性格與天賦",career:"事業與職涯",wealth:"財富與資源",relationships:"感情與人際",family:"家庭與生活",currentCycle:"人生階段",longTerm:"長期節奏",keyYears:"重要年份",advice:"如何使用解讀"};localStorage.setItem("crew_fortune_live_prompt","請先針對這份已計算命盤的「"+(topics[topic]||topic)+"」主題做白話講解，說明實際命盤依據及傳統上的意義，不編造事件或機率。")}localStorage.setItem("crew_fortune_live_context",JSON.stringify(reading));nav("/fortune/live?from=reading")}
  const teacherReady=Boolean(geminiKey());
- const teacherAction=<button type="button" className="fortune-teacher-primary-action" onClick={()=>ask()}>{teacherReady?t("reading.askTeacherAction"):t("reading.askTeacherSetup")} <span aria-hidden="true">→</span></button>;
+ const teacherAction=<button type="button" className="fortune-teacher-primary-action" onClick={()=>ask()}>{teacherReady?t("reading.askTeacherAction"):t("reading.askTeacherSetup")} <Arrow/></button>;
  const Result=reading?.mode==="bazi"?BaZiTabs:reading?.mode==="tarot"?TarotTabs:VedicTabs;
  const locale=i18n.resolvedLanguage||i18n.language;
  const labels=fortuneCopy(locale);
@@ -117,7 +118,7 @@ export function FortuneReadingPage(){
    <h2>{cardView?.title}</h2><p className="fortune-collectible-tagline">{cardView?.tagline}</p>
    <div className="fortune-identity-chips">{cardView?.chips.map(chip=><span key={chip}>{chip}</span>)}</div>
    <small className="fortune-collectible-date">{formatFortuneShareDate(reading!.createdAt)}</small>
-   {dailyNextHref&&<Link className="fortune-daily-next-link" to={dailyNextHref}>{t("reading.dailyNext")} <span aria-hidden="true">→</span></Link>}
+   {dailyNextHref&&<Link className="fortune-daily-next-link" to={dailyNextHref}>{t("reading.dailyNext")} <Arrow/></Link>}
   </div>
  </div>
 
@@ -127,7 +128,7 @@ export function FortuneReadingPage(){
   <section className="fortune-ai-entry" aria-label={t("reading.aiCtaTitle")} data-state={reading!.ai?"ready":aiStatus}>
    <div className="fortune-ai-entry-heading"><span className="fortune-ai-entry-icon" aria-hidden="true">✦</span><div><h3>{t("reading.aiCtaTitle")}</h3><p>{t("reading.aiCtaDesc")}</p></div></div>
    <button className="fortune-ai-entry-button" type="button" onClick={openAiReading} disabled={aiStatus==="loading"}>
-    {aiStatus==="loading"?t("reading.aiLoading"):reading!.ai?t("reading.aiCtaRead"):aiStatus==="error"?t("reading.aiRetry"):geminiKey()?t("reading.aiCtaGenerate"):t("reading.aiCtaSetup")} <span aria-hidden="true">→</span>
+    {aiStatus==="loading"?t("reading.aiLoading"):reading!.ai?t("reading.aiCtaRead"):aiStatus==="error"?t("reading.aiRetry"):geminiKey()?t("reading.aiCtaGenerate"):t("reading.aiCtaSetup")} <Arrow/>
    </button>
    <div className="fortune-conversation-actions">{teacherAction}</div>
    {aiStatus==="loading"&&<p className="fortune-ai-entry-status" role="status">{t("reading.aiLoadingDesc")}</p>}
