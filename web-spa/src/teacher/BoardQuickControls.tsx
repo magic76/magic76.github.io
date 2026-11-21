@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useState} from "react";
 import {LESSONS,type LessonId} from "./boardLessons";
 
@@ -19,7 +20,7 @@ export function BoardQuickControls({english,guided,hasCards,step,steps,onNext,on
  return <section className="teaching-board-quick" aria-label={english?"Lesson controls":"白板操作"}>
   <div className="teaching-board-quick-row">
    <button type="button" className="is-primary" disabled={!hasCards} onClick={guided&&step<steps-1?onNext:onEnd}>
-    {guided&&step<steps-1?(english?"Got it · Next step →":"學會了 · 下一節 →"):(english?"Finish this topic":"結束這個話題")}
+    {guided&&step<steps-1?<>{english?"Got it · Next step":"學會了 · 下一節"} <Arrow/></>:(english?"Finish this topic":"結束這個話題")}
    </button>
    <button type="button" aria-expanded={choosing} aria-controls="teaching-board-topic-chooser" onClick={()=>setChoosing(v=>!v)}>
     {english?"Change topic":"換個話題"}
