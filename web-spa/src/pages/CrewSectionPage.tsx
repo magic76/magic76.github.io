@@ -9,6 +9,7 @@ import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
 import {creatureLabHref} from "./creatureLabProgress";
 import {CurrentTeacherCard} from "../teacher/CurrentTeacherCard";
 import {LearningFocusCard} from "../teacher/LearningFocusCard";
+import {LearningSnapshot} from "../teacher/LearningSnapshot";
 import {LearnHubExtras} from "./LearnHubExtras";
 import {FriendIntentCards} from "../friends/FriendIntentCards";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
@@ -308,6 +309,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       <>
        <CurrentTeacherCard/>
        <LearningFocusCard/>
+       <LearningSnapshot/>
        <div className="crew-learn-tool-grid-host"><LearnHubExtras tools={learnTools} speakingPath={speakingPath}/></div>
       </>:
       <>{section==="me"&&<section className="section panel crew-me-summary" aria-label={en?"My learning snapshot":"我的學習摘要"}><div className="teacher-stats"><div><strong>{meStats?.sessions??"—"}</strong><span>{en?"Practices":"練習次數"}</span></div><div><strong>{meStats?.lessons??"—"}</strong><span>{en?"Lessons":"完成課程"}</span></div><div><strong>{meStats?.saved??"—"}</strong><span>{en?"Saved phrases":"收藏片語"}</span></div></div><Link className="btn secondary small" to="/teacher/me">{en?"View learning records":"查看完整學習紀錄"} →</Link></section>}<Link to={section==="me"?"/teacher/roles?mode=teacher":x.hero.to} className="crew-section-hero">

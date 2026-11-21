@@ -2,6 +2,7 @@ import{Link}from"react-router-dom";
 import{useTranslation}from"react-i18next";
 import{Icon,type IconName}from"../components/Icon";
 import{ContinueLearningCard}from"./ContinueLearningCard";
+import{LearningSnapshot}from"./LearningSnapshot";
 import{TodayLearningCard}from"./TodayLearningCard";
 import{threeMinuteSpeakingPath}from"./threeMinuteSpeaking";
 import{useClientReady}from"../lib/useClientReady";
@@ -21,6 +22,7 @@ export function LearnPage(){const {t}=useTranslation("teacher");const {t:tLesson
  <section className="hero"><span className="kicker">Learn</span><h1>{t("learn.title")}</h1><p>{t("learn.intro")}</p></section>
  <section className="section"><TodayLearningCard/></section>
  <section className="section"><ContinueLearningCard compact/></section>
+ <LearningSnapshot/>
  <section className="section"><Link className="list-item" to={clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak"}>
   <span className="list-icon"><Icon name="mic"/></span>
   <span className="list-copy"><strong>{t("learn.threeMinute")}</strong><small>{t("learn.threeMinuteDesc")}</small></span>
