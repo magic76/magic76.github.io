@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useTranslation} from "react-i18next";
 import type {MateConsensus} from "./mateState";
 import {MATE_LANGUAGES} from "./mateState";
@@ -25,7 +26,7 @@ export function MateConsensusFields({consensus,canEdit,edit,showPresets=true,inv
       {presets.map(preset=><button type="button" key={preset.id} onClick={()=>applyPreset(preset)}>{preset.label}</button>)}
     </div>}
     <div className="mate-languages"><label>{t("mate.fields.myLang")}{options(consensus.userLanguage,"userLanguage")}</label>
-      <span aria-hidden="true">→</span>
+      <Arrow/>
       <label>{t("mate.fields.otherLang")}{options(consensus.otherLanguage,"otherLanguage")}</label>
     </div>
     <div className="mate-fields">
