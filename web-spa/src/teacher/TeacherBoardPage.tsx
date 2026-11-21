@@ -82,6 +82,7 @@ export function TeacherBoardPage(){
   const guided=!!lessonRef.current;
   if(guided)return false; // Guided curriculum cannot be rewritten by live tools.
   if(waiting&&(patch.action!=="upsert"||patch.cards.some(c=>c.id===directorRef.current.cardId||c.type==="quiz"||c.type==="speaking")))return false;
+  const visibleId=following?(latestId||cardRef.current[cardRef.current.length-1]?.id):focusedId;
   const next=applyBoardPatch(cardRef.current,patch);
   cardRef.current=next;setCards(next);setShowingDemo(false);
   if(patch.cards.length)formatRequestRef.current=null;
@@ -89,7 +90,8 @@ export function TeacherBoardPage(){
   changeDirector(stage);
   const changedId=stage.cardId;
   setLatestId(changedId);setRevision(v=>v+1);
-  // Keep the current card visible when asynchronous patches arrive.
+  // Keep the learner on the previous card when an asynchronous patch arrives.
+  if(visibleId&&next.some(card=>card.id===visibleId)&&!guided){setFollowing(false);setFocusedId(visibleId)}
   if(patch.action==="replace"){pendingQuizRef.current=null;answersRef.current={};setAnswers({});setSpeakingAssessment(null);speechAssessmentRef.current=null;}
   return true;
  }
