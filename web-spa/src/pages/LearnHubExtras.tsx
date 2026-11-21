@@ -15,6 +15,7 @@ export function LearnHubExtras({tools,speakingPath}:{tools:Tool[];speakingPath:s
    {tools.map(tool=><Link className="crew-section-card crew-learn-tool" key={tool.to} to={tool.to}>
     <span className="crew-section-card-icon"><Icon name={tool.icon}/></span>
     <span className="crew-section-card-copy"><strong>{tool.title}</strong><small>{tool.desc}</small></span>
+    <Arrow className="crew-learn-tool-arrow"/>
    </Link>)}
   </div>
   <Link className="crew-learn-three-minute" to={speakingPath}>
