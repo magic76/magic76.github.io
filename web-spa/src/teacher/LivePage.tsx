@@ -1,11 +1,11 @@
-import{Arrow}from"../components/Arrow";
-import{useAuxiliaryLiveSession}from"../live/useAuxiliaryLiveSession";
-import{useSuggestedReplies}from"../live/useSuggestedReplies";
+import {Arrow} from "../components/Arrow";
+import {useAuxiliaryLiveSession} from "../live/useAuxiliaryLiveSession";
+import {useSuggestedReplies} from "../live/useSuggestedReplies";
 import{GroundingSources}from"../live/GroundingSources";
 import{LiveSearchAction}from"../live/LiveSearchAction";
 import{fortuneSpeakingOpening,fortuneSpeakingPolicy,readFortuneSpeakingContext,type FortuneSpeakingKind}from"./fortuneSpeaking";
 import{effectiveSpeakingLevel}from"./speakingLevelMemory";
-import{awardCreatureChatEnergy}from"../pages/creatureChatRewards.mjs";
+import {awardCreatureChatEnergy} from "../pages/creatureChatRewards.mjs";
 import{trackUsageEvent,sessionDurationDetail}from"../analytics/usage";
 import{conversationIntent,conversationOpening}from"./conversationIntent";
 import{personalMemoryEnabled}from"./studentMemory";
@@ -79,144 +79,144 @@ const opening=fortuneKind
 const creatureRewardSession=useRef("v"+Date.now().toString(36)+Math.random().toString(36).slice(2));
 const replyHints=useSuggestedReplies({allowed:true,language:s.targetLanguage,nativeLanguage:s.nativeLanguage});
 const live=useLiveSession({pageKey:"teacher",title:(fortuneKind?"命理聊聊":isReview?t("learnToday.reviewTitle"):mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system:system+(!isRoleplay&&!fortuneKind?"\n[CURRENT FACTS] Do not claim to have live web access. Only use fresh facts when verified context is explicitly provided. Otherwise explain you cannot verify the current news. Preserve teacher language and practice policies.":""),openingPrompt:languageDirective+"\n"+opening+"\n"+languageDirective,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&(intent==="continue"||s.conversationMode==="natural")?"teacher":fortuneKind?"teacher":undefined,
- onInputSpeech:replyHints.onInputSpeech,
- onObservedExchange:turn=>{
-  if(turn.id)try{awardCreatureChatEnergy("teacher-voice",creatureRewardSession.current+":"+turn.id)}catch{}
- },
- onTurnComplete:(_turn,completedTurns)=>{
-  if(_turn.hasValidOutput)replyHints.generate(completedTurns);
-  if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
+onInputSpeech:replyHints.onInputSpeech,
+onObservedExchange:turn=>{
+if(turn.id)try{awardCreatureChatEnergy("teacher-voice",creatureRewardSession.current+":"+turn.id)}catch{}
+},
+onTurnComplete:(_turn,completedTurns)=>{
+if(_turn.hasValidOutput)replyHints.generate(completedTurns);
+if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("teacher_conversation");
-  }
-  if(isRoleplay||memoryCheckpointRef.current||!personalMemoryEnabled())return;
-  const snapshot=completedTurns.slice();
-  if(!hasMeaningfulLearnerSpeech(snapshot.map(t=>t.input||"").join(" ")))return;
+}
+if(isRoleplay||memoryCheckpointRef.current||!personalMemoryEnabled())return;
+const snapshot=completedTurns.slice();
+if(!hasMeaningfulLearnerSpeech(snapshot.map(t=>t.input||"").join(" ")))return;
    memoryCheckpointRef.current=true;
-  void rememberTeacherConversation(s.targetLanguage,snapshot,geminiKey());
- },
- onSessionFinished:item=>{
+void rememberTeacherConversation(s.targetLanguage,snapshot,geminiKey());
+},
+onSessionFinished:item=>{
    replyHints.clear();
-  if(!item)return;
-  if(item.durationMs>0)trackUsageEvent("teacher_session_end",sessionDurationDetail(item.durationMs));
-  if(isReview&&item.turns.filter(t=>Boolean(t.input?.trim())).length>=2)markReviewPracticed(s.targetLanguage,reviewFocus);
-  if(isRoleplay)return;
-  if(item.durationMs<60000||item.turns.filter(t=>Boolean(t.input?.trim())).length<3)
-   void rememberTeacherConversation(s.targetLanguage,item.turns,geminiKey());
- }});
+if(!item)return;
+if(item.durationMs>0)trackUsageEvent("teacher_session_end",sessionDurationDetail(item.durationMs));
+if(isReview&&item.turns.filter(t=>Boolean(t.input?.trim())).length>=2)markReviewPracticed(s.targetLanguage,reviewFocus);
+if(isRoleplay)return;
+if(item.durationMs<60000||item.turns.filter(t=>Boolean(t.input?.trim())).length<3)
+void rememberTeacherConversation(s.targetLanguage,item.turns,geminiKey());
+}});
 useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("teacher_conversation_start")}},[live.state]);
 useEffect(()=>{if(live.state==="requesting-mic"){courseSavedRef.current=false;setCourseResult(null)}},[live.state]);
 useEffect(()=>{
- if(guestStarted||live.state!=="ended"||!course||courseSavedRef.current||!live.turns.length)return;
+if(guestStarted||live.state!=="ended"||!course||courseSavedRef.current||!live.turns.length)return;
   courseSavedRef.current=true;
- setEndingCourse(true);
- let cancelled=false;setEvaluating(true);setEvaluationError("");
- void evaluateCourseSession(course,live.turns,live.report).then(result=>{
-  if(cancelled)return;
-  if(result.stars>0)saveLessonProgress(course.id,result.stars,result.score);
-  setCourseResult({done:result.done,total:result.total,score:result.score,stars:result.stars});
- }).catch(error=>{if(!cancelled)setEvaluationError(error instanceof Error?error.message:t("live.evalFailed"))})
+setEndingCourse(true);
+let cancelled=false;setEvaluating(true);setEvaluationError("");
+void evaluateCourseSession(course,live.turns,live.report).then(result=>{
+if(cancelled)return;
+if(result.stars>0)saveLessonProgress(course.id,result.stars,result.score);
+setCourseResult({done:result.done,total:result.total,score:result.score,stars:result.stars});
+}).catch(error=>{if(!cancelled)setEvaluationError(error instanceof Error?error.message:t("live.evalFailed"))})
   .finally(()=>{if(!cancelled)setEvaluating(false)});
   return()=>{cancelled=true};
 },[course?.id,live.state,live.report,live.turns,assessmentRetry,guestStarted]);
 useEffect(()=>{if(textMode||!geminiKey())return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
 const tutorHistoryRecorded=useRef(false);
 useEffect(()=>{
- if(guestStarted)return;
- if(live.state==="requesting-mic"){tutorHistoryRecorded.current=false;return}
- if(live.state!=="ended"||tutorHistoryRecorded.current)return;
+if(guestStarted)return;
+if(live.state==="requesting-mic"){tutorHistoryRecorded.current=false;return}
+if(live.state!=="ended"||tutorHistoryRecorded.current)return;
   tutorHistoryRecorded.current=true;
   recordCompletedTutorSession(profile.id,s.targetLanguage,live.durationMs,
-  live.turns.filter(turn=>Boolean(turn.input?.trim())).length,isRoleplay);
+live.turns.filter(turn=>Boolean(turn.input?.trim())).length,isRoleplay);
 },[live.state,live.durationMs,live.turns,profile.id,s.targetLanguage,isRoleplay,guestStarted]);
-const endAndReturn=async()=>{
- if(guestStarted){await live.stop(true);navigate("/learn");return}
- if(endRequestedRef.current||endingCourse){
-  if(course&&!evaluating&&(courseResult||evaluationError))navigate("/learn");
+ const endAndReturn=async()=>{
+  if(guestStarted){await live.stop(true);navigate("/learn");return}
+  if(endRequestedRef.current||endingCourse){
+   if(course&&!evaluating&&(courseResult||evaluationError))navigate("/learn");
    return;
- }
+  }
   endRequestedRef.current=true;
   tutorHistoryRecorded.current=true;
- if(course){
+  if(course){
    courseSavedRef.current=true;
-  setEndingCourse(true);
-  setEvaluating(true);
-  setEvaluationError("");
-  setCourseResult(null);
- }
- try{
-  const saved=await live.stop(true);
-  if(saved){
+   setEndingCourse(true);
+   setEvaluating(true);
+   setEvaluationError("");
+   setCourseResult(null);
+  }
+  try{
+   const saved=await live.stop(true);
+   if(saved){
     recordCompletedTutorSession(profile.id,s.targetLanguage,saved.durationMs,
      saved.turns.filter(t=>Boolean(t.input?.trim())).length,isRoleplay);
-  }
-  if(!course)return;
-  if(!saved||!saved.turns.some(t=>Boolean(t.input?.trim()))){
-   setEvaluationError(t("live.noSpeech"));
+   }
+   if(!course)return;
+   if(!saved||!saved.turns.some(t=>Boolean(t.input?.trim()))){
+    setEvaluationError(t("live.noSpeech"));
     return;
-  }
-  const grading=saved.completion
+   }
+   const grading=saved.completion
     .then(done=>evaluateCourseSession(course,done.turns,done.report))
     .then(result=>{
-    if(result.stars>0)saveLessonProgress(course.id,result.stars,result.score);
-    setCourseResult({done:result.done,total:result.total,score:result.score,stars:result.stars});
-    setEvaluationError("");
-    return result;
-   });
-  let timer:ReturnType<typeof setTimeout>|undefined;
-  try{
-   await Promise.race([
+     if(result.stars>0)saveLessonProgress(course.id,result.stars,result.score);
+     setCourseResult({done:result.done,total:result.total,score:result.score,stars:result.stars});
+     setEvaluationError("");
+     return result;
+    });
+   let timer:ReturnType<typeof setTimeout>|undefined;
+   try{
+    await Promise.race([
      grading,
      new Promise<never>((_,reject)=>{
       timer=window.setTimeout(()=>reject(new Error(t("live.evalSlow"))),30000);
-    })
+     })
     ]);
+   }catch(error){
+    setEvaluationError(error instanceof Error?error.message:t("live.evalRetry"));
+   }finally{
+    if(timer!==undefined)window.clearTimeout(timer);
+   }
   }catch(error){
-   setEvaluationError(error instanceof Error?error.message:t("live.evalRetry"));
+   if(course)setEvaluationError(error instanceof Error?error.message:t("live.endFailed"));
   }finally{
-   if(timer!==undefined)window.clearTimeout(timer);
+   if(course)setEvaluating(false);
+   else navigate(fortuneKind?"/teacher/fortune":"/learn");
   }
- }catch(error){
-  if(course)setEvaluationError(error instanceof Error?error.message:t("live.endFailed"));
- }finally{
-  if(course)setEvaluating(false);
-  else navigate(fortuneKind?"/teacher/fortune":"/learn");
- }
-};
-const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ };
+ const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  useAuxiliaryLiveSession(sessionActive,textMode);
 const openBoard=async()=>{
- if(openingBoard||changingTeacher||endingCourse)return;
- if(sessionActive&&!window.confirm(t("board.entryConfirm")))return;
- setOpeningBoard(true);setTeacherSwitchError("");
- try{
-  if(!textMode&&sessionActive)await live.stop(true);
+if(openingBoard||changingTeacher||endingCourse)return;
+if(sessionActive&&!window.confirm(t("board.entryConfirm")))return;
+setOpeningBoard(true);setTeacherSwitchError("");
+try{
+if(!textMode&&sessionActive)await live.stop(true);
    navigate("/teacher/board");
- }catch{
-  setOpeningBoard(false);
-  setTeacherSwitchError(t("board.entryError"));
- }
+}catch{
+setOpeningBoard(false);
+setTeacherSwitchError(t("board.entryError"));
+}
 };
 const changeTeacher=async()=>{
- if(changingTeacher||openingBoard)return;
- if(sessionActive){
-  const confirmation=course
+if(changingTeacher||openingBoard)return;
+if(sessionActive){
+const confirmation=course
     ?t("live.changeConfirmCourse")
     :t("live.changeConfirm");
-  if(!window.confirm(confirmation))return;
- }
- setChangingTeacher(true);setTeacherSwitchError("");
- try{
-  if(!textMode)await live.stop(true);
+if(!window.confirm(confirmation))return;
+}
+setChangingTeacher(true);setTeacherSwitchError("");
+try{
+if(!textMode)await live.stop(true);
    navigate("/teacher/roles?mode=teacher",{state:{openTeacherPicker:true}});
- }catch{
-  setChangingTeacher(false);
-  setTeacherSwitchError(t("live.endSessionFailed"));
- }
+}catch{
+setChangingTeacher(false);
+setTeacherSwitchError(t("live.endSessionFailed"));
+}
 };
 const alternateParams=new URLSearchParams(p);
- if(textMode)alternateParams.delete("chat");else alternateParams.set("chat","text");
- const alternateHref="/teacher/live?"+alternateParams.toString();
- const awaitingReply=["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase);
+if(textMode)alternateParams.delete("chat");else alternateParams.set("chat","text");
+const alternateHref="/teacher/live?"+alternateParams.toString();
+const awaitingReply=["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase);
 const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?(awaitingReply?"waiting":"listening"):live.state==="connecting"||live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":live.state==="error"&&live.errorKind!=="key"?"error":"idle";
 const voiceStatus=live.state==="error"&&live.errorKind==="key"?t("common:gemini.keyNeeded"):t("live.status."+(live.state==="speaking"?"speaking"
   :live.state==="listening"?(live.voicePhase==="no-transcript"?"noTranscript":live.voicePhase==="no-reply"?"noReply":live.voicePhase==="processing"?"processing":"listening")
