@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {geminiKey} from "../lib/runtime";
 import {copy,correctGuess,twentyQuestions,type TwentyItem,type MysteryCase} from "./playPuzzles";
@@ -155,7 +156,7 @@ export function CrewWordGames({
    const visited=asked.find(entry=>entry.id===h.id);
    const label=copy("label" in h?h.label:h.question,english);
    return <button type="button" key={h.id} className={visited?"asked":""} disabled={ended||Boolean(visited)} onClick={()=>ask(h.id)}>
-    <span>{label}</span>{visited?<strong>{visited.answer}</strong>:<span className="crew-play-question-arrow">↗</span>}
+    <span>{label}</span>{visited?<strong>{visited.answer}</strong>:<Arrow direction="up-right" className="crew-play-question-arrow"/>}
    </button>;
   })}</div>
  </div>;
@@ -195,7 +196,7 @@ export function CrewWordGames({
    {result==="won"?<div className="crew-play-celebration" aria-hidden="true">{Array.from({length:12},(_,index)=><i key={index}/>)}</div>:null}
    <strong>{questionMode?(result==="won"?(english?"You got it!":"答對了！"):(english?"The answer was…":"正確答案是……")):(result==="won"?(english?"Mystery solved!":"成功破案！"):(english?"The truth":"故事真相"))}</strong>
    <p>{questionMode?secret:copy(caseFile.solution,english)}</p>
-   <button type="button" onClick={onNext}>{english?"Play another":"下一題 →"}</button>
+   <button type="button" onClick={onNext}>{english?"Play another":"下一題"} <Arrow/></button>
   </div>:null}
   {questionMode?<div className="crew-play-voice-tip">
    <strong>{english?"Try saying":"試著開口說"}</strong>
