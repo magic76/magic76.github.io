@@ -3,3 +3,5 @@ crew-shorts-preview/
 .DS_Store
 *.log
 workers/guest-trial/wrangler.toml
+/dist/
+/.wrangler/
