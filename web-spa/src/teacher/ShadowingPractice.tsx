@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 
@@ -80,7 +81,7 @@ export function ShadowingPractice(){
   {error&&<p role="alert">{error}</p>}
   <div className="actions" style={{display:"flex",gap:8,flexWrap:"wrap"}}>
    <button className="btn secondary small" type="button" disabled={index===0} onClick={()=>next(-1)}>上一句</button>
-   <button className="btn secondary small" type="button" disabled={index===SENTENCES.length-1} onClick={()=>next(1)}>下一句 →</button>
+   <button className="btn secondary small" type="button" disabled={index===SENTENCES.length-1} onClick={()=>next(1)}>下一句 <Arrow/></button>
   </div>
   <small>{en?"No automatic pronunciation score is calculated. Use teacher feedback for assessment.":"此模式不會自動判斷發音分數；需要老師回饋時，請使用下方發音訓練。"}</small></>}
  </section>;
