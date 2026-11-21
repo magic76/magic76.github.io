@@ -76,7 +76,7 @@ export function TutorPage(){
  </section>
  <section className="section teacher-advanced-section">
   <details className="panel teacher-advanced-settings">
-   <summary><span><strong>{t("tutor.advanced")}</strong><small>{targetName} · {accentLabel(s.targetLanguage,s.languageStyle)} · {t("tutor.speed."+s.speakingPace)}</small></span><span className="teacher-advanced-chevron" aria-hidden="true">⌄</span></summary>
+   <summary><span><strong>{t("tutor.advanced")}</strong><small>{targetName} · {accentLabel(s.targetLanguage,s.languageStyle)} · {t("tutor.speed."+s.speakingPace)}</small></span><Arrow direction="down" className="teacher-advanced-chevron crew-arrow--plain"/></summary>
    <div className="teacher-advanced-body">
     <div className="settings-grid">
      <label><span className="label">{t("tutor.language")}</span><select className="field" value={displayTarget} onChange={e=>s.setTargetLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(l=><option key={l} value={l}>{t("friends:languages."+l)}</option>)}</select></label>
