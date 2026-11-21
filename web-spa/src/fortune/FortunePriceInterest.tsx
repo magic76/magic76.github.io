@@ -36,5 +36,6 @@ export function FortunePriceInterest({readingId}:{readingId:string}){
     setInterested(true);trackUsageEvent("fortune_price_interest","bazi");
    }}>{copy("我有興趣 · NT$79","I'm interested · NT$79")}</button>}
   <small>{copy("這只是意願調查，不是預購或付款。報告內容與交付方式仍在規劃。","Interest survey only: no purchase, preorder, or payment. Content and delivery are still being planned.")}</small>
+  <Link className="text-button" to="/fortune/purchases">{copy("已買過報告？到我的報告書架","Already purchased? Open your report library")}</Link>
  </section>;
 }
