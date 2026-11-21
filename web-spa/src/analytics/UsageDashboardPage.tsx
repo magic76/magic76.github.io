@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from "react";
 import {AccountStatsPanel} from "./AccountStatsPanel";
+import {MembershipDiagnosticsPanel} from "./MembershipDiagnosticsPanel";
 import {UsageOverviewCards} from "./UsageOverviewCards";
 import {PlatformUsagePanel,type PlatformUsage} from "./PlatformUsagePanel";
 import "./usage-dashboard.css";
@@ -69,6 +70,7 @@ return Array.from({length:days},(_,i)=>{
  error?<section className="panel section" role="alert"><strong>無法讀取使用資料</strong><p>{error}</p><p className="meta">請確認 Cloudflare Access、Analytics Engine Binding 與唯讀 Token，參考 docs/CREW_USAGE.md。</p></section>:
  data&&<>
   <AccountStatsPanel/>
+  <MembershipDiagnosticsPanel/>
   <UsageOverviewCards data={data} rows={rows}/>
   <PlatformUsagePanel rows={data.platformBreakdown}/>
   <UsageJourneySection days={days} journey={data.journey}/>
