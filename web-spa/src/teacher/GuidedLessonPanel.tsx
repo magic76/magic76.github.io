@@ -9,7 +9,7 @@ type Props={
  english:boolean;quizLocked:boolean;
  onStart:(id:LessonId)=>void;onStep:(index:number)=>void;
 };
-export function GuidedLessonPanel({lesson,lessonId,lessonStep,progress,english,quizLocked,onStart,onStep}:Props){
+export function GuidedLessonPanel({lesson,lessonId,lessonStep,progress,english,onStart,onStep}:Props){
  const {t}=useTranslation("teacher");
  const pickerRef=useRef<HTMLDetailsElement>(null);
  return <>
