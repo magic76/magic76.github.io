@@ -786,7 +786,7 @@ for(const [path,content] of Object.entries(outputs())){
     try{actual=readFileSync(absolute,"utf8")}catch{/* missing output */}
     // Git source history and ZIP mtimes can yield different but valid lastmod dates.
     // Still check exact URL coverage, markup, alternates and date presence.
-    const normalize=xml=>path==="sitemap.xml"?xml.replace(/<lastmod>\\d{4}-\\d{2}-\\d{2}<\\/lastmod>/g,"<lastmod>DATE</lastmod>"):xml;
+    const normalize=xml=>path==="sitemap.xml"?xml.replace(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/g,"<lastmod>DATE</lastmod>"):xml;
     if(normalize(actual)!==normalize(content)){console.error("SEO output is stale: "+path);failed=true}
   }else{
     mkdirSync(dirname(absolute),{recursive:true});
