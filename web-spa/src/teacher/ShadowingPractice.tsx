@@ -20,6 +20,7 @@ export function ShadowingPractice(){
  const audioUrl=useRef<string|null>(null);
  const chunks=useRef<Blob[]>([]);
  const alive=useRef(true);
+ const generation=useRef(0);
  const release=()=>{
   if(recorder.current?.state==="recording")recorder.current.stop();
   stream.current?.getTracks().forEach(track=>track.stop());
@@ -31,6 +32,7 @@ export function ShadowingPractice(){
  };
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;release();window.speechSynthesis?.cancel();if(audioUrl.current)URL.revokeObjectURL(audioUrl.current)}},[]);
  const next=(direction:number)=>{
+  generation.current+=1;
   release();setRecording(false);clearAudio();setError("");
   window.speechSynthesis?.cancel();setIndex(i=>Math.max(0,Math.min(SENTENCES.length-1,i+direction)));
  };
@@ -42,18 +44,20 @@ export function ShadowingPractice(){
   window.speechSynthesis.speak(utterance);
  };
  const start=async()=>{
+  const session=generation.current;
   setError("");clearAudio();window.speechSynthesis?.cancel();
   if(!navigator.mediaDevices?.getUserMedia||typeof MediaRecorder==="undefined"){setError("此瀏覽器不支援錄音，可改用老師的發音練習。");return}
   try{
    const media=await navigator.mediaDevices.getUserMedia({audio:true});
-   if(!alive.current){media.getTracks().forEach(track=>track.stop());return}
+   if(!alive.current||session!==generation.current){media.getTracks().forEach(track=>track.stop());return}
    stream.current=media;chunks.current=[];
    const r=new MediaRecorder(media);recorder.current=r;
+   const session=generation.current;
    r.ondataavailable=e=>{if(e.data.size)chunks.current.push(e.data)};
    r.onstop=()=>{
     media.getTracks().forEach(track=>track.stop());
     if(stream.current===media)stream.current=null;
-    if(!alive.current)return;
+    if(!alive.current||session!==generation.current)return;
     if(chunks.current.length){const url=URL.createObjectURL(new Blob(chunks.current,{type:r.mimeType||"audio/webm"}));audioUrl.current=url;setAudio(url)}
     setRecording(false);
    };
