@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState} from "react";
 import {createPortal} from "react-dom";
 import {useTranslation} from "react-i18next";
@@ -71,12 +72,12 @@ export function FriendsPage(){
   </header>
   <section className="section teacher-precall-settings panel"><label>{t("language")}<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(v=><option key={v} value={v}>{t("languages."+v)}</option>)}</select></label><label>{t("pace")}<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">{t("slow")}</option><option value="normal">{t("normal")}</option><option value="fast">{t("fast")}</option></select></label><label>{t("chatModeTitle")}<select className="field" value={friendChatMode} onChange={e=>setFriendChatMode(e.target.value as FriendChatLanguageMode)}><option value="natural">{t("chatModeNatural")}</option><option value="bilingual">{t("chatModeBilingual")}</option><option value="immersion">{t("chatModeImmersion")}</option></select></label></section>
   <p className="friends-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</p>
-  <Link className="friends-game-entry" to="/games"><span aria-hidden="true"><Icon name="play"/></span><span><strong>{t("gameEntryTitle")}</strong><small>{t("gameEntryDescription")}</small></span><b aria-hidden="true">→</b></Link>
-  <div className="friends-top-actions"><span>{t("count",{count:CREW_FRIENDS.length})}</span><Link to="/settings#memory-settings">{t("memorySettings")} →</Link></div>
+  <Link className="friends-game-entry" to="/games"><span aria-hidden="true"><Icon name="play"/></span><span><strong>{t("gameEntryTitle")}</strong><small>{t("gameEntryDescription")}</small></span><Arrow/></Link>
+  <div className="friends-top-actions"><span>{t("count",{count:CREW_FRIENDS.length})}</span><Link to="/settings#memory-settings">{t("memorySettings")} <Arrow/></Link></div>
   {recent.length?<section className="section friends-recent">
    <div className="section-head"><h2>{t("recent")}</h2><button type="button" className="friends-subtle" onClick={()=>{if(window.confirm(t("clearRecentConfirm"))){clearFriendRecent(language);refresh()}}}>{t("clearRecent")}</button></div>
    <div className="friends-recent-list">{recent.slice(0,8).map(friend=><button type="button" key={friend.id} className="friends-recent-card" onClick={()=>begin(friend)}>
-     <FriendAvatar friend={friend}/><strong>{friend.name}</strong><small>{relativeDate(getFriendLastChat(friend.id,language))}</small><span>{t("resume")} →</span>
+     <FriendAvatar friend={friend}/><strong>{friend.name}</strong><small>{relativeDate(getFriendLastChat(friend.id,language))}</small><span>{t("resume")} <Arrow/></span>
    </button>)}</div>
   </section>:<div className="friends-recent-empty">{t("recentEmpty")}</div>}
   <section className="section friends-directory">
@@ -85,7 +86,7 @@ export function FriendsPage(){
    <div className="friends-categories" role="group" aria-label={t("categories")}>{FRIEND_CATEGORIES.map(cat=><button type="button" key={cat} className={category===cat?"active":""} aria-pressed={category===cat} onClick={()=>setCategory(cat)}>{t("category."+cat,{defaultValue:FRIEND_CATEGORY_LABELS[cat]})}</button>)}</div>
    <div className="friends-contact-list">{visible.length?visible.map(friend=><button type="button" className="friends-contact" key={friend.id} onClick={()=>{setSelected(friend);setMemoryPanel(false)}}>
      <FriendAvatar friend={friend}/><span className="friends-contact-copy"><strong>{friend.name}<small>{english?friend.titleEn:friend.titleZh}</small></strong><span>{friendMemoryEnabled()&&getFriendTopics(friend.id,language)[0]?.title?t("lastTopic")+getFriendTopics(friend.id,language)[0].title:(english?friend.bioEn:friend.bioZh)}</span></span>
-     <span className="friends-contact-tail"><small>{relativeDate(getFriendLastChat(friend.id,language))}</small><b aria-hidden="true">›</b></span>
+     <span className="friends-contact-tail"><small>{relativeDate(getFriendLastChat(friend.id,language))}</small><Arrow/></span>
     </button>):<p className="friends-empty">{t("noMatches")}</p>}</div>
   </section>
   <p className="friends-privacy-note">{t("privacy")}</p>
