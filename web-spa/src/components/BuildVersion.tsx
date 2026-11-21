@@ -1,3 +1,4 @@
+import {Arrow} from "./Arrow";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "./build-version.css";
@@ -52,7 +53,7 @@ export function BuildVersion() {
         {expanded ? c.hideDetails : c.showDetails}
       </button>
     </div>
-    {outdated && <button type="button" className="crew-build-refresh" onClick={refreshCrewBuild}>{c.refresh} ↗</button>}
+    {outdated && <button type="button" className="crew-build-refresh" onClick={refreshCrewBuild}>{c.refresh} <Arrow direction="up-right"/></button>}
     <div id="crew-build-details" className="crew-build-details" hidden={!expanded}>
       <dl>
         <dt>{c.builtAt}</dt><dd>{formatTime(currentBuild.builtAt, true, english) || c.missing}<small>{c.timezone}</small></dd>
