@@ -10,11 +10,11 @@ export function BoardQuickControls({english,guided,hasCards,step,steps,onNext,on
    <button type="button" className="is-primary" disabled={!hasCards} onClick={guided&&step<steps-1?onNext:onEnd}>
     {guided&&step<steps-1?(english?"Got it · Next step →":"學會了 · 下一節 →"):(english?"Finish this topic":"結束這個話題")}
    </button>
-   <button type="button" aria-expanded={choosing} onClick={()=>setChoosing(v=>!v)}>
+   <button type="button" aria-expanded={choosing} aria-controls="teaching-board-topic-chooser" onClick={()=>setChoosing(v=>!v)}>
     {english?"Change topic":"換個話題"}
    </button>
   </div>
-  {choosing&&<div className="teaching-board-topic-chooser">
+  {choosing&&<div className="teaching-board-topic-chooser" id="teaching-board-topic-chooser">
    <strong>{english?"What would you like to learn next?":"接下來想學什麼？"}</strong>
    <div className="teaching-board-topic-courses">{LESSONS.map(item=><button key={item.id} type="button" onClick={()=>{onLesson(item.id);setChoosing(false)}}>{item.title}</button>)}</div>
    <form onSubmit={e=>{e.preventDefault();if(topic.trim()){onTopic(topic.trim());setTopic("");setChoosing(false)}}}>
