@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {Arrow} from "../components/Arrow";
 import type {BoardCard,BoardQuestion} from "./boardProtocol";
 import type {SpeakingAssessment} from "./boardLessons";
 import {BoardFlashcards,type FlashReview} from "./BoardFlashcards";
@@ -38,8 +39,8 @@ function Steps({card,english,focusIndex=-1,revealCount=null,onNavigate}:{card:Bo
   <div className="teaching-board-step-focus" key={active}><small>{english?"Step":"步驟"} {active+1} / {card.points.length}</small>
    <h3>{card.points[active].label}</h3><p>{card.points[active].note}</p>
   </div>
-  <div className="teaching-board-pager"><button type="button" disabled={active===0} onClick={()=>move(active-1)}>{english?"Previous":"上一步"}</button>
-   <button type="button" disabled={active>=available-1} onClick={()=>move(active+1)}>{english?"Next":"下一步"} →</button></div>
+  <div className="teaching-board-pager"><button type="button" disabled={active===0} onClick={()=>move(active-1)}><Arrow direction="left" disabled={active===0}/>{english?"Previous":"上一步"}</button>
+   <button type="button" disabled={active>=available-1} onClick={()=>move(active+1)}>{english?"Next":"下一步"}<Arrow disabled={active>=available-1}/></button></div>
  </div>;
 }
 function Flashcards({card,english,focusIndex=-1,revealCount=null,onPractice,onRate}:{card:BoardCard;english:boolean;focusIndex?:number;revealCount?:number|null;onPractice?:Props["onFlashcardPractice"];onRate?:Props["onFlashcardRate"]}){
@@ -66,8 +67,8 @@ function Quiz({card,answers,onAnswer,english,quizIndex=0,onNavigate}:{card:Board
    {answered&&<p className="teaching-board-answer" role="status">{selected===q.answerIndex?"✓":"○"} {q.explanation||(selected===q.answerIndex?(english?"Correct":"答對了"):(english?"Ask your teacher to explain":"問問老師為什麼"))}</p>}
    {!answered&&<p className="teaching-board-question-wait">{english?"Your turn — choose an answer or say A, B, C or D.":"換你回答：點選選項，或直接說 A、B、C、D。"}</p>}
   </div>
-  <div className="teaching-board-pager"><button type="button" disabled={index===0} onClick={()=>change(index-1)}>{english?"Previous":"上一題"}</button>
-   <button type="button" disabled={!answered||index===card.questions.length-1} onClick={()=>change(index+1)}>{english?"Next":"下一題"} →</button></div>
+  <div className="teaching-board-pager"><button type="button" disabled={index===0} onClick={()=>change(index-1)}><Arrow direction="left" disabled={index===0}/>{english?"Previous":"上一題"}</button>
+   <button type="button" disabled={!answered||index===card.questions.length-1} onClick={()=>change(index+1)}>{english?"Next":"下一題"}<Arrow disabled={!answered||index===card.questions.length-1}/></button></div>
  </div>;
 }
 function Speaking({card,onSpeakingSubmit,assessment,english}:{card:BoardCard;onSpeakingSubmit?:Props["onSpeakingSubmit"];assessment?:SpeakingAssessment|null;english:boolean}){
