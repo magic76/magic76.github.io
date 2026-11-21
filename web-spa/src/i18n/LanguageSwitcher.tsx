@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useLocation} from "react-router-dom";
@@ -62,7 +63,7 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
    aria-haspopup="dialog" aria-expanded={open} onClick={showPicker}>
    {variant==="header"&&<svg className="crew-language-globe" aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/></svg>}
    <span className="crew-language-trigger-name">{variant==="header"?compactLabel:currentLabel}</span>
-   <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m6 9 6 6 6-6"/></svg>
+   <Arrow direction="down" className="crew-arrow--small"/>
   </button>
   <dialog ref={dialogRef} className="crew-language-dialog"
    aria-label={t("language.select")} onClose={()=>setOpen(false)}

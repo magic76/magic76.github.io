@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -52,7 +53,7 @@ export function LearningFocusCard(){
     t("learnToday.conversationNote")}</p>
    {plan?.learnerGoal&&<p className="crew-learning-goal" title={plan.learnerGoal}><strong>{t("learnToday.goalLabel")}</strong> {plan.learnerGoal}</p>}
   </div>
-  {plan?<Link className="crew-action-primary" to={plan.to}>{t("learnToday.start")} →</Link>:
+  {plan?<Link className="crew-action-primary" to={plan.to}>{t("learnToday.start")} <Arrow/></Link>:
    <button className="crew-action-primary" type="button" disabled aria-disabled="true">{t("learnToday.loadingButton")}</button>}
   {plan?.reviewFocus&&plan.action!=="review"&&<Link className="crew-learn-review-link" to="/teacher/live?intent=review">{t("learnToday.reviewLink")} · {plan.reviewFocus}</Link>}
   {plan?.textbook&&<div className="crew-learn-focus-secondary">

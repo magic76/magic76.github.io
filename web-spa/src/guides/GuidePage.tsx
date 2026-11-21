@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect} from "react";
 import {Link,useParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -17,8 +18,8 @@ export function GuidePage(){
  const related=guideSlugs.filter(other=>other!==slug).slice(0,4);
  return <article className="crew-guide">
   <nav className="crew-guide-breadcrumbs" aria-label={english?"Breadcrumb":"麵包屑導覽"}>
-   <Link to="/">{english?"Home":"首頁"}</Link><span aria-hidden="true">›</span>
-   <Link to="/teacher">Crew Teacher</Link><span aria-hidden="true">›</span>
+   <Link to="/">{english?"Home":"首頁"}</Link><Arrow className="crew-arrow--plain"/>
+   <Link to="/teacher">Crew Teacher</Link><Arrow className="crew-arrow--plain"/>
    <span aria-current="page">{guide.label}</span>
   </nav>
   <header className="crew-guide-hero">
@@ -26,7 +27,7 @@ export function GuidePage(){
    <h1>{guide.headline}</h1>
    <p>{guide.intro}</p>
    <div className="crew-guide-actions">
-    <Link className="btn" to={guide.target}>{guide.cta} <span aria-hidden="true">↗</span></Link>
+    <Link className="btn" to={guide.target}>{guide.cta} <Arrow direction="up-right"/></Link>
     <Link className="btn secondary" to={guide.secondaryTarget}>{guide.secondary}</Link>
    </div>
    <small className="crew-guide-requirement">{english?
@@ -46,7 +47,7 @@ export function GuidePage(){
      {section.sample&&<div className="crew-guide-sample">
       <strong>{section.sample.label}</strong>
       {section.sample.text.startsWith("https://")?
-       <a href={section.sample.text} target="_blank" rel="noopener noreferrer">{section.sample.text} ↗</a>:
+       <a href={section.sample.text} target="_blank" rel="noopener noreferrer">{section.sample.text} <Arrow direction="up-right"/></a>:
        <blockquote lang="en">{section.sample.text}</blockquote>}
       <small>{section.sample.note}</small>
      </div>}
@@ -62,13 +63,13 @@ export function GuidePage(){
       <Link className="crew-guide-chat-primary" to={"/friend/live?id=zoe&chat=text&topic=guide-"+slug}>{t("contentChat.articleText")}</Link>
       <Link className="crew-guide-chat-secondary" to="/fortune?daily=1">{t("contentChat.todayFortune")}</Link>
      </div>
-     <Link className="btn secondary" to={guide.target}>{guide.cta} →</Link>
+     <Link className="btn secondary" to={guide.target}>{guide.cta} <Arrow/></Link>
     </section>
    </div>
    <aside className="crew-guide-aside" aria-label={english?"Other useful guides":"其他指南"}>
     <h2>{english?"Continue exploring":"延伸閱讀"}</h2>
     <div className="crew-guide-related">{related.map(s=><Link key={s} to={url(s)}>
-     <strong>{getGuide(s,locale)?.headline}</strong><span aria-hidden="true">↗</span>
+     <strong>{getGuide(s,locale)?.headline}</strong><Arrow direction="up-right"/>
     </Link>)}</div>
    </aside>
   </div>

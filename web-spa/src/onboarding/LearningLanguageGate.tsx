@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
@@ -68,7 +69,7 @@ export function LearningLanguageGate({pathname}:{pathname:string}){
     </section>
    </div>
    <footer className="crew-onboarding-footer">
-    <button type="button" className="crew-onboarding-primary" onClick={()=>finish(true)}>{copy.start}<span aria-hidden="true">→</span></button>
+    <button type="button" className="crew-onboarding-primary" onClick={()=>finish(true)}>{copy.start}<Arrow/></button>
     <button type="button" className="crew-onboarding-skip" onClick={()=>finish(false)}>{copy.skip}</button>
    </footer>
   </div>

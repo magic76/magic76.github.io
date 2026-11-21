@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Link} from "react-router-dom";
@@ -142,7 +143,7 @@ export function VocabularyPage(){
  }
 
  return <div className="crew-learning-focus">
-  {stringsReady&&<Link className="crew-learn-back-small" to="/learn">← {tToday("learnToday.backToLearn")}</Link>}
+  {stringsReady&&<Link className="crew-learn-back-small" to="/learn"><Arrow direction="left"/> {tToday("learnToday.backToLearn")}</Link>}
   <section className="crew-learning-quiz" aria-label={t("vocabulary.title")}>
    <div className="crew-learning-quiz-top">
     <div><span className="kicker">{t("vocabulary.kicker")}</span><h1>{t("vocabulary.title")}</h1></div>
@@ -204,7 +205,7 @@ export function VocabularyPage(){
      <strong>{feedback} {picked!==word[1]&&" · "+word[1]}</strong>
      {word[2]&&<p>{word[2]}</p>}
     </div>}
-    {revealed&&picked!==word[1]&&<button className="btn primary crew-learning-full-cta" onClick={nextQuestion}>{t("vocabulary.nextQuestion")} →</button>}
+    {revealed&&picked!==word[1]&&<button className="btn primary crew-learning-full-cta" onClick={nextQuestion}>{t("vocabulary.nextQuestion")} <Arrow/></button>}
    </div>}
   </section>
   <div className="crew-learning-secondary-meta">{t("vocabulary.progressStats",{done,due:stats.due,mastered:stats.mastered})}</div>

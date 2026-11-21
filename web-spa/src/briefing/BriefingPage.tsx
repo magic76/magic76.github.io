@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useState} from "react";
 import {Link} from "react-router-dom";
 import {fetchDay,fetchIndex,rankItems} from "./data";
@@ -28,7 +29,7 @@ export function BriefingPage(){
  return <div className="briefing briefing-reader">
   <header className="briefing-head">
    <div><span className="kicker">CREW BRIEFING · 每日 AI 研究</span><h1>每天一份，值得深入的 AI 研究</h1><p>從 Agent、記憶、語音到 AI 產品體驗，挑選值得閱讀、值得驗證的技術方向。</p></div>
-   <div className="briefing-head-actions"><Link className="btn secondary" to="/research/board">我的閱讀清單</Link><a className="btn secondary" href={import.meta.env.BASE_URL+"briefings/feed.xml"} target="_blank" rel="noopener noreferrer">RSS 訂閱 ↗</a></div>
+   <div className="briefing-head-actions"><Link className="btn secondary" to="/research/board">我的閱讀清單</Link><a className="btn secondary" href={import.meta.env.BASE_URL+"briefings/feed.xml"} target="_blank" rel="noopener noreferrer">RSS 訂閱 <Arrow direction="up-right"/></a></div>
   </header>
   <div className="briefing-layout">
    <nav className="briefing-side" aria-label="選擇報告日期"><h2>歷史報告</h2>{dates.length?dates.map((date,i)=><button key={date} className={"briefing-date "+(date===selected?"active":"")} aria-current={date===selected?"date":undefined} onClick={()=>setSelected(date)}><strong>{dateLabel(date)}</strong>{i===0&&<small>最新一期</small>}</button>):<p className="meta">目前還沒有報告。</p>}</nav>
@@ -44,7 +45,7 @@ export function BriefingPage(){
      {filtered.length?filtered.map((item,i)=><article key={item.id} className={"briefing-card "+(i===0&&!query&&!onlySaved&&topic==="all"?"featured":"")}>
       <div className="briefing-card-top"><span className="briefing-topic">{item.topic}</span><span className="briefing-score">{sourceDate(item.publishedAt)} 發表 · {item.sources.length} 個來源</span></div>
       <h3><Link to={"/research/"+day.date+"/"+encodeURIComponent(item.id)}>{item.title}</Link></h3><p>{item.summary}</p>
-      <div className="briefing-card-bottom"><Link to={"/research/"+day.date+"/"+encodeURIComponent(item.id)} className="briefing-read">閱讀研究 →</Link><button className="briefing-icon-button" aria-label={reviews[item.id]?.saved?"取消收藏":"收藏文章"} aria-pressed={!!reviews[item.id]?.saved} onClick={()=>setReviews(updateReview(item.id,{saved:!reviews[item.id]?.saved}))}>{reviews[item.id]?.saved?"★ 已收藏":"☆ 收藏"}</button></div>
+      <div className="briefing-card-bottom"><Link to={"/research/"+day.date+"/"+encodeURIComponent(item.id)} className="briefing-read">閱讀研究 <Arrow/></Link><button className="briefing-icon-button" aria-label={reviews[item.id]?.saved?"取消收藏":"收藏文章"} aria-pressed={!!reviews[item.id]?.saved} onClick={()=>setReviews(updateReview(item.id,{saved:!reviews[item.id]?.saved}))}>{reviews[item.id]?.saved?"★ 已收藏":"☆ 收藏"}</button></div>
      </article>):<div className="briefing-empty"><h2>找不到符合的文章</h2><p>可以換個搜尋詞或取消篩選。</p></div>}
      <p className="briefing-disclaimer">研究摘要是閱讀線索，不代表研究成果已經被 Crew 實測；引用時請以原始來源為準。</p>
     </>}

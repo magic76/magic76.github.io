@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -60,7 +61,7 @@ export function TimelineLivePage(){
  };
  const active=["connecting","listening","speaking","requesting-mic","ending","reporting"].includes(live.state);
  return <><header className="app-header"><div className="shell inner">
-   <div className="app-brand"><Link className="back-btn" to={back} onClick={e=>{e.preventDefault();void end()}}>‹</Link>
+   <div className="app-brand"><Link className="back-btn" to={back} onClick={e=>{e.preventDefault();void end()}}><Arrow direction="left" className="crew-arrow--plain"/></Link>
     <div className="app-title"><strong>{person.name} · {age} {t("timeline.years")}</strong><small>{t("timeline.liveContext")} · {language}</small></div>
    </div><span className="status connected"><i className="status-dot"/><span>{t(active?"timeline.inConversation":"timeline.ready")}</span></span>
   </div></header>

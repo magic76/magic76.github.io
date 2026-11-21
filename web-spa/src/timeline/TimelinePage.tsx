@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useLayoutEffect,useRef,useState} from "react";
 import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -138,9 +139,9 @@ export function TimelinePage(){
      <span className="timeline-stage-count" aria-live="polite">{age} {t("timeline.years")} · {index+1}/{AGES.length}</span>
     </div>
     <div className="timeline-cta-dock"><Link className="timeline-primary-cta" to={"/timeline/live?character="+characterId+"&age="+age}>
-     {t("timeline.talk",{name:person.name,age})} <span aria-hidden="true">↗</span>
+     {t("timeline.talk",{name:person.name,age})} <Arrow direction="up-right"/>
     </Link><Link className="timeline-compare-cta" to={"/timeline/compare?character="+characterId}>
-     {t("timeline.compareAction",{name:person.name})} <span aria-hidden="true">↗</span>
+     {t("timeline.compareAction",{name:person.name})} <Arrow direction="up-right"/>
     </Link></div>
    <div className="timeline-stage-visual">
     <div className="timeline-photo-carousel" ref={carousel} onScroll={onCarouselScroll} tabIndex={0}
@@ -157,9 +158,9 @@ export function TimelinePage(){
     </div>
    </div>
    <div className="timeline-visual-nav">
-     <button type="button" onClick={()=>changeBy(-1)} disabled={index===0} aria-label={t("timeline.previous")}>‹</button>
+     <button type="button" onClick={()=>changeBy(-1)} disabled={index===0} aria-label={t("timeline.previous")}><Arrow direction="left" disabled={index===0} className="crew-arrow--plain"/></button>
      <span>{t("timeline.swipe")}</span>
-     <button type="button" onClick={()=>changeBy(1)} disabled={index===AGES.length-1} aria-label={t("timeline.next")}>›</button>
+     <button type="button" onClick={()=>changeBy(1)} disabled={index===AGES.length-1} aria-label={t("timeline.next")}><Arrow disabled={index===AGES.length-1}/></button>
     </div>
    </div>
    <div className="timeline-feature-copy" key={characterId+":"+age}>
@@ -173,7 +174,7 @@ export function TimelinePage(){
     {echoes.length>0&&<aside className="timeline-echo-panel" aria-label={en?"Time echoes":"時間回音"}>
      <h3>✦ {en?"An echo from earlier years":"來自過去的時間回音"} · {echoes.length}</h3>
      <ul>{echoes.slice(0,2).map(n=><li key={n.age+":"+n.text}>
-      <button type="button" onClick={()=>chooseAge(n.age)}>{en?"Back to "+person.name+" at "+n.age:"回到 "+n.age+" 歲的 "+person.name} ↗</button>
+      <button type="button" onClick={()=>chooseAge(n.age)}>{en?"Back to "+person.name+" at "+n.age:"回到 "+n.age+" 歲的 "+person.name} <Arrow direction="up-right"/></button>
       <blockquote>“{n.text}”</blockquote>
       <small>{en?"You chose to save this at age "+n.age:"你在 "+person.name+" "+n.age+" 歲時主動保存的話"}</small>
      </li>)}</ul>
@@ -187,7 +188,7 @@ export function TimelinePage(){
    </div>
 
   </section>
-  <details className="timeline-overview section panel"><summary>{t("timeline.jump")} <span aria-hidden="true">⌄</span></summary>
+  <details className="timeline-overview section panel"><summary>{t("timeline.jump")} <Arrow direction="down" className="crew-arrow--plain"/></summary>
    <div className="timeline-era-grid">{eras.map(era=><div className="timeline-era" key={era.label[1]}>
     <h3>{t("timeline.era"+({Childhood:"Child",Teens:"Teens","Young adult":"Young",Adulthood:"Adult","Later life":"Later"} as Record<string,string>)[era.label[1]])}</h3><div>{era.ages.map(a=><button type="button" key={a} className={a===age?"selected":""} aria-pressed={a===age} onClick={()=>{chooseAge(a);document.getElementById("timeline-current")?.scrollIntoView({behavior:motion(),block:"start"})}}>
      <TimelinePortrait characterId={characterId} age={a}/><span>{a} {en?"years":"歲"}</span></button>)}</div>

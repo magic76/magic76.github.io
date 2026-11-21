@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -209,7 +210,7 @@ export function NonsenseLiveNewsPage(){
  const round=Math.min(roundCount,turns.length+1);
  return <div className="crew-play-page nonsense-news-page">
   <header className="crew-play-game-header news-page-header">
-   <Link to="/games" className="crew-play-back">← {L(zh,"全部遊戲","All games")}</Link>
+   <Link to="/games" className="crew-play-back"><Arrow direction="left"/> {L(zh,"全部遊戲","All games")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY · AI IMPROV</span>
    <h1>{L(zh,"荒謬新聞直播","Absurd News Live")}</h1>
    <p>{L(zh,"你說一句，AI 就讓新聞現場更失控。自選 5 或 7 回合，最後依你的決策決定救場或翻車。","One reply changes the whole broadcast. Play 5 or 7 rounds with a good or bad ending based on your decisions.")}</p>
@@ -239,7 +240,7 @@ export function NonsenseLiveNewsPage(){
      <button type="button" className={mode==="voice"?"selected":""} aria-pressed={mode==="voice"} onClick={()=>setMode("voice")}>🎙 {L(zh,"Gemini Live 語音互動","Gemini Live voice")}</button>
      <button type="button" className={mode==="text"?"selected":""} aria-pressed={mode==="text"} onClick={()=>setMode("text")}>⌨️ {L(zh,"文字互動／鍵盤聽寫","Text / keyboard dictation")}</button>
     </div>
-    <div className="news-setup-actions">{category!=="custom"&&<button type="button" onClick={()=>chooseTopic()}>{L(zh,"換一則新聞","Shuffle premise")}</button>}<button type="button" className="news-primary" onClick={()=>void start()} disabled={!keyReady||!validCustom}>{L(zh,"進入直播間","Go live")} →</button></div>
+    <div className="news-setup-actions">{category!=="custom"&&<button type="button" onClick={()=>chooseTopic()}>{L(zh,"換一則新聞","Shuffle premise")}</button>}<button type="button" className="news-primary" onClick={()=>void start()} disabled={!keyReady||!validCustom}>{L(zh,"進入直播間","Go live")} <Arrow/></button></div>
     {!keyReady&&<p className="news-key-note">{L(zh,"需要先到設定加入 Gemini API Key。此模式每回合都會呼叫 AI；沒有 Key 時不會產生假新聞回應。","Add a Gemini API Key in settings first. Each turn uses AI; without a Key, no fake AI replies are generated.")}</p>}
    </section>}
    <NonsenseNewsStage scene={scene} zh={zh} round={round} totalRounds={roundCount} playing={status==="playing"&&mode==="voice"} hostDraft={hostDraft} playerDraft={playerDraft} aiSpeaking={aiSpeaking} directorEvents={directorEvents} choiceDisabled={status!=="playing"||(mode==="voice"&&!introReady)||choiceBusy||aiSpeaking||turns.length>=roundCount} onChoice={pickChoice}/>
@@ -253,11 +254,11 @@ export function NonsenseLiveNewsPage(){
     {status==="playing"&&mode==="text"&&turns.length<roundCount&&<form onSubmit={event=>{event.preventDefault();void submitText();}} className="news-reply-form">
      <label htmlFor="news-improv-answer">{L(zh,"你的荒謬回應 · 第 ","Your improv reply · round ")}{round}</label>
      <textarea id="news-improv-answer" value={answer} onChange={e=>setAnswer(e.target.value)} rows={3} maxLength={650} placeholder={L(zh,"講一個離譜但聽起來很合理的理由…","Give the most absurdly convincing explanation…")}/>
-     <div className="news-actions"><button className="news-primary" type="submit">{round===roundCount?L(zh,"揭曉結局","Reveal ending"):L(zh,"讓 AI 接招","Make AI react")} →</button><button type="button" onClick={reset}>{L(zh,"退出","Exit")}</button></div>
+     <div className="news-actions"><button className="news-primary" type="submit">{round===roundCount?L(zh,"揭曉結局","Reveal ending"):L(zh,"讓 AI 接招","Make AI react")} <Arrow/></button><button type="button" onClick={reset}>{L(zh,"退出","Exit")}</button></div>
     </form>}
     {status==="playing"&&mode==="text"&&turns.length>=roundCount&&<div className="news-actions"><button className="news-primary" onClick={()=>void recoverEnding(generationRef.current)}>{L(zh,"重試結局","Retry ending")}</button><button onClick={reset}>{L(zh,"重新開始","Restart")}</button></div>}
     {status==="finished"&&<div className="news-finish-actions">
-     <div className="news-actions"><button className="news-primary" type="button" onClick={nextBroadcast}>{L(zh,"下一則新聞","Next news story")} →</button><button type="button" onClick={()=>void share()}>{L(zh,"分享結局圖片","Share ending")}</button><button type="button" onClick={showPreview}>{L(zh,"預覽圖片","Preview card")}</button><button type="button" onClick={reset}>{L(zh,"重新設定","Change settings")}</button></div>
+     <div className="news-actions"><button className="news-primary" type="button" onClick={nextBroadcast}>{L(zh,"下一則新聞","Next news story")} <Arrow/></button><button type="button" onClick={()=>void share()}>{L(zh,"分享結局圖片","Share ending")}</button><button type="button" onClick={showPreview}>{L(zh,"預覽圖片","Preview card")}</button><button type="button" onClick={reset}>{L(zh,"重新設定","Change settings")}</button></div>
      {shareNotice&&<p role="status">{shareNotice}</p>}
     </div>}
     {notice&&<p className="news-notice" role="status">{notice}</p>}

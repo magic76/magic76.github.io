@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -179,7 +180,7 @@ export function CrazyCourtPage(){
  const won=finalJudgment?.winner==="player";
  return <div className="crew-play-page court-page">
   <header className="court-header">
-   <Link to="/games" className="court-back">← {choice(zh,"全部遊戲","All games")}</Link>
+   <Link to="/games" className="court-back"><Arrow direction="left"/> {choice(zh,"全部遊戲","All games")}</Link>
    <div className="court-eyebrow">CREW PLAY / CRAZY COURT</div>
    <h1>{choice(zh,"荒謬法庭","Crazy Court")}</h1>
    <p>{choice(zh,"認真辯論最荒謬的小事，和 AI 朋友一起把法庭鬧翻。","Debate the silliest cases with your AI friend.")}</p>
@@ -227,9 +228,9 @@ export function CrazyCourtPage(){
      <small>{choice(zh,"幽默假設、誇張比喻都能用，但未被證實的事不能冒充物證。","Funny hypotheticals and metaphors are welcome, but invented facts are not evidence.")}</small>
     </div>
     <p className="court-rules">{choice(zh,"四個庭審階段 · 可自由追問和出示證據 · 準備好再進下一階段","Four stages · Debate and file evidence freely · Advance when ready")}</p>
-    {!hasKey?<div className="court-key-notice" role="status"><strong>{choice(zh,"開庭需要 Gemini Key","Gemini Key required")}</strong><p>{choice(zh,"可以先查看案件和選擇角色。請到設定填入 Key，才能和 AI 對手辯論並由 AI 法官判決。","You can preview cases and roles. Add your Gemini Key in Settings to debate and receive an AI verdict.")}</p><Link to="/settings">{choice(zh,"前往設定 Gemini Key →","Set up Gemini Key →")}</Link></div>:null}
+    {!hasKey?<div className="court-key-notice" role="status"><strong>{choice(zh,"開庭需要 Gemini Key","Gemini Key required")}</strong><p>{choice(zh,"可以先查看案件和選擇角色。請到設定填入 Key，才能和 AI 對手辯論並由 AI 法官判決。","You can preview cases and roles. Add your Gemini Key in Settings to debate and receive an AI verdict.")}</p><Link to="/settings">{choice(zh,"前往設定 Gemini Key","Set up Gemini Key")} <Arrow/></Link></div>:null}
     {notice&&phase==="setup"?<p className="court-notice" role="status">{notice}</p>:null}
-    <button className="court-primary" type="button" disabled={!hasKey} onClick={openTrial}>{choice(zh,"開庭！","Open court!")} <span>→</span></button>
+    <button className="court-primary" type="button" disabled={!hasKey} onClick={openTrial}>{choice(zh,"開庭！","Open court!")} <Arrow/></button>
    </div>
   </section>:phase==="verdict"?<section className="court-verdict" aria-live="polite">
    <div className="court-verdict-icon" aria-hidden="true">⚖</div>
@@ -250,7 +251,7 @@ export function CrazyCourtPage(){
     {!hasKey?<Link to="/settings">{choice(zh,"前往設定 Gemini Key","Set up Gemini Key")}</Link>:null}
    </>}
    <GamePanel label={choice(zh,"查看庭審紀錄","Read transcript")} title={choice(zh,"庭審紀錄","Court transcript")}><Transcript entries={entries} friend={friend.name} language={language}/></GamePanel>
-   {finalJudgment?<button type="button" className="court-primary" onClick={reset}>{choice(zh,"下一個案件","Next case")} →</button>:null}
+   {finalJudgment?<button type="button" className="court-primary" onClick={reset}>{choice(zh,"下一個案件","Next case")} <Arrow/></button>:null}
   </section>:<section className="court-trial" aria-label={choice(zh,"法庭庭審","Court trial")}>
    <div className="court-trial-top">
     <div><span className="court-stamp">CASE {caseNumber}</span><h2>{get(court.title,language)}</h2></div>

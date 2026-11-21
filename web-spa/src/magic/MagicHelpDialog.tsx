@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useMagicT} from "./useMagicT";
 import type {RefObject} from "react";
 
@@ -24,7 +25,7 @@ export function MagicHelpDialog({zh,onClose,onStart,action,helpClose}:{
     </ol>
     <p>{tr("Connect to Lumi for free-form voice or text magic.")}</p>
     <button type="button" className="magic-help-start" onClick={onStart}>
-     {action} →</button>
+     {action} <Arrow/></button>
    </section>
   </div>;
 }

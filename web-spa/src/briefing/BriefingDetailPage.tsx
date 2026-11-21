@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useState} from "react";
 import {trackUsageEvent} from "../analytics/usage";
 import {Link,useParams} from "react-router-dom";
@@ -58,7 +59,7 @@ export function BriefingDetailPage(){
  if(!item||item.id!==id)return <div className="briefing briefing-empty"><p>{error||"找不到文章"}</p><Link to="/research">返回每日研究</Link></div>;
  const done=getStatus(review)==="finished"||getStatus(review)==="adopted";
  return <article className="briefing briefing-detail">
-  <nav className="briefing-breadcrumb" aria-label="返回"><Link to="/research">← 返回每日研究</Link></nav>
+  <nav className="briefing-breadcrumb" aria-label="返回"><Link to="/research"><Arrow direction="left" className="crew-arrow--plain"/> 返回每日研究</Link></nav>
   <header className="briefing-detail-head">
    <div className="briefing-detail-meta"><span className="briefing-topic">{item.topic}</span><span>{sourceDate(item.publishedAt)}</span><span>{item.sources.length} 個來源</span></div>
    <h1>{item.title}</h1>
@@ -72,7 +73,7 @@ export function BriefingDetailPage(){
    <section className="briefing-section"><h2>參考資料</h2><p className="meta">研究報告會保留來源與發表日期；引用的論點及數據仍應以原文為準。</p>
     {item.sources.length?item.sources.map((source,i)=>{
      const href=safeSource(source.url);
-     return <div className="briefing-source" key={i}>{href?<a href={href} target="_blank" rel="noopener noreferrer" onClick={()=>trackUsageEvent("research_source_open")}>{source.title} ↗</a>:<span>{source.title}</span>}<small>{source.publishedAt||""}{source.kind?" · "+source.kind:""}</small></div>
+     return <div className="briefing-source" key={i}>{href?<a href={href} target="_blank" rel="noopener noreferrer" onClick={()=>trackUsageEvent("research_source_open")}>{source.title} <Arrow direction="up-right"/></a>:<span>{source.title}</span>}<small>{source.publishedAt||""}{source.kind?" · "+source.kind:""}</small></div>
     }):<p className="meta">目前沒有可驗證的原始來源。</p>}
    </section>
    <section className="briefing-section briefing-content-chat">
@@ -92,7 +93,7 @@ export function BriefingDetailPage(){
     <details className="briefing-notes"><summary>我的筆記（選填）</summary>
       <textarea aria-label="我的研究筆記" value={review.notes||""} onChange={e=>change({notes:e.target.value})} placeholder="記下值得回頭看的想法…" rows={4}/>
     </details>
-    <Link className="briefing-side-link" to="/research/board">前往我的閱讀清單 →</Link>
+    <Link className="briefing-side-link" to="/research/board">前往我的閱讀清單 <Arrow/></Link>
    </div>
   </aside></div>
  </article>;

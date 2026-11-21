@@ -1,3 +1,7 @@
+
+/* Four learning-method cards use the same 32px arrow slot. */
+.crew-section-learn .crew-learn-tool{position:relative;padding-right:42px}
+.crew-section-learn .crew-learn-tool .crew-learn-tool-arrow{position:absolute;right:10px;bottom:10px;width:32px;height:32px;background:#285a48;color:#fff}
 /* Intent-first Crew hub destinations. Original products remain directly reachable. */
 .crew-section-hub{display:grid;gap:22px;max-width:1000px;margin:0 auto;padding:8px 0 40px}
 .crew-section-heading{display:grid;gap:9px;padding:10px 2px 2px}

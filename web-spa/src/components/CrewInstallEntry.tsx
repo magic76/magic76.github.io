@@ -1,3 +1,4 @@
+import {Arrow} from "./Arrow";
 import {useEffect,useRef,useState,useSyncExternalStore} from "react";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
@@ -92,7 +93,7 @@ export function CrewInstallMenuAction(){
   <button type="button" className="crew-feature-menu-install-btn" onClick={action}>
    <span className="crew-feature-menu-install-icon" aria-hidden="true">↓</span>
    <span className="crew-feature-menu-install-copy"><strong>{copy.install}</strong><small>{copy.menuDesc}</small></span>
-   <span aria-hidden="true">→</span>
+   <Arrow/>
   </button>
   {guide&&<InstallGuide message={getGuide(copy)} closeLabel={copy.close} onClose={()=>setGuide(false)}/>}
  </section>;

@@ -1,10 +1,11 @@
+import{Arrow}from"../components/Arrow";
 import {useAuxiliaryLiveSession} from "../live/useAuxiliaryLiveSession";
-import {useSuggestedReplies} from "../live/useSuggestedReplies";
+import{useSuggestedReplies}from"../live/useSuggestedReplies";
 import{GroundingSources}from"../live/GroundingSources";
 import{LiveSearchAction}from"../live/LiveSearchAction";
 import{fortuneSpeakingOpening,fortuneSpeakingPolicy,readFortuneSpeakingContext,type FortuneSpeakingKind}from"./fortuneSpeaking";
 import{effectiveSpeakingLevel}from"./speakingLevelMemory";
-import {awardCreatureChatEnergy} from "../pages/creatureChatRewards.mjs";
+import{awardCreatureChatEnergy}from"../pages/creatureChatRewards.mjs";
 import{trackUsageEvent,sessionDurationDetail}from"../analytics/usage";
 import{conversationIntent,conversationOpening}from"./conversationIntent";
 import{personalMemoryEnabled}from"./studentMemory";
@@ -33,7 +34,6 @@ import{nativeLanguageName}from"./teacherLocale";
 import{friendSpokenLanguage}from"../friends/friendLanguage";
 import{useTranslation}from"react-i18next";import"./boardEntry.css";import{teacherLanguageReminder,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{courseDisplayTitle,courseDisplayMission}from"./courseLocale";
 import{teacherProfileDisplay}from"./teacherProfileLocale";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress,nextUnlockedLesson}from"./courseProgress";
-
 export function TeacherLivePage(){
  const [guestStarted,setGuestStarted]=useState(false);
  const {t,i18n:locale}=useTranslation(["lesson","teacher"]);const english=locale.language==="en",zh=locale.language==="zh-TW";
@@ -234,19 +234,19 @@ export function TeacherLivePage(){
    instruction={"Teach this verified news to the student in the configured target language: "+s.targetLanguage+". Choose 2-3 suitable vocabulary words and ask one practice question. Stay in the same conversation. "+languageDirective}/><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>{t("live.newTopic")}</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>{t("live.correctMe")}</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>{t("live.slower")}</button></div></details>;
  const teacherOptions=<>
  <div className="teacher-live-entry-actions">
-     <button type="button" className="teacher-live-change-action" onClick={()=>void changeTeacher()} disabled={changingTeacher||openingBoard||endingCourse}>{changingTeacher?t("live.switching"):t("live.changeTeacher")}</button>
-     {!course&&!fortuneKind&&!guestStarted&&<button type="button" className="teacher-live-change-action teacher-live-board-entry" onClick={()=>void openBoard()} disabled={changingTeacher||openingBoard||endingCourse}>{openingBoard?t("board.entryOpening"):t("board.entryAction")} →</button>}
+ <button type="button" className="teacher-live-change-action" onClick={()=>void changeTeacher()} disabled={changingTeacher||openingBoard||endingCourse}>{changingTeacher?t("live.switching"):t("live.changeTeacher")}</button>
+ {!course&&!fortuneKind&&!guestStarted&&<button type="button" className="teacher-live-change-action teacher-live-board-entry" onClick={()=>void openBoard()} disabled={changingTeacher||openingBoard||endingCourse}>{openingBoard?t("board.entryOpening"):t("board.entryAction")} <Arrow/></button>}
     </div>
-    {teacherSwitchError&&<p className="teacher-switch-error" role="alert">{teacherSwitchError}</p>}
+ {teacherSwitchError&&<p className="teacher-switch-error" role="alert">{teacherSwitchError}</p>}
    <p>{fortuneKind?t("live.fortuneDesc"):mission?t("live.missionDesc"):teacherProfileDisplay(profile,locale.resolvedLanguage||"en").description}</p>
    {!isRoleplay&&<p className="teacher-native-help teacher-live-language-hint" role="note">{teacherLanguageLiveHint(
     s.teachingMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),
     zh?s.targetLanguage:friendSpokenLanguage(s.targetLanguage),english,locale.resolvedLanguage||"en")}</p>}
  </>;
- return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={fortuneKind?"/teacher/fortune":"/learn"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("voice:friendLive.backAria")}>‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><div className="friend-call-header-actions"><span className="status connected" data-setup={live.state==="error"&&live.errorKind==="key"||undefined} data-state={presenceState} role="status" aria-live="polite"><i className="status-dot"/><span>{voiceStatus}</span></span><FriendCallMenuTrigger active={!textMode} open={callOptions} label={t("voice:callCaptions.more")} onToggle={()=>setCallOptions(v=>!v)}/></div></div></header>
+ return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={fortuneKind?"/teacher/fortune":"/learn"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("voice:friendLive.backAria")}><Arrow direction="left" className="crew-arrow--plain"/></Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><div className="friend-call-header-actions"><span className="status connected" data-setup={live.state==="error"&&live.errorKind==="key"||undefined} data-state={presenceState} role="status" aria-live="polite"><i className="status-dot"/><span>{voiceStatus}</span></span><FriendCallMenuTrigger active={!textMode} open={callOptions} label={t("voice:callCaptions.more")} onToggle={()=>setCallOptions(v=>!v)}/></div></div></header>
  <main className="session-shell teacher-call-page friend-live-page">
  {textMode?missionNotes:null}
- 
+
  <div className="desktop-live-workspace teacher-desktop-workspace friend-desktop-workspace"><section className={"live-stage teacher-live-stage"+(!textMode?" friend-phone-stage":"")} data-state={live.state} aria-label={t("live.status.idle")}>
    {!textMode&&<FriendCallMenu inCall open={callOptions} onClose={()=>setCallOptions(false)} title={t("voice:callCaptions.more")} closeLabel={t("voice:callCaptions.closeMenu")}>
   <div className="friend-call-settings">
@@ -274,7 +274,6 @@ export function TeacherLivePage(){
   </div>
   {sessionActive?<FriendCallCaptions name={profile.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={s.targetLanguage} nativeLanguage={s.nativeLanguage} speaking={live.state==="speaking"} speakerAvatar={<TeacherAvatar profile={profile} decorative/>} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled} waitingText={t("voice:callCaptions.waitingForTeacher")} headerAccessory={guestStarted&&live.state!=="ended"&&live.state!=="error"?<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>:null} replyExtra={<PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/>}/>:null}
   </>}
-
  </section>{!textMode&&<DesktopLivePanel kind="teacher" label={profile.name} language={s.targetLanguage} turns={live.turns} input={live.input} output={live.output} state={live.state} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode}/>}</div>
  <TeacherLiveResults report={live.report} course={course} evaluating={evaluating} evaluationError={evaluationError} courseResult={courseResult} onRetry={()=>{courseSavedRef.current=false;setEvaluationError("");setCourseResult(null);setEvaluating(true);setAssessmentRetry(x=>x+1)}}/>
  </main>{picker&&<TeacherProfilePicker onClose={()=>setPicker(false)}/>}</>

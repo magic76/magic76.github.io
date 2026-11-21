@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -221,7 +222,7 @@ export function NonsenseChampionshipPage(){
  const hints=nonsenseHints[topic.category]?.[language]||[];
  return <div className="crew-play-page nonsense-page">
   <header className="crew-play-game-header nonsense-header">
-   <Link to="/games" className="crew-play-back">← {L(zh,"全部遊戲","All games")}</Link>
+   <Link to="/games" className="crew-play-back"><Arrow direction="left"/> {L(zh,"全部遊戲","All games")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY · LIVE STAGE</span>
    <h1>{L(zh,"一分鐘胡說大賽","Nonsense Championship")}</h1>
    <p>{L(zh,"一本正經地胡說八道。60 秒說服 AI 評審。","Deliver a ridiculous argument with a straight face. You have 60 seconds.")}</p>
@@ -278,7 +279,7 @@ export function NonsenseChampionshipPage(){
      </div>
     </div>}
     {phase==="setup"&&<div className="nonsense-buttons">
-     <button type="button" className="nonsense-main-button" onClick={beginPrep}>{L(zh,"準備挑戰","Prepare to speak")} →</button>
+     <button type="button" className="nonsense-main-button" onClick={beginPrep}>{L(zh,"準備挑戰","Prepare to speak")} <Arrow/></button>
      <button type="button" className="nonsense-secondary" onClick={chooseTopic}>{L(zh,"換一題","Shuffle topic")}</button>
     </div>}
     {phase==="prep"&&<>

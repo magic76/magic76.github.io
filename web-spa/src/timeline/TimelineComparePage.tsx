@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useState} from "react";
 import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -65,7 +66,7 @@ export function TimelineComparePage(){
  };
  return <div className="shell timeline-compare">
   <header className="timeline-compare-header">
-   <Link className="timeline-compare-back" to={"/timeline?character="+personId}>← {t("timeline.compareBack")}</Link>
+   <Link className="timeline-compare-back" to={"/timeline?character="+personId}><Arrow direction="left"/> {t("timeline.compareBack")}</Link>
    <span className="kicker">CREW TIMELINE · LIFE COMPARE</span>
    <h1>{t("timeline.compareTitle")}</h1>
    <p>{t("timeline.compareIntro")}</p>
@@ -108,14 +109,14 @@ export function TimelineComparePage(){
        ?<blockquote>“{tr(question.answers[String(age)],en)}”</blockquote>
        :<p>{tr(question.answers[String(age)],en)}</p>}
      <Link to={"/timeline/live?character="+personId+"&age="+age}>
-      {t("timeline.talk",{name:person.name,age})} →
+      {t("timeline.talk",{name:person.name,age})} <Arrow/>
      </Link>
     </div>
    </article>)}
   </section>
   <div className="timeline-compare-footer">
-   <button type="button" onClick={()=>void copy()}>{t("timeline.copyCompare")} ↗</button>
-   <Link to={"/timeline?character="+personId}>{t("timeline.exploreLife",{name:person.name})} →</Link>
+   <button type="button" onClick={()=>void copy()}>{t("timeline.copyCompare")} <Arrow direction="up-right"/></button>
+   <Link to={"/timeline?character="+personId}>{t("timeline.exploreLife",{name:person.name})} <Arrow/></Link>
    {message&&<p role="status">{message}</p>}
   </div>
  </div>;

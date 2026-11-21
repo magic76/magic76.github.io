@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import type {BriefingItem} from "./types";
 import type {RelatedResearch} from "./PublicResearchContext";
@@ -29,7 +30,7 @@ export function ResearchDiscovery({item,related}:{item:BriefingItem;related:Rela
    <h3>相關 Crew 功能</h3>
    <p className="meta">依文章標記的相關專案連結；研究觀點不代表功能已完成驗證。</p>
    <div className="briefing-discovery-products">
-    {products.map(product=><Link key={product.name} to={product.to}>{product.label} →</Link>)}
+    {products.map(product=><Link key={product.name} to={product.to}>{product.label} <Arrow/></Link>)}
    </div>
   </div>}
  </section>;

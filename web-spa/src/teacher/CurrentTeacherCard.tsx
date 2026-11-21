@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
@@ -27,10 +28,10 @@ export function CurrentTeacherCard(){
   </div>
   <div className="crew-learn-teacher-actions">
    <Link className="crew-learn-teacher-start" to="/teacher/live">
-    {t("tutor.start",{name:teacher.name})} <span aria-hidden="true">→</span>
+    {t("tutor.start",{name:teacher.name})} <Arrow/>
    </Link>
    <Link className="crew-learn-teacher-pick" to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}}>
-    <span className="crew-learn-teacher-action">{t("tutor.change")} <span aria-hidden="true">→</span></span>
+    <span className="crew-learn-teacher-action">{t("tutor.change")} <Arrow/></span>
    </Link>
   </div>
  </section>;

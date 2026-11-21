@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Link,Navigate,useLocation,useNavigate,useParams,useSearchParams} from "react-router-dom";
@@ -89,7 +90,7 @@ export function CoursePage(){
     <div className="crew-course-mission-summary">
      {next.missions.map((m,index)=><span key={m.titleZh}>✓ {courseDisplayMission(next,index,locale)}</span>)}
     </div>
-    <Link to={route(next.id)} className="btn primary crew-learning-full-cta">{t("course.continue")} →</Link>
+    <Link to={route(next.id)} className="btn primary crew-learning-full-cta">{t("course.continue")} <Arrow/></Link>
    </>}
   </section>
 
@@ -127,7 +128,7 @@ export function CoursePage(){
      <summary>
       <span className="crew-course-unit-number">{ui+1}</span>
       <span className="crew-course-unit-title"><strong>{title(unit)}</strong><small>{count} / {lessons.length} · {description(unit)}</small></span>
-      <span className="crew-course-unit-chevron" aria-hidden="true">⌄</span>
+      <Arrow direction="down" className="crew-course-unit-chevron crew-arrow--plain"/>
      </summary>
      <div className="crew-course-lessons">
       {lessons.map((lesson,li)=>{
@@ -142,7 +143,7 @@ export function CoursePage(){
          {progress.completed&&<em>★ {progress.stars} · {t("course.best",{score:progress.bestScore})}</em>}
           {textDone&&<em className="crew-course-text-badge">{tLesson("live.textCourseBadge")}</em>}
         </span>
-        <span className="crew-course-lesson-action" aria-hidden="true">{unlocked?"→":"·"}</span>
+        <span className="crew-course-lesson-action" aria-hidden="true">{unlocked?<Arrow/>:"·"}</span>
        </>;
        const className="crew-course-lesson "+(finished?"completed":unlocked?"unlocked":"locked")+(textDone?" text-completed":"")+(isNext?" is-next":"")+(requested?.id===lesson.id?" highlighted":"");
        return unlocked

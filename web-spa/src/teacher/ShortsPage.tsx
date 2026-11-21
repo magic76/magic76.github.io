@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState} from "react";
 import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -183,10 +184,10 @@ export function ShortsPage(){
         }}/>
        <span className="crew-short-photo-bottom">
         <span className="crew-short-friend"><img src={"/assets/friends/crew_friend_"+post.friendId+".webp"} alt="" loading="lazy"/><strong>{post.friendName}</strong></span>
-        <span className="crew-short-primary-cta">{t("shorts.chatThis",{name:post.friendName})} <span aria-hidden="true">↗</span></span>
+        <span className="crew-short-primary-cta">{t("shorts.chatThis",{name:post.friendName})} <Arrow direction="up-right"/></span>
        </span>
       </Link>
-      <Link className="crew-short-profile-link" to={"/teacher/shorts/"+post.friendId} aria-label={post.friendName+" profile"} onClick={saveProfileReturn}><img src={"/assets/friends/crew_friend_"+post.friendId+".webp"} alt="" loading="lazy"/><span>{post.friendName} ↗</span></Link>
+      <Link className="crew-short-profile-link" to={"/teacher/shorts/"+post.friendId} aria-label={post.friendName+" profile"} onClick={saveProfileReturn}><img src={"/assets/friends/crew_friend_"+post.friendId+".webp"} alt="" loading="lazy"/><span>{post.friendName} <Arrow direction="up-right"/></span></Link>
       <div className="crew-short-actions">
        <button type="button" className={"crew-short-like"+(celebratingLike===post.id?" is-celebrating":"")}
         aria-label={t("shorts.like")} title={t("shorts.like")}
@@ -196,7 +197,7 @@ export function ShortsPage(){
       </div>
      </div>
      <div className="crew-short-body">
-      <div className="crew-short-meta"><Link to={"/teacher/shorts/"+post.friendId} onClick={saveProfileReturn}>{post.friendName} ↗</Link><small>{post.publishedAt.slice(0,10)}</small></div>
+      <div className="crew-short-meta"><Link to={"/teacher/shorts/"+post.friendId} onClick={saveProfileReturn}>{post.friendName} <Arrow direction="up-right"/></Link><small>{post.publishedAt.slice(0,10)}</small></div>
       {episodes.length>1?<div className="crew-short-episode">{t("shorts.ongoing")} · {t("shorts.part",{part:chapter+1,total:episodes.length})}</div>:null}
       <p lang={post.language}>{post.caption}</p>
       {showZhTranslation&&post.translationZh&&post.language!=="zh"?<div className="crew-short-translation-wrap">
@@ -214,10 +215,10 @@ export function ShortsPage(){
        <small>{t("shorts.curious",{name:post.friendName})}</small>
        <div>{questions.length?questions.map(question=><Link key={question.index} to={shortsChatUrl(post,undefined,question.index)}
         onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_feed");chatClick("shorts_feed")}}>
-        {question.label} <span aria-hidden="true">↗</span>
+        {question.label} <Arrow direction="up-right"/>
        </Link>):SHORTS_HOOKS.map(hook=><Link key={hook} to={shortsChatUrl(post,hook)}
         onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_feed");chatClick("shorts_feed")}}>
-        {t("shorts.hooks"+({details:"Details",feelings:"Feelings",next:"Next"} as const)[hook])} <span aria-hidden="true">↗</span>
+        {t("shorts.hooks"+({details:"Details",feelings:"Feelings",next:"Next"} as const)[hook])} <Arrow direction="up-right"/>
        </Link>)}</div>
       </div>
      </div>
@@ -228,7 +229,7 @@ export function ShortsPage(){
     <div className="crew-shorts-followup-links">{followUps.map(({post})=>
      <Link key={post.id} to={shortsChatUrl(post,"next")} onClick={()=>{
       trackUsageEvent("shorts_story_followup","shorts_feed");chatClick("shorts_feed");
-     }}>{t("shorts.followUp",{name:post.friendName})} <span aria-hidden="true">→</span></Link>)}</div>
+     }}>{t("shorts.followUp",{name:post.friendName})} <Arrow/></Link>)}</div>
    </aside>:null}
    {(count<posts.length||Boolean(feed?.nextPage))?<div ref={loadMoreRef} className="crew-shorts-more-wrap">
     {typeof IntersectionObserver==="undefined"

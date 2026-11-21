@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -107,7 +108,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  if(!clientReady||!ready)return <section className="fortune-daily panel" aria-busy="true"><p>{t("loading")}</p></section>;
  if(!profile?.birthDate)return <section className="fortune-daily panel">
   <span className="kicker">Koolo FORTUNE · {t("today")}</span><h2>{t("emptyTitle")}</h2>
-  <p>{t("emptyDescription")}</p><Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} →</Link>
+  <p>{t("emptyDescription")}</p><Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} <Arrow/></Link>
  </section>;
  function changeKind(next:DailyKind){
   if(next==="bazi"&&!profile?.birthTime)return;
@@ -187,7 +188,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
     {loadFailure&&<p role="alert" className="fortune-daily-help">{t("loadFailed")}</p>}
     <div className="fortune-daily-actions">
      {!!geminiKey()&&<button className="btn secondary small" type="button" disabled={aiBusy||Boolean(aiText)||aiUsedOther} onClick={()=>void useGemini(full)}>{aiBusy?t("ai.loading"):aiText||aiUsedOther?t("ai.used"):t("ai.generate")}</button>}
-     <Link className="btn small" to={full.deepLink}>{t("fullReading")} →</Link>
+     <Link className="btn small" to={full.deepLink}>{t("fullReading")} <Arrow/></Link>
     </div>
    </div>}
   </>:<p role="status" className="fortune-daily-help">{unavailable?t(unavailable.reason==="birthTime"?"timeRequired":unavailable.reason==="birthDate"?"addBirthday":"loadFailed"):t("loading")}</p>}

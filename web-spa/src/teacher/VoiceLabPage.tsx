@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useTeacherStore} from "../store/teacherStore";
 import {useEffect,useMemo,useState} from "react";
 import {Link,useSearchParams} from "react-router-dom";
@@ -81,7 +82,7 @@ export function VoiceLabPage(){
   <Link to="/teacher/roles">返回 Crew Teacher</Link>
  </main>;
  return <main style={{maxWidth:960,margin:"32px auto",padding:20,color:"#172337",display:"grid",gap:18}}>
-  <header><Link to="/teacher/roles">← Crew Teacher</Link><h1 style={{margin:"14px 0 5px"}}>Voice Lab <small style={{fontSize:14,fontWeight:400}}>Experimental · Gemini Live</small></h1>
+  <header><Link to="/teacher/roles"><Arrow direction="left" className="crew-arrow--plain"/> Crew Teacher</Link><h1 style={{margin:"14px 0 5px"}}>Voice Lab <small style={{fontSize:14,fontWeight:400}}>Experimental · Gemini Live</small></h1>
    <p>同模型比較 30 種聲線、角色個性和英文口音。口音是提示控制，不保證精確呈現。試聽使用你自己的 Gemini Key 與配額。</p></header>
   <p>目前 Live 模型：<strong>{liveModel}</strong> · <Link to="/settings#live-model-settings">到設定切換模型</Link>。模型設定會套用到下一次連線，測試不會暗中降級。</p>
   <section style={panelStyle}><h2 style={{fontSize:19,marginTop:0}}>1. 選擇角色與聲音</h2>

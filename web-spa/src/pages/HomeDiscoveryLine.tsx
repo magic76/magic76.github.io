@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -46,7 +47,7 @@ export function HomeDiscoveryLine({animate}:{animate:boolean}){
    onClick={()=>trackUsageEvent("home_entry_click",item.detail)}>
    <span aria-hidden="true">{visible}</span>
    <span className="crew-portal-discovery-caret" aria-hidden="true">▍</span>
-   <span className="crew-portal-discovery-arrow" aria-hidden="true">↗</span>
+   <Arrow direction="up-right" className="crew-portal-discovery-arrow"/>
   </Link>
  </span>;
 }

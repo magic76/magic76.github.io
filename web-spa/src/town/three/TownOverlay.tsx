@@ -1,3 +1,4 @@
+import {Arrow} from "../../components/Arrow";
 import {useEffect,useState} from "react";
 import {Link} from "react-router-dom";
 import {trackUsageEvent} from "../../analytics/usage";
@@ -47,14 +48,14 @@ export function TownOverlay({selected,zh,onClose,onFriend,onPlace}:{
     <p>{zh?place.introZh:place.introEn}</p>
    </div>}
    <div className="crew-town-3d-roster-nav" aria-label={zh?"切換朋友或地點":"Browse friends or places"}>
-    <button type="button" onClick={()=>navigate(-1)} aria-label={zh?"上一個":"Previous"}>← {zh?"上一個":"Previous"}</button>
+    <button type="button" onClick={()=>navigate(-1)} aria-label={zh?"上一個":"Previous"}><Arrow direction="left"/> {zh?"上一個":"Previous"}</button>
     <span>{activeIndex+1} / {entries.length}</span>
-    <button type="button" onClick={()=>navigate(1)} aria-label={zh?"下一個":"Next"}>{zh?"下一個":"Next"} →</button>
+    <button type="button" onClick={()=>navigate(1)} aria-label={zh?"下一個":"Next"}>{zh?"下一個":"Next"} <Arrow/></button>
    </div>
    <Link className="crew-town-3d-action" to={friend?"/friend/live?id="+encodeURIComponent(friend.id):place?.to||"/explore"}
     onClick={()=>{if(friend||place?.to.startsWith("/friend/live"))trackUsageEvent("town_chat_click")}}>
     {friend?(zh?"加入與 "+friend.name+" 的語音聊天":"Join "+friend.name+" in voice chat"):place?(zh?place.ctaZh:place.ctaEn):""}
-    <span aria-hidden="true">↗</span>
+    <Arrow direction="up-right"/>
    </Link>
    <small className="crew-town-3d-note">{zh?"小鎮互動為預設情境；語音聊天將進入單人 Gemini Live。":"Town activity is scripted; voice chat opens the existing one-on-one Gemini Live."}</small>
   </div>}

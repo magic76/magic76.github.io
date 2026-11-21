@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Link,useNavigate} from "react-router-dom";
@@ -90,7 +91,7 @@ export function FortuneHomePage(){
      <span className="fortune-mode-copy"><strong>{t("home.vedic")}</strong><span className="fortune-mode-description">{t("home.vedicDesc")}</span></span>
     </Link>
    </div>
-   <a className="text-button" href="/fortune/bazi/">{t("home.bazi")} · {t("home.baziDesc")} →</a>
+   <a className="text-button" href="/fortune/bazi/">{t("home.bazi")} · {t("home.baziDesc")} <Arrow/></a>
   </section>
   {(list===null||Boolean(latest)||Boolean(error))&&<section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
    {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
@@ -103,26 +104,26 @@ export function FortuneHomePage(){
       </div>
      </div>
      <div className="fortune-journey-actions">
-      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")} →</Link>
+      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")} <Arrow/></Link>
       <button className="btn secondary" type="button" disabled={Boolean(openingId)} onClick={()=>void explain(latest.id)}>
-       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")} →
+       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")} <Arrow/>
       </button>
      </div>
     </div>:
     null}
-   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{t("landing.openSettings")} →</Link>}</div>}
+   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{t("landing.openSettings")} <Arrow/></Link>}</div>}
   </section>}
   <section className="section fortune-journey-history" aria-label={t("landing.saved")}>
    <div className="section-head">
     <h2>{t("landing.myCharts")}</h2>
-    <Link className="fortune-journey-all" to="/fortune/history">{t("landing.viewAll")} →</Link>
+    <Link className="fortune-journey-all" to="/fortune/history">{t("landing.viewAll")} <Arrow/></Link>
    </div>
    {list===null?<div className="spa-loading">{t("home.loading")}</div>:list.length?
     <div className="fortune-history-list">
      {list.slice(0,3).map(x=><Link className="fortune-history-row" to={readingUrl(x.id)} key={x.id}>
       <span className={"fortune-history-mark "+x.mode}/>
       <span><strong>{name(x.mode,t)}</strong><small>{x.summary||t("home.reading")}</small></span>
-      <b>{x.createdAt?new Date(x.createdAt).toLocaleDateString(i18n.language):""} ›</b>
+      <b>{x.createdAt?new Date(x.createdAt).toLocaleDateString(i18n.language):""} <Arrow/></b>
      </Link>)}
     </div>:
     <div className="fortune-home-empty"><strong>{t("home.empty")}</strong><span>{t("home.emptyDesc")}</span></div>}
@@ -134,8 +135,8 @@ export function FortuneHomePage(){
   <section className="section fortune-journey-other">
    <div className="section-head"><h2>{t("landing.exploreOther")}</h2></div>
    <div className="fortune-journey-other-links">
-    <Link to="/fortune/live?from=culture">{t("landing.talkCulture")} →</Link>
-    <Link to="/fortune/live?from=daily">{t("landing.todayReflection")} →</Link>
+    <Link to="/fortune/live?from=culture">{t("landing.talkCulture")} <Arrow/></Link>
+    <Link to="/fortune/live?from=daily">{t("landing.todayReflection")} <Arrow/></Link>
    </div>
    <p>{t("landing.disclaimer")}</p>
   </section>

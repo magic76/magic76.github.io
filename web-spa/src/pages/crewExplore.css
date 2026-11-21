@@ -1,3 +1,8 @@
+
+/* Shared arrow geometry and contrast, independent of artwork palette. */
+.crew-explore-tile .crew-arrow.crew-explore-arrow{width:32px;height:32px;bottom:14px;right:12px;background:#285a48;color:#fff;font-size:inherit}
+.crew-explore-tile[data-kind="town"] .crew-arrow.crew-explore-arrow,.crew-explore-tile[data-kind="magic"] .crew-arrow.crew-explore-arrow{bottom:14px}
+.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-arrow.crew-explore-arrow{background:#285a48}
 /* Crew Explore — nine destinations with image-backed illustrations and unchanged Timeline portraits. */
 .crew-section-explore{max-width:1120px;gap:23px}
 .crew-section-explore .crew-section-heading{padding:8px 2px 0}

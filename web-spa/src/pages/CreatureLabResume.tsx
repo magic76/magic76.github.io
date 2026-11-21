@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { trackUsageEvent } from "../analytics/usage";
@@ -34,6 +35,6 @@ export function CreatureLabResume({ progress }: { progress: CreatureLabProgress 
       <img src={href + "art/creatures/" + (line || "moonfox") + "-" + form + ".webp"} alt="" width="56" height="56" loading="lazy" decoding="async"/>
     </span>
     <span className="crew-home-recent-copy"><strong>{title}</strong><small>{hint}</small></span>
-    <span className="crew-home-recent-arrow" aria-hidden="true">→</span>
+    <Arrow className="crew-home-recent-arrow"/>
   </a>;
 }

@@ -1,3 +1,8 @@
+
+/* Shared Arrow: reserve a stable right-edge slot for every game card. */
+.crew-play-game-card{grid-template-columns:86px minmax(0,1fr) 32px}
+.crew-play-game-card .crew-play-open{justify-self:end;align-self:end;width:32px;height:32px;font-size:inherit;color:#fff}
+@media(max-width:800px){.crew-play-game-card{grid-template-columns:72px minmax(0,1fr) 32px}}
 /* Crew Play: isolated, responsive app surfaces (does not modify Teacher or Story). */
 .crew-play-page{width:min(100%,1020px);margin:0 auto;padding:18px 16px max(65px,env(safe-area-inset-bottom))}
 .crew-play-hero,.crew-play-game-header{position:relative;text-align:center;margin:8px 0 25px}

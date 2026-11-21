@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useState} from "react";
 import {Link} from "react-router-dom";
 import {trackUsageEvent} from "../analytics/usage";
@@ -163,7 +164,7 @@ export function HomePage(){
   {orbAvailable&&<div className="crew-home-content"><Link to="/orb" className="crew-home-orb-quick">
    <span className="crew-home-orb-icon" aria-hidden="true">◉</span>
    <span className="crew-home-orb-quick-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選角色，開始背景語音聊天":"Choose a character for hands-free chat"}</small></span>
-   <span aria-hidden="true" className="crew-home-orb-chevron">→</span>
+   <Arrow className="crew-home-orb-chevron"/>
   </Link></div>}
   <div className="crew-home-world">
    <HomePortal shortsFeed={shortsFeed}/>
@@ -173,17 +174,17 @@ export function HomePage(){
      <Link to="/account#settings-gemini" className="crew-home-start-option crew-home-start-byok" onClick={()=>trackUsageEvent("home_entry_click","settings")}>
       <span className="crew-home-start-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
       <span className="crew-home-start-copy"><strong>{t("setup.title")}</strong><small>{t("setup.shortDesc")}</small></span>
-      <b className="crew-home-start-action">{t("setup.cta")} →</b>
+      <b className="crew-home-start-action">{t("setup.cta")} <Arrow/></b>
      </Link>
     </section>:ready&&configured&&!verified?<Link to="/account#settings-gemini" className="crew-home-start-verify">
-     <Icon name="settings"/><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b>
+     <Icon name="settings"/><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true"><Arrow/></b>
     </Link>:null}
     {recents.length||creatureProgress?<section className="crew-home-continue" aria-label={t("continue")}>
      <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
      <div className="crew-home-continue-cards">{recents.map(recent=><Link key={recent.key} to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
       <span className="crew-home-recent-art" aria-hidden="true">{recent.cover?<img src={recent.cover} alt=""/>:<Icon name={recent.kind==="friend"?"chat":recent.kind}/>}</span>
       <span className="crew-home-recent-copy"><span className="crew-home-overline">{recent.kind==="teacher"?"Koolo TEACHER":recent.kind==="story"?"Koolo STORY":recent.kind==="fortune"?"Koolo FORTUNE":recent.kind==="play"?"Koolo PLAY":"Koolo FRIEND"}</span><strong>{recent.title}</strong><small>{recent.description}</small></span>
-      <span className="crew-home-recent-arrow" aria-hidden="true">→</span>
+      <Arrow className="crew-home-recent-arrow"/>
      </Link>)}{creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}</div>
     </section>:null}
    <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge")}<i/></div>
@@ -196,7 +197,7 @@ export function HomePage(){
      <strong id="crew-home-game-pick-title">{t("playHub.games."+featuredGame+".title")}</strong>
      <p>{featuredGame==="1a2b"?t("gamePick.desc"):t("actions.playDesc")}</p>
     </div>
-    <Link className="crew-home-game-pick-action" to={"/games/"+featuredGame} onClick={()=>trackUsageEvent("home_entry_click","play")}>{t("gamePick.cta")} <span aria-hidden="true">→</span></Link>
+    <Link className="crew-home-game-pick-action" to={"/games/"+featuredGame} onClick={()=>trackUsageEvent("home_entry_click","play")}>{t("gamePick.cta")} <Arrow/></Link>
    </section>
    <section className="crew-home-world-explore" aria-labelledby="crew-home-world-explore-title">
     <div className="crew-home-world-explore-heading"><h2 id="crew-home-world-explore-title">{t("world.explore")}</h2><span aria-hidden="true">{t("world.possibilities")}</span></div>
@@ -204,12 +205,12 @@ export function HomePage(){
      <Link className="crew-home-world-explore-card" to="/teacher/course/travel" onClick={()=>trackUsageEvent("home_entry_click","learn")}>
       <span className="crew-home-world-explore-icon" aria-hidden="true"><Icon name="teacher"/></span>
       <span><small>Koolo TEACHER</small><strong>{t("product.teacher")}</strong><span>{t("world.modes.learn.description")}</span></span>
-      <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
+      <Arrow direction="up-right" className="crew-home-world-explore-arrow"/>
      </Link>
      <Link className="crew-home-world-explore-card" to="/timeline" onClick={()=>trackUsageEvent("home_entry_click","timeline")}>
       <span className="crew-home-world-explore-icon crew-home-world-timeline-icon" aria-hidden="true">⌁</span>
       <span><small>Koolo TIMELINE</small><strong>{t("world.timelineTitle")}</strong><span>{t("world.timelineDescription")}</span></span>
-      <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
+      <Arrow direction="up-right" className="crew-home-world-explore-arrow"/>
      </Link>
     </div>
    </section>

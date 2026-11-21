@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {Component,lazy,Suspense,useCallback,useEffect,useState} from "react";
 import type {ReactNode,ErrorInfo} from "react";
 import {Link} from "react-router-dom";
@@ -85,7 +86,7 @@ export function Town3DPage(){
      <h1>{zh?"走進朋友們的小鎮":"Step into their little world"}</h1>
      <p>{zh?"五大街區相互連通，選擇街區或移動鏡頭，探索整座小鎮。":"Five connected districts. Explore beyond the square with district travel and free camera movement."}</p>
     </div>
-    <Link to="/explore" className="crew-town-3d-back">← {zh?"返回探索":"Explore"}</Link>
+    <Link to="/explore" className="crew-town-3d-back"><Arrow direction="left"/> {zh?"返回探索":"Explore"}</Link>
    </header>
    <section className={"crew-town-3d-stage"+(night?" is-night":"")+(view==="close"?" is-close":"")} aria-label={zh?"Crew Town 3D 探索場景":"Crew Town 3D exploration"}>
     {supported==="yes"?<Suspense fallback={<div className="crew-town-3d-loading" role="status">{zh?"正在準備 3D 世界…":"Preparing the 3D world…"}</div>}>

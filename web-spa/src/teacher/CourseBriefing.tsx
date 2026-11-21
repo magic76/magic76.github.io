@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useTranslation} from "react-i18next";
 import {Link} from "react-router-dom";
 import type {CourseLesson} from "./courseCatalog";
@@ -17,7 +18,7 @@ export function CourseBriefing({lesson}:{lesson:CourseLesson}){
  const ready=useClientReady(),target=useTeacherStore(s=>s.targetLanguage),native=useTeacherStore(s=>s.nativeLanguage);
  return <div className="crew-learning-focus crew-course-briefing">
   <div className="crew-course-briefing-top">
-   <Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(lesson.id)} aria-label={t("briefing.back")}>‹ {t("briefing.back")}</Link>
+   <Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(lesson.id)} aria-label={t("briefing.back")}><Arrow direction="left" className="crew-arrow--plain"/> {t("briefing.back")}</Link>
    <span className="kicker">{t("briefing.kicker")}</span>
   </div>
   <section className="crew-course-briefing-card" aria-labelledby="crew-briefing-title">
@@ -25,7 +26,7 @@ export function CourseBriefing({lesson}:{lesson:CourseLesson}){
    <h1 id="crew-briefing-title">{title}</h1>
    <p className="crew-course-briefing-description">{courseDisplayDescription(lesson,locale)}</p>
    <Link className="btn primary crew-learning-full-cta" to={"/teacher/live?mode=course&lesson="+encodeURIComponent(lesson.id)}>
-    {t("briefing.start")} →
+    {t("briefing.start")} <Arrow/>
    </Link>
    {ready&&target!=="英文"&&<p className="crew-course-language-note" role="note">{t("course.materialNotice",{language:t("friends:languages."+target,{defaultValue:target}),native:localizedNativeName(native,locale)})}</p>}
    <h2>{t("briefing.goals",{count:lesson.missions.length})}</h2>

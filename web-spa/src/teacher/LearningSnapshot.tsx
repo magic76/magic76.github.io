@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useClientReady} from "../lib/useClientReady";
@@ -22,8 +23,8 @@ export function LearningSnapshot(){
    <div><strong>{saved??"—"}</strong><span>{en?"Saved":"收藏片語"}</span></div>
   </div>
   <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-   <Link className="btn secondary small" to="/teacher/reports">{en?"View reports":"查看報告"} →</Link>
-   <Link className="btn secondary small" to="/teacher/phrasebook">{en?"Review phrases":"複習片語"}{due!==null&&due>0?` (${due})`:""} →</Link>
+   <Link className="btn secondary small" to="/teacher/reports">{en?"View reports":"查看報告"} <Arrow/></Link>
+   <Link className="btn secondary small" to="/teacher/phrasebook">{en?"Review phrases":"複習片語"}{due!==null&&due>0?` (${due})`:""} <Arrow/></Link>
   </div>
  </section>;
 }

@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {Component,lazy,Suspense,useCallback,useEffect,useRef,useState} from "react";
 import type {FormEvent,ReactNode} from "react";
 import {Link} from "react-router-dom";
@@ -324,7 +325,7 @@ export function MagicPage(){
     <h1>{tr("Speak a world into existence")}</h1>
     <p>{tr("Talk with Lumi, cast a spell and watch your world come alive.")}</p>
    </div>
-   <Link className="magic-back" to="/explore">← {tr("Explore")}</Link>
+   <Link className="magic-back" to="/explore"><Arrow direction="left"/> {tr("Explore")}</Link>
   </header>
   <div className="magic-layout">
    <section ref={stageRef} className={"magic-stage theme-"+world.theme+" time-"+world.time+" weather-"+world.weather+" is-3d"}
@@ -348,7 +349,7 @@ export function MagicPage(){
      </button>
      <button type="button" className="magic-optional-quest" onClick={guidedAction}
       title={firstAdventure.description} aria-label={firstAdventure.title+": "+firstAdventure.action}>
-      {tr("Quest")} {world.adventureStep===3?"✓":world.adventureStep+1+" / 3"} →
+      {tr("Quest")} {world.adventureStep===3?"✓":world.adventureStep+1+" / 3"} <Arrow/>
      </button>
     </div>
     <button type="button" className="magic-overview-button"

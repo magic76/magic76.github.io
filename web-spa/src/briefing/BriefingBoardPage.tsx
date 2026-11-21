@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useState} from "react";
 import {Link} from "react-router-dom";
 import {fetchDay,fetchIndex} from "./data";
@@ -28,7 +29,7 @@ export function BriefingBoardPage(){
  const counts=({saved:entries.filter(x=>matches(x,"saved")).length,reading:entries.filter(x=>matches(x,"reading")).length,finished:entries.filter(x=>matches(x,"finished")).length});
  const exportReviews=()=>downloadText("crew-briefing-reviews.json",JSON.stringify({version:1,exportedAt:new Date().toISOString(),reviews},null,2),"application/json");
  return <div className="briefing briefing-reading-list">
-  <header className="briefing-head"><div><Link className="briefing-back-link" to="/research">← 每日研究</Link><h1>我的閱讀清單</h1><p>把值得回頭看的文章放在一起。收藏與閱讀紀錄只存在這台裝置。</p></div></header>
+  <header className="briefing-head"><div><Link className="briefing-back-link" to="/research"><Arrow direction="left"/> 每日研究</Link><h1>我的閱讀清單</h1><p>把值得回頭看的文章放在一起。收藏與閱讀紀錄只存在這台裝置。</p></div></header>
   <div className="briefing-reading-tabs" role="group" aria-label="閱讀清單分類">
    {([["saved","已收藏"],["reading","閱讀中"],["finished","已讀完"]] as const).map(([key,title])=><button key={key} className={tab===key?"active":""} aria-pressed={tab===key} onClick={()=>setTab(key)}>{title}<small>{counts[key]}</small></button>)}
   </div>
@@ -37,7 +38,7 @@ export function BriefingBoardPage(){
     <div><span className="briefing-topic">{item.topic}</span><small>{dateLabel(date)}</small></div>
     <h2><Link to={"/research/"+date+"/"+encodeURIComponent(item.id)}>{item.title}</Link></h2>
     <p>{item.summary}</p>
-    <div className="briefing-reading-item-actions"><Link to={"/research/"+date+"/"+encodeURIComponent(item.id)}>繼續閱讀 →</Link>
+    <div className="briefing-reading-item-actions"><Link to={"/research/"+date+"/"+encodeURIComponent(item.id)}>繼續閱讀 <Arrow/></Link>
      {tab==="saved"&&<button onClick={()=>setReviews(updateReview(item.id,{saved:false}))}>移出收藏</button>}
      {tab==="reading"&&<button onClick={()=>setReviews(updateReview(item.id,{status:"finished"}))}>標為已讀完</button>}
     </div>
