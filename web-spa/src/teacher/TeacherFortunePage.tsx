@@ -144,7 +144,7 @@ export function TeacherFortunePage(){
     <p>{readings[0].summary}</p>
     <small>{readings[0].createdAt?new Date(readings[0].createdAt).toLocaleDateString():"此裝置已儲存"} · 不需要重新填資料</small>
     <button type="button" className="btn teacher-fortune-primary" onClick={()=>start("reading",readings[0])}>
-     讓朋友繼續講解 →
+     讓朋友繼續講解 <Arrow/>
     </button>
     <button className="text-button" onClick={()=>openReading(readings[0])}>先查看命盤摘要</button>
     {readings.length>1&&<><button className="text-button" onClick={()=>setMoreHistory(x=>!x)}>
@@ -160,7 +160,7 @@ export function TeacherFortunePage(){
     <h2>{readings.length?"重新建立命盤":"先建立你的命盤"}</h2>
     <p>依照選擇的命理系統輸入資料，計算完成就由 Crew Friend 幫你逐步講解。</p>
     <button type="button" className="btn secondary teacher-fortune-primary" onClick={beginNew}>
-     {readings.length?"建立另一份命盤 →":"建立命盤 →"}
+     {readings.length?"建立另一份命盤":"建立命盤"} <Arrow/>
     </button>
    </div>
    <div className="teacher-fortune-card teacher-fortune-daily">
@@ -168,11 +168,11 @@ export function TeacherFortunePage(){
     <h2>今日探索話題</h2>
     <p>{dailyFortuneTopic()}</p>
     <button type="button" className="btn secondary teacher-fortune-primary" onClick={()=>start("daily")}>
-      開始 2～3 分鐘口說 →
+      開始 2～3 分鐘口說 <Arrow/>
     </button>
     <small>每日反思題目，不是根據出生資料計算的個人運勢。</small>
    </div>
-   <button className="text-button teacher-fortune-culture" onClick={()=>start("culture")}>探索不同文化的命理說法 →</button>
+   <button className="text-button teacher-fortune-culture" onClick={()=>start("culture")}>探索不同文化的命理說法 <Arrow/></button>
    <p className="teacher-fortune-privacy">出生資料與命盤保留在這個裝置；只有你按「開始對話」，才會將精簡的命盤主題提供給 AI。Android App 與瀏覽器的資料不會自動同步。</p>
   </>}
   {!loading&&phase==="create"&&<div className="teacher-fortune-card teacher-fortune-form">
@@ -196,7 +196,7 @@ export function TeacherFortunePage(){
    </div>
    <div className="teacher-fortune-actions">
     <button type="button" className="btn teacher-fortune-primary" disabled={saving} onClick={createReading}>
-      {saving?"正在計算…":"計算命盤 →"}
+      {saving?"正在計算…":"計算命盤"} {!saving&&<Arrow/>}
     </button>
     <button type="button" className="text-button" onClick={()=>setPhase("home")}>取消</button>
    </div>
@@ -215,7 +215,7 @@ export function TeacherFortunePage(){
       <strong>{chapter.title}</strong><p>{chapter.text}</p>
      </article>)}
    </div>
-   <button type="button" className="btn teacher-fortune-primary" onClick={()=>start("reading")}>讓朋友講解這份命盤 →</button>
+   <button type="button" className="btn teacher-fortune-primary" onClick={()=>start("reading")}>讓朋友講解這份命盤 <Arrow/></button>
    <small className="teacher-fortune-footnote">
      {nativeHost?"對話將切換至 Android 原生語音，由選定的 Crew Friend 講解命盤。":
        "朋友將用 "+targetLanguage+" 自然介紹命盤，你可以隨時插話。"}
@@ -226,7 +226,7 @@ export function TeacherFortunePage(){
     </article>)}
    </details>
    <button type="button" className="text-button" onClick={beginNew}>重新建立另一份命盤</button>
-   {!nativeHost&&<Link to={"/fortune/reading?history="+encodeURIComponent(reading.id)} className="text-button">進入 Crew Fortune 完整分析 ↗</Link>}
+   {!nativeHost&&<Link to={"/fortune/reading?history="+encodeURIComponent(reading.id)} className="text-button">進入 Crew Fortune 完整分析 <Arrow direction="up-right"/></Link>}
   </div>}
  </section>;
 }
