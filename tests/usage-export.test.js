@@ -123,3 +123,22 @@ test("export event/detail vocabulary equals existing event tracker, not addition
  assert.doesNotMatch(controlSource+utilSource,/trackUsageEvent\(/);
  assert.match(usage,/export type UsageEvent=/);
 });
+
+test("fortune overview is prominent, uses the existing aggregate report, and fits small screens",()=>{
+ const panel=read("web-spa/src/analytics/FortuneUsagePanel.tsx");
+ const source=read("web-spa/src/analytics/UsageDashboardPage.tsx");
+ assert.ok(source.includes('href="#fortune-usage"'));
+ assert.ok(source.indexOf("<FortuneUsagePanel rows={rows} eventUsers={data.eventUsers}/>")<
+  source.indexOf("<AccountStatsPanel/>"));
+ assert.ok(panel.includes('id="fortune-usage"'));
+ for(const event of ["fortune_calculated","fortune_ai_interpreted","fortune_price_view","fortune_price_interest"]){
+  assert.ok(panel.includes('event:"'+event+'"'),event);
+ }
+ assert.ok(panel.includes('total(rows,"fortune_price_view","bazi")'));
+ assert.ok(panel.includes('total(rows,"fortune_price_interest","bazi")'));
+ assert.ok(panel.includes("views>0?"));
+ assert.ok(panel.includes("不是同一批訪客的轉換漏斗"));
+ assert.doesNotMatch(panel,/trackUsageEvent|\bfetch\s*\(/);
+ assert.match(css,/\.usage-fortune-grid\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(css,/@media\(max-width:700px\)\{\.usage-fortune-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});
