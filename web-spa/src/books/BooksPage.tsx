@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {trackUsageEvent} from "../analytics/usage";
 import "./books.css";
@@ -209,7 +210,7 @@ export default function BooksPage(){
    </section>
    <div className={"books-mode "+(demo?"is-demo":"is-live")} role="status">
     <div><strong>{demo?"互動示範模式":"群組共用模式"}</strong><span>{demo?"貼文與留言只儲存在這台裝置，不會分享給其他人":"已通過邀請碼，刊登與留言會同步給同群組的朋友"}</span></div>
-    <button type="button" onClick={()=>{if(demo){setAccess(true);setNotice("");}else usePreview()}}>{demo?"輸入邀請碼 →":"返回示範"}</button>
+    <button type="button" onClick={()=>{if(demo){setAccess(true);setNotice("");}else usePreview()}}>{demo?"輸入邀請碼":"返回示範"} {demo&&<Arrow/>}</button>
    </div>
    {access&&demo&&<form className="books-join" onSubmit={join}><label htmlFor="books-invite">群組邀請碼</label><div><input id="books-invite" type="password" value={inviteInput} onChange={e=>setInviteInput(e.target.value)} placeholder="請向群組管理員索取" autoComplete="off"/><button className="books-primary" disabled={loading}>{loading?"連線中":"加入群組"}</button></div><small>僅邀請的朋友能看到正式貼文，不會公開索引。</small>{error&&<p role="alert">{error}</p>}</form>}
    {!access&&error&&<p className="books-error" role="alert">{error}</p>}
@@ -232,7 +233,7 @@ export default function BooksPage(){
       </article>
     }):<div className="books-empty"><strong>這裡還沒有符合的資訊</strong><p>換個搜尋條件，或成為第一個分享的人。</p>{(filter!=="all"||categoryFilter!=="all"||query.trim())?<button type="button" onClick={()=>{setFilter("all");setCategoryFilter("all");setQuery("")}}>清除篩選，顯示全部</button>:<button type="button" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>＋ 發布貼文</button>}</div>}</div>
    </section>
-   <div className="books-bottom"><div><strong>一起分享，生活更輕鬆。</strong><p>有好物、有問題、有新發現，都歡迎聊聊。</p></div><button className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>發一則消息 →</button></div>
+   <div className="books-bottom"><div><strong>一起分享，生活更輕鬆。</strong><p>有好物、有問題、有新發現，都歡迎聊聊。</p></div><button className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>發一則消息 <Arrow/></button></div>
    <footer className="books-footer">媽媽友小圈圈 · 邀請制試用中 <a href="/">返回 Crew</a><span>請勿公開電話、住址或交易帳號，交易細節請自行確認。</span></footer>
   </main>
   {notice&&<div className="books-toast" role="status">{notice}<button onClick={()=>setNotice("")} aria-label="關閉提示">×</button></div>}
