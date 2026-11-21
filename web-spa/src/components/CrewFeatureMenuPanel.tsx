@@ -1,5 +1,4 @@
 import {useCallback,useEffect,useRef,useState,type RefObject} from "react";
-import {Arrow} from "./Arrow";
 import {createPortal} from "react-dom";
 import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -171,7 +170,7 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
             <strong>{t("items."+item.id+".title")}</strong>
             <small>{t("items."+item.id+".desc")}</small>
            </span>
-           <Arrow className="crew-feature-menu-link-arrow"/>
+           <span className="crew-feature-menu-link-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" focusable="false"><path d="m9 6 6 6-6 6"/></svg></span>
           </Link>)}
          </div>
         </div>
