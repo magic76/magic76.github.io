@@ -361,7 +361,22 @@ details.teaching-board-lesson-picker .teaching-board-lesson-options{padding:2px 
  .teaching-board-lesson-progress{gap:6px}
  .teaching-board-lesson-progress>div:first-child small{display:none}
  .teaching-board-lesson-actions{display:none}
- .teaching-board-lesson-outcome{display:none}
+ .teaching-board-lesson-outcome{display:flex;gap:5px;flex-wrap:wrap}
+ .teaching-board-lesson-outcome span{font-size:10px;padding:4px 7px}
  .teaching-board-lesson-steps button{padding:7px 10px;min-height:36px}
  .teaching-board-curriculum-note{font-size:12px}
+}
+
+/* Keep the voice Start button fully above the fixed topic actions.
+   Both bars share the same bottom safe area and never cover each other. */
+@media(max-width:800px){
+ .teaching-board-voice{
+  bottom:calc(64px + env(safe-area-inset-bottom));
+  z-index:111;
+ }
+ .teaching-board-layout{padding-bottom:calc(194px + env(safe-area-inset-bottom))}
+ /* The expanded topic picker uses the voice slot; close it to resume speaking. */
+ body:has(.teaching-board-topic-chooser) .teaching-board-voice{visibility:hidden;pointer-events:none}
+ .teaching-board-quick{max-height:min(70dvh,520px)}
+ .teaching-board-topic-chooser{max-height:calc(min(70dvh,520px) - 74px)}
 }
