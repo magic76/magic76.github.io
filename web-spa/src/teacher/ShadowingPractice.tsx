@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from "react";
-import {Link} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 const SENTENCES=[
  "Could you tell me where the nearest station is?",
@@ -11,7 +11,10 @@ const SENTENCES=[
 
 /** Browser-based shadowing: listening and self-review, never an automatic pronunciation grade. */
 export function ShadowingPractice(){
+ const {i18n}=useTranslation();
+ const en=i18n.resolvedLanguage?.startsWith("en")??false;
  const [index,setIndex]=useState(0);
+ const [show,setShow]=useState(false);
  const [recording,setRecording]=useState(false);
  const [audio,setAudio]=useState<string|null>(null);
  const [error,setError]=useState("");
@@ -64,9 +67,10 @@ export function ShadowingPractice(){
   }catch{release();setRecording(false);setError("無法使用麥克風，請檢查權限，或先聽示範練習。")}
  };
  const stop=()=>{if(recorder.current?.state==="recording")recorder.current.stop()};
- return <section className="section panel" aria-label="跟讀練習" style={{display:"grid",gap:12}}>
-  <div className="section-head"><h2>跟讀練習 Shadowing</h2><small>{index+1} / {SENTENCES.length}</small></div>
-  <p>先聽一句，再模仿節奏。錄下自己的聲音，與示範比較；錄音只留在目前頁面，不會上傳。</p>
+ return <section className="section panel" aria-label={en?"Shadowing practice":"跟讀練習" style={{display:"grid",gap:12}}>
+  <div className="section-head"><h2>{en?"Shadowing practice":"跟讀練習 Shadowing"}</h2><button type="button" className="btn secondary small" aria-expanded={show} onClick={()=>{if(show){generation.current+=1;release();setRecording(false);window.speechSynthesis?.cancel()}setShow(!show)}}>{show?(en?"Collapse":"收起"):(en?"Start practice":"開始跟讀")}</button></div>
+  {show&&<><small>{index+1} / {SENTENCES.length}</small>
+  <p>{en?"Listen, imitate, and compare your recording. Audio stays in this page and is never uploaded.":"先聽一句，再模仿節奏。錄下自己的聲音，與示範比較；錄音只留在目前頁面，不會上傳。"}</p>
   <div className="reading-text" style={{fontSize:"1.15rem",lineHeight:1.6}}>{SENTENCES[index]}</div>
   <div className="actions" style={{display:"flex",flexWrap:"wrap",gap:8}}>
    <button type="button" className="btn secondary" onClick={speak}>▶ 聽示範</button>
@@ -77,8 +81,7 @@ export function ShadowingPractice(){
   <div className="actions" style={{display:"flex",gap:8,flexWrap:"wrap"}}>
    <button className="btn secondary small" type="button" disabled={index===0} onClick={()=>next(-1)}>上一句</button>
    <button className="btn secondary small" type="button" disabled={index===SENTENCES.length-1} onClick={()=>next(1)}>下一句 →</button>
-   <Link className="btn secondary small" to="/teacher/pronunciation">找老師糾音 →</Link>
   </div>
-  <small>此模式不會自動判斷發音分數；需要老師回饋時，請使用發音訓練。</small>
+  <small>{en?"No automatic pronunciation score is calculated. Use teacher feedback for assessment.":"此模式不會自動判斷發音分數；需要老師回饋時，請使用下方發音訓練。"}</small></>}
  </section>;
 }
