@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -48,7 +49,7 @@ export function QuickPlayGamePage({kind}:{kind:Kind}){
  const bomb=kind==="number-bomb";
  return <div className="crew-play-page crew-mini-page crew-quick-page">
   <header className="crew-play-game-header crew-play-game-header--compact">
-   <Link to="/games" className="crew-play-back">← {t("playHub.allGames")}</Link>
+   <Link to="/games" className="crew-play-back"><Arrow direction="left"/> {t("playHub.allGames")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY · {zh?"免費直接玩":"Play free now"}</span>
    <h1>{bomb?(zh?"終極密碼":"Number Bomb"):(zh?"翻牌記憶":"Memory Match")}</h1>
    <p>{bomb?(zh?"你來猜秘密數字，AI 朋友當主持人公布高低提示。":"Choose a number and let your AI friend host the game."):
