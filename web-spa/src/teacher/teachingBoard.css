@@ -340,3 +340,49 @@ details.teaching-board-lesson-picker .teaching-board-lesson-options{padding:2px 
  .teaching-board-quick button{font-size:13px;padding:9px 8px}
  .teaching-board-curriculum-note{margin:8px 0}
 }
+
+
+/* Mobile: persistent compact lesson controls, no repeated scroll to the top. */
+@media(max-width:800px){
+ .teaching-board-quick{
+  position:fixed;left:0;right:0;bottom:0;z-index:110;
+  margin:0;padding:8px max(12px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  border-radius:16px 16px 0 0;border:1px solid #d2e2d5;border-bottom:0;
+  background:#f8fcf9;box-shadow:0 -5px 22px #163a2824;
+  max-height:min(70dvh,520px);
+ }
+ .teaching-board-quick-row{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px}
+ .teaching-board-quick-row button{min-height:42px;padding:8px 10px;font-size:13px;line-height:1.3}
+ .teaching-board-topic-chooser{overflow-y:auto;overscroll-behavior:contain;min-height:0;max-height:calc(min(70dvh,520px) - 74px)}
+ .teaching-board-topic-chooser form>div button{min-height:42px}
+ .teaching-board-layout{padding-bottom:calc(160px + env(safe-area-inset-bottom))}
+ .teaching-board-canvas-head p{display:none}
+ .teaching-board-canvas-head{margin-bottom:8px}
+ .teaching-board-lesson-progress{gap:6px}
+ .teaching-board-lesson-progress>div:first-child small{display:none}
+ .teaching-board-lesson-actions{display:none}
+ .teaching-board-lesson-outcome{display:flex;gap:5px;flex-wrap:wrap}
+ .teaching-board-lesson-outcome span{font-size:10px;padding:4px 7px}
+ .teaching-board-lesson-steps button{padding:7px 10px;min-height:36px}
+ .teaching-board-curriculum-note{font-size:12px}
+}
+
+/* Keep the voice Start button fully above the fixed topic actions.
+   Both bars share the same bottom safe area and never cover each other. */
+@media(max-width:800px){
+ .teaching-board-voice{
+  bottom:calc(64px + env(safe-area-inset-bottom));
+  z-index:111;
+ }
+ .teaching-board-layout{padding-bottom:calc(194px + env(safe-area-inset-bottom))}
+ /* The expanded topic picker uses the voice slot; close it to resume speaking. */
+ body:has(.teaching-board-topic-chooser) .teaching-board-voice{visibility:hidden;pointer-events:none}
+ .teaching-board-quick{max-height:min(70dvh,520px)}
+ .teaching-board-topic-chooser{max-height:calc(min(70dvh,520px) - 74px)}
+}
+
+@media(max-width:800px){
+ .teaching-board-quick{bottom:var(--board-keyboard-inset,0px);max-height:min(70dvh,calc(var(--board-visible-height,100dvh) * .7),520px)}
+ .teaching-board-voice{bottom:calc(64px + env(safe-area-inset-bottom) + var(--board-keyboard-inset,0px))}
+ .teaching-board-topic-chooser{max-height:calc(min(70dvh,calc(var(--board-visible-height,100dvh) * .7),520px) - 74px)}
+}
