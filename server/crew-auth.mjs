@@ -142,8 +142,10 @@ export async function callbackHandler({request,env},provider){
   const uid=await account(env.CREW_AUTH_DB,provider,info);
   if(provider==="google"&&info.verifiedEmail){
    // Only Google-verified email is eligible for admin access; never trust a client claim.
-   await env.CREW_AUTH_DB.prepare("INSERT INTO crew_auth_verified_emails(provider,provider_id,email,verified_at) VALUES(?,?,?,?) ON CONFLICT(provider,provider_id) DO UPDATE SET email=excluded.email,verified_at=excluded.verified_at")
-    .bind("google",info.id,info.verifiedEmail,Math.floor(Date.now()/1000)).run();
+   try{
+    await env.CREW_AUTH_DB.prepare("INSERT INTO crew_auth_verified_emails(provider,provider_id,email,verified_at) VALUES(?,?,?,?) ON CONFLICT(provider,provider_id) DO UPDATE SET email=excluded.email,verified_at=excluded.verified_at")
+     .bind("google",info.id,info.verifiedEmail,Math.floor(Date.now()/1000)).run();
+   }catch{/* Migration may not be applied yet; keep ordinary sign-in working, admin access stays denied. */}
   }
   stage="session";
   const session=random(),now=Math.floor(Date.now()/1000);
