@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useState,type FormEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -37,7 +38,7 @@ export function DiscoverPage(){
   finally{setBusy(false)}
  }
  return <main className="crew-discover">
-  <Link to="/explore">← {zh?"返回探索":"Back to Explore"}</Link>
+  <Link to="/explore"><Arrow direction="left"/> {zh?"返回探索":"Back to Explore"}</Link>
   <span className="kicker">Koolo DISCOVER</span><h1>{zh?"和 AI 一起探索世界":"Explore the world together"}</h1>
   <p className="crew-discover-intro">{zh?"找新聞、聊文化、探索新知。用文字或語音，跟 AI 一起追問。":"Explore news, culture and discoveries by text or voice. Follow your curiosity."}</p>
   <div className="crew-discover-modes" role="group"><button type="button" aria-pressed={mode==="text"} onClick={()=>{if(mode==="voice")void live.stop(true);setMode("text")}}>{zh?"文字探索":"Text"}</button><button type="button" aria-pressed={mode==="voice"} onClick={()=>setMode("voice")}>{zh?"語音探索":"Voice"}</button></div>
