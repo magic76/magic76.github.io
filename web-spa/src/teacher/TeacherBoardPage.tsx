@@ -80,7 +80,7 @@ export function TeacherBoardPage(){
  function commitPatch(patch:BoardPatch):boolean{
   const waiting=directorRef.current.phase==="awaiting";
   const guided=!!lessonRef.current;
-  if(guided&&(patch.action!=="upsert"||patch.cards.some(c=>!cardRef.current.some(old=>old.id===c.id&&old.type===c.type)||c.type==="quiz"||c.type==="speaking")))return false;
+  if(guided)return false; // Guided curriculum cannot be rewritten by live tools.
   if(waiting&&(patch.action!=="upsert"||patch.cards.some(c=>c.id===directorRef.current.cardId||c.type==="quiz"||c.type==="speaking")))return false;
   const next=applyBoardPatch(cardRef.current,patch);
   cardRef.current=next;setCards(next);setShowingDemo(false);
@@ -89,7 +89,7 @@ export function TeacherBoardPage(){
   changeDirector(stage);
   const changedId=stage.cardId;
   setLatestId(changedId);setRevision(v=>v+1);
-  if(changedId&&!waiting&&!guided){setFollowing(true);setFocusedId(null);}
+  // Keep the current card visible when asynchronous patches arrive.
   if(patch.action==="replace"){pendingQuizRef.current=null;answersRef.current={};setAnswers({});setSpeakingAssessment(null);speechAssessmentRef.current=null;}
   return true;
  }
@@ -181,6 +181,7 @@ export function TeacherBoardPage(){
    if(call.name===DIRECTOR_FUNCTION){
     const command=validateDirectorCommand(call.args,cardRef.current);
     if(!command)return {ok:false,error:"invalid-stage-command"};
+    if(lessonRef.current)return {ok:false,error:"learner-controls-curriculum"};
     const next=applyDirectorCommand(directorRef.current,command,cardRef.current,answersRef.current);
     if(!next)return {ok:false,error:"stage-locked-or-no-answer"};
     changeDirector(next);
@@ -206,7 +207,7 @@ export function TeacherBoardPage(){
     if(patch)commitPatch(patch);
    }
    const pending=pendingQuizRef.current,d=directorRef.current;
-   if(pending&&turn.output?.trim()&&d.phase==="feedback"&&d.cardId===pending.cardId&&d.quizIndex===pending.index){
+   if(pending&&!lessonRef.current&&turn.output?.trim()&&d.phase==="feedback"&&d.cardId===pending.cardId&&d.quizIndex===pending.index){
     pendingQuizRef.current=null;
     const card=cardRef.current.find(c=>c.id===pending.cardId);
     if(card){
@@ -334,13 +335,13 @@ export function TeacherBoardPage(){
    <section className="teaching-board-workspace">
    <BoardTutorPanel live={live} profile={profile} targetLanguage={s.targetLanguage} english={english} hint={hint} onAsk={ask}/>
    <section className="teaching-board-canvas" aria-label={t("board.canvas")}>
-    <div className="teaching-board-canvas-head"><div><span className="kicker">CREW · LIVE BOARD</span><h1>{t("board.canvas")}</h1>
-     <p>{t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
+    <div className="teaching-board-canvas-head"><div><span className="kicker">{lesson?(english?"CURRENT LESSON":"目前教材"):"CREW · LIVE BOARD"}</span><h1>{lesson?lesson.title:t("board.canvas")}</h1>
+     <p>{lesson?(english?"The teacher explains this material. You choose when to change steps.":"老師依照這份教材講解，只有你切換步驟時才換頁。"):t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
     </div><div className="teaching-board-canvas-actions"><button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>
      <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div></div>
     <BoardReviewBanner due={reviews.due.length} total={reviews.total} enabled={memoryEnabled}
      blocked={director.phase==="awaiting"} onStart={startDueReview} onClear={reviews.clear}/>
-    <BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"||!!lessonId}/>
+    {!lessonId&&<BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"}/>}
     {cards.length>0&&<div className="teaching-board-navigator">
      <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
       <small>{following?t("board.following"):t("board.paused")}</small>
@@ -350,12 +351,13 @@ export function TeacherBoardPage(){
       {cards.map((card,index)=><button key={card.id} type="button" role="tab" id={"teaching-board-tab-"+card.id}
        aria-controls="teaching-board-active-panel" aria-selected={focusedCard?.id===card.id}
        className={"teaching-board-deck-tab"+(focusedCard?.id===card.id?" is-active":"")}
-       onClick={()=>{setFollowing(false);setFocusedId(card.id)}}>
+       onClick={()=>{if(lessonId)goLessonStep(index);else{setFollowing(false);setFocusedId(card.id)}}}>
        <small>{index+1} · {cardKindName(card.type,english)}{latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
       </button>)}
      </div>
     </div>}
-    <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} data-following={following} role="tabpanel" id="teaching-board-active-panel"
+    {lesson&&<p className="teaching-board-curriculum-note">{english?"Step":"教材"} {lessonStep+1} / {lesson.cards.length} · {lesson.goal}</p>}
+     <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} data-following={following} role="tabpanel" id="teaching-board-active-panel"
      aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
      {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
       <TeachingCard key={focusedCard.id} card={focusedCard} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}
