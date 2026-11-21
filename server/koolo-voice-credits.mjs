@@ -29,7 +29,7 @@ async function authenticatedOwner({request,env}){
 function parseEntry(r){
  if(!["topup","reserve","consume","release","refund","adjustment"].includes(r.event_type))return null;
  const available=Number(r.delta_available_seconds),reserved=Number(r.delta_reserved_seconds),created=Number(r.created_at);
- if(!Number.isSafeInteger(available)||!Number.isSafeInteger(reserved)||!validSeconds(created))return null;
+ if(!Number.isSafeInteger(available)||!Number.isSafeInteger(reserved)||validSeconds(created)===null)return null;
  return {id:String(r.id),type:r.event_type,deltaAvailableSeconds:available,
   deltaReservedSeconds:reserved,createdAt:created};
 }
@@ -47,7 +47,7 @@ export async function voiceCreditStatus(context){
   ).bind(auth.userId).all();
   const available=wallet?validSeconds(Number(wallet.available_seconds)):0;
   const reserved=wallet?validSeconds(Number(wallet.reserved_seconds)):0;
-  if(available===null||reserved===null||!Array.isArray(events?.results))return reply({error:"WALLET_UNAVAILABLE"},503);
+  if(available===null||reserved===null||!Number.isSafeInteger(available+reserved)||!Array.isArray(events?.results))return reply({error:"WALLET_UNAVAILABLE"},503);
   const history=events.results.map(parseEntry);
   if(history.some(entry=>!entry))return reply({error:"WALLET_UNAVAILABLE"},503);
   return reply({unit:"seconds",availableSeconds:available,reservedSeconds:reserved,
