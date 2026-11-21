@@ -46,6 +46,7 @@ export function TeacherBoardPage(){
  const [lessonExplained,setLessonExplained]=useState(false);
  const [lessonTransitioning,setLessonTransitioning]=useState(false);
  const [topicEnded,setTopicEnded]=useState(false);
+ const topicEndedRef=useRef(false);
  const [speakingAssessment,setSpeakingAssessment]=useState<SpeakingAssessment|null>(null);
  const [reviewReturn,setReviewReturn]=useState<{cardId:string;index:number}|null>(null);
  const directorRef=useRef<DirectorState>(EMPTY_DIRECTOR);
@@ -150,11 +151,13 @@ export function TeacherBoardPage(){
   setLatestId(cardId);setFollowing(true);setFocusedId(null);setRevision(v=>v+1);
  }
  function endTopic(){
+  topicEndedRef.current=true;
   if(active)live.interrupt();
   setTopicEnded(true);setLessonTransitioning(false);
   changeDirector(EMPTY_DIRECTOR);
  }
  function startFreeTopic(topic:string){
+  topicEndedRef.current=false;
   if(active)live.interrupt();
   lessonRef.current=null;setLessonId(null);setLessonStep(0);
   setCompletedSteps({});setLessonExplained(false);setLessonTransitioning(false);
@@ -171,6 +174,7 @@ export function TeacherBoardPage(){
   if(active)live.interrupt();
   setLessonTransitioning(active);setLessonExplained(false);setCompletedSteps({});
   setTopicEnded(false);
+  topicEndedRef.current=false;
   lessonRef.current=id;setLessonId(id);setLessonStep(0);
   cardRef.current=lesson.cards;setCards(lesson.cards);
   answersRef.current={};setAnswers({});
@@ -201,6 +205,7 @@ export function TeacherBoardPage(){
   onToolsUnavailable:()=>setToolsUnavailable(true),
   onConfirmedTranscript:turn=>processConfirmedSpeech(turn.input||""),
   onToolCall:(call)=>{
+   if(topicEndedRef.current)return {ok:false,error:"topic-finished"};
    if(call.name===BOARD_FUNCTION){
     const patch=validateBoardPatch(call.args);
     if(!patch)return {ok:false,error:"invalid-board-patch"};
@@ -226,6 +231,7 @@ export function TeacherBoardPage(){
    live.sendControl("[BOARD CONTINUITY] Reconnected. Preserve lesson and stage. Current phase="+directorRef.current.phase+", focused card="+directorRef.current.cardId+", quiz question="+(directorRef.current.quizIndex+1)+". If awaiting, wait for learner and do not change cards. "+summary+"\n"+localeHelp);
   },
   onTurnComplete:(turn)=>{
+   if(topicEndedRef.current)return;
    if(lessonRef.current){
     setLessonTransitioning(false);
     if(turn.hasValidOutput&&turn.output?.trim())setLessonExplained(true);
