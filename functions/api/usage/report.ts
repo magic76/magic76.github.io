@@ -132,6 +132,18 @@ export async function onRequestGet({request,env}:Context){
  if(!await verifyAccess(request,env))return respond({error:"Access denied or not configured"},403);
  const view=new URL(request.url).searchParams.get("view");
  if(view==="feedback")return listFeedback(request,env);
+ if(view==="membership"){
+  const db=env.CREW_AUTH_DB;
+  if(!db||typeof db.prepare!=="function")return respond({database:"unavailable",tables:[]},503);
+  const expected=["crew_auth_users","crew_auth_identities","crew_auth_sessions","koolo_memberships","koolo_purchases","koolo_entitlement_events","koolo_usage_ledger","koolo_subscriptions","koolo_voice_sessions","koolo_account_link_challenges"];
+  const tables=await Promise.all(expected.map(async name=>{
+   try{await db.prepare("SELECT 1 FROM "+name+" LIMIT 1").first();return {name,ready:true}}
+   catch{return {name,ready:false}}
+  }));
+  const ready=tables.every(item=>item.ready);
+  return respond({database:ready?"ready":"incomplete",tables},ready?200:503);
+ }
+
  if(view==="accounts"){
   const db=env.CREW_AUTH_DB;
   if(!db||typeof db.prepare!=="function")return respond({error:"Auth D1 binding unavailable"},503);
