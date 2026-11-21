@@ -157,7 +157,7 @@ export function SettingsPage(){
  </section>
 
  <details id="settings-advanced" className="crew-settings-advanced" ref={advancedRef}>
-  <summary className="crew-settings-advanced-summary"><span><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><span aria-hidden="true">⌄</span></summary>
+  <summary className="crew-settings-advanced-summary"><span><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><Arrow direction="down" className="crew-arrow--plain"/></summary>
   <div className="crew-settings-advanced-content">
  <section className="section panel crew-live-model-settings" id="live-model-settings">
   <div className="section-head"><h2>{t("group.modelHeading")}</h2><small>{t("group.modelShared")}</small></div>
