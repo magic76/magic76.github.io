@@ -427,6 +427,7 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
  for(const slug of ["games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo","games/number-bomb","games/memory","games/crazy-court","games/werewolf","games/truth-news","games/nonsense"]){
   expected.push(domain+"/"+slug+"/");expected.push(domain+"/en/"+slug+"/");
  }
+ for(const slug of ["bazi","bazi/jia-wood","bazi/yi-wood","bazi/bing-fire","bazi/ding-fire","bazi/wu-earth","bazi/ji-earth","bazi/geng-metal","bazi/xin-metal","bazi/ren-water","bazi/gui-water","bazi/five-elements","bazi/ten-gods","bazi/luck-cycles"]){expected.push(domain+"/fortune/"+slug+"/",domain+"/en/fortune/"+slug+"/")}
  for(const slug of ["travel","business","daily","teamwork","tickets","services"]){expected.push(domain+"/teacher/course/"+slug+"/",domain+"/en/teacher/course/"+slug+"/")}
  assert.equal(urls.length,expected.length,"sitemap should enumerate all public and playable game routes");
  assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
