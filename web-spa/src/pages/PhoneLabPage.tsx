@@ -51,7 +51,7 @@ export function PhoneLabPage(){
   <span className={"cpl-app-icon cpl-"+item.id}><Icon name={item.icon}/></span>
   <span>{label(item.zh,item.en)}</span>
  </Link>;
- const header=(name:string)=><header className="cpl-detail-head"><button className="cpl-back" type="button" onClick={()=>navigate("home")} aria-label={label("回桌面","Back home")}>‹</button><div><small>CREW / PHONE LAB</small><h1>{name}</h1></div></header>;
+ const header=(name:string)=><header className="cpl-detail-head"><button className="cpl-back" type="button" onClick={()=>navigate("home")} aria-label={label("回桌面","Back home")}><Arrow direction="left" className="crew-arrow--plain"/></button><div><small>CREW / PHONE LAB</small><h1>{name}</h1></div></header>;
  const home=<>
   <header className="cpl-home-head"><div><div className="cpl-wordmark">crew<span>.</span></div><p>{label("嗨，今天想做點什麼？","Hey, what are you up to today?")}</p></div></header>
   <p className="cpl-eyebrow">YOUR LITTLE AI WORLD ✦</p>
