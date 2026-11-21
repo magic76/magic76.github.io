@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -28,6 +29,6 @@ export function PrivacyPage(){
     <span>{english?"Developer test mode (exclude my usage)":"開發測試模式（排除自己的操作）"}</span>
    </label>}
   </section>
-  <p className="meta"><Link to="/settings">← {english?"Back to settings":"返回設定"}</Link></p>
+  <p className="meta"><Link to="/settings"><Arrow direction="left"/> {english?"Back to settings":"返回設定"}</Link></p>
  </>;
 }
