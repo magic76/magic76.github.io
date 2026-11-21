@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useState} from "react";
 import {trackUsageEvent} from "../analytics/usage";
 import {Link,useParams} from "react-router-dom";
@@ -72,7 +73,7 @@ export function BriefingDetailPage(){
    <section className="briefing-section"><h2>參考資料</h2><p className="meta">研究報告會保留來源與發表日期；引用的論點及數據仍應以原文為準。</p>
     {item.sources.length?item.sources.map((source,i)=>{
      const href=safeSource(source.url);
-     return <div className="briefing-source" key={i}>{href?<a href={href} target="_blank" rel="noopener noreferrer" onClick={()=>trackUsageEvent("research_source_open")}>{source.title} ↗</a>:<span>{source.title}</span>}<small>{source.publishedAt||""}{source.kind?" · "+source.kind:""}</small></div>
+     return <div className="briefing-source" key={i}>{href?<a href={href} target="_blank" rel="noopener noreferrer" onClick={()=>trackUsageEvent("research_source_open")}>{source.title} <Arrow direction="up-right"/></a>:<span>{source.title}</span>}<small>{source.publishedAt||""}{source.kind?" · "+source.kind:""}</small></div>
     }):<p className="meta">目前沒有可驗證的原始來源。</p>}
    </section>
    <section className="briefing-section briefing-content-chat">
