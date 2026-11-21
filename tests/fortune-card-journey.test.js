@@ -89,7 +89,7 @@ test("allowlisted invitations exclude date, history and arbitrary user text",()=
   assert.deepEqual([...params.keys()].sort(),["a","m","src","theme"]);
   assert.deepEqual(invite.parseFortuneInvite(params),{mode,archetype:id,theme:"identity",src:"card"});
   assert.equal(invite.publicFortuneCard(invite.parseFortuneInvite(params),"en").id,id);
-  assert.equal(invite.fortuneInviteNextUrl(invite.parseFortuneInvite(params)),"/fortune/reading?mode=tarot&src=card");
+  assert.equal(invite.fortuneInviteNextUrl(invite.parseFortuneInvite(params)),"/fortune/reading?mode="+mode+"&src=card");
  }
  const valid=new URL(invite.fortuneInviteUrl("tarot","tarot-21")).searchParams;
  for(const extra of ["birthDate","token","report","history","utm"]) {
