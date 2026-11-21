@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useState} from "react";
 import {Link} from "react-router-dom";
 import {Icon} from "../components/Icon";
@@ -20,6 +21,6 @@ export function KooloAdminEntry({english}:{english:boolean}){
    <strong>{english?"Admin dashboard":"管理後台"}</strong>
    <small>{english?"Usage, accounts and membership diagnostics":"使用統計、帳號與會員測試"}</small>
   </span>
-  <span className="crew-section-arrow" aria-hidden="true">→</span>
+  <Arrow className="crew-section-arrow"/>
  </Link>;
 }
