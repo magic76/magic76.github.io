@@ -244,7 +244,7 @@ export function WerewolfPage(){
     </div>:null}
    </section>
    <section className="wolf-history">
-    <button type="button" className="wolf-history-toggle" aria-expanded={showHistory} onClick={toggleHistory}><strong>{L(isZh,"最新對話","Latest conversation")} · {game.entries.length}</strong><span>{showHistory?"⌃":"⌄"}</span></button>
+    <button type="button" className="wolf-history-toggle" aria-expanded={showHistory} onClick={toggleHistory}><strong>{L(isZh,"最新對話","Latest conversation")} · {game.entries.length}</strong><Arrow direction={showHistory?"up":"down"} className="crew-arrow--plain"/></button>
     {showHistory?<div className="wolf-log" role="log" aria-label={L(isZh,"最新對話","Latest conversation")} ref={transcriptRef} onScroll={handleHistoryScroll}>{game.entries.slice(-24).map((entry,index)=><div key={game.entries.length-24+index} className={"wolf-log-entry kind-"+entry.kind}>
      <strong>{entry.speaker==="system"?L(isZh,"主持人","Moderator"):entry.speaker==="you"?L(isZh,"你","You"):game.players.find(p=>p.id===entry.speaker)?.name||entry.speaker}</strong>
      <p>{localEvent(entry,isZh)}</p></div>)}{busy?<p className="wolf-chat-typing" role="status">{L(isZh,"AI 角色正在回覆…","NPC is replying…")}</p>:null}</div>:null}
