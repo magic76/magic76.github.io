@@ -129,7 +129,7 @@ export function TeacherFortunePage(){
  if(!nativeHost)return <Navigate to="/fortune" replace/>;
  return <section className="section teacher-fortune-hub" data-native-host={nativeHost?"true":"false"} aria-label={english?"Fortune explanation":"命理陪聊"}>
   <div className="teacher-fortune-header">
-   <button type="button" className="text-button" onClick={()=>phase==="home"?nativeHost?window.location.assign("crewteacher://fortune/back"):navigate("/teacher/practice"):setPhase("home")}>‹ {english?"Back":"返回"}</button>
+   <button type="button" className="text-button" onClick={()=>phase==="home"?nativeHost?window.location.assign("crewteacher://fortune/back"):navigate("/teacher/practice"):setPhase("home")}><Arrow direction="left" className="crew-arrow--plain"/> {english?"Back":"返回"}</button>
    <span className="kicker">CREW FORTUNE · FRIEND EXPLAINER</span>
    <h1>{english?"Fortune with a friend":"朋友陪你聊命理"}</h1>
    <p>{english?"A Crew Friend explains your reading first; interrupt or ask anything naturally.":"Crew Friend 會先幫你解釋命盤重點，有問題隨時問，不是外語口說課。"}</p>
