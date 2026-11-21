@@ -21,3 +21,15 @@ This first PR is a **read-only** membership foundation. It does not enable paid 
 - Implement account linking explicitly: Google and GitHub identities are separate even with the same email.
 - Do not enable any Plus/Pro voice allowance until Gemini cost ceilings and purchase lifecycle tests pass.
 - Protect all entitlement mutations with provider verification or audited administrator actions. Never accept client-supplied plan/status.
+
+## Owner-only test center (/usage)
+The existing Cloudflare Access-protected `/usage` page includes a read-only membership test center. It checks the 10 expected D1 tables through `GET /api/usage/report?view=membership`, and separately calls `GET /api/membership` with the current browser's Koolo session cookie. No additional Access application is required for this UI; the member API is authenticated with the Koolo session, not the Cloudflare Access identity.
+
+Acceptance checks:
+1. Open `/usage` as the existing Access administrator; expect 10/10 schema checks.
+2. Without a Koolo login, the membership API should return HTTP 401, shown as a normal logged-out state.
+3. Sign in to Koolo on the **same origin and browser** and refresh the test; expect HTTP 200 and `authenticated: true`, `plan: free` for an account without a paid entitlement.
+4. Sign out and retry; expect HTTP 401 again. No database rows or purchases should be changed by these reads.
+5. HTTP 503 indicates missing D1/schema or server failure, not a paid plan or exhausted allowance. The current `voiceSeconds: 0` is a deliberate disabled entitlement placeholder, not actual usage.
+
+The test center cannot simulate payments or subscription lifecycle until verified server-side purchase/usage operations exist. Never add client-side plan mutations to this diagnostic page.
