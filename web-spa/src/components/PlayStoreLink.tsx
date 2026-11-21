@@ -1,3 +1,4 @@
+import {Arrow} from "./Arrow";
 import {isCrewAndroidShell} from "../lib/platform";
 import {type MouseEventHandler} from "react";
 import {useClientReady} from "../lib/useClientReady";
@@ -25,7 +26,7 @@ export function PlayStoreLink({product,compact=false,onClick}:{product:Product;c
    <strong>{appName}</strong>
    <span className="play-store-platform">{app.url?"Google Play":"Google Play 準備中"}</span>
   </span>
-  <span className="play-store-arrow" aria-hidden="true">{app.url?"↗":"即將推出"}</span>
+  <span className="play-store-arrow" aria-hidden="true">{app.url?<Arrow direction="up-right"/>:"即將推出"}</span>
  </>;
  if(!app.url)return <div className={"play-store-link "+product+" unavailable"+(compact?" compact":"")} aria-label={appName+" - Google Play 準備中"}>{content}</div>;
  return <a className={"play-store-link "+product+(compact?" compact":"")} href={app.url} target="_blank" rel="noopener noreferrer" onClick={onClick} aria-label={appName+" - Google Play"}>{content}</a>;
