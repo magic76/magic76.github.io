@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import{useState}from"react";
 import{Link}from"react-router-dom";
 import{useTeacherStore}from"../store/teacherStore";
@@ -29,7 +30,7 @@ export function StudentMemoryPage(){
  </section>
  <section className="section panel teacher-memory-panel"><h2>個人化記憶</h2>
  <p className="meta">目前：{consent?"已開啟":"已關閉"}。記憶預設開啟，可到設定關閉；關閉後不再自動整理或提供個人偏好給老師與朋友，已保存的記憶仍可在此編輯或刪除。</p>
- <Link className="inline-link" to="/settings#memory-settings">前往設定調整記憶 →</Link>
+ <Link className="inline-link" to="/settings#memory-settings">前往設定調整記憶 <Arrow/></Link>
  </section>
  <section className="section"><div className="section-head"><h2>目前記憶</h2><small>{display.length} / {items.length} 筆</small></div><label className="label" htmlFor="memory-filter">篩選記憶類型</label><select id="memory-filter" className="field" value={filter} onChange={e=>setFilter(e.target.value as MemoryKind|"all")}><option value="all">全部類型</option>{(Object.keys(LABELS) as MemoryKind[]).map(kind=><option key={kind} value={kind}>{LABELS[kind]}</option>)}</select>
  {display.length?<div className="teacher-memory-list">{display.map(m=><article className="panel teacher-memory-item" key={m.id}>
