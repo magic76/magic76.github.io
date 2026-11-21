@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useMagicT} from "./useMagicT";
 import {Link} from 'react-router-dom';
 export type MagicVoiceState='idle'|'connecting'|'listening'|'speaking'|'error';
@@ -29,7 +30,7 @@ export function MagicGuideCard({zh,voiceState,isOnline,muted,volume,hasKey,start
   </div>
   {isOnline&&<label className="magic-volume">{tr("Lumi volume")} <input aria-label={tr("Lumi volume")} type="range" min="0" max="150" step="5"
    value={volume} onChange={e=>onVolume(Number(e.target.value))}/><output>{volume}%</output></label>}
-  {!hasKey&&<Link className="magic-settings" to="/settings">{tr("Set up voice connection")} →</Link>}
+  {!hasKey&&<Link className="magic-settings" to="/settings">{tr("Set up voice connection")} <Arrow/></Link>}
   {!toolsAvailable&&<p className="magic-muted">{tr("Voice can continue; use the spells below to change the scene.")}</p>}
   {notice&&<p className="magic-notice" role="status">{notice}</p>}
   {isOnline&&(heard||said)&&<div className="magic-transcripts">
