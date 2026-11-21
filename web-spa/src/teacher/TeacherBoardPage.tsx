@@ -17,6 +17,7 @@ import {flashcardTeacherPrompt} from "./boardRecallCoach";
 import {DIRECTOR_FUNCTION,DIRECTOR_TOOL,EMPTY_DIRECTOR,applyDirectorCommand,directorAfterAnswer,directorAfterPatch,validateDirectorCommand,type DirectorState} from "./teachingDirector";
 import {findLesson,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonId,type SpeakingAssessment} from "./boardLessons";
 import {GuidedLessonPanel} from "./GuidedLessonPanel";
+import {BoardQuickControls} from "./BoardQuickControls";
 import {BoardTutorPanel} from "./BoardTutorPanel";
 import {BoardPresentationBar,boardPresentationRequest,PRESENTATION_CUES,type BoardPresentation} from "./BoardPresentationBar";
 import {BOARD_VISUAL_POLICY} from "./boardVisualPolicy";
@@ -44,6 +45,8 @@ export function TeacherBoardPage(){
  const [completedSteps,setCompletedSteps]=useState<Record<string,boolean>>({});
  const [lessonExplained,setLessonExplained]=useState(false);
  const [lessonTransitioning,setLessonTransitioning]=useState(false);
+ const [topicEnded,setTopicEnded]=useState(false);
+ const topicEndedRef=useRef(false);
  const [speakingAssessment,setSpeakingAssessment]=useState<SpeakingAssessment|null>(null);
  const [reviewReturn,setReviewReturn]=useState<{cardId:string;index:number}|null>(null);
  const directorRef=useRef<DirectorState>(EMPTY_DIRECTOR);
@@ -147,11 +150,31 @@ export function TeacherBoardPage(){
     card.type==="quiz"&&prior!==undefined?(prior===card.questions[quizIndex]?.answerIndex?"correct":"incorrect"):null});
   setLatestId(cardId);setFollowing(true);setFocusedId(null);setRevision(v=>v+1);
  }
+ function endTopic(){
+  topicEndedRef.current=true;
+  if(active)live.interrupt();
+  setTopicEnded(true);setLessonTransitioning(false);
+  changeDirector(EMPTY_DIRECTOR);
+ }
+ function startFreeTopic(topic:string){
+  topicEndedRef.current=false;
+  if(active)live.interrupt();
+  lessonRef.current=null;setLessonId(null);setLessonStep(0);
+  setCompletedSteps({});setLessonExplained(false);setLessonTransitioning(false);
+  pendingQuizRef.current=null;reviewReturnRef.current=null;setReviewReturn(null);
+  cardRef.current=[];setCards([]);answersRef.current={};setAnswers({});
+  speechAssessmentRef.current=null;setSpeakingAssessment(null);
+  changeDirector(EMPTY_DIRECTOR);setLatestId(null);setFocusedId(null);setFollowing(true);
+  setTopicEnded(false);setHint("");setHasLivePatch(false);
+  if(active)live.sendText("[NEW LEARNER-CHOSEN TOPIC] The learner ended the previous topic. Start teaching ONLY this new topic: "+topic+". Introduce one concise concept and use the board tools to create appropriate material. Do not return to the previous topic unless asked.\n"+localeHelp);
+ }
  function startLesson(id:LessonId){
   const lesson=findLesson(id);
   if(!lesson)return;
   if(active)live.interrupt();
   setLessonTransitioning(active);setLessonExplained(false);setCompletedSteps({});
+  setTopicEnded(false);
+  topicEndedRef.current=false;
   lessonRef.current=id;setLessonId(id);setLessonStep(0);
   cardRef.current=lesson.cards;setCards(lesson.cards);
   answersRef.current={};setAnswers({});
@@ -164,6 +187,7 @@ export function TeacherBoardPage(){
  function goLessonStep(index:number){
   const lesson=lessonRef.current?findLesson(lessonRef.current):undefined;
   if(!lesson||index<0||index>=lesson.cards.length)return;
+  topicEndedRef.current=false;setTopicEnded(false);
   if(active)live.interrupt();
   setLessonTransitioning(active);setLessonExplained(false);
   setLessonStep(index);
@@ -181,6 +205,7 @@ export function TeacherBoardPage(){
   onToolsUnavailable:()=>setToolsUnavailable(true),
   onConfirmedTranscript:turn=>processConfirmedSpeech(turn.input||""),
   onToolCall:(call)=>{
+   if(topicEndedRef.current)return {ok:false,error:"topic-finished"};
    if(call.name===BOARD_FUNCTION){
     const patch=validateBoardPatch(call.args);
     if(!patch)return {ok:false,error:"invalid-board-patch"};
@@ -206,6 +231,7 @@ export function TeacherBoardPage(){
    live.sendControl("[BOARD CONTINUITY] Reconnected. Preserve lesson and stage. Current phase="+directorRef.current.phase+", focused card="+directorRef.current.cardId+", quiz question="+(directorRef.current.quizIndex+1)+". If awaiting, wait for learner and do not change cards. "+summary+"\n"+localeHelp);
   },
   onTurnComplete:(turn)=>{
+   if(topicEndedRef.current)return;
    if(lessonRef.current){
     setLessonTransitioning(false);
     if(turn.hasValidOutput&&turn.output?.trim())setLessonExplained(true);
@@ -358,9 +384,11 @@ export function TeacherBoardPage(){
    <section className="teaching-board-workspace">
    <BoardTutorPanel live={live} profile={profile} targetLanguage={s.targetLanguage} english={english} hint={hint} onAsk={ask}/>
    <section className="teaching-board-canvas" aria-label={t("board.canvas")}>
+    <BoardQuickControls english={english} guided={!!lesson} hasCards={cards.length>0&&!topicEnded} step={lessonStep} steps={lesson?.cards.length||0} onNext={()=>goLessonStep(lessonStep+1)} onEnd={endTopic} onLesson={startLesson} onTopic={startFreeTopic}/>
+    {topicEnded&&<p className="teaching-board-topic-ended" role="status">{english?"Topic finished. Your notes remain below for review. Choose a new topic above when ready.":"這個話題已結束。下方教材保留供回顧，想繼續時可從上方選新話題。"}</p>}
     <div className="teaching-board-canvas-head"><div><span className="kicker">{lesson?(english?"CURRENT LESSON":"目前教材"):"CREW · LIVE BOARD"}</span><h1>{lesson?lesson.title:t("board.canvas")}</h1>
      <p>{lesson?(english?"The teacher explains this material. You choose when to change steps.":"老師依照這份教材講解，只有你切換步驟時才換頁。"):t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
-    </div><div className="teaching-board-canvas-actions"><button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>
+    </div><div className="teaching-board-canvas-actions">{!lesson&&<button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>}
      <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div></div>
     <BoardReviewBanner due={reviews.due.length} total={reviews.total} enabled={memoryEnabled}
      blocked={director.phase==="awaiting"} onStart={startDueReview} onClear={reviews.clear}/>

@@ -9,7 +9,7 @@ type Props={
  english:boolean;quizLocked:boolean;
  onStart:(id:LessonId)=>void;onStep:(index:number)=>void;
 };
-export function GuidedLessonPanel({lesson,lessonId,lessonStep,progress,english,quizLocked,onStart,onStep}:Props){
+export function GuidedLessonPanel({lesson,lessonId,lessonStep,progress,english,onStart,onStep}:Props){
  const {t}=useTranslation("teacher");
  const pickerRef=useRef<HTMLDetailsElement>(null);
  return <>
@@ -32,7 +32,7 @@ export function GuidedLessonPanel({lesson,lessonId,lessonStep,progress,english,q
    </div>
    <div className="teaching-board-lesson-actions">
     <button type="button" disabled={lessonStep===0} onClick={()=>onStep(lessonStep-1)}>{t("board.lessonPicker.previous")}</button>
-    <button type="button" disabled={lessonStep>=lesson.cards.length-1||quizLocked}
+    <button type="button" disabled={lessonStep>=lesson.cards.length-1}
      onClick={()=>onStep(lessonStep+1)}>{t("board.lessonPicker.forward")}</button>
    </div>
   </section>}
