@@ -90,6 +90,7 @@ export function FortuneHomePage(){
      <span className="fortune-mode-copy"><strong>{t("home.vedic")}</strong><span className="fortune-mode-description">{t("home.vedicDesc")}</span></span>
     </Link>
    </div>
+   <a className="text-button" href="/fortune/bazi/">{t("home.bazi")} · {t("home.baziDesc")} →</a>
   </section>
   {(list===null||Boolean(latest)||Boolean(error))&&<section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
    {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
