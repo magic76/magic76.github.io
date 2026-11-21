@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -30,7 +31,7 @@ export function TruthNewsPage(){
   finally{setBusy(false)}
  }
  return <main className="crew-news-quiz">
-  <Link to="/games">← {zh?"返回遊戲":"Back to games"}</Link>
+  <Link to="/games"><Arrow direction="left"/> {zh?"返回遊戲":"Back to games"}</Link>
   <span className="kicker">CREW PLAY · REAL OR FICTION?</span>
   <h1>{zh?"新聞真假猜猜看":"Real or made up?"}</h1>
   <p>{zh?"三則新聞只有一則是真的。猜完再查看原始新聞來源。":"Only one of three headlines is real. Guess, then check the sources."}</p>
