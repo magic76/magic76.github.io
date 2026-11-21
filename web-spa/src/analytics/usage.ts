@@ -118,7 +118,18 @@ export function trackUsageEvent(event:UsageEvent,detail:Detail=""){
   }catch{/* Optional local-only state. */}
  }
  if(!allowed())return;
- const key=event+":"+detail,now=Date.now();
+ const now=Date.now();
+ // A Magic page remount is not a new visit. Count at most one entry per
+ // tab every 30 minutes, including remounts and full page reloads.
+ if(event==="magic_enter"){
+  try{
+   const key="crew_usage_magic_enter_at_v1";
+   const previous=Number(sessionStorage.getItem(key));
+   if(previous>0&&now>=previous&&now-previous<30*60_000)return;
+   sessionStorage.setItem(key,String(now));
+  }catch{/* Storage may be unavailable; the normal in-memory guard still applies. */}
+ }
+ const key=event+":"+detail;
  // Protect against React strict-mode effects and accidental rapid duplicate calls.
  const dedupeMs=event.startsWith("home_gift_")?300:2000;
  if(now-(recent.get(key)||0)<dedupeMs)return;
