@@ -228,7 +228,7 @@ export function CrazyCourtPage(){
      <small>{choice(zh,"幽默假設、誇張比喻都能用，但未被證實的事不能冒充物證。","Funny hypotheticals and metaphors are welcome, but invented facts are not evidence.")}</small>
     </div>
     <p className="court-rules">{choice(zh,"四個庭審階段 · 可自由追問和出示證據 · 準備好再進下一階段","Four stages · Debate and file evidence freely · Advance when ready")}</p>
-    {!hasKey?<div className="court-key-notice" role="status"><strong>{choice(zh,"開庭需要 Gemini Key","Gemini Key required")}</strong><p>{choice(zh,"可以先查看案件和選擇角色。請到設定填入 Key，才能和 AI 對手辯論並由 AI 法官判決。","You can preview cases and roles. Add your Gemini Key in Settings to debate and receive an AI verdict.")}</p><Link to="/settings">{choice(zh,"前往設定 Gemini Key →","Set up Gemini Key →")}</Link></div>:null}
+    {!hasKey?<div className="court-key-notice" role="status"><strong>{choice(zh,"開庭需要 Gemini Key","Gemini Key required")}</strong><p>{choice(zh,"可以先查看案件和選擇角色。請到設定填入 Key，才能和 AI 對手辯論並由 AI 法官判決。","You can preview cases and roles. Add your Gemini Key in Settings to debate and receive an AI verdict.")}</p><Link to="/settings">{choice(zh,"前往設定 Gemini Key","Set up Gemini Key")} <Arrow/></Link></div>:null}
     {notice&&phase==="setup"?<p className="court-notice" role="status">{notice}</p>:null}
     <button className="court-primary" type="button" disabled={!hasKey} onClick={openTrial}>{choice(zh,"開庭！","Open court!")} <Arrow/></button>
    </div>
