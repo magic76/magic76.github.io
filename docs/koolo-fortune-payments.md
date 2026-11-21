@@ -11,7 +11,9 @@
 - This is **not** a migration of free/local readings. `crew_fortune_readings_v2` stays local and unchanged.
 
 ## Required deployment step
-1. Apply `migrations/crew-auth/0006_fortune_paid_reports.sql` to the existing D1 database bound to Pages as `CREW_AUTH_DB`. **Do not create a new D1 or replace the login database.**
+1. Apply **only** `migrations/crew-auth/0006_fortune_paid_reports.sql` to the existing D1 database bound to Pages as `CREW_AUTH_DB`. It contains table/index DDL only, and its `IF NOT EXISTS` statements can be safely rerun if the Console partially executed an earlier attempt. **Do not create a new D1 or replace the login database.**
+   - **D1 Console workaround:** Do not paste `CREATE TRIGGER ... BEGIN ... END` together with table statements. The trigger was isolated in `0007_fortune_report_immutable_trigger.sql` because D1 can report `incomplete input: SQLITE_ERROR` when splitting compound trigger SQL. Use `npx wrangler d1 execute <YOUR_EXISTING_DATABASE_NAME> --remote --file=migrations/crew-auth/0007_fortune_report_immutable_trigger.sql` from the repository after confirming the D1 database name; or run the complete trigger **alone** in Console if supported. 0007 is required **before enabling real payments**, but not to display an empty bookshelf. Do not paste the literal placeholder name into Wrangler.
+   - Verify the tables in D1 Console: `SELECT name FROM sqlite_master WHERE type='table' AND name IN ('koolo_fortune_orders','koolo_fortune_reports','koolo_fortune_payment_events') ORDER BY name;` Expect three rows.
 2. Deploy Pages with the existing Functions directory and `/api/fortune/*` in `_routes.json`.
 3. Validate while signed out: `GET https://koolo.app/api/fortune/reports` => 401. While signed in: => 200 `{"items":[]}` until a verified paid report exists. Missing migration or D1 binding must return 503 (not an empty list).
 4. Open `/me` -> **已購買命理報告** -> `/fortune/purchases`; at 360px and 390px card layouts must not overflow.
