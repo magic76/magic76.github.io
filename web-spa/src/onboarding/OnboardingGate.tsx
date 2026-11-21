@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useCallback,useEffect,useRef,useState} from "react";
 import type {ReactNode} from "react";
 import {useNavigate} from "react-router-dom";
@@ -46,7 +47,7 @@ function writeDraft(step:number,goal:Goal){
 
 function Tile({children,selected,onClick}:{children:ReactNode;selected:boolean;onClick:()=>void}){
  return <button type="button" className={"crew-onboarding-tile"+(selected?" is-selected":"")}
-  aria-pressed={selected} onClick={onClick}>{children}<span className="crew-onboarding-tile-check" aria-hidden="true">{selected?"✓":"→"}</span></button>;
+  aria-pressed={selected} onClick={onClick}>{children}<span className="crew-onboarding-tile-check" aria-hidden="true">{selected?"✓":<Arrow/>}</span></button>;
 }
 
 /** Shared first-run experience for browser and official Android WebView shell. */
@@ -182,7 +183,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
     <div className="crew-onboarding-actions">
      {step>0?<button type="button" className="crew-onboarding-back" onClick={back}>{c.back}</button>:null}
      <button type="button" className="crew-onboarding-primary" onClick={()=>step===2?finish(true):next()}>
-      {step===2?firstAction:c.next}<span aria-hidden="true">→</span>
+      {step===2?firstAction:c.next}<Arrow/>
      </button>
     </div>
     <button type="button" className="crew-onboarding-skip crew-onboarding-guide-skip" onClick={()=>finish(false)}>{c.skip}</button>
