@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useCallback,useEffect,useRef,useState,type ReactNode} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -39,7 +40,7 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
  useEffect(()=>{document.body.classList.add("teacher-theme");return()=>document.body.classList.remove("teacher-theme")},[]);
  return <div className="crew-play-page crew-mini-page">
   <header className="crew-play-game-header crew-play-game-header--compact">
-   <Link to="/games" className="crew-play-back">← {t("playHub.allGames")}</Link>
+   <Link to="/games" className="crew-play-back"><Arrow direction="left"/> {t("playHub.allGames")}</Link>
    <span className="crew-play-eyebrow">{t("playHub.eyebrow")}</span>
    <h1>{taboo?t("playHub.games.taboo.title"):kind==="court"?t("playHub.mini.courtTitle"):t("playHub.games.1a2b.title")}</h1>
    <p>{taboo?(geminiKey()?(chinese?t("playHub.mini.tabooDescChinese"):t("playHub.mini.tabooDescEnglish")):t("playHub.mini.tabooDescNoKey")):kind==="court"?t("playHub.mini.courtDesc"):t("playHub.mini.numberDesc")}</p>
