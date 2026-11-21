@@ -1,5 +1,6 @@
 import {useRef,useState} from "react";
 import {Arrow} from "../components/Arrow";
+import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
