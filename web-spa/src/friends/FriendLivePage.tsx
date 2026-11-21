@@ -135,7 +135,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const {ready:voiceRecapReady,messages:voiceRecap}=useVoiceTextRecap(!textMode,"friend:"+friend.id+(shortsPost?":"+shortsPost.id:""),friend.id);
  const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry?friendBeginnerTextStart(language,detectNativeLanguage(locale.language),friendChatMode):"";
  const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
- const separatePlayback=!textMode&&!creatureEmbed
+ // Allow an explicit direct-output comparison for Bluetooth distortion after #804.
+ // Keep the Android element route as default so hardware volume keys remain working.
+ const directAudioOutput=params.get("audioOutput")==="direct";
+ const separatePlayback=!directAudioOutput&&!textMode&&!creatureEmbed
   &&typeof navigator!=="undefined"&&/\bAndroid\b/i.test(navigator.userAgent);
  const live=useLiveSession({
   createPlaybackRoute:separatePlayback?createElementPlayback:undefined,
