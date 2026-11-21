@@ -68,12 +68,12 @@ export function SettingsPage(){
   <Arrow className="crew-settings-orb-arrow"/>
  </Link>}
  {showOverview&&<nav className="crew-settings-nav" aria-label={t("group.navAria")}>
-  <a href="#settings-interface"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{english?"Interface language":"介面語言"}</strong><small>{english?"Change display language":"更改顯示語言"}</small></span><span aria-hidden="true">→</span></a>
-  <a href="#settings-learning"><span className="crew-settings-nav-icon"><Icon name="teacher"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navLearning")}</strong><small>{t("group.learningIntro")}</small></span><span aria-hidden="true">→</span></a>
-  <a href="#settings-voice"><span className="crew-settings-nav-icon"><Icon name="mic"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navVoice")}</strong><small>{t("group.voiceIntro")}</small></span><span aria-hidden="true">→</span></a>
-  <a href="#settings-data"><span className="crew-settings-nav-icon"><Icon name="history"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navMemory")}</strong><small>{t("group.memoryIntro")}</small></span><span aria-hidden="true">→</span></a>
-  <a href="#settings-device"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navDevice")}</strong><small>{t("device.heading")}</small></span><span aria-hidden="true">→</span></a>
-  <a href="#settings-advanced"><span className="crew-settings-nav-icon"><Icon name="sparkles"/></span><span className="crew-settings-nav-copy"><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><span aria-hidden="true">→</span></a>
+  <a href="#settings-interface"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{english?"Interface language":"介面語言"}</strong><small>{english?"Change display language":"更改顯示語言"}</small></span><Arrow/></a>
+  <a href="#settings-learning"><span className="crew-settings-nav-icon"><Icon name="teacher"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navLearning")}</strong><small>{t("group.learningIntro")}</small></span><Arrow/></a>
+  <a href="#settings-voice"><span className="crew-settings-nav-icon"><Icon name="mic"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navVoice")}</strong><small>{t("group.voiceIntro")}</small></span><Arrow/></a>
+  <a href="#settings-data"><span className="crew-settings-nav-icon"><Icon name="history"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navMemory")}</strong><small>{t("group.memoryIntro")}</small></span><Arrow/></a>
+  <a href="#settings-device"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navDevice")}</strong><small>{t("device.heading")}</small></span><Arrow/></a>
+  <a href="#settings-advanced"><span className="crew-settings-nav-icon"><Icon name="sparkles"/></span><span className="crew-settings-nav-copy"><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><Arrow/></a>
  </nav>}
  {!showOverview&&<button type="button" className="crew-settings-back" onClick={backToOverview}>‹ {english?"All settings":"所有設定"}</button>}
  <div className={"crew-settings-content"+(activeCategory?" active-"+activeCategory:"")}>
@@ -106,7 +106,7 @@ export function SettingsPage(){
     </select>
    </label>
   </div>
-  <Link className="crew-settings-quick-link" to="/learn">{t("group.openLearning")} →</Link>
+  <Link className="crew-settings-quick-link" to="/learn">{t("group.openLearning")} <Arrow/></Link>
  </section>
  <section id="settings-interface" className="section panel crew-settings-category crew-settings-interface">
   <div className="section-head"><h2>{english?"Interface & appearance":"介面與外觀"}</h2></div>
@@ -117,12 +117,12 @@ export function SettingsPage(){
   <header className="crew-settings-group-heading"><h2>{t("group.voiceHeading")}</h2>
    <p>{t("group.voiceIntro")}</p>
   </header>
-  <section className="section panel crew-settings-key-link"><p className="meta">{t("group.keyInAccount")}</p><Link className="crew-settings-quick-link" to="/account#settings-gemini">{t("group.manageAi")} →</Link></section>
+  <section className="section panel crew-settings-key-link"><p className="meta">{t("group.keyInAccount")}</p><Link className="crew-settings-quick-link" to="/account#settings-gemini">{t("group.manageAi")} <Arrow/></Link></section>
   <GeminiConnectionPanel section="voice"/>
   <section className="section panel crew-settings-voice-links">
    <h3>{t("group.pronunciationHeading")}</h3>
    <p className="meta">{t("group.pronunciationIntro")}</p>
-   <Link className="crew-settings-quick-link" to="/teacher/pronunciation">{english?"Open pronunciation practice":"開啟發音訓練"} →</Link>
+   <Link className="crew-settings-quick-link" to="/teacher/pronunciation">{english?"Open pronunciation practice":"開啟發音訓練"} <Arrow/></Link>
   </section>
 
 
@@ -145,11 +145,11 @@ export function SettingsPage(){
   <p className="meta" style={{marginTop:14}}>{t("memory.footnote")}</p>
  </section>
  {ready&&!isCrewAndroidShell()&&<section className="section panel"><div className="section-head"><h2>{t("backup.title")}</h2><small>{t("backup.tagline")}</small></div><p className="meta">{t("backup.intro")}</p><div className="actions"><button className="btn secondary" disabled={backupBusy} onClick={async()=>{setBackupBusy(true);setBackupStatus("");try{const r=await downloadBackup();setBackupStatus(t("backup.exportSuccess",{stories:r.stories,keys:r.keys}))}catch(_){setBackupStatus(t("backup.exportError"))}finally{setBackupBusy(false)}}}>{t("backup.export")}</button><label className={"btn secondary"+(backupBusy?" disabled":"")}>{t("backup.import")}<input type="file" accept=".json,application/json" hidden disabled={backupBusy} onChange={async e=>{const file=e.target.files?.[0];e.currentTarget.value="";if(!file)return;setBackupBusy(true);setBackupStatus("");try{const r=await importBackup(file);setBackupStatus(t("backup.importSuccess",{stories:r.stories,entries:r.entries,skipped:r.skipped}))}catch(err){setBackupStatus(t("backup.importError",{reason:err instanceof Error?err.message:t("backup.importFallback")}))}finally{setBackupBusy(false)}}}/></label></div>{backupStatus&&<p className="meta" role="status">{backupStatus}</p>}<p className="meta">{t("backup.footnote")}</p></section>}
- <p className="meta" style={{marginTop:16}}><Link to="/privacy">{t("device.privacy")} →</Link></p>
+ <p className="meta" style={{marginTop:16}}><Link to="/privacy">{t("device.privacy")} <Arrow/></Link></p>
  </div>
  <section id="settings-device" className="section panel crew-settings-category">
   <div className="section-head"><h2>{t("device.heading")}</h2></div>
-  <div className="crew-settings-onboarding-card"><button type="button" className="crew-settings-onboarding-replay" onClick={()=>window.dispatchEvent(new Event(REOPEN_ONBOARDING_EVENT))}>{getOnboardingCopy(i18n.resolvedLanguage||i18n.language).replay} →</button><p className="meta">{getOnboardingCopy(i18n.resolvedLanguage||i18n.language).replayDescription}</p></div>
+  <div className="crew-settings-onboarding-card"><button type="button" className="crew-settings-onboarding-replay" onClick={()=>window.dispatchEvent(new Event(REOPEN_ONBOARDING_EVENT))}>{getOnboardingCopy(i18n.resolvedLanguage||i18n.language).replay} <Arrow/></button><p className="meta">{getOnboardingCopy(i18n.resolvedLanguage||i18n.language).replayDescription}</p></div>
   <p className="meta">{ready&&isCrewAndroidShell()?t("device.android"):t("device.browser")}</p>
   <p className="meta">{t("device.storage")}</p>
   <p className="meta">{t("device.permissions")}</p>
