@@ -1,3 +1,4 @@
+import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -190,7 +191,7 @@ export function WerewolfPage(){
  };
  return <div className="crew-play-page wolf-page">
   <header className="wolf-header">
-   <Link to="/games" className="crew-play-back">← {L(zh,"全部遊戲","All games")}</Link>
+   <Link to="/games" className="crew-play-back"><Arrow direction="left"/> {L(zh,"全部遊戲","All games")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY / SOCIAL DEDUCTION</span>
    <h1>{L(zh,"AI 狼人殺","AI Werewolf")}</h1>
    <p>{L(zh,"1 位真人 + 5 位 AI 朋友。推理、質疑與投票；免 Key 提供文字單機模式。","One human, five AI friends. Bluff, deduce, debate and vote your way to victory.")}</p>
@@ -200,7 +201,7 @@ export function WerewolfPage(){
    <div className="wolf-field"><label htmlFor="wolf-language">{L(zh,"遊戲對話語言","Game language")}</label><select id="wolf-language" value={language} onChange={e=>setLanguage(e.target.value as WolfLanguage)}><option value="zh">繁體中文</option><option value="en">English</option></select></div>
    <div className="wolf-field"><label htmlFor="wolf-role">{L(zh,"你的角色（測試版可指定）","Your role (test edition)")}</label><select id="wolf-role" value={roleChoice} onChange={e=>setRoleChoice(e.target.value as WolfRole|"random")}><option value="random">{L(isZh,"隨機身分 · 推薦","Random · recommended")}</option>{Object.entries(TR).map(([id,r])=><option key={id} value={id}>{r[language]}</option>)}</select></div>
    <div className="wolf-rules"><strong>{L(isZh,"遊戲規則","Rules")}</strong><p>{L(isZh,"黑夜由狼人襲擊、預言家查驗、女巫用藥；白天自由討論後公投。狼人全部出局則村民勝；狼人達到存活人數的一半則狼勝。","At night, the wolf attacks, the seer checks, and the witch can use a potion. Discuss and vote by day. The village wins when the wolf dies; the wolf wins at parity.")}</p></div>
-   <button type="button" className="wolf-primary" onClick={start}>{L(isZh,"開始第一晚","Start night one")} →</button>
+   <button type="button" className="wolf-primary" onClick={start}>{L(isZh,"開始第一晚","Start night one")} <Arrow/></button>
    <p className="wolf-footnote">{L(isZh,"免 Key 是情境台詞的文字單機演練，不具自由理解能力。Gemini Key 才有真正的 AI 角色回應與 Live 語音。","Without a key, text replies are scripted for each situation. Use a Gemini Key for real AI replies and Live voice.")}</p>
   </section>:<div className="wolf-shell">
    <div className={"wolf-world "+(game.phase==="night"?"is-night":game.phase==="finished"?"is-finished":"is-day")}>
