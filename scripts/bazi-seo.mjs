@@ -17,6 +17,68 @@ export const BAZI_STEMS=[
  ["ren-water","壬水","Yang Water","奔流江海","expansive river","視野、流動與探索","perspective, movement and exploration","常以江河大海為喻，象徵整合資訊與開拓視野。","Compared with a great river or sea: movement, breadth and exploration.","水","Water"],
  ["gui-water","癸水","Yin Water","細雨甘露","gentle rain","感受、洞察與滋養","sensitivity, insight and nourishment","像細雨或露水，象徵細膩感受與持續滋養。","Compared with gentle rain: sensitivity, subtle insight and renewal.","水","Water"]
 ];
+const STEM_DETAILS={
+ "jia-wood": [
+  "甲木以陽木比喻直立的樹幹，和乙木偏重靈活延展的意象不同。討論甲木時，常會問：我是否把原則當成無法調整的規則？",
+  "也可觀察自己如何兼顧長期計畫與團隊互動。命盤中的水、火、土、金和季節關係，仍比單一標籤更重要。",
+  "Yang Wood is often pictured as an upright tree, unlike Yin Wood's flexible vines. A useful reflection is whether a strong sense of direction leaves room for adaptation.",
+  "Explore how plans and responsibility interact with relationships. The chart's season and other elements matter more than the stem alone."
+ ],
+ "yi-wood": [
+  "乙木以陰木比喻花草與藤蔓，重點是能隨環境調整生長方式，不代表一定柔弱。可以思考：什麼時候彈性是優點，什麼時候需要明確界線？",
+  "與甲木的大樹比喻不同，乙木強調延伸與相互依靠；但仍須結合日主所在月份及其他干支閱讀。",
+  "Yin Wood evokes vines and plants that adapt to their surroundings; it is not a label for weakness. Ask when adaptability helps and when firmer boundaries are useful.",
+  "Unlike Yang Wood's upright-tree imagery, this stem emphasizes flexibility and connection. Seasonal context and the other pillars still shape any traditional reading."
+ ],
+ "bing-fire": [
+  "丙火的太陽意象偏向公開、照亮與分享，並不是說丙火日主一定外向。可以觀察自己在表達熱情時，是否也留意別人的節奏。",
+  "和丁火的集中燈火相比，丙火常用來討論向外的能量。實際命盤裡火是否得令，以及水、木等元素的作用，都要一起看。",
+  "Yang Fire is likened to sunlight—visible and outward-facing—but does not prove that someone is extroverted. Reflect on how enthusiasm can support others without overwhelming them.",
+  "Compared with Yin Fire's focused lamp, this imagery emphasizes broad illumination. Season and the relationship with Water and Wood still influence the full chart."
+ ],
+ "ding-fire": [
+  "丁火的燈火意象側重在有限範圍內照明，常用來談細節、專心與穩定的熱度。可以思考：我在哪些情境能把注意力用得恰到好處？",
+  "它和丙火的太陽不同，重點不是亮度大小，而是光的使用方式；其他八字元素仍可能帶來不同的傳統象徵。",
+  "Yin Fire resembles a lamp that illuminates a focused area. Consider where careful attention makes the biggest difference, and when it may become overthinking.",
+  "This contrasts with the broader sunlight image of Yang Fire. The full chart—not brightness alone—determines how that symbolism is traditionally framed."
+ ],
+ "wu-earth": [
+  "戊土以山岳和厚土為意象，常用來討論承擔、規模與邊界。可以問自己：我重視的穩定，是讓事情能運作，還是讓改變變得困難？",
+  "相對於己土的耕地意象，戊土更常談結構與支撐，但地支、月令及其他元素不應省略。",
+  "Yang Earth uses mountain imagery to discuss structure and dependable boundaries. Ask whether your preference for stability supports progress or sometimes blocks change.",
+  "Unlike Yin Earth's cultivated-soil metaphor, this image stresses scale and structure. Other pillars and seasonal influences still matter."
+ ],
+ "ji-earth": [
+  "己土像田園土壤，重視整理、滋養與逐步累積的意象。可思考：照顧他人和管理資源時，是否也為自己保留空間？",
+  "與戊土的山岳比喻相比，己土偏向日常培育；但「土」的象徵不能直接推導一個人的健康或收入。",
+  "Yin Earth resembles cultivated soil: attentive growth, routines and nurturing resources. Reflect on how to support others without neglecting your own needs.",
+  "This differs from Yang Earth's mountain metaphor. Earth symbolism cannot by itself predict health, earnings or personal outcomes."
+ ],
+ "geng-metal": [
+  "庚金常以金屬鍛鍊和刀鋒為喻，著重直接處理問題與經過磨練後的成形。可以問：果斷之外，我是否保留調整判斷的餘地？",
+  "與辛金的珠玉相比，庚金的傳統意象更偏向強度與加工過程；仍需要回到四柱整體解讀。",
+  "Yang Metal is often pictured as ore or metal being forged: action, resilience and refinement through effort. Ask how decisiveness can coexist with a willingness to revise judgments.",
+  "Unlike Yin Metal's polished-jewel image, the metaphor focuses on strength and shaping. It is only one piece of a Four Pillars reading."
+ ],
+ "xin-metal": [
+  "辛金以珠玉和精工為喻，常談細節、品味與精準判斷。可思考：追求品質的同時，我是否容許事情先有不完美的版本？",
+  "與庚金的鍛鍊意象相比，辛金更偏向細膩打磨；並不表示辛金日主一定從事藝術或精密工作。",
+  "Yin Metal evokes a polished jewel and careful craftsmanship. Consider when high standards help and when a first imperfect draft is more useful.",
+  "Compared with Yang Metal's forged-metal image, refinement takes center stage; this does not determine a person's profession or talents."
+ ],
+ "ren-water": [
+  "壬水以江河與海洋比喻流動和廣闊視野，常被用來談多方向探索。可以問：資訊很多時，我如何找到真正重要的方向？",
+  "與癸水的細雨意象不同，壬水著重流勢和規模；命盤仍須看季節與水如何和其他元素互動。",
+  "Yang Water suggests rivers and seas, a metaphor for broad perspective and exploration. Reflect on how to prioritize when many paths or sources compete for attention.",
+  "Unlike Yin Water's gentle-rain image, this symbol emphasizes scale and movement. Seasonal strength and other elements remain essential context."
+ ],
+ "gui-water": [
+  "癸水以細雨和露水作比喻，著重細微觀察、耐心與循序累積。可以問：敏銳感受在哪些時刻幫助我理解別人，又何時讓我過度擔心？",
+  "癸水與壬水同屬水，卻以不同尺度描述傳統意象；不能只靠日主就判斷人際關係或運勢。",
+  "Yin Water is pictured as gentle rain or dew, suggesting patient observation and gradual renewal. Ask when sensitivity supports understanding and when it leads to unnecessary worry.",
+  "It shares Water with Yang Water but operates as a different metaphor. A Day Master alone cannot establish relationship patterns or future luck."
+ ]
+};
 const CONCEPTS=[
  {slug:"five-elements",zh:"八字五行怎麼看？木火土金水的生剋與平衡",en:"Five Elements in BaZi: Wood, Fire, Earth, Metal and Water",introZh:"五行不是五種固定性格標籤，而是傳統命理用來描述元素關係、季節力量與互動的語言。",introEn:"The Five Elements are a traditional framework for relationships, seasonality and interaction, not fixed personality labels.",bodyZh:["木、火、土、金、水之間有相生與相剋關係：木生火、火生土、土生金、金生水、水生木；木剋土、土剋水、水剋火、火剋金、金剋木。","八字五行判讀不能只數每個字出現幾次。月令、天干地支、藏干和整體組合都會影響傳統判讀。","所謂缺一種五行不等於一定要補一種元素；需要看整個命盤，不宜只靠單一數字下結論。"],bodyEn:["The generating cycle runs Wood → Fire → Earth → Metal → Water → Wood. The controlling cycle runs Wood → Earth → Water → Fire → Metal → Wood.","BaZi interpretation considers season, heavenly stems, earthly branches and hidden stems. Counting character occurrences alone is incomplete.","An apparently missing element is not automatically something to supplement. The whole chart matters more than a single tally."]},
  {slug:"ten-gods",zh:"八字十神是什麼？比肩、食傷、財官印入門",en:"The Ten Gods in BaZi: A Practical Introduction",introZh:"十神是以日主為基準，依五行生剋及陰陽關係建立的十種相對角色，不是十位神明。",introEn:"The Ten Gods are ten relational categories derived from the Day Master, element interactions and yin-yang polarity—not literal deities.",bodyZh:["十神包括比肩、劫財、食神、傷官、正財、偏財、正官、七殺、正印與偏印。","同一個天干對不同日主可能對應不同十神，因此必須先知道日主，再談十神分布。","十神可用來整理資源、表達、規範及同儕關係等傳統命理主題，但不能直接判定職業、婚姻或財富結果。"],bodyEn:["The ten categories are Friend, Rob Wealth, Eating God, Hurting Officer, Direct Wealth, Indirect Wealth, Direct Officer, Seven Killings, Direct Resource and Indirect Resource.","A stem maps to different Ten Gods depending on the Day Master. Identify the Day Master before interpreting those relationships.","These are symbolic lenses on expression, resources, structure and peers, not deterministic predictions about career, marriage or money."]},
@@ -33,13 +95,14 @@ function pageData(slug,lang){
  if(slug==="bazi")return {title:en?"Free BaZi Chart: Four Pillars and Day Master | Koolo":"免費八字排盤｜四柱、日主、五行與大運｜Koolo",description:en?"Learn what a BaZi Four Pillars chart contains, then use Koolo's birth-chart tool to explore Day Master, elements, Ten Gods and luck cycles.":"認識四柱八字、日主、五行、十神與大運，再到 Koolo 輸入出生資料免費排盤。提供十天干入門與傳統命理知識。",heading:en?"BaZi: understand your Four Pillars":"八字排盤：從四柱認識自己的命盤",intro:en?"BaZi uses birth year, month, day and hour to construct four stem-and-branch pillars. Start by identifying the Day Master, then explore relationships among elements, Ten Gods and time cycles.":"八字依出生年、月、日、時組成四柱。先認識日主，再從五行、十神與時間週期理解傳統命理的觀察方式。",body:en?["Each pillar combines a Heavenly Stem and an Earthly Branch. The day pillar's Heavenly Stem is called the Day Master.","Accurate chart calculations require a birth date and time as well as an applicable timezone and solar-term convention. An unknown hour can limit interpretation.","A single Day Master label is not a complete reading: month season, other pillars and their relationships provide important context."]:["每柱由天干與地支組成，共有年柱、月柱、日柱與時柱。日柱的天干稱為「日主」。","排盤需要出生年月日、時間及時區資訊，部分計算還涉及節氣。若出生時辰未知，解讀會受到限制。","日主只是起點，月令、其他干支與彼此關係也重要，不應只用單一命格標籤概括一個人。"]};
  const stem=BAZI_STEMS.find(s=>slug==="bazi/"+s[0]);
  if(stem){
+  const extra=STEM_DETAILS[stem[0]];
   const name=en?stem[2]:stem[1];
   const element=en?stem[10]:stem[9];
   return {title:en?name+" Day Master Meaning and Traits | Koolo BaZi":stem[1]+"日主是什麼？"+stem[3]+"的命格解析｜Koolo 八字",
    description:en?"Explore the traditional meaning of the "+name+" Day Master ("+stem[4]+"), its "+element+" symbolism, and how to read it in a full Four Pillars chart.":stem[1]+"屬"+element+"，以「"+stem[3]+"」為常見意象。了解"+stem[1]+"日主的象徵、五行關係，以及為何需配合完整八字解讀。",
    heading:en?name+" Day Master":stem[1]+"日主："+stem[3],
    intro:en?stem[8]:stem[7],
-   body:en?["This is the "+(stem[0].startsWith("jia")||stem[0].startsWith("bing")||stem[0].startsWith("wu")||stem[0].startsWith("geng")||stem[0].startsWith("ren")?"yang":"yin")+" expression of "+element+" within the Ten Heavenly Stems.","In traditional BaZi, the Day Master describes one symbolic reference point. Season, supporting elements, and all four pillars modify the interpretation.","The themes often associated with this stem include "+stem[6]+". They are prompts for self-reflection, not a test of a person's personality or fate."]:["在十天干中，"+stem[1]+"屬"+element+"，以"+stem[3]+"描繪其傳統意象。","日主代表八字日柱的天干，並非獨立的性格測驗。月令、四柱與五行互動都會改變實際命盤的判讀。","此日主常被用來討論「"+stem[5]+"」等主題；這是文化象徵，不是對人格或人生結果的確定預測。"]};
+   body:en?["This is the "+(stem[0].startsWith("jia")||stem[0].startsWith("bing")||stem[0].startsWith("wu")||stem[0].startsWith("geng")||stem[0].startsWith("ren")?"yang":"yin")+" expression of "+element+" within the Ten Heavenly Stems.","In traditional BaZi, the Day Master describes one symbolic reference point. Season, supporting elements, and all four pillars modify the interpretation.","The themes often associated with this stem include "+stem[6]+". They are prompts for self-reflection, not a test of a person's personality or fate."].concat(extra.slice(2)):["在十天干中，"+stem[1]+"屬"+element+"，以"+stem[3]+"描繪其傳統意象。","日主代表八字日柱的天干，並非獨立的性格測驗。月令、四柱與五行互動都會改變實際命盤的判讀。","此日主常被用來討論「"+stem[5]+"」等主題；這是文化象徵，不是對人格或人生結果的確定預測。"].concat(extra.slice(0,2))};
  }
  const concept=CONCEPTS.find(c=>slug==="bazi/"+c.slug);
  if(!concept)throw Error("Unknown BaZi SEO slug: "+slug);
