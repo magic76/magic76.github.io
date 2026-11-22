@@ -4,7 +4,7 @@ import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
 import {HomeModeRail,type HomeMode} from "./HomeModeRail";
-import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscript";
+import {readLatestFriendActivity,type FriendActivity} from "../live/sessionTranscript";
 import {PortalParticleField} from "./PortalParticleField";
 import {HomeDiscoveryLine} from "./HomeDiscoveryLine";
 
@@ -44,12 +44,13 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
  const [deepLink,setDeepLink]=useState<ReturnType<typeof readHomeDeepLink>>({tab:null,friend:null,game:null,short:null});
  // A Shorts ID is active only when it matches a post from the validated network feed.
  const selectedPost=deepLink.short?shortsFeed?.posts.find(post=>post.id===deepLink.short)||null:null;
- const [resume,setResume]=useState<FriendResume|null>(null);
+ const [latest,setLatest]=useState<FriendActivity|null>(null);
  const [previewHidden,setPreviewHidden]=useState(false);
- const resumeId=resume&&HOME_FRIEND_IDS.includes(resume.friendId)?resume.friendId:null;
+ const resumeId=latest&&HOME_FRIEND_IDS.includes(latest.friendId)?latest.friendId:null;
  // A valid explicit friend deep link takes priority over someone else's saved chat.
  const canResume=Boolean(resumeId&&!selectedPost&&(!deepLink.friend||deepLink.friend===resumeId));
  const friendId=deepLink.tab==="chat"&&deepLink.friend?deepLink.friend:canResume&&resumeId?resumeId:"zoe";
+ const resume=canResume?latest?.resume:null;
  const friendName=HOME_FRIEND_NAMES[friendId]||"Zoe";
  const questions=selectedPost?shortsPhotoQuestions(selectedPost,(key,detail)=>t("shorts."+key,{detail})):[];
  const shortsDestination=selectedPost?shortsChatUrl(selectedPost,undefined,questions.length?0:undefined):null;
@@ -102,7 +103,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
   const link=readHomeDeepLink(window.location.search);
   setDeepLink(link);
   if(link.tab)setMode(link.tab);
-  setResume(readLatestFriendResume());
+  setLatest(readLatestFriendActivity());
   try{setPreviewHidden(localStorage.getItem(PREVIEW_HIDDEN_KEY)==="1")}catch{/* Optional privacy choice. */}
  },[]);
  // SSR and the first client render both use static frames with chat focused.
@@ -156,7 +157,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
     <span className="crew-portal-kicker" aria-hidden="true">{friendName.toUpperCase()} · AI FRIEND</span>
     <div className="crew-portal-copy">
      <h1>{canResume?t("layout2.resumeTitle",{name:friendName}):t("layout2.title",{name:friendName})}</h1>
-     <p className="crew-portal-description">{canResume?(previewHidden?t("layout2.previewHidden"):t("layout2.previewLabel")+" "+formatResumePreview(resume?.preview||"")):t("layout2.description")}</p>
+     <p className="crew-portal-description">{canResume?(resume?(previewHidden?t("layout2.previewHidden"):t("layout2.previewLabel")+" "+formatResumePreview(resume.preview)):t("showcase29.desktop.resumeDesc")):t("layout2.description")}</p>
     </div>
     <Link className="crew-portal-cta" to={target} data-preparing={preparing} aria-busy={preparing}
      onPointerDown={warmFriendStart} onTouchStart={warmFriendStart} onFocus={warmFriendStart} onMouseEnter={warmFriendStart} onClick={handleLaunch}>
@@ -175,7 +176,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
      </div>
     </div>
     <Link className="crew-portal-layout2-voice" to={"/friend/live?id="+encodeURIComponent(friendId)+"&from=home&entry=bubble"} onClick={()=>trackUsageEvent("home_entry_click","voice")}>{t("layout2.voice")} <Arrow direction="up-right"/></Link>
-    {canResume&&<button type="button" className="crew-portal-layout2-hide" onClick={togglePreview}>{previewHidden?t("layout2.showPreview"):t("layout2.hidePreview")}</button>}
+    {resume&&<button type="button" className="crew-portal-layout2-hide" onClick={togglePreview}>{previewHidden?t("layout2.showPreview"):t("layout2.hidePreview")}</button>}
     <div className="crew-portal-discovery-slot">{mode==="chat"&&!selectedPost&&<HomeDiscoveryLine animate={canAnimate&&!manuallySelected}/>}</div>
    </div>
   </div>
