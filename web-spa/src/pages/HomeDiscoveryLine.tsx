@@ -47,7 +47,7 @@ export function HomeDiscoveryLine({animate}:{animate:boolean}){
    onClick={()=>trackUsageEvent("home_entry_click",item.detail)}>
    <span aria-hidden="true">{visible}</span>
    <span className="crew-portal-discovery-caret" aria-hidden="true">▍</span>
-   <Arrow direction="up-right" className="crew-portal-discovery-arrow"/>
+   <Arrow direction="right" className="crew-portal-discovery-arrow"/>
   </Link>
  </span>;
 }
