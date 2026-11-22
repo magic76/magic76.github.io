@@ -3,7 +3,8 @@ const test=require("node:test"),assert=require("node:assert/strict"),fs=require(
 const {stripTypeScriptTypes}=require("node:module");
 const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(path.join(root,p),"utf8");
-const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
+const route=read("web-spa/src/friends/FriendLivePage.tsx");
 const extract=(name)=>{
  const match=friend.match(new RegExp("const "+name+"=([\\s\\S]*?);"));
  assert.ok(match,"must evaluate the actual FriendLivePage expression: "+name);
@@ -11,9 +12,10 @@ const extract=(name)=>{
 };
 const names=["shortsHook","selectedQuestion","shortsHookText","shortsStarter"];
 const expressions=names.map(name=>`const ${name}=${extract(name)};`).join("\n");
-const first=friend.match(/firstStarter=\{([^}]*)\}/);
-assert.ok(first,"must read the real text chat firstStarter binding");
-const script=new vm.Script(expressions+"\nthis.result={shortsHook,selectedQuestion,shortsHookText,shortsStarter,firstStarter:"+first[1]+"};");
+const first=friend.match(/starters=\{\[gameRoundStarter\([^)]*\),([^\]]+)\]\.filter/);
+assert.ok(first,"must read the real unified Live starter list");
+const firstExpression=first[1].split(",").map(value=>value.trim()).filter(Boolean).join("||");
+const script=new vm.Script(expressions+"\nthis.result={shortsHook,selectedQuestion,shortsHookText,shortsStarter,firstStarter:"+firstExpression+"};");
 const langs=["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"];
 const voice=lang=>JSON.parse(read(`web-spa/src/i18n/locales/${lang}/voice.json`));
 const home=lang=>JSON.parse(read(`web-spa/src/i18n/locales/${lang}/home.json`));
@@ -95,12 +97,12 @@ test("non-Shorts, missing posts and daily/quote/topic entrants never receive the
   assert.equal(result.shortsStarter,undefined);
   assert.equal(result.firstStarter,expected);
  }
- assert.match(friend,/postUnavailable=\{Boolean\(postId&&!lookup\?\.post\)\}/);
- assert.match(friend,/shortsPost=\{postId\?lookup\?\.post\|\|null:null\}/);
+ assert.match(route,/postUnavailable=\{Boolean\(postId&&!lookup\?\.post\)\}/);
+ assert.match(route,/shortsPost=\{postId\?lookup\?\.post\|\|null:null\}/);
  assert.match(friend,/const dailyTopic=!shortsPost&&friend\.id==="zoe"/);
  assert.match(friend,/const selectedQuote=!shortsPost&&friend\.id==="zoe"/);
  assert.match(friend,/const personalChartHash=!shortsPost&&friend\.id==="zoe"/);
- assert.match(friend,/firstStarter=\{shortsStarter\|\|fortuneContinue\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/starters=\{\[gameRoundStarter\(/);
 });
 test("11 voice translations have the same nonblank, interpolation-free, safe post starter key",()=>{
  for(const lang of langs){
@@ -120,7 +122,7 @@ test("starter is opt-in and uses the unchanged verified first-send path",()=>{
  assert.match(panel,/onPick=\{sentence=>void sendMessage\(sentence\)\}/);
  assert.match(panel,/historyReady&&!messages\.length&&!draft\.trim\(\)&&!busy/);
  assert.doesNotMatch(friend,/sendMessage\(shortsStarter\)|setDraft\(shortsStarter\)/);
- assert.match(friend,/starters=\{dailyEntry\?\[t\("dailyFortuneStarters\.goodFor"\),t\("dailyFortuneStarters\.watchOut"\)\]:undefined\}/);
+ assert.match(friend,/starters=\{\[gameRoundStarter\(/);
  assert.match(starters,/friendStarterTopics\(speaker\)\.map\(key=>/);
- assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
+ assert.match(friend,/<FriendUnifiedComposer live=\{live\}/);
 });
