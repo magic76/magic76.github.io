@@ -12,6 +12,8 @@ export function FortunePriceInterest({readingId}:{readingId:string}){
  const zh=/^zh(?:-|$)/i.test(i18n.resolvedLanguage||i18n.language);
  const copy=(z:string,e:string)=>zh?z:e;
  const[interested,setInterested]=useState(false);
+ const[stageReady,setStageReady]=useState(false);
+ useEffect(()=>{const controller=new AbortController();void fetch("/api/fortune/ecpay/test-config",{credentials:"same-origin",cache:"no-store",signal:controller.signal}).then(r=>{if(r.ok&&!controller.signal.aborted)setStageReady(true)}).catch(()=>{});return()=>controller.abort()},[]);
  useEffect(()=>setInterested(savedInterest()),[]);
  const seen=useRef(new Set<string>());
  useEffect(()=>{
@@ -36,6 +38,7 @@ export function FortunePriceInterest({readingId}:{readingId:string}){
     setInterested(true);trackUsageEvent("fortune_price_interest","bazi");
    }}>{copy("我有興趣 · NT$79","I'm interested · NT$79")}</button>}
   <small>{copy("這只是意願調查，不是預購或付款。報告內容與交付方式仍在規劃。","Interest survey only: no purchase, preorder, or payment. Content and delivery are still being planned.")}</small>
+  {stageReady&&<Link className="btn secondary small" to={"/fortune/ecpay/test?history="+encodeURIComponent(readingId)}>{copy("管理員：前往綠界付款測試（不會扣款）","Admin: test ECPay payment (no charge)")}</Link>}
   <Link className="text-button" to="/fortune/purchases">{copy("已買過報告？到我的報告書架","Already purchased? Open your report library")}</Link>
  </section>;
 }
