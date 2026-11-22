@@ -55,7 +55,7 @@ test("Shorts follow-ups require a completed conversation and an actual newer pos
 test("Published Shorts UI offers story questions on home and feed, with server-side whitelist",()=>{
  const feed=load("web-spa/src/teacher/ShortsPage.tsx");
  const home=load("web-spa/src/teacher/HomeShortsPreview.tsx");
- const live=load("web-spa/src/friends/FriendLivePage.tsx");
+ const live=load("web-spa/src/friends/FriendLiveConversation.tsx");
  const voiceOpener=load("web-spa/src/live/VoiceTextRecap.tsx");
  const server=load("functions/api/usage/event.ts");
  for(const source of [feed,home]){
