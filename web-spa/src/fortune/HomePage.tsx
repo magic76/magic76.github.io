@@ -92,6 +92,7 @@ export function FortuneHomePage(){
     </Link>
    </div>
    <a className="text-button" href="/fortune/bazi/">{t("home.bazi")} · {t("home.baziDesc")} <Arrow/></a>
+   <a className="text-button" href="/fortune/numerology/">{t("home.tarot")} · {t("home.tarotDesc")} <Arrow/></a>
   </section>
   {(list===null||Boolean(latest)||Boolean(error))&&<section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
    {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
