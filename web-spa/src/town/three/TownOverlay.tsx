@@ -55,7 +55,7 @@ export function TownOverlay({selected,zh,onClose,onFriend,onPlace}:{
    <Link className="crew-town-3d-action" to={friend?"/friend/live?id="+encodeURIComponent(friend.id):place?.to||"/explore"}
     onClick={()=>{if(friend||place?.to.startsWith("/friend/live"))trackUsageEvent("town_chat_click")}}>
     {friend?(zh?"加入與 "+friend.name+" 的語音聊天":"Join "+friend.name+" in voice chat"):place?(zh?place.ctaZh:place.ctaEn):""}
-    <Arrow direction="up-right"/>
+    <Arrow direction="right"/>
    </Link>
    <small className="crew-town-3d-note">{zh?"小鎮互動為預設情境；語音聊天將進入單人 Gemini Live。":"Town activity is scripted; voice chat opens the existing one-on-one Gemini Live."}</small>
   </div>}

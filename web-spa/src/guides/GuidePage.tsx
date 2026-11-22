@@ -27,7 +27,7 @@ export function GuidePage(){
    <h1>{guide.headline}</h1>
    <p>{guide.intro}</p>
    <div className="crew-guide-actions">
-    <Link className="btn" to={guide.target}>{guide.cta} <Arrow direction="up-right"/></Link>
+    <Link className="btn" to={guide.target}>{guide.cta} <Arrow direction="right"/></Link>
     <Link className="btn secondary" to={guide.secondaryTarget}>{guide.secondary}</Link>
    </div>
    <small className="crew-guide-requirement">{english?
@@ -69,7 +69,7 @@ export function GuidePage(){
    <aside className="crew-guide-aside" aria-label={english?"Other useful guides":"其他指南"}>
     <h2>{english?"Continue exploring":"延伸閱讀"}</h2>
     <div className="crew-guide-related">{related.map(s=><Link key={s} to={url(s)}>
-     <strong>{getGuide(s,locale)?.headline}</strong><Arrow direction="up-right"/>
+     <strong>{getGuide(s,locale)?.headline}</strong><Arrow direction="right"/>
     </Link>)}</div>
    </aside>
   </div>

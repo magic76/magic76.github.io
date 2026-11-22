@@ -226,7 +226,7 @@ export function TeacherFortunePage(){
     </article>)}
    </details>
    <button type="button" className="text-button" onClick={beginNew}>重新建立另一份命盤</button>
-   {!nativeHost&&<Link to={"/fortune/reading?history="+encodeURIComponent(reading.id)} className="text-button">進入 Crew Fortune 完整分析 <Arrow direction="up-right"/></Link>}
+   {!nativeHost&&<Link to={"/fortune/reading?history="+encodeURIComponent(reading.id)} className="text-button">進入 Crew Fortune 完整分析 <Arrow direction="right"/></Link>}
   </div>}
  </section>;
 }

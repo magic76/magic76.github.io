@@ -156,7 +156,7 @@ export function CrewWordGames({
    const visited=asked.find(entry=>entry.id===h.id);
    const label=copy("label" in h?h.label:h.question,english);
    return <button type="button" key={h.id} className={visited?"asked":""} disabled={ended||Boolean(visited)} onClick={()=>ask(h.id)}>
-    <span>{label}</span>{visited?<strong>{visited.answer}</strong>:<Arrow direction="up-right" className="crew-play-question-arrow"/>}
+    <span>{label}</span>{visited?<strong>{visited.answer}</strong>:<Arrow direction="right" className="crew-play-question-arrow"/>}
    </button>;
   })}</div>
  </div>;

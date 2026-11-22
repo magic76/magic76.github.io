@@ -91,17 +91,17 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
     <Link to="/chat" className="kdh-feature kdh-feature-friends" onClick={()=>track("friend")}>
      <span className="kdh-feature-copy"><small>{t("showcase29.badgeFriends")}</small><strong>{t("showcase29.friendsTitle")}</strong><span>{t("showcase29.desktop.friendsDesc")}</span></span>
      <span className="kdh-feature-faces" aria-hidden="true">{FEATURE_FRIENDS.map(id=>{const person=CREW_FRIENDS.find(p=>p.id===id);return person?<img src={person.avatar} width="78" height="94" loading="lazy" decoding="async" alt="" key={id}/>:null})}</span>
-     <Arrow direction="up-right" className="kdh-feature-arrow"/>
+     <Arrow direction="right" className="kdh-feature-arrow"/>
     </Link>
     <Link to={"/games/"+featuredGame} className="kdh-feature kdh-feature-game" onClick={()=>track("play")}>
      <span className="kdh-feature-copy"><small>{t("gamePick.label")}</small><strong>{t("playHub.games."+featuredGame+".title")}</strong><span>{t("showcase29.desktop.gameDesc")}</span></span>
      <span className="kdh-game-art" aria-hidden="true"><b>1</b><b>A</b><b>2</b><b>B</b></span>
-     <Arrow direction="up-right" className="kdh-feature-arrow"/>
+     <Arrow direction="right" className="kdh-feature-arrow"/>
     </Link>
     <Link to="/learn" className="kdh-feature kdh-feature-learn" onClick={()=>track("learn")}>
      <span className="kdh-feature-copy"><small>{t("showcase29.desktop.learnBadge")}</small><strong>{t("showcase29.learnTitle")}</strong><span>{t("showcase29.desktop.learnDesc")}</span></span>
      <img className="kdh-teacher-image" src={oliviaPhoto} width="85" height="110" alt="" loading="lazy" decoding="async"/>
-     <Arrow direction="up-right" className="kdh-feature-arrow"/>
+     <Arrow direction="right" className="kdh-feature-arrow"/>
     </Link>
    </div>
   </section>

@@ -6,7 +6,7 @@ type Props={direction?:ArrowDirection;disabled?:boolean;className?:string;size?:
 const paths:Record<ArrowDirection,string>={
  right:"M4 8h8m-4-4 4 4-4 4",
  left:"M12 8H4m4-4L4 8l4 4",
- "up-right":"M5 11 11 5M6 5h5v5",
+ "up-right":"M4 12 12 4M5 4h7v7",
  down:"M4 6l4 4 4-4",
  up:"M4 10l4-4 4 4"
 };
