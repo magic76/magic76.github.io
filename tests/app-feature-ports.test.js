@@ -544,7 +544,8 @@ test("Story and Fortune use shared global Gemini settings without duplicate Key 
  assert.ok(create.includes('t("create.keyError")'));
  assert.equal(readUiLocale("story").create.keyError,"需要先設定 Gemini Key 才能創作故事。");
  assert.ok(reading.includes('if(!geminiKey()||!window.CrewAI)'));
- assert.ok(readUiLocale("settings").hero.desc.includes("Koolo Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key"));
+ assert.ok(settings.includes('t("gemini.intro")'),"shared-key guidance must be available in advanced settings");
+  assert.ok(readUiLocale("settings").gemini.intro.includes("Koolo Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key"));
  assert.ok(panel.includes("https://aistudio.google.com/apikey"));
  assert.ok(readUiLocale("settings").gemini.privacy.includes("Google 專案管理"));
  assert.ok(!story.includes("aistudio.google.com"),"Story should not have separate Key setup");
