@@ -44,13 +44,13 @@ function data(slug,en){
  const n=NUMEROLOGY_NUMBERS.find(row=>slug==="numerology/"+row[0]);
  if(!n)throw Error("Unrecognized numerology slug "+slug);
  return {
- title:en?"Life Path "+n[0]+" Meaning: "+n[3]+" | Koolo Numerology":"生命靈數 "+n[0]+" 是什麼？"+n[1]+"的意義｜Koolo",
+ title:en?"Life Path "+n[0]+" Meaning: "+n[2]+" | Koolo Numerology":"生命靈數 "+n[0]+" 是什麼？"+n[1]+"的意義｜Koolo",
  description:en?"Learn the traditional life path "+n[0]+" meaning: "+n[3]+" Understand the difference between your life path number and Tarot birth cards.":"生命靈數 "+n[0]+" 的傳統象徵是「"+n[1]+"」。了解生命道路 "+n[0]+" 的含義、反思主題與塔羅出生牌的差異，並免費查自己的數字。",
- heading:en?"Life path number "+n[0]+": "+n[3]:"生命靈數 "+n[0]+"："+n[1],
+ heading:en?"Life path number "+n[0]+": "+n[2]:"生命靈數 "+n[0]+"："+n[1],
  intro:en?n[4]:n[3],
  paragraphs:en?[
  "In Koolo, a life path number of "+n[0]+" arises when the sum of birth-date digits reduces to "+n[0]+", while retaining master numbers 11, 22 and 33 as separate outcomes.",
- "The symbolic themes associated with "+n[0]+" include "+n[3]+". They provide a reflective lens, not evidence that every person with this number shares the same personality.",
+ "The symbolic themes associated with "+n[0]+" include "+n[2].toLowerCase()+". They provide a reflective lens, not evidence that every person with this number shares the same personality.",
  n[6],
  "The Tarot card numbered "+n[0]+" is "+n[8]+", but a life path of "+n[0]+" does not guarantee that "+n[8]+" is your birth card. The calculator derives the card separately from the original digit total.",
  "To interpret your own result, compare the life path with the personality card, soul card and current personal year within the chart."
