@@ -4,6 +4,7 @@
  */
 import {mkdirSync,writeFileSync} from "node:fs";
 import {join} from "node:path";
+import {diagramPath,writeBaziDiagrams,faqFor,relatedFor} from "./bazi-seo-extras.mjs";
 
 export const BAZI_STEMS=[
  ["jia-wood","甲木","Yang Wood","參天大樹","upright tree","成長、原則與方向感","growth, principles and direction","常被比喻為向上生長的大樹，著重長期方向與承擔。","Often compared with a tall tree: steady growth, direction and responsibility.","木","Wood"],
@@ -115,22 +116,41 @@ function pageData(slug,lang){
 }
 function head(slug,lang,d){
  const en=lang==="en",canonical=url(slug,lang),image=ORIGIN+imageFor(slug);
- const structured={"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":canonical+"#webpage",url:canonical,name:d.title,description:d.description,inLanguage:en?"en":"zh-Hant",isPartOf:{"@id":ORIGIN+"/#website"}},{"@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:en?"Home":"首頁",item:ORIGIN+(en?"/en/":"/")},{"@type":"ListItem",position:2,name:en?"BaZi":"八字",item:url("bazi",lang)},{"@type":"ListItem",position:3,name:d.heading,item:canonical}]}]};
+ const structured={"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":canonical+"#webpage",url:canonical,name:d.title,description:d.description,inLanguage:en?"en":"zh-Hant",isPartOf:{"@id":ORIGIN+"/#website"}},{"@type":"BreadcrumbList",itemListElement:slug==="bazi"?[{"@type":"ListItem",position:1,name:en?"Home":"首頁",item:ORIGIN+(en?"/en/":"/")},{"@type":"ListItem",position:2,name:en?"BaZi":"八字",item:canonical}]:[{"@type":"ListItem",position:1,name:en?"Home":"首頁",item:ORIGIN+(en?"/en/":"/")},{"@type":"ListItem",position:2,name:en?"BaZi":"八字",item:url("bazi",lang)},{"@type":"ListItem",position:3,name:d.heading,item:canonical}]}]};
  return '<title>'+esc(d.title)+'</title>\n<meta name="description" content="'+esc(d.description)+'">\n<meta name="robots" content="index,follow">\n<link rel="canonical" href="'+canonical+'">\n<link rel="alternate" hreflang="zh-Hant" href="'+url(slug,"zh")+'">\n<link rel="alternate" hreflang="en" href="'+url(slug,"en")+'">\n<link rel="alternate" hreflang="x-default" href="'+url(slug,"zh")+'">\n<meta property="og:type" content="article">\n<meta property="og:title" content="'+esc(d.title)+'">\n<meta property="og:description" content="'+esc(d.description)+'">\n<meta property="og:url" content="'+canonical+'">\n<meta property="og:locale" content="'+(en?"en_US":"zh_TW")+'">\n<meta property="og:image" content="'+image+'">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:image" content="'+image+'">\n<script type="application/ld+json">'+JSON.stringify(structured).replaceAll("<","\\u003c")+'</script>';
 }
 function render(slug,lang){
- const d=pageData(slug,lang),en=lang==="en",links=BAZI_SEO_SLUGS.filter(x=>x!==slug).map(x=>'<li><a href="'+localePath(x,lang)+'">'+esc(pageData(x,lang).heading)+'</a></li>').join("");
- const paragraphs=d.body.map(p=>'<p>'+esc(p)+'</p>').join("");
- const cta=en?"Start your BaZi chart":"開始免費八字排盤";
- const navTitle=en?"Explore related BaZi topics":"延伸閱讀：八字相關主題";
+ const d=pageData(slug,lang),en=lang==="en";
+ const stem=BAZI_STEMS.find(row=>slug==="bazi/"+row[0]);
+ const related=relatedFor(slug,BAZI_SEO_SLUGS);
+ const links=related.map(other=>'<li><a href="'+localePath(other,lang)+'">'+esc(pageData(other,lang).heading)+'</a></li>').join("");
+ const sections=d.body.map(p=>'<p>'+esc(p)+'</p>').join("");
+ const extraFaq=faqFor(slug,lang,stem).map(({q,a})=>'<details><summary>'+esc(q)+'</summary><p>'+esc(a)+'</p></details>').join("");
+ const label=en?"Start your free BaZi chart":"開始免費八字排盤";
+ const readingHref="/fortune/reading?mode=bazi";
+ const enLocale=en?' onclick="try{localStorage.setItem(\'crew_ui_locale_v1\',\'en\')}catch(e){}"':"";
+ const cta=(location)=>'<a class="cta" href="'+readingHref+'" data-seo-cta="'+location+'"'+enLocale+'>'+label+' →</a>';
+ const diagram=diagramPath(slug),image=diagram||imageFor(slug),heroLabel=en?d.heading+" explanatory illustration":d.heading+"主題示意圖";
+ const lead=en?"Learn the basics, then explore your own chart.":"先了解命理觀念，再探索自己的命盤。";
+ const htmlCss=':root{font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#1d2841;background:#f8f9fd}*{box-sizing:border-box}body{margin:0;line-height:1.75}a{color:#344fa5}header,main,footer{max-width:940px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid #e3e7f0}header a{text-decoration:none;font-weight:650}.brand{font-size:24px;font-weight:850}.lang{display:flex;gap:12px}article{background:white;border:1px solid #e3e7f0;border-radius:22px;padding:clamp(22px,5vw,54px);margin:24px 0}h1{font-size:clamp(28px,5vw,42px);line-height:1.28;letter-spacing:-.025em}h2{font-size:22px;margin-top:32px}.bazi-hero{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;border-radius:16px;background:#f1f4fb;margin:20px 0}p{color:#4c5770}.lead{font-size:18px;color:#303d59}.cta-box{background:#eef3fc;border:1px solid #dae4f5;border-radius:16px;padding:18px 22px;margin:20px 0}.cta-box p{margin:2px 0 10px;font-size:14px}.cta{display:inline-block;background:#253a77;color:white;border-radius:12px;padding:12px 24px;min-height:48px;text-decoration:none;font-weight:750}.cta:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #647ecc;outline-offset:3px}.related ul{columns:1;padding-left:22px}.related li{margin:8px 0}.notice{font-size:13px;background:#f1f4fb;border-radius:12px;padding:12px 16px}.faq details{border-bottom:1px solid #e1e6f1;padding:12px 0}.faq summary{cursor:pointer;font-weight:650}.faq details p{margin:8px 0 0}.reading-steps{padding-left:24px}.reading-steps li{margin:7px 0}footer{font-size:13px;color:#606d81}@media(min-width:750px){.related ul{columns:2}}@media(max-width:600px){header,main,footer{padding:14px}article{padding:20px}h1{font-size:28px}.cta{width:100%;text-align:center}.cta-box{padding:16px}}';
  return '<!doctype html>\n<html lang="'+(en?"en":"zh-Hant")+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+head(slug,lang,d)+
- '<style>:root{font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#1d2841;background:#f8f9fd}*{box-sizing:border-box}body{margin:0;line-height:1.85}a{color:#344fa5}header,main,footer{max-width:940px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid #e3e7f0}header a{text-decoration:none;font-weight:650}.brand{font-size:24px;font-weight:850}.lang{display:flex;gap:12px}article{background:white;border:1px solid #e3e7f0;border-radius:22px;padding:clamp(22px,5vw,54px);margin:24px 0}h1{font-size:clamp(28px,5vw,42px);line-height:1.28;letter-spacing:-.025em}h2{font-size:22px}.bazi-hero{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;border-radius:16px;background:#f1f4fb;margin:20px 0}p{color:#4c5770}.lead{font-size:18px;color:#303d59}.cta{display:inline-block;margin:12px 0;background:#253a77;color:white;border-radius:12px;padding:11px 24px;text-decoration:none;font-weight:750}nav ul{columns:2;column-gap:35px;padding-left:22px}nav li{break-inside:avoid;margin:7px 0}.notice{font-size:13px;background:#f1f4fb;border-radius:12px;padding:12px 16px}footer{font-size:13px;color:#606d81}@media(max-width:600px){nav ul{columns:1}}</style></head><body>'+
+ '<style>'+htmlCss+'</style></head><body>'+
  '<header><a class="brand" href="'+(en?"/en/":"/")+'">Koolo</a><div class="lang"><a href="'+url(slug,"zh")+'" lang="zh-Hant" '+(!en?'aria-current="page"':"")+'>中文</a><a href="'+url(slug,"en")+'" lang="en" '+(en?'aria-current="page"':"")+'>EN</a></div></header>'+
- '<main><article><a href="'+localePath("bazi",lang)+'">'+(en?"BaZi guide":"八字入門")+'</a><h1>'+esc(d.heading)+'</h1><p class="lead">'+esc(d.intro)+'</p><img class="bazi-hero" src="'+imageFor(slug)+'" width="1536" height="864" alt="'+esc(en?d.heading+" BaZi illustration":d.heading+"八字主題插畫")+'" loading="eager" decoding="async"><h2>'+(en?"How to interpret it":"如何理解這個概念")+'</h2>'+paragraphs+
- '<p class="notice">'+disclaimer(lang)+'</p><a class="cta" href="/fortune/reading?mode=bazi">'+cta+'</a><p>'+(en?"The chart requires your own birth details. This guide never publishes personal birth data.":"排盤需自行填寫出生資料；本知識頁不公開任何個人命盤。")+'</p></article>'+
- '<nav aria-label="'+navTitle+'"><h2>'+navTitle+'</h2><ul>'+links+'</ul></nav></main><footer>© Koolo · '+(en?"BaZi cultural learning":"八字文化知識")+'</footer></body></html>';
+ '<main><article><a href="'+localePath("bazi",lang)+'">'+(en?"BaZi guide":"八字入門")+'</a><h1>'+esc(d.heading)+'</h1><p class="lead">'+esc(d.intro)+'</p>'+
+ '<div class="cta-box"><p>'+lead+'</p>'+cta("top")+'</div>'+
+ '<img class="bazi-hero" src="'+image+'" width="1200" height="675" alt="'+esc(heroLabel)+'" loading="eager" decoding="async">'+
+ '<h2>'+(en?"Meaning and context":"傳統含義與判讀重點")+'</h2>'+sections+
+ '<h2>'+(en?"How to start your chart":"如何開始排出自己的八字")+'</h2><ol class="reading-steps">'+
+ (en?'<li>Open the free BaZi chart and enter your birth date and local time.</li><li>Review the Day Master and the four pillars, noting any uncertainty in birth time.</li><li>Explore the five elements and related concepts in context; use AI follow-up questions for reflection.</li>':'<li>開啟免費八字排盤，填入出生年月日、時間與出生地相關資訊。</li><li>查看四柱及日主；若出生時辰不確定，應留意解讀限制。</li><li>從五行與十神關係理解整體命盤，也可以接續向 AI 提問。</li>')+
+ '</ol><section class="faq"><h2>'+(en?"Frequently asked questions":"常見問題")+'</h2>'+extraFaq+'</section>'+
+ '<p class="notice">'+disclaimer(lang)+'</p><div class="cta-box"><p>'+lead+'</p>'+cta("bottom")+'</div>'+
+ '<p>'+(en?"Personal birth details are entered only in the separate chart experience; this public page does not include your chart.":"個人出生資料只在另外的排盤流程輸入；本公開知識頁不包含你的命盤。")+'</p></article>'+
+ '<nav class="related" aria-label="'+(en?"Related BaZi topics":"相關八字主題")+'"><h2>'+(en?"Related reading":"延伸閱讀")+'</h2><ul>'+links+'</ul><a href="'+localePath("bazi",lang)+'">'+(en?"Explore the full BaZi guide":"查看完整八字主題目錄")+'</a></nav></main>'+
+ '<footer>© Koolo · '+(en?"BaZi cultural learning":"八字文化知識")+'</footer>'+
+ '<script>(function(){var c=document.querySelectorAll("[data-seo-cta]");for(var i=0;i<c.length;i++){c[i].addEventListener("click",function(){if(typeof window.gtag==="function")window.gtag("event","fortune_seo_chart_click",{article_slug:"'+slug+'",placement:this.getAttribute("data-seo-cta")});});}})();</script></body></html>';
 }
 export function writeBaziSeoPages(out){
+ writeBaziDiagrams(out);
  for(const slug of BAZI_SEO_SLUGS)for(const lang of ["zh","en"]){
   const target=join(out,(lang==="en"?"en/":"")+"fortune/"+slug+"/index.html");
   mkdirSync(join(target,".."),{recursive:true});
