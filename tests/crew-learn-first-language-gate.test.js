@@ -86,7 +86,7 @@ test("the first-Learn prompt is translated into all 11 UI languages with no miss
  assert.equal(ctx.get("does-not-exist").title,ctx.get("en").title);
 });
 test("selected language flows into Friends; modes and character voice remain independent",()=>{
- const friends=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friends=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const modes=read("web-spa/src/friends/friendLanguage.ts");
  const store=read("web-spa/src/store/teacherStore.ts");
  assert.match(friends,/const language=useTeacherStore\(s=>s\.targetLanguage\)/);
