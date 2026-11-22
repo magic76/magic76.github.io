@@ -74,7 +74,7 @@ test("unified friend page has no old recap, welcome-back, or prior-chat voice co
 });
 
 test("all 11 locale groups are string-only, complete and use matching interpolation",()=>{
- const groups=["ui","resume","byok"],baseline={};
+ const groups=["ui","byok"],baseline={};
  for(const lang of locales){
   const voice=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/voice.json`));
   assert.equal(Object.keys(voice.guestText).length,25,lang+": guest quota keys");

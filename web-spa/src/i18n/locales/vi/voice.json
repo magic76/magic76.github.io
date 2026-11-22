@@ -260,13 +260,6 @@
       "send": "Gửi",
       "notice": "Live dạng chữ và luyện tập miễn phí dùng phiên riêng. Không cần mic."
     },
-    "resume": {
-      "greeting": "Mừng bạn quay lại! Lần trước mình đã nói về “{{excerpt}}”. Nói tiếp nhé?",
-      "continue": "Nói tiếp chuyện cũ",
-      "newTopic": "Nói chuyện mới",
-      "continueMessage": "Mình quay lại rồi! Nói tiếp chuyện lần trước nhé.",
-      "newMessage": "Mình quay lại rồi, hôm nay muốn nói chuyện mới."
-    },
     "byok": {
       "key": "Khóa Gemini không hợp lệ hoặc thiếu quyền truy cập.",
       "quota": "Gemini từ chối yêu cầu Live dạng chữ (429: giới hạn tốc độ hoặc sử dụng). Điều này không nhất thiết có nghĩa khóa API đã hết hạn mức. Hãy thử lại sau hoặc kiểm tra mô hình trong Google AI Studio.",

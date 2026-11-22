@@ -260,13 +260,6 @@
       "send": "Enviar",
       "notice": "El modo Live escrito y la práctica gratis usan sesiones separadas. No hace falta micrófono."
     },
-    "resume": {
-      "greeting": "¡Qué bueno verte de nuevo! La última vez hablamos de «{{excerpt}}». ¿Seguimos?",
-      "continue": "Seguir lo de antes",
-      "newTopic": "Cambiar de tema",
-      "continueMessage": "¡Ya volví! Sigamos donde lo dejamos.",
-      "newMessage": "Volví y hoy quiero hablar de algo nuevo."
-    },
     "byok": {
       "key": "La clave de Gemini no es válida o no tiene permisos.",
       "quota": "Gemini rechazó la solicitud Live de texto (429: límite de frecuencia o uso). No implica necesariamente que tu clave API se haya quedado sin cuota. Inténtalo más tarde o revisa el modelo en Google AI Studio.",

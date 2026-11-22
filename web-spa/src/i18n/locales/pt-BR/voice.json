@@ -260,13 +260,6 @@
       "send": "Enviar",
       "notice": "Live por texto e prática grátis usam sessões separadas. Não é preciso microfone."
     },
-    "resume": {
-      "greeting": "Que bom que voltou! Da última vez falamos de “{{excerpt}}”. Vamos continuar?",
-      "continue": "Continuar o assunto",
-      "newTopic": "Conversar sobre outra coisa",
-      "continueMessage": "Voltei! Vamos continuar de onde paramos.",
-      "newMessage": "Voltei! Hoje quero conversar sobre outra coisa."
-    },
     "byok": {
       "key": "Esta chave Gemini é inválida ou não tem permissão.",
       "quota": "O Gemini recusou esta solicitação Live de texto (429: limite de taxa ou uso). Isso não significa necessariamente que a cota da chave API acabou. Tente mais tarde ou confira o modelo no Google AI Studio.",

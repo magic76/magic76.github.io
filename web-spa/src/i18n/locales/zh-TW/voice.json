@@ -260,13 +260,6 @@
       "send": "送出",
       "notice": "Live 文字對話與免費練習使用各自的連線，無須開啟麥克風。"
     },
-    "resume": {
-      "greeting": "歡迎回來！上次我們聊到「{{excerpt}}」，要接著聊嗎？",
-      "continue": "接著聊上次的",
-      "newTopic": "聊點新的",
-      "continueMessage": "我回來了！我們接著上次的聊吧。",
-      "newMessage": "我回來了，今天想聊點新的。"
-    },
     "byok": {
       "key": "目前的 Gemini Key 無效或沒有存取權限。",
       "quota": "Gemini 暫時拒絕這次 Live 文字請求（429：速率或用量限制）。不代表整把 API Key 的額度已用完；可稍後重試，或查看 Google AI Studio 的模型限制。",

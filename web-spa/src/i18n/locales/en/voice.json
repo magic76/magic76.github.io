@@ -260,13 +260,6 @@
       "send": "Send",
       "notice": "Text-only Live and free practice keep separate sessions. No microphone is used."
     },
-    "resume": {
-      "greeting": "Welcome back! Last time we talked about “{{excerpt}}”. Want to pick up there?",
-      "continue": "Continue last chat",
-      "newTopic": "Talk about something new",
-      "continueMessage": "I’m back! Let’s pick up where we left off.",
-      "newMessage": "I’m back, and I’d like to talk about something new today."
-    },
     "byok": {
       "key": "This Gemini key is invalid or lacks permission.",
       "quota": "Gemini rejected this Live text request (429: rate or usage limit). This does not necessarily mean your API key is out of quota. Try again later or check this model in Google AI Studio.",

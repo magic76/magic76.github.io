@@ -260,13 +260,6 @@
       "send": "Envoyer",
       "notice": "Le mode Live écrit et la pratique gratuite utilisent des sessions distinctes. Aucun micro nécessaire."
     },
-    "resume": {
-      "greeting": "Ravi de te retrouver ! La dernière fois, on parlait de « {{excerpt}} ». On reprend ?",
-      "continue": "Reprendre la discussion",
-      "newTopic": "Parler d’autre chose",
-      "continueMessage": "Me revoilà ! Reprenons là où on en était.",
-      "newMessage": "Je suis de retour et j’aimerais parler d’autre chose aujourd’hui."
-    },
     "byok": {
       "key": "Cette clé Gemini est invalide ou n’a pas les autorisations nécessaires.",
       "quota": "Gemini a refusé cette requête Live écrite (429 : limite de fréquence ou d’usage). Cela ne signifie pas forcément que le quota de votre clé API est épuisé. Réessayez plus tard ou vérifiez le modèle dans Google AI Studio.",
