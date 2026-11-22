@@ -4,81 +4,75 @@ const {stripTypeScriptTypes}=require("node:module");
 const read=p=>fs.readFileSync(path.join(__dirname,"..",p),"utf8");
 const transcript=read("web-spa/src/live/sessionTranscript.ts");
 const panel=read("web-spa/src/live/TextChatPanel.tsx");
-const widget=read("web-spa/src/live/TextChatWelcomeBack.tsx");
-const css=read("web-spa/src/live/TextChatPanel.css");
+const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
 const locales=["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"];
-const store=()=>{const memory=new Map();return{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)}};
+function store(){
+ const data=new Map();
+ return {get length(){return data.size},key:index=>Array.from(data.keys())[index]??null,
+  getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,String(value)),
+  removeItem:key=>data.delete(key)};
+}
 function api(local,tab){
  const scope={localStorage:local,sessionStorage:tab};
  const source=stripTypeScriptTypes(transcript,{mode:"strip"}).replace(/^export /gm,"");
- vm.runInNewContext(source+"\nObject.assign(this,{readReturningFriendResume,returningFriendSystemHint,readSessionTranscript,writeSessionTranscript});",scope);
+ vm.runInNewContext(source+"\nObject.assign(this,{readSessionTranscript,writeSessionTranscript,clearLegacyFriendChats,readLatestFriendActivity,recordFriendActivity,readPendingTextDraft,writePendingTextDraft});",scope);
  return scope;
 }
-function seed(local,minutes=180){
- const at=Date.now()-minutes*60000;
- const messages=[{role:"user",text:"I plan to visit Tokyo and try all the local ramen shops next month, especially a long noodle tour"},{role:"assistant",text:"That sounds fun!"}];
- local.setItem("crew_friend_text_resume_v1",JSON.stringify([{friendId:"zoe",at,messages,preview:"That sounds fun!"}]));
- return messages;
-}
-test("only a sufficiently old, completed device resume triggers a friend greeting",()=>{
- const local=store(),tab=store(),h=api(local,tab),previous=seed(local);
- const visit=h.readReturningFriendResume("friend:zoe");
- assert.equal(typeof visit.excerpt,"string");assert.ok(visit.excerpt.length<=41);
- assert.ok(visit.excerpt.includes("Tokyo"));assert.ok(visit.minutes>=179);
- assert.deepEqual(Array.from(h.readSessionTranscript("friend:zoe"),m=>m.text),previous.map(m=>m.text));
- assert.equal(h.readReturningFriendResume("friend:zoe:daily:hash"),null);
- assert.equal(h.readReturningFriendResume("friend:zoe:shorts-7"),null);
- assert.equal(h.readReturningFriendResume("teacher:zoe"),null);
- assert.equal(h.readReturningFriendResume(""),null);
- assert.equal(h.readReturningFriendResume("friend:ada"),null);
- seed(local,29);assert.equal(h.readReturningFriendResume("friend:zoe"),null);
- seed(local,30);assert.ok(h.readReturningFriendResume("friend:zoe"));
- h.writeSessionTranscript("friend:zoe",previous);
- assert.equal(h.readReturningFriendResume("friend:zoe"),null,"same-tab reload cannot greet again");
+test("legacy friend messages and pending drafts are cleared, but teacher transcripts are preserved",()=>{
+ const local=store(),tab=store(),h=api(local,tab);
+ local.setItem("crew_friend_text_resume_v1",JSON.stringify([{friendId:"zoe",messages:[{role:"user",text:"old"}]}]));
+ local.setItem("crew_friend_last_exchange_v1",JSON.stringify({friendId:"zoe",at:Date.now(),mode:"text"}));
+ tab.setItem("crew_text_transcript_v1:friend:zoe",JSON.stringify([{role:"user",text:"old"}]));
+ tab.setItem("crew_text_transcript_v1:friend:ada:post-1",JSON.stringify([{role:"assistant",text:"secret"}]));
+ tab.setItem("crew_text_pending_v1:friend:zoe",JSON.stringify({text:"old draft",sent:false}));
+ const teacher=[{role:"user",text:"Where is the station?"},{role:"assistant",text:"Straight ahead."}];
+ tab.setItem("crew_text_transcript_v1:teacher:course:daily_u1_l1",JSON.stringify(teacher));
+ tab.setItem("crew_text_pending_v1:teacher:course:daily_u1_l1",JSON.stringify({text:"teacher draft",sent:false}));
+ h.clearLegacyFriendChats(local,tab);
+ for(const key of ["crew_text_transcript_v1:friend:zoe","crew_text_transcript_v1:friend:ada:post-1","crew_text_pending_v1:friend:zoe"])
+  assert.equal(tab.getItem(key),null,key);
+ assert.equal(local.getItem("crew_friend_text_resume_v1"),null);
+ assert.match(local.getItem("crew_friend_last_exchange_v1"),/"zoe"/);
+ assert.deepEqual(Array.from(h.readSessionTranscript("teacher:course:daily_u1_l1"),m=>m.text),teacher.map(m=>m.text));
+ assert.equal(h.readPendingTextDraft("teacher:course:daily_u1_l1").text,"teacher draft");
 });
-test("welcome bubble is UI-only and never persisted or sent as an assistant turn",()=>{
- const local=store(),tab=store(),h=api(local,tab);seed(local);
- const visit=h.readReturningFriendResume("friend:zoe");
- assert.ok(visit);
- const before=local.getItem("crew_friend_text_resume_v1");
- h.writeSessionTranscript("friend:zoe",h.readSessionTranscript("friend:zoe"));
- assert.equal(local.getItem("crew_friend_text_resume_v1"),before);
- assert.doesNotMatch(tab.getItem("crew_text_transcript_v1:friend:zoe"),/Welcome back|歡迎回來/);
- assert.match(widget,/crew-text-chat-message assistant crew-text-return-greeting/);
- assert.match(widget,/t\("textChat\.resume\.greeting",\{excerpt:visit\.excerpt\}\)/);
- assert.doesNotMatch(widget,/dangerouslySetInnerHTML|fetch\(|writeSessionTranscript|saveFriendResume/);
- assert.match(panel,/readReturningFriendResume\(sessionScope\)/);
- assert.match(panel,/readSessionTranscript\(sessionScope\)/);
- assert.match(panel,/writeSessionTranscript\(sessionScope,complete\)/);
- assert.match(panel,/saveFriendResume\(sessionScope,complete\)/);
+test("friend scopes never restore or persist texts even before cleanup",()=>{
+ const local=store(),tab=store(),h=api(local,tab);
+ const prior=[{role:"user",text:"Yesterday"},{role:"assistant",text:"Hello"}];
+ tab.setItem("crew_text_transcript_v1:friend:zoe",JSON.stringify(prior));
+ local.setItem("crew_friend_text_resume_v1",JSON.stringify([{friendId:"zoe",at:Date.now(),messages:prior}]));
+ assert.equal(h.readSessionTranscript("friend:zoe").length,0);
+ assert.equal(h.readSessionTranscript("friend:ada:shorts-1").length,0);
+ h.writeSessionTranscript("friend:zoe",[{role:"user",text:"new"}]);
+ assert.deepEqual(JSON.parse(tab.getItem("crew_text_transcript_v1:friend:zoe")),prior);
+ h.writePendingTextDraft("friend:zoe",{text:"new",sent:false});
+ assert.equal(h.readPendingTextDraft("friend:zoe"),null);
+ assert.equal(tab.getItem("crew_text_pending_v1:friend:zoe"),null);
+ h.writeSessionTranscript("teacher:course:daily_u1_l1",prior);
+ assert.equal(h.readSessionTranscript("teacher:course:daily_u1_l1").length,2);
 });
-test("return actions require a click and use the existing guarded send path",()=>{
- assert.match(widget,/onClick=\{\(\)=>onPick\(t\("textChat\.resume\.continueMessage"\)\)\}/);
- assert.match(widget,/onClick=\{\(\)=>onPick\(t\("textChat\.resume\.newMessage"\)\)\}/);
- assert.match(panel,/onPick=\{message=>void sendMessage\(message\)\}/);
- assert.match(panel,/if\(!value\|\|busy\)return/);
- assert.match(panel,/setReturnChoices\(false\)/);
- assert.match(panel,/if\(value\)\{setNextReplies\(null\);setReturnChoices\(false\)\}/);
- assert.match(panel,/pendingSend\.current=\{before:messages,value,sent:false\}/);
- assert.match(panel,/sendGuestTextWithRenewal\(/);
- assert.match(panel,/const challengeToken=await waitForChallenge\(\)/);
- assert.match(panel,/const key=guestMode\?"":geminiKey\(\)/);
- assert.match(panel,/!returnVisit&&!busy&&!draft\.trim\(\)/);
- assert.match(css,/\.crew-text-return-actions button\{[^}]*min-height:44px/);
- assert.match(css,/\.crew-text-keyboard-open \.crew-text-return-actions\{display:none\}/);
- assert.match(css,/prefers-reduced-motion:reduce/);
+test("homepage deep-link uses only last active friend, never a legacy preview",()=>{
+ const local=store(),tab=store(),h=api(local,tab);
+ const old=[{role:"user",text:"private past"},{role:"assistant",text:"past reply"}];
+ local.setItem("crew_friend_text_resume_v1",JSON.stringify([{friendId:"ada",at:Date.now()+1,messages:old}]));
+ assert.equal(h.readLatestFriendActivity(local),null);
+ h.recordFriendActivity("zoe","text",local);
+ const pointer=h.readLatestFriendActivity(local);
+ assert.equal(pointer.friendId,"zoe");assert.equal(pointer.mode,"text");assert.equal(pointer.resume,null);
+ assert.doesNotMatch(local.getItem("crew_friend_last_exchange_v1"),/private past|past reply/);
 });
-test("RETURNING instruction is short, lives in the system for both routes, and clears on success",()=>{
- const h=api(store(),store());const hint=h.returningFriendSystemHint({at:Date.now()-7200000,minutes:120,excerpt:"ramen"});
- assert.match(hint,/\[RETURNING USER\]/);assert.ok(hint.length<=300,hint.length);
- assert.match(panel,/const returningSystem=system\+\(returnVisit\?"\\n"\+returningFriendSystemHint\(returnVisit\):""\)/);
- assert.match(panel,/new LiveTextConversation\(prior\?returningSystem\+/);
- assert.match(panel,/const guestBase=shortsSystems\?\.guest\?\?\(isFriend\?returningSystem/);
- assert.match(panel,/friendGuestSystem\(guestBase\+easyFriendTextReplyRule\(guestBase,isFriend\)\)/);
- assert.match(panel,/if\(returningHint\)\{setReturnVisit\(null\);liveChat\.current\?\.close\(\);liveChat\.current=null;\}/);
- assert.ok(panel.indexOf("setReturnVisit(null);liveChat.current?.close()")>panel.indexOf("await reveal.finish(reply)"));
- assert.doesNotMatch(widget,/useEffect|sendMessage|autoStarter/);
+test("unified friend page has no old recap, welcome-back, or prior-chat voice context",()=>{
+ assert.match(page,/clearLegacyFriendChats\(\)/);
+ assert.match(page,/buildFriendVoiceOpening\(/);
+ assert.match(page,/<FriendUnifiedComposer live=\{live\}/);
+ assert.match(page,/<FriendChatHistory turns=\{live.turns\}/);
+ assert.doesNotMatch(page,/useVoiceTextRecap|VoiceTextRecap|voiceTextContext|voiceRecapReady|TEXT-TO-VOICE HANDOFF/);
+ assert.doesNotMatch(panel,/readReturningFriendResume|returningFriendSystemHint|TextChatWelcomeBack|saveFriendResume|Previous conversation for continuity/);
+ assert.match(panel,/if\(!isFriend\)writeSessionTranscript\(sessionScope,complete\)/);
+ assert.match(panel,/if\(isFriend\)\{\s*clearLegacyFriendChats\(\)/);
+ assert.ok(Buffer.byteLength(panel)<26000);
 });
+
 test("all 11 locale groups are string-only, complete and use matching interpolation",()=>{
  const groups=["ui","resume","byok"],baseline={};
  for(const lang of locales){
@@ -102,7 +96,7 @@ test("all 11 locale groups are string-only, complete and use matching interpolat
  assert.match(panel,/textChatByokMessage\(category,type,t\)/);
  assert.ok(Buffer.byteLength(panel)<26000);
  assert.ok(Buffer.byteLength(widget)<26000);
- assert.doesNotMatch(panel+widget,/trackUsageEvent\(|trackEvent\(|analytics\.track\(/);
+ assert.doesNotMatch(panel,/trackUsageEvent\(|trackEvent\(|analytics\.track\(/);
 });
 test("daily templates quote full card actions rather than embedding imperatives into grammar",()=>{
  for(const lang of locales){
