@@ -17,7 +17,6 @@ async function owner({request,env,verifyAdmin},method){
  let origin;try{origin=new URL(request.url).origin}catch{return {error:reply({error:"NOT_FOUND"},404)}}
  if(!ORIGINS.has(origin))return {error:reply({error:"NOT_FOUND"},404)};
  if(request.method!==method)return {error:reply({error:"METHOD_NOT_ALLOWED"},405)};
- if(env?.KOOLO_FORTUNE_LAB_ENABLED!=="1")return {error:reply({error:"NOT_FOUND"},404)};
  if(!env?.CREW_AUTH_DB)return {error:reply({error:"UNAVAILABLE"},503)};
  const token=(request.headers.get("Cookie")||"").split(";").map(x=>x.trim())
   .find(x=>x.startsWith(SESSION+"="))?.slice(SESSION.length+1)||"";
