@@ -59,7 +59,7 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
  const togglePreview=()=>{
   const next=!previewHidden;
   setPreviewHidden(next);
-  try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0")}catch{/* optional local preference */}
+  try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0");window.dispatchEvent(new Event("crew-home-preview-visibility-changed"))}catch{/* optional local preference */}
  };
  const track=(detail:Shortcut["event"])=>trackUsageEvent("home_entry_click",detail);
  return <div className="koolo-desktop-home">
