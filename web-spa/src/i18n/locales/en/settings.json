@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Settings",
-    "desc": "Manage learning, voice, and backups here. Your Gemini key is managed under Account. AI features share one key; offline games do not need one."
+    "desc": "Customize your display language, learning preferences, voice features, and saved data."
   },
   "memory": {
     "title": "Memory",
