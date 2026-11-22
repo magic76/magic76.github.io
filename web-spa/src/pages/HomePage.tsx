@@ -16,7 +16,7 @@ import {DesktopHomePage} from "./DesktopHomePage";
 import {DailyTopicCards} from "./DailyTopicCards";
 import {CreatureLabResume,useCreatureLabProgress} from "./CreatureLabResume";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
-import {readLatestFriendResume} from "../live/sessionTranscript";
+import {readLatestFriendActivity} from "../live/sessionTranscript";
 import {readUnfinishedNumberRound} from "../games/unfinishedNumberRound";
 import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "../teacher/shortsFeed";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
@@ -100,12 +100,12 @@ function activities(book:Book|null):Recent[]{
  }catch{/* Local storage may be disabled or stale. */}
  // Completed text threads (not drafts) and unfinished rounds take priority on return visits.
  const returning:Recent[]=[];
- const friend=readLatestFriendResume();
+ const friend=readLatestFriendActivity();
  if(friend){
   const name=friend.friendId.charAt(0).toUpperCase()+friend.friendId.slice(1);
   returning.push({key:"resume-friend:"+friend.friendId,kind:"friend",timestamp:friend.at,
    to:"/friend/live?id="+encodeURIComponent(friend.friendId)+"&from=home&chat=text",
-   title:i18n.t("home:resume.friend",{name}),description:friend.preview?i18n.t("home:resume.lastLine",{name,line:friend.preview}):i18n.t("home:recent.friendDesc")});
+   title:i18n.t("home:resume.friend",{name}),description:friend.resume?.preview?i18n.t("home:resume.lastLine",{name,line:friend.resume.preview}):i18n.t("home:recent.friendDesc")});
  }else{
   const voice=items.find(item=>item.kind==="friend");
   if(voice)returning.push({...voice,title:i18n.t("home:recent.friend")});
