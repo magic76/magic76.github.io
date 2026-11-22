@@ -89,9 +89,10 @@ test("one-turn Crew Friend memory is not blocked by recent-chat duration",async(
  const raw={topics:[{key:"new-puppy",title:"Adopted a puppy",summary:"Learner adopted a puppy named Max",
   followUp:"How is Max?",evidence:"I adopted a puppy named Max"}],memory_updates:{facts:[]}};
  const {learner,localStorage}=learnerSetup(async()=>({ok:true,json:async()=>payload({})}));
+ const recentActivity=[];
  const friends=evaluateFile("web-spa/src/friends/friendMemory.ts",[
   "rememberFriendConversation","getFriendTopics","getFriendCaptureStatus","friendMemoryEnabled","recordFriendChat"
- ],{localStorage,geminiKey:()=>"test-key",fetch:async()=>({ok:true,json:async()=>({
+ ],{localStorage,recordFriendActivity:(id,mode)=>recentActivity.push({id,mode}),geminiKey:()=>"test-key",fetch:async()=>({ok:true,json:async()=>({
   candidates:[{content:{parts:[{text:JSON.stringify(raw)}]}}]
  })}),CREW_FRIENDS:[{id:"zoe"}],normalizeLearningLanguage:learner.normalizeLearningLanguage,
   personalMemoryEnabled:learner.personalMemoryEnabled,getPersonalMemoryEpoch:learner.getPersonalMemoryEpoch,
@@ -102,6 +103,11 @@ test("one-turn Crew Friend memory is not blocked by recent-chat duration",async(
  const turns=[{input:"I adopted a puppy named Max",output:"That's wonderful!"}];
  assert.equal(friends.friendMemoryEnabled(),true);
  assert.equal(friends.recordFriendChat("zoe","英文",turns,1000),false);
+ assert.equal(recentActivity.length,1,"a real but short voice exchange still selects the friend on home");
+ assert.equal(recentActivity[0].id,"zoe");
+ assert.equal(recentActivity[0].mode,"voice");
+ assert.equal(friends.recordFriendChat("zoe","英文",[{input:"",output:"Hello"}],20000),false);
+ assert.equal(recentActivity.length,1,"AI greeting alone must not switch the homepage friend");
  await friends.rememberFriendConversation("zoe","英文",turns,1000);
  assert.equal(friends.getFriendTopics("zoe","英文").length,1);
  assert.equal(friends.getFriendCaptureStatus("zoe","英文"),"saved");
