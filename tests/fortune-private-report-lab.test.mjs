@@ -94,8 +94,15 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  assert.match(guard,/await verifyAdmin\(request,env\)===true/);
  const pagesRoutes=JSON.parse(readFileSync("_routes.json","utf8"));
  assert.ok(pagesRoutes.include.includes("/fortune/report-lab"));
- assert.match(html,/var path="\/api\/fortune\/report-lab",pagePath=location.pathname/);
- assert.match(html,/window\.history\.replaceState\(null,"",pagePath/);
+ const browserJs=readFileSync("assets/js/fortune-report-lab.js","utf8");
+ assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js" defer><\/script>/);
+ assert.doesNotMatch(html,/<script nonce=/);
+ assert.match(r.headers.get("Content-Security-Policy"),/script-src 'self'/);
+ assert.match(html,/id="chartStatus"/);
+ assert.match(html,/id="refreshCharts"/);
+ assert.match(browserJs,/var path="\/api\/fortune\/report-lab",pagePath=location.pathname/);
+ assert.match(browserJs,/window\.history\.replaceState\(null,"",pagePath/);
+ assert.match(browserJs,/selectCharts\(\);/);
  assert.equal((await get({request:request(),env:env(d)})).status,404);
  assert.equal((await page({request:pageRequest({cookie:false}),env:env(d)})).status,401);
  assert.equal((await labPage({request:pageRequest(),env:env(d),verifyAdmin:async()=>false})).status,404);
