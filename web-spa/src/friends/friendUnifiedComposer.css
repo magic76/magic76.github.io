@@ -28,7 +28,7 @@
 .friend-live-page:has(.friend-unified-composer) .friend-phone-captions{flex:1 1 0;min-height:0;overflow-y:auto}
 .friend-live-page:has(.friend-unified-composer) .friend-unified-composer{flex:none}
 @media(max-width:640px){
- .friend-live-page:has(.friend-unified-composer){overflow:hidden}
+ .friend-live-page:has(.friend-phone-stage):has(.friend-unified-composer){overflow:hidden}
  .friend-live-page:has(.friend-unified-composer) .friend-phone-stage{padding:8px 12px 4px;gap:6px}
  .friend-live-page:has(.friend-unified-composer) .friend-phone-stage:focus-within>.live-identity{display:none}
  .friend-live-page:has(.friend-unified-composer) .friend-phone-stage:focus-within>.friend-live-post{display:none}
@@ -42,4 +42,18 @@
 @media(max-width:640px){
  .friend-live-page:has(.friend-unified-composer) .friend-precall-stage{padding:8px 12px 10px}
  .friend-live-page:has(.friend-unified-composer) .friend-precall-stage>.friend-unified-composer{margin-top:auto}
+}
+
+/* The guest/pre-call screen can be taller than 360x640. Keep the composer
+   reachable above the soft keyboard while the gate and preview scroll. */
+@media(max-width:640px){
+ .friend-live-page:has(.friend-unified-composer) .friend-precall-stage{
+  display:flex;flex-direction:column;box-sizing:border-box;min-width:0;min-height:0;
+  height:calc(var(--crew-friend-viewport-height,100dvh) - var(--crew-friend-stage-top,68px));
+  max-height:calc(var(--crew-friend-viewport-height,100dvh) - var(--crew-friend-stage-top,68px));
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;
+ }
+ .friend-live-page:has(.friend-unified-composer) .friend-precall-stage>.friend-unified-composer{
+  position:sticky;bottom:0;z-index:2;background:#000;flex:none;
+ }
 }
