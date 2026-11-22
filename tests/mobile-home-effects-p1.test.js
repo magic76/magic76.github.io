@@ -38,6 +38,7 @@ test("removing the bubble restores the untouched carousel-to-daily layout at 360
  const art=read("web-spa/src/pages/mobileHomeEffects.css");
  const hero=read("web-spa/src/pages/mobileHomeHeroV3.css");
  const css=read("web-spa/src/pages/mobileHome.css");
+ const nav=read("web-spa/src/components/mobileNavigation.css");
  const pager=home.indexOf('className="cmh-carousel-dots"');
  const daily=home.indexOf('<DailyTopicCards variant="mobile"/>');
  assert.ok(pager>=0&&daily>pager,"daily recommendation still follows the carousel");
@@ -50,7 +51,9 @@ test("removing the bubble restores the untouched carousel-to-daily layout at 360
  assert.match(css,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(art,/@media\(prefers-reduced-motion:reduce\)/);
  assert.doesNotMatch(art,/cmh-friend-pop/);
- for(const viewport of [360,390])assert.ok(viewport-36>0);
+ // Keep the original two-row shortcut and five-tab geometry at 360 and 390 widths.
+ assert.match(css,/\.cmh-app\{min-height:76px;gap:4px;padding:6px 3px\}/);
+ assert.match(nav,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
 });
 
 test("motion gates keep battery saver, low-end and reduced-motion experience usable",()=>{
