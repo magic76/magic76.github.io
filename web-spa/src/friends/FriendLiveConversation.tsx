@@ -262,7 +262,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
      learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled}
      speaking={live.state==="speaking"} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled}/>:null}
     <FriendUnifiedComposer live={live} hasKey={!!geminiKey()} focusOnMount={params.get("chat")==="text"}
-     blocked={!voiceRecapReady||dailyLookupPending}
+     blocked={!voiceRecapReady||dailyLookupPending} autoStarter={dailyHandoff&&textFirst?fortuneContinue:undefined}
      starters={[gameRoundStarter(language,friend.name,window.location.search),shortsStarter,fortuneContinue,dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter,...(fortuneReplies||[])].filter((v):v is string=>Boolean(v))}/>
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{active&&live.micEnabled&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
