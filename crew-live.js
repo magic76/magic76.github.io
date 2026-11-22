@@ -638,7 +638,10 @@
           turnComplete:true
         }
       }));
-      if(this.textOnly||this.options.trackTextTurns)this.inputTurn=text;
+      if(this.textOnly||this.options.trackTextTurns){
+        this.inputTurn=text;
+        if(this.options.onInputTranscript)this.options.onInputTranscript(text);
+      }
       if(this.interruptPending)this.interruptInputSeen=true;
       return true;
     }catch(error){
