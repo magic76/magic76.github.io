@@ -1,5 +1,8 @@
 /* Koolo homepage effects P1. Mobile-only, no additional images, canvases or layout shifts.
    Existing hero glow/breathing and Shorts IntersectionObserver remain the source of motion. */
+/* Keep the overlay out of layout on desktop; blinking itself remains mobile-only. */
+.koolo-wordmark-frame{position:relative;display:block;flex:none}
+.koolo-home-blink{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0}
 @media(max-width:767px){
  /* A calm edge-light changes with the active scene without repainting particle layers. */
  .cmh-carousel[data-scene="zoe"]{--cmh-ambient:#d989a7;--cmh-scene-dot:#b87689}
@@ -32,9 +35,6 @@
  .cmh-slide[data-active="true"] .cmh-friend-invite{opacity:1;visibility:visible;pointer-events:auto}
  .cmh-friend-invite:focus-visible{outline:3px solid #fff;outline-offset:2px}
 
- /* The approved wordmark asset is untouched: an aligned eyelid overlay closes both eyes. */
- .koolo-wordmark-frame{position:relative;display:block;flex:none}
- .koolo-home-blink{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0}
 }
 @media(max-width:767px) and (prefers-reduced-motion:no-preference){
  .crew-mobile-home[data-home-motion="on"] .cmh-slide[data-active="true"] .cmh-friend-invite{
