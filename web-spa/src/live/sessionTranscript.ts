@@ -62,7 +62,7 @@ export function readLatestFriendActivity(store?:Pick<Storage,"getItem">):FriendA
    (entry.mode==="voice"||entry.mode==="text");
   if(!valid||!entry)return resume?{friendId:resume.friendId,at:resume.at,mode:"text",resume}:null;
   if(resume&&resume.at>entry.at)return {friendId:resume.friendId,at:resume.at,mode:"text",resume};
-  const currentResume=entry.mode==="text"&&resume?.friendId===entry.friendId&&Math.abs(resume.at-entry.at)<1000?resume:null;
+  const currentResume=entry.mode==="text"&&resume!==null&&resume.friendId===entry.friendId&&typeof entry.at==="number"&&Math.abs(resume.at-entry.at)<1000?resume:null;
   return {friendId:entry.friendId as string,at:entry.at as number,mode:entry.mode as "voice"|"text",resume:currentResume};
  }catch{return null}
 }
