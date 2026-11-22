@@ -36,7 +36,7 @@ test("home entry and session overrides are wired and cannot overwrite saved mode
  const home=fs.readFileSync("web-spa/src/teacher/PracticePage.tsx","utf8");
  const chat=fs.readFileSync("web-spa/src/pages/CrewSectionPage.tsx","utf8");
  const friendCards=fs.readFileSync("web-spa/src/friends/FriendIntentCards.tsx","utf8");
- const friend=fs.readFileSync("web-spa/src/friends/FriendLivePage.tsx","utf8");
+ const friend=fs.readFileSync("web-spa/src/friends/FriendLiveConversation.tsx","utf8");
  const teacher=fs.readFileSync("web-spa/src/teacher/LivePage.tsx","utf8");
  assert.ok(home.includes("intent=continue"));
  assert.ok(chat.includes("<FriendIntentCards/>"));
