@@ -106,7 +106,7 @@ test("only authorized owner can generate; Origin/JSON/content/limit guard run be
  const d=db();
  assert.equal((await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts},requestOrigin:"https://evil.example"}),env:env(d)})).status,403);
  assert.equal((await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts}}),env:env(d,{KOOLO_FORTUNE_LAB_GEMINI_KEY:""})})).status,503);
- assert.equal((await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts:{...facts,dayMaster:"甲"}}),env:env(d)})).status,400);
+ assert.equal((await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts:{...facts,dayMaster:"甲"}}}),env:env(d)})).status,400);
  const limited=await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts}}),env:env(db({insertChanges:0}))});
  assert.equal(limited.status,429);
 });
