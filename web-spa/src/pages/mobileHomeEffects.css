@@ -26,6 +26,8 @@
   opacity:0;visibility:hidden;pointer-events:none;
  }
  .cmh-friends-invite{background:#e8faff;color:#235c71}
+ /* The old static "Talk?" caption is replaced by the accessible invitation. */
+ .cmh-zoe[data-active="true"] .cmh-chat-pop-last{opacity:0}
  .cmh-friend-invite span{flex:none;font-size:12px;color:#d68d66}
  .cmh-slide[data-active="true"] .cmh-friend-invite{opacity:1;visibility:visible;pointer-events:auto}
  .cmh-friend-invite:focus-visible{outline:3px solid #fff;outline-offset:2px}
