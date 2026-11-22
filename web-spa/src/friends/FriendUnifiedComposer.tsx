@@ -10,12 +10,14 @@ type Props={
  focusOnMount:boolean;
  blocked?:boolean;
  starters?:string[];
+ autoStarter?:string;
 };
 
 /** One keyboard for the voice and text-first paths. Both call live.sendText. */
-export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,starters=[]}:Props){
+export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,starters=[],autoStarter}:Props){
  const {t}=useTranslation("voice");
  const inputRef=useRef<HTMLTextAreaElement>(null);
+ const autoSent=useRef(false);
  const [draft,setDraft]=useState("");
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState("");
@@ -56,6 +58,12 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
   catch{setNotice(t("controls.micBlocked"))}
   finally{setMicBusy(false)}
  };
+ // The explicit fortune handoff auto-sends once. Ordinary visitors still decide when to start.
+ useEffect(()=>{
+  if(autoSent.current||!autoStarter?.trim()||blocked||busy||live.turns.length)return;
+  if(!connected&&!hasKey)return;
+  autoSent.current=true;void send(autoStarter);
+ },[autoStarter,blocked,connected,hasKey,busy,live.turns.length]);
  const quick=[...new Set(starters.map(v=>v.trim()).filter(Boolean))].slice(0,2);
  return <div className="friend-unified-composer" data-live-input="unified">
   {quick.length>0&&live.turns.length===0&&<div className="friend-unified-starters" aria-label={t("friendLive.stageAria",{name:""})}>
