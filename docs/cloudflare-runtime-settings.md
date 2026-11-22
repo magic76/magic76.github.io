@@ -25,7 +25,7 @@
 | `KOOLO_FORTUNE_LAB_GEMINI_KEY` | **Secret**／Production runtime | 伺服器端生成私有命書使用的 Gemini Key | 必須填有效 Key，**不要用 `VITE_*`，不要提交至 GitHub** |
 | `KOOLO_FORTUNE_LAB_MODEL` | **Text**／Production runtime，可省略 | 命書使用的 Gemini 文字模型 | 預設 `gemini-2.5-flash`；必要時改成該 Key 可用的文字模型 |
 
-**必要前置**：在既有 `CREW_AUTH_DB` 執行 `migrations/crew-auth/0010_fortune_lab.sql`，再部署 Pages。獨立管理員驗收網址為 `koolo.app/api/fortune/report-lab`，一般使用者沒有導覽入口也無法取得畫面或報告。正式金流與其他報告資料表不受影響。
+**必要前置**：在既有 `CREW_AUTH_DB` 執行 `migrations/crew-auth/0010_fortune_lab.sql`，再部署 Pages。獨立管理員驗收網址為 `koolo.app/fortune/report-lab`，前端報告生成 API 為 `/api/fortune/report-lab`；一般使用者沒有導覽入口也無法取得畫面或報告。正式金流與其他報告資料表不受影響。
 
 詳細說明：`docs/koolo-fortune-private-report-lab.md`。
 
