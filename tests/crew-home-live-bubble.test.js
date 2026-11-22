@@ -37,7 +37,7 @@ test("content entry preserves click analytics, mobile/notice safety and reduced 
  assert.match(css,/body:has\(\.crew-update-notice\) \.crew-home-live-bubble\{display:none\}/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.doesNotMatch(bubble,/setTimeout\(|IntersectionObserver|home_live_bubble_view/);
- const live=read("web-spa/src/friends/FriendLivePage.tsx");
+ const live=read("web-spa/src/friends/FriendLiveConversation.tsx");
  for(const name of ["home_live_bubble_connected","home_live_bubble_conversation"]){
   assert.ok(live.includes('trackUsageEvent("'+name+'"'));
   for(const file of ["web-spa/src/analytics/usage.ts","functions/api/usage/event.ts","web-spa/src/analytics/usageDashboardDefinitions.ts"])
