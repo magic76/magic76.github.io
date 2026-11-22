@@ -34,6 +34,32 @@ Page URL after deployment: `https://koolo.app/fortune/report-lab` (the `/api/for
 6. Reload the lab. Use **已產生的測試命書** to open the account-owned saved snapshot. Visit using another signed-in account: no lab access or snapshot.
 7. Test mobile widths 360 and 390, and 1280 desktop. Mobile pages may grow vertically to prevent text clipping; print uses fixed A4 pages.
 
+## If generation returns HTML instead of JSON
+
+The browser must **not** call `response.json()` blindly. The private lab now
+checks HTTP status, Content-Type and redirects before decoding. A Cloudflare
+HTML response is not a local-chart or D1 migration problem.
+
+- **HTTP 200 + HTML:** the POST likely reached static SPA HTML rather than
+  `functions/api/fortune/report-lab.js`, or an edge rewrite served a page.
+  Check the Production deployment, route, and Cloudflare Rules.
+- **HTTP 401/403 or redirect:** verify the existing Koolo login and the same
+  Google-verified/Cloudflare Access policy used by `/usage`; a redirect to
+  Access login does not produce API JSON.
+- **HTTP 5xx + HTML:** inspect Cloudflare Workers & Pages > Pages project >
+  Observability > Logs / real-time logs for a Function exception or edge
+  timeout. Synchronous Gemini generation is now bounded to 65 seconds and
+  returns a JSON `AI_TIMEOUT` (HTTP 504) when the upstream fetch is aborted.
+- **HTTP 502 JSON `GEMINI_UPSTREAM_...` / `QUALITY_CHECK_FAILED`:** the
+  Pages Function did execute; verify AI model availability and quality guards.
+- The private lab JavaScript now has a version query and `no-store` cache
+  rule so installed PWAs load diagnostics promptly. Do not paste tokens, full
+  requests, birth data or Gemini keys into issue logs.
+
+Changing the SQL or Gemini key cannot fix an edge rewrite that returns HTML.
+If the error persists, record only the displayed HTTP status and error
+category so the next diagnosis can target the appropriate layer.
+
 ## Constraints / open risks before charging customers
 
 - Chart details originate from the **existing client-side BaZi calculator**. The server validates their shape, that day master matches the pillars, counts, current 3-year timeline, and allowed fields — but **does not independently recompute the true BaZi**. Do not reuse this as paid-order proof.
