@@ -16,6 +16,7 @@ test("BaZi offers both planned prices without activating public checkout",()=>{
  assert.match(component,/fortune_price_view/);
  assert.match(component,/fortune_price_interest/);
  assert.match(component,/\/fortune\/report-sample/);
+ assert.match(component,/encodeURIComponent\(readingId\)/);
  assert.match(app,/path="report-sample" element=\{<FortuneReportSamplePage\/>\}/);
  // The owner-only sandbox remains accessible, but the plan cards must not create paid orders.
  assert.match(component,/\/fortune\/ecpay\/test\?history=/);
@@ -30,6 +31,9 @@ test("premium sample contains a clearly fictional editorial preview and no paid-
  const sample=read("web-spa/src/fortune/FortuneReportSamplePage.tsx");
  const css=read("web-spa/src/fortune/fortuneReportSample.css");
  assert.match(sample,/虛構示範/);
+ assert.match(sample,/useSearchParams/);
+ assert.match(sample,/\/fortune\/reading\?history=/);
+ assert.match(sample,/to=\{backTo\}/);
  assert.match(sample,/NT\$379/);
  assert.match(sample,/五行/);
  assert.match(sample,/老師給你的話/);
