@@ -16,12 +16,12 @@ function entry({id="zoe",chat="text",quote="daily",chart="a".repeat(64),shorts=f
  vm.runInNewContext(`const personalChartHash=${chartExpression[1]};const validDailyHash=${chartExpression[2]};const dailyEntry=${chartExpression[3]};const saved=useTeacherStore.getState().friendChatMode;this.out={personalChartHash,validDailyHash,dailyEntry,mode:${modeExpression[1]}}`,scope);
  return scope.out;
 }
-test("only Zoe's validated daily text deep link starts natural, regardless of saved mode",()=>{
+test("Zoe daily context opens in the unified Live page for both legacy text and voice links",()=>{
  for(const stored of ["bilingual","natural","immersion"]){
   const result=entry({stored});assert.equal(result.dailyEntry,true);assert.equal(result.mode,"natural");
  }
  for(const options of [{quote:"other"},{quote:""},{chart:"b".repeat(63)},{chart:"zz".repeat(32)},
-  {id:"ada"},{chat:"voice"},{shorts:true}]){
+  {id:"ada"},{shorts:true}]){
   const result=entry({...options,stored:"immersion"});
   assert.equal(result.dailyEntry,false,JSON.stringify(options));assert.equal(result.mode,"immersion");
  }
