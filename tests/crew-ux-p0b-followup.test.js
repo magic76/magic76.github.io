@@ -28,8 +28,8 @@ test("DAILY_LIMIT means shared capacity full, not personal consumption",()=>{
   "microphone denial says retry microphone permission rather than reverify");
  assert.doesNotMatch(render,/phase==="full"&&<button/);
  assert.match(src,/data\.seconds!==300/);
- assert.match(src.slice(src.indexOf("async function begin()")),/getUserMedia\(\{audio:true\}\)/);
- assert.match(src.slice(src.indexOf("callback:token=>"),src.indexOf("async function begin()")),/void ensureLive\(\)\.catch/);
+ assert.match(src.slice(src.indexOf("async function begin(textOnly=false)")),/getUserMedia\(\{audio:true\}\)/);
+ assert.match(src.slice(src.indexOf("callback:token=>"),src.indexOf("async function begin(textOnly=false)")),/void ensureLive\(\)\.catch/);
 });
 
 test("members receive account quota copy; anonymous users get device copy",()=>{
