@@ -135,7 +135,7 @@ test("quote starter is allowlisted, same-language, opt-in and Shorts retains pri
  assert.match(friend,/dailyLookupPending/);
  assert.match(friend,/dailyFortune\?"\\n"\+dailyFortune.context/);
  assert.match(friend,/dailyFortune\?"\\n"\+dailyFortune\.context/);
- assert.match(friend,/Promise.all\(\[import\("..\/pages\/personalDailyLine"\),import\("..\/pages\/dailyFortuneReader"\)\]\)/);
+ assert.match(read("web-spa/src/friends/useFriendDailyFortuneContext.ts"),/Promise.all\(\[import\("..\/pages\/personalDailyLine"\),import\("..\/pages\/dailyFortuneReader"\)\]\)/);
  assert.doesNotMatch(friend,/personalQuoteStarter/);
  assert.doesNotMatch(friend,/setDraft\(dailyQuoteStarter\)|sendMessage\(dailyQuoteStarter\)/);
 });
