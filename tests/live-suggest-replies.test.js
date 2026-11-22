@@ -27,7 +27,7 @@ test("rejects invalid arguments",()=>{
  assert.deepEqual(parseSuggestedReplies({replies:{}}),[]);
 });
 test("friend voice generates text hints only after valid completed output",()=>{
- const page=readFileSync("web-spa/src/friends/FriendLivePage.tsx","utf8");
+ const page=readFileSync("web-spa/src/friends/FriendLiveConversation.tsx","utf8");
  assert.match(page,/if\(_turn\.hasValidOutput\)replyHints\.generate\(completedTurns\)/);
  assert.match(page,/onInputSpeech:replyHints\.onInputSpeech/);
  assert.doesNotMatch(page,/tools:replyHints\.tools|onToolCall:replyHints\.onToolCall|replyHints\.prompt|onMissingReplyHints/);
@@ -66,7 +66,7 @@ test("text generation is isolated from Live and failures are silent",()=>{
 test("latest suggestions are nested inside the AI bubble and transcript remains scrollable",()=>{
  const bubbles=readFileSync("web-spa/src/friends/FriendCallBubbleList.tsx","utf8");
  const css=readFileSync("web-spa/src/friends/friendCallBubbles.css","utf8");
- const page=readFileSync("web-spa/src/friends/FriendLivePage.tsx","utf8");
+ const page=readFileSync("web-spa/src/friends/FriendLiveConversation.tsx","utf8");
  const hook=readFileSync("web-spa/src/live/useSuggestedReplies.ts","utf8");
  const menu=readFileSync("web-spa/src/friends/FriendCallMenuPreferences.tsx","utf8");
  assert.match(bubbles,/friend-bubble-suggestions/);
@@ -85,7 +85,7 @@ test("latest suggestions are nested inside the AI bubble and transcript remains 
 
 test("two generations retain only the latest group; new speech clears old hints",()=>{
  const hook=readFileSync("web-spa/src/live/useSuggestedReplies.ts","utf8");
- const page=readFileSync("web-spa/src/friends/FriendLivePage.tsx","utf8");
+ const page=readFileSync("web-spa/src/friends/FriendLiveConversation.tsx","utf8");
  assert.match(hook,/setGroups\(\[next\]\)/);
  assert.doesNotMatch(hook,/appendReplyGroup/);
  assert.match(hook,/const onInputSpeech=useCallback\(\(\)=>\{clear\(\)\}/);
