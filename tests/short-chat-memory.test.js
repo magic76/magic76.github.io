@@ -112,22 +112,19 @@ test("Web report respects default-on consent for personal facts",()=>{
  assert.ok(source.includes("facts:[{key,detail,explicit,evidence}]"));
 });
 
-test("Teacher and Friend text mode bypasses microphone auto-start and uses text-only Gemini",()=>{
+test("Teacher text mode remains unchanged; friend keyboard uses the same Live session without requiring microphone",()=>{
  const fs=require("node:fs"),path=require("node:path");
  const root=path.resolve(__dirname,"..");
- const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLiveConversation.tsx"),"utf8");
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
- const panel=fs.readFileSync(path.join(root,"web-spa/src/live/TextChatPanel.tsx"),"utf8");
- for(const source of [friend,teacher]){
-  assert.match(source,/\btextMode\b/);
-  if(source===friend){
-   assert.match(source,/if\(textMode\|\|!geminiKey\(\)\|\|shortsPost\)return;const timer=/);
-  }else assert.match(source,/if\(textMode\|\|!geminiKey\(\)\)return;const timer=/);
-  assert.match(source,/<TextChatPanel/);
-  assert.match(source,/live\.stop\(true\)\.finally/);
- }
- assert.match(panel,/new LiveTextConversation\(prior\?returningSystem\+[\s\S]*?\+prior:returningSystem,\s*searchEnabled/);
- assert.doesNotMatch(panel,/getUserMedia\(/);
- const adapter=fs.readFileSync(path.join(root,"web-spa/src/live/liveTextChat.ts"),"utf8");
- assert.match(adapter,/textOnly:true/);
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const composer=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendUnifiedComposer.tsx"),"utf8");
+ assert.match(teacher,/\btextMode\b/);
+ assert.match(teacher,/<TextChatPanel/);
+ assert.match(friend,/const textFirst=params\.get\("chat"\)==="text"/);
+ assert.doesNotMatch(friend,/<TextChatPanel/);
+ assert.match(friend,/<FriendUnifiedComposer live=\{live\}/);
+ assert.match(hook,/textOnly:textOnly&&configRef\.current\.sessionKind==="friend"/);
+ assert.match(composer,/live\.start\(undefined,true\)/);
+ assert.doesNotMatch(composer,/getUserMedia\(/);
 });
