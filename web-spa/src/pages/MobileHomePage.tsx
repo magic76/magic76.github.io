@@ -135,10 +135,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
        <span className="cmh-chat-pop cmh-chat-pop-last">{t("showcase29.bubble")} <span aria-hidden="true">♥</span></span>
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
-      <Link to={textDestination} tabIndex={activeSlide===0?0:-1} className="cmh-friend-invite cmh-zoe-invite"
-       aria-label={friendResume?t("layout2.resumeAction"):t("showcase29.textZoe")} onClick={()=>trackUsageEvent("home_entry_click","friend")}>
-       <span aria-hidden="true">✦</span> {friendResume?t("layout2.resumeAction"):t("showcase29.bubble")}
-      </Link>
       <div className="cmh-zoe-actions">
        <Link to={textDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.textZoe")}</Link>
        <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{t("showcase29.voice")}</Link>
@@ -162,10 +158,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
         </div>)}
        <span className="cmh-art-sparkle cmh-friend-star">✳</span>
       </div>
-      <Link to="/friend/live?id=noah&from=home&chat=text" tabIndex={activeSlide===1?0:-1}
-       className="cmh-friend-invite cmh-friends-invite" onClick={()=>trackUsageEvent("home_entry_click","friend")}>
-       <span aria-hidden="true">✦</span> {t("showcase29.chatNoah")}
-      </Link>
       <div className="cmh-zoe-actions">
        <Link to="/friend/live?id=noah&from=home&chat=text" tabIndex={activeSlide===1?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.chatNoah")}</Link>
        <Link to="/teacher/roles?mode=friends" tabIndex={activeSlide===1?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","friend")}>{t("showcase29.allFriends")}</Link>
@@ -222,6 +214,15 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
      aria-label={t("showcase29.slideGo",{number:index+1,label:slide==="zoe"&&resumeFriend?t("layout2.resumeTitle",{name:resumeFriend.name}):t("showcase29.slide"+slide[0].toUpperCase()+slide.slice(1))})}
      onClick={()=>manualSlide(index)}><span aria-hidden="true"/></button>)}
    </div>
+   {/* Keep the 44px invitation in the existing pager row, outside the clipped portrait
+       and above neither CTA. Slide 2 already has a Noah chat CTA. */}
+   <Link to={textDestination} tabIndex={activeSlide===0?0:-1}
+    aria-hidden={activeSlide!==0} data-active={activeSlide===0}
+    className="cmh-friend-invite cmh-zoe-invite"
+    aria-label={friendResume?t("layout2.resumeAction"):t("showcase29.textZoe")}
+    onClick={()=>trackUsageEvent("home_entry_click","friend")}>
+    <span aria-hidden="true">✦</span><span className="cmh-friend-invite-text">{t("showcase29.bubble")}</span>
+   </Link>
   </div>
   <DailyTopicCards variant="mobile"/>
   <section className="cmh-apps" aria-labelledby="cmh-apps-title">
