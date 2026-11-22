@@ -1,10 +1,12 @@
 /** Same-tab drafts; completed friend conversations also get an explicitly device-local resume copy. */
 const PREFIX="crew_text_transcript_v1:";
 const RESUME_KEY="crew_friend_text_resume_v1";
+const LAST_FRIEND_KEY="crew_friend_last_exchange_v1";
 type StoredMessage={role:"user"|"assistant";text:string};
 type SessionStore=Pick<Storage,"getItem"|"setItem">;
 type ClearableSessionStore=SessionStore&Pick<Storage,"removeItem">;
 export type FriendResume={friendId:string;at:number;messages:StoredMessage[];preview:string};
+export type FriendActivity={friendId:string;at:number;mode:"voice"|"text";resume:FriendResume|null};
 const cleanMessages=(value:unknown,maxText=15000):StoredMessage[]=>Array.isArray(value)?value.filter((m):m is StoredMessage=>
  (m?.role==="user"||m?.role==="assistant")&&typeof m.text==="string"&&m.text.trim().length>0
 ).slice(-40).map(m=>({role:m.role,text:m.text.slice(0,maxText)})):[];
@@ -36,10 +38,33 @@ export function saveFriendResume(scope:string,messages:StoredMessage[],store?:Se
   const at=Date.now();
   const next=[{friendId,at,messages:compact,preview:""},...savedResumes(target).filter(v=>v.friendId!==friendId)].slice(0,6);
   target.setItem(RESUME_KEY,JSON.stringify(next));
+  recordFriendActivity(friendId,"text",target);
  }catch{/* Storage denied/quota full: keep in-tab transcript without blocking chat. */}
 }
 export function readLatestFriendResume(store?:Pick<Storage,"getItem">):FriendResume|null{
  try{return savedResumes(store||localStorage).sort((a,b)=>b.at-a.at)[0]||null}catch{return null}
+}
+/** A private, device-local pointer only. Never write voice transcripts, drafts or message text here. */
+export function recordFriendActivity(friendId:string,mode:"voice"|"text",store?:SessionStore){
+ if(!/^[a-z0-9-]{1,32}$/.test(friendId))return;
+ try{(store||localStorage).setItem(LAST_FRIEND_KEY,JSON.stringify({friendId,mode,at:Date.now()}))}
+ catch{/* Storage is optional. */}
+}
+/** Compare the most recent real exchange, not merely the last friend page opened. */
+export function readLatestFriendActivity(store?:Pick<Storage,"getItem">):FriendActivity|null{
+ try{
+  const target=store||localStorage;
+  const resume=readLatestFriendResume(target);
+  const raw:unknown=JSON.parse(target.getItem(LAST_FRIEND_KEY)||"null");
+  const entry=raw&&typeof raw==="object"?raw as {friendId?:unknown;at?:unknown;mode?:unknown}:null;
+  const valid=entry&&typeof entry.friendId==="string"&&/^[a-z0-9-]{1,32}$/.test(entry.friendId)&&
+   typeof entry.at==="number"&&Number.isFinite(entry.at)&&entry.at>0&&entry.at<=Date.now()+300000&&
+   (entry.mode==="voice"||entry.mode==="text");
+  if(!valid||!entry)return resume?{friendId:resume.friendId,at:resume.at,mode:"text",resume}:null;
+  if(resume&&resume.at>entry.at)return {friendId:resume.friendId,at:resume.at,mode:"text",resume};
+  const currentResume=entry.mode==="text"&&resume?.friendId===entry.friendId&&Math.abs(resume.at-entry.at)<1000?resume:null;
+  return {friendId:entry.friendId as string,at:entry.at as number,mode:entry.mode as "voice"|"text",resume:currentResume};
+ }catch{return null}
 }
 export function readSessionTranscript(scope:string,store?:SessionStore):StoredMessage[]{
  if(!scope)return [];
