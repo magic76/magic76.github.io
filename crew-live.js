@@ -305,6 +305,7 @@
       self.setMicMuted(false);
       await self._requestWakeLock();
       self._state("ready");
+      self._startCapture();
       self._status("麥克風已開啟，可以繼續說話");
     })().catch(async function(error){
       if(self.textOnly)await self._cleanupMedia();
