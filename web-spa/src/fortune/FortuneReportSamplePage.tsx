@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import "./fortuneReportSample.css";
 
@@ -6,6 +6,9 @@ export function FortuneReportSamplePage(){
  const {i18n}=useTranslation();
  const zh=/^zh(?:-|$)/i.test(i18n.resolvedLanguage||i18n.language);
  const copy=(z:string,e:string)=>zh?z:e;
+ const [searchParams]=useSearchParams();
+ const historyId=searchParams.get("history");
+ const backTo=historyId&&/^reading_\d+$/.test(historyId)?"/fortune/reading?history="+encodeURIComponent(historyId):"/fortune/reading?mode=bazi";
  const chapters=[
   [copy("01 · 命格底色","01 · Your core pattern"),copy("從命盤理解你的特質、優勢，以及在壓力下容易重複的選擇。","Understand your strengths, tendencies, and recurring patterns under stress.")],
   [copy("02 · 五行與人生節奏","02 · The five elements"),copy("用清楚的視覺圖解，帶你看懂五行之間的互動與平衡。","A clear visual guide to the interaction and balance of the five elements.")],
@@ -16,7 +19,7 @@ export function FortuneReportSamplePage(){
  ];
  return <main className="fortune-sample">
   <nav className="fortune-sample-nav" aria-label={copy("命書導覽","Report navigation")}>
-   <Link to="/fortune/reading?mode=bazi">{copy("‹ 返回命理","‹ Back to fortune")}</Link>
+   <Link to={backTo}>{copy("‹ 返回命理","‹ Back to fortune")}</Link>
    <span>{copy("專屬命書 · 示範樣本","Personal destiny book · Sample")}</span>
   </nav>
   <header className="fortune-sample-intro">
@@ -63,7 +66,7 @@ export function FortuneReportSamplePage(){
   <footer className="fortune-sample-footer">
    <strong>{copy("NT$379 · 專屬命書","NT$379 · Personal destiny book")}</strong>
    <p>{copy("目前為樣本展示，尚未開放購買。正式推出時會說明內容、交付時間與 PDF 下載方式。所有解讀皆由 AI 生成，供自我探索與娛樂參考。","Preview only; purchasing is not available. Final scope, delivery time and PDF availability will be confirmed before launch. Readings are AI-generated for reflection and entertainment.")}</p>
-   <Link className="fortune-sample-back" to="/fortune/reading?mode=bazi">{copy("回到命盤與方案介紹","Back to your chart and plans")}</Link>
+   <Link className="fortune-sample-back" to={backTo}>{copy("回到命盤與方案介紹","Back to your chart and plans")}</Link>
   </footer>
  </main>;
 }
