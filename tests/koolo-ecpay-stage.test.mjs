@@ -90,7 +90,7 @@ test("order creation validates CSRF, input, sandbox destination and account owne
  assert.equal(CheckMacValue,await ecpayCheckMac(payload));
  assert.equal(s.orders.size,1);
  assert.equal([...s.orders.values()][0].state,"pending");
- const other={...s.env,CREW_AUTH_DB:setup({userId:"u2",allowed:"u2"}).db};
+ const other=setup({userId:"u2",allowed:"u2"}).env;
  assert.equal((await stageOrderStatus({request:request("/api/fortune/ecpay/test-status?id="+data.orderId),env:other})).status,404);
 });
 test("ECPay forged callbacks, wrong amount, unapproved simulation and failure cannot grant sample report",async()=>{
