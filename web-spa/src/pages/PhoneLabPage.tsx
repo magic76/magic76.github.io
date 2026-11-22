@@ -59,7 +59,7 @@ export function PhoneLabPage(){
    <span className="cpl-hero-chip"><i/>{label("Zoe 正在等你","Zoe is here")}</span>
    <h1>{label("一起聊聊吧！","Let's chat!")}</h1>
    <p>{label("不用先認識所有功能，從一句話開始就好。","No need to learn every feature. Start with hello.")}</p>
-   <Link className="cpl-hero-cta" to={ZOE_TEXT}>{label("打字和 Zoe 開聊","Text Zoe")} <Arrow direction="up-right"/></Link>
+   <Link className="cpl-hero-cta" to={ZOE_TEXT}>{label("打字和 Zoe 開聊","Text Zoe")} <Arrow direction="right"/></Link>
    <img className="cpl-zoe" src={zoePhoto} alt="Zoe" width="94" height="112"/>
   </section>
   <div className="cpl-section-title"><h2>{label("想玩什麼？","What sounds fun?")}</h2></div>
