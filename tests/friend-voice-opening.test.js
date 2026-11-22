@@ -34,7 +34,7 @@ test("verified same-friend notes may guide continuity, never fabricated events",
  assert.match(prompt,/Verified same-character topic notes/);
  assert.match(prompt,/MAY naturally refer to ONE/);
  assert.match(prompt,/do not assume it was yesterday/);
- assert.match(prompt,/without.*fabricat/i);
+ assert.match(prompt,/invent its outcome/i);
 });
 test("Shorts and creature prompts still work without any saved transcript",()=>{
  const shorts=opening({shortsPost:true,creatureContext:"[CREATURE STAGE]"});
