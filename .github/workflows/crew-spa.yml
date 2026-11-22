@@ -68,7 +68,7 @@ jobs:
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'game-end-')
         run: node --test tests/daily-topic-cards.test.js tests/shorts-post-starter.test.js tests/shorts-text-first-reply.test.js tests/game-end-12.test.js
       - name: Full regressions (test repair PRs only)
-        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'test-regressions') || contains(github.event.pull_request.head.ref, 'fix/reliability-'))
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'test-regressions') || contains(github.event.pull_request.head.ref, 'fix/reliability-') || contains(github.event.pull_request.head.ref, 'text-into-voice-'))
         run: npm test
       # Short, offline-only fixture tests on Shorts PRs; no Gemini calls or full-suite cost.
       - name: Validate Crew Shorts generator and review pipeline (Shorts PRs only)
