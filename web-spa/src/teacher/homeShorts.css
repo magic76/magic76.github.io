@@ -3,7 +3,7 @@
 .crew-home-shorts-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:15px}
 .crew-home-shorts-heading h2{font-size:clamp(20px,2.5vw,26px);margin:5px 0}
 .crew-home-shorts-heading p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
-.crew-home-shorts-all{flex-shrink:0;font-size:13px;font-weight:700;color:var(--accent);text-decoration:none;padding:8px 0}
+.crew-home-shorts-all{display:inline-flex;align-items:center;gap:8px;flex-shrink:0;font-size:13px;font-weight:700;color:var(--accent);text-decoration:none;padding:8px 0}
 .crew-home-shorts-all:hover{text-decoration:underline}
 .crew-home-shorts-grid,.crew-home-shorts-loading{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;overscroll-behavior-x:contain;padding-bottom:8px;scrollbar-width:none}
 .crew-home-shorts-grid::-webkit-scrollbar,.crew-home-shorts-loading::-webkit-scrollbar{display:none}
