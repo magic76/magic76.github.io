@@ -30,7 +30,7 @@ const SOURCE_PATHS={
 const cache=new Map();
 export function seoLastmod(slug){
  const source=slug.startsWith("fortune/numerology")?"scripts/numerology-seo.mjs":
-  const source=slug.startsWith("fortune/bazi")?"scripts/bazi-seo.mjs":
+  slug.startsWith("fortune/bazi")?"scripts/bazi-seo.mjs":
   slug.startsWith("guides/")?"web-spa/src/guides/catalog.ts":
    slug.startsWith("teacher/course/")?"scripts/course-seo.mjs":SOURCE_PATHS[slug];
  if(!source)throw Error("Missing lastmod source mapping: "+slug);
