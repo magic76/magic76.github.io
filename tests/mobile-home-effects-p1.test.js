@@ -19,60 +19,38 @@ test("mobile home effects preserve slides, carousel timing, shortcuts and existi
  assert.ok(home.includes("if(!homeMotion)return"));
 });
 
-test("AI friend bubble uses the existing pager row, keeps a 44px target, and never covers portraits or CTA",()=>{
+test("no duplicate homepage chat bubble; original text-chat CTA remains the only Zoe text entry",()=>{
  const home=read("web-spa/src/pages/MobileHomePage.tsx");
  const art=read("web-spa/src/pages/mobileHomeEffects.css");
- const mobile=read("web-spa/src/pages/mobileHome.css");
  const hero=read("web-spa/src/pages/mobileHomeHeroV3.css");
- assert.equal((home.match(/className="cmh-friend-invite cmh-zoe-invite"/g)||[]).length,1);
- assert.doesNotMatch(home,/cmh-friends-invite/,"Noah already has the primary chat CTA");
- assert.ok(home.includes('to={textDestination} tabIndex={activeSlide===0?0:-1}'));
- assert.ok(home.includes('aria-hidden={activeSlide!==0} data-active={activeSlide===0}'));
- assert.ok(home.includes('className="cmh-zoe-actions"'));
- const pager=home.indexOf('className="cmh-carousel-dots"');
- const bubble=home.indexOf('className="cmh-friend-invite cmh-zoe-invite"');
- const nextSection=home.indexOf('<DailyTopicCards variant="mobile"/>');
- assert.ok(pager>0&&bubble>pager&&nextSection>bubble,"Invite is below the clipped slides, within the existing pager footprint");
- const rule=art.match(/\.cmh-friend-invite\{([^}]*)\}/)?.[1]||"";
- assert.match(rule,/position:absolute;[^;]*;bottom:0;left:0/);
- assert.match(rule,/min-height:44px/);
- assert.match(rule,/width:min\(100px,calc\(50% - 60px\)\)/);
- assert.match(rule,/font-size:12px/);
- assert.doesNotMatch(rule,/top:53px|right:12px|min-height:36px/);
- assert.match(art,/\.cmh-friend-invite\[data-active="true"\]\{opacity:1;visibility:visible;pointer-events:auto\}/);
- assert.match(mobile,/\.cmh-carousel-dots button\{[^}]*padding:0 8px/);
- assert.match(hero,/\.cmh-carousel-dots\{min-height:44px/);
- // On 360 and 390px phones the 44px invitation stays to the LEFT of all four
- // centered 44px-height dot hit targets (active 24px, idle 7px + 16px padding).
- for(const viewport of [360,390]){
-  const carouselWidth=viewport-36; // Existing homepage horizontal padding: 18px per side
-  const inviteWidth=Math.min(100,carouselWidth/2-60);
-  const dotGroupWidth=24+16+3*(7+16);
-  const firstDotLeft=(carouselWidth-dotGroupWidth)/2;
-  assert.ok(firstDotLeft-inviteWidth>=6,viewport+": invite must not intercept pager buttons");
- }
+ assert.doesNotMatch(home,/cmh-friend-invite|cmh-zoe-invite|cmh-friend-invite-text|cmh-friends-invite/);
+ assert.doesNotMatch(home,/cmh-chat-pop-last|showcase29\.bubble/);
+ assert.doesNotMatch(art,/cmh-friend-invite|cmh-friend-pop|cmh-chat-pop-last/);
+ assert.doesNotMatch(hero,/cmh-chat-pop-last/);
+ assert.match(home,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=home&chat=text"/);
+ assert.match(home,/<Link to=\{textDestination\} tabIndex=\{activeSlide===0\?0:-1\} className="cmh-zoe-primary"/);
+ assert.match(home,/cmh-chat-pop-first/,"retain the distinct non-interactive Hey! decoration");
+ assert.match(hero,/\.cmh-chat-pop-first/);
 });
 
-test("greeting contrast and text size meet mobile accessibility requirements",()=>{
+test("removing the bubble restores the untouched carousel-to-daily layout at 360 and 390 widths",()=>{
+ const home=read("web-spa/src/pages/MobileHomePage.tsx");
  const art=read("web-spa/src/pages/mobileHomeEffects.css");
- const rule=art.match(/\.cmh-friend-invite\{([^}]*)\}/)?.[1]||"";
- const bg=rule.match(/background:(#[0-9a-f]{6})/i)?.[1];
- const fg=rule.match(/(?:^|;)color:(#[0-9a-f]{6})/i)?.[1];
- const star=art.match(/\.cmh-friend-invite span\[aria-hidden="true"\]\{[^}]*font-size:12px;color:(#[0-9a-f]{6})\}/)?.[1];
- assert.ok(bg&&fg&&star,"Explicit legible background, text and decorative star colors");
- const luminance=hex=>{
-  const rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);
-  return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;
- };
- const contrast=(a,b)=>{
-  const x=luminance(a),y=luminance(b);
-  return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
- };
- assert.ok(contrast(fg,bg)>=4.5,"Visible label text must meet WCAG AA");
- assert.ok(contrast(star,bg)>=4.5,"Star also has adequate contrast");
- assert.match(rule,/font-size:12px/);
- assert.match(rule,/min-height:44px/);
- assert.match(art,/\.cmh-friend-invite-text\{[^}]*text-overflow:ellipsis;white-space:nowrap\}/);
+ const hero=read("web-spa/src/pages/mobileHomeHeroV3.css");
+ const css=read("web-spa/src/pages/mobileHome.css");
+ const pager=home.indexOf('className="cmh-carousel-dots"');
+ const daily=home.indexOf('<DailyTopicCards variant="mobile"/>');
+ assert.ok(pager>=0&&daily>pager,"daily recommendation still follows the carousel");
+ const between=home.slice(pager,daily);
+ assert.doesNotMatch(between,/<Link|cmh-friend-invite/,"no floating link after the pager");
+ assert.match(hero,/\.cmh-slide\{height:180px;min-height:180px/);
+ assert.match(hero,/@media\(max-width:380px\)\{\s*\.cmh-slide\{height:176px;min-height:176px/);
+ assert.match(hero,/\.cmh-carousel\{margin-bottom:0\}/);
+ assert.match(hero,/\.cmh-carousel-dots\{margin-top:-10\.5px/);
+ assert.match(css,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(art,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.doesNotMatch(art,/cmh-friend-pop/);
+ for(const viewport of [360,390])assert.ok(viewport-36>0);
 });
 
 test("motion gates keep battery saver, low-end and reduced-motion experience usable",()=>{
