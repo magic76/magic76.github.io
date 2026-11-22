@@ -46,6 +46,9 @@
 
 /* Phase 2 guest usage: glanceable, privacy-safe event summaries. */
 .usage-toolbar .usage-jump{border:1px solid var(--border,#d5d7df);border-radius:999px;background:var(--surface,#fff);color:inherit;padding:10px 18px;text-decoration:none;font-size:14px}
+/* Owner-only book acceptance: easy to tap from the installed PWA, full-page navigation. */
+.usage-toolbar .usage-report-lab-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:#19354e;border-color:#19354e;color:#fff;font-weight:700;line-height:1.4}
+.usage-toolbar .usage-report-lab-link:focus-visible{outline:3px solid #6aaadf;outline-offset:3px}
 .usage-guest-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 10px}
 .usage-guest-metric{display:flex;flex-direction:column;gap:6px;min-width:0;padding:15px;border:1px solid var(--border,#e5e7ef);border-radius:14px}
 .usage-guest-metric small,.usage-guest-metric span{color:var(--text-muted,#627088);font-size:12px;line-height:1.5}
