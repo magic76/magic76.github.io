@@ -6,7 +6,7 @@ This is a **private report-writing acceptance page**, not a purchase feature. Th
 There is **no menu link, public SPA route, public offer button, price change, checkout, paid entitlement, queue, R2 storage or production PDF generator** added by this PR.
 
 Page URL after deployment: `https://koolo.app/fortune/report-lab` (the `/api/fortune/report-lab` endpoint is JSON-only and is not a user-facing page).
-- Both the page GET and JSON API GET/POST require an existing valid Koolo `__Host-crew_session` (used to tie the report to a user), the origin allowlist, `KOOLO_FORTUNE_LAB_ENABLED=1`, and the **same server-side `verifyAccess` function used by `/api/usage/admin` and `/api/usage/report`**. This accepts an eligible Google-verified `KOOLO_ADMIN_EMAILS` administrator or the existing cryptographically verified Cloudflare Access policy; no separate fortune admin UUID list exists.
+- Both the page GET and JSON API GET/POST require an existing valid Koolo `__Host-crew_session` (used to tie the report to a user), the origin allowlist and the **same server-side `verifyAccess` function used by `/api/usage/admin` and `/api/usage/report`**. This accepts an eligible Google-verified `KOOLO_ADMIN_EMAILS` administrator or the existing cryptographically verified Cloudflare Access policy; no separate fortune admin UUID list exists.
 - Administrators who can use `/usage` and are also logged into Koolo can use this lab. Cloudflare Access alone **without a Koolo login** is not enough, because report ownership and storage require a signed-in user. Non-admin accounts receive **404** (missing Koolo login receives **401**). The HTML interface itself is not delivered to unauthorized users.
 - The route is marked `noindex, nofollow, noarchive`, `no-store`, strict CSP, and has no public navigation link.
 - No ECPay callback, purchase report or voice wallet is changed.
@@ -17,8 +17,7 @@ Page URL after deployment: `https://koolo.app/fortune/report-lab` (the `/api/for
 
 1. Apply `migrations/crew-auth/0010_fortune_lab.sql` to the existing **`CREW_AUTH_DB` D1**, not a new DB. You can paste the full SQL into the D1 console: it has no compound triggers.
 2. Sign in to Koolo using an account already permitted to use the management dashboard (`/usage`). The report lab reuses `/api/usage/admin`'s `verifyAccess` authorization and the existing `CREW_AUTH_DB`; **do not create or copy a separate administrator UUID list**. If `/usage` uses Cloudflare Access, complete that verification as well, and still sign in to Koolo so the private report can be bound to your account.
-3. Cloudflare Pages project -> Settings -> Variables and Secrets -> **Production** (runtime):
-   - `KOOLO_FORTUNE_LAB_ENABLED` = `1` (**Text**; default OFF/404).
+3. Cloudflare Pages project -> Settings -> Variables and Secrets -> **Production** (runtime). There is **no separate fortune-lab enabled switch**:
    - **No `KOOLO_FORTUNE_LAB_USER_IDS` is needed.** Existing `KOOLO_ADMIN_EMAILS` and/or Cloudflare Access settings continue to control dashboard administrator access.
    - `KOOLO_FORTUNE_LAB_GEMINI_KEY` = a valid Gemini developer key (**Secret**, never `VITE_*` or committed to Git).
    - Optional `KOOLO_FORTUNE_LAB_MODEL` = `gemini-2.5-flash` by default (**Text**). If unavailable on the key/account, set to a supported Gemini text model and re-deploy.
