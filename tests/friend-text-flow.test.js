@@ -168,7 +168,7 @@ test("Completed friend turns survive a fresh tab without writing drafts or touch
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
   assert.ok(panel.includes("historyReady&&messages.length>0&&(showStarterWithHistory||isGameRoundLink())&&firstStarter&&!draft.trim()&&!busy"));
  assert.match(panel,/firstStarter=\{firstStarter\} firstOnly\/>/);
- assert.match(read("web-spa/src/friends/FriendLiveConversation.tsx"),/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
+ assert.match(read("web-spa/src/friends/FriendLiveConversation.tsx"),/starters=\{\[gameRoundStarter\(/);
  assert.equal(context.readSessionTranscript("friend:zoe").length,2,"a saved Zoe conversation remains readable with a quote link");
  assert.equal(context.readSessionTranscript("friend:ada").length,0);
  assert.equal(context.readSessionTranscript("friend:zoe:shorts-1").length,0,"shorts-specific threads stay separate");
