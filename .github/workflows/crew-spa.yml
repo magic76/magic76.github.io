@@ -122,6 +122,13 @@ jobs:
           UI_I18N_BASE_SHA: ${{ github.event.pull_request.base.sha }}
       - run: npm run build:web
       - run: npm run check:bundle
+      # Deployment-adapter fixes require the real Cloudflare build, not only
+      # build:web. Keep the heavier gate scoped to this blocking-fix PR.
+      - name: Validate Cloudflare Pages deployment adapter (blocking fix)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets')
+        run: |
+          npm run build:cloudflare
+          npm run test:cloudflare
       - name: Validate Crew PWA safety and Cloudflare artifacts (PWA PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'pwa-')
         run: |
