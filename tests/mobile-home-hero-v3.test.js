@@ -12,7 +12,7 @@ test("four illustrated slides preserve Zoe first and real destinations",()=>{
  assert.match(jsx,/const friendResume=resumeFriend\?resume:null/);
  assert.match(jsx,/cmh-zoe-scene/);
  assert.match(jsx,/cmh-chat-pop-first/);
- assert.match(jsx,/cmh-chat-pop-last/);
+ assert.doesNotMatch(jsx,/cmh-chat-pop-last/,"removed caption cannot reappear during slide transitions");
  assert.match(jsx,/cmh-friend-portrait-/);
  assert.match(jsx,/\["noah","iris","bella"\]/);
  assert.match(jsx,/cmh-game-board/);

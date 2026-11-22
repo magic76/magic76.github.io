@@ -132,7 +132,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
        <span className="cmh-zoe-back-note">HELLO<span>✳</span></span>
        <img className="cmh-zoe-photo" src={resumeFriend?.avatar||zoePhoto} alt="" width="160" height="200" loading="eager" decoding="async"/>
        <span className="cmh-chat-pop cmh-chat-pop-first">Hey! <span aria-hidden="true">✦</span></span>
-       <span className="cmh-chat-pop cmh-chat-pop-last">{t("showcase29.bubble")} <span aria-hidden="true">♥</span></span>
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
       <div className="cmh-zoe-actions">
@@ -214,15 +213,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
      aria-label={t("showcase29.slideGo",{number:index+1,label:slide==="zoe"&&resumeFriend?t("layout2.resumeTitle",{name:resumeFriend.name}):t("showcase29.slide"+slide[0].toUpperCase()+slide.slice(1))})}
      onClick={()=>manualSlide(index)}><span aria-hidden="true"/></button>)}
    </div>
-   {/* Keep the 44px invitation in the existing pager row, outside the clipped portrait
-       and above neither CTA. Slide 2 already has a Noah chat CTA. */}
-   <Link to={textDestination} tabIndex={activeSlide===0?0:-1}
-    aria-hidden={activeSlide!==0} data-active={activeSlide===0}
-    className="cmh-friend-invite cmh-zoe-invite"
-    aria-label={friendResume?t("layout2.resumeAction"):t("showcase29.textZoe")}
-    onClick={()=>trackUsageEvent("home_entry_click","friend")}>
-    <span aria-hidden="true">✦</span><span className="cmh-friend-invite-text">{t("showcase29.bubble")}</span>
-   </Link>
   </div>
   <DailyTopicCards variant="mobile"/>
   <section className="cmh-apps" aria-labelledby="cmh-apps-title">

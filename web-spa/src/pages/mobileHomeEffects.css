@@ -18,30 +18,8 @@
  .cmh-carousel-viewport{position:relative;z-index:1}
  .cmh-carousel-dots button.is-active span{background:var(--cmh-scene-dot,#b87689)}
 
- /* The existing 44px pager row provides a safe tap target below the portrait
-    and CTA. At 360px the 100px invite leaves space before the centered dots. */
- .cmh-friend-invite{
-  position:absolute;z-index:8;bottom:0;left:0;display:inline-flex;
-  align-items:center;justify-content:center;gap:5px;box-sizing:border-box;
-  width:min(100px,calc(50% - 60px));min-width:72px;min-height:44px;
-  padding:8px 7px;border:1px solid #fff9;
-  border-radius:13px 13px 4px 13px;background:#fff9ed;color:#7b3c60;
-  box-shadow:0 5px 14px #1b143533;text-decoration:none;
-  font-size:12px;line-height:1.35;font-weight:800;text-align:center;
-  opacity:0;visibility:hidden;pointer-events:none;
- }
- .cmh-friend-invite-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- /* The old static "Talk?" caption is replaced by the accessible invitation. */
- .cmh-zoe[data-active="true"] .cmh-chat-pop-last{opacity:0}
- .cmh-friend-invite span[aria-hidden="true"]{flex:none;font-size:12px;color:#85512f}
- .cmh-friend-invite[data-active="true"]{opacity:1;visibility:visible;pointer-events:auto}
- .cmh-friend-invite:focus-visible{outline:3px solid #fff;outline-offset:2px}
-
 }
 @media(max-width:767px) and (prefers-reduced-motion:no-preference){
- .crew-mobile-home[data-home-motion="on"] .cmh-friend-invite[data-active="true"]{
-  animation:cmh-friend-pop 560ms cubic-bezier(.2,.85,.28,1.12) 750ms backwards;
- }
  .app-brand[data-home-blink="on"] .koolo-home-blink{
   animation:koolo-logo-eyelids 720ms ease-in-out 650ms 1 both;
  }
@@ -55,11 +33,6 @@
  .cmh-shorts .crew-home-shorts-grid[data-motion-ready="true"] .crew-home-short-card[data-photo-entered]{
   opacity:1;translate:0 0;rotate:0;
  }
-}
-@keyframes cmh-friend-pop{
- from{opacity:0;transform:translate3d(0,8px,0) scale(.92)}
- 68%{opacity:1;transform:translate3d(0,-2px,0) scale(1.025)}
- to{opacity:1;transform:translate3d(0,0,0) scale(1)}
 }
 @keyframes koolo-logo-eyelids{
  0%,32%,55%,100%{opacity:0}
@@ -75,5 +48,4 @@
  .app-brand .koolo-home-blink{animation:none!important;opacity:0}
  .cmh-shorts .crew-home-short-card{opacity:1!important;translate:0 0!important;rotate:0!important}
  .cmh-carousel::before{transition:none!important}
- .cmh-friend-invite{animation:none!important;transform:none!important}
 }
