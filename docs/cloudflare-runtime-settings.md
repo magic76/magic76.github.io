@@ -20,10 +20,11 @@
 
 | Cloudflare 設定名稱 | 類型 / 範圍 | 用途 | 設定方式 |
 | --- | --- | --- | --- |
-| `KOOLO_FORTUNE_LAB_ENABLED` | **Text**／Production runtime | 命書測試台總開關，僅字串 `1` 啟用 | `1` 啟用；測試後改 `0` |
 | `KOOLO_ADMIN_EMAILS`（沿用後台） | **Text**／Production runtime，已設定者無須重設 | 與 `/usage` 後台同一套 Google 已驗證管理員權限（也支援原本 Cloudflare Access 的驗證） | **不新增命理專用 UUID 名單**。報告仍需 Koolo 登入以綁定使用者帳號 |
 | `KOOLO_FORTUNE_LAB_GEMINI_KEY` | **Secret**／Production runtime | 伺服器端生成私有命書使用的 Gemini Key | 必須填有效 Key，**不要用 `VITE_*`，不要提交至 GitHub** |
 | `KOOLO_FORTUNE_LAB_MODEL` | **Text**／Production runtime，可省略 | 命書使用的 Gemini 文字模型 | 預設 `gemini-2.5-flash`；必要時改成該 Key 可用的文字模型 |
+
+**不需要再設定 `KOOLO_FORTUNE_LAB_ENABLED`**，驗收台直接沿用後台管理權限（仍需 Koolo 登入）。
 
 **必要前置**：在既有 `CREW_AUTH_DB` 執行 `migrations/crew-auth/0010_fortune_lab.sql`，再部署 Pages。獨立管理員驗收網址為 `koolo.app/fortune/report-lab`，前端報告生成 API 為 `/api/fortune/report-lab`；權限由現有 `/api/usage/admin` 的 `verifyAccess` 判斷，只有已登入 Koolo 且能通過後台權限的管理員能使用。一般使用者沒有導覽入口也無法取得畫面或報告。正式金流與其他報告資料表不受影響。
 
