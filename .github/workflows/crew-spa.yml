@@ -78,7 +78,7 @@ jobs:
           done
           echo "Base failed cases: $(wc -l < "$RUNNER_TEMP/koolo-base-failures.txt")"
           echo "PR failed cases: $(wc -l < "$RUNNER_TEMP/koolo-head-failures.txt")"
-          comm -13 "$RUNNER_TEMP/koolo-base-failures.txt" "$RUNNER_TEMP/koolo-head-failures.txt" > "$RUNNER_TEMP/koolo-new-failures.txt"
+          LC_ALL=C comm -13 "$RUNNER_TEMP/koolo-base-failures.txt" "$RUNNER_TEMP/koolo-head-failures.txt" > "$RUNNER_TEMP/koolo-new-failures.txt"
           if [ -s "$RUNNER_TEMP/koolo-new-failures.txt" ]; then
             echo "::error::New npm test failures not present on master:"
             cat "$RUNNER_TEMP/koolo-new-failures.txt"
