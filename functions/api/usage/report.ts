@@ -61,7 +61,7 @@ function offsetReportDay(day:string,offset:number){
  return new Date(Date.parse(day+"T00:00:00Z")+offset*86400000).toISOString().slice(0,10);
 }
 /** D1/D7 are exact calendar-day cohorts, built from aggregate distinct-UUID counts. */
-export function retentionSummary(rows:Row[],days:number,today=taipeiReportDay()){
+function retentionSummary(rows:Row[],days:number,today=taipeiReportDay()){
  const counts=new Map<string,number>();
  for(const row of rows){
   const day=String(row.day||""),event=String(row.event||"");
