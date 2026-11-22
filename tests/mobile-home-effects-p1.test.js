@@ -71,16 +71,19 @@ test("motion gates keep battery saver, low-end and reduced-motion experience usa
 });
 
 test("photo animation builds on existing observer and settles once",()=>{
+ const home=read("web-spa/src/pages/MobileHomePage.tsx");
  const preview=read("web-spa/src/teacher/HomeShortsPreview.tsx");
  const base=read("web-spa/src/teacher/homeShorts.css");
  const effects=read("web-spa/src/pages/mobileHomeEffects.css");
+ assert.ok(home.includes("motionEnabled={homeMotion}"),"home forwards the device motion gate to Shorts");
+ assert.ok(preview.includes("motionEnabled=true"));
+ assert.ok(preview.includes("!motionEnabled"),"Shorts observer respects the motion gate");
  assert.ok(preview.includes('entry.target.toggleAttribute("data-visible",entry.isIntersecting)'));
  assert.ok(preview.includes('(entry.target as HTMLElement).dataset.photoEntered="true"'));
- assert.ok(preview.includes("motionEnabled=true"));
  assert.ok(base.includes('data-motion-ready="true"'));
- assert.ok(effects.includes("[data-photo-entered]"));
- assert.ok(effects.includes("rotate:0;"));
- assert.ok(effects.includes('data-home-motion="on"'));
+ assert.match(effects,/\.cmh-shorts \.crew-home-shorts-grid\[data-motion-ready="true"\] \.crew-home-short-card\[data-photo-entered\]\{\s*opacity:1;translate:0 0;rotate:0;/);
+ assert.match(effects,/@media\(max-width:767px\) and \(prefers-reduced-motion:no-preference\)/);
+ assert.match(effects,/@media\(prefers-reduced-motion:reduce\)\{[\s\S]*?\.cmh-shorts \.crew-home-short-card\{opacity:1!important;translate:0 0!important;rotate:0!important\}/);
 });
 
 test("brand asset stays original; eyes blink only on mobile home while tapping preserves other routes",()=>{
