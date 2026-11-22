@@ -40,3 +40,30 @@ test("mobile settings layout is responsive without duplicating local state",()=>
  assert.match(en.device.android,/Koolo Android Web Preview/);
  assert.doesNotMatch(page,/feedback|issue tracker|send report/i);
 });
+
+test("category settings hide overview intro and keep the back control in view",()=>{
+ const page=read("web-spa/src/pages/SettingsPage.tsx");
+ const css=read("web-spa/src/pages/settingsGroups.css");
+ assert.match(page,/\{showOverview&&<section className="hero">/);
+ assert.match(page,/\{showOverview&&orbAvailable&&<Link to="\/orb"/);
+ assert.match(page,/querySelector\("\.crew-settings-back"\)\?\.scrollIntoView/);
+ assert.match(page,/<p className="crew-settings-key-explainer">\{t\("gemini.intro"\)\}<\/p>/);
+ assert.match(page,/to="\/account#settings-gemini"/);
+ assert.match(css,/\.crew-settings-back\{[^}]*min-height:44px/);
+ assert.match(css,/\.crew-settings-key-manage\{[^}]*min-height:44px/);
+});
+test("settings overview has concise plain-language introductions in all 11 locales",()=>{
+ const languages=["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"];
+ for(const language of languages){
+  const settings=JSON.parse(read("web-spa/src/i18n/locales/"+language+"/settings.json"));
+  assert.equal(typeof settings.hero.desc,"string");
+  assert.ok(settings.hero.desc.length>12&&settings.hero.desc.length<200,language+" should be concise");
+  assert.doesNotMatch(settings.hero.desc,/Gemini|API|Key|金鑰|金钥/i,language+" should not lead with API details");
+  const checkLeaves=value=>{
+   if(typeof value==="string")return;
+   assert.ok(value&&typeof value==="object",language+" has a non-string JSON leaf");
+   for(const child of Object.values(value))checkLeaves(child);
+  };
+  checkLeaves(settings);
+ }
+});

@@ -57,12 +57,12 @@ export function SettingsPage(){
    if(advancedRef.current)advancedRef.current.open=true;
   }
   // Lazy-mounted settings panels may not exist when the browser first handles the hash.
-  const frame=window.requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView?.({block:"start"}));
+  const frame=window.requestAnimationFrame(()=>document.querySelector(".crew-settings-back")?.scrollIntoView?.({block:"start"}));
   return()=>window.cancelAnimationFrame(frame);
  },[hash,location.search,navigate]);
- return <div className={"crew-settings-page"+(showOverview?" is-overview":" is-category")}><section className="hero"><span className="kicker">Koolo</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
+ return <div className={"crew-settings-page"+(showOverview?" is-overview":" is-category")}>{showOverview&&<section className="hero"><span className="kicker">Koolo</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>}
   {showOverview&&<section className="section panel"><h2>{t("common:auth.title")}</h2><p className="meta">{t("common:auth.intro")}</p><Link className="btn secondary" to="/account">{t("common:auth.account")}</Link></section>}
- {orbAvailable&&<Link to="/orb" className="crew-settings-orb-entry">
+ {showOverview&&orbAvailable&&<Link to="/orb" className="crew-settings-orb-entry">
   <span className="crew-settings-orb-icon" aria-hidden="true">◉</span>
   <span className="crew-settings-orb-copy"><strong>{t("cyberOrb.title")}</strong><small>{t("cyberOrb.intro")}</small></span>
   <Arrow className="crew-settings-orb-arrow"/>
@@ -159,6 +159,8 @@ export function SettingsPage(){
  <details id="settings-advanced" className="crew-settings-advanced" ref={advancedRef}>
   <summary className="crew-settings-advanced-summary"><span><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><Arrow direction="down" className="crew-arrow--plain"/></summary>
   <div className="crew-settings-advanced-content">
+  <p className="crew-settings-key-explainer">{t("gemini.intro")}</p>
+  <Link className="btn secondary crew-settings-key-manage" to="/account#settings-gemini">{t("group.manageAi")}</Link>
  <section className="section panel crew-live-model-settings" id="live-model-settings">
   <div className="section-head"><h2>{t("group.modelHeading")}</h2><small>{t("group.modelShared")}</small></div>
   <label style={{display:"grid",gap:8,maxWidth:440}}>
