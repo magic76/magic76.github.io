@@ -9,6 +9,7 @@ import {readLatestFriendActivity,type FriendActivity} from "../live/sessionTrans
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {GuideHub} from "../guides/GuideHub";
 import {useClientReady} from "../lib/useClientReady";
+import {useHomeAmbientMotion} from "../lib/useHomeAmbientMotion";
 import {DailyTopicCards} from "./DailyTopicCards";
 import {HomeGeminiVerify} from "./HomeGeminiVerify";
 import {CreatureLabResume} from "./CreatureLabResume";
@@ -20,6 +21,7 @@ import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
 import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./mobileHome.css";
 import "./mobileHomeHeroV3.css";
+import "./mobileHomeEffects.css";
 
 const ZOE_TEXT="/friend/live?id=zoe&from=home&chat=text";
 const ZOE_VOICE="/friend/live?id=zoe&from=home&entry=bubble";
@@ -42,6 +44,7 @@ const APPS:readonly App[]=[
 export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{shortsFeed:ShortFeed|null;shortsStatus:"loading"|"ready"|"error";creatureProgress:CreatureLabProgress|null}){
  const {i18n,t}=useTranslation("home");
  const ready=useClientReady();
+ const homeMotion=useHomeAmbientMotion(true);
  const hasKey=ready&&Boolean(geminiKey());
  const trial=useGuestTrialQuota(!ready||hasKey);
  const zh=i18n.language.startsWith("zh");
@@ -62,6 +65,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  // autoplay for this page view, and reduced-motion users never auto-advance.
  useEffect(()=>{
   if(carouselPaused)return;
+  if(!homeMotion)return;
   const mobile=window.matchMedia("(max-width:767px)");
   const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");
   if(!mobile.matches||reduced.matches||typeof IntersectionObserver==="undefined")return;
@@ -78,7 +82,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
    }
   },CAROUSEL_INTERVAL_MS);
   return()=>{observer.disconnect();window.clearInterval(timer)};
- },[carouselPaused]);
+ },[carouselPaused,homeMotion]);
  const manualSlide=(index:number)=>{setCarouselPaused(true);setActiveSlide((index+SLIDES.length)%SLIDES.length)};
  const touchBegin=(event:TouchEvent<HTMLDivElement>)=>{
   const touch=event.touches[0];if(!touch)return;
@@ -101,8 +105,8 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  const voiceDestination=resumeId?"/friend/live?id="+encodeURIComponent(resumeId)+"&from=home&entry=bubble":ZOE_VOICE;
  const track=(detail:App["event"])=>trackUsageEvent("home_entry_click",detail);
  const todayLink="/games/"+featured;
- return <div className="crew-mobile-home">
-  <div ref={carouselRef} className="cmh-carousel" role="region" aria-roledescription="carousel"
+ return <div className="crew-mobile-home" data-home-motion={homeMotion?"on":"off"}>
+  <div ref={carouselRef} className="cmh-carousel" data-scene={SLIDES[activeSlide]} role="region" aria-roledescription="carousel"
    aria-label={t("showcase29.carousel")} tabIndex={0}
    onPointerDown={()=>setCarouselPaused(true)} onFocusCapture={()=>setCarouselPaused(true)}
    onKeyDown={event=>{
@@ -210,6 +214,15 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
      aria-label={t("showcase29.slideGo",{number:index+1,label:slide==="zoe"&&resumeFriend?t("layout2.resumeTitle",{name:resumeFriend.name}):t("showcase29.slide"+slide[0].toUpperCase()+slide.slice(1))})}
      onClick={()=>manualSlide(index)}><span aria-hidden="true"/></button>)}
    </div>
+   {/* Keep the 44px invitation in the existing pager row, outside the clipped portrait
+       and above neither CTA. Slide 2 already has a Noah chat CTA. */}
+   <Link to={textDestination} tabIndex={activeSlide===0?0:-1}
+    aria-hidden={activeSlide!==0} data-active={activeSlide===0}
+    className="cmh-friend-invite cmh-zoe-invite"
+    aria-label={friendResume?t("layout2.resumeAction"):t("showcase29.textZoe")}
+    onClick={()=>trackUsageEvent("home_entry_click","friend")}>
+    <span aria-hidden="true">✦</span><span className="cmh-friend-invite-text">{t("showcase29.bubble")}</span>
+   </Link>
   </div>
   <DailyTopicCards variant="mobile"/>
   <section className="cmh-apps" aria-labelledby="cmh-apps-title">
@@ -226,7 +239,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
      ?t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})
      :t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
   </div>}
-  <div className="cmh-shorts"><HomeShortsPreview maxPosts={6} sharedFeed={shortsFeed} sharedStatus={shortsStatus}/></div>
+  <div className="cmh-shorts"><HomeShortsPreview maxPosts={6} sharedFeed={shortsFeed} sharedStatus={shortsStatus} motionEnabled={homeMotion}/></div>
   {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
   <section className="cmh-seo" aria-labelledby="cmh-seo-heading">
    <h2 id="cmh-seo-heading">{copy("Koolo：AI 朋友聊天、語言學習、互動遊戲與故事創作","Koolo: AI Friends, Language Practice, Games and Stories")}</h2>

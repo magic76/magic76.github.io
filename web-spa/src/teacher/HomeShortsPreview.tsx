@@ -8,7 +8,7 @@ import {shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSo
 import "./homeShorts.css";
 
 /** Lightweight homepage preview: photo content stays in the network feed, not the JS bundle. */
-export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[],sharedFeed,sharedStatus}:{maxPosts?:number;excludeFriendIds?:string[];sharedFeed?:ShortFeed|null;sharedStatus?:"loading"|"ready"|"error"}={}){
+export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[],sharedFeed,sharedStatus,motionEnabled=true}:{maxPosts?:number;excludeFriendIds?:string[];sharedFeed?:ShortFeed|null;sharedStatus?:"loading"|"ready"|"error";motionEnabled?:boolean}={}){
  const {t,i18n}=useTranslation("teacher");
  const en=i18n.language.startsWith("en");
  const navigate=useNavigate();
@@ -69,18 +69,19 @@ export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[],sharedFeed,sha
  const visiblePostIds=posts.map(post=>post.id).join("|");
  useEffect(()=>{
   const slider=sliderRef.current;
-  if(status!=="ready"||!slider||typeof IntersectionObserver==="undefined"
+  if(status!=="ready"||!slider||!motionEnabled||typeof IntersectionObserver==="undefined"
    ||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
   const cards=Array.from(slider.querySelectorAll<HTMLElement>(".crew-home-short-card"));
   const observer=new IntersectionObserver(entries=>{
    for(const entry of entries){
     entry.target.toggleAttribute("data-visible",entry.isIntersecting);
+    if(entry.isIntersecting)(entry.target as HTMLElement).dataset.photoEntered="true";
    }
   },{root:slider,threshold:0.35});
   cards.forEach(card=>observer.observe(card));
   slider.dataset.motionReady="true";
   return()=>{observer.disconnect();delete slider.dataset.motionReady};
- },[status,visiblePostIds]);
+ },[status,visiblePostIds,motionEnabled]);
  useEffect(()=>{
   if(status!=="ready"||!posts.length||impressionSent.current||!sectionRef.current)return;
   const mark=()=>{if(!impressionSent.current){impressionSent.current=true;trackUsageEvent("shorts_view","shorts_home");}};
