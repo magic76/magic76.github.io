@@ -64,7 +64,7 @@ test("SSR renders chat, and only mount effect applies sanitized URL hints",()=>{
  assert.match(preview,/const feed=sharedStatus===undefined\?ownFeed:sharedFeed/);
  assert.match(preview,/const status=sharedStatus\?\?ownStatus/);
  assert.match(preview,/return\(\)=>controller.abort\(\)/);
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.match(friend,/HOME_FRIEND_IDS.includes\(params.get\("id"\)\|\|""\)/);
 });
 
