@@ -53,7 +53,7 @@ if(compiledCss.length<10000)throw Error("Compiled CSS is missing the functional 
 const linkedCssAssets=new Set(viteStylesheets.map(({href})=>href.slice(1)));
 // Keep core styles first and link ALL Vite entry CSS in every SSG document.
 const linkedAppStylesheet=[coreStylesheets[0],...viteStylesheets.filter(item=>item!==coreStylesheets[0])]
- .map(({tag})=>tag).join("\n  ");
+ .map(({href})=>'<link rel="stylesheet" href="'+href+'">').join("\n  ");
 const appTags=viteAssetTags.filter(tag=>!tag.includes('rel="stylesheet"')).join("\n  ");
 
 // SSG sends fully rendered React.lazy markup, but Vite extracts each lazy
