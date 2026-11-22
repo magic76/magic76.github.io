@@ -42,7 +42,7 @@ test("legacy daily entry keeps its behavior; explicit fortune handoff never resu
  assert.match(friend,/const dailyHandoff=Boolean\(dailyEntry&&params\.get\("from"\)==="fortune"\)/);
  assert.match(friend,/fortuneContinue/);
  assert.match(friend,/fortuneReplies\|\|\[\]/);
- assert.match(friend,/\.catch\(\(\)=>null\)/);
+ assert.match(read("web-spa/src/friends/useFriendDailyFortuneContext.ts"),/\.catch\(\(\)=>null\)/);
  assert.match(home,/chatHref=isPersonal&&\/\^\[a-f0-9\]\{64\}\$\/\.test\(personal!\.hash\)\?fortuneHref\+"&zoe=1"/);
  assert.doesNotMatch(home,/quote="\+quote!/,"no-chart home CTA now directs to fortune setup");
  assert.match(home,/t\("dailyQuote.setupChart"\)/);
