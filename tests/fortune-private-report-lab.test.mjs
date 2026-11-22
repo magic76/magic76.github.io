@@ -192,7 +192,7 @@ test("PWA API detects HTML fallback, HTML edge error and Access redirect without
    {history:{replaceState(){}},scrollTo(){},print(){}},
    mockFetch,{randomUUID:()=>UUID},{error(){}}
   );
-  elements.get("question1").value="我的職涯應該如何安排？";
+  document.getElementById("question1").value="我的職涯應該如何安排？";
   await elements.get("generate").listeners.click();
   const message=elements.get("message").textContent;
   assert.match(message,expected);
