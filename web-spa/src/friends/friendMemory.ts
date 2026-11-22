@@ -13,6 +13,7 @@ const CONSENT="crew_friend_topics_consent_v1";
 const EPOCH="crew_friend_topics_epoch_v1";
 const TOPICS="crew_friend_topics_v1_";
 const DATES="crew_friend_recent_dates_v1_";
+const KNOWN_FRIENDS="crew_friend_known_by_exchange_v1"; // Only friend IDs and timestamps, never messages.
 const CAPTURE_STATUS="crew_friend_capture_status_v1_";
 const CAPTURE_REQUEST="crew_friend_capture_request_v1_";
 const LIMIT=20;
@@ -69,7 +70,10 @@ export const friendMemoryEnabled=()=>localStorage.getItem(CONSENT)!=="0";
 export const hasFriendMemoryDecision=()=>localStorage.getItem(CONSENT)!==null;
 export function setFriendMemoryEnabled(enabled:boolean){
  localStorage.setItem(CONSENT,enabled?"1":"0");
- if(!enabled)localStorage.removeItem("crew_shorts_conversations_v1"); // Remove Shorts follow-up metadata on opt-out.
+ if(!enabled){
+  localStorage.removeItem("crew_shorts_conversations_v1"); // Remove Shorts follow-up metadata on opt-out.
+  localStorage.removeItem(KNOWN_FRIENDS); // Reset voice familiarity; independently managed recent-chat dates remain.
+ }
  bump();
 }
 export function getFriendTopics(id:string,language:string):FriendTopic[]{
@@ -143,7 +147,40 @@ export function clearFriendTopics(id:string,language:string){
 function recentDates(language:string):Record<string,number>{
  try{const saved=JSON.parse(localStorage.getItem(recentKey(language))||"{}");return saved&&typeof saved==="object"&&!Array.isArray(saved)?saved:{}}catch{return{}}
 }
+/** Metadata-only evidence of an actual two-sided exchange, including guest voice.
+ * Guest voice intentionally has no automatic transcript/topic extraction. */
+function knownFriends():Record<string,number>{
+ try{
+  const value:unknown=JSON.parse(localStorage.getItem(KNOWN_FRIENDS)||"{}");
+  return value&&typeof value==="object"&&!Array.isArray(value)?value as Record<string,number>:{};
+ }catch{return{}}
+}
+export function recordFriendVoiceExchange(id:string,language:string){
+ if(!validFriend(id))return false;
+ const at=Date.now();
+ try{
+  // Recent-friend navigation should work for keyless voice and even short calls.
+  localStorage.setItem(recentKey(language),JSON.stringify({...recentDates(language),[id]:at}));
+  if(friendMemoryEnabled())localStorage.setItem(KNOWN_FRIENDS,JSON.stringify({...knownFriends(),[id]:at}));
+  return true;
+ }catch{return false}
+}
 export function getFriendLastChat(id:string,language:string){return Number(recentDates(language)[id])||0}
+/** Distinguish verified relationship continuity from AI-extracted topic recall.
+ * Manual topic edits and a mere open/AI greeting are never evidence of past conversation. */
+export function friendVoiceOpeningRecall(id:string,language:string){
+ if(!validFriend(id)||!friendMemoryEnabled())return {returning:false,verifiedTopic:false,crossDay:false};
+ const topics=getFriendTopics(id,language);
+ const latestVerified=topics.find(t=>!t.manual);
+ const stored=Number(knownFriends()[id])||0;
+ const at=Math.max(getFriendLastChat(id,language),Number.isFinite(stored)?stored:0,Number(latestVerified?.updatedAt)||0);
+ const validAt=at>0&&at<=Date.now()+300000;
+ return {
+  returning:validAt,
+  verifiedTopic:Boolean(latestVerified),
+  crossDay:validAt&&new Date(at).toDateString()!==new Date().toDateString()
+ };
+}
 export function recentFriends(language:string):FriendProfile[]{
  return CREW_FRIENDS.filter(p=>getFriendLastChat(p.id,language)>0)
    .sort((a,b)=>getFriendLastChat(b.id,language)-getFriendLastChat(a.id,language));

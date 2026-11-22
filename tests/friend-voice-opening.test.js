@@ -9,16 +9,32 @@ function opening(overrides={}){
  const context={shortsOpeningHint:()=>"[SHORTS HOOK]",shortsQuestionOpeningHint:()=>"[QUESTION]"};
  vm.runInNewContext(source+"\nthis.build=buildFriendVoiceOpening;",context);
  return context.build({name:"Zoe",languageDirective:"Speak Mandarin",shortsPost:false,shortsHook:null,
-  selectedQuestion:"",lifeOpening:"A new day",conversationHint:"Let's chat",conversationStyle:"one easy observation",creatureContext:"",...overrides});
+  selectedQuestion:"",lifeOpening:"A new day",conversationHint:"Let's chat",conversationStyle:"one easy observation",creatureContext:"",
+  returning:false,verifiedTopic:false,crossDay:false,...overrides});
 }
-test("voice opening starts a new conversation with no previous-chat handoff",()=>{
+test("first verified visit does not manufacture prior conversations",()=>{
  const prompt=opening();
- assert.match(prompt,/\[FRIEND CONVERSATION\]/);
- assert.match(prompt,/Begin a NEW conversation as Zoe/);
- assert.match(prompt,/Introduce yourself naturally/);
+ assert.match(prompt,/\[FRIEND CONVERSATION — SAME CHARACTER, NEW LIVE CONNECTION\]/);
+ assert.match(prompt,/no verified earlier two-sided conversation/i);
+ assert.match(prompt,/without inventing familiarity/i);
  assert.match(prompt,/A new day/);
  assert.match(prompt,/Speak Mandarin/);
- assert.doesNotMatch(prompt,/\[TEXT-TO-VOICE HANDOFF\]|\[PREVIOUS TEXT CHAT\]|Pick up the subject/);
+ assert.doesNotMatch(prompt,/Begin a NEW conversation|Introduce yourself naturally|\[PREVIOUS TEXT CHAT\]/);
+});
+test("returning voice learner is recognized without pretending topic recall",()=>{
+ const prompt=opening({returning:true,crossDay:true});
+ assert.match(prompt,/real two-sided conversation/i);
+ assert.match(prompt,/later calendar day/i);
+ assert.match(prompt,/never reintroduce yourself/i);
+ assert.match(prompt,/do not claim to recall any previous topic/i);
+ assert.doesNotMatch(prompt,/yesterday|previous text chat/i);
+});
+test("verified same-friend notes may guide continuity, never fabricated events",()=>{
+ const prompt=opening({returning:true,verifiedTopic:true});
+ assert.match(prompt,/Verified same-character topic notes/);
+ assert.match(prompt,/MAY naturally refer to ONE/);
+ assert.match(prompt,/do not assume it was yesterday/);
+ assert.match(prompt,/invent its outcome/i);
 });
 test("Shorts and creature prompts still work without any saved transcript",()=>{
  const shorts=opening({shortsPost:true,creatureContext:"[CREATURE STAGE]"});
