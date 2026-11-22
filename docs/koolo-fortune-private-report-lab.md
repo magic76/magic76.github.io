@@ -2,11 +2,11 @@
 
 ## Scope and access
 
-This is a **private report-writing acceptance tool**, not a purchase feature.
-There is **no menu link, React SPA route, public offer button, price change, checkout, paid entitlement, queue, R2 storage or production PDF generator** added by this PR.
+This is a **private report-writing acceptance page**, not a purchase feature. The UI is served by a protected Pages Function at `/fortune/report-lab`, while data fetches and generation use `/api/fortune/report-lab`.
+There is **no menu link, public SPA route, public offer button, price change, checkout, paid entitlement, queue, R2 storage or production PDF generator** added by this PR.
 
-URL after deployment: `https://koolo.app/api/fortune/report-lab`
-- Every GET and POST first requires an existing valid `__Host-crew_session`, origin allowlist, `KOOLO_FORTUNE_LAB_ENABLED=1`, and the server-only exact `crew_auth_users.id` allowlist.
+Page URL after deployment: `https://koolo.app/fortune/report-lab` (the `/api/fortune/report-lab` endpoint is JSON-only and is not a user-facing page).
+- Both the server-rendered page GET and the JSON API GET/POST require an existing valid `__Host-crew_session`, origin allowlist, `KOOLO_FORTUNE_LAB_ENABLED=1`, and the server-only exact `crew_auth_users.id` allowlist.
 - All non-allowed accounts receive HTTP **404** (a signed-out account gets 401); the HTML interface itself is NOT delivered to other users.
 - The route is marked `noindex, nofollow, noarchive`, `no-store`, strict CSP, and has no public navigation link.
 - No ECPay callback, purchase report or voice wallet is changed.
@@ -23,7 +23,7 @@ URL after deployment: `https://koolo.app/api/fortune/report-lab`
    - `KOOLO_FORTUNE_LAB_GEMINI_KEY` = a valid Gemini developer key (**Secret**, never `VITE_*` or committed to Git).
    - Optional `KOOLO_FORTUNE_LAB_MODEL` = `gemini-2.5-flash` by default (**Text**). If unavailable on the key/account, set to a supported Gemini text model and re-deploy.
    - Existing `CREW_AUTH_DB` binding remains unchanged.
-4. Deploy Pages once the runtime variables are saved. Open `https://koolo.app/api/fortune/report-lab` directly; no menu entry is added.
+4. Deploy Pages once the runtime variables are saved, including the new `/fortune/report-lab` Pages Function route in `_routes.json`. Open `https://koolo.app/fortune/report-lab` directly; no menu entry is added.
 
 ## How to test the 10-page book
 
