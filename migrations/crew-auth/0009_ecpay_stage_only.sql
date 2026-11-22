@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS koolo_fortune_stage_orders (
  state TEXT NOT NULL DEFAULT 'pending' CHECK(state IN ('pending','paid')),
  facts_json TEXT NOT NULL CHECK(length(facts_json) BETWEEN 2 AND 4096),
  report_json TEXT CHECK(report_json IS NULL OR length(report_json)<=131072),
- trade_no_hash TEXT,
+ trade_no_hash TEXT UNIQUE,
  created_at INTEGER NOT NULL,
  paid_at INTEGER,
  CHECK((state='pending' AND paid_at IS NULL AND report_json IS NULL AND trade_no_hash IS NULL)
