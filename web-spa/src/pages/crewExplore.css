@@ -126,7 +126,7 @@
  to{opacity:1;transform:translateY(0) scale(1)}
 }
 .crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-photo img{transform:scale(1.03)}
-.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-arrow{transform:translate(2px,-2px);background:var(--art-2)}
+.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-arrow{transform:translateX(2px);background:#285a48}
 .crew-explore-arrow{transition:transform 180ms var(--crew-motion-ease,ease-out),background-color 180ms ease}
 .crew-explore-life img{transition:transform 220ms var(--crew-motion-ease,ease-out)}
 .crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-life img:first-of-type{transform:translateY(9px) rotate(-11deg)}
