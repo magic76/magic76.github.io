@@ -75,3 +75,12 @@ https://:version.magic76-github-io.pages.dev/*
 /api/feedback
   X-Robots-Tag: noindex
   Cache-Control: no-store
+
+# Stage-only payment tests must never be indexed or cached.
+/fortune/ecpay/test*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
+/api/fortune/ecpay/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
