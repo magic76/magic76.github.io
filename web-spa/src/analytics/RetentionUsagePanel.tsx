@@ -26,7 +26,7 @@ export function RetentionUsagePanel({retention,returned,engagedReturned,days}:{
    <article className="usage-retention-metric">
     <span>有效回訪</span>
     <strong>{num(engagedReturned)} <small>個</small></strong>
-    <small>跨日回來且有聊天、學習、遊戲等有效互動</small>
+    <small>跨日回來且有已追蹤的聊天、學習、遊戲等有效互動</small>
     <small>跨日回訪 {num(returned)} 個 · 有效比例 {percentage(engagedReturned,returned)}</small>
    </article>
   </div>
