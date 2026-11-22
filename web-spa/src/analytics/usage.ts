@@ -6,6 +6,7 @@ import {usagePlatform} from "./usagePlatform";
  */
 export type UsageEvent=
   |"app_opened"|"visitor_first_seen"|"user_returned"
+  |"retention_cohort_started"|"retention_d1_returned"|"retention_d7_returned"|"user_returned_engaged"
   |"teacher_conversation"|"friend_conversation"
   |"teacher_conversation_start"|"friend_conversation_start"|"timeline_conversation_start"
   |"teacher_user_spoke"|"friend_user_spoke"|"timeline_user_spoke"
@@ -50,7 +51,9 @@ export function sessionDurationDetail(durationMs:number):Detail{
 }
 
 const KEY="crew_usage_visitor_v1",SESSION="crew_usage_session_v1",
-      LAST="crew_usage_last_day_v1",OPT_OUT="crew_usage_opt_out_v1",
+      LAST="crew_usage_last_day_v1",LOCAL_DAY="crew_usage_taipei_day_v1",
+      COHORT_DAY="crew_usage_cohort_taipei_v1",RETURN_DAY="crew_usage_return_day_v1",
+      ENGAGED_DAY="crew_usage_engaged_return_day_v1",OPT_OUT="crew_usage_opt_out_v1",
       DEV="crew_usage_dev_mode_v1";
 let recent=new Map<string,number>();
 const local=(key:string)=>{try{return localStorage.getItem(key)}catch{return null}};
@@ -61,7 +64,7 @@ const globalPrivacy=()=>Boolean((navigator as Navigator&{globalPrivacyControl?:b
 export const usageDisabled=()=>local(OPT_OUT)==="1";
 export const developerUsageMode=()=>local(DEV)==="1";
 export function setUsageDisabled(value:boolean){
- if(value){store(OPT_OUT,"1");try{[KEY,SESSION,LAST].forEach(k=>localStorage.removeItem(k))}catch{/* blocked */}}
+ if(value){store(OPT_OUT,"1");try{[KEY,SESSION,LAST,LOCAL_DAY,COHORT_DAY,RETURN_DAY,ENGAGED_DAY].forEach(k=>localStorage.removeItem(k))}catch{/* blocked */}}
  else{try{localStorage.removeItem(OPT_OUT)}catch{/* blocked */}}
  updateGa4State();
 }
@@ -106,6 +109,51 @@ function session(){
  if(!value){value=id();try{sessionStorage.setItem(SESSION,value)}catch{/* blocked */}}
  return value;
 }
+/** UTC+8 Taiwan has no DST; a new date begins at local midnight, not after 24 hours. */
+export const taipeiUsageDay=(at=Date.now())=>new Date(at+8*3600000).toISOString().slice(0,10);
+export function taipeiDayGap(first:string,next:string){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(first)||!/^\d{4}-\d{2}-\d{2}$/.test(next))return -1;
+ return Math.round((Date.parse(next+"T00:00:00Z")-Date.parse(first+"T00:00:00Z"))/86400000);
+}
+const effectiveEvents=new Set<UsageEvent>([
+ "teacher_conversation","friend_conversation","timeline_conversation","souls_conversation",
+ "game_completed","vocabulary_practice","textbook_study","story_reading","story_narration",
+ "story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","magic_spell",
+ "magic_challenge_answer","magic_panel_choice","magic_voice_connected","mate_briefing_ready",
+ "mate_handoff_started","mate_handoff_completed","souls_created","research_article_completed",
+ "circle_post_published","circle_comment_posted"
+]);
+/** Authorized emitter. Does not call day synchronization, avoiding recursive events. */
+function sendUsageEvent(event:UsageEvent,detail:Detail=""){
+ const key=event+":"+detail,now=Date.now();
+ const dedupeMs=event.startsWith("home_gift_")?300:2000;
+ if(now-(recent.get(key)||0)<dedupeMs)return;
+ recent.set(key,now);
+ const pathname=location.pathname;
+ withGa4(ga=>ga.sendGa4Event(event,detail,pathname));
+ const payload={event,detail,visitorId:visitor(),sessionId:session(),platform:usagePlatform()};
+ try{void fetch("/api/usage/event",{
+   method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify(payload),keepalive:true,credentials:"same-origin"
+ }).catch(()=>{/* Analytics never interrupts Crew functions. */})}catch{/* best effort */}
+}
+/** Start a cohort only for a genuinely new UUID; legacy UUIDs lack a reliable Taiwan day. */
+function syncVisitDay(){
+ const today=taipeiUsageDay(),previous=local(LOCAL_DAY),isNew=!local(KEY);
+ if(!isNew&&previous===today)return;
+ if(isNew){visitor();store(COHORT_DAY,today)}
+ store(LOCAL_DAY,today);
+ if(isNew){
+  sendUsageEvent("visitor_first_seen");
+  sendUsageEvent("retention_cohort_started");
+ }else if(previous&&previous<today){
+  store(RETURN_DAY,today);
+  sendUsageEvent("user_returned");
+  const gap=taipeiDayGap(local(COHORT_DAY)||"",today);
+  if(gap===1)sendUsageEvent("retention_d1_returned");
+  if(gap===7)sendUsageEvent("retention_d7_returned");
+ }
+}
 export function trackUsageEvent(event:UsageEvent,detail:Detail=""){
  // UX eligibility is independent of analytics consent and stores no chat content.
  if(event==="friend_conversation"||event==="teacher_conversation"||event==="game_completed"||
@@ -118,28 +166,23 @@ export function trackUsageEvent(event:UsageEvent,detail:Detail=""){
   }catch{/* Optional local-only state. */}
  }
  if(!allowed())return;
- const key=event+":"+detail,now=Date.now();
- // Protect against React strict-mode effects and accidental rapid duplicate calls.
- const dedupeMs=event.startsWith("home_gift_")?300:2000;
- if(now-(recent.get(key)||0)<dedupeMs)return;
- recent.set(key,now);
- const pathname=location.pathname;
- withGa4(ga=>ga.sendGa4Event(event,detail,pathname));
- const payload={event,detail,visitorId:visitor(),sessionId:session(),platform:usagePlatform()};
- try{void fetch("/api/usage/event",{
-   method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify(payload),keepalive:true,credentials:"same-origin"
- }).catch(()=>{/* Analytics never interrupts Crew functions. */})}catch{/* best effort */}
+ syncVisitDay();
+ sendUsageEvent(event,detail);
+ const today=taipeiUsageDay();
+ if(effectiveEvents.has(event)&&local(RETURN_DAY)===today&&local(ENGAGED_DAY)!==today){
+  store(ENGAGED_DAY,today);
+  sendUsageEvent("user_returned_engaged");
+ }
 }
 export function trackAppOpen(){
  if(!allowed())return;
- try{if(sessionStorage.getItem("crew_usage_opened_v1")==="1")return;
-   sessionStorage.setItem("crew_usage_opened_v1","1")}catch{/* blocked */}
- const isNew=!local(KEY),day=new Date().toISOString().slice(0,10),previous=local(LAST);
- if(isNew)trackUsageEvent("visitor_first_seen");
- else if(previous&&previous!==day)trackUsageEvent("user_returned");
- store(LAST,day);
- trackUsageEvent("app_opened");
+ // A still-open tab may cross midnight: synchronize before the session guard.
+ syncVisitDay();
+ try{
+  if(sessionStorage.getItem("crew_usage_opened_v1")==="1")return;
+  sessionStorage.setItem("crew_usage_opened_v1","1");
+ }catch{/* blocked */}
+ sendUsageEvent("app_opened");
 }
 
 /** Manual GA4 pageviews for React Router navigation (only safe campaign labels). */

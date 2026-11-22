@@ -56,6 +56,30 @@ export async function verifyAccess(request:Request,env:Context["env"]):Promise<b
  }catch{return false}
 }
 type Row={day?:string;event?:string;detail?:string;platform?:string;count?:number|string;users?:number|string};
+function taipeiReportDay(at=Date.now()){return new Date(at+8*3600000).toISOString().slice(0,10)}
+function offsetReportDay(day:string,offset:number){
+ return new Date(Date.parse(day+"T00:00:00Z")+offset*86400000).toISOString().slice(0,10);
+}
+/** D1/D7 are exact calendar-day cohorts, built from aggregate distinct-UUID counts. */
+export function retentionSummary(rows:Row[],days:number,today=taipeiReportDay()){
+ const counts=new Map<string,number>();
+ for(const row of rows){
+  const day=String(row.day||""),event=String(row.event||"");
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!["retention_cohort_started","retention_d1_returned","retention_d7_returned"].includes(event))continue;
+  counts.set(day+":"+event,Number(row.users)||0);
+ }
+ const count=(day:string,event:string)=>counts.get(day+":"+event)||0;
+ const result={d1:{eligible:0,returned:0},d7:{eligible:0,returned:0}};
+ // The return window uses the last N complete Taipei dates, excluding today.
+ for(let ago=1;ago<=days;ago++){
+  const returnDay=offsetReportDay(today,-ago);
+  result.d1.eligible+=count(offsetReportDay(returnDay,-1),"retention_cohort_started");
+  result.d1.returned+=count(returnDay,"retention_d1_returned");
+  result.d7.eligible+=count(offsetReportDay(returnDay,-7),"retention_cohort_started");
+  result.d7.returned+=count(returnDay,"retention_d7_returned");
+ }
+ return result;
+}
 async function sql(env:Context["env"],query:string){
  const url="https://api.cloudflare.com/client/v4/accounts/"+env.CREW_USAGE_ACCOUNT_ID+"/analytics_engine/sql";
  const reply=await fetch(url,{method:"POST",headers:{
@@ -177,8 +201,8 @@ export async function onRequestGet({request,env}:Context){
  try{
   // Browser identity is deduplicated ACROSS the entire reporting period by SQL.
   // Never sum the per-day distinct counts to infer unique browsers.
-  const [daily,active,eventUsers,chat,previousActive,previousChat,journeyClicks,journeyStarts,platformOpens,platformActive,platformChat,platformReturn,platformGames,magicSessions]=await Promise.all([
-   sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Etc/UTC') AS day, blob1 AS event, blob3 AS detail, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event, detail ORDER BY day ASC, event ASC LIMIT 5000"),
+  const [daily,active,eventUsers,chat,previousActive,previousChat,journeyClicks,journeyStarts,platformOpens,platformActive,platformChat,platformReturn,platformGames,magicSessions,retentionRows]=await Promise.all([
+   sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Asia/Taipei') AS day, blob1 AS event, blob3 AS detail, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event, detail ORDER BY day ASC, event ASC LIMIT 5000"),
    sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+activeEvents+")"),
    sql(env,"SELECT blob1 AS event, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY event LIMIT 100"),
    sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+chatEvents+")"),
@@ -192,7 +216,8 @@ export async function onRequestGet({request,env}:Context){
    sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 IN ("+chatEvents+") GROUP BY platform LIMIT 10"),
    sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 = 'user_returned' GROUP BY platform LIMIT 10"),
    sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 = 'game_completed' GROUP BY platform LIMIT 10"),
-   sql(env,"SELECT COUNT(DISTINCT blob4) AS users FROM crew_usage WHERE "+bound+" AND blob1 = 'magic_enter'")
+   sql(env,"SELECT COUNT(DISTINCT blob4) AS users FROM crew_usage WHERE "+bound+" AND blob1 = 'magic_enter'"),
+   sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Asia/Taipei') AS day, blob1 AS event, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE timestamp >= NOW() - INTERVAL '"+(days+9)+"' DAY AND blob1 IN ('retention_cohort_started','retention_d1_returned','retention_d7_returned') GROUP BY day, event ORDER BY day ASC LIMIT 300")
   ]);
   const rows=daily.map(row=>({day:String(row.day||""),event:String(row.event||""),detail:String(row.detail||""),
     count:Number(row.count||0),users:Number(row.users||0)}));
@@ -200,6 +225,7 @@ export async function onRequestGet({request,env}:Context){
    days,activeUsers:Number(active[0]?.users||0),chatUsers:Number(chat[0]?.users||0),
    previousActiveUsers:Number(previousActive[0]?.users||0),
    previousChatUsers:Number(previousChat[0]?.users||0),
+   retention:retentionSummary(retentionRows,days),
    eventUsers:eventUsers.map(row=>({event:String(row.event||""),users:Number(row.users||0)})),
    journey:{
     opened:Number(eventUsers.find(row=>row.event==="app_opened")?.users||0),
