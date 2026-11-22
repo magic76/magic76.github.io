@@ -53,7 +53,7 @@ test("members receive account quota copy; anonymous users get device copy",()=>{
 test("trial finish takes a teacher name and keeps friend ID fallback",()=>{
  const finish=read("web-spa/src/live/GuestTrialExperience.tsx");
  const teacher=read("web-spa/src/teacher/LivePage.tsx");
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.match(finish,/GuestTrialFinish\(\{expired,failed,name\}:\{expired:boolean;failed:boolean;name\?:string\}\)/);
  assert.match(finish,/const displayName=name\|\|\(isFriend&&friendId\?getCrewFriend\(friendId\)\.name:t\("guestTrial.aiFriend"\)\)/);
  assert.match(finish,/completeTitle",\{name:displayName\}/);
