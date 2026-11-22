@@ -128,5 +128,5 @@ test("Teacher keyboard uses text-only :has override, not the voice dock; transcr
  assert.match(panel,/crew:text-keyboard-change/);
  assert.match(panel,/log\.scrollTop=log\.scrollHeight/);
  assert.ok(Buffer.byteLength(panel)<26000);
- assert.ok(Buffer.byteLength(read("web-spa/src/friends/FriendLivePage.tsx"))<26000);
+ assert.ok(Buffer.byteLength(read("web-spa/src/friends/FriendLiveConversation.tsx"))<26000);
 });
