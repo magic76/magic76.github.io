@@ -113,15 +113,15 @@ test("SSG placeholder, local midnight + visibility refresh; personalized Zoe CTA
 });
 
 test("quote starter is allowlisted, same-language, opt-in and Shorts retains priority",()=>{
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const chat=read("web-spa/src/live/TextChatPanel.tsx");
  const starters=read("web-spa/src/live/TextChatStarters.tsx");
  assert.match(friend,/getDailyQuote\(params\.get\("quote"\)\)/);
  assert.match(friend,/!shortsPost&&friend\.id==="zoe"/);
  assert.match(friend,/loadQuoteText\(locale\.language,selectedQuote\.id\)/);
  assert.match(friend,/t\("dailyQuoteStarter",\{quote:quoteText\.text\}\)/);
- assert.match(friend,/firstStarter=\{shortsStarter\|\|fortuneContinue\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
- assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
+ assert.match(friend,/starters=\{\[gameRoundStarter\(/);
+ assert.match(friend,/<FriendUnifiedComposer live=\{live\}/);
  assert.match(chat,/historyReady&&messages\.length>0&&\(showStarterWithHistory\|\|isGameRoundLink\(\)\)&&firstStarter/);
  assert.match(chat,/firstOnly\/>/);
  assert.match(starters,/!firstOnly&&!starters&&friendStarterTopics\(speaker\)/);
@@ -130,11 +130,11 @@ test("quote starter is allowlisted, same-language, opt-in and Shorts retains pri
  assert.match(friend,/getDailyTopic\(params\.get\("topic"\)\)/);
  assert.match(friend,/params\.get\("quote"\)==="daily"/);
  assert.match(friend,/\^\[a-f0-9\]\{64\}\$/);
- assert.match(friend,/import\("\.\.\/pages\/personalDailyLine"\)/);
+ assert.match(read("web-spa/src/friends/useFriendDailyFortuneContext.ts"),/import\("\.\.\/pages\/personalDailyLine"\)/);
  assert.match(friend,/dailyFortuneStarter=dailyFortune\?t\("dailyFortuneStarter"\):undefined/);
  assert.match(friend,/dailyLookupPending/);
  assert.match(friend,/dailyFortune\?"\\n"\+dailyFortune.context/);
- assert.match(friend,/dailyFortune\?":daily:"\+dailyFortune.hash/);
+ assert.match(friend,/dailyFortune\?"\\n"\+dailyFortune\.context/);
  assert.match(friend,/Promise.all\(\[import\("..\/pages\/personalDailyLine"\),import\("..\/pages\/dailyFortuneReader"\)\]\)/);
  assert.doesNotMatch(friend,/personalQuoteStarter/);
  assert.doesNotMatch(friend,/setDraft\(dailyQuoteStarter\)|sendMessage\(dailyQuoteStarter\)/);
