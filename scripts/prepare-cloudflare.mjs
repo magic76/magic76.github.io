@@ -34,17 +34,26 @@ if(!viteAssetTags.some(tag=>tag.startsWith("<script"))||!viteAssetTags.some(tag=
 // compiled stylesheet in every HTML document. Blocking stylesheet links in
 // <head> ensure prerendered React markup is styled before its first paint.
 const viteCSS=viteAssetTags.filter(tag=>tag.includes('rel="stylesheet"'));
-if(viteCSS.length!==1)throw Error("Expected exactly one Vite stylesheet; got "+viteCSS.length);
-const cssHref=viteCSS[0].match(/\bhref="(\/assets\/[^"]+\.css)"/)?.[1];
-if(!cssHref)throw Error("Could not identify Vite stylesheet filename");
-const compiledCssPath=join(out,cssHref.slice(1));
-if(!existsSync(compiledCssPath))throw Error("Vite CSS file missing: "+cssHref);
-const compiledCss=readFileSync(compiledCssPath,"utf8");
-if(compiledCss.length<10000||!compiledCss.includes(".app-header")||!compiledCss.includes(".global-nav")){
- throw Error("Compiled CSS is missing the functional Crew UI styles");
-}
-if(/<\/style/i.test(compiledCss))throw Error("Unexpected closing style tag in compiled CSS");
-const linkedAppStylesheet='<link rel="stylesheet" href="'+cssHref+'">';
+// Vite may emit multiple entry stylesheets when a statically imported shared
+// component owns CSS (for example, Arrow.css). Validate every emitted file,
+// but require exactly one stylesheet with the functional app shell styles.
+const viteStylesheets=viteCSS.map(tag=>{
+ const href=tag.match(/\bhref="(\/assets\/[^"]+\.css)"/)?.[1];
+ if(!href||href.includes("..")||href.includes("\\"))throw Error("Could not identify Vite stylesheet filename");
+ const cssFile=join(out,href.slice(1));
+ if(!existsSync(cssFile))throw Error("Vite CSS file missing: "+href);
+ const content=readFileSync(cssFile,"utf8");
+ if(/<\/style/i.test(content))throw Error("Unexpected closing style tag in compiled CSS");
+ return {tag,href,content};
+});
+const coreStylesheets=viteStylesheets.filter(({content})=>content.includes(".app-header")&&content.includes(".global-nav"));
+if(coreStylesheets.length!==1)throw Error("Expected exactly one functional Vite stylesheet with .app-header and .global-nav; got "+coreStylesheets.length);
+const {href:cssHref,content:compiledCss}=coreStylesheets[0];
+if(compiledCss.length<10000)throw Error("Compiled CSS is missing the functional Koolo UI styles");
+const linkedCssAssets=new Set(viteStylesheets.map(({href})=>href.slice(1)));
+// Keep core styles first and link ALL Vite entry CSS in every SSG document.
+const linkedAppStylesheet=[coreStylesheets[0],...viteStylesheets.filter(item=>item!==coreStylesheets[0])]
+ .map(({tag})=>tag).join("\n  ");
 const appTags=viteAssetTags.filter(tag=>!tag.includes('rel="stylesheet"')).join("\n  ");
 
 // SSG sends fully rendered React.lazy markup, but Vite extracts each lazy
@@ -83,7 +92,7 @@ function routeCssLinks(route){
  for(const entry of ssgRouteEntries[route]||[])visit(entry);
  let links="";
  for(const asset of cssFiles){
-  if(asset===cssHref.slice(1))continue; // Already linked for every public route.
+  if(linkedCssAssets.has(asset))continue; // Entry CSS is already linked for every public route.
   if(!asset.startsWith("assets/")||!asset.endsWith(".css")||asset.includes("..")||asset.includes("\\\\")||asset.includes("?"))throw Error("Invalid Vite CSS asset "+asset);
   const file=join(out,asset);
   if(!existsSync(file))throw Error("Missing route CSS: "+asset);
