@@ -163,7 +163,7 @@ export async function stageNotify({request,env}){
    "SELECT id,user_id,state,facts_json,trade_no_hash FROM koolo_fortune_stage_orders WHERE merchant_trade_no=? AND amount_twd=79 LIMIT 1"
   ).bind(values.MerchantTradeNo).first();
   if(!row)return nack(404);
-  if(values.RtnCode!=="1")return ack(); // failure notifications grant nothing
+  if(values.RtnCode!=="1"||values.SimulatePaid==="1")return ack(); // nonpayment / backend simulation grants nothing
   const tradeHash=await sha(TEST_MERCHANT+":"+values.TradeNo);
   if(row.state==="paid")return row.trade_no_hash===tradeHash?ack():nack(409);
   if(row.state!=="pending")return nack(409);
