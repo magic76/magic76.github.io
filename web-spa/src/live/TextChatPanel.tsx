@@ -10,7 +10,7 @@ import {sendGuestTextWithRenewal} from "./guestTextFlow";
 import {useGuestTextChallenge} from "./guestTextChallenge";
 import {hasGuestChallengeHandoff,takeUsedGuestHandoff,takeMicFallbackNotice} from "./guestTextChallenge";
 import {classifyGuestTextFailure,guestTextWorkerError,markGuestTextStartError,isGuestTextStartError} from "./guestTextError";
-import {readSessionTranscript,readReturningFriendResume,returningFriendSystemHint,writeSessionTranscript,saveFriendResume,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
+import {readSessionTranscript,readReturningFriendResume,returningFriendSystemHint,writeSessionTranscript,saveFriendResume,recordFriendActivity,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
 import {TextChatStarters} from "./TextChatStarters";
 import {gameRoundContext,isGameRoundLink} from "./gameRoundHandoff";
@@ -280,6 +280,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     latestMessages.current=complete;
     writeSessionTranscript(sessionScope,complete);
     saveFriendResume(sessionScope,complete);
+    if(isFriend)recordFriendActivity(sessionScope.split(":")[1],"text");
     clearPendingTextDraft(sessionScope);
     pendingSend.current=null;
     setMessages(complete);
