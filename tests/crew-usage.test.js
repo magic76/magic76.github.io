@@ -36,15 +36,15 @@ test("private fortune report lab is reachable from /usage PWA but not public sit
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/KooloAdminEntry.tsx"),"utf8");
  const api=fs.readFileSync(path.join(root,"functions/api/fortune/report-lab.js"),"utf8");
  const page=fs.readFileSync(path.join(root,"functions/fortune/report-lab.js"),"utf8");
- assert.match(dashboard,/<a href="\\/fortune\\/report-lab" className="usage-jump usage-report-lab-link"/);
- assert.match(dashboard,/專屬命書驗收/);
- assert.match(css,/\\.usage-toolbar \\.usage-report-lab-link\\{[^}]*min-height:44px/);
- assert.doesNotMatch(home,/fortune\\/report-lab/);
- // Native <a> performs a document navigation to the Cloudflare Pages Function;
- // a client-side Router Link would otherwise render the wrong SPA route.
- assert.doesNotMatch(dashboard,/<Link[^>]+to="\\/fortune\\/report-lab"/);
- assert.match(api,/verifyAdmin:verifyAccess/);
- assert.match(page,/verifyAdmin:verifyAccess/);
+ assert.ok(dashboard.includes('<a href="/fortune/report-lab" className="usage-jump usage-report-lab-link"'));
+ assert.ok(dashboard.includes("專屬命書驗收"));
+ assert.ok(css.includes(".usage-toolbar .usage-report-lab-link{"));
+ assert.ok(css.includes("min-height:44px"));
+ assert.ok(!home.includes("/fortune/report-lab"));
+ // Native <a> navigates to the protected Pages Function, not the SPA router.
+ assert.ok(!dashboard.includes('<Link to="/fortune/report-lab"'));
+ assert.ok(api.includes("verifyAdmin:verifyAccess"));
+ assert.ok(page.includes("verifyAdmin:verifyAccess"));
 });
 
 test("event handler rejects unconfigured deployment and invalid or spoofed events",async()=>{
