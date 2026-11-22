@@ -169,7 +169,7 @@ test("legacy manual topics require explicit permission before later AI updates",
 
 test("Live completion saves the finished transcript, not stale React state",()=>{
  const shared=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
- const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLiveConversation.tsx"),"utf8");
  assert.match(shared,/onTurnComplete\?\.\(turn,turnsRef\.current\.slice\(\)\)/);
  assert.match(friend,/onTurnComplete:\(_turn,completedTurns\)=>/);
  assert.match(friend,/rememberFriendConversation\(sessionId,language,completedTurns,0\)/);
