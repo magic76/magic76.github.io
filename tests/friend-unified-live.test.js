@@ -97,6 +97,19 @@ test("friend route renders one composer and one shared caption timeline",()=>{
  ])assert.ok(Buffer.byteLength(read(p))<26000,p);
 });
 
+test("last AI friend tracks verified Live exchanges, including guest and text-first",()=>{
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
+ const live=read("web-spa/src/live/useLiveSession.ts");
+ const history=read("web-spa/src/live/sessionTranscript.ts");
+ const callback=friend.match(/onObservedExchange:turn=>\{([\s\S]*?)\n  \},/);
+ assert.ok(callback,"friend conversation must observe real completed exchanges");
+ assert.match(callback[1],/recordFriendActivity\(sessionId,"voice"\)/);
+ assert.match(live,/if\(turn\.hasValidOutput&&turn\.input\?\.trim\(\)&&turn\.output\?\.trim\(\)&&observed\)\{/);
+ assert.match(live,/configRef\.current\.onObservedExchange\?\.\(observed\)/);
+ assert.match(live,/if\(!guestModeRef\.current\)configRef\.current\.onTurnComplete/);
+ assert.match(history,/const LAST_FRIEND_KEY="crew_friend_last_exchange_v1"/);
+});
+
 test("guest 300 seconds remain one grant for either input without a microphone in text-first",()=>{
  const starter=read("web-spa/src/live/GuestLiveStarter.tsx");
  const hook=read("web-spa/src/live/useLiveSession.ts");
