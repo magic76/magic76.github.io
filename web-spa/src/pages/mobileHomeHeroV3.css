@@ -50,7 +50,6 @@
  .cmh-chat-pop{position:absolute;z-index:4;white-space:nowrap;border-radius:13px;
   padding:7px 10px;font-size:12px;font-weight:900;letter-spacing:-.015em;box-shadow:0 7px 17px #32203740}
  .cmh-chat-pop-first{top:92px;right:101px;background:#fff9ed;color:#8d3f69;transform:rotate(-9deg)}
- .cmh-chat-pop-last{top:160px;right:9px;background:#552e64;color:#fff9ea;transform:rotate(7deg)}
  .cmh-chat-pop span{color:#e59b69}
  .cmh-art-sparkle{position:absolute;z-index:5;font-size:23px;color:#ffeedb;text-shadow:0 0 13px #fff9}
  .cmh-art-sparkle-one{right:150px;top:25px}
@@ -159,7 +158,6 @@
  /* Both speech labels sit below the image boundary (photo ends at scene y=170).
     Leave Zoe's eyes, face and hair unobstructed. */
  .cmh-chat-pop-first{top:179px;right:92px;transform:rotate(-7deg)}
- .cmh-chat-pop-last{top:190px;right:5px;transform:rotate(5deg)}
  .cmh-art-sparkle-one{top:31px;right:139px}
  .cmh-friends-art{width:151px;height:194px;right:0;top:24px}
  .cmh-friend-portrait-0{right:68px;top:19px;width:69px;height:87px}
