@@ -39,16 +39,16 @@ test("B: intent warming and feedback are only UI/network hint, not privilege esc
 });
 
 test("B: homepage referrals frontload the existing manual guest gate, focus only after validation",()=>{
- const live=read("web-spa/src/friends/FriendLivePage.tsx");
+ const live=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const starter=read("web-spa/src/live/GuestLiveStarter.tsx");
- assert.match(live,/params.get\("from"\)==="home"&&HOME_FRIEND_IDS.includes\(params.get\("id"\)\|\|""\)&&!shortsPost&&!textMode&&!geminiKey\(\)/);
+ assert.match(live,/params.get\("from"\)==="home"&&HOME_FRIEND_IDS.includes\(params.get\("id"\)\|\|""\)&&!shortsPost&&!textFirst&&!geminiKey\(\)/);
  const identity=live.indexOf('className="live-identity"'),first=live.indexOf('homeFirstAction?<div className="friend-shorts-first-action"'),switcher=live.indexOf('className="friend-language-switch"');
  assert.ok(identity>=0&&identity<first&&first<switcher);
  assert.match(live,/!shortsPost&&!homeFirstAction\?voiceStart:null/);
  assert.match(live,/focusStartOnVerified=\{homeFirstAction\}/);
  assert.match(starter,/phase==="ready"&&challenge\)startButton.current\?\.focus\(\{preventScroll:true\}\)/);
  assert.match(starter,/<button ref=\{startButton\} type="button" className="btn" disabled=\{!challenge\} onClick=\{\(\)=>void begin\(\)\}\>/);
- assert.match(starter,/async function begin\(\)/);
+ assert.match(starter,/async function begin\(textOnly=false\)/);
  assert.match(starter,/getUserMedia\(\{audio:true\}\)/);
 });
 
