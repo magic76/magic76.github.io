@@ -43,7 +43,7 @@ export function HomeModeRail({mode,onChange,prefix,destinations,onNavigate,chatN
   <div id={prefix+"-panel"} className="home-mode-rail-panel" role="tabpanel" aria-labelledby={prefix+"-tab-"+mode} tabIndex={0}>
    <span className="home-mode-rail-overline">{t("world.tiles."+active.label+".name")}</span>
    <strong>{title}</strong><p>{description}</p>
-   <Link to={destinations[mode]} onClick={()=>onNavigate(mode)}>{action} <Arrow direction="up-right"/></Link>
+   <Link to={destinations[mode]} onClick={()=>onNavigate(mode)}>{action} <Arrow direction="right"/></Link>
   </div>
  </div>;
 }
