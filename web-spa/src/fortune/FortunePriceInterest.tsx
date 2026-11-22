@@ -76,7 +76,7 @@ export function FortunePriceInterest({readingId}:{readingId:string}){
      <li>{copy("封面、圖文內頁與老師的一封信","Designed cover, illustrated pages and closing letter")}</li>
      <li>{copy("PDF 下載與永久收藏（規劃中）","PDF and permanent library access (planned)")}</li>
     </ul>
-    <Link className="fortune-plan-sample-link" to="/fortune/report-sample">{copy("翻閱精美命書樣本","Explore the book sample")} <span aria-hidden="true">→</span></Link>
+    <Link className="fortune-plan-sample-link" to={"/fortune/report-sample?history="+encodeURIComponent(readingId)}>{copy("翻閱精美命書樣本","Explore the book sample")} <span aria-hidden="true">→</span></Link>
     {interested.premium?<p className="fortune-plan-thanks" role="status">{copy("已記下你對 NT$379 方案的興趣","Interest in NT$379 saved")}</p>:
      <button type="button" className="fortune-price-interest-button premium" onClick={()=>registerInterest("premium")}>{copy("我對 NT$379 有興趣","I'm interested in NT$379")}</button>}
    </article>
