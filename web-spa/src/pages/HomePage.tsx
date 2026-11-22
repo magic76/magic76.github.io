@@ -215,12 +215,12 @@ export function HomePage(){
      <Link className="crew-home-world-explore-card" to="/teacher/course/travel" onClick={()=>trackUsageEvent("home_entry_click","learn")}>
       <span className="crew-home-world-explore-icon" aria-hidden="true"><Icon name="teacher"/></span>
       <span><small>Koolo TEACHER</small><strong>{t("product.teacher")}</strong><span>{t("world.modes.learn.description")}</span></span>
-      <Arrow direction="up-right" className="crew-home-world-explore-arrow"/>
+      <Arrow direction="right" className="crew-home-world-explore-arrow"/>
      </Link>
      <Link className="crew-home-world-explore-card" to="/timeline" onClick={()=>trackUsageEvent("home_entry_click","timeline")}>
       <span className="crew-home-world-explore-icon crew-home-world-timeline-icon" aria-hidden="true">⌁</span>
       <span><small>Koolo TIMELINE</small><strong>{t("world.timelineTitle")}</strong><span>{t("world.timelineDescription")}</span></span>
-      <Arrow direction="up-right" className="crew-home-world-explore-arrow"/>
+      <Arrow direction="right" className="crew-home-world-explore-arrow"/>
      </Link>
     </div>
    </section>
