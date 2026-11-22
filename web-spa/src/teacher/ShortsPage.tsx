@@ -184,10 +184,10 @@ export function ShortsPage(){
         }}/>
        <span className="crew-short-photo-bottom">
         <span className="crew-short-friend"><img src={"/assets/friends/crew_friend_"+post.friendId+".webp"} alt="" loading="lazy"/><strong>{post.friendName}</strong></span>
-        <span className="crew-short-primary-cta">{t("shorts.chatThis",{name:post.friendName})} <Arrow direction="up-right"/></span>
+        <span className="crew-short-primary-cta">{t("shorts.chatThis",{name:post.friendName})} <Arrow direction="right"/></span>
        </span>
       </Link>
-      <Link className="crew-short-profile-link" to={"/teacher/shorts/"+post.friendId} aria-label={post.friendName+" profile"} onClick={saveProfileReturn}><img src={"/assets/friends/crew_friend_"+post.friendId+".webp"} alt="" loading="lazy"/><span>{post.friendName} <Arrow direction="up-right"/></span></Link>
+      <Link className="crew-short-profile-link" to={"/teacher/shorts/"+post.friendId} aria-label={post.friendName+" profile"} onClick={saveProfileReturn}><img src={"/assets/friends/crew_friend_"+post.friendId+".webp"} alt="" loading="lazy"/><span>{post.friendName} <Arrow direction="right"/></span></Link>
       <div className="crew-short-actions">
        <button type="button" className={"crew-short-like"+(celebratingLike===post.id?" is-celebrating":"")}
         aria-label={t("shorts.like")} title={t("shorts.like")}
@@ -197,7 +197,7 @@ export function ShortsPage(){
       </div>
      </div>
      <div className="crew-short-body">
-      <div className="crew-short-meta"><Link to={"/teacher/shorts/"+post.friendId} onClick={saveProfileReturn}>{post.friendName} <Arrow direction="up-right"/></Link><small>{post.publishedAt.slice(0,10)}</small></div>
+      <div className="crew-short-meta"><Link to={"/teacher/shorts/"+post.friendId} onClick={saveProfileReturn}>{post.friendName} <Arrow direction="right"/></Link><small>{post.publishedAt.slice(0,10)}</small></div>
       {episodes.length>1?<div className="crew-short-episode">{t("shorts.ongoing")} · {t("shorts.part",{part:chapter+1,total:episodes.length})}</div>:null}
       <p lang={post.language}>{post.caption}</p>
       {showZhTranslation&&post.translationZh&&post.language!=="zh"?<div className="crew-short-translation-wrap">
@@ -215,10 +215,10 @@ export function ShortsPage(){
        <small>{t("shorts.curious",{name:post.friendName})}</small>
        <div>{questions.length?questions.map(question=><Link key={question.index} to={shortsChatUrl(post,undefined,question.index)}
         onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_feed");chatClick("shorts_feed")}}>
-        {question.label} <Arrow direction="up-right"/>
+        {question.label} <Arrow direction="right"/>
        </Link>):SHORTS_HOOKS.map(hook=><Link key={hook} to={shortsChatUrl(post,hook)}
         onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_feed");chatClick("shorts_feed")}}>
-        {t("shorts.hooks"+({details:"Details",feelings:"Feelings",next:"Next"} as const)[hook])} <Arrow direction="up-right"/>
+        {t("shorts.hooks"+({details:"Details",feelings:"Feelings",next:"Next"} as const)[hook])} <Arrow direction="right"/>
        </Link>)}</div>
       </div>
      </div>
