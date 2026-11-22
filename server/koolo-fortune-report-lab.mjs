@@ -55,6 +55,10 @@ export async function labGet(ctx){
    return reply({items:(rows.results||[]).map(rowSummary)});
   }catch{return reply({error:"MIGRATION_REQUIRED"},503)}
  }
+ return reply({error:"NOT_FOUND"},404);
+}
+export async function labPage(ctx){
+ const a=await owner(ctx,"GET");if(a.error)return a.error;
  const nonce=crypto.randomUUID().replaceAll("-","");
  return new Response(reportLabHtml(nonce),{status:200,headers:{
   "Content-Type":"text/html; charset=utf-8","Cache-Control":"private, no-store","Vary":"Cookie",
