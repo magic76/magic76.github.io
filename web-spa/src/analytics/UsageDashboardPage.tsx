@@ -92,7 +92,7 @@ return Array.from({length:days},(_,i)=>{
    <p className="usage-explain">進入事件在 Magic 頁面載入時送出，不代表已開始遊玩。次數使用 Analytics Engine 取樣加權；不同瀏覽器與工作階段是去重計數，不能直接視為真人數。正式站自動化瀏覽也可能計入。</p>
   </section>
   <section className="panel section">
-   <div className="section-head"><h2>每天實際發生了什麼</h2><small>UTC 日期 · 下方統計的是事件次數</small></div>
+   <div className="section-head"><h2>每天實際發生了什麼</h2><small>台灣日期 · 下方統計的是事件次數</small></div>
    <div className="usage-filter" role="group" aria-label="篩選產品類別">
     {categories.map(group=><button key={group.id} type="button" aria-pressed={category===group.id} onClick={()=>setCategory(group.id)}>{group.label}</button>)}
    </div>
