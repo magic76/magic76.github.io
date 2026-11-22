@@ -37,7 +37,10 @@
 .crew-guide-hub{margin:36px 0 8px;padding:18px 0 0;border-top:1px solid var(--line,#e2e5ed)}
 .crew-guide-hub h2{font-size:17px;margin:0 0 12px}
 .crew-guide-hub-links{display:flex;flex-wrap:wrap;gap:8px}
-.crew-guide-hub-links a{display:inline-flex;text-decoration:none;color:var(--text);background:var(--surface,#fff);border:1px solid var(--line,#e2e5ed);padding:10px 13px;border-radius:12px;font-size:12px;line-height:1.4}
+.crew-guide-hub-links a{display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;min-width:0;max-width:100%;min-height:56px;text-decoration:none;color:var(--text);background:var(--surface,#fff);border:1px solid var(--line,#e2e5ed);padding:10px 13px;border-radius:12px;font-size:12px;line-height:1.4}
+.crew-guide-hub-label{flex:1 1 auto;min-width:0;overflow-wrap:break-word}
+.crew-guide-hub-links .crew-guide-hub-arrow{flex:none;align-self:center;margin-left:auto}
+@media(max-width:560px){.crew-guide-hub-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
 .crew-guide-hub-links a:hover{border-color:var(--accent);color:var(--accent)}
 @media(max-width:850px){.crew-guide-layout{grid-template-columns:1fr}.crew-guide-aside{position:static}}
 @media(max-width:560px){.crew-guide-breadcrumbs{margin:4px 0 12px}.crew-guide-hero{padding:14px 0 26px}.crew-guide-hero h1{font-size:25px;line-height:1.23}.crew-guide-hero>p{font-size:14px}.crew-guide-summary,.crew-guide-section,.crew-guide-faq,.crew-guide-end{padding:19px 17px;border-radius:16px}.crew-guide-section p,.crew-guide-faq p{font-size:14px}}

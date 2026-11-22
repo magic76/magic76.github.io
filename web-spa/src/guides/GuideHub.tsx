@@ -17,7 +17,7 @@ export function GuideHub({hideGeminiKey=false}:{hideGeminiKey?:boolean}={}){
  return <section className="crew-guide-hub" aria-label={english?"English learning guides":"英文學習指南"}>
   <h2>{english?"English speaking guides":"英文口說與 AI 練習指南"}</h2>
   <div className="crew-guide-hub-links">{topics.filter(([slug])=>!hideGeminiKey||slug!=="gemini-key-for-ai-practice").map(([slug,zh,en])=>
-   <Link key={slug} to={"/guides/"+slug}>{english?en:zh} <Arrow direction="up-right"/></Link>
+   <Link key={slug} to={"/guides/"+slug}><span className="crew-guide-hub-label">{english?en:zh}</span><Arrow direction="up-right" className="crew-guide-hub-arrow"/></Link>
   )}</div>
  </section>;
 }
