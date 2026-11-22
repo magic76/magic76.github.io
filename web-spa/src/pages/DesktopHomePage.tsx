@@ -6,7 +6,7 @@ import {Icon,type IconName} from "../components/Icon";
 import {trackUsageEvent} from "../analytics/usage";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
-import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscript";
+import {readLatestFriendActivity,type FriendActivity} from "../live/sessionTranscript";
 import {formatResumePreview} from "./formatResumePreview";
 import {DailyTopicCards} from "./DailyTopicCards";
 import {CreatureLabResume} from "./CreatureLabResume";
@@ -45,21 +45,21 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
  const {i18n,t}=useTranslation("home");
  const zh=i18n.language.startsWith("zh");
  const copy=(z:string,e:string)=>zh?z:e;
- const [resume,setResume]=useState<FriendResume|null>(null);
+ const [activity,setActivity]=useState<FriendActivity|null>(null);
  const [previewHidden,setPreviewHidden]=useState(false);
  useEffect(()=>{
-  setResume(readLatestFriendResume());
+  setActivity(readLatestFriendActivity());
   try{setPreviewHidden(localStorage.getItem(PREVIEW_HIDDEN_KEY)==="1")}catch{/* optional local preference */}
  },[]);
- const friend=resume?CREW_FRIENDS.find(person=>person.id===resume.friendId):null;
- const validResume=friend?resume:null;
- const id=validResume?.friendId;
+ const friend=activity?CREW_FRIENDS.find(person=>person.id===activity.friendId):null;
+ const validResume=friend?activity?.resume:null;
+ const id=friend?.id;
  const textTo=id?"/friend/live?id="+encodeURIComponent(id)+"&from=home&chat=text":ZOE_TEXT;
  const voiceTo=id?"/friend/live?id="+encodeURIComponent(id)+"&from=home&entry=bubble":ZOE_VOICE;
  const togglePreview=()=>{
   const next=!previewHidden;
   setPreviewHidden(next);
-  try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0")}catch{/* optional local preference */}
+  try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0");window.dispatchEvent(new Event("crew-home-preview-visibility-changed"))}catch{/* optional local preference */}
  };
  const track=(detail:Shortcut["event"])=>trackUsageEvent("home_entry_click",detail);
  return <div className="koolo-desktop-home">
@@ -67,8 +67,8 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
    <div className="kdh-zoe">
     <div className="kdh-zoe-content">
      <span className="kdh-eyebrow"><span className="kdh-status-dot"/> {friend?friend.name.toUpperCase():"ZOE"} · {t("showcase29.badgeFriend")}</span>
-     <h1>{validResume?t("layout2.resumeTitle",{name:friend!.name}):t("mobileHero.title")}</h1>
-     <p>{validResume?t("showcase29.desktop.resumeDesc"):t("mobileHero.subtitle")}</p>
+     <h1>{friend?t("layout2.resumeTitle",{name:friend.name}):t("mobileHero.title")}</h1>
+     <p>{friend?t("showcase29.desktop.resumeDesc"):t("mobileHero.subtitle")}</p>
      <div className="kdh-zoe-actions">
       <Link className="kdh-primary" to={textTo} onClick={()=>track("friend")}><Icon name="chat"/>{t("showcase29.desktop.text")}</Link>
       <Link className="kdh-secondary" to={voiceTo} onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{t("showcase29.desktop.voice")}</Link>

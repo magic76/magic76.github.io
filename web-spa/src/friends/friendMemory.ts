@@ -1,5 +1,6 @@
 import {voiceIdentityPrompt} from "../live/voiceIdentity";
 import {friendLifeBookPrompt} from "../characters/lifeBook";
+import {recordFriendActivity} from "../live/sessionTranscript";
 import{geminiKey,ensureCore,type LiveTurn}from"../lib/runtime";
 import{normalizeLearningLanguage,personalMemoryEnabled,studentMemories,getPersonalMemoryEpoch,ingestStudentPersonalUpdates,hasMeaningfulLearnerSpeech,verifiedLearnerEvidence}from"../teacher/studentMemory";
 import{CREW_FRIENDS,getCrewFriend,type FriendProfile}from"./friendProfiles";
@@ -152,7 +153,11 @@ export function realExchange(turns:LiveTurn[],durationMs:number){
  return durationMs>=10000&&turns.some(t=>Boolean(t.input?.trim()))&&turns.some(t=>Boolean(t.output?.trim()));
 }
 export function recordFriendChat(id:string,language:string,turns:LiveTurn[],durationMs:number){
- if(!validFriend(id)||!realExchange(turns,durationMs))return false;
+ if(!validFriend(id))return false;
+ // The homepage follows a real two-way exchange, even when the call ends before 10 seconds.
+ // The existing recent-chat/memory threshold remains unchanged.
+ if(turns.some(t=>Boolean(t.input?.trim()))&&turns.some(t=>Boolean(t.output?.trim())))recordFriendActivity(id,"voice");
+ if(!realExchange(turns,durationMs))return false;
  localStorage.setItem(recentKey(language),JSON.stringify({...recentDates(language),[id]:Date.now()}));
  return true;
 }

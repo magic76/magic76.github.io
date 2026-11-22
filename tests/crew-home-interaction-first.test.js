@@ -40,7 +40,7 @@ test("Recent game and friend navigation is recorded without message content",()=
  assert.ok(en.playHub.games["1a2b"].title);
  assert.match(home,/crew_home_last_activity_v1/);
  assert.match(home,/readUnfinishedNumberRound\(\)/);
- assert.match(home,/readLatestFriendResume\(\)/);
+ assert.match(home,/readLatestFriendActivity\(\)/);
  assert.match(home,/&from=home&chat=text/);
  assert.match(home,/resume-1a2b/);
  assert.match(home,/recents\.length\|\|creatureProgress\?<section className="crew-home-continue"/);

@@ -5,7 +5,7 @@ import {Icon,type IconName} from "../components/Icon";
 import {trackUsageEvent} from "../analytics/usage";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import type {ShortFeed} from "../teacher/shortsFeed";
-import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscript";
+import {readLatestFriendActivity,type FriendActivity} from "../live/sessionTranscript";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {GuideHub} from "../guides/GuideHub";
 import {useClientReady} from "../lib/useClientReady";
@@ -46,7 +46,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  const trial=useGuestTrialQuota(!ready||hasKey);
  const zh=i18n.language.startsWith("zh");
  const copy=(z:string,e:string)=>zh?z:e;
- const [resume,setResume]=useState<FriendResume|null>(null);
+ const [activity,setActivity]=useState<FriendActivity|null>(null);
  const [featured,setFeatured]=useState<(typeof GAMES)[number]>("1a2b");
  const [activeSlide,setActiveSlide]=useState(0);
  const [carouselPaused,setCarouselPaused]=useState(false);
@@ -54,7 +54,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  const startTouch=useRef<{x:number;y:number}|null>(null);
  const ignoreSwipeClick=useRef(false);
  useEffect(()=>{
-  setResume(readLatestFriendResume());
+  setActivity(readLatestFriendActivity());
   const taipeiDay=Math.floor((Date.now()+8*60*60*1000)/86400000);
   setFeatured(GAMES[taipeiDay%GAMES.length]);
  },[]);
@@ -94,8 +94,8 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
    setActiveSlide(index=>(index+(dx<0?1:-1)+SLIDES.length)%SLIDES.length);
   }
  };
- const resumeFriend=resume?CREW_FRIENDS.find(friend=>friend.id===resume.friendId):null;
- const friendResume=resumeFriend?resume:null;
+ const resumeFriend=activity?CREW_FRIENDS.find(friend=>friend.id===activity.friendId):null;
+ const friendResume=resumeFriend?activity:null;
  const resumeId=friendResume?.friendId;
  const textDestination=resumeId?"/friend/live?id="+encodeURIComponent(resumeId)+"&from=home&chat=text":ZOE_TEXT;
  const voiceDestination=resumeId?"/friend/live?id="+encodeURIComponent(resumeId)+"&from=home&entry=bubble":ZOE_VOICE;
@@ -207,7 +207,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
    <div className="cmh-carousel-dots" role="group" aria-label={t("showcase29.dots")}>
     {SLIDES.map((slide,index)=><button key={slide} type="button"
      className={index===activeSlide?"is-active":""} aria-current={index===activeSlide?"true":undefined}
-     aria-label={t("showcase29.slideGo",{number:index+1,label:t("showcase29.slide"+slide[0].toUpperCase()+slide.slice(1))})}
+     aria-label={t("showcase29.slideGo",{number:index+1,label:slide==="zoe"&&resumeFriend?t("layout2.resumeTitle",{name:resumeFriend.name}):t("showcase29.slide"+slide[0].toUpperCase()+slide.slice(1))})}
      onClick={()=>manualSlide(index)}><span aria-hidden="true"/></button>)}
    </div>
   </div>
