@@ -31,7 +31,8 @@ import {useCallTranslationPreference} from "./useCallTranslationPreference";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
 import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";
 import {geminiKey} from "../lib/runtime";
-import {TextChatPanel} from "../live/TextChatPanel";
+import {FriendUnifiedComposer} from "./FriendUnifiedComposer";
+import {gameRoundStarter,gameRoundContext} from "../live/gameRoundHandoff";
 import{useTranslation}from"react-i18next";
 import {FriendAvatar} from "./FriendAvatar";
 import {getCrewFriend} from "./friendProfiles";
@@ -243,9 +244,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     {!textMode&&<FriendCallMenuPreferences hintsEnabled={replyHints.enabled} hintsLocked={replyHintsLocked(live.state)} onHintsToggle={replyHints.toggle} translationEnabled={translationEnabled} onTranslationToggle={toggleTranslation}/>}
-    <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     </div>
-    {!textMode?<>
     <div className="live-presets">
      {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>{t("friendLive.changeTopic")}</button>{!guestStarted&&<LiveSearchAction live={live} english={english} label={english?"What's new lately?":"聊聊最近發生的事"}
     query="Find one recent, lighthearted, verifiable news or culture story with a publication date and credible source."
@@ -254,13 +253,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
 </>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
     </div>
     {live.turns.length?<FriendChatHistory turns={live.turns} friendName={friend.name} youLabel={t("friendLive.youLabel")} summary={t("friendLive.historySummary")}/>:null}
-    </>:null}</FriendCallMenu>
-    {textMode?(dailyLookupPending?<p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p>:<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:dailyHandoff?":fortune:"+dailyKind+":"+personalChartHash+":"+dayKey:dailyFortune?":daily:"+dailyFortune.hash:"")} searchEnabled={!shortsPost} system={system+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+"\n"+languageDirective+(beginnerTextStart?"\n"+beginnerTextStart:"")} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
-     firstStarter={shortsStarter||fortuneContinue||dailyFortuneStarter||dailyQuoteStarter||dailyTopicStarter}
-     autoStarter={fortuneContinue} replyFallback={fortuneReplies}
-     starters={dailyEntry?[t("dailyFortuneStarters.goodFor"),t("dailyFortuneStarters.watchOut")]:undefined}
-     showStarterWithHistory={Boolean(dailyFortuneStarter||dailyQuoteStarter)&&!dailyHandoff}
-     onExchange={shortsPost?()=>{if(usageSentRef.current)return;usageSentRef.current=true;trackUsageEvent("friend_conversation");trackUsageEvent("shorts_conversation");rememberShortsConversation(shortsPost)}:undefined}/>):<>
+    </FriendCallMenu>
     {!shortsPost&&!homeFirstAction?voiceStart:null}
     {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
     {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?
@@ -268,9 +261,13 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
       <span>{live.voicePhase==="no-transcript"?t("friendLive.noTranscript"):t("friendLive.noReply")}</span>
       {live.voicePhase==="no-reply"&&!guestStarted?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
-
-    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>{active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled} speaking={live.state==="speaking"} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled}/>:null}
-    </>}
+    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
+    {active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output}
+     learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled}
+     speaking={live.state==="speaking"} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled}/>:null}
+    <FriendUnifiedComposer live={live} hasKey={!!geminiKey()} focusOnMount={params.get("chat")==="text"}
+     blocked={!voiceRecapReady||dailyLookupPending}
+     starters={[gameRoundStarter(language,friend.name,window.location.search),shortsStarter,fortuneContinue,dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter,...(fortuneReplies||[])].filter((v):v is string=>Boolean(v))}/>
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{!textMode&&active&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
   </main>
