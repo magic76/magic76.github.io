@@ -20,7 +20,7 @@ test("Live audio and preview use the chosen model, never automatically switch fo
 });
 test("Crew Friend and Crew Teacher persona do not impose British, Taiwanese or other English accents",()=>{
  const identity=read("web-spa/src/live/voiceIdentity.ts");
- const f=read("web-spa/src/friends/FriendLivePage.tsx");
+ const f=read("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.match(identity,/const voiceAccent=accent\?\?"auto"/);
  assert.doesNotMatch(identity,/const friendAccent:/);
  assert.doesNotMatch(identity,/const teacherAccent:/);
