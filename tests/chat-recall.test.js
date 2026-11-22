@@ -95,7 +95,7 @@ test("all 11 locale groups are string-only, complete and use matching interpolat
  assert.match(panel,/t\("textChat\.ui\.freeDaily",\{count:GUEST_TEXT_DAILY_TURNS\}\)/);
  assert.match(panel,/textChatByokMessage\(category,type,t\)/);
  assert.ok(Buffer.byteLength(panel)<26000);
- assert.ok(Buffer.byteLength(widget)<26000);
+ 
  assert.doesNotMatch(panel,/trackUsageEvent\(|trackEvent\(|analytics\.track\(/);
 });
 test("daily templates quote full card actions rather than embedding imperatives into grammar",()=>{

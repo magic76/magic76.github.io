@@ -152,6 +152,7 @@ test('page-local mode directive wins over the persisted store and rerenders fall
  assert.deepEqual(Array.from(friendFallbackPhrases('en',modeFromFriendSystem(native,'immersion'),ui)),ui);
  const panel=read('web-spa/src/live/TextChatPanel.tsx');
  assert.match(panel,/setNextReplies\(isFriend\?\(replyFallback\|\|parsed\?\.replies\|\|"fallback"\):null\)/);
- assert.match(panel,/saved\.at\(-1\)\?\.role==="assistant"\?\(replyFallback\|\|"fallback"\):null/);
+ assert.match(panel,/latestMessages\.current=saved;\s*setNextReplies\(null\)/);
+  assert.doesNotMatch(panel,/saved\.at\(-1\)\?\.role==="assistant"\?\(replyFallback\|\|"fallback"\):null/);
  assert.match(panel,/nextReplies==="fallback"\?fallbackReplies:nextReplies/);
 });

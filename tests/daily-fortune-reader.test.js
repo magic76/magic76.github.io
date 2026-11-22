@@ -38,7 +38,7 @@ test("legacy daily entry keeps its behavior; explicit fortune handoff never resu
  assert.match(friend,/const dailyHandoff=Boolean\(dailyEntry/);
  assert.match(friend,/starters=\{\[gameRoundStarter\(/);
  assert.match(friend,/FriendUnifiedComposer/);
- assert.match(friend,/blocked=\{!voiceRecapReady\|\|dailyLookupPending\}/);
+ assert.match(friend,/blocked=\{dailyLookupPending\}/);
  assert.match(friend,/const dailyHandoff=Boolean\(dailyEntry&&params\.get\("from"\)==="fortune"\)/);
  assert.match(friend,/fortuneContinue/);
  assert.match(friend,/fortuneReplies\|\|\[\]/);

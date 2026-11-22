@@ -33,5 +33,6 @@ test("Validated post question is first suggested text reply; existing composer s
  assert.match(read("web-spa/src/pages/MobileHomePage.tsx"),/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
  assert.doesNotMatch(friend,/alternateParams|crew-chat-mode-switch/);
  assert.match(friend,/shortsPost\?<div className="friend-shorts-first-action"/);
- assert.match(friend,/if\(textFirst\|\|!voiceRecapReady/);
+ assert.match(friend,/if\(textFirst\|\|creatureEmbed/);
+  assert.doesNotMatch(friend,/voiceRecapReady/);
 });
