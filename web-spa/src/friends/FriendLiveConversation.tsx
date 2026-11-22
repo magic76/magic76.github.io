@@ -43,7 +43,7 @@ import {loadQuoteText} from "../pages/quoteCatalog";
 import {useFriendDailyFortuneContext} from "./useFriendDailyFortuneContext";
 import {nextFriendLifeOpening} from "../characters/lifeBook";
 import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageMode} from "./friendLanguage";
-import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
+import {buildFriendSystem,recordFriendChat,recordFriendVoiceExchange,friendVoiceOpeningRecall,rememberFriendConversation} from "./friendMemory";
 import {recordFriendActivity,clearLegacyFriendChats} from "../live/sessionTranscript";
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
@@ -113,6 +113,8 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const region=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
  const sessionId=friend.id;
  const [lifeOpening]=useState(()=>!shortsPost&&!intent?nextFriendLifeOpening(friend.id):"");
+ // Snapshot relationship evidence before this session; greetings alone never count.
+ const openingRecall=useMemo(()=>friendVoiceOpeningRecall(friend.id,language),[friend.id,language]);
  const system=useMemo(()=>buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost),[friend,language,friendNativeLanguage,friendChatMode,region,accentStrength,customAccent,shortsPost]);
  const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
  const scopedSystem=gameRoundContext(system,"friend:"+friend.id);
@@ -126,7 +128,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
    system:scopedSystem+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
   openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
    shortsHook,selectedQuestion,lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
-   conversationStyle:"one easy conversational observation",creatureContext}),
+   conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onInputSpeech:replyHints.onInputSpeech,
@@ -135,6 +137,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
    // Unlike onSessionFinished, this callback also fires for guest Live and unified text chat.
    // Keep the pointer content-free: do not persist a voice transcript or an AI-only greeting.
    recordFriendActivity(sessionId,"voice");
+   recordFriendVoiceExchange(sessionId,language);
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
    if(turn.id)try{awardCreatureChatEnergy("friend-voice",creatureRewardSession.current+":"+turn.id)}catch{}
   },
