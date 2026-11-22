@@ -34,8 +34,8 @@ test('course progress is labelled by the existing lesson namespace on first rout
 
 test('voice permissions are requested on Start, and actual denial gives localized settings guidance',()=>{
  const src=read('web-spa/src/live/GuestLiveStarter.tsx');
- const before=src.slice(0,src.indexOf('async function begin()'));
- const after=src.slice(src.indexOf('async function begin()'));
+ const before=src.slice(0,src.indexOf('async function begin(textOnly=false)'));
+ const after=src.slice(src.indexOf('async function begin(textOnly=false)'));
  assert.doesNotMatch(before,/navigator\.permissions\?\.query/);
  assert.doesNotMatch(before,/role="alert"/);
  assert.doesNotMatch(before,/navigator\.mediaDevices\.getUserMedia\(/);
