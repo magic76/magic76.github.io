@@ -108,6 +108,50 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  assert.equal((await labPage({request:pageRequest(),env:env(d),verifyAdmin:async()=>false})).status,404);
 });
 
+test("PWA chart picker initializes immediately and can rescan local BaZi readings without waiting for network",async()=>{
+ const source=readFileSync("assets/js/fortune-report-lab.js","utf8");
+ let saved="[]";
+ const elements=new Map();
+ const mk=(id="")=>{
+  const el={id,value:"",textContent:"",disabled:false,hidden:false,children:[],listeners:{},
+   appendChild(child){this.children.push(child)},
+   replaceChildren(...items){this.children=items},
+   addEventListener(type,fn){this.listeners[type]=fn},
+   append(...children){this.children.push(...children)},
+   style:{setProperty(){}}
+  };
+  return el;
+ };
+ const document={
+  getElementById(id){if(!elements.has(id))elements.set(id,mk(id));return elements.get(id)},
+  createElement(){return mk()}
+ };
+ // Reproduces a slow/offline D1 report history request; local chart loading must
+ // remain entirely synchronous and independent of it.
+ const fetch=()=>new Promise(()=>{});
+ new Function("document","localStorage","location","window","fetch","crypto","console",source)(
+  document,{getItem(key){return key==="crew_fortune_readings_v2"?saved:null}},
+  {pathname:"/fortune/report-lab",hash:""},
+  {history:{replaceState(){}},scrollTo(){},print(){}},
+  fetch,{randomUUID:()=>UUID},{error(){}}
+ );
+ const chart=elements.get("chart"),status=elements.get("chartStatus"),btn=elements.get("generate");
+ assert.equal(chart.children.length,1);
+ assert.match(chart.children[0].textContent,/沒有已保存的八字命盤/);
+ assert.match(status.textContent,/同一個 Koolo 網域/);
+ assert.equal(btn.disabled,true);
+ saved=JSON.stringify([
+  {id:"a",mode:"tarot",result:{fourPillars:"unused"}},
+  {id:"reading_123",mode:"bazi",createdAt:"2026-11-22T10:00:00Z",result:{fourPillars:"甲子 乙丑 丙寅 丁卯"}}
+ ]);
+ elements.get("refreshCharts").listeners.click();
+ assert.equal(chart.children.length,1);
+ assert.match(chart.children[0].textContent,/甲子 乙丑 丙寅 丁卯/);
+ assert.equal(chart.value,"0");
+ assert.match(status.textContent,/已找到 1 份/);
+ assert.equal(btn.disabled,false);
+});
+
 test("missing login, wrong user, malicious origin and wrong method fail closed",async()=>{
  const d=db();
  assert.equal((await get({request:request("",{cookie:false}),env:env(d)})).status,401);
