@@ -83,7 +83,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
  };
  const togglePreview=()=>{
   const next=!previewHidden;setPreviewHidden(next);
-  try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0")}catch{/* Optional privacy choice. */}
+  try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0");window.dispatchEvent(new Event("crew-home-preview-visibility-changed"))}catch{/* Optional privacy choice. */}
  };
  const handleLaunch=(event:MouseEvent<HTMLAnchorElement>)=>{
   if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
