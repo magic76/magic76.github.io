@@ -8,11 +8,40 @@ var records=[];
 var ELS=["木","火","土","金","水"],COLORS=["#648676","#cb846a","#bda36b","#88949f","#60859e"];
 function node(id){return document.getElementById(id)}
 function say(text){msg.textContent=text}
+function unexpectedApiResponse(response){
+ var status=response.status,kind=(response.headers.get("content-type")||"").toLowerCase();
+ if(response.type==="opaqueredirect"||(status>=300&&status<400))
+  return "命書 API 被重新導向（登入驗證可能已過期）。請重新登入 Koolo／Cloudflare Access，再回到管理後台重試。";
+ if(kind.includes("html")){
+  if(status===200)return "命書 API 回傳網頁而非資料（HTTP 200）。請檢查 Cloudflare Pages 的 /api/fortune/report-lab Function 是否部署且沒有被重新導向。";
+  if(status>=500)return "Cloudflare 回傳 HTML 錯誤頁（HTTP "+status+"）。可能是 AI 生成逾時或 Pages Function 執行錯誤，請查看 Cloudflare 即時日誌。";
+  return "命書 API 被 HTML 頁面攔截（HTTP "+status+"），請檢查 Cloudflare Access、路由與登入狀態。";
+ }
+ return "命書 API 沒有回傳 JSON（HTTP "+status+"，類型 "+(kind||"未提供")+"）。請檢查 Cloudflare Pages Function。";
+}
 async function api(query,init){
- var response=await fetch(path+(query||""),Object.assign({credentials:"same-origin",cache:"no-store"},init||{}));
- var obj=await response.json();
- if(!response.ok)throw Error(obj.error||("HTTP "+response.status));
- return obj;
+ var options=Object.assign({credentials:"same-origin",cache:"no-store",redirect:"manual"},init||{});
+ options.headers=Object.assign({"Accept":"application/json"},init&&init.headers||{});
+ var isGeneration=options.method==="POST",controller=isGeneration?new AbortController():null,timer=null;
+ if(controller){
+  options.signal=controller.signal;
+  timer=setTimeout(function(){controller.abort()},85000);
+ }
+ try{
+  var response=await fetch(path+(query||""),options);
+  if(response.type==="opaqueredirect"||(response.status>=300&&response.status<400))
+   throw Error(unexpectedApiResponse(response));
+  if(!(response.headers.get("content-type")||"").toLowerCase().includes("json"))
+   throw Error(unexpectedApiResponse(response));
+  var obj;
+  try{obj=await response.json()}catch{throw Error("命書 API JSON 格式錯誤（HTTP "+response.status+"），請查看 Cloudflare Pages 日誌。")}
+  if(!response.ok)throw Error((obj&&obj.error||"API_ERROR")+"（HTTP "+response.status+"）");
+  if(!obj||typeof obj!=="object")throw Error("命書 API 回傳資料格式無效");
+  return obj;
+ }catch(error){
+  if(controller&&controller.signal.aborted)throw Error("AI 命書請求超過 85 秒仍未完成。請檢查 Cloudflare 生成記錄，避免直接重複送出。");
+  throw error;
+ }finally{if(timer!==null)clearTimeout(timer)}
 }
 function number(x){var n=Number(x);return Number.isInteger(n)?Math.max(0,Math.min(24,n)):0}
 function getRecords(){
