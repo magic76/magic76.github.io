@@ -76,19 +76,32 @@ export function labPrompt(f){
  "命盤摘要（沒有姓名／出生日期）："+JSON.stringify(f)
  ].join("\n");
 }
-export async function generateLabChapters(f,{key,model,fetcher=fetch}){
- const response=await fetcher("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",{
-  method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
-  body:JSON.stringify({contents:[{role:"user",parts:[{text:labPrompt(f)}]}],
-   generationConfig:{responseMimeType:"application/json",temperature:0.45,maxOutputTokens:8192}})
- });
- if(!response.ok)throw Error("UPSTREAM_"+response.status);
- const data=await response.json();
- const text=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("").trim();
- if(!text||text.length>14000)throw Error("UPSTREAM_EMPTY");
- let obj;try{obj=JSON.parse(text)}catch{throw Error("INVALID_JSON")}
- const chapters=validateLabChapters(obj,f);
- if(!chapters)throw Error("QUALITY_CHECK_FAILED");
- return {chapters,usage:{promptTokens:Math.max(0,Number(data.usageMetadata?.promptTokenCount)||0),
-  outputTokens:Math.max(0,Number(data.usageMetadata?.candidatesTokenCount)||0)}};
+export async function generateLabChapters(f,{key,model,fetcher=fetch,timeoutMs=65000}){
+ // Stop well before an edge timeout can replace our API JSON with an HTML
+ // Cloudflare error page. The controller covers fetch and reading its body.
+ const controller=new AbortController();
+ const limit=Math.max(10,Math.min(65000,Number(timeoutMs)||65000));
+ const timer=setTimeout(()=>controller.abort(),limit);
+ try{
+  const response=await fetcher("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",{
+   method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
+   signal:controller.signal,
+   body:JSON.stringify({contents:[{role:"user",parts:[{text:labPrompt(f)}]}],
+    generationConfig:{responseMimeType:"application/json",temperature:0.45,maxOutputTokens:8192}})
+  });
+  if(!response.ok)throw Error("UPSTREAM_"+response.status);
+  if((response.headers?.get?.("content-type")||"").toLowerCase().includes("text/html"))
+   throw Error("UPSTREAM_INVALID_RESPONSE");
+  const data=await response.json();
+  const text=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("").trim();
+  if(!text||text.length>14000)throw Error("UPSTREAM_EMPTY");
+  let obj;try{obj=JSON.parse(text)}catch{throw Error("INVALID_JSON")}
+  const chapters=validateLabChapters(obj,f);
+  if(!chapters)throw Error("QUALITY_CHECK_FAILED");
+  return {chapters,usage:{promptTokens:Math.max(0,Number(data.usageMetadata?.promptTokenCount)||0),
+   outputTokens:Math.max(0,Number(data.usageMetadata?.candidatesTokenCount)||0)}};
+ }catch(e){
+  if(controller.signal.aborted)throw Error("UPSTREAM_TIMEOUT");
+  throw e;
+ }finally{clearTimeout(timer)}
 }
