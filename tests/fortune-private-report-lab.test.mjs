@@ -152,6 +152,75 @@ test("PWA chart picker initializes immediately and can rescan local BaZi reading
  assert.equal(btn.disabled,false);
 });
 
+test("PWA API detects HTML fallback, HTML edge error and Access redirect without parsing them as JSON",async()=>{
+ const browserJs=readFileSync("assets/js/fortune-report-lab.js","utf8");
+ const reading={id:"reading_test",mode:"bazi",createdAt:"2026-11-23T00:00:00Z",result:{
+  fourPillars:facts.fourPillars,dayMaster:facts.dayMaster,dayMasterElement:facts.dayMasterElement,
+  dayMasterStrength:facts.strength,weightedFiveElements:facts.weighted,annualTimeline:facts.annual,
+  careerProfile:{resourceCount:3,outputCount:1,officerCount:2},
+  wealthProfile:{directWealthCount:1,indirectWealthCount:2}
+ }};
+ for(const [htmlStatus,expected] of [
+  [200,/回傳網頁而非資料（HTTP 200）/],
+  [504,/HTML 錯誤頁（HTTP 504）/],
+  [302,/命書 API 被重新導向/]
+ ]){
+  const elements=new Map();
+  const make=()=>({value:"",textContent:"",disabled:false,hidden:false,children:[],listeners:{},
+   appendChild(child){this.children.push(child)},replaceChildren(...items){this.children=items},
+   addEventListener(name,fn){this.listeners[name]=fn},append(...items){this.children.push(...items)},
+   style:{setProperty(){}}
+  });
+  const document={
+   getElementById(id){if(!elements.has(id))elements.set(id,make());return elements.get(id)},
+   createElement(){return make()}
+  };
+  const mockFetch=async(path,options)=>{
+   if(path.includes("?list=1"))return new Response(JSON.stringify({items:[]}),{
+    status:200,headers:{"content-type":"application/json"}
+   });
+   assert.equal(options.redirect,"manual");
+   assert.equal(options.headers.Accept,"application/json");
+   return new Response(htmlStatus===302?null:"<!DOCTYPE html><html><body>Edge fallback</body></html>",{
+    status:htmlStatus,headers:{"content-type":"text/html"}
+   });
+  };
+  new Function("document","localStorage","location","window","fetch","crypto","console",browserJs)(
+   document,{getItem(key){return key==="crew_fortune_readings_v2"?JSON.stringify([reading]):null}},
+   {pathname:"/fortune/report-lab",hash:""},
+   {history:{replaceState(){}},scrollTo(){},print(){}},
+   mockFetch,{randomUUID:()=>UUID},{error(){}}
+  );
+  elements.get("question1").value="我的職涯應該如何安排？";
+  await elements.get("generate").listeners.click();
+  const message=elements.get("message").textContent;
+  assert.match(message,expected);
+  assert.doesNotMatch(message,/Unexpected token|<!DOCTYPE/i);
+  assert.equal(elements.get("generate").disabled,false);
+ }
+});
+
+test("a stalled Gemini request is aborted before the edge timeout",async()=>{
+ let aborted=false;
+ const stall=(_url,opts)=>new Promise((resolve,reject)=>{
+  opts.signal.addEventListener("abort",()=>{
+   aborted=true;
+   reject(new Error("aborted"));
+  },{once:true});
+ });
+ await assert.rejects(generateLabChapters(normalizeLabFacts(facts),{
+  key:"private-unit-test-key",model,fetcher:stall,timeoutMs:20
+ }),/UPSTREAM_TIMEOUT/);
+ assert.equal(aborted,true);
+ const d=db();
+ const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(d,{FORTUNE_LAB_TEST_FETCH:async()=>{throw Error("UPSTREAM_TIMEOUT")}})});
+ assert.equal(res.status,504);
+ assert.equal(res.headers.get("content-type")?.includes("application/json"),true);
+ assert.equal((await res.json()).error,"AI_TIMEOUT");
+ assert.ok(d.queries.some(sql=>sql.includes("status='failed'")));
+});
+
 test("missing login, wrong user, malicious origin and wrong method fail closed",async()=>{
  const d=db();
  assert.equal((await get({request:request("",{cookie:false}),env:env(d)})).status,401);
