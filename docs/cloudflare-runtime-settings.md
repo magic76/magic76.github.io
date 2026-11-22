@@ -16,6 +16,19 @@
 
 **部署步驟**：到 **Cloudflare → Workers & Pages → Koolo Pages 專案 → Settings → Variables and Secrets → Production** 設定前兩個 Text；`CREW_AUTH_DB` 在 **Settings → Bindings → D1 database**。設定完成需確認新部署已套用，測試入口為 `koolo.app/fortune/ecpay/test`。
 
+## NT$379 私人命書驗收台（僅限管理員）
+
+| Cloudflare 設定名稱 | 類型 / 範圍 | 用途 | 設定方式 |
+| --- | --- | --- | --- |
+| `KOOLO_FORTUNE_LAB_ENABLED` | **Text**／Production runtime | 命書測試台總開關，僅字串 `1` 啟用 | `1` 啟用；測試後改 `0` |
+| `KOOLO_FORTUNE_LAB_USER_IDS` | **Text**／Production runtime | 允許使用測試台的 Koolo 帳號白名單 | 只填自己 `/api/auth/session` 的 `user.id` UUID；不要填 Email 或 `*` |
+| `KOOLO_FORTUNE_LAB_GEMINI_KEY` | **Secret**／Production runtime | 伺服器端生成私有命書使用的 Gemini Key | 必須填有效 Key，**不要用 `VITE_*`，不要提交至 GitHub** |
+| `KOOLO_FORTUNE_LAB_MODEL` | **Text**／Production runtime，可省略 | 命書使用的 Gemini 文字模型 | 預設 `gemini-2.5-flash`；必要時改成該 Key 可用的文字模型 |
+
+**必要前置**：在既有 `CREW_AUTH_DB` 執行 `migrations/crew-auth/0010_fortune_lab.sql`，再部署 Pages。獨立管理員驗收網址為 `koolo.app/api/fortune/report-lab`，一般使用者沒有導覽入口也無法取得畫面或報告。正式金流與其他報告資料表不受影響。
+
+詳細說明：`docs/koolo-fortune-private-report-lab.md`。
+
 ## 會員 OAuth（既有正式登入）
 
 程式接受以下兩組命名規則的 **任一完整配對**；不要把 Client Secret 設為可公開的 Build variable。
