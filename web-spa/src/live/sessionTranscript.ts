@@ -32,14 +32,16 @@ export function readLatestFriendActivity(store?:Pick<Storage,"getItem">):FriendA
 }
 /** Clear legacy friend transcripts and unsent drafts; leave teacher course state intact. */
 export function clearLegacyFriendChats(
- deviceStore:Pick<Storage,"removeItem">=localStorage,
- tabStore:Pick<Storage,"length"|"key"|"removeItem">=sessionStorage
+ deviceStore?:Pick<Storage,"removeItem">,
+ tabStore?:Pick<Storage,"length"|"key"|"removeItem">
 ){
- try{deviceStore.removeItem(RESUME_KEY)}catch{}
+ // Accessing browser storage can itself throw in sandboxed/private contexts.
+ try{(deviceStore||localStorage).removeItem(RESUME_KEY)}catch{}
  try{
-  for(let i=tabStore.length-1;i>=0;i--){
-   const key=tabStore.key(i);
-   if(key&&(key.startsWith(PREFIX+"friend:")||key.startsWith(PENDING_PREFIX+"friend:")))tabStore.removeItem(key);
+  const tab=tabStore||sessionStorage;
+  for(let i=tab.length-1;i>=0;i--){
+   const key=tab.key(i);
+   if(key&&(key.startsWith(PREFIX+"friend:")||key.startsWith(PENDING_PREFIX+"friend:")))tab.removeItem(key);
   }
  }catch{/* Storage can be disabled. */}
 }
