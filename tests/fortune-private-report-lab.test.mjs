@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {normalizeLabFacts,validateLabChapters,generateLabChapters,PARTS} from "../server/koolo-fortune-lab-core.mjs";
-import {labGet,labPost} from "../server/koolo-fortune-report-lab.mjs";
+import {labGet,labPost,labPage} from "../server/koolo-fortune-report-lab.mjs";
 import {reportLabHtml} from "../server/koolo-fortune-lab-html.mjs";
 
 const COOKIE="a".repeat(43),UUID="11111111-2222-4333-8444-555555555555";
@@ -25,6 +25,11 @@ function request(path="",{method="GET",cookie=true,origin="https://koolo.app",bo
  return new Request(origin+"/api/fortune/report-lab"+path,{method,
   headers:{...(cookie?{Cookie:"__Host-crew_session="+COOKIE}:{}),...(body?{"Content-Type":"application/json",Origin:requestOrigin}:{})},
   ...(body?{body:JSON.stringify(body)}:{})});
+}
+function pageRequest({cookie=true,origin="https://koolo.app"}={}){
+ return new Request(origin+"/fortune/report-lab",{
+  headers:cookie?{Cookie:"__Host-crew_session="+COOKIE}:{}
+ });
 }
 function db({uid=UUID,found=null,insertChanges=1}={}){
  const queries=[];
@@ -56,7 +61,7 @@ const fakeProvider=async(_url,opts)=>{
 };
 
 test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigation and is noindexed",async()=>{
- const d=db(),r=await labGet({request:request(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:UUID})});
+ const d=db(),r=await labPage({request:pageRequest(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:UUID})});
  assert.equal(r.status,200);assert.match(r.headers.get("Content-Security-Policy"),/nonce-/);
  assert.match(r.headers.get("X-Robots-Tag"),/noindex/);
  const html=await r.text();
@@ -69,6 +74,15 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  assert.ok(!app.includes("report-lab")&&!price.includes("report-lab"));
  const route=readFileSync("functions/api/fortune/report-lab.js","utf8");
  assert.match(route,/onRequestGet=labGet/);
+ const pageRoute=readFileSync("functions/fortune/report-lab.js","utf8");
+ assert.match(pageRoute,/onRequestGet=labPage/);
+ const pagesRoutes=JSON.parse(readFileSync("_routes.json","utf8"));
+ assert.ok(pagesRoutes.include.includes("/fortune/report-lab"));
+ assert.match(html,/var path="\/api\/fortune\/report-lab",pagePath=location.pathname/);
+ assert.match(html,/window\.history\.replaceState\(null,"",pagePath/);
+ assert.equal((await labGet({request:request(),env:env(d)})).status,404);
+ assert.equal((await labPage({request:pageRequest({cookie:false}),env:env(d)})).status,401);
+ assert.equal((await labPage({request:pageRequest(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:"someone-else"})})).status,404);
 });
 
 test("closed switch, missing login, wrong user, malicious origin and wrong method fail closed",async()=>{
