@@ -120,7 +120,7 @@ test("Teacher text mode remains unchanged; friend keyboard uses the same Live se
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
  const composer=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendUnifiedComposer.tsx"),"utf8");
  assert.match(teacher,/\btextMode\b/);
- assert.match(teacher,/<TextChatPanel/);
+ assert.match(teacher,/<TeacherTextCourseChat/);
  assert.match(friend,/const textFirst=params\.get\("chat"\)==="text"/);
  assert.doesNotMatch(friend,/<TextChatPanel/);
  assert.match(friend,/<FriendUnifiedComposer live=\{live\}/);
