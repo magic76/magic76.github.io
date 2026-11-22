@@ -1,0 +1,1 @@
+import{i as e,t}from"./react-DB-4Zxce.js";import{a as n,r}from"./i18n-DCnkBrhY.js";import{t as i}from"./useTranslation-DA1SnSTU.js";var a=e(t());function o(e){i();let[,t]=(0,a.useReducer)(e=>e+1,0),o=n(e);return(0,a.useEffect)(()=>{o||r(e).then(t,()=>{})},[o,e]),o}export{o as t};
