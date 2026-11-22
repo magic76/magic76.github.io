@@ -26,7 +26,7 @@ function request(path="",{method="GET",cookie=true,origin="https://koolo.app",bo
   headers:{...(cookie?{Cookie:"__Host-crew_session="+COOKIE}:{}),...(body?{"Content-Type":"application/json",Origin:requestOrigin}:{})},
   ...(body?{body:JSON.stringify(body)}:{})});
 }
-function db({uid="tester",found=null,insertChanges=1}={}){
+function db({uid=UUID,found=null,insertChanges=1}={}){
  const queries=[];
  return {queries,prepare(sql){
   queries.push(sql);
@@ -43,7 +43,7 @@ function db({uid="tester",found=null,insertChanges=1}={}){
  }};
 }
 const env=(database,more={})=>({CREW_AUTH_DB:database,
- KOOLO_FORTUNE_LAB_ENABLED:"1",KOOLO_FORTUNE_LAB_USER_IDS:"tester",
+ KOOLO_FORTUNE_LAB_ENABLED:"1",KOOLO_FORTUNE_LAB_USER_IDS:UUID,
  KOOLO_FORTUNE_LAB_GEMINI_KEY:"this-is-only-a-unit-test-key-123456",
  KOOLO_FORTUNE_LAB_MODEL:model,...more});
 const fakeProvider=async(_url,opts)=>{
@@ -56,7 +56,7 @@ const fakeProvider=async(_url,opts)=>{
 };
 
 test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigation and is noindexed",async()=>{
- const d=db(),r=await labGet({request:request(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:"tester"})});
+ const d=db(),r=await labGet({request:request(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:UUID})});
  assert.equal(r.status,200);assert.match(r.headers.get("Content-Security-Policy"),/nonce-/);
  assert.match(r.headers.get("X-Robots-Tag"),/noindex/);
  const html=await r.text();
