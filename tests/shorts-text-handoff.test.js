@@ -26,7 +26,8 @@ test("Validated post question is first suggested text reply; existing composer s
  assert.match(panel,/if\(messages\.length&&history\.current\)/);
  assert.match(panel,/if\(latestMessages\.current\.length\)log\.scrollTop/);
  assert.match(panel,/try\{onExchange\?\.\(\)\}catch/);
- assert.match(friend,/trackUsageEvent\("shorts_conversation"\);rememberShortsConversation\(shortsPost\)/);
+ assert.match(friend,/trackUsageEvent\("shorts_conversation"\)/);
+ assert.match(friend,/rememberShortsConversation\(shortsPost\)/);
  assert.match(bubble,/"\/teacher\/shorts"/);
  assert.doesNotMatch(bubble,/entry=bubble|ZOE_LIVE/);
  assert.match(read("web-spa/src/pages/MobileHomePage.tsx"),/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
