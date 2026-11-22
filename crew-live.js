@@ -289,6 +289,28 @@
   LiveSession.prototype.toggleMic=function(){
     return this.setMicMuted(!this.micMuted);
   };
+  // Upgrade an existing keyboard Live socket to microphone input without
+  // discarding the text transcript or consuming another guest trial token.
+  LiveSession.prototype.enableMicrophone=function(){
+    if(!this.ready||!this.running||this.stopping)return Promise.reject(new Error("Live 尚未連線"));
+    if(!this.textOnly)return Promise.resolve();
+    if(!this.options.allowMicUpgrade)return Promise.reject(new Error("目前連線不支援開啟麥克風"));
+    if(this.micUpgradePending)return this.micUpgradePending;
+    var self=this;
+    this.micUpgradePending=(async function(){
+      await self._openMedia();
+      if(!self.ready||!self.running||self.stopping)throw new Error("Live 已結束");
+      self.textOnly=false;
+      self.setVolume(self.volume);
+      self.setMicMuted(false);
+      await self._requestWakeLock();
+      self._status("麥克風已開啟，可以繼續說話");
+    })().catch(async function(error){
+      if(self.textOnly)await self._cleanupMedia();
+      throw error;
+    }).finally(function(){self.micUpgradePending=null;});
+    return this.micUpgradePending;
+  };
 
   // An explicit clientContent turn interrupts server generation. A silent
   // realtimeInput audio frame does not: auto-VAD treats it as silence.
@@ -615,7 +637,7 @@
           turnComplete:true
         }
       }));
-      if(this.textOnly)this.inputTurn=text;
+      if(this.textOnly||this.options.trackTextTurns)this.inputTurn=text;
       if(this.interruptPending)this.interruptInputSeen=true;
       return true;
     }catch(error){
@@ -1157,7 +1179,7 @@
                   silenceDurationMs:self.options.turnTiming.silenceDurationMs
                 }}
               } : {}),
-              ...(self.textOnly?{}:{inputAudioTranscription:{}}),
+              ...(self.textOnly&&!self.options.allowMicUpgrade?{}:{inputAudioTranscription:{}}),
               outputAudioTranscription:{},
               systemInstruction:{
                 parts:[{text:self.options.system||"你是 Crew 的 Live 助手。自然、簡短地對話。"}]
