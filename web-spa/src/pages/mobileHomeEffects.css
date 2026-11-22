@@ -1,0 +1,75 @@
+/* Koolo homepage effects P1. Mobile-only, no additional images, canvases or layout shifts.
+   Existing hero glow/breathing and Shorts IntersectionObserver remain the source of motion. */
+@media(max-width:767px){
+ /* A calm edge-light changes with the active scene without repainting particle layers. */
+ .cmh-carousel[data-scene="zoe"]{--cmh-ambient:#d989a7;--cmh-scene-dot:#b87689}
+ .cmh-carousel[data-scene="friends"]{--cmh-ambient:#5baabd;--cmh-scene-dot:#317f92}
+ .cmh-carousel[data-scene="game"]{--cmh-ambient:#d79b67;--cmh-scene-dot:#9b6b8f}
+ .cmh-carousel[data-scene="learn"]{--cmh-ambient:#8b9bdf;--cmh-scene-dot:#667ec5}
+ .cmh-carousel::before{
+  content:"";pointer-events:none;position:absolute;z-index:0;
+  left:-9px;right:-9px;bottom:4px;height:70px;border-radius:50%;
+  background-color:var(--cmh-ambient,#d989a7);opacity:.22;
+  transition:background-color 680ms ease;
+ }
+ .cmh-carousel-viewport{position:relative;z-index:1}
+ .cmh-carousel-dots button.is-active span{background:var(--cmh-scene-dot,#b87689)}
+
+ /* A real, focusable link appears above the portrait, never inside aria-hidden art. */
+ .cmh-friend-invite{
+  position:absolute;z-index:8;top:53px;right:12px;display:inline-flex;
+  align-items:center;justify-content:center;gap:5px;box-sizing:border-box;
+  max-width:42%;min-height:36px;padding:7px 9px;border:1px solid #fff9;
+  border-radius:13px 13px 4px 13px;background:#fff9ed;color:#7b3c60;
+  box-shadow:0 5px 14px #1b143533;text-decoration:none;
+  font-size:12px;line-height:1.35;font-weight:800;text-align:center;
+  opacity:0;visibility:hidden;pointer-events:none;
+ }
+ .cmh-friends-invite{background:#e8faff;color:#235c71}
+ .cmh-friend-invite span{flex:none;font-size:12px;color:#d68d66}
+ .cmh-slide[data-active="true"] .cmh-friend-invite{opacity:1;visibility:visible;pointer-events:auto}
+ .cmh-friend-invite:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+ /* The approved wordmark asset is untouched: an aligned eyelid overlay closes both eyes. */
+ .koolo-wordmark-frame{position:relative;display:block;flex:none}
+ .koolo-home-blink{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0}
+}
+@media(max-width:767px) and (prefers-reduced-motion:no-preference){
+ .crew-mobile-home[data-home-motion="on"] .cmh-slide[data-active="true"] .cmh-friend-invite{
+  animation:cmh-friend-pop 560ms cubic-bezier(.2,.85,.28,1.12) 750ms backwards;
+ }
+ .app-brand[data-home-blink="on"] .koolo-home-blink{
+  animation:koolo-logo-eyelids 720ms ease-in-out 650ms 1 both;
+ }
+ .app-brand[data-home-blink="on"][data-logo-tapped="true"] .koolo-home-blink{animation-delay:0ms}
+ /* Existing Shorts observer now records first entry; never re-animate seen photos. */
+ .cmh-shorts .crew-home-shorts-grid[data-motion-ready="true"] .crew-home-short-card{
+  opacity:.8;translate:0 10px;rotate:-1.35deg;
+  transition:opacity 450ms ease,translate 450ms cubic-bezier(.2,.8,.2,1),rotate 450ms cubic-bezier(.2,.8,.2,1);
+ }
+ .cmh-shorts .crew-home-shorts-grid[data-motion-ready="true"] .crew-home-short-card:nth-child(even){rotate:1.35deg;transition-delay:55ms}
+ .cmh-shorts .crew-home-shorts-grid[data-motion-ready="true"] .crew-home-short-card[data-photo-entered]{
+  opacity:1;translate:0 0;rotate:0;
+ }
+}
+@keyframes cmh-friend-pop{
+ from{opacity:0;transform:translate3d(0,8px,0) scale(.92)}
+ 68%{opacity:1;transform:translate3d(0,-2px,0) scale(1.025)}
+ to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes koolo-logo-eyelids{
+ 0%,32%,55%,100%{opacity:0}
+ 39%,46%{opacity:1}
+}
+/* Save-data, small devices, hidden tabs and reduced-motion show the same content
+   without continued animation or repeated layout/paint work. */
+@media(max-width:767px){
+ .crew-mobile-home[data-home-motion="off"] :where(*,*::before,*::after){animation:none!important;transition:none!important}
+ .app-brand[data-home-blink="off"] .koolo-home-blink{animation:none!important;opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+ .app-brand .koolo-home-blink{animation:none!important;opacity:0}
+ .cmh-shorts .crew-home-short-card{opacity:1!important;translate:0 0!important;rotate:0!important}
+ .cmh-carousel::before{transition:none!important}
+ .cmh-friend-invite{animation:none!important;transform:none!important}
+}
