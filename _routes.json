@@ -6,6 +6,7 @@
     "/api/auth/*",
     "/api/membership/*",
     "/api/fortune/*",
+    "/fortune/report-lab",
     "/api/voice/*",
     "/api/books",
     "/"
