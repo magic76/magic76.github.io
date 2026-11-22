@@ -55,7 +55,7 @@ export function ShortsProfilePage(){
   {!valid?<p role="alert">Character not found.</p>:<>
    <header className="crew-shorts-profile-header">
     <img src={"/assets/friends/crew_friend_"+friendId+".webp"} alt="" width="92" height="92"/>
-    <div><h1>{name}</h1><p>{name} · Koolo Shorts</p><Link className="crew-shorts-profile-chat" to={"/friend/live?id="+encodeURIComponent(friendId)+"&chat=text"}>{t("shorts.chatThis",{name})} <Arrow direction="up-right"/></Link></div>
+    <div><h1>{name}</h1><p>{name} · Koolo Shorts</p><Link className="crew-shorts-profile-chat" to={"/friend/live?id="+encodeURIComponent(friendId)+"&chat=text"}>{t("shorts.chatThis",{name})} <Arrow direction="right"/></Link></div>
    </header>
    <h2>{name} Shorts</h2>
    {busy?<p role="status">{t("shorts.loading")}</p>:null}
@@ -68,7 +68,7 @@ export function ShortsProfilePage(){
    {error?<p role="alert">{t("shorts.feedError")}</p>:null}
    {error&&!posts.length?<button onClick={()=>setRetry(x=>x+1)}>{t("shorts.retry")}</button>:null}
    {(visible<posts.length||nextPage)&&<button className="crew-shorts-profile-more" disabled={loadingMore} onClick={loadMore}>{loadingMore?t("shorts.loadingMore"):t("shorts.more")}</button>}
-   {posts.length>0&&<Link className="crew-shorts-profile-chat-bottom" to={shortsChatUrl(posts[0],undefined,0)}>{t("shorts.chatThis",{name})} <Arrow direction="up-right"/></Link>}
+   {posts.length>0&&<Link className="crew-shorts-profile-chat-bottom" to={shortsChatUrl(posts[0],undefined,0)}>{t("shorts.chatThis",{name})} <Arrow direction="right"/></Link>}
   </>}
  </main>;
 }
