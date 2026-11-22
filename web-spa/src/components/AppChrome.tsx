@@ -1,8 +1,9 @@
-import { lazy,Suspense,useEffect,useLayoutEffect } from "react";
+import { lazy,Suspense,useEffect,useLayoutEffect,useState } from "react";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
 import { Link,NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
+import {useHomeAmbientMotion} from "../lib/useHomeAmbientMotion";
 import {CrewFeatureMenu} from "./CrewFeatureMenu";
 import {OptionalWidgetBoundary} from "./OptionalWidgetBoundary";
 const CrewInstallEntry=lazy(()=>import("./CrewInstallEntry").then(module=>({default:module.CrewInstallEntry})));
@@ -23,6 +24,9 @@ const meta={
 export function AppChrome({product,children,headerAction}:{product:Product;children?:React.ReactNode;headerAction?:React.ReactNode}){
  const {t,i18n}=useTranslation("common");
  const productName=meta[product],location=useLocation();
+ const homeLogo=product==="home"&&location.pathname==="/";
+ const homeMotion=useHomeAmbientMotion(homeLogo);
+ const [logoTap,setLogoTap]=useState(0);
  const rolesLanding=location.pathname==="/teacher/roles"||location.pathname==="/teacher/roles/";
  const headerContext=location.pathname==="/teacher/shorts"||location.pathname==="/teacher/shorts/"
   ?[t("chrome.shortsSection"),t("chrome.shortsTitle")]
@@ -36,7 +40,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  },[product]);
  useEffect(()=>{if(!location.pathname.startsWith("/guides/")&&!/^\/teacher\/course\/[^/]+\/?$/.test(location.pathname))document.title=t("seo."+product)},[product,t,i18n.resolvedLanguage,location.pathname]);
  return <>
-  <header className="app-header"><div className="shell inner"><CrewFeatureMenu/><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:"Koolo"+(!rolesLanding&&productName?" "+productName:"")})}><img className="app-wordmark" src="/brand/koolo-wordmark-koo-v2.svg" alt="" aria-hidden="true" width="160" height="48"/>{!rolesLanding&&<span className="app-title">{(headerContext||productName)&&<strong>{headerContext?.[0]||productName}</strong>}<small>{headerContext?.[1]||t("brand."+product)}</small></span>}</Link><div className="app-header-actions"><LanguageSwitcher/>{headerAction} </div></div></header>
+  <header className="app-header"><div className="shell inner"><CrewFeatureMenu/><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:"Koolo"+(!rolesLanding&&productName?" "+productName:"")})} data-home-blink={homeMotion?"on":"off"} onClick={event=>{if(homeLogo&&homeMotion){event.preventDefault();setLogoTap(count=>count+1)}}}><span className="koolo-wordmark-frame"><img className="app-wordmark" src="/brand/koolo-wordmark-koo-v2.svg" alt="" aria-hidden="true" width="160" height="48"/>{homeLogo&&<svg key={logoTap} className="koolo-home-blink" viewBox="0 0 160 48" focusable="false" aria-hidden="true"><g fill="#fcf9f9"><ellipse cx="55" cy="22.7" rx="4.8" ry="4"/><ellipse cx="81" cy="22.7" rx="4.8" ry="4"/></g><g fill="none" stroke="#153A35" strokeLinecap="round" strokeWidth="2.2"><path d="M51 23q4 3 8 0"/><path d="M77 23q4 3 8 0"/></g></svg>}</span>{!rolesLanding&&<span className="app-title">{(headerContext||productName)&&<strong>{headerContext?.[0]||productName}</strong>}<small>{headerContext?.[1]||t("brand."+product)}</small></span>}</Link><div className="app-header-actions"><LanguageSwitcher/>{headerAction} </div></div></header>
   <main key={location.pathname} className="shell page page-enter">{children||<Outlet/>}</main>
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>
