@@ -26,7 +26,7 @@ test("AI friend greetings are real links outside the aria-hidden artwork",()=>{
  assert.ok(home.includes('className="cmh-friend-invite cmh-friends-invite"'));
  assert.ok(home.includes('to={textDestination} tabIndex={activeSlide===0?0:-1}'));
  assert.ok(home.includes('tabIndex={activeSlide===1?0:-1}'));
- assert.ok(home.indexOf('className="cmh-friend-invite cmh-zoe-invite"')>home.indexOf('className="cmh-zoe-scene"'));
+ assert.ok(home.indexOf('className="cmh-friend-invite cmh-zoe-invite"')>home.indexOf('className="cmh-scene cmh-zoe-scene"'));
  assert.ok(art.includes(".cmh-slide[data-active=\"true\"] .cmh-friend-invite"));
  assert.ok(art.includes("pointer-events:none"));
  assert.ok(art.includes("min-height:36px"));
