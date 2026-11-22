@@ -5,6 +5,14 @@ import {normalizeLabFacts,validateLabChapters,generateLabChapters,PARTS} from ".
 import {labGet,labPost,labPage} from "../server/koolo-fortune-report-lab.mjs";
 import {reportLabHtml} from "../server/koolo-fortune-lab-html.mjs";
 
+
+// The two page Functions inject the same verified admin guard used by /usage.
+// Mock the guard here; the actual verified-email and Access-JWT guard has its
+// own tests in tests/koolo-admin-allowlist.test.js and tests/crew-usage.test.js.
+const get=ctx=>labGet({...ctx,verifyAdmin:async()=>true});
+const page=ctx=>labPage({...ctx,verifyAdmin:async()=>true});
+const post=ctx=>labPost({...ctx,verifyAdmin:async()=>true});
+
 const COOKIE="a".repeat(43),UUID="11111111-2222-4333-8444-555555555555";
 const THIS_YEAR=new Date(Date.now()+8*3600*1000).getUTCFullYear();
 const model="gemini-2.5-flash";
@@ -61,7 +69,7 @@ const fakeProvider=async(_url,opts)=>{
 };
 
 test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigation and is noindexed",async()=>{
- const d=db(),r=await labPage({request:pageRequest(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:UUID})});
+ const d=db(),r=await page({request:pageRequest(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:UUID})});
  assert.equal(r.status,200);assert.match(r.headers.get("Content-Security-Policy"),/nonce-/);
  assert.match(r.headers.get("X-Robots-Tag"),/noindex/);
  const html=await r.text();
@@ -73,25 +81,45 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  const price=readFileSync("web-spa/src/fortune/FortunePriceInterest.tsx","utf8");
  assert.ok(!app.includes("report-lab")&&!price.includes("report-lab"));
  const route=readFileSync("functions/api/fortune/report-lab.js","utf8");
- assert.match(route,/onRequestGet=labGet/);
+ assert.match(route,/from "\.\.\/usage\/report"/);
+ assert.match(route,/verifyAdmin:verifyAccess/);
+ assert.match(route,/onRequestGet=context=>labGet/);
+ assert.match(route,/onRequestPost=context=>labPost/);
  const pageRoute=readFileSync("functions/fortune/report-lab.js","utf8");
- assert.match(pageRoute,/onRequestGet=labPage/);
+ assert.match(pageRoute,/from "\.\.\/api\/usage\/report"/);
+ assert.match(pageRoute,/verifyAdmin:verifyAccess/);
+ assert.match(pageRoute,/onRequestGet=context=>labPage/);
+ const guard=readFileSync("server/koolo-fortune-report-lab.mjs","utf8");
+ assert.doesNotMatch(guard,/KOOLO_FORTUNE_LAB_USER_IDS/);
+ assert.match(guard,/await verifyAdmin\(request,env\)===true/);
  const pagesRoutes=JSON.parse(readFileSync("_routes.json","utf8"));
  assert.ok(pagesRoutes.include.includes("/fortune/report-lab"));
  assert.match(html,/var path="\/api\/fortune\/report-lab",pagePath=location.pathname/);
  assert.match(html,/window\.history\.replaceState\(null,"",pagePath/);
- assert.equal((await labGet({request:request(),env:env(d)})).status,404);
- assert.equal((await labPage({request:pageRequest({cookie:false}),env:env(d)})).status,401);
- assert.equal((await labPage({request:pageRequest(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:"someone-else"})})).status,404);
+ assert.equal((await get({request:request(),env:env(d)})).status,404);
+ assert.equal((await page({request:pageRequest({cookie:false}),env:env(d)})).status,401);
+ assert.equal((await page({request:pageRequest(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:"someone-else"})})).status,404);
 });
 
 test("closed switch, missing login, wrong user, malicious origin and wrong method fail closed",async()=>{
  const d=db();
- assert.equal((await labGet({request:request(),env:env(d,{KOOLO_FORTUNE_LAB_ENABLED:"0"})})).status,404);
- assert.equal((await labGet({request:request("",{cookie:false}),env:env(d)})).status,401);
- assert.equal((await labGet({request:request(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:"someone-else"})})).status,404);
- assert.equal((await labGet({request:request("",{origin:"https://evil.example"}),env:env(d)})).status,404);
- assert.equal((await labPost({request:request(),env:env(d)})).status,405);
+ assert.equal((await get({request:request(),env:env(d,{KOOLO_FORTUNE_LAB_ENABLED:"0"})})).status,404);
+ assert.equal((await get({request:request("",{cookie:false}),env:env(d)})).status,401);
+ assert.equal((await get({request:request(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:"someone-else"})})).status,404);
+ assert.equal((await get({request:request("",{origin:"https://evil.example"}),env:env(d)})).status,404);
+ assert.equal((await post({request:request(),env:env(d)})).status,405);
+});
+
+test("backend-admin rejection blocks the private page, report reads and generation even with a valid Koolo session",async()=>{
+ const d=db();
+ const reject=async()=>false;
+ const context={env:env(d),verifyAdmin:reject};
+ assert.equal((await labPage({...context,request:pageRequest()})).status,404);
+ assert.equal((await labGet({...context,request:request("?list=1")})).status,404);
+ assert.equal((await labPost({...context,request:request("",{method:"POST",body:{requestId:UUID,facts}})})).status,404);
+ assert.equal(d.queries.some(sql=>sql.includes("koolo_fortune_lab_reports")),false);
+ assert.equal((await labPage({request:pageRequest(),env:env(d)})).status,404);
+ assert.equal((await labPage({...context,verifyAdmin:async()=>{throw Error("auth backend unavailable")},request:pageRequest()})).status,404);
 });
 
 test("normalization rejects forged pillars, mismatched day master, unrelated date and excessive personal questions",()=>{
@@ -118,15 +146,15 @@ test("generated narrative is validated, distinct and evidence grounded",()=>{
 
 test("only authorized owner can generate; Origin/JSON/content/limit guard run before Gemini",async()=>{
  const d=db();
- assert.equal((await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts},requestOrigin:"https://evil.example"}),env:env(d)})).status,403);
- assert.equal((await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts}}),env:env(d,{KOOLO_FORTUNE_LAB_GEMINI_KEY:""})})).status,503);
- assert.equal((await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts:{...facts,dayMaster:"甲"}}}),env:env(d)})).status,400);
- const limited=await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts}}),env:env(db({insertChanges:0}))});
+ assert.equal((await post({request:request("",{method:"POST",body:{requestId:UUID,facts},requestOrigin:"https://evil.example"}),env:env(d)})).status,403);
+ assert.equal((await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),env:env(d,{KOOLO_FORTUNE_LAB_GEMINI_KEY:""})})).status,503);
+ assert.equal((await post({request:request("",{method:"POST",body:{requestId:UUID,facts:{...facts,dayMaster:"甲"}}}),env:env(d)})).status,400);
+ const limited=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),env:env(db({insertChanges:0}))});
  assert.equal(limited.status,429);
 });
 
 test("authorized generation saves a complete private snapshot and never mutates paid orders",async()=>{
- const d=db(),r=await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+ const d=db(),r=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
   env:env(d,{FORTUNE_LAB_TEST_FETCH:fakeProvider})});
  assert.equal(r.status,201);
  const {report}=await r.json();
@@ -140,14 +168,14 @@ test("authorized generation saves a complete private snapshot and never mutates 
 
 test("report details are never accessible across accounts; missing items stay unknown",async()=>{
  const d=db({found:null});
- const r=await labGet({request:request("?report="+UUID),env:env(d)});
+ const r=await get({request:request("?report="+UUID),env:env(d)});
  assert.equal(r.status,404);
  assert.ok(d.queries.some(sql=>/WHERE id=\? AND user_id=\?/.test(sql)));
 });
 
 test("provider failure does not mark a report ready",async()=>{
  const d=db();
- const r=await labPost({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+ const r=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
   env:env(d,{FORTUNE_LAB_TEST_FETCH:async()=>new Response("bad",{status:503})})});
  assert.equal(r.status,502);assert.ok(d.queries.some(q=>q.includes("status='failed'")));
  assert.ok(!d.queries.some(q=>q.includes("status='ready'")));
