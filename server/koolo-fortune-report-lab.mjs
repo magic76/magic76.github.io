@@ -68,7 +68,7 @@ export async function labPage(ctx){
   "Content-Type":"text/html; charset=utf-8","Cache-Control":"private, no-store","Vary":"Cookie",
   "X-Robots-Tag":"noindex, nofollow, noarchive","X-Frame-Options":"DENY",
   "Referrer-Policy":"no-referrer","X-Content-Type-Options":"nosniff",
-  "Content-Security-Policy":"default-src 'none'; script-src 'nonce-"+nonce+"'; style-src 'nonce-"+nonce+"' 'unsafe-inline'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'"
+  "Content-Security-Policy":"default-src 'none'; script-src 'self'; style-src 'nonce-"+nonce+"' 'unsafe-inline'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'"
  }});
 }
 export async function labPost(ctx){
