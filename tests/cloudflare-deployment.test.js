@@ -138,6 +138,27 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
  const compiledCss=read("assets/build/"+cssFiles[0]);
  const coreCssTag='<link rel="stylesheet" href="/assets/build/'+cssFiles[0]+'">';
  const manifest=JSON.parse(read(".vite/manifest.json"));
+ // Every CSS file reachable through the initial Vite entry's static imports
+ // must be present on every SSG page, including common-component stylesheets
+ // split into a separate Arrow-*.css (or any future shared CSS chunk).
+ const entryKey=Object.keys(manifest).find(key=>manifest[key].isEntry&&manifest[key].file===script[1].slice(1));
+ assert.ok(entryKey,"missing Vite index entry in manifest");
+ const entryCssAssets=new Set(),entryVisited=new Set();
+ function collectEntryCss(key){
+  if(entryVisited.has(key))return;
+  entryVisited.add(key);
+  const chunk=manifest[key];
+  assert.ok(chunk,"missing Vite static import "+key);
+  for(const dependency of chunk.imports||[])collectEntryCss(dependency);
+  for(const asset of chunk.css||[])entryCssAssets.add(asset);
+ }
+ collectEntryCss(entryKey);
+ assert.ok(entryCssAssets.has("assets/build/"+cssFiles[0]),"manifest must contain the functional app CSS");
+ const functionalCss=[...entryCssAssets].filter(asset=>{
+  const css=read(asset);
+  return css.includes(".app-header")&&css.includes(".global-nav");
+ });
+ assert.deepEqual(functionalCss,["assets/build/"+cssFiles[0]],"keep exactly one verified functional stylesheet");
  // HomePage imports HomeShortsPreview, whose CSS is extracted separately.
  function expectedRouteCss(name){
   const visited=new Set(),assets=new Set();
@@ -202,6 +223,12 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
 
   assert.ok(!head.includes("data-crew-react-css"),"avoid route-duplicated styles: "+pathname);
   assert.ok(head.includes(coreCssTag),"SSR shell must load fingerprinted CSS: "+pathname);
+  for(const asset of entryCssAssets){
+   const tag='<link rel="stylesheet" href="/'+asset+'">';
+   assert.equal(head.split(tag).length-1,1,"missing or duplicate entry CSS "+asset+": "+pathname);
+   assert.ok(head.indexOf(tag)<head.indexOf(moduleOpen),"late shared CSS "+asset+": "+pathname);
+   assert.ok(read(asset).length>0,"empty entry CSS "+asset);
+  }
   // SSG page-specific stylesheets also load from hashed, cacheable URLs
   // before JavaScript hydration, instead of repeating CSS in each document.
   for(const asset of pageStyles[slug]||[]){
