@@ -44,7 +44,6 @@ function getSavedGuestSession(){
  try{sessionStorage.removeItem(SESSION_STORAGE_KEY)}catch{}
  return "";
 }
-/** No microphone: BYOK connects to Gemini Live; guests use metered Worker text. */
 export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,starters,showStarterWithHistory=false,autoStarter,replyFallback,shortsContext,onExchange,completionFeedback}:Props){
  const shortsSystems=shortsContext?buildShortsTextSystems(baseSystem,shortsContext):null;
  const system=gameRoundContext(shortsSystems?.live||baseSystem,sessionScope);
@@ -61,7 +60,6 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const {t}=useTranslation("voice");
  const isFriend=sessionScope.startsWith("friend:");
  const chatFriend=isFriend?getCrewFriend(sessionScope.split(":")[1]):null;
- // Private reward token; do not use an account ID or transcript.
  const creatureRewardSession=useRef("s"+Date.now().toString(36)+Math.random().toString(36).slice(2));
  const creatureRewardTurn=useRef(0);
  const learning=useFriendTextLearning(system,sessionScope);
@@ -72,6 +70,8 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const typingRef=useRef<ReturnType<typeof createTypingReveal>|null>(null);
  const [useGuest,setUseGuest]=useState(()=>!geminiKey()||!geminiVerified());
  const [guestPhase,setGuestPhase]=useState<GuestPhase>("checking");
+ const [configRetry,setConfigRetry]=useState(0);
+ const [configRetryable,setConfigRetryable]=useState(false);
  const [guestToken,setGuestToken]=useState(getSavedGuestSession);
  const [siteKey,setSiteKey]=useState("");
  const [guestStatus,setGuestStatus]=useState("");
@@ -143,6 +143,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  useEffect(()=>{
   if(!guestMode)return;
   const controller=new AbortController();
+  setConfigRetryable(false);
   void fetch(GUEST_TEXT_ENDPOINT,{cache:"no-store",signal:controller.signal})
    .then(async response=>{
     if(!response.ok)throw Error("Unavailable");
@@ -151,9 +152,9 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     if(config.enabled!==true||typeof config.siteKey!=="string"||!config.siteKey){setGuestPhase("unavailable");return}
     setSiteKey(config.siteKey);
     setGuestPhase(current=>current==="checking"?(getSavedGuestSession()?"active":"ready"):current);
-   }).catch(()=>{if(mounted.current&&!controller.signal.aborted)setGuestPhase("unavailable")});
+   }).catch(()=>{if(mounted.current&&!controller.signal.aborted){setConfigRetryable(true);setGuestPhase("unavailable")}});
   return()=>controller.abort();
- },[guestMode]);
+ },[guestMode,configRetry]);
  function invalidateGuestGrant(){
   try{sessionStorage.removeItem(SESSION_STORAGE_KEY)}catch{}
   setGuestToken("");setGuestPhase("ready");setRequestSent(false);
@@ -183,8 +184,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   }catch(reason){
    const failure=classifyGuestTextFailure(reason);
    if(handedOff&&failure.reverify&&mounted.current){
-    // A transferred challenge may expire; retry with fresh verification.
-    setGuestPhase("ready");
+       setGuestPhase("ready");
     return startGuestText();
    }
    if(mounted.current&&failure.kind!=="dailyLimit"&&!(["unavailable","exhausted"].includes(phaseRef.current))){
@@ -339,6 +339,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {guestPhase==="error"&&guestFailure?.kind==="verification"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.verifyAgain")}</button>}
    {guestPhase==="paused"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.restart")}</button>}
    {guestPhase==="unavailable"&&<small role="status">{t("textChat.ui.unavailable")}</small>}
+   {guestPhase==="unavailable"&&configRetryable&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("checking");setConfigRetry(n=>n+1)}}>{t("guestText.restart")}</button>}
    {guestPhase==="exhausted"&&<small role="status">{t("textChat.ui.exhausted")}</small>}
    {(guestPhase==="unavailable"||guestPhase==="exhausted")&&<GuestKeyRecovery exhausted={guestPhase==="exhausted"} hasKey={hasKey}/>}
   </div>}
