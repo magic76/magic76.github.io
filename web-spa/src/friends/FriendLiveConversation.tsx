@@ -219,7 +219,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
     </div>
     <VoiceTextRecap messages={voiceRecap} name={friend.name}/>
     {homeFirstAction?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
-    {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">
+    {shortsPost?<section className="friend-live-post" aria-label="Koolo Shorts">
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>
       <div><small>{t("friendLive.postOrigin")}<span className="friend-live-post-date"> · {shortsPost.publishedAt.slice(0,10)}</span></small>
        <p lang={shortsPost.language}>{shortsPost.caption}</p>
@@ -228,7 +228,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
      </section>:null}
     {postUnavailable?<p className="friend-live-post-unavailable" role="status">{t("friendLive.postUnavailable")}</p>:null}
     {shortsPost?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
-    <FriendCallMenu inCall={active} open={showCallOptions} onClose={()=>setShowCallOptions(false)} title={t("callCaptions.more")} closeLabel={t("callCaptions.closeMenu")}><div className="friend-call-settings">
+    <FriendCallMenu inCall={true} open={showCallOptions} onClose={()=>setShowCallOptions(false)} title={t("callCaptions.more")} closeLabel={t("callCaptions.closeMenu")}><div className="friend-call-settings">
     <div className="friend-language-switch" role="group" aria-label={t("chatModeTitle")}>
      <span className="friend-language-switch-title">{t("chatModeTitle")}</span>
      <div className="friend-language-options">
