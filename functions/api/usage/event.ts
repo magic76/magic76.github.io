@@ -6,6 +6,7 @@ type Dataset={writeDataPoint(point:{indexes:string[];blobs:string[];doubles:numb
 type Context={request:Request;env:{ANALYTICS_ENGINE?:Dataset}};
 const events=new Set([
   "app_opened","visitor_first_seen","user_returned",
+  "retention_cohort_started","retention_d1_returned","retention_d7_returned","user_returned_engaged",
   "teacher_conversation","friend_conversation",
   "teacher_conversation_start","friend_conversation_start","timeline_conversation_start",
   "teacher_user_spoke","friend_user_spoke","timeline_user_spoke",

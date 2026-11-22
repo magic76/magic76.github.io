@@ -6,6 +6,7 @@ import {FortuneUsagePanel} from "./FortuneUsagePanel";
 import {PlatformUsagePanel,type PlatformUsage} from "./PlatformUsagePanel";
 import "./usage-dashboard.css";
 import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
+import {RetentionUsagePanel,type RetentionSummary} from "./RetentionUsagePanel";
 import {SoulsUsagePanel} from "./SoulsUsagePanel";
 import {names,categories,games,eventRatio,chatStart,chatSpeech,chatReply,chatEffective,type Category} from "./usageDashboardDefinitions";
 import {UsageExportControls} from "./UsageExportControls";
@@ -16,7 +17,7 @@ type Report={
  previousActiveUsers:number;previousChatUsers:number;
  eventUsers:EventUsers[];rows:Row[];generatedAt:string;
  magicDiagnostics?:{entrySessions:number};
- journey?:JourneyCounts
+ journey?:JourneyCounts;retention?:RetentionSummary
 };
 export function UsageDashboardPage(){
  const[days,setDays]=useState<7|30>(7),[category,setCategory]=useState<Category>("all");
@@ -39,7 +40,7 @@ return()=>{cancelled=true};
  const unique=(event:string)=>data?.eventUsers.find(item=>item.event===event)?.users||0;
  const selected=categories.find(item=>item.id===category)||categories[0];
  const bars=useMemo(()=>{
-const today=new Date();
+const today=new Date(Date.now()+8*3600000);
 return Array.from({length:days},(_,i)=>{
  const date=new Date(today);date.setUTCDate(date.getUTCDate()-(days-1-i));
  const day=date.toISOString().slice(0,10);
@@ -73,6 +74,7 @@ return Array.from({length:days},(_,i)=>{
  data&&<>
   <UsageOverviewCards data={data} rows={rows}/>
   <FortuneUsagePanel rows={rows} eventUsers={data.eventUsers}/>
+  <RetentionUsagePanel retention={data.retention} returned={data.journey?.returned||0} engagedReturned={unique("user_returned_engaged")} days={days}/>
   <AccountStatsPanel/>
   <MembershipDiagnosticsPanel/>
   <PlatformUsagePanel rows={data.platformBreakdown}/>
@@ -90,7 +92,7 @@ return Array.from({length:days},(_,i)=>{
    <p className="usage-explain">進入事件在 Magic 頁面載入時送出，不代表已開始遊玩。次數使用 Analytics Engine 取樣加權；不同瀏覽器與工作階段是去重計數，不能直接視為真人數。正式站自動化瀏覽也可能計入。</p>
   </section>
   <section className="panel section">
-   <div className="section-head"><h2>每天實際發生了什麼</h2><small>UTC 日期 · 下方統計的是事件次數</small></div>
+   <div className="section-head"><h2>每天實際發生了什麼</h2><small>台灣日期 · 下方統計的是事件次數</small></div>
    <div className="usage-filter" role="group" aria-label="篩選產品類別">
     {categories.map(group=><button key={group.id} type="button" aria-pressed={category===group.id} onClick={()=>setCategory(group.id)}>{group.label}</button>)}
    </div>

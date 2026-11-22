@@ -4,7 +4,7 @@ const stages=[
  {key:"clicked",label:"點擊功能入口",hint:"首頁、探索、Shorts 聊天或試用入口"},
  {key:"started",label:"實際啟動功能",hint:"成功開始對話、遊戲、教材或互動"},
  {key:"engaged",label:"有實際互動",hint:"有效聊天、完成遊戲或其他已記錄行為"},
- {key:"returned",label:"跨日回訪",hint:"曾在不同 UTC 日期再次開啟"}
+ {key:"returned",label:"跨日回訪",hint:"曾在不同台灣日期再次使用"}
 ] as const;
 const num=(n:number)=>Math.round(n).toLocaleString("zh-TW");
 
@@ -22,6 +22,6 @@ export function UsageJourneySection({days,journey}:{days:7|30;journey?:JourneyCo
     </div>;
    })}
   </div>:<p className="usage-explain">目前報表尚未提供使用旅程統計，請部署新版 Pages API。</p>}
-  <p className="usage-explain">這是各階段分別去重的匿名瀏覽器數，<strong>不是同一批人的精準轉換漏斗或次日留存率</strong>。訪客可能直接進入功能、跳過入口、跨裝置使用，或在觀察期間之前已開始使用，因此後段可能多於前段。回訪代表不同 UTC 日期的事件，不代表新訪客隔日必然回來；尊重統計退出設定且不記錄對話內容。</p>
+  <p className="usage-explain">這是各階段分別去重的匿名瀏覽器數，<strong>不是同一批人的精準轉換漏斗或次日留存率</strong>。訪客可能直接進入功能、跳過入口、跨裝置使用，或在觀察期間之前已開始使用，因此後段可能多於前段。新版回訪代表不同台灣日期的事件（舊紀錄仍依 UTC 判定），不代表新訪客隔日必然回來；尊重統計退出設定且不記錄對話內容。</p>
  </section>;
 }
