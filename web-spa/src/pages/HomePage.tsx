@@ -103,9 +103,13 @@ function activities(book:Book|null):Recent[]{
  const friend=readLatestFriendActivity();
  if(friend){
   const name=friend.friendId.charAt(0).toUpperCase()+friend.friendId.slice(1);
+  let previewHidden=false;
+  try{previewHidden=localStorage.getItem("crew_home_hide_message_preview_v1")==="1"}catch{/* Optional privacy preference. */}
   returning.push({key:"resume-friend:"+friend.friendId,kind:"friend",timestamp:friend.at,
    to:"/friend/live?id="+encodeURIComponent(friend.friendId)+"&from=home&chat=text",
-   title:i18n.t("home:resume.friend",{name}),description:friend.resume?.preview?i18n.t("home:resume.lastLine",{name,line:friend.resume.preview}):i18n.t("home:recent.friendDesc")});
+   title:i18n.t("home:resume.friend",{name}),description:friend.resume?.preview
+    ?previewHidden?i18n.t("home:layout2.previewHidden"):i18n.t("home:resume.lastLine",{name,line:friend.resume.preview})
+    :i18n.t("home:recent.friendDesc")});
  }else{
   const voice=items.find(item=>item.kind==="friend");
   if(voice)returning.push({...voice,title:i18n.t("home:recent.friend")});
@@ -146,7 +150,13 @@ export function HomePage(){
   return()=>{mounted=false};
  },[]);
  const [book,setBook]=useState<Book|null>(null);
- const recents=useMemo(()=>ready?activities(book):[],[ready,book,locale.resolvedLanguage]);
+ const [previewRevision,setPreviewRevision]=useState(0);
+ useEffect(()=>{
+  const update=()=>setPreviewRevision(value=>value+1);
+  window.addEventListener("crew-home-preview-visibility-changed",update);
+  return()=>window.removeEventListener("crew-home-preview-visibility-changed",update);
+ },[]);
+ const recents=useMemo(()=>ready?activities(book):[],[ready,book,locale.resolvedLanguage,previewRevision]);
 
  useEffect(()=>{
   if(!localStorage.getItem("crew_story_last_book_id"))return;
