@@ -109,6 +109,12 @@ export async function labPost(ctx){
  }catch(e){
   try{await a.db.prepare("UPDATE koolo_fortune_lab_reports SET status='failed',updated_at=? WHERE id=? AND user_id=? AND status='generating'")
    .bind(nowSec(),id,a.userId).run()}catch{/* no unauthorized write */}
-  return reply({error:e instanceof Error&&e.message==="QUALITY_CHECK_FAILED"?"QUALITY_CHECK_FAILED":"GENERATION_FAILED",id},502);
+  const reason=e instanceof Error?e.message:"";
+  const upstream=/^UPSTREAM_(400|401|403|404|408|429|500|502|503|504)$/.exec(reason);
+  const code=reason==="UPSTREAM_TIMEOUT"?"AI_TIMEOUT":
+   reason==="QUALITY_CHECK_FAILED"?"QUALITY_CHECK_FAILED":
+   reason==="UPSTREAM_INVALID_RESPONSE"?"GEMINI_INVALID_RESPONSE":
+   upstream?"GEMINI_UPSTREAM_"+upstream[1]:"GENERATION_FAILED";
+  return reply({error:code,id},code==="AI_TIMEOUT"?504:502);
  }
 }

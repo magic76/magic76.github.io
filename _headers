@@ -84,3 +84,8 @@ https://:version.magic76-github-io.pages.dev/*
 /api/fortune/ecpay/*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-store
+
+# Private lab JavaScript contains no secrets and must update immediately in installed PWAs.
+/assets/js/fortune-report-lab.js
+  Cache-Control: no-store, max-age=0
+  X-Content-Type-Options: nosniff
