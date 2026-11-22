@@ -1,4 +1,4 @@
-/* Koolo homepage effects P1. Mobile-only, no additional images, canvases or layout shifts.
+/* Koolo homepage effects P1. Mobile-only, no additional images, heavy rendering or layout shifts.
    Existing hero glow/breathing and Shorts IntersectionObserver remain the source of motion. */
 /* Keep the overlay out of layout on desktop; blinking itself remains mobile-only. */
 .koolo-wordmark-frame{position:relative;display:block;flex:none}
