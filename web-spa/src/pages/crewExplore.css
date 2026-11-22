@@ -54,9 +54,9 @@
 .crew-explore-text strong{font-size:17px;line-height:1.45;letter-spacing:-.035em;font-weight:760}
 .crew-explore-text small{font-size:12px;line-height:1.65;color:var(--muted)}
 .crew-explore-arrow{
- position:absolute;bottom:22px;right:18px;display:grid;place-items:center;
- width:26px;height:26px;border-radius:50%;
- background:var(--art);color:var(--art-ink);font-size:17px;font-weight:700
+ position:absolute;bottom:14px;right:12px;display:grid;place-items:center;
+ width:32px;height:32px;border-radius:50%;
+ background:#285a48;color:#fff
 }
 .crew-explore-tile:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(23,38,63,.09);border-color:var(--art-ink)}
 .crew-explore-tile:focus-visible{outline:3px solid var(--art-ink);outline-offset:3px}
@@ -64,10 +64,9 @@
 @media(max-width:850px){
  .crew-explore-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
  .crew-explore-art{height:128px}
- .crew-explore-text{padding:14px 34px 17px 14px;min-height:102px}
+ .crew-explore-text{padding:14px 46px 17px 14px;min-height:102px}
  .crew-explore-text strong{font-size:15px}
  .crew-explore-text small{font-size:12px}
- .crew-explore-arrow{right:11px;bottom:16px;width:23px;height:23px}
 }
 @media(max-width:420px){
  .crew-explore-grid{gap:10px}
@@ -76,17 +75,16 @@
  .crew-explore-life{gap:5px}
  .crew-explore-life img:first-of-type,.crew-explore-life img:nth-of-type(3){width:44px;height:59px;border-width:2px;border-radius:12px}
  .crew-explore-life img:nth-of-type(2){width:56px;height:79px;border-width:2px;border-radius:12px}
- .crew-explore-text{padding:12px 26px 13px 12px;min-height:112px;gap:5px}
+ .crew-explore-text{padding:12px 46px 13px 12px;min-height:112px;gap:5px}
  .crew-explore-text strong{font-size:14px}
  .crew-explore-text small{font-size:12px;line-height:1.5}
- .crew-explore-arrow{width:19px;height:19px;font-size:14px;bottom:11px;right:8px}
 }
 @media(prefers-reduced-motion:reduce){.crew-explore-tile{transition:none}}
 
 /* Fortune remains the prominent editorial recommendation. */
 .crew-explore-tile:first-child{grid-column:span 2;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);min-height:225px;border-color:#cbb7e9}
 .crew-explore-tile:first-child .crew-explore-art{height:100%;min-height:225px}
-.crew-explore-tile:first-child .crew-explore-text{align-content:center;padding:25px 36px 25px 22px}
+.crew-explore-tile:first-child .crew-explore-text{align-content:center;padding:25px 54px 25px 22px}
 .crew-explore-tile:first-child .crew-explore-text strong{font-size:clamp(19px,2.2vw,24px)}
 .crew-explore-tile[data-kind="research"],.crew-explore-tile[data-kind="circle"]{box-shadow:none}
 @media(hover:hover) and (pointer:fine){
@@ -97,7 +95,7 @@
 @media(max-width:700px){
  .crew-explore-tile:first-child{grid-template-columns:1fr;min-height:auto}
  .crew-explore-tile:first-child .crew-explore-art{min-height:150px;height:150px}
- .crew-explore-tile:first-child .crew-explore-text{padding:15px 42px 20px 16px;min-height:0}
+ .crew-explore-tile:first-child .crew-explore-text{padding:15px 54px 20px 16px;min-height:0}
 }
 @media(prefers-reduced-motion:reduce){.crew-explore-photo img,.crew-explore-life img:nth-of-type(2){transition:none!important}}
 
@@ -105,13 +103,11 @@
 /* Crew Town is a single preview destination; keep existing Explore cards intact. */
 .crew-explore-tile[data-kind="town"]{--art:#e3f1dc;--art-2:#cfe3df;--art-ink:#477a6e;--art-border:#cbdfd0;grid-column:span 2;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);min-height:164px}
 .crew-explore-tile[data-kind="town"] .crew-explore-art{height:100%;min-height:164px}
-.crew-explore-tile[data-kind="town"] .crew-explore-text{min-height:0;align-content:center;padding:20px 37px 20px 19px}
-.crew-explore-tile[data-kind="town"] .crew-explore-arrow{bottom:calc(50% - 13px)}
+.crew-explore-tile[data-kind="town"] .crew-explore-text{min-height:0;align-content:center;padding:20px 54px 20px 19px}
 @media(max-width:700px){
  .crew-explore-tile[data-kind="town"]{grid-template-columns:1fr}
  .crew-explore-tile[data-kind="town"] .crew-explore-art{height:150px;min-height:0}
- .crew-explore-tile[data-kind="town"] .crew-explore-text{padding:13px 34px 16px 16px}
- .crew-explore-tile[data-kind="town"] .crew-explore-arrow{bottom:19px}
+ .crew-explore-tile[data-kind="town"] .crew-explore-text{padding:13px 48px 16px 16px}
 }
 
 /* Mate uses the shared full-bleed photo treatment. */
@@ -143,13 +139,11 @@
 /* Crew Magic — a floating-island preview using existing Explore styling. */
 .crew-explore-tile[data-kind="magic"]{--art:#c7d5f0;--art-2:#edd3ec;--art-ink:#686da4;--art-border:#d6d5ef;grid-column:span 2;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);min-height:170px}
 .crew-explore-tile[data-kind="magic"] .crew-explore-art{height:100%;min-height:170px}
-.crew-explore-tile[data-kind="magic"] .crew-explore-text{min-height:0;align-content:center;padding:20px 37px 20px 19px}
-.crew-explore-tile[data-kind="magic"] .crew-explore-arrow{bottom:calc(50% - 13px)}
+.crew-explore-tile[data-kind="magic"] .crew-explore-text{min-height:0;align-content:center;padding:20px 54px 20px 19px}
 @media(max-width:700px){
  .crew-explore-tile[data-kind="magic"]{grid-template-columns:1fr}
  .crew-explore-tile[data-kind="magic"] .crew-explore-art{height:150px;min-height:0}
- .crew-explore-tile[data-kind="magic"] .crew-explore-text{padding:13px 34px 16px 16px}
- .crew-explore-tile[data-kind="magic"] .crew-explore-arrow{bottom:19px}
+ .crew-explore-tile[data-kind="magic"] .crew-explore-text{padding:13px 48px 16px 16px}
 }
 
 
