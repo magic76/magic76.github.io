@@ -45,11 +45,11 @@ export function PracticePage(){
   <Link className="crew-role-entry teacher" to="/teacher/roles?mode=teacher">
    <span className="crew-role-symbol crew-role-portrait"><TeacherAvatar profile={profile}/></span>
    <strong>{t("practice.teacher")} <span className="crew-role-name">· {profile.name}</span></strong><span>{t("practice.teacherDesc")}</span>
-   <small>{t("practice.teacherAction")} <Arrow direction="up-right"/></small>
+   <small>{t("practice.teacherAction")} <Arrow direction="right"/></small>
   </Link>
   {showContinue&&<Link className="crew-role-entry teacher" to="/teacher/live?intent=continue">
    <span className="crew-role-symbol"><Icon name="chat"/></span><strong>{t("practiceEntry.continueTitle")}</strong>
-   <span>{t("practiceEntry.continueDesc")}</span><small>{t("practice.next")} <Arrow direction="up-right"/></small>
+   <span>{t("practiceEntry.continueDesc")}</span><small>{t("practice.next")} <Arrow direction="right"/></small>
   </Link>}
  </section>
  {showContinue&&<section className="section crew-continue-section"><div className="section-head"><h2>{t("practice.continue")}</h2><Link to="/learn">{tToday("learnToday.backToLearn")} <Arrow/></Link></div><ContinueLearningCard compact/></section>}
