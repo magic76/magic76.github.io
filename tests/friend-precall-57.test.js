@@ -15,7 +15,7 @@ test("#57 pre-call canvas and header stay black, without a floating stage card",
 test("#57 guest CTA is verification-gated and settings are secondary",()=>{
  assert.match(page,/GuestLiveStarter role="friend" precall/);
  assert.match(page,/FriendCallMenuTrigger active=\{true\}/);
- assert.match(page,/<FriendCallMenu inCall=\{active\}/);
+ assert.match(page,/<FriendCallMenu inCall=\{true\}/);
  assert.match(gate,/disabled=\{!challenge\}/);
  for(const key of ["preCallSteps","preCallWaiting","preCallVerified","preCallStart"])assert.ok(gate.includes(key),key);
  assert.match(css,/\.guest-live-entry \.btn:disabled\{opacity:1/);
