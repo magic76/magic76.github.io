@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Paramètres",
-    "desc": "Gérez votre clé Gemini, l'expérience vocale et vos sauvegardes au même endroit. Une clé suffit pour les fonctions IA de Koolo ; les jeux hors ligne n'en ont pas besoin."
+    "desc": "Personnalisez la langue d’affichage, vos préférences d’apprentissage, les fonctions vocales et vos données enregistrées."
   },
   "memory": {
     "title": "Mémoire",

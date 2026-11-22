@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Ajustes",
-    "desc": "Gestiona tu clave Gemini, las funciones de voz y las copias de seguridad. Una clave funciona en las funciones IA de Koolo; los juegos sin conexión no la necesitan."
+    "desc": "Personaliza el idioma, las preferencias de aprendizaje, las funciones de voz y tus datos guardados."
   },
   "memory": {
     "title": "Memoria",
