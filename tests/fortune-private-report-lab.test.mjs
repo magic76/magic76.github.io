@@ -56,7 +56,7 @@ function db({uid=UUID,found=null,insertChanges=1}={}){
  }};
 }
 const env=(database,more={})=>({CREW_AUTH_DB:database,
- KOOLO_FORTUNE_LAB_ENABLED:"1",KOOLO_FORTUNE_LAB_USER_IDS:UUID,
+ KOOLO_FORTUNE_LAB_ENABLED:"1",
  KOOLO_FORTUNE_LAB_GEMINI_KEY:"this-is-only-a-unit-test-key-123456",
  KOOLO_FORTUNE_LAB_MODEL:model,...more});
 const fakeProvider=async(_url,opts)=>{
@@ -69,7 +69,7 @@ const fakeProvider=async(_url,opts)=>{
 };
 
 test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigation and is noindexed",async()=>{
- const d=db(),r=await page({request:pageRequest(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:UUID})});
+ const d=db(),r=await page({request:pageRequest(),env:env(d)});
  assert.equal(r.status,200);assert.match(r.headers.get("Content-Security-Policy"),/nonce-/);
  assert.match(r.headers.get("X-Robots-Tag"),/noindex/);
  const html=await r.text();
@@ -98,14 +98,14 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  assert.match(html,/window\.history\.replaceState\(null,"",pagePath/);
  assert.equal((await get({request:request(),env:env(d)})).status,404);
  assert.equal((await page({request:pageRequest({cookie:false}),env:env(d)})).status,401);
- assert.equal((await page({request:pageRequest(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:"someone-else"})})).status,404);
+ assert.equal((await labPage({request:pageRequest(),env:env(d),verifyAdmin:async()=>false})).status,404);
 });
 
 test("closed switch, missing login, wrong user, malicious origin and wrong method fail closed",async()=>{
  const d=db();
  assert.equal((await get({request:request(),env:env(d,{KOOLO_FORTUNE_LAB_ENABLED:"0"})})).status,404);
  assert.equal((await get({request:request("",{cookie:false}),env:env(d)})).status,401);
- assert.equal((await get({request:request(),env:env(d,{KOOLO_FORTUNE_LAB_USER_IDS:"someone-else"})})).status,404);
+ assert.equal((await labGet({request:request(),env:env(d),verifyAdmin:async()=>false})).status,404);
  assert.equal((await get({request:request("",{origin:"https://evil.example"}),env:env(d)})).status,404);
  assert.equal((await post({request:request(),env:env(d)})).status,405);
 });
