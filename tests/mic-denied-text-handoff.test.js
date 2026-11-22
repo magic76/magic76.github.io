@@ -18,7 +18,7 @@ const locales=['zh-TW','en','de','es','fr','id','ja','ko','pt-BR','th','vi'];
 function trial(errorName,withFallback=true,afterToken=false){
  const actions=[],events=[],messages=[];
  const fallback=withFallback?{href:'/friend/live?id=zoe&post=short01&quote=daily&chat=text',name:'Zoe'}:undefined;
- const beginSource=starter.slice(starter.indexOf('async function begin(){'),starter.indexOf('\n return <div className="notice guest-live-entry"'));
+ const beginSource=starter.slice(starter.indexOf('async function begin(textOnly=false){'),starter.indexOf('\n return <div className="notice guest-live-entry"'));
  const body=stripTypeScriptTypes(beginSource,{mode:'strip'});
  let allowed=false;
  const microphone=errorName==='missing'?undefined:async()=>{

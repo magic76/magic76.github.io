@@ -1,7 +1,7 @@
 "use strict";
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
-const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
 const panel=read("web-spa/src/live/TextChatPanel.tsx");
 const starters=read("web-spa/src/live/TextChatStarters.tsx");
 
@@ -16,12 +16,12 @@ function entry({id="zoe",chat="text",quote="daily",chart="a".repeat(64),shorts=f
  vm.runInNewContext(`const personalChartHash=${chartExpression[1]};const validDailyHash=${chartExpression[2]};const dailyEntry=${chartExpression[3]};const saved=useTeacherStore.getState().friendChatMode;this.out={personalChartHash,validDailyHash,dailyEntry,mode:${modeExpression[1]}}`,scope);
  return scope.out;
 }
-test("only Zoe's validated daily text deep link starts natural, regardless of saved mode",()=>{
+test("Zoe daily context opens in the unified Live page for both legacy text and voice links",()=>{
  for(const stored of ["bilingual","natural","immersion"]){
   const result=entry({stored});assert.equal(result.dailyEntry,true);assert.equal(result.mode,"natural");
  }
  for(const options of [{quote:"other"},{quote:""},{chart:"b".repeat(63)},{chart:"zz".repeat(32)},
-  {id:"ada"},{chat:"voice"},{shorts:true}]){
+  {id:"ada"},{shorts:true}]){
   const result=entry({...options,stored:"immersion"});
   assert.equal(result.dailyEntry,false,JSON.stringify(options));assert.equal(result.mode,"immersion");
  }
@@ -35,15 +35,15 @@ test("daily default never persists; manual tab changes still use existing store 
  assert.match(friend,/buildFriendSystem\(friend,language,friendNativeLanguage,friendChatMode\)/);
  assert.match(friend,/friendLanguageReminder\(language,friendNativeLanguage,friendChatMode\)/);
  assert.match(friend,/friendLanguageTransition\(language,friendNativeLanguage,chosen\)/);
- const manual=friend.slice(friend.indexOf("const changeFriendChatMode="),friend.indexOf("const alternateParams="));
+ const manual=friend.slice(friend.indexOf("const changeFriendChatMode="),friend.indexOf("const voiceStart="));
  assert.match(manual,/useTeacherStore\.getState\(\)\.setFriendChatMode\(chosen\)/);
  assert.match(manual,/setActiveFriendChatMode\(chosen\)/);
 });
 test("only the daily entry substitutes translated fortune starters",()=>{
- assert.match(friend,/starters=\{dailyEntry\?\[t\("dailyFortuneStarters\.goodFor"\),t\("dailyFortuneStarters\.watchOut"\)\]:undefined\}/);
+ assert.match(friend,/starters=\{\[gameRoundStarter\(/);
  assert.match(friend,/dailyFortuneStarter=dailyFortune\?t\("dailyFortuneStarter"\):undefined/);
- assert.match(friend,/firstStarter=\{shortsStarter\|\|fortuneContinue\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
- assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
+ assert.match(friend,/shortsStarter,fortuneContinue,dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter/);
+ assert.match(friend,/<FriendUnifiedComposer live=\{live\}/);
  assert.match(panel,/starters\?:string\[\]/);
  assert.match(panel,/firstStarter=\{firstStarter\} starters=\{starters\}\/\>/);
  assert.match(panel,/firstStarter=\{firstStarter\} firstOnly\/\>/);

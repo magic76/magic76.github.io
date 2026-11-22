@@ -6,6 +6,8 @@ export type LiveSessionOptions={
  separateCaptureContext?:boolean;
  guestAccessToken?:string; // one-use, memory-only v1beta credential
  textOnly?:boolean; // Gemini Live text input with transcribed output, no microphone or playback
+ allowMicUpgrade?:boolean; // Friend text-first Live: capture mic later on the same socket
+ trackTextTurns?:boolean; // Include keyboard input in the same voice transcript
  system:string;openingPrompt:string;voice:string;volume:number;models?:string[];manualInterruptOnly?:boolean;
  maxLiveAttempts?:number;maxResumeAttempts?:number;connectTimeoutMs?:number;replyTimeoutMs?:number;
  turnTiming?:{silenceDurationMs:number;endOfSpeechSensitivity:"END_SENSITIVITY_LOW"|"END_SENSITIVITY_HIGH"};
@@ -26,7 +28,7 @@ export type LiveSessionOptions={
 export interface LiveSession{
  ready:boolean;running:boolean;model:string;micMuted:boolean;
  start():Promise<void>;stop(options?:Record<string,unknown>):Promise<void>;setVolume(value:number):void;
- toggleMic():void;interrupt():boolean;sendText(text:string):boolean;sendControl?(instruction:string):boolean;sendImage(image:unknown,options?:Record<string,unknown>):boolean;sendVideoFrame?(frame:unknown):boolean;
+ toggleMic():void;enableMicrophone?():Promise<void>;interrupt():boolean;sendText(text:string):boolean;sendControl?(instruction:string):boolean;sendImage(image:unknown,options?:Record<string,unknown>):boolean;sendVideoFrame?(frame:unknown):boolean;
  getDurationMs():number;
  getMicHealth?():{captureMode:string;trackState:string;muted:boolean;rms:number;dbfs:number;lastFrameAt:number;lastVoiceAt:number;setupBufferedMs:number};
  getHealthSnapshot?():{socketState:number|null;audioContextState:string|null;micTrackState:string|null;bufferedBytes:number;lastAudioSentAgoMs:number|null;lastServerEventAgoMs:number|null;lastTranscriptAgoMs:number|null;lastModelOutputAgoMs:number|null};

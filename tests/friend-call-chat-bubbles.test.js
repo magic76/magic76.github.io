@@ -5,7 +5,7 @@ const read=p=>readFileSync(p,"utf8");
 const list=read("web-spa/src/friends/FriendCallBubbleList.tsx");
 const style=read("web-spa/src/friends/friendCallBubbles.css");
 const hints=read("web-spa/src/live/useSuggestedReplies.ts");
-const page=read("web-spa/src/friends/FriendLivePage.tsx");
+const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
 test("AI bubble is left, learner bubble is right using existing call colors",()=>{
  assert.match(style,/\.friend-bubble-ai\{align-self:flex-start;background:#f6f9ff/);
  assert.match(style,/\.friend-bubble-user\{align-self:flex-end;background:#c9ddff18/);
@@ -31,7 +31,7 @@ test("conversation list scrolls to bottom and remains scrollable for old turns",
  assert.match(style,/overflow-x:hidden/);
 });
 test("new and modified TSX remain below 26000 bytes",()=>{
- for(const p of ["web-spa/src/friends/FriendLivePage.tsx","web-spa/src/friends/FriendCallCaptions.tsx","web-spa/src/friends/FriendCallBubbleList.tsx"]){
+ for(const p of ["web-spa/src/friends/FriendLiveConversation.tsx","web-spa/src/friends/FriendCallCaptions.tsx","web-spa/src/friends/FriendCallBubbleList.tsx"]){
   assert.ok(Buffer.byteLength(read(p))<=26000,p+" exceeds 26KB");
  }
 });

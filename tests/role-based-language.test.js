@@ -17,7 +17,7 @@ test("friend natural, bilingual and immersion modes keep distinct language bound
 });
 test("friend mode and teacher speaking level are independently saved and used in live sessions",()=>{
  const store=read("web-spa/src/store/teacherStore.ts");
- const page=read("web-spa/src/friends/FriendLivePage.tsx");
+ const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const teacher=read("web-spa/src/teacher/teacherPolicy.ts");
  assert.match(store,/friendChatMode:explicitFriendChatMode\(\)/);
  assert.match(store,/learnerSpeakingLevel:normalizeLearnerSpeakingLevel/);

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 const read=path=>fs.readFileSync(path,"utf8");
 test("friend call uses actual two-way transcription and preserves the Live transport",()=>{
- const page=read("web-spa/src/friends/FriendLivePage.tsx");
+ const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const captions=read("web-spa/src/friends/FriendCallCaptions.tsx");
  const bubbles=read("web-spa/src/friends/FriendCallBubbleList.tsx");
  const controls=read("web-spa/src/friends/FriendCallControls.tsx");
@@ -11,7 +11,7 @@ test("friend call uses actual two-way transcription and preserves the Live trans
  assert.match(page,/FriendCallCaptions name=\{friend\.name\}/);
  assert.match(page,/FriendCallControls live=\{live\}/);
  assert.match(page,/friend-phone-stage/);
- assert.match(page,/textMode\?" friend-text-stage"/);
+ assert.match(page,/FriendUnifiedComposer live=\{live\}/);
  assert.match(bubbles,/const showCurrentInput=!!currentInput&&currentInput!==lastInput/);
  assert.match(captions,/output\.trim\(\)/);
  assert.match(captions,/splitCallSentences\(text\)/);
@@ -37,7 +37,7 @@ test("call captions exist in all 11 voice locales",()=>{
 
 test("call controls use device volume and give AI playback a separate mute toggle",()=>{
  const friend=read("web-spa/src/friends/FriendCallControls.tsx");
- const friendPage=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friendPage=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const teacher=read("web-spa/src/live/LiveControls.tsx");
  const settings=read("web-spa/src/pages/GeminiConnectionPanel.tsx");
  const preview=read("web-spa/src/teacher/teacherVoicePreview.ts");

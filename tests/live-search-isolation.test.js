@@ -17,7 +17,7 @@ test("Teacher, Friends and Discover use opt-in separate grounded requests",()=>{
  assert.match(action,/searchGroundedText\(/);
  assert.match(action,/live\.sendText\(/);
  assert.match(action,/live\.presentGrounding\(/);
- for(const path of ["web-spa/src/teacher/LivePage.tsx","web-spa/src/friends/FriendLivePage.tsx"]){
+ for(const path of ["web-spa/src/teacher/LivePage.tsx","web-spa/src/friends/FriendLiveConversation.tsx"]){
   const code=read(path);
   assert.match(code,/LiveSearchAction/);
   assert.doesNotMatch(code,/webSearch:/);

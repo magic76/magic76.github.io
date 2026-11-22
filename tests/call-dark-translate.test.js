@@ -93,7 +93,7 @@ test("#50 incremental translation, persistent browser Translator and epoch-safe 
  assert.match(read(root+"FriendCallControls.tsx"),/dispatchEvent\(new Event\("crew-friend-call-interrupt"\)\)/);
 });
 test("no protected changes, oversized components or tiny text",()=>{
- assert.ok(Buffer.byteLength(read("web-spa/src/friends/FriendLivePage.tsx"))<26000);
+ assert.ok(Buffer.byteLength(read("web-spa/src/friends/FriendLiveConversation.tsx"))<26000);
  for(const file of ["FriendCallCaptions.tsx","callTranslate.ts","FriendCallControls.tsx"])assert.ok(Buffer.byteLength(read(root+file))<26000,file);
  for(const [,font] of css.matchAll(/font-size:\s*([\d.]+)px/g))assert.ok(Number(font)>=12,"font-size "+font);
  assert.doesNotMatch([captions,helper,read(root+"FriendCallControls.tsx")].join("\n"),/trackUsageEvent/);
@@ -177,7 +177,7 @@ test("runtime: successful SSE translation resolves and does not retry",async()=>
 
 test("call transcript heading removed; translation preference lives in call menu",()=>{
  const menu=read(root+"FriendCallMenuPreferences.tsx");
- const page=read(root+"FriendLivePage.tsx");
+ const page=read(root+"FriendLiveConversation.tsx");
  assert.doesNotMatch(captions,/className="friend-caption-heading"|className="friend-caption-toggle"/);
  assert.match(menu,/callCaptions\.hideTranslation/);
  assert.match(menu,/aria-pressed=\{translationEnabled\}/);

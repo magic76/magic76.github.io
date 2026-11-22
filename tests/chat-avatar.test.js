@@ -7,7 +7,7 @@ const textCss=read("web-spa/src/live/TextChatPanel.css");
 const captions=read("web-spa/src/friends/FriendCallCaptions.tsx");
 const bubbleList=read("web-spa/src/friends/FriendCallBubbleList.tsx");
 const callCss=read("web-spa/src/friends/friendCall.css");
-const page=read("web-spa/src/friends/FriendLivePage.tsx");
+const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
 const styleRule=(css,selector)=>{
  const pos=css.indexOf(selector+"{");
  assert.ok(pos>=0,`missing ${selector}`);
@@ -24,7 +24,7 @@ test("friend assistant messages and typing both use a decorative resolved avatar
  assert.match(text,/crew-text-typing-row[^\n]*chatFriend&&<FriendAvatar/);
  assert.match(text,/className=\{"crew-text-chat-message "\+m\.role\}/);
  assert.doesNotMatch(text,/m\.role==="user"&&chatFriend&&<FriendAvatar/);
- assert.match(page,/sessionScope=\{"friend:"\+friend\.id/);
+ assert.match(page,/<FriendUnifiedComposer live=\{live\}/);
 });
 test("teacher panel has no friend sessionScope and does not render friend avatars",()=>{
  const path="web-spa/src/teacher/LivePage.tsx";

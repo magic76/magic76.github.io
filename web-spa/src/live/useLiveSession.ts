@@ -85,6 +85,7 @@ export function useLiveSession(config:Config){
  const setFriendPhase=(phase:FriendVoicePhase)=>{voicePhaseRef.current=phase;setVoicePhase(phase)};
  const [turns,setTurns]=useState<LiveTurn[]>([]),[input,setInput]=useState(""),[output,setOutput]=useState("");
  const [searchSources,setSearchSources]=useState<GroundingSource[]>([]),[searchUnavailable,setSearchUnavailable]=useState(false),[searchSuggestions,setSearchSuggestions]=useState("");
+ const [micEnabled,setMicEnabled]=useState(false);
  const [muted,setMuted]=useState(false),[durationMs,setDurationMs]=useState(0),[report,setReport]=useState<Record<string,unknown>|null>(null);
  const [errorKind,setErrorKind]=useState<LiveErrorKind>(null),[visionSending,setVisionSending]=useState(false),[lastImage,setLastImage]=useState<LiveImage|null>(null),[visionError,setVisionError]=useState("");
  const visionSendingRef=useRef(false),awaitingTutorRef=useRef(false),recoveryRequestRef=useRef(false);
@@ -149,7 +150,7 @@ export function useLiveSession(config:Config){
   }
   return {turns:(item?.turns||[]) as LiveTurn[],durationMs:Number(item?.durationMs||0),report:completedReport};
  },[]);
- const start=useCallback(async(grant?:GuestTrialGrant)=>{
+ const start=useCallback(async(grant?:GuestTrialGrant,textOnly=false)=>{
   if(!mountedRef.current||attemptRef.current?.active||sessionRef.current)return;
   if(!geminiKey()&&!grant){trackUsageEvent("gemini_key_missing");setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
   const attempt={active:true};
@@ -159,7 +160,7 @@ export function useLiveSession(config:Config){
    await ensureLive();
    if(!isActive())return;
    if(!window.CrewLive)throw new Error("Live runtime 未載入");
-   guestModeRef.current=Boolean(grant);setGuestSecondsLeft(grant?.seconds||0);
+   guestModeRef.current=Boolean(grant);setGuestSecondsLeft(grant?.seconds||0);setMicEnabled(false);
    guestWrapUpSentRef.current=false;setGuestExpired(false);
    guestConnectedAtRef.current=0;guestEndedReportedRef.current=false;guestConnectFailedReportedRef.current=false;guestEffectiveReportedRef.current=false;
    cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();friendReplyRescueSentRef.current=false;setFriendPhase("idle");
@@ -247,6 +248,9 @@ export function useLiveSession(config:Config){
     createPlaybackRoute:configRef.current.createPlaybackRoute,
     separateCaptureContext:configRef.current.separateCaptureContext,
     guestAccessToken:grant?.token,
+    textOnly:textOnly&&configRef.current.sessionKind==="friend",
+    allowMicUpgrade:configRef.current.sessionKind==="friend",
+    trackTextTurns:configRef.current.sessionKind==="friend",
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
@@ -432,7 +436,7 @@ export function useLiveSession(config:Config){
    await session.start();
    if(!isActive()||!session.running)return;
    if(grant&&session.ready)recordGuestConnect();
-   session.setVolume(volumeRef.current);setState("listening");
+   session.setVolume(volumeRef.current);setState("listening");setMicEnabled(!textOnly);
   }catch(e){
    if(!isActive())return;
    attempt.active=false;
@@ -464,6 +468,7 @@ export function useLiveSession(config:Config){
  },[closeSession,finish,snapshot]);
  const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");return sessionRef.current?.interrupt()??false},[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
+ const enableMicrophone=useCallback(async()=>{const session=sessionRef.current;if(!session?.ready||!session.enableMicrophone)throw new Error("Live 尚未連線");await session.enableMicrophone();if(sessionRef.current===session)setMicEnabled(true)},[]);
  const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
   const presentGrounding=useCallback((answer:{sources:GroundingSource[];searchSuggestions?:string})=>{
    setSearchSources(previous=>mergeGroundingSources(previous,answer.sources));
@@ -511,7 +516,7 @@ export function useLiveSession(config:Config){
    void closeSession(session,"page-leave");
   };
  },[closeSession,snapshot]);
- return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
+ return{state,status,micEnabled,enableMicrophone,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
 
 

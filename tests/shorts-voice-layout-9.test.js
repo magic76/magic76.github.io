@@ -2,8 +2,8 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
 const read=p=>fs.readFileSync(path.join(__dirname,"..",p),"utf8");
 test("Shorts voice compact applies only to active voice sessions with a verified post",()=>{
- const page=read("web-spa/src/friends/FriendLivePage.tsx");
- assert.match(page,/!textMode&&active&&shortsPost\?" friend-shorts-voice-compact"/);
+ const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
+ assert.match(page,/active&&shortsPost\?" friend-shorts-voice-compact"/);
  assert.match(page,/shortsPost\?<section className="friend-live-post"/);
  assert.match(page,/<FriendCallCaptions name=\{friend\.name\}/);
 });

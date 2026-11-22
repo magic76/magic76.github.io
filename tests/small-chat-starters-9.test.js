@@ -5,11 +5,11 @@ const read=file=>fs.readFileSync(path.join(__dirname,"..",file),"utf8");
 const locales=["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"];
 
 test("Shorts compact entry is opt-in and keeps the verified first-sentence send path",()=>{
- const page=read("web-spa/src/friends/FriendLivePage.tsx");
+ const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
  const starters=read("web-spa/src/live/TextChatStarters.tsx");
- assert.match(page,/textMode&&shortsPost\?" friend-text-short-post"/);
- assert.match(page,/firstStarter=\{shortsStarter\|\|/);
+ assert.match(page,/shortsPost\?<section className="friend-live-post"/);
+ assert.match(page,/starters=\{\[gameRoundStarter\(/);
  assert.match(panel,/historyReady&&!messages\.length&&!draft\.trim\(\)/);
  assert.match(starters,/onClick=\{\(\)=>onPick\(\(gameStarter\|\|firstStarter\)!\)\}/);
  assert.match(panel,/className="crew-text-chat-form"/);
@@ -29,7 +29,7 @@ test("Short-phone layout preserves first suggestion, composer and keyboard focus
  assert.match(shared,/\.crew-text-chat-form button\{[^}]*min-height:\d+px/);
 });
 test("Shorts post label remains string-valued in all 11 UI locales",()=>{
- const page=read("web-spa/src/friends/FriendLivePage.tsx");
+ const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.match(page,/t\("friendLive\.postOrigin"\)/);
  for(const locale of locales){
   const resource=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/voice.json"));

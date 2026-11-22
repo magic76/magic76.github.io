@@ -29,7 +29,7 @@ test("old tutor/friend urls redirect and relationship starts remain separate",()
  const app=read("web-spa/src/App.tsx");
  const tutor=read("web-spa/src/teacher/TutorPage.tsx");
  const teacher=read("web-spa/src/teacher/LivePage.tsx");
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.ok(app.includes('path="roles" element={<RolesPage/>}'));
  assert.ok(app.includes('to="/teacher/roles?mode=friends"'));
  assert.ok(app.includes('to="/teacher/roles?mode=teacher"'));

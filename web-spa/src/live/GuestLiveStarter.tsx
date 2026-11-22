@@ -13,7 +13,7 @@ type WidgetApi={
 };
 const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
-export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerified=false,textFallback,linksInNewTab=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";precall?:boolean;focusStartOnVerified?:boolean;textFallback?:{href:string;name:string};linksInNewTab?:boolean}){
+export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusStartOnVerified=false,textFallback,linksInNewTab=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;onTextGrant?:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";precall?:boolean;focusStartOnVerified?:boolean;textFallback?:{href:string;name:string};linksInNewTab?:boolean}){
  const {t}=useTranslation(["common","voice"]);
  const linkTarget=linksInNewTab?{target:"_blank",rel:"noopener noreferrer"}:{};
  const [micUnavailable,setMicUnavailable]=useState(false);
@@ -114,16 +114,18 @@ export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerifie
   };
  },[siteKey,phase]);
  useEffect(()=>{if(focusStartOnVerified&&phase==="ready"&&challenge)startButton.current?.focus({preventScroll:true})},[focusStartOnVerified,phase,challenge]);
- async function begin(){
+ async function begin(textOnly=false){
   if(busy.current||!challenge||(phase!=="ready"&&!canRetryGuestMicrophone(phase,micUnavailable,challenge)))return;
   busy.current=true;setMicPermissionDenied(false);setMicUnavailable(false);setPhase("starting");setMessage("");
   trackUsageEvent("guest_trial_start_click",role);
   let tokenRequested=false;
   try{
-   if(!navigator.mediaDevices?.getUserMedia)throw new Error("microphone unavailable");
    await ensureLive();
-   const mic=await navigator.mediaDevices.getUserMedia({audio:true});
-   mic.getTracks().forEach(track=>track.stop());
+   if(!textOnly){
+    if(!navigator.mediaDevices?.getUserMedia)throw new Error("microphone unavailable");
+    const mic=await navigator.mediaDevices.getUserMedia({audio:true});
+    mic.getTracks().forEach(track=>track.stop());
+   }
    if(!active.current)return;
    let authTicket="";
    if(signinRequired||memberSignedIn){
@@ -159,7 +161,7 @@ export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerifie
     }
     return;
    }
-   if(active.current){trackUsageEvent("guest_trial_token_issued",role);window.dispatchEvent(new Event("crew:guest-trial-used"));await onGrant(data)}
+   if(active.current){trackUsageEvent("guest_trial_token_issued",role);window.dispatchEvent(new Event("crew:guest-trial-used"));await (textOnly&&onTextGrant?onTextGrant:onGrant)(data)}
   }catch(error){
    const denied=error instanceof DOMException&&error.name==="NotAllowedError";
    const blocked=denied||(error instanceof DOMException&&error.name==="SecurityError");
@@ -189,8 +191,8 @@ export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerifie
    {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
     {precall&&<p className={"friend-precall-verification"+(challenge?" is-verified":"")} role="status" aria-live="polite">{t(challenge?"voice:friendLive.preCallVerified":"voice:friendLive.preCallWaiting")}</p>}
     <p style={{fontSize:13,lineHeight:1.5,margin:0}}>{t("guestTrial.microphoneNotice")}</p>
-    <button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{precall?t("voice:friendLive.preCallStart"):t("guestTrial.start")}</button></>}
-   {precall&&role==="friend"&&textFallback&&(phase==="checking"||phase==="ready"||phase==="unavailable")&&<Link className="btn secondary friend-precall-text-fallback" to={textFallback.href} {...linkTarget}>{t("voice:friendLive.preCallTextFallback",{name:textFallback.name})}</Link>}
+    <button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{precall?t("voice:friendLive.preCallStart"):t("guestTrial.start")}</button>{role==="friend"&&onTextGrant&&<button type="button" className="btn secondary" disabled={!challenge} onClick={()=>void begin(true)}>{t("voice:friendLive.useText")}</button>}</>}
+   {precall&&role==="friend"&&!onTextGrant&&textFallback&&(phase==="checking"||phase==="ready"||phase==="unavailable")&&<Link className="btn secondary friend-precall-text-fallback" to={textFallback.href} {...linkTarget}>{t("voice:friendLive.preCallTextFallback",{name:textFallback.name})}</Link>}
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
     <Link className="btn" to="/account" {...linkTarget}>{t("guestTrial.signInAction")}</Link></>}
@@ -200,7 +202,8 @@ export function GuestLiveStarter({onGrant,role,precall=false,focusStartOnVerifie
     <Link className="btn" to="/account#settings-gemini" {...linkTarget}>{t("guestTrial.continueKey")}</Link>
     <Link className="btn secondary" to="/games/1a2b" {...linkTarget}>{t("guestTrial.free1a2b")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role={phase==="error"&&micPermissionDenied?"alert":"status"}>{message||t("guestTrial.unavailable")}</p>}
-   {phase==="error"&&textFallback&&<Link className={precall&&!micUnavailable?"btn secondary friend-precall-text-fallback":"btn"} to={textFallback.href} onClick={()=>offerGuestChallengeToken(challenge)}>{precall&&!micUnavailable?t("voice:friendLive.preCallTextFallback",{name:textFallback.name}):t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}
+   {phase==="error"&&textFallback&&!onTextGrant&&<Link className={precall&&!micUnavailable?"btn secondary friend-precall-text-fallback":"btn"} to={textFallback.href} onClick={()=>offerGuestChallengeToken(challenge)}>{precall&&!micUnavailable?t("voice:friendLive.preCallTextFallback",{name:textFallback.name}):t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}
+   {phase==="error"&&role==="friend"&&onTextGrant&&challenge&&<button className="btn" type="button" onClick={()=>void begin(true)}>{t("voice:friendLive.useText")}</button>}
    {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{
     if(canRetryGuestMicrophone(phase,micUnavailable,challenge)){void begin();return}
     clearGuestChallengeHandoff();setChallenge("");setMicPermissionDenied(false);setMicUnavailable(false);setPhase("ready");

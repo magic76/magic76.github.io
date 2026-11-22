@@ -39,11 +39,11 @@ test("failed card lookup still uses the correct cached reading or gives explicit
  assert.doesNotMatch(missing,/1985-07-06|04:10/);
 });
 test("only the explicit fortune route auto-sends a follow-up; restored and ordinary conversations stay opt-in",()=>{
- const page=read("web-spa/src/friends/FriendLivePage.tsx"),panel=read("web-spa/src/live/TextChatPanel.tsx");
+ const page=read("web-spa/src/friends/FriendLiveConversation.tsx"),panel=read("web-spa/src/live/TextChatPanel.tsx");
  assert.match(page,/const dailyHandoff=Boolean\(dailyEntry&&params\.get\("from"\)==="fortune"\)/);
- assert.match(page,/autoStarter=\{fortuneContinue\} replyFallback=\{fortuneReplies\}/);
- assert.match(page,/dailyHandoff\?":fortune:"\+dailyKind\+":"\+personalChartHash\+":"\+dayKey:dailyFortune/);
- assert.match(page,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
+ assert.match(page,/autoStarter=\{dailyHandoff&&textFirst\?fortuneContinue:undefined\}/);
+ assert.match(page,/dailyHandoff=Boolean\(dailyEntry/);
+ assert.match(page,/<FriendUnifiedComposer live=\{live\}/);
  assert.match(panel,/if\(!historyReady\|\|!autoStarter\|\|autoSent\.current===sessionScope\|\|messages\.length\|\|draft\.trim\(\)\|\|readPendingTextDraft\(sessionScope\)\)return/);
  assert.match(panel,/autoSent\.current=sessionScope;void sendMessage\(autoStarter\)/);
  assert.match(panel,/setNextReplies\(isFriend\?\(replyFallback\|\|parsed\?\.replies\|\|"fallback"\):null\)/);

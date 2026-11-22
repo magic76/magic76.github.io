@@ -91,7 +91,7 @@ test("friend missing-transcript watchdog uses sustained local speech and never i
 });
 
 test("friend display and watchdog cleanup are separate from actual Gemini VAD",()=>{
- const friend=fs.readFileSync(path.join(__dirname,"../web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(__dirname,"../web-spa/src/friends/FriendLiveConversation.tsx"),"utf8");
  const transport=fs.readFileSync(path.join(__dirname,"../crew-live.js"),"utf8");
  assert.match(friend,/friendVoiceStatus/);
  assert.match(friend,/no-transcript/);

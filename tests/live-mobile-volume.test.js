@@ -28,7 +28,7 @@ test("friend and teacher calls use the default gain without a playback slider",(
  const settings=source("web-spa/src/pages/GeminiConnectionPanel.tsx");
  const hook=source("web-spa/src/live/useLiveSession.ts");
  const teacher=source("web-spa/src/teacher/LivePage.tsx");
- const friend=source("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=source("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.doesNotMatch(controls,/live-audio-settings|friend-phone-volume|live-volume-quick|type="range"|setVolume\(/);
  assert.doesNotMatch(friendControls,/type="range"|live\.setVolume/);
  assert.doesNotMatch(settings,/crew-live-volume|crew_live_volume/);

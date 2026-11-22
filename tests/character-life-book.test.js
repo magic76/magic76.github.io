@@ -23,7 +23,7 @@ test("exactly sixteen independently scoped friends and teachers",()=>{
 test("Web Friend canon and first-line selector are separate from learner memory",()=>{
  const b=read("web-spa/src/characters/lifeBook.ts");
  const f=read("web-spa/src/friends/friendMemory.ts");
- const live=read("web-spa/src/friends/FriendLivePage.tsx");
+ const live=read("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.match(b,/friendLifeBookPrompt/);assert.match(b,/nextFriendLifeOpening/);
  assert.match(b,/role\+":"\+id/);assert.match(b,/opening_v1/);
  assert.match(f,/friendLifeBookPrompt\(friend\.id\)/);

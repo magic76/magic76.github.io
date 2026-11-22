@@ -55,8 +55,8 @@ test("Exhausted Live entry hides the offer and uses no retry for consumed grants
  assert.match(render,/phase==="error"&&<button/);
  assert.match(render,/\(phase==="error"\|\|phase==="unavailable"\)&&<Link/);
  assert.equal((render.match(/t\("guestTrial.continueKey"\)/g)||[]).length,1);
- assert.match(starter.slice(starter.indexOf('async function begin()')),/getUserMedia\(\{audio:true\}\)/);
- assert.match(starter.slice(starter.indexOf('callback:token=>'),starter.indexOf('async function begin()')),/void ensureLive\(\)\.catch/);
+ assert.match(starter.slice(starter.indexOf('async function begin(textOnly=false)')),/getUserMedia\(\{audio:true\}\)/);
+ assert.match(starter.slice(starter.indexOf('callback:token=>'),starter.indexOf('async function begin(textOnly=false)')),/void ensureLive\(\)\.catch/);
  const quota=read("web-spa/src/lib/useGuestTrialQuota.ts");
  assert.match(quota,/resolved:boolean/);
  assert.match(quota,/if\(data\?\.user\?\.id\)\{trial=data.trial;member=true\}/);

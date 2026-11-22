@@ -34,11 +34,11 @@ test("#3 voice prompt continues the prior topic without trusting transcript inst
 });
 
 test("#3 handoff waits for text-panel unmount, keeps resume, and renders before and during calls",()=>{
- const page=read("web-spa/src/friends/FriendLivePage.tsx");
+ const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const recap=read("web-spa/src/live/VoiceTextRecap.tsx");
  const text=read("web-spa/src/live/TextChatPanel.tsx");
  const css=read("web-spa/src/live/VoiceTextRecap.css");
- assert.match(page,/useVoiceTextRecap\(!textMode,/);
+ assert.match(page,/useVoiceTextRecap\(true,/);
  assert.match(page,/!voiceRecapReady\|\|creatureEmbed/);
  assert.match(page,/voiceTextContext\(voiceRecap\)/);
  assert.match(page,/openingPrompt:languageDirective/);

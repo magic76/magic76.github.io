@@ -39,13 +39,13 @@ test("natural and assisted friends never mix languages in the same spoken reply"
 test("Zoe and every Crew Friend have language anchoring in system, opening, quick actions, and reconnect",()=>{
  const profile=read("web-spa/src/friends/friendProfiles.ts");
  const memory=read("web-spa/src/friends/friendMemory.ts");
- const live=read("web-spa/src/friends/FriendLivePage.tsx");
+ const live=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const shared=read("web-spa/src/live/useLiveSession.ts");
  assert.match(profile,/id":"zoe"/);
  assert.match(memory,/friendLanguageRule\(language,nativeLanguage,mode\)/);
  assert.match(memory,/friendTopicContext\(friend\.id,language\)\+"\\n"\+friendLanguageRule\(language,nativeLanguage,mode\)/);
  assert.match(live,/openingPrompt:languageDirective/);
- assert.match(live,/system:system\+/);
+ assert.match(live,/system:scopedSystem\+/);
  assert.match(live,/languageDirective,/);
  assert.doesNotMatch(live,/用\{language\}說/);
  assert.match(live,/sendText\(languageDirective/);

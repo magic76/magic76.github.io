@@ -33,7 +33,7 @@ test("all 32 friends and teachers have unique supported voices within their grou
 });
 
 test("Live and audition select normalized speaker without changing tutoring or memory",()=>{
- const f=read("web-spa/src/friends/FriendLivePage.tsx");
+ const f=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const t=read("web-spa/src/teacher/LivePage.tsx");
  const preview=read("web-spa/src/teacher/teacherVoicePreview.ts");
  const prompt=read("web-spa/src/live/voiceIdentity.ts");

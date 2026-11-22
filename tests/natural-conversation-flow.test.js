@@ -45,7 +45,7 @@ test("short answers are narrow acknowledgements, not every short personal fact",
 
 test("only free chat gets automatic silence rescue",()=>{
  const teacher=read("web-spa/src/teacher/LivePage.tsx");
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const hook=read("web-spa/src/live/useLiveSession.ts");
  const transport=read("crew-live.js");
  const policy=read("web-spa/src/teacher/teacherPolicy.ts");

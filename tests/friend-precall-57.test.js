@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 const read=p=>fs.readFileSync(p,"utf8"),root="web-spa/src/";
-const page=read(root+"friends/FriendLivePage.tsx");
+const page=read(root+"friends/FriendLiveConversation.tsx");
 const css=read(root+"friends/friendCall.css");
 const gate=read(root+"live/GuestLiveStarter.tsx");
 test("#57 pre-call canvas and header stay black, without a floating stage card",()=>{
@@ -14,15 +14,15 @@ test("#57 pre-call canvas and header stay black, without a floating stage card",
 });
 test("#57 guest CTA is verification-gated and settings are secondary",()=>{
  assert.match(page,/GuestLiveStarter role="friend" precall/);
- assert.match(page,/FriendCallMenuTrigger active=\{!textMode\}/);
- assert.match(page,/<FriendCallMenu inCall=\{!textMode\}/);
+ assert.match(page,/FriendCallMenuTrigger active=\{true\}/);
+ assert.match(page,/<FriendCallMenu inCall=\{true\}/);
  assert.match(gate,/disabled=\{!challenge\}/);
  for(const key of ["preCallSteps","preCallWaiting","preCallVerified","preCallStart"])assert.ok(gate.includes(key),key);
  assert.match(css,/\.guest-live-entry \.btn:disabled\{opacity:1/);
  assert.match(css,/\.guest-live-entry \.btn\{[^}]*min-height:54px/);
 });
 test("#57 desktop workspace opens after call start and only friend brand changes",()=>{
- assert.match(page,/!textMode&&active&&<DesktopLivePanel kind="friend"/);
+ assert.match(page,/active&&live\.micEnabled&&<DesktopLivePanel kind="friend"/);
  assert.match(read(root+"components/DesktopLivePanel.tsx"),/kind==="friend"\?"Koolo Friends"/);
  assert.ok(Buffer.byteLength(page)<=25500);
 });

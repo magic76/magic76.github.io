@@ -20,7 +20,7 @@ test("translated character UI entries exactly match sixteen Friends and Teachers
 });
 test("UI locale does not select spoken language or mutate memories",()=>{
  const model=read("web-spa/src/characters/lifeBookLocale.ts");
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const teacher=read("web-spa/src/teacher/LivePage.tsx");
  const book=read("web-spa/src/characters/lifeBook.ts");
  assert.match(model,/UI-only biography selection/);
@@ -28,7 +28,7 @@ test("UI locale does not select spoken language or mutate memories",()=>{
  assert.match(model,/return normal===/);
  assert.doesNotMatch(model,/setFriendChatMode|setTargetLanguage|setTeacherProfile/);
  assert.match(friend,/openingPrompt:languageDirective/);
- assert.match(friend,/conversationOpening\(intent,"friend"\)\)\+"\\n"\+languageDirective/);
+ assert.match(friend,/conversationHint:fortuneContinue\|\|gameRoundStarter\(/);
  assert.match(teacher,/opening\+"\\n"\+languageDirective/);
  assert.match(book,/English authoring language/);
  assert.match(read("web-spa/src/friends/FriendsPage.tsx"),/characterLifeView\("friend",selected\.id,locale\.language\)/);

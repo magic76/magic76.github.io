@@ -19,7 +19,12 @@ function readSource(relative){
   throw new Error("Invalid relative path: "+relative);
  const resolved=path.resolve(root,relative);
  if(!resolved.startsWith(root+path.sep))throw new Error("Path outside repository: "+relative);
- return fs.readFileSync(resolved,"utf8");
+ const source=fs.readFileSync(resolved,"utf8");
+ // FriendLivePage is now a route-only Shorts loader. Check the extracted Live
+ // conversation alongside it, without relaxing any canonical anchor.
+ if(platform==="web"&&relative==="web-spa/src/friends/FriendLivePage.tsx")
+  return source+"\n"+readSource("web-spa/src/friends/FriendLiveConversation.tsx");
+ return source;
 }
 function validate(){
  const contract=JSON.parse(fs.readFileSync(contractPath,"utf8"));

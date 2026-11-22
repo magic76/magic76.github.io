@@ -36,7 +36,7 @@ test("Guest config rejects 180-second rollout mismatch, fails closed and retries
 test("Guest trial still requires explicit start, mic permission and server grant",()=>{
  const code=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
  const callback=code.indexOf("callback:token=>");
- const start=code.indexOf("async function begin()");
+ const start=code.indexOf("async function begin(textOnly=false)");
  assert.ok(callback!==-1&&start>callback);
  assert.match(code.slice(callback,start),/void ensureLive\(\)\.catch/);
  assert.doesNotMatch(code.slice(callback,start),/getUserMedia|GUEST_TOKEN_ENDPOINT.*method:"POST"/);

@@ -284,7 +284,7 @@ test("public voice uses original Teacher and Friend UI; QA endpoint is gone",asy
  const starter=fs.readFileSync(path.join(root,"web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
- const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLiveConversation.tsx"),"utf8");
  const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  assert.match(starter,/crew-guest-trial/);
@@ -301,7 +301,7 @@ test("public voice uses original Teacher and Friend UI; QA endpoint is gone",asy
 
 test("Guest mode skips BYOK-only teacher grading and friend reconnect",()=>{
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
- const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLiveConversation.tsx"),"utf8");
  assert.match(teacher,/if\(guestStarted\|\|live\.state!=="ended"/);
  assert.match(teacher,/if\(guestStarted\)\{await live\.stop\(true\);navigate\("\/learn"\)/);
  assert.match(friend,/live\.voicePhase==="no-reply"&&!guestStarted/);
@@ -487,7 +487,7 @@ test("guest trial 10-second guidance and completion UX preserve hard stop",()=>{
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
  const component=fs.readFileSync(path.join(root,"web-spa/src/live/GuestTrialExperience.tsx"),"utf8");
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
- const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLiveConversation.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/live/guestTrialExperience.css"),"utf8");
  assert.match(hook,/Math\.min\(300000/);
  assert.match(hook,/guestWrapUpSentRef\.current=true/);

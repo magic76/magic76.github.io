@@ -48,7 +48,7 @@ test("minimal posts fall back to the three legacy hooks",async()=>{
 test("photo CTA, fixed-in-view return, accessible controls, no microphone autoplay from Shorts",()=>{
  const page=read("web-spa/src/teacher/ShortsPage.tsx");
  const css=read("web-spa/src/teacher/shorts.css");
- const live=read("web-spa/src/friends/FriendLivePage.tsx");
+ const live=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const chrome=read("web-spa/src/components/AppChrome.tsx");
  assert.match(page,/crew-short-photo-bottom/);
  assert.match(page,/shorts\.chatThis/);
@@ -74,8 +74,8 @@ test("photo CTA, fixed-in-view return, accessible controls, no microphone autopl
  const sourceOrder=[live.indexOf('className="friend-shorts-first-action"'),live.indexOf('className="friend-language-switch"')];
  assert.ok(sourceOrder[0]>=0&&sourceOrder[0]<sourceOrder[1],"Shorts voice entry precedes optional chat mode");
  assert.match(live,/!shortsPost&&!homeFirstAction\?voiceStart:null/);
- assert.match(live,/shortsPost&&!textMode\?<div className="friend-shorts-first-action"/);
- assert.match(live,/if\(textMode\|\|!geminiKey\(\)\|\|shortsPost\)return/);
+ assert.match(live,/shortsPost\?<div className="friend-shorts-first-action"/);
+ assert.match(live,/if\(textFirst\|\|!voiceRecapReady/);
  assert.match(chrome,/chrome\.shortsSection/);
  assert.match(chrome,/chrome\.timelineTitle/);
 });

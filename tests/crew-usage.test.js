@@ -152,7 +152,7 @@ test("guest trial funnel events and duration details are privacy-allowlisted",as
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
  const dash=fs.readFileSync(path.join(root,"web-spa/src/analytics/UsageDashboardPage.tsx"),"utf8");
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
- const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLiveConversation.tsx"),"utf8");
  assert.match(starter,/guest_trial_entry_view/);
  assert.match(starter,/guest_trial_unavailable/);
  assert.match(starter,/guest_trial_token_issued/);

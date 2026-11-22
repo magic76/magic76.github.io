@@ -4,22 +4,22 @@ const fs=require("node:fs");
 const read=path=>fs.readFileSync(path,"utf8");
 const root="web-spa/src/";
 const starter=read(root+"live/GuestLiveStarter.tsx");
-const friend=read(root+"friends/FriendLivePage.tsx");
+const friend=read(root+"friends/FriendLiveConversation.tsx");
 const styles=read(root+"friends/friendCall.css");
 
 test("#62: unverified pre-call keeps the gated voice action and exposes same-friend text",()=>{
- assert.match(friend,/alternateParams\.set\("chat","text"\)/);
- assert.match(friend,/textFallback=\{\{href:alternateHref,name:friend\.name\}\}/);
+ assert.match(friend,/focusOnMount=\{params\.get\("chat"\)==="text"\}/);
+ assert.match(friend,/onTextGrant=\{async grant=>/);
  assert.match(starter,/disabled=\{!challenge\}/);
- assert.match(starter,/precall&&role==="friend"&&textFallback/);
+ assert.match(starter,/role==="friend"&&onTextGrant&&<button/);
  for(const phase of ["checking","ready","unavailable"])assert.ok(starter.includes('phase==="'+phase+'"'),phase);
- assert.match(starter,/className="btn secondary friend-precall-text-fallback"/);
- assert.match(starter,/to=\{textFallback\.href\}/);
- assert.doesNotMatch(starter.slice(starter.indexOf('precall&&role==="friend"'),starter.indexOf('phase==="starting"&&<p')),/offerGuestChallengeToken|begin\(/);
+ assert.match(starter,/onClick=\{\(\)=>void begin\(true\)\}/);
+ assert.match(starter,/if\(!textOnly\)\{/);
+ assert.match(starter,/await \(textOnly&&onTextGrant\?onTextGrant:onGrant\)\(data\)/);
 });
 
 test("#62: error fallback stays secondary except for the existing microphone recovery",()=>{
- assert.match(starter,/phase==="error"&&textFallback&&<Link/);
+ assert.match(starter,/phase==="error"&&role==="friend"&&onTextGrant&&challenge/);
  assert.match(starter,/precall&&!micUnavailable\?"btn secondary friend-precall-text-fallback":"btn"/);
  assert.match(starter,/offerGuestChallengeToken\(challenge\)/);
  assert.match(starter,/voice:friendLive\.preCallTextFallback/);

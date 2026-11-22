@@ -34,7 +34,7 @@ test("Shorts likes and translation animate only after a real interaction",()=>{
 
 test("Live presence shows actual listening, speaking, waiting and errors without fake amplitude",()=>{
  const teacher=read("web-spa/src/teacher/LivePage.tsx");
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const motion=read("web-spa/src/motion.css");
  assert.match(teacher,/const awaitingReply=.*"no-reply"/);
  assert.match(teacher,/data-state=\{presenceState\} role="status"/);
