@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Configurações",
-    "desc": "Gerencie sua chave Gemini, experiência de voz e backups em um só lugar. Os recursos de IA do Koolo compartilham uma chave; jogos offline não precisam dela."
+    "desc": "Personalize o idioma, as preferências de aprendizado, os recursos de voz e os dados salvos."
   },
   "memory": {
     "title": "Memória",

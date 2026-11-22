@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "設定",
-    "desc": "學習、語音體驗與資料備份都可以在這裡管理；Gemini Key 則移至「帳號」頁。Koolo Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key；離線遊戲不需要 Key。"
+    "desc": "在這裡調整顯示語言、學習偏好、語音功能與資料。"
   },
   "memory": {
     "title": "記憶",
