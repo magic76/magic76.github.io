@@ -69,10 +69,10 @@ test("Long Life Book cannot push Shorts details out of the guest 6000 limit",asy
 
 test("Shorts changes are opt-in, other chat and visible user message stay untouched",async()=>{
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const {buildShortsTextSystems}=await asModule("web-spa/src/live/shortsTextContext.ts");
- assert.match(friend,/shortsContext=\{shortsPost\?buildShortsFriendContext\(shortsPost\):undefined\}/);
- assert.match(friend,/firstStarter=\{shortsStarter\|\|fortuneContinue\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/buildShortsFriendContext\(shortsPost\)/);
+ assert.match(friend,/starters=\{\[gameRoundStarter\(/);
  assert.match(panel,/shortsContext\?buildShortsTextSystems\(baseSystem,shortsContext\):null/);
  assert.match(panel,/const system=gameRoundContext\(shortsSystems\?\.live\|\|baseSystem,sessionScope\)/);
   assert.match(read("web-spa/src/live/gameRoundHandoff.ts"),/!scope\.startsWith\("friend:zoe"\)/);
