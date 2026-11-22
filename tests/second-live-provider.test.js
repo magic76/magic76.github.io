@@ -35,12 +35,12 @@ test("failed, disconnected, timed out or malformed secondary responses fall back
 });
 test("friend call owns secondary session only while active and with a BYOK key",()=>{
  const lifecycle=read("web-spa/src/live/useAuxiliaryLiveSession.ts");
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const captions=read("web-spa/src/friends/FriendCallCaptions.tsx");
  const hints=read("web-spa/src/live/useSuggestedReplies.ts");
  assert.match(lifecycle,/!active\|\|textMode\|\|!geminiKey\(\)/);
  assert.match(lifecycle,/return stopAuxiliarySession/);
- assert.match(friend,/useAuxiliaryLiveSession\(active,textMode\)/);
+ assert.match(friend,/useAuxiliaryLiveSession\(active,false\)/);
  assert.match(captions,/translateWithProvider\(part\.source,source,nativeLanguage,onText,controller\.signal\)/);
  assert.match(hints,/suggestWithProvider\(turns,language,nativeLanguage\)/);
  assert.ok(Buffer.byteLength(friend)<26000);
