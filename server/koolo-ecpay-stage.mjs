@@ -82,9 +82,9 @@ export function buildTestReport(f){
  ]};
 }
 function tradeDate(now=Date.now()){return new Date(now+8*3600*1000).toISOString().slice(0,19).replaceAll("-","/").replace("T"," ")}
-function responseOrder(row){
+function responseOrder(row,includeReport=false){
  const data={id:String(row.id),state:row.state,createdAt:Number(row.created_at),sandbox:true};
- if(row.state==="paid"&&typeof row.report_json==="string"){
+ if(includeReport&&row.state==="paid"&&typeof row.report_json==="string"){
   try{const report=JSON.parse(row.report_json);if(Array.isArray(report.sections))data.report=report}catch{/* never leak raw content */}
  }
  return data;
@@ -140,7 +140,7 @@ export async function stageOrderStatus(context){
   const row=await a.db.prepare(
    "SELECT id,state,created_at,report_json FROM koolo_fortune_stage_orders WHERE id=? AND user_id=? LIMIT 1"
   ).bind(id,a.userId).first();
-  return row?respond({order:responseOrder(row)}):respond({error:"NOT_FOUND"},404);
+  return row?respond({order:responseOrder(row,true)}):respond({error:"NOT_FOUND"},404);
  }catch{return respond({error:"STAGE_UNAVAILABLE"},503)}
 }
 const ack=()=>new Response("1|OK",{status:200,headers:{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-store"}});
