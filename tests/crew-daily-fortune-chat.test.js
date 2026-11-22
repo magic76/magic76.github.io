@@ -1,7 +1,7 @@
 "use strict";
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
-const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
 const panel=read("web-spa/src/live/TextChatPanel.tsx");
 const starters=read("web-spa/src/live/TextChatStarters.tsx");
 
@@ -35,15 +35,15 @@ test("daily default never persists; manual tab changes still use existing store 
  assert.match(friend,/buildFriendSystem\(friend,language,friendNativeLanguage,friendChatMode\)/);
  assert.match(friend,/friendLanguageReminder\(language,friendNativeLanguage,friendChatMode\)/);
  assert.match(friend,/friendLanguageTransition\(language,friendNativeLanguage,chosen\)/);
- const manual=friend.slice(friend.indexOf("const changeFriendChatMode="),friend.indexOf("const alternateParams="));
+ const manual=friend.slice(friend.indexOf("const changeFriendChatMode="),friend.indexOf("const voiceStart="));
  assert.match(manual,/useTeacherStore\.getState\(\)\.setFriendChatMode\(chosen\)/);
  assert.match(manual,/setActiveFriendChatMode\(chosen\)/);
 });
 test("only the daily entry substitutes translated fortune starters",()=>{
- assert.match(friend,/starters=\{dailyEntry\?\[t\("dailyFortuneStarters\.goodFor"\),t\("dailyFortuneStarters\.watchOut"\)\]:undefined\}/);
+ assert.match(friend,/starters=\{\[gameRoundStarter\(/);
  assert.match(friend,/dailyFortuneStarter=dailyFortune\?t\("dailyFortuneStarter"\):undefined/);
- assert.match(friend,/firstStarter=\{shortsStarter\|\|fortuneContinue\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
- assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyFortuneStarter\|\|dailyQuoteStarter\)&&!dailyHandoff\}/);
+ assert.match(friend,/shortsStarter,fortuneContinue,dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter/);
+ assert.match(friend,/<FriendUnifiedComposer live=\{live\}/);
  assert.match(panel,/starters\?:string\[\]/);
  assert.match(panel,/firstStarter=\{firstStarter\} starters=\{starters\}\/\>/);
  assert.match(panel,/firstStarter=\{firstStarter\} firstOnly\/\>/);
