@@ -5,7 +5,7 @@ const root=path.resolve(__dirname,"..");
 const source=p=>fs.readFileSync(path.join(root,p),"utf8");
 
 test("friend End and toolbar Back both close after saving conversation",()=>{
- const live=source("web-spa/src/friends/FriendLivePage.tsx");
+ const live=source("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.match(live,/const endAndReturn=async\(\)=>/);
  assert.match(live,/await live\.stop\(true\)/);
  assert.match(live,/shortsReturnTo=shortsPost\?"\/teacher\/shorts\?post="\+encodeURIComponent\(shortsPost\.id\)/);
