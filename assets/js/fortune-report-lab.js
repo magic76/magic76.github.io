@@ -146,7 +146,7 @@ button.addEventListener("click",async function(){
    body:JSON.stringify({requestId:crypto.randomUUID(),facts:facts})});
   window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(x.report.id));
   showBook(x.report)
- }catch(e){say("製作未完成："+e.message+"。請檢查本機命盤與 Cloudflare 設定。")}
+ }catch(e){say("製作未完成："+(e instanceof Error?e.message:"請求失敗")+"。請記下錯誤代碼；若顯示 HTTP 5xx，請勿立即連續重試。")}
  finally{button.disabled=records.length===0;button.textContent="產生專屬命書（測試）";history()}
 });
 // Initialize chart picker before any optional bindings / network requests.
