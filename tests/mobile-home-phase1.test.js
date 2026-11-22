@@ -18,17 +18,18 @@ test("mobile homepage is a separate responsive presentation; desktop keeps its p
  assert.match(css,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
 });
 
-test("mobile hero uses last completed friend resume with a Zoe-only first-visit fallback",()=>{
+test("mobile hero follows last active friend identity without storing any transcript",()=>{
  const page=read("web-spa/src/pages/MobileHomePage.tsx");
  const resume=read("web-spa/src/live/sessionTranscript.ts");
- assert.match(page,/readLatestFriendResume\(\)/);
- assert.match(page,/resume\?CREW_FRIENDS.find\(friend=>friend.id===resume.friendId\)/);
- assert.match(page,/resumeFriend\?resume:null/);
+ assert.match(page,/readLatestFriendActivity\(\)/);
+ assert.match(page,/activity\?CREW_FRIENDS.find\(friend=>friend.id===activity.friendId\)/);
+ assert.match(page,/resumeFriend\?activity:null/);
  assert.match(page,/resumeFriend\?\.avatar\|\|zoePhoto/);
  assert.match(page,/friendResume\?t\("layout2.resumeTitle",\{name:resumeFriend!/);
  assert.doesNotMatch(page,/cmh-resume-preview-row|PREVIEW_HIDDEN_KEY|setPreviewHidden/);
  assert.doesNotMatch(page,/cmh-other-resume/);
- assert.match(resume,/messages\.at\(-1\)\?\.role!=="assistant"/);
+ assert.match(resume,/mode:entry.mode,resume:null/);
+  assert.doesNotMatch(resume,/export function saveFriendResume/);
  assert.match(page,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=home&chat=text"/);
  assert.match(page,/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
 });

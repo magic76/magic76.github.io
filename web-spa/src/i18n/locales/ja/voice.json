@@ -260,13 +260,6 @@
       "send": "送信",
       "notice": "Live テキストと無料練習は別セッションです。マイクは不要です。"
     },
-    "resume": {
-      "greeting": "おかえり！前は「{{excerpt}}」の話をしてたね。続きを話す？",
-      "continue": "前の話を続ける",
-      "newTopic": "新しい話をする",
-      "continueMessage": "戻ったよ！前の話の続きをしよう。",
-      "newMessage": "戻ったよ！今日は別の話がしたいな。"
-    },
     "byok": {
       "key": "Gemini Key が無効か、アクセス権限がありません。",
       "quota": "Gemini が Live テキストリクエストを拒否しました（429：レートまたは利用制限）。API Key 全体の上限に達したとは限りません。後でもう一度試すか Google AI Studio でモデルの制限を確認してください。",

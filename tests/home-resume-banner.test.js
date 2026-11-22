@@ -28,10 +28,10 @@ test("display-only preview normalizes punctuation and truncates at word/CJK boun
 });
 
 test("first carousel slide uses the last known friend and keeps Zoe for first visits",()=>{
- assert.match(mobile,/const \[resume,setResume\]=useState<FriendResume\|null>\(null\)/);
- assert.match(mobile,/useEffect\(\(\)=>\{\s*setResume\(readLatestFriendResume\(\)\)/);
- assert.match(mobile,/const resumeFriend=resume\?CREW_FRIENDS.find\(friend=>friend.id===resume.friendId\):null/);
- assert.match(mobile,/const friendResume=resumeFriend\?resume:null/);
+ assert.match(mobile,/const \[activity,setActivity\]=useState<FriendActivity\|null>\(null\)/);
+ assert.match(mobile,/setActivity\(readLatestFriendActivity\(\)\)/);
+ assert.match(mobile,/const resumeFriend=activity\?CREW_FRIENDS.find\(friend=>friend.id===activity.friendId\):null/);
+ assert.match(mobile,/const friendResume=resumeFriend\?activity:null/);
  assert.match(mobile,/friendResume\?t\("layout2.resumeTitle",\{name:resumeFriend!\.name\}\):t\("mobileHero.title"/);
  assert.match(mobile,/src=\{resumeFriend\?\.avatar\|\|zoePhoto\}/);
  assert.match(mobile,/textDestination=resumeId\?"\/friend\/live\?id="\+encodeURIComponent\(resumeId\)\+"&from=home&chat=text":ZOE_TEXT/);
@@ -51,7 +51,7 @@ test("return card resumes the last friend without exposing transcript text",()=>
 });
 
 test("desktop uses last friend but never overrides Shorts or explicit friend links",()=>{
- assert.match(desktop,/HOME_FRIEND_IDS\.includes\(resume.friendId\)/);
+ assert.match(desktop,/HOME_FRIEND_IDS\.includes\(latest.friendId\)/);
  assert.match(desktop,/const canResume=Boolean\(resumeId&&!selectedPost&&\(!deepLink.friend\|\|deepLink.friend===resumeId\)\)/);
  assert.match(desktop,/friendId=deepLink.tab==="chat"&&deepLink.friend\?deepLink.friend:canResume&&resumeId\?resumeId:"zoe"/);
  assert.match(desktop,/canResume\?t\("layout2.resumeTitle",\{name:friendName\}\)/);

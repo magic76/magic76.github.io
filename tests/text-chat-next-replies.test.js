@@ -80,11 +80,11 @@ test('friend prompts cover Live and free Worker; teacher is not subject to the s
  assert.match(live,/this\.searchEnabled\?.*FRIEND_TEXT_INSTRUCTIONS/);
  assert.match(panel,/if\(parsed\)reply=parsed\.text/);
  assert.ok(panel.indexOf('if(parsed)reply=parsed.text')<panel.indexOf('await reveal.finish(reply)'));
- assert.ok(panel.indexOf('await reveal.finish(reply)')<panel.indexOf('writeSessionTranscript(sessionScope,complete)'));
- assert.ok(panel.indexOf('writeSessionTranscript(sessionScope,complete)')<panel.indexOf('saveFriendResume(sessionScope,complete)'));
+ assert.ok(panel.indexOf('await reveal.finish(reply)')<panel.indexOf('if(!isFriend)writeSessionTranscript(sessionScope,complete)'));
+ assert.doesNotMatch(panel,/saveFriendResume|readReturningFriendResume/);
  assert.match(panel,/stripFriendReplyMeta\(text\)/);
  assert.match(panel,/next\.slice\(-10\)\.map\(m=>\(\{role:m\.role,text:m\.text\}\)\)/);
- assert.match(panel,/messages\.slice\(-10\)\.map\(m=>m\.role\+": "\+m\.text/);
+ assert.doesNotMatch(panel,/Previous conversation for continuity/);
 });
 
 test('typing and safe fallback phrases are localized in all 11 voice namespaces',()=>{
@@ -152,6 +152,7 @@ test('page-local mode directive wins over the persisted store and rerenders fall
  assert.deepEqual(Array.from(friendFallbackPhrases('en',modeFromFriendSystem(native,'immersion'),ui)),ui);
  const panel=read('web-spa/src/live/TextChatPanel.tsx');
  assert.match(panel,/setNextReplies\(isFriend\?\(replyFallback\|\|parsed\?\.replies\|\|"fallback"\):null\)/);
- assert.match(panel,/saved\.at\(-1\)\?\.role==="assistant"\?\(replyFallback\|\|"fallback"\):null/);
+ assert.match(panel,/latestMessages\.current=saved;\s*setNextReplies\(null\)/);
+  assert.doesNotMatch(panel,/saved\.at\(-1\)\?\.role==="assistant"\?\(replyFallback\|\|"fallback"\):null/);
  assert.match(panel,/nextReplies==="fallback"\?fallbackReplies:nextReplies/);
 });

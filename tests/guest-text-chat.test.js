@@ -183,7 +183,8 @@ test("BYOK text now uses a persistent Gemini Live keyboard session",()=>{
  const panel=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/TextChatPanel.tsx"),"utf8");
  const adapter=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/liveTextChat.ts"),"utf8");
  const transport=fs.readFileSync(path.join(__dirname,"../crew-live.js"),"utf8");
- assert.match(panel,/new LiveTextConversation\(prior\?returningSystem\+[\s\S]*?\+prior:returningSystem,\s*searchEnabled/);
+ assert.match(panel,/new LiveTextConversation\(system,searchEnabled/);
+  assert.doesNotMatch(panel,/Previous conversation for continuity|returningSystem/);
   assert.match(panel,/if\(!liveChat\.current\)\{/);
  assert.match(panel,/liveChat\.current\.send\(value,partial=>\{/);
  assert.match(panel,/reveal\?\.push\(partial\)/);

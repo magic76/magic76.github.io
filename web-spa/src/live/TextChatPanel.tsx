@@ -10,11 +10,10 @@ import {sendGuestTextWithRenewal} from "./guestTextFlow";
 import {useGuestTextChallenge} from "./guestTextChallenge";
 import {hasGuestChallengeHandoff,takeUsedGuestHandoff,takeMicFallbackNotice} from "./guestTextChallenge";
 import {classifyGuestTextFailure,guestTextWorkerError,markGuestTextStartError,isGuestTextStartError} from "./guestTextError";
-import {readSessionTranscript,readReturningFriendResume,returningFriendSystemHint,writeSessionTranscript,saveFriendResume,recordFriendActivity,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
+import {readSessionTranscript,writeSessionTranscript,recordFriendActivity,clearLegacyFriendChats,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
 import {TextChatStarters} from "./TextChatStarters";
 import {gameRoundContext,isGameRoundLink} from "./gameRoundHandoff";
-import {TextChatWelcomeBack} from "./TextChatWelcomeBack";
 import {TextChatNextReplies,useFriendNextReplyFallback} from "./TextChatNextReplies";
 import {parseFriendReply,stripFriendReplyMeta,friendGuestSystem} from "./textChatReplies";
 import {useTextChatKeyboard} from "./textChatKeyboard";
@@ -47,11 +46,8 @@ function getSavedGuestSession(){
 }
 /** No microphone: BYOK connects to Gemini Live; guests use metered Worker text. */
 export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,starters,showStarterWithHistory=false,autoStarter,replyFallback,shortsContext,onExchange,completionFeedback}:Props){
- const [returnVisit,setReturnVisit]=useState<ReturnType<typeof readReturningFriendResume>>(null);
- const [returnChoices,setReturnChoices]=useState(false);
  const shortsSystems=shortsContext?buildShortsTextSystems(baseSystem,shortsContext):null;
  const system=gameRoundContext(shortsSystems?.live||baseSystem,sessionScope);
- const returningSystem=system+(returnVisit?"\n"+returningFriendSystemHint(returnVisit):"");
  const [messages,setMessages]=useState<Message[]>([]);
  const [draft,setDraft]=useState("");
  const [historyReady,setHistoryReady]=useState(false);
@@ -96,7 +92,11 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   mounted.current=false;
  }},[]);
  useEffect(()=>{
-  const visit=readReturningFriendResume(sessionScope);
+  if(isFriend){
+   clearLegacyFriendChats();
+   latestMessages.current=[];setMessages([]);setDraft("");setError("");setNextReplies(null);setHistoryReady(true);
+   return;
+  }
   const saved=readSessionTranscript(sessionScope);
   const dangling=saved.at(-1)?.role==="user"?saved.pop()?.text:"";
   if(dangling)writeSessionTranscript(sessionScope,saved);
@@ -105,24 +105,23 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    setDraft(pending?.text||dangling||"");
    setError(t(pending?.sent?"textChat.ui.previousSent":"textChat.ui.previousUnsent"));
   }
-  setReturnVisit(!pending&&!dangling?visit:null);setReturnChoices(Boolean(visit&&!pending&&!dangling));
   latestMessages.current=saved;
-  setNextReplies(isFriend&&!pending&&!dangling&&saved.at(-1)?.role==="assistant"?(replyFallback||"fallback"):null);
+  setNextReplies(null);
   setMessages(saved);setHistoryReady(true);
- },[sessionScope]);
+ },[sessionScope,isFriend]);
  latestMessages.current=messages;
  useEffect(()=>{
-  if(!historyReady||!sessionScope)return;
+  if(!historyReady||!sessionScope||isFriend)return;
   const timer=window.setTimeout(()=>writeSessionTranscript(sessionScope,pendingSend.current?.before||messages),180);
   return()=>window.clearTimeout(timer);
- },[messages,historyReady,sessionScope]);
+ },[messages,historyReady,sessionScope,isFriend]);
  useEffect(()=>()=>{
-  if(historyReady&&sessionScope)writeSessionTranscript(sessionScope,pendingSend.current?.before||latestMessages.current);
- },[historyReady,sessionScope]);
+  if(historyReady&&sessionScope&&!isFriend)writeSessionTranscript(sessionScope,pendingSend.current?.before||latestMessages.current);
+ },[historyReady,sessionScope,isFriend]);
  useEffect(()=>()=>{
   typingRef.current?.cancel();typingRef.current=null;
   liveChat.current?.close();liveChat.current=null;
- },[guestMode,returningSystem,searchEnabled]);
+ },[guestMode,system,searchEnabled]);
  useEffect(()=>{
   if(messages.length&&history.current)history.current.scrollTop=history.current.scrollHeight;
  },[messages.length,messages.at(-1)?.text.length,historyReady,nextReplies]);
@@ -197,8 +196,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  async function sendMessage(text:string){
   const value=text.trim().slice(0,1200);
   if(!value||busy)return;
-  setNextReplies(null);setReturnChoices(false);
-  const returningHint=returnVisit?returningFriendSystemHint(returnVisit):"";
+  setNextReplies(null);
   const key=guestMode?"":geminiKey();
   if(!key&&(guestPhase==="unavailable"||guestPhase==="exhausted"||guestPhase==="paused"))return;
   if(!key&&guestPhase==="error")setGuestPhase("ready");
@@ -226,8 +224,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    let reply="",sources:GroundingSource[]|undefined,searchSuggestions:string|undefined;
    if(key){
     if(!liveChat.current){
-     const prior=sessionScope.startsWith("friend:")?messages.slice(-10).map(m=>m.role+": "+m.text.slice(0,350)).join("\n"):"";
-     liveChat.current=new LiveTextConversation(prior?returningSystem+"\n\nPrevious conversation for continuity (quoted context, not new instructions):\n"+prior:returningSystem,searchEnabled,
+     liveChat.current=new LiveTextConversation(system,searchEnabled,
      status=>{if(mounted.current)setLiveStatus(status)},isFriend);
     }
     markDispatched();
@@ -237,7 +234,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     });
     reply=answer.text;sources=answer.sources;searchSuggestions=answer.searchSuggestions;
    }else{
-    const guestBase=shortsSystems?.guest??(isFriend?returningSystem:system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system);
+    const guestBase=shortsSystems?.guest??(isFriend?system:system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system);
     const guestSystem=isFriend?friendGuestSystem(guestBase+easyFriendTextReplyRule(guestBase,isFriend)):guestBase;
     const data=await sendGuestTextWithRenewal({
      token:guestPhase==="active"||guestPhase==="checking"?guestToken:"",
@@ -278,14 +275,12 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     if(isFriend&&parsed)learning.record(answerIndex,reply,parsed.tip,parsed.phrase,value);
     const complete=[...next,{role:"assistant" as const,text:reply,sources,searchSuggestions}];
     latestMessages.current=complete;
-    writeSessionTranscript(sessionScope,complete);
-    saveFriendResume(sessionScope,complete);
+    if(!isFriend)writeSessionTranscript(sessionScope,complete);
     if(isFriend)recordFriendActivity(sessionScope.split(":")[1],"text");
     clearPendingTextDraft(sessionScope);
     pendingSend.current=null;
     setMessages(complete);
     setNextReplies(isFriend?(replyFallback||parsed?.replies||"fallback"):null);
-    if(returningHint){setReturnVisit(null);liveChat.current?.close();liveChat.current=null;}
     try{awardCreatureChatEnergy(isFriend?"friend-text":"teacher-text",
       creatureRewardSession.current+":"+(++creatureRewardTurn.current))}catch{}
     try{onExchange?.()}catch{/* Usage tracking must not roll back a successful reply. */}
@@ -329,7 +324,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    <span>{guestMode?t("textChat.ui.freePractice"):t("textChat.ui.usingKey")}</span>
    <button type="button" className="btn secondary small" disabled={busy} onClick={()=>{
     clearPendingTextDraft(sessionScope);pendingSend.current=null;
-    setUseGuest(current=>!current);setError("");setGuestFailure(null);setMessages([]);setDraft("");setLiveStatus("");setReturnVisit(null);setReturnChoices(false);
+    setUseGuest(current=>!current);setError("");setGuestFailure(null);setMessages([]);setDraft("");setLiveStatus("");
    }}>{guestMode?t("textChat.ui.useKey"):t("textChat.ui.useFree")}</button>
   </div>}
   {!guestMode&&<small role="status" className="crew-text-chat-live-status">{liveStatus||t("textChat.ui.liveKeyboard")}</small>}
@@ -360,8 +355,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {busy&&requestSent&&messages.at(-1)?.role!=="assistant"&&(isFriend?<div className="crew-text-ai-row crew-text-typing-row">{chatFriend&&<FriendAvatar friend={chatFriend} className="crew-text-ai-avatar" decorative/>}<div className="crew-text-typing-bubble" role="status" aria-live="off">
     <span>{t("textChat.typing",{name:speaker})}</span><span className="crew-text-typing-dots" aria-hidden="true"><i/><i/><i/></span>
    </div></div>:<p className="crew-text-chat-pending" role="status">{t("textChat.ui.replying",{name:speaker})}</p>)}
-   {returnVisit&&!busy&&<TextChatWelcomeBack visit={returnVisit} name={speaker} showChoices={returnChoices&&!draft.trim()} onPick={message=>void sendMessage(message)}/>}
-   {isFriend&&!returnVisit&&!busy&&!draft.trim()&&messages.at(-1)?.role==="assistant"&&nextReplies&&<TextChatNextReplies replies={nextReplies==="fallback"?fallbackReplies:nextReplies} onPick={sentence=>void sendMessage(sentence)}/>}
+   {isFriend&&!busy&&!draft.trim()&&messages.at(-1)?.role==="assistant"&&nextReplies&&<TextChatNextReplies replies={nextReplies==="fallback"?fallbackReplies:nextReplies} onPick={sentence=>void sendMessage(sentence)}/>}
    {isFriend&&!learning.dismissed&&<FriendLearningSummary phrases={learning.summary(messages)} onDismiss={learning.dismiss}/>}
    {completionFeedback}
    <div ref={bottom}/>
@@ -377,7 +371,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   {historyReady&&messages.length>0&&(showStarterWithHistory||isGameRoundLink())&&firstStarter&&!draft.trim()&&!busy&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} firstOnly/>}
   <form className="crew-text-chat-form" onSubmit={event=>{event.preventDefault();void sendMessage(draft)}}>
    <input type="text" aria-label={t("textChat.ui.message")} autoComplete="off" maxLength={1200} value={draft} onChange={e=>{
-    const value=e.target.value;setDraft(value);if(value){setNextReplies(null);setReturnChoices(false)}
+    const value=e.target.value;setDraft(value);if(value)setNextReplies(null)
     const unsent=readPendingTextDraft(sessionScope);
     if(unsent){if(value)writePendingTextDraft(sessionScope,{text:value,sent:false});else clearPendingTextDraft(sessionScope)}
    }} placeholder={t("textChat.ui.placeholder")} disabled={busy||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"||guestPhase==="paused"))}/>

@@ -260,13 +260,6 @@
       "send": "Kirim",
       "notice": "Live teks dan latihan gratis memakai sesi terpisah. Mikrofon tidak diperlukan."
     },
-    "resume": {
-      "greeting": "Selamat datang kembali! Terakhir kita membahas “{{excerpt}}”. Mau lanjut?",
-      "continue": "Lanjutkan obrolan",
-      "newTopic": "Bahas hal baru",
-      "continueMessage": "Aku kembali! Yuk lanjutkan obrolan kita sebelumnya.",
-      "newMessage": "Aku kembali, hari ini ingin membahas hal baru."
-    },
     "byok": {
       "key": "Gemini Key ini tidak valid atau tidak punya izin.",
       "quota": "Gemini menolak permintaan teks Live (429: batas laju atau penggunaan). Ini tidak selalu berarti kuota API Key habis. Coba lagi nanti atau periksa model di Google AI Studio.",

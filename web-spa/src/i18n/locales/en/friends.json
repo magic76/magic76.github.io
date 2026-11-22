@@ -167,9 +167,5 @@
     "gameText": "Text chat with Zoe",
     "articleText": "Chat with Zoe about this",
     "todayFortune": "See today’s fortune"
-  },
-  "voiceTextRecap": {
-    "title": "Where we left off",
-    "you": "You"
   }
 }

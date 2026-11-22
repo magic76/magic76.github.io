@@ -27,7 +27,7 @@ test("Koolo desktop home mirrors the mobile product entry points without changin
  assert.match(desktop,/className="kdh-moments"/);
  assert.match(desktop,/<DailyTopicCards variant="desktop"\/>/);
  assert.match(desktop,/<GuideHub\/>/);
- assert.match(desktop,/readLatestFriendResume\(\)/);
+ assert.match(desktop,/readLatestFriendActivity\(\)/);
  assert.match(desktop,/PREVIEW_HIDDEN_KEY/);
  assert.match(desktop,/formatResumePreview\(validResume.preview,58\)/);
  assert.match(desktop,/className="kdh-primary"/);

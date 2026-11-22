@@ -61,13 +61,14 @@ test('friend prompts end both Live and guest system, teacher never gets instruct
  assert.match(panel,/if\(parsed\)reply=parsed\.text/);
  assert.match(panel,/learning\.record\(answerIndex,reply,parsed\.tip,parsed\.phrase,value\)/);
 });
-test('no correction or phrase metadata reaches saved history, resume preview, or outgoing context',()=>{
+test('friend replies do not persist transcripts or inject previous-chat context',()=>{
  const panel=read('web-spa/src/live/TextChatPanel.tsx');
  const transcript=read('web-spa/src/live/sessionTranscript.ts');
  assert.match(panel,/await reveal\.finish\(reply\)/);
  assert.ok(panel.indexOf('if(parsed)reply=parsed.text')<panel.indexOf('const complete=[...next'));
- assert.match(panel,/saveFriendResume\(sessionScope,complete\)/);
- assert.match(panel,/messages\.slice\(-10\)\.map\(m=>m\.role\+": "\+m\.text/);
+ assert.doesNotMatch(panel,/saveFriendResume/);
+  assert.match(panel,/if\(!isFriend\)writeSessionTranscript\(sessionScope,complete\)/);
+ assert.doesNotMatch(panel,/Previous conversation for continuity|returningFriendSystemHint/);
  assert.match(panel,/next\.slice\(-10\)\.map\(m=>\(\{role:m\.role,text:m\.text\}\)\)/);
  assert.match(transcript,/role:m\.role,text:m\.text/);
  assert.doesNotMatch(transcript,/tip|phrase/i);

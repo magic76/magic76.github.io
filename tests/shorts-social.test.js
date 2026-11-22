@@ -56,7 +56,7 @@ test("Published Shorts UI offers story questions on home and feed, with server-s
  const feed=load("web-spa/src/teacher/ShortsPage.tsx");
  const home=load("web-spa/src/teacher/HomeShortsPreview.tsx");
  const live=load("web-spa/src/friends/FriendLiveConversation.tsx");
- const voiceOpener=load("web-spa/src/live/VoiceTextRecap.tsx");
+ const voiceOpener=load("web-spa/src/live/friendVoiceOpening.ts");
  const server=load("functions/api/usage/event.ts");
  for(const source of [feed,home]){
   assert.match(source,/shortsChatUrl/);

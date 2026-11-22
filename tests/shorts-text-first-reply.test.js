@@ -78,7 +78,8 @@ test("Shorts changes are opt-in, other chat and visible user message stay untouc
   assert.match(read("web-spa/src/live/gameRoundHandoff.ts"),/!scope\.startsWith\("friend:zoe"\)/);
  assert.match(panel,/const guestBase=shortsSystems\?\.guest\?\?/);
  assert.match(panel,/const guestSystem=isFriend\?friendGuestSystem\(guestBase\+easyFriendTextReplyRule\(guestBase,isFriend\)\):guestBase/);
- assert.match(panel,/new LiveTextConversation\(prior\?returningSystem\+[\s\S]*?\+prior:returningSystem,\s*searchEnabled/);
+ assert.match(panel,/new LiveTextConversation\(system,searchEnabled/);
+  assert.doesNotMatch(panel,/Previous conversation for continuity|returningSystem/);
  assert.match(panel,/const next:Message\[\]=\[\.\.\.messages,\{role:"user",text:value\}\]/);
  assert.match(panel,/messages:next\.slice\(-10\)\.map\(m=>\(\{role:m\.role,text:m\.text\}\)\)/);
  assert.throws(()=>buildShortsTextSystems("No approved post was fetched", "[CREW SHORTS]"),/Missing verified/);

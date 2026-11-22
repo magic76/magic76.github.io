@@ -260,13 +260,6 @@
       "send": "Senden",
       "notice": "Text-Live und Gratisübung verwenden getrennte Sitzungen. Kein Mikrofon nötig."
     },
-    "resume": {
-      "greeting": "Schön, dass du wieder da bist! Letztes Mal ging es um „{{excerpt}}“. Wollen wir da weitermachen?",
-      "continue": "Weiterreden",
-      "newTopic": "Neues Thema",
-      "continueMessage": "Ich bin wieder da! Lass uns da weitermachen, wo wir aufgehört haben.",
-      "newMessage": "Ich bin wieder da und möchte heute über etwas Neues reden."
-    },
     "byok": {
       "key": "Dieser Gemini-Schlüssel ist ungültig oder hat keine Berechtigung.",
       "quota": "Gemini hat die Live-Textanfrage abgelehnt (429: Rate- oder Nutzungslimit). Das bedeutet nicht zwangsläufig, dass dein API-Key-Kontingent erschöpft ist. Versuche es später erneut oder prüfe das Modell in Google AI Studio.",

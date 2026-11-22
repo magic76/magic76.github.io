@@ -14,24 +14,20 @@ function memoryStorage(){
  const values=new Map();
  return{getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,String(v)),removeItem:k=>values.delete(k)};
 }
-test("Friend transcript is recoverable after text → voice → text in one tab, scoped per friend",()=>{
+test("Friend text is ephemeral, Teacher course transcripts still restore",()=>{
  const {readSessionTranscript,writeSessionTranscript}=load("web-spa/src/live/sessionTranscript.ts",["readSessionTranscript","writeSessionTranscript"]);
- const store=memoryStorage();
- writeSessionTranscript("friend:zoe",[{role:"user",text:"Hello"},{role:"assistant",text:"Hi!"}],store);
- const restored=readSessionTranscript("friend:zoe",store);
- assert.deepEqual(Array.from(restored,m=>[m.role,m.text]),[["user","Hello"],["assistant","Hi!"]]);
- assert.equal(readSessionTranscript("friend:ada",store).length,0);
- assert.equal(readSessionTranscript("",store).length,0);
- assert.ok(store.getItem("crew_text_transcript_v1:friend:zoe"));
- const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
- const panel=read("web-spa/src/live/TextChatPanel.tsx");
+ const store=memoryStorage(),exchange=[{role:"user",text:"Hello"},{role:"assistant",text:"Hi!"}];
+ writeSessionTranscript("friend:zoe",exchange,store);
+ assert.equal(store.getItem("crew_text_transcript_v1:friend:zoe"),null);
+ assert.equal(readSessionTranscript("friend:zoe",store).length,0);
+ writeSessionTranscript("teacher:course:daily_u1_l1",exchange,store);
+ assert.deepEqual(Array.from(readSessionTranscript("teacher:course:daily_u1_l1",store),m=>m.text),["Hello","Hi!"]);
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx"),panel=read("web-spa/src/live/TextChatPanel.tsx");
  assert.match(friend,/<FriendUnifiedComposer live=\{live\}/);
- assert.match(panel,/readSessionTranscript\(sessionScope\)/);
- assert.match(panel,/writeSessionTranscript\(sessionScope,pendingSend\.current\?\.before\|\|latestMessages\.current\)/);
- assert.doesNotMatch(panel,/localStorage\./);
- assert.match(panel,/saveFriendResume\(sessionScope,complete\)/);
- assert.match(panel,/Previous conversation for continuity/);
+ assert.match(panel,/if\(!isFriend\)writeSessionTranscript\(sessionScope,complete\)/);
+ assert.doesNotMatch(panel,/saveFriendResume|Previous conversation for continuity|TextChatWelcomeBack/);
 });
+
 test("Guest can send before an active phase: wait for Turnstile, start, then send",async()=>{
  const {sendGuestTextWithRenewal}=load("web-spa/src/live/guestTextFlow.ts",["sendGuestTextWithRenewal"]);
  const actions=[];
@@ -86,7 +82,7 @@ test("Interrupted verification restores a retryable draft without persisting a g
  const {readSessionTranscript,writeSessionTranscript,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft}=
   load("web-spa/src/live/sessionTranscript.ts",["readSessionTranscript","writeSessionTranscript","readPendingTextDraft","writePendingTextDraft","clearPendingTextDraft"]);
  const store=memoryStorage();
- const scope="friend:zoe",complete=[{role:"user",text:"Hi"},{role:"assistant",text:"Hello"}];
+ const scope="teacher:course:daily_u1_l1",complete=[{role:"user",text:"Hi"},{role:"assistant",text:"Hello"}];
  writeSessionTranscript(scope,complete,store);
  writePendingTextDraft(scope,{text:"I haven't verified yet",sent:false},store);
  assert.equal(readPendingTextDraft(scope,store).text,"I haven't verified yet");
@@ -148,42 +144,22 @@ test("Voice-dock padding cannot push the friend text composer away from viewport
  assert.ok("body.teacher-theme.session-page .friend-text-stage.live-stage".split(/[ .]+/).length>paritySelector.split(/[ .]+/).length);
 });
 
-test("Completed friend turns survive a fresh tab without writing drafts or touching last_activity",()=>{
- const local=memoryStorage(),oldTab=memoryStorage(),newTab=memoryStorage();
- const file="web-spa/src/live/sessionTranscript.ts";
- const source=stripTypeScriptTypes(read(file),{mode:"strip"}).replace(/^export /gm,"");
- const context={localStorage:local,sessionStorage:oldTab};
- vm.runInNewContext(source+"\nObject.assign(this,{readSessionTranscript,writeSessionTranscript,saveFriendResume,readLatestFriendResume,recordFriendActivity,readLatestFriendActivity});",context);
+test("Activity pointer remains usable without a friend resume or text preview",()=>{
+ const local=memoryStorage(),tab=memoryStorage();
+ const source=stripTypeScriptTypes(read("web-spa/src/live/sessionTranscript.ts"),{mode:"strip"}).replace(/^export /gm,"");
+ const context={localStorage:local,sessionStorage:tab};
+ vm.runInNewContext(source+"\nObject.assign(this,{readSessionTranscript,writeSessionTranscript,recordFriendActivity,readLatestFriendActivity});",context);
  const transcript=[{role:"user",text:"I like cycling"},{role:"assistant",text:"Where do you ride?"}];
  context.writeSessionTranscript("friend:zoe",transcript);
- assert.equal(local.getItem("crew_friend_text_resume_v1"),null,"incomplete sends must not auto-persist");
- context.saveFriendResume("friend:zoe",transcript);
- assert.equal(context.readLatestFriendResume().friendId,"zoe");
- assert.match(context.readLatestFriendResume().preview,/Where do you ride/);
+ assert.equal(tab.getItem("crew_text_transcript_v1:friend:zoe"),null);
+ context.recordFriendActivity("zoe","text");
  assert.equal(context.readLatestFriendActivity().friendId,"zoe");
- assert.equal(context.readLatestFriendActivity().resume.preview,"Where do you ride?");
+ assert.equal(context.readLatestFriendActivity().resume,null);
  context.recordFriendActivity("noah","voice");
- assert.equal(context.readLatestFriendActivity().friendId,"noah","a voice exchange replaces the old text friend");
- assert.equal(context.readLatestFriendActivity().resume,null,"voice must never claim an old text preview");
- context.recordFriendActivity("ada","text");
- assert.equal(context.readLatestFriendActivity().friendId,"ada","completed scoped text can update the last friend");
- assert.equal(context.readLatestFriendActivity().resume,null,"scoped chats must not inherit another character's preview");
+ assert.equal(context.readLatestFriendActivity().friendId,"noah");
  context.recordFriendActivity("INVALID FRIEND","voice");
- assert.equal(context.readLatestFriendActivity().friendId,"ada","invalid ids cannot become home destinations");
- assert.equal(local.getItem("crew_home_last_activity_v1"),null,"never write message text to the route pointer");
- context.sessionStorage=newTab;
- assert.deepEqual(Array.from(context.readSessionTranscript("friend:zoe"),m=>m.text),["I like cycling","Where do you ride?"]);
- // Quote links keep the same resume scope (option b), but expose one opt-in starter
- // above the composer even though the restored transcript is nonempty.
- const panel=read("web-spa/src/live/TextChatPanel.tsx");
-  assert.ok(panel.includes("historyReady&&messages.length>0&&(showStarterWithHistory||isGameRoundLink())&&firstStarter&&!draft.trim()&&!busy"));
- assert.match(panel,/firstStarter=\{firstStarter\} firstOnly\/>/);
+ assert.equal(context.readLatestFriendActivity().friendId,"noah");
+ assert.equal(local.getItem("crew_friend_text_resume_v1"),null);
+ assert.equal(context.readSessionTranscript("friend:zoe").length,0);
  assert.match(read("web-spa/src/friends/FriendLiveConversation.tsx"),/starters=\{\[gameRoundStarter\(/);
- assert.equal(context.readSessionTranscript("friend:zoe").length,2,"a saved Zoe conversation remains readable with a quote link");
- assert.equal(context.readSessionTranscript("friend:ada").length,0);
- assert.equal(context.readSessionTranscript("friend:zoe:shorts-1").length,0,"shorts-specific threads stay separate");
- context.saveFriendResume("teacher:emma",transcript);
- assert.equal(context.readLatestFriendResume().friendId,"zoe","teacher transcripts stay session-only");
- context.saveFriendResume("friend:zoe",[{role:"user",text:"Unanswered"}]);
- assert.equal(context.readLatestFriendResume().messages.length,2,"unfinished user turn never overwrites completed chat");
 });

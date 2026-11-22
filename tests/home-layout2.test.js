@@ -76,13 +76,13 @@ test("Mobile quota follows carousel, hides for BYOK and preserves voice secondar
 });
 
 test("Last friend resumes in the first mobile slide and desktop without removing the old continue card",()=>{
- assert.match(mobile,/const resumeFriend=resume\?CREW_FRIENDS.find/);
- assert.match(mobile,/const friendResume=resumeFriend\?resume:null/);
+ assert.match(mobile,/const resumeFriend=activity\?CREW_FRIENDS.find/);
+ assert.match(mobile,/const friendResume=resumeFriend\?activity:null/);
  assert.match(mobile,/resumeFriend\?\.avatar\|\|zoePhoto/);
  assert.match(mobile,/textDestination=resumeId\?"\/friend\/live\?id="\+encodeURIComponent\(resumeId\)/);
  assert.doesNotMatch(mobile,/className="cmh-other-resume"/);
  assert.doesNotMatch(mobile,/PREVIEW_HIDDEN_KEY|setPreviewHidden|className="cmh-preview-eye"/);
- assert.match(desktop,/readLatestFriendResume\(\)/);
+ assert.match(desktop,/readLatestFriendActivity\(\)/);
  assert.match(desktop,/const canResume=Boolean\(resumeId&&!selectedPost/);
  assert.match(desktop,/\(!deepLink.friend\|\|deepLink.friend===resumeId\)/);
  assert.match(desktop,/PREVIEW_HIDDEN_KEY/);
