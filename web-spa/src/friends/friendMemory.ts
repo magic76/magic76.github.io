@@ -72,7 +72,7 @@ export function setFriendMemoryEnabled(enabled:boolean){
  localStorage.setItem(CONSENT,enabled?"1":"0");
  if(!enabled){
   localStorage.removeItem("crew_shorts_conversations_v1"); // Remove Shorts follow-up metadata on opt-out.
-  localStorage.removeItem(KNOWN_FRIENDS); // Do not retain relationship metadata after opt-out.
+  localStorage.removeItem(KNOWN_FRIENDS); // Reset voice familiarity; independently managed recent-chat dates remain.
  }
  bump();
 }
