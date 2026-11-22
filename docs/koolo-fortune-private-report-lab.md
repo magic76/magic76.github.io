@@ -6,8 +6,8 @@ This is a **private report-writing acceptance page**, not a purchase feature. Th
 There is **no menu link, public SPA route, public offer button, price change, checkout, paid entitlement, queue, R2 storage or production PDF generator** added by this PR.
 
 Page URL after deployment: `https://koolo.app/fortune/report-lab` (the `/api/fortune/report-lab` endpoint is JSON-only and is not a user-facing page).
-- Both the server-rendered page GET and the JSON API GET/POST require an existing valid `__Host-crew_session`, origin allowlist, `KOOLO_FORTUNE_LAB_ENABLED=1`, and the server-only exact `crew_auth_users.id` allowlist.
-- All non-allowed accounts receive HTTP **404** (a signed-out account gets 401); the HTML interface itself is NOT delivered to other users.
+- Both the page GET and JSON API GET/POST require an existing valid Koolo `__Host-crew_session` (used to tie the report to a user), the origin allowlist, `KOOLO_FORTUNE_LAB_ENABLED=1`, and the **same server-side `verifyAccess` function used by `/api/usage/admin` and `/api/usage/report`**. This accepts an eligible Google-verified `KOOLO_ADMIN_EMAILS` administrator or the existing cryptographically verified Cloudflare Access policy; no separate fortune admin UUID list exists.
+- Administrators who can use `/usage` and are also logged into Koolo can use this lab. Cloudflare Access alone **without a Koolo login** is not enough, because report ownership and storage require a signed-in user. Non-admin accounts receive **404** (missing Koolo login receives **401**). The HTML interface itself is not delivered to unauthorized users.
 - The route is marked `noindex, nofollow, noarchive`, `no-store`, strict CSP, and has no public navigation link.
 - No ECPay callback, purchase report or voice wallet is changed.
 - Each allowed account can create **at most 3 reports per Taipei day**, enforced in the D1 insert, including failures.
@@ -16,13 +16,13 @@ Page URL after deployment: `https://koolo.app/fortune/report-lab` (the `/api/for
 ## Required Cloudflare setup
 
 1. Apply `migrations/crew-auth/0010_fortune_lab.sql` to the existing **`CREW_AUTH_DB` D1**, not a new DB. You can paste the full SQL into the D1 console: it has no compound triggers.
-2. Sign in to Koolo with the one account that should be allowed. Visit `https://koolo.app/api/auth/session` and find only your own `user.id`. **Do not post it to GitHub or a public chat.**
+2. Sign in to Koolo using an account already permitted to use the management dashboard (`/usage`). The report lab reuses `/api/usage/admin`'s `verifyAccess` authorization and the existing `CREW_AUTH_DB`; **do not create or copy a separate administrator UUID list**. If `/usage` uses Cloudflare Access, complete that verification as well, and still sign in to Koolo so the private report can be bound to your account.
 3. Cloudflare Pages project -> Settings -> Variables and Secrets -> **Production** (runtime):
    - `KOOLO_FORTUNE_LAB_ENABLED` = `1` (**Text**; default OFF/404).
-   - `KOOLO_FORTUNE_LAB_USER_IDS` = your exact single `user.id` UUID (**Text**; no wildcard, no email).
+   - **No `KOOLO_FORTUNE_LAB_USER_IDS` is needed.** Existing `KOOLO_ADMIN_EMAILS` and/or Cloudflare Access settings continue to control dashboard administrator access.
    - `KOOLO_FORTUNE_LAB_GEMINI_KEY` = a valid Gemini developer key (**Secret**, never `VITE_*` or committed to Git).
    - Optional `KOOLO_FORTUNE_LAB_MODEL` = `gemini-2.5-flash` by default (**Text**). If unavailable on the key/account, set to a supported Gemini text model and re-deploy.
-   - Existing `CREW_AUTH_DB` binding remains unchanged.
+   - Existing `CREW_AUTH_DB` binding remains unchanged. To authorize a Google admin login, the existing `0005_verified_admin_email.sql` migration and `KOOLO_ADMIN_EMAILS` configuration must already be in place, just as for `/usage`.
 4. Deploy Pages once the runtime variables are saved, including the new `/fortune/report-lab` Pages Function route in `_routes.json`. Open `https://koolo.app/fortune/report-lab` directly; no menu entry is added.
 
 ## How to test the 10-page book
