@@ -44,6 +44,7 @@ import {useFriendDailyFortuneContext} from "./useFriendDailyFortuneContext";
 import {nextFriendLifeOpening} from "../characters/lifeBook";
 import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageMode} from "./friendLanguage";
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
+import {recordFriendActivity} from "../live/sessionTranscript";
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
 import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
@@ -130,6 +131,10 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onInputSpeech:replyHints.onInputSpeech,
   onObservedExchange:turn=>{
+   // Only this confirmed two-sided turn represents a successful conversation.
+   // Unlike onSessionFinished, this callback also fires for guest Live and unified text chat.
+   // Keep the pointer content-free: do not persist a voice transcript or an AI-only greeting.
+   recordFriendActivity(sessionId,"voice");
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
    if(turn.id)try{awardCreatureChatEnergy("friend-voice",creatureRewardSession.current+":"+turn.id)}catch{}
   },
