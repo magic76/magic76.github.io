@@ -3,6 +3,7 @@ export type Category="all"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"
 
 export const names:Record<string,string>={
  app_opened:"開啟網站",visitor_first_seen:"首次造訪瀏覽器",user_returned:"跨日回訪事件",
+ retention_cohort_started:"新訪客留存 cohort",retention_d1_returned:"新訪客 D1 回訪",retention_d7_returned:"新訪客 D7 回訪",user_returned_engaged:"有效回訪",
  teacher_conversation:"老師有效雙向對話",friend_conversation:"朋友有效雙向對話",
  timeline_conversation:"Timeline 有效雙向對話",
  teacher_conversation_start:"老師連線成功",friend_conversation_start:"朋友連線成功",

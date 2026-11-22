@@ -13,7 +13,7 @@ The first-party tracker sends event names with anonymous random browser UUID and
 
 - app_opened: once per browser tab session
 - visitor_first_seen: new random browser UUID
-- user_returned: the same browser UUID returned on a later UTC date
+- user_returned: the same browser UUID returned on a later Asia/Taipei calendar date (legacy events before the rollout were based on UTC)
 - teacher_conversation / friend_conversation / timeline_conversation: a completed exchange has BOTH nonempty user and model speech text
 - teacher_conversation_start / friend_conversation_start / timeline_conversation_start: connected session, may not yet have exchanged speech
 - teacher_user_spoke / friend_user_spoke / timeline_user_spoke: first transcript after Live connects (once per conversation, no transcript data)
@@ -30,6 +30,15 @@ The first-party tracker sends event names with anonymous random browser UUID and
 - fortune_ai_interpreted: Gemini interpretation succeeded
 - gemini_key_missing: attempted Live without a key
 - gemini_key_verified: verified key saved
+
+### Taiwan-day return / D1 / D7 (new collection only)
+
+- `crew_usage_visitor_v1` is an origin-scoped random UUID in localStorage; subsequent visits to the same site origin/browser reuse it. Other devices, browsers and origins are not connected. Opt-out clears identifiers and retention state.
+- First-party return detection compares Asia/Taipei calendar days (00:00 local, not UTC midnight or elapsed 24h). A tab left open across midnight can record a new-day return on its next tracked action. Existing UUIDs have no reliable historic Taiwan visit day; the first post-migration observation establishes the baseline, not a return.
+- `retention_cohort_started` is emitted **only for genuinely new anonymous UUIDs**. Existing UUIDs never become a new cohort on migration. `retention_d1_returned` and `retention_d7_returned` require a return exactly one or seven Taiwan dates after first visit (not within seven days).
+- `user_returned_engaged` is emitted at most once on each qualifying return day after a meaningful interaction aligned with the dashboard's `activeUsers` activity categories. A mere page open does not count.
+- The private /usage D1/D7 cards use the previous 7/30 **complete** Taiwan return dates and only eligible new UUIDs. D1/D7 denominators are their respective first-seen cohort dates, offset by 1 or 7 days, and numerators are same-cohort exact-day returns. Extra query history is used for D7 denominators without changing the dashboard's selected 7/30-day event rows; no browser IDs are returned to the UI.
+- Daily chart dates use Taiwan time. Legacy `user_returned` counts were UTC-based and cannot be converted retrospectively; new D1/D7/effective-return cohorts do not backfill. Until sufficient cohorts mature, show an unavailable rate instead of a misleading 0%.
 
 Data retention: up to 3 months in Cloudflare Analytics Engine.
 A random browser UUID is pseudonymous, not a distinct real human. Browsers can clear it, use different devices, or block storage. Backend analytics can also be spoofed by automated clients. Neither browser tracking nor a page visit proves a real person chatted with Crew.
