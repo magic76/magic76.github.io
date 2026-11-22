@@ -1,6 +1,6 @@
 import {reportLabHtml} from "./koolo-fortune-lab-html.mjs";
 import {normalizeLabFacts,validateLabChapters,generateLabChapters} from "./koolo-fortune-lab-core.mjs";
-/** Private acceptance lab. No real checkout, no grants; owner whitelist checked on every request. */
+/** Private acceptance lab. No real checkout or grants. Admin permission is delegated to the existing /usage verifyAccess guard on every request. */
 const ORIGINS=new Set(["https://koolo.app","https://www.3sssi.com"]);
 const SESSION="__Host-crew_session";
 const UUID=/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i;
@@ -13,7 +13,7 @@ const nowSec=()=>Math.floor(Date.now()/1000);
 const taipeiStart=n=>Math.floor((n+28800)/86400)*86400-28800;
 const modelName=env=>/^gemini-[a-zA-Z0-9.-]{2,55}$/.test(env?.KOOLO_FORTUNE_LAB_MODEL||"gemini-2.5-flash")?
  env?.KOOLO_FORTUNE_LAB_MODEL||"gemini-2.5-flash":null;
-async function owner({request,env},method){
+async function owner({request,env,verifyAdmin},method){
  let origin;try{origin=new URL(request.url).origin}catch{return {error:reply({error:"NOT_FOUND"},404)}}
  if(!ORIGINS.has(origin))return {error:reply({error:"NOT_FOUND"},404)};
  if(request.method!==method)return {error:reply({error:"METHOD_NOT_ALLOWED"},405)};
@@ -26,8 +26,13 @@ async function owner({request,env},method){
   const r=await env.CREW_AUTH_DB.prepare("SELECT user_id FROM crew_auth_sessions WHERE token_hash=? AND expires_at>?")
    .bind(await hash(token),nowSec()).first();
   if(!r||typeof r.user_id!=="string")return {error:reply({error:"LOGIN_REQUIRED"},401)};
-  const allow=(env.KOOLO_FORTUNE_LAB_USER_IDS||"").split(",").map(x=>x.trim()).filter(x=>UUID.test(x));
-  if(!allow.includes(r.user_id))return {error:reply({error:"NOT_FOUND"},404)};
+  // Requires a real Koolo account for per-user report ownership AND the
+  // *same* server-side authorization that protects /usage and its report API.
+  // Never trust the SPA admin card, a client-supplied flag, or a second allowlist.
+  if(typeof verifyAdmin!=="function")return {error:reply({error:"NOT_FOUND"},404)};
+  let admin=false;
+  try{admin=await verifyAdmin(request,env)===true}catch{/* fail closed */}
+  if(!admin)return {error:reply({error:"NOT_FOUND"},404)};
   return {db:env.CREW_AUTH_DB,userId:r.user_id};
  }catch{return {error:reply({error:"UNAVAILABLE"},503)}}
 }
