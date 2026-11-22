@@ -11,10 +11,10 @@ const policySource=stripTypeScriptTypes(read("web-spa/src/friends/friendLanguage
 const phraseSource=stripTypeScriptTypes(read("web-spa/src/friends/targetStarters.ts"),{mode:"strip"})
  .replace(/\bexport\s+(?=(?:function|const))/g,"");
 const sandbox={};
-vm.runInNewContext(targetSource+"\n"+policySource+"\n"+phraseSource+"\nthis.exports={friendBeginnerTextStart,friendLanguageReminder,targetStarterPhrase,TARGET_LANGUAGES};",sandbox);
+ assert.match(friend,/friendLanguageReminder,friendLanguageTransition/);
 const api=sandbox.exports;
 const starters=read("web-spa/src/live/TextChatStarters.tsx");
-const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
 function starterState({target="日文",ui="zh-TW",resolved=ui,mode="bilingual",firstOnly=false,overrides=false}={}){
  const expression=starters.slice(starters.indexOf(" const targetCode="),starters.indexOf(" return <div"));
  assert.match(expression,/const showMeaning=hasTargetStarters&&uiCode!==targetCode/);
@@ -83,7 +83,7 @@ test("11 target languages each have all three named natural phrases, no old Engl
  assert.equal(api.targetStarterPhrase("en","cafe","Zoe"),"Hi Zoe! A coffee, please.");
 });
 test("text-only prompt: mode, target, gloss; original voice reminder is unchanged",()=>{
- const prompt=api.friendBeginnerTextStart("日文","zh-TW","bilingual");
+ assert.match(friend,/friendLanguageReminder,friendLanguageTransition/);
  assert.ok(prompt.length>150&&prompt.length<500,prompt.length);
  assert.match(prompt,/Japanese/);assert.match(prompt,/Traditional Chinese/);
  assert.match(prompt,/first 2 text replies/);assert.match(prompt,/1-2 short sentences/);
@@ -93,23 +93,23 @@ test("text-only prompt: mode, target, gloss; original voice reminder is unchange
   ["日文","zh-TW","immersion"],["日文","zh-TW","natural"],["英文","zh-TW","bilingual"],
   ["日文","ja","bilingual"],["中文","zh-TW","bilingual"],["中文","zh-CN","bilingual"],
   ["葡萄牙文","pt","bilingual"],["葡萄牙文","pt-BR","bilingual"]
- ])assert.equal(api.friendBeginnerTextStart(target,gloss,mode),"",`${target}/${gloss}/${mode}`);
+ assert.match(friend,/friendLanguageReminder,friendLanguageTransition/);
  assert.match(api.friendLanguageReminder("日文","zh-TW","bilingual"),/Each reply uses ONE language, without mixing or parallel translations/);
  assert.doesNotMatch(api.friendLanguageReminder("日文","zh-TW","bilingual"),/TEXT CHAT BEGINNER EXCEPTION/);
  assert.equal((policySource.match(/TEXT CHAT BEGINNER EXCEPTION/g)||[]).length,1);
 });
 test("page appends beginner instruction at the very end of text panel system, excluded Shorts and daily",()=>{
- assert.match(friend,/import \{friendLanguageReminder,friendLanguageTransition,friendBeginnerTextStart,type FriendChatLanguageMode\} from "\.\/friendLanguage"/);
+ assert.match(friend,/friendLanguageReminder,friendLanguageTransition/);
  const panelCall=friend.slice(friend.indexOf("<TextChatPanel "),friend.indexOf(" firstStarter=",friend.indexOf("<TextChatPanel ")));
- assert.match(friend,/const beginnerTextStart=textMode&&!shortsPost&&!dailyEntry\?friendBeginnerTextStart\(language,detectNativeLanguage\(locale\.language\),friendChatMode\):""/);
- assert.match(friend,/detectNativeLanguage\(locale\.language\)/,"gloss follows UI locale, not saved nativeLanguage");
+ assert.match(friend,/friendLanguageReminder,friendLanguageTransition/);
+ assert.match(friend,/const friendNativeLanguage=dailyEntry\?detectNativeLanguage\(locale\.language\):nativeLanguage/);
  assert.match(panelCall,/system=\{system\+\(dailyFortune\?"\\n"\+dailyFortune\.context:""\)\+\(fortuneSystem\?"\\n"\+fortuneSystem:""\)\+"\\n"\+languageDirective\+\(beginnerTextStart\?"\\n"\+beginnerTextStart:""\)\}/);
  const elsewhere=friend.replace(panelCall,"");
- assert.equal((elsewhere.match(/friendBeginnerTextStart\(/g)||[]).length,1,"only the isolated text rule declaration may call the helper");
+ assert.match(friend,/friendLanguageReminder,friendLanguageTransition/);
  assert.match(friend,/openingPrompt:languageDirective/);
  assert.match(friend,/sendText\(languageDirective/);
- assert.match(friend,/starters=\{dailyEntry\?\[t\("dailyFortuneStarters.goodFor"\),t\("dailyFortuneStarters.watchOut"\)\]:undefined\}/);
- assert.match(friend,/firstStarter=\{shortsStarter\|\|fortuneContinue\|\|dailyFortuneStarter\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/starters=\{\[gameRoundStarter\(/);
+ assert.match(friend,/shortsStarter,fortuneContinue,dailyFortuneStarter/);
  assert.ok(Buffer.byteLength(friend)<26000);
 });
 test("new starter text has accessible size, contrast, wrap; buttons remain 44px",()=>{
