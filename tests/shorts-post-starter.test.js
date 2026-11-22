@@ -12,7 +12,7 @@ const extract=(name)=>{
 };
 const names=["shortsHook","selectedQuestion","shortsHookText","shortsStarter"];
 const expressions=names.map(name=>`const ${name}=${extract(name)};`).join("\n");
-const first=friend.match(/starters=\{\[gameRoundStarter\([^)]*\),([^\]]+)\]\.filter/);
+const first=friend.match(/starters=\{\[gameRoundStarter\([^)]*\),(.+?),\.\.\.\(fortuneReplies\|\|\[\]\)/);
 assert.ok(first,"must read the real unified Live starter list");
 const firstExpression=first[1].split(",").map(value=>value.trim()).filter(Boolean).join("||");
 const script=new vm.Script(expressions+"\nthis.result={shortsHook,selectedQuestion,shortsHookText,shortsStarter,firstStarter:"+firstExpression+"};");
