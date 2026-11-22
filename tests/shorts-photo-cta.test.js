@@ -48,7 +48,7 @@ test("minimal posts fall back to the three legacy hooks",async()=>{
 test("photo CTA, fixed-in-view return, accessible controls, no microphone autoplay from Shorts",()=>{
  const page=read("web-spa/src/teacher/ShortsPage.tsx");
  const css=read("web-spa/src/teacher/shorts.css");
- const live=read("web-spa/src/friends/FriendLivePage.tsx");
+ const live=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const chrome=read("web-spa/src/components/AppChrome.tsx");
  assert.match(page,/crew-short-photo-bottom/);
  assert.match(page,/shorts\.chatThis/);
