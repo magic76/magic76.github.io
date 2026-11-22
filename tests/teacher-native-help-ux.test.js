@@ -21,7 +21,7 @@ test("teacher immersion supersedes levels and never promises Chinese explanation
 });
 test("teacher explanations and Friend mode stay separate",()=>{
  assert.match(read("web-spa/src/teacher/teacherLanguageGuidance.ts"),/what a sentence means/);
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.match(friend,/friendLanguageTransition\(language,friendNativeLanguage,chosen\)/);
  assert.match(friend,/aria-pressed=\{friendChatMode===value\}/);
  assert.doesNotMatch(friend,/teacherLanguageHomeHint|learnerSpeakingLevel/);
