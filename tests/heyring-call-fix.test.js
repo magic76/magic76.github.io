@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 const read=path=>fs.readFileSync(path,"utf8");
-const page=read("web-spa/src/friends/FriendLivePage.tsx");
+const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
 const css=read("web-spa/src/friends/friendCall.css");
 const root="web-spa/src/friends/";
 const rule=selector=>{
