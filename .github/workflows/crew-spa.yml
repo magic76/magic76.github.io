@@ -50,6 +50,41 @@ jobs:
         env:
           CREW_CONTRACT_READ_TOKEN: ${{ secrets.CREW_CONTRACT_READ_TOKEN }}
       - run: npm ci
+      # This blocking fix needs case-by-case full-suite parity with the exact
+      # PR base, before either worktree generates build-version timestamps.
+      - name: Compare npm test failures against master (Cloudflare fix)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets')
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          base_dir="$RUNNER_TEMP/koolo-cloudflare-master"
+          git worktree add --detach "$base_dir" "$BASE_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$base_dir/node_modules"
+          (cd "$base_dir" && npm test) > "$RUNNER_TEMP/koolo-base-test.log" 2>&1 || true
+          npm test > "$RUNNER_TEMP/koolo-head-test.log" 2>&1 || true
+          for snapshot in base head; do
+            log="$RUNNER_TEMP/koolo-${snapshot}-test.log"
+            if ! grep -Eq '^# tests [0-9]+' "$log"; then
+              echo "::error::npm test did not produce a complete TAP summary: $snapshot"
+              tail -60 "$log"
+              exit 1
+            fi
+            (grep -E '^[[:space:]]*not ok [0-9]+ - ' "$log" || true) |
+              sed -E 's/^[[:space:]]*not ok [0-9]+ - //' |
+              LC_ALL=C sort > "$RUNNER_TEMP/koolo-${snapshot}-failures.txt"
+          done
+          echo "Base failed cases: $(wc -l < "$RUNNER_TEMP/koolo-base-failures.txt")"
+          echo "PR failed cases: $(wc -l < "$RUNNER_TEMP/koolo-head-failures.txt")"
+          comm -13 "$RUNNER_TEMP/koolo-base-failures.txt" "$RUNNER_TEMP/koolo-head-failures.txt" > "$RUNNER_TEMP/koolo-new-failures.txt"
+          if [ -s "$RUNNER_TEMP/koolo-new-failures.txt" ]; then
+            echo "::error::New npm test failures not present on master:"
+            cat "$RUNNER_TEMP/koolo-new-failures.txt"
+            exit 1
+          fi
+          echo "PASS: 0 new failing cases vs master; full npm test runs finished before the builds"
       - name: Typecheck PR
         if: github.event_name == 'pull_request'
         run: npm run check:web
