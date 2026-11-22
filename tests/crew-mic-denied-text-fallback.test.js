@@ -3,24 +3,16 @@ const root=path.join(__dirname,"..");
 const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 const locales=["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"];
 
-test("friend trial errors offer same-friend text before retry and demote API setup",()=>{
+test("friend guest can use verified text-first Live without microphone; teacher fallback remains unchanged",()=>{
  const guest=read("web-spa/src/live/GuestLiveStarter.tsx");
- const friend=read("web-spa/src/friends/FriendLivePage.tsx");
- const render=guest.slice(guest.indexOf('return <div className="notice guest-live-entry"'));
- assert.match(friend,/alternateParams=new URLSearchParams\(params\)/);
- assert.match(friend,/alternateParams\.set\("chat","text"\)/);
- assert.match(friend,/const alternateHref="\/friend\/live\?"\+alternateParams\.toString\(\)/);
- assert.match(friend,/textFallback=\{\{href:alternateHref,name:friend\.name\}\}/);
- assert.match(guest,/textFallback\?:\{href:string;name:string\}/);
- const primary=render.indexOf('phase==="error"&&textFallback&&<Link');
- const retry=render.indexOf('phase==="error"&&<button className="btn secondary"');
- const guidance=render.indexOf('phase==="error"&&micPermissionDenied&&<p');
- const settings=render.indexOf('className="guest-live-key-link"');
- assert.ok(primary>0&&retry>primary&&guidance>retry&&settings>guidance);
- assert.ok(render.slice(primary,retry).includes('offerGuestChallengeToken(challenge)'),"the unused challenge is handed off only when text is selected");
- assert.match(render,/\(phase==="error"\|\|phase==="unavailable"\)&&<Link className="guest-live-key-link"/);
- assert.doesNotMatch(render,/t\("guestTrial\.setupKey"\)/);
- assert.doesNotMatch(render,/phase==="ready"&&[\s\S]*?role="alert"/);
+ const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
+ assert.match(friend,/onTextGrant=\{async grant=>/);
+ assert.doesNotMatch(friend,/alternateParams|textFallback=/);
+ assert.match(guest,/onTextGrant\?:\(grant:GuestTrialGrant\)=>Promise<void>/);
+ assert.match(guest,/if\(!textOnly\)\{/);
+ assert.match(guest,/await \(textOnly&&onTextGrant\?onTextGrant:onGrant\)\(data\)/);
+ assert.match(guest,/phase==="error"&&role==="friend"&&onTextGrant&&challenge/);
+ assert.match(guest,/disabled=\{!challenge\}/);
 });
 
 test("teacher lesson error prefers same-teacher text practice, except Fortune",()=>{
@@ -40,8 +32,8 @@ test("teacher lesson error prefers same-teacher text practice, except Fortune",(
 
 test("microphone guidance appears only after denied getUserMedia; other callers need no text fallback",()=>{
  const guest=read("web-spa/src/live/GuestLiveStarter.tsx");
- const before=guest.slice(0,guest.indexOf("async function begin()"));
- const after=guest.slice(guest.indexOf("async function begin()"));
+ const before=guest.slice(0,guest.indexOf("async function begin(textOnly=false)"));
+ const after=guest.slice(guest.indexOf("async function begin(textOnly=false)"));
  assert.doesNotMatch(before,/getUserMedia\(/);
  assert.doesNotMatch(before,/navigator\.permissions/);
  assert.match(after,/navigator\.mediaDevices\.getUserMedia\(\{audio:true\}\)/);
