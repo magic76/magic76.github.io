@@ -66,7 +66,9 @@
     "library": "Reading library",
     "libraryDesc": "Pick a short article, then practice reading aloud",
     "board": "AI Live Teaching Board",
-    "boardDesc": "See explanations, examples and quizzes evolve while talking"
+    "boardDesc": "See explanations, examples and quizzes evolve while talking",
+    "phrases": "Phrase practice",
+    "phrasesDesc": "Listen, slow down, shadow, save, and review with a listening game."
   },
   "tutor": {
     "title": "Practice with a teacher",
@@ -245,9 +247,22 @@
       "tech": "Tech",
       "social": "Social"
     },
-    "kicker": "Vocabulary"
+    "kicker": "Vocabulary",
+    "neuralVoiceHint": "English pronunciation uses the on-device Kokoro AI voice. If the model is not ready or unsupported, system speech is used automatically.",
+    "modelDownloading": "Downloading the speech model (about 88 MB, one time only). System speech will play this time.",
+    "modelReady": "The speech model is ready. High-quality speech will be used next time.",
+    "listenExample": "Listen to example",
+    "saved": "✓ Saved",
+    "saveExample": "☆ Save example",
+    "fromWord": "From word: {{word}}"
   },
-  "languageHint": {"immersion":"Full immersion: practice and explanations stay in {{target}}.","base":"Ask about meanings, grammar or culture in {{native}}. Your teacher explains in {{native}} and models in {{target}}. ","beginner":"More native-language help at beginner levels.","advanced":"Higher levels use more {{target}}.","adaptive":"Support adapts to your speaking, automatically."},
+  "languageHint": {
+    "immersion": "Full immersion: practice and explanations stay in {{target}}.",
+    "base": "Ask about meanings, grammar or culture in {{native}}. Your teacher explains in {{native}} and models in {{target}}. ",
+    "beginner": "More native-language help at beginner levels.",
+    "advanced": "Higher levels use more {{target}}.",
+    "adaptive": "Support adapts to your speaking, automatically."
+  },
   "course": {
     "materialNotice": "Scenario lessons currently use English materials. To practice {{language}}, use Teacher Chat; your teacher can explain in {{native}}.",
     "nonEnglishNext": "Real-life scenario practice (existing lessons)",
@@ -411,5 +426,53 @@
     "practiceAria": "Practice pronunciation: {{phrase}}",
     "start": "Start scenario conversation",
     "footnote": "Progress is assessed from what you actually say, not just matching keywords."
+  },
+  "phrasebook": {
+    "kicker": "My Learning Deck",
+    "title": "Phrase practice",
+    "intro": "Turn words into sentences you can actually say: listen, slow down, shadow, then review with a listening game.",
+    "todayKicker": "Today",
+    "todayTitle": "5 phrases for today",
+    "listen": "Listen",
+    "save": "Save",
+    "listeningKicker": "Listening",
+    "listeningTitle": "Listening game",
+    "questionNumber": "Question {{count}}",
+    "listeningPrompt": "Listen first without looking at the answers. Which sentence did you hear?",
+    "playQuestion": "Play question",
+    "correct": "Correct ✓",
+    "tryAgain": "Listen once more and it will stick",
+    "next": "Next",
+    "mySaved": "My saved phrases",
+    "savedCount": "{{count}} saved · {{due}} due",
+    "preparing": "Preparing pronunciation…",
+    "failed": "Playback failed. Please try again.",
+    "cached": "Played from cache",
+    "played": "Played",
+    "shadowListen": "Listen once first…",
+    "shadowNow": "Your turn: repeat the whole sentence with the same rhythm.",
+    "delete": "Delete",
+    "slow": "Slow",
+    "shadow": "Shadow",
+    "reviewed": "Reviewed",
+    "nextReview": "Next: {{date}}",
+    "emptyTitle": "Your learning deck is empty",
+    "emptyDesc": "Save one of today's five phrases above, or save a sentence from a Zoe chat that you really want to learn.",
+    "dailyNote": "Today's 5 phrases",
+    "modelDownloading": "Downloading the speech model (about 88 MB, one time only). System speech will play this time.",
+    "modelReady": "The speech model is ready. High-quality speech will be used next time.",
+    "tags": {
+      "correction": "Natural correction",
+      "hint": "Answer hint",
+      "vocab": "Key word",
+      "phrase": "Useful phrase",
+      "saved": "Saved"
+    },
+    "stages": {
+      "new": "New",
+      "learning": "Learning",
+      "review": "Reviewing",
+      "familiar": "Familiar"
+    }
   }
 }
