@@ -66,7 +66,9 @@
     "library": "Lesebibliothek",
     "libraryDesc": "Wähle einen kurzen Text und lies ihn laut vor",
     "board": "KI-Live-Lerntafel",
-    "boardDesc": "See explanations, examples and quizzes evolve while talking"
+    "boardDesc": "See explanations, examples and quizzes evolve while talking",
+    "phrases": "Redewendungen üben",
+    "phrasesDesc": "Anhören, langsamer abspielen, nachsprechen, speichern und mit einem Hörspiel wiederholen."
   },
   "tutor": {
     "title": "Mit Lehrkraft üben",
@@ -245,9 +247,22 @@
       "tech": "Technik",
       "social": "Soziales"
     },
-    "kicker": "Vokabeln"
+    "kicker": "Vokabeln",
+    "neuralVoiceHint": "Die englische Aussprache nutzt die lokale Kokoro-KI-Stimme. Wenn das Modell noch nicht bereit ist oder nicht unterstützt wird, wird automatisch die Systemstimme verwendet.",
+    "modelDownloading": "Sprachmodell wird heruntergeladen (ca. 88 MB, nur einmal). Diesmal wird zuerst die Systemstimme verwendet.",
+    "modelReady": "Das Sprachmodell ist bereit. Beim nächsten Mal wird die hochwertige Stimme verwendet.",
+    "listenExample": "Beispiel anhören",
+    "saved": "✓ Gespeichert",
+    "saveExample": "☆ Beispiel speichern",
+    "fromWord": "Aus dem Wort: {{word}}"
   },
-  "languageHint": {"immersion":"Vollständiges Eintauchen: Übungen und Erklärungen nur auf {{target}}.","base":"Fragen zu Bedeutung oder Grammatik sind auf {{native}} möglich. Die Lehrkraft erklärt auf {{native}} und zeigt Beispiele auf {{target}}. ","beginner":"Anfänger erhalten mehr Hilfe in ihrer Muttersprache.","advanced":"Auf höherem Niveau wird mehr {{target}} geübt.","adaptive":"Die Unterstützung passt sich deinem Sprachniveau an."},
+  "languageHint": {
+    "immersion": "Vollständiges Eintauchen: Übungen und Erklärungen nur auf {{target}}.",
+    "base": "Fragen zu Bedeutung oder Grammatik sind auf {{native}} möglich. Die Lehrkraft erklärt auf {{native}} und zeigt Beispiele auf {{target}}. ",
+    "beginner": "Anfänger erhalten mehr Hilfe in ihrer Muttersprache.",
+    "advanced": "Auf höherem Niveau wird mehr {{target}} geübt.",
+    "adaptive": "Die Unterstützung passt sich deinem Sprachniveau an."
+  },
   "course": {
     "materialNotice": "Die Szenariolektionen enthalten derzeit nur englisches Lernmaterial. Übe {{language}} im Lehrkraft-Chat; Erklärungen sind auf {{native}} möglich.",
     "nonEnglishNext": "Alltagssituationen üben (vorhandene Lektionen)",
@@ -411,5 +426,53 @@
     "practiceAria": "Practice pronunciation: {{phrase}}",
     "start": "Start scenario conversation",
     "footnote": "Progress is assessed from what you actually say, not just matching keywords."
+  },
+  "phrasebook": {
+    "kicker": "Mein Lernstapel",
+    "title": "Redewendungen üben",
+    "intro": "Mach aus Wörtern Sätze, die du wirklich sagen kannst: anhören, langsam hören, nachsprechen und mit einem Hörspiel wiederholen.",
+    "todayKicker": "Heute",
+    "todayTitle": "5 Sätze für heute",
+    "listen": "Anhören",
+    "save": "Speichern",
+    "listeningKicker": "Hören",
+    "listeningTitle": "Hörspiel",
+    "questionNumber": "Frage {{count}}",
+    "listeningPrompt": "Hör zuerst zu, ohne die Antworten anzusehen. Welchen Satz hast du gehört?",
+    "playQuestion": "Aufgabe abspielen",
+    "correct": "Richtig ✓",
+    "tryAgain": "Noch einmal hören, dann bleibt es besser hängen",
+    "next": "Weiter",
+    "mySaved": "Meine Sammlung",
+    "savedCount": "{{count}} gespeichert · {{due}} fällig",
+    "preparing": "Aussprache wird vorbereitet…",
+    "failed": "Wiedergabe fehlgeschlagen. Bitte erneut versuchen.",
+    "cached": "Aus Cache abgespielt",
+    "played": "Abgespielt",
+    "shadowListen": "Erst einmal zuhören…",
+    "shadowNow": "Jetzt du: Sprich den ganzen Satz im gleichen Rhythmus nach.",
+    "delete": "Löschen",
+    "slow": "Langsam",
+    "shadow": "Nachsprechen",
+    "reviewed": "Wiederholt",
+    "nextReview": "Nächstes Mal: {{date}}",
+    "emptyTitle": "Dein Lernstapel ist noch leer",
+    "emptyDesc": "Speichere oben einen der fünf heutigen Sätze oder einen Satz aus einem Zoe-Chat, den du wirklich lernen möchtest.",
+    "dailyNote": "5 Sätze von heute",
+    "modelDownloading": "Sprachmodell wird heruntergeladen (ca. 88 MB, nur einmal). Diesmal wird zuerst die Systemstimme verwendet.",
+    "modelReady": "Das Sprachmodell ist bereit. Beim nächsten Mal wird die hochwertige Stimme verwendet.",
+    "tags": {
+      "correction": "Natürliche Korrektur",
+      "hint": "Antwort-Hilfe",
+      "vocab": "Wichtiges Wort",
+      "phrase": "Nützlicher Satz",
+      "saved": "Gespeichert"
+    },
+    "stages": {
+      "new": "Neu",
+      "learning": "Lernen",
+      "review": "Wiederholen",
+      "familiar": "Vertraut"
+    }
   }
 }
