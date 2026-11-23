@@ -109,6 +109,8 @@
     "postStarter": "O que está acontecendo nesta foto?",
     "postUnavailable": "Não encontramos a publicação original; esta é uma conversa normal com seu amigo.",
     "textChat": "Chat por texto",
+    "verifyBeforeSend": "Conclua a verificação primeiro",
+    "connectingText": "Verificação concluída. Conectando e enviando sua mensagem…",
     "voiceChat": "Chat por voz",
     "useVoice": "Mudar para voz",
     "useText": "Mudar para texto",

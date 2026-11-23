@@ -109,6 +109,8 @@
     "postStarter": "Chuyện gì đang xảy ra trong bức ảnh này?",
     "postUnavailable": "Không tìm thấy bài đăng gốc nên đã chuyển sang trò chuyện bình thường.",
     "textChat": "Trò chuyện bằng chữ",
+    "verifyBeforeSend": "Vui lòng hoàn tất xác minh trước",
+    "connectingText": "Đã xác minh. Đang kết nối và gửi tin nhắn…",
     "voiceChat": "Trò chuyện bằng giọng nói",
     "useVoice": "Chuyển sang giọng nói",
     "useText": "Chuyển sang chữ",

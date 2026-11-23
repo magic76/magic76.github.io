@@ -109,6 +109,8 @@
     "postStarter": "這張照片裡發生了什麼事？",
     "postUnavailable": "找不到原本的動態，已改為一般朋友聊天。",
     "textChat": "文字聊天",
+    "verifyBeforeSend": "請先完成驗證",
+    "connectingText": "驗證完成，正在連線並送出訊息…",
     "voiceChat": "語音聊天",
     "useVoice": "改用語音",
     "useText": "改用文字",

@@ -44,7 +44,8 @@ test("B: homepage referrals frontload the existing manual guest gate, focus only
  assert.match(live,/params.get\("from"\)==="home"&&HOME_FRIEND_IDS.includes\(params.get\("id"\)\|\|""\)&&!shortsPost&&!textFirst&&!geminiKey\(\)/);
  const identity=live.indexOf('className="live-identity"'),first=live.indexOf('homeFirstAction?<div className="friend-shorts-first-action"'),switcher=live.indexOf('className="friend-language-switch"');
  assert.ok(identity>=0&&identity<first&&first<switcher);
- assert.match(live,/!shortsPost&&!homeFirstAction\?voiceStart:null/);
+ assert.match(live,/\(textFirst\|\|!shortsPost\)&&!homeFirstAction\?voiceStart:null/);
+ assert.match(live,/\{homeFirstAction\?<div className="friend-shorts-first-action"[^\n]*\{voiceStart\}<\/div>:null\}/);
  assert.match(live,/focusStartOnVerified=\{homeFirstAction\}/);
  assert.match(starter,/phase==="ready"&&challenge\)startButton.current\?\.focus\(\{preventScroll:true\}\)/);
  assert.match(starter,/<button ref=\{startButton\} type="button" className="btn" disabled=\{!challenge\} onClick=\{\(\)=>void begin\(\)\}\>/);

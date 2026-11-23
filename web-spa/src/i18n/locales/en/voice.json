@@ -109,6 +109,8 @@
     "postStarter": "What's happening in this photo?",
     "postUnavailable": "We couldn't find the original post, so this is a regular chat with your friend.",
     "textChat": "Text chat",
+    "verifyBeforeSend": "Please complete verification first",
+    "connectingText": "Verified. Connecting and sending your message…",
     "voiceChat": "Voice chat",
     "useVoice": "Switch to voice",
     "useText": "Switch to text",

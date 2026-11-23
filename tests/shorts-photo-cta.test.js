@@ -73,7 +73,7 @@ test("photo CTA, fixed-in-view return, accessible controls, no microphone autopl
  assert.match(live,/shortsSelectedQuestion/);
  const sourceOrder=[live.indexOf('className="friend-shorts-first-action"'),live.indexOf('className="friend-language-switch"')];
  assert.ok(sourceOrder[0]>=0&&sourceOrder[0]<sourceOrder[1],"Shorts voice entry precedes optional chat mode");
- assert.match(live,/!shortsPost&&!homeFirstAction\?voiceStart:null/);
+ assert.match(live,/\(textFirst\|\|!shortsPost\)&&!homeFirstAction\?voiceStart:null/);
  assert.match(live,/shortsPost\?<div className="friend-shorts-first-action"/);
  assert.match(live,/if\(textFirst\|\|creatureEmbed/);
   assert.doesNotMatch(live,/voiceRecapReady/);

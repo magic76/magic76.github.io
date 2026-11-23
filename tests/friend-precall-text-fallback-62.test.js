@@ -11,7 +11,7 @@ test("#62: unverified pre-call keeps the gated voice action and exposes same-fri
  assert.match(friend,/focusOnMount=\{params\.get\("chat"\)==="text"\}/);
  assert.match(friend,/onTextGrant=\{async grant=>/);
  assert.match(starter,/disabled=\{!challenge\}/);
- assert.match(starter,/role==="friend"&&onTextGrant&&<button/);
+ assert.match(starter,/role==="friend"&&onTextGrant&&!textEntry&&<button/);
  for(const phase of ["checking","ready","unavailable"])assert.ok(starter.includes('phase==="'+phase+'"'),phase);
  assert.match(starter,/onClick=\{\(\)=>void begin\(true\)\}/);
  assert.match(starter,/if\(!textOnly\)\{/);

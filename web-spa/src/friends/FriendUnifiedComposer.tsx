@@ -11,13 +11,16 @@ type Props={
  blocked?:boolean;
  starters?:string[];
  autoStarter?:string;
+ verificationReady?:boolean;
+ onVerificationNeeded?:()=>void;
 };
 
 /** One keyboard for the voice and text-first paths. Both call live.sendText. */
-export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,starters=[],autoStarter}:Props){
+export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,starters=[],autoStarter,verificationReady=false,onVerificationNeeded}:Props){
  const {t}=useTranslation("voice");
  const inputRef=useRef<HTMLTextAreaElement>(null);
  const autoSent=useRef(false);
+ const pendingText=useRef("");
  const [draft,setDraft]=useState("");
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState("");
@@ -29,10 +32,13 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
   const text=value.trim();
   if(!text||busy)return;
   if(blocked){setNotice(t("friendLive.preparingPost"));return}
-  if(connecting){setNotice(t("friendLive.preparingPost"));return}
+  if(connecting){setNotice(t(onVerificationNeeded?"friendLive.connectingText":"friendLive.preparingPost"));return}
   if(!connected&&!hasKey){
-   // Existing Turnstile/guest gate remains the only way to mint a 5-minute Live grant.
-   setNotice(t("guestTrial.homeDesc",{ns:"common"}));
+   if(!onVerificationNeeded){setNotice(t("guestTrial.homeDesc",{ns:"common"}));return}
+   // Keep the submitted message until verification grants a text-only Live socket.
+   pendingText.current=text;autoSent.current=true;
+   setNotice(t(verificationReady?"friendLive.connectingText":"friendLive.verifyBeforeSend"));
+   onVerificationNeeded?.();
    return;
   }
   setBusy(true);setNotice("");
@@ -45,6 +51,14 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
    setNotice(t("guestTrial.serviceUnavailable",{ns:"common"}));
   }finally{setBusy(false)}
  };
+ // After Turnstile and the guest grant, send the queued message exactly once.
+ useEffect(()=>{
+  if(!connected||busy||blocked||!pendingText.current)return;
+  const text=pendingText.current;pendingText.current="";void send(text);
+ },[connected,busy,blocked]);
+ useEffect(()=>{
+  if(pendingText.current)setNotice(t(verificationReady?"friendLive.connectingText":"friendLive.verifyBeforeSend"));
+ },[verificationReady,t]);
  const submit=(event:FormEvent)=>{event.preventDefault();void send(draft)};
  const keyDown=(event:KeyboardEvent<HTMLTextAreaElement>)=>{
   if(event.key==="Enter"&&!event.shiftKey&&!event.nativeEvent.isComposing){
@@ -76,6 +90,6 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
     maxLength={2000}/>
    <button type="submit" disabled={!draft.trim()||busy||connecting||blocked} aria-label={t("friendLive.textChat")}><Arrow direction="up" className="crew-arrow--plain"/></button>
   </form>
-  {notice&&<p className="friend-unified-notice" role="status">{notice}</p>}
+  {notice&&<p className="friend-unified-notice" role={notice===t("friendLive.verifyBeforeSend")?"alert":"status"}>{notice}</p>}
  </div>;
 }
