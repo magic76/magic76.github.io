@@ -66,7 +66,9 @@
     "library": "읽기 자료실",
     "libraryDesc": "짧은 글을 고르고 소리 내어 읽기 연습",
     "board": "AI 실시간 학습 보드",
-    "boardDesc": "대화에 따라 예문과 문제 자동 생성"
+    "boardDesc": "대화에 따라 예문과 문제 자동 생성",
+    "phrases": "표현 연습",
+    "phrasesDesc": "듣기, 느리게 듣기, 따라 말하기, 저장, 듣기 게임으로 복습해 보세요."
   },
   "tutor": {
     "title": "선생님과 연습",
@@ -245,9 +247,22 @@
       "tech": "기술",
       "social": "사교"
     },
-    "kicker": "단어 연습"
+    "kicker": "단어 연습",
+    "neuralVoiceHint": "영어 발음은 기기 내 Kokoro AI 음성을 사용합니다. 모델이 준비되지 않았거나 지원되지 않으면 자동으로 시스템 음성을 사용합니다.",
+    "modelDownloading": "음성 모델을 다운로드하는 중입니다(약 88MB, 최초 1회). 이번에는 시스템 음성으로 먼저 재생합니다.",
+    "modelReady": "음성 모델이 준비되었습니다. 다음 재생부터 고품질 음성을 사용합니다.",
+    "listenExample": "예문 듣기",
+    "saved": "✓ 저장됨",
+    "saveExample": "☆ 예문 저장",
+    "fromWord": "단어에서: {{word}}"
   },
-  "languageHint": {"immersion":"완전 몰입: 연습과 설명 모두 {{target}}로만 진행합니다.","base":"뜻이나 문법은 {{native}}로 질문하세요. 선생님은 {{native}}로 설명하고 {{target}}로 예시를 보여 줍니다. ","beginner":"초급 단계에서는 모국어 도움을 더 제공합니다.","advanced":"상급 단계에서는 {{target}} 연습 비중을 높입니다.","adaptive":"말하기 실력에 맞춰 지원을 조정합니다."},
+  "languageHint": {
+    "immersion": "완전 몰입: 연습과 설명 모두 {{target}}로만 진행합니다.",
+    "base": "뜻이나 문법은 {{native}}로 질문하세요. 선생님은 {{native}}로 설명하고 {{target}}로 예시를 보여 줍니다. ",
+    "beginner": "초급 단계에서는 모국어 도움을 더 제공합니다.",
+    "advanced": "상급 단계에서는 {{target}} 연습 비중을 높입니다.",
+    "adaptive": "말하기 실력에 맞춰 지원을 조정합니다."
+  },
   "course": {
     "materialNotice": "상황별 강의 교재는 현재 영어로만 제공됩니다. {{language}} 연습은 선생님 채팅을 이용하세요. 설명은 {{native}}로 들을 수 있습니다.",
     "nonEnglishNext": "생활 상황 연습 (기존 교재)",
@@ -411,5 +426,53 @@
     "practiceAria": "Practice pronunciation: {{phrase}}",
     "start": "Start scenario conversation",
     "footnote": "Progress is assessed from what you actually say, not just matching keywords."
+  },
+  "phrasebook": {
+    "kicker": "내 학습 덱",
+    "title": "표현 연습",
+    "intro": "단어를 실제로 말할 수 있는 문장으로 바꿔 보세요. 듣고, 느리게 듣고, 따라 말한 뒤 듣기 게임으로 복습합니다.",
+    "todayKicker": "오늘",
+    "todayTitle": "오늘의 5문장",
+    "listen": "듣기",
+    "save": "저장",
+    "listeningKicker": "듣기",
+    "listeningTitle": "듣기 게임",
+    "questionNumber": "{{count}}번 문제",
+    "listeningPrompt": "답을 보지 말고 먼저 들어보세요. 어떤 문장을 들었나요?",
+    "playQuestion": "문제 재생",
+    "correct": "정답 ✓",
+    "tryAgain": "한 번 더 들으면 더 잘 기억할 수 있어요",
+    "next": "다음",
+    "mySaved": "저장한 표현",
+    "savedCount": "{{count}}개 저장 · {{due}}개 복습 예정",
+    "preparing": "발음을 준비하는 중…",
+    "failed": "재생에 실패했습니다. 다시 시도해 주세요.",
+    "cached": "캐시에서 재생됨",
+    "played": "재생됨",
+    "shadowListen": "먼저 한 번 들어보세요…",
+    "shadowNow": "이제 따라 말해 보세요. 같은 리듬으로 문장 전체를 말해 보세요.",
+    "delete": "삭제",
+    "slow": "느리게",
+    "shadow": "따라 말하기",
+    "reviewed": "복습 완료",
+    "nextReview": "다음 복습: {{date}}",
+    "emptyTitle": "학습 덱이 아직 비어 있어요",
+    "emptyDesc": "위의 ‘오늘의 5문장’ 중 하나를 저장하거나 Zoe와의 대화에서 꼭 배우고 싶은 문장을 저장해 보세요.",
+    "dailyNote": "오늘의 5문장",
+    "modelDownloading": "음성 모델을 다운로드하는 중입니다(약 88MB, 최초 1회). 이번에는 시스템 음성으로 먼저 재생합니다.",
+    "modelReady": "음성 모델이 준비되었습니다. 다음 재생부터 고품질 음성을 사용합니다.",
+    "tags": {
+      "correction": "자연스러운 교정",
+      "hint": "답변 힌트",
+      "vocab": "핵심 단어",
+      "phrase": "유용한 표현",
+      "saved": "저장"
+    },
+    "stages": {
+      "new": "새로 추가",
+      "learning": "학습 중",
+      "review": "복습 중",
+      "familiar": "익숙함"
+    }
   }
 }
