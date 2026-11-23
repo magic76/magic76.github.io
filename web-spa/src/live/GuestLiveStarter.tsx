@@ -13,7 +13,7 @@ type WidgetApi={
 };
 const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
-export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusStartOnVerified=false,textFallback,linksInNewTab=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;onTextGrant?:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";precall?:boolean;focusStartOnVerified?:boolean;textFallback?:{href:string;name:string};linksInNewTab?:boolean}){
+export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusStartOnVerified=false,textEntry=false,autoTextOnVerified=false,onVerificationChange,textFallback,linksInNewTab=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;onTextGrant?:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";precall?:boolean;focusStartOnVerified?:boolean;textEntry?:boolean;autoTextOnVerified?:boolean;onVerificationChange?:(verified:boolean)=>void;textFallback?:{href:string;name:string};linksInNewTab?:boolean}){
  const {t}=useTranslation(["common","voice"]);
  const linkTarget=linksInNewTab?{target:"_blank",rel:"noopener noreferrer"}:{};
  const [micUnavailable,setMicUnavailable]=useState(false);
@@ -92,13 +92,13 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
     sitekey:siteKey,action:"crew-guest-trial",
     callback:token=>{
      if(!active.current)return;
-     setChallenge(token);
+     setChallenge(token);onVerificationChange?.(true);
      // Load code only after human verification; no microphone, token or paid
      // request runs until the visitor explicitly presses Start.
      void ensureLive().catch(()=>{/* begin() surfaces retryable load errors. */});
     },
-    "expired-callback":()=>{if(active.current)setChallenge("")},
-    "error-callback":()=>{if(active.current)setChallenge("")}
+    "expired-callback":()=>{if(active.current){setChallenge("");onVerificationChange?.(false)}},
+    "error-callback":()=>{if(active.current){setChallenge("");onVerificationChange?.(false)}}
    });
   };
   let script=document.getElementById("crew-guest-turnstile");
@@ -114,6 +114,9 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
   };
  },[siteKey,phase]);
  useEffect(()=>{if(focusStartOnVerified&&phase==="ready"&&challenge)startButton.current?.focus({preventScroll:true})},[focusStartOnVerified,phase,challenge]);
+ useEffect(()=>{
+  if(textEntry&&autoTextOnVerified&&phase==="ready"&&challenge&&!busy.current)void begin(true);
+ },[textEntry,autoTextOnVerified,phase,challenge]);
  async function begin(textOnly=false){
   if(busy.current||!challenge||(phase!=="ready"&&!canRetryGuestMicrophone(phase,micUnavailable,challenge)))return;
   busy.current=true;setMicPermissionDenied(false);setMicUnavailable(false);setPhase("starting");setMessage("");
@@ -153,7 +156,7 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
    if(!res.ok||!data.token||!data.model||data.seconds!==300){
     trackUsageEvent("guest_trial_token_failed",role);
     if(active.current){
-     if(isGuestVoiceVerificationExpired(res.status,data)){setChallenge("");setPhase("ready")}
+     if(isGuestVoiceVerificationExpired(res.status,data)){setChallenge("");onVerificationChange?.(false);setPhase("ready")}
      else if(data.code==="SIGNIN_REQUIRED")setPhase("login");
      else if(data.code==="ALREADY_USED")setPhase("exhausted");
      else if(data.code==="DAILY_LIMIT")setPhase("full");
@@ -181,17 +184,17 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
    }
   }finally{busy.current=false}
  }
- return <div className="notice guest-live-entry" role="region" aria-label={phase==="full"?t("guestTrial.limit"):phase==="exhausted"?t("guestTrial.usedUpTitle"):t("guestTrial.homeTitle")}>
-  {precall&&(phase==="checking"||phase==="ready"||phase==="starting")&&<p className="friend-precall-steps">{t("voice:friendLive.preCallSteps")}</p>}
+ return <div className="notice guest-live-entry" role="region" aria-label={textEntry?t("voice:friendLive.textChat"):phase==="full"?t("guestTrial.limit"):phase==="exhausted"?t("guestTrial.usedUpTitle"):t("guestTrial.homeTitle")}>
+  {precall&&!textEntry&&(phase==="checking"||phase==="ready"||phase==="starting")&&<p className="friend-precall-steps">{t("voice:friendLive.preCallSteps")}</p>}
   <div style={{display:"grid",gap:10,width:"100%"}}>
-   {phase!=="exhausted"&&phase!=="full"&&<><strong>{phase==="error"&&micUnavailable&&textFallback?t("guestTrial.micTextTitle"):t("guestTrial.homeTitle")}</strong>
+   {!textEntry&&phase!=="exhausted"&&phase!=="full"&&<><strong>{phase==="error"&&micUnavailable&&textFallback?t("guestTrial.micTextTitle"):t("guestTrial.homeTitle")}</strong>
     <p>{phase==="error"&&micUnavailable&&textFallback?t("guestTrial.micTextDesc"):t("guestTrial.homeDesc")}</p>
     {remaining!==null&&<p role="status">{t(memberSignedIn?"guestTrial.memberRemaining":"guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
    {phase==="checking"&&<p role="status">{t("guestTrial.checking")}</p>}
    {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
     {precall&&<p className={"friend-precall-verification"+(challenge?" is-verified":"")} role="status" aria-live="polite">{t(challenge?"voice:friendLive.preCallVerified":"voice:friendLive.preCallWaiting")}</p>}
-    <p style={{fontSize:13,lineHeight:1.5,margin:0}}>{t("guestTrial.microphoneNotice")}</p>
-    <button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{precall?t("voice:friendLive.preCallStart"):t("guestTrial.start")}</button>{role==="friend"&&onTextGrant&&<button type="button" className="btn secondary" disabled={!challenge} onClick={()=>void begin(true)}>{t("voice:friendLive.useText")}</button>}</>}
+    {!textEntry&&<p style={{fontSize:13,lineHeight:1.5,margin:0}}>{t("guestTrial.microphoneNotice")}</p>}
+    {!textEntry&&<button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{precall?t("voice:friendLive.preCallStart"):t("guestTrial.start")}</button>}{role==="friend"&&onTextGrant&&!textEntry&&<button type="button" className="btn secondary" disabled={!challenge} onClick={()=>void begin(true)}>{t("voice:friendLive.useText")}</button>}</>}
    {precall&&role==="friend"&&!onTextGrant&&textFallback&&(phase==="checking"||phase==="ready"||phase==="unavailable")&&<Link className="btn secondary friend-precall-text-fallback" to={textFallback.href} {...linkTarget}>{t("voice:friendLive.preCallTextFallback",{name:textFallback.name})}</Link>}
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
@@ -206,7 +209,7 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
    {phase==="error"&&role==="friend"&&onTextGrant&&challenge&&<button className="btn" type="button" onClick={()=>void begin(true)}>{t("voice:friendLive.useText")}</button>}
    {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{
     if(canRetryGuestMicrophone(phase,micUnavailable,challenge)){void begin();return}
-    clearGuestChallengeHandoff();setChallenge("");setMicPermissionDenied(false);setMicUnavailable(false);setPhase("ready");
+    clearGuestChallengeHandoff();setChallenge("");onVerificationChange?.(false);setMicPermissionDenied(false);setMicUnavailable(false);setPhase("ready");
    }}>{t(micUnavailable?"guestTrial.retryMic":"guestTrial.retry")}</button>}
    {phase==="error"&&micPermissionDenied&&<p style={{fontSize:13,lineHeight:1.6,margin:0,overflowWrap:"anywhere"}}>{microphoneHelp()}</p>}
    {(phase==="error"||phase==="unavailable")&&<Link className="guest-live-key-link" style={{minHeight:44,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:13,lineHeight:1.5,textDecoration:"underline"}} to="/account#settings-gemini" {...linkTarget}>{t("guestTrial.keySettingsLink")}</Link>}
