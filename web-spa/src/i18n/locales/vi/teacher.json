@@ -66,7 +66,9 @@
     "library": "Thư viện đọc",
     "libraryDesc": "Chọn đoạn văn ngắn rồi luyện đọc thành tiếng",
     "board": "Bảng học trực tiếp AI",
-    "boardDesc": "See explanations, examples and quizzes evolve while talking"
+    "boardDesc": "See explanations, examples and quizzes evolve while talking",
+    "phrases": "Luyện cụm từ",
+    "phrasesDesc": "Nghe, phát chậm, nói theo, lưu và ôn lại bằng trò chơi nghe."
   },
   "tutor": {
     "title": "Luyện tập với giáo viên",
@@ -245,9 +247,22 @@
       "tech": "Công nghệ",
       "social": "Giao tiếp xã hội"
     },
-    "kicker": "Từ vựng"
+    "kicker": "Từ vựng",
+    "neuralVoiceHint": "Phát âm tiếng Anh dùng giọng AI Kokoro trên thiết bị. Nếu mô hình chưa sẵn sàng hoặc thiết bị không hỗ trợ, hệ thống sẽ tự động dùng giọng của thiết bị.",
+    "modelDownloading": "Đang tải mô hình giọng nói (khoảng 88 MB, chỉ một lần). Lần này sẽ phát bằng giọng hệ thống trước.",
+    "modelReady": "Mô hình giọng nói đã sẵn sàng. Lần phát tiếp theo sẽ dùng giọng chất lượng cao.",
+    "listenExample": "Nghe câu ví dụ",
+    "saved": "✓ Đã lưu",
+    "saveExample": "☆ Lưu câu ví dụ",
+    "fromWord": "Từ từ vựng: {{word}}"
   },
-  "languageHint": {"immersion":"Đắm mình hoàn toàn: chỉ luyện tập và giải thích bằng {{target}}.","base":"Bạn có thể hỏi về ý nghĩa hoặc ngữ pháp bằng {{native}}. Giáo viên giải thích bằng {{native}} và làm mẫu bằng {{target}}. ","beginner":"Người mới học được hỗ trợ bằng tiếng mẹ đẻ nhiều hơn.","advanced":"Ở trình độ cao, tăng thời lượng luyện {{target}}.","adaptive":"Hỗ trợ tự điều chỉnh theo khả năng nói của bạn."},
+  "languageHint": {
+    "immersion": "Đắm mình hoàn toàn: chỉ luyện tập và giải thích bằng {{target}}.",
+    "base": "Bạn có thể hỏi về ý nghĩa hoặc ngữ pháp bằng {{native}}. Giáo viên giải thích bằng {{native}} và làm mẫu bằng {{target}}. ",
+    "beginner": "Người mới học được hỗ trợ bằng tiếng mẹ đẻ nhiều hơn.",
+    "advanced": "Ở trình độ cao, tăng thời lượng luyện {{target}}.",
+    "adaptive": "Hỗ trợ tự điều chỉnh theo khả năng nói của bạn."
+  },
   "course": {
     "materialNotice": "Các bài học tình huống hiện chỉ có tài liệu tiếng Anh. Để luyện {{language}}, hãy trò chuyện với giáo viên; giáo viên có thể giải thích bằng {{native}}.",
     "nonEnglishNext": "Luyện tình huống hằng ngày (bài hiện có)",
@@ -411,5 +426,53 @@
     "practiceAria": "Practice pronunciation: {{phrase}}",
     "start": "Start scenario conversation",
     "footnote": "Progress is assessed from what you actually say, not just matching keywords."
+  },
+  "phrasebook": {
+    "kicker": "Bộ thẻ học của tôi",
+    "title": "Luyện cụm từ",
+    "intro": "Biến từ vựng thành câu bạn thực sự có thể nói: nghe, nghe chậm, nói theo rồi ôn lại bằng trò chơi nghe.",
+    "todayKicker": "Hôm nay",
+    "todayTitle": "5 câu hôm nay",
+    "listen": "Nghe",
+    "save": "Lưu",
+    "listeningKicker": "Nghe",
+    "listeningTitle": "Trò chơi nghe",
+    "questionNumber": "Câu {{count}}",
+    "listeningPrompt": "Hãy nghe trước, đừng nhìn đáp án. Bạn vừa nghe câu nào?",
+    "playQuestion": "Phát câu hỏi",
+    "correct": "Đúng ✓",
+    "tryAgain": "Nghe thêm một lần sẽ nhớ chắc hơn",
+    "next": "Câu tiếp",
+    "mySaved": "Cụm từ đã lưu",
+    "savedCount": "Đã lưu {{count}} · {{due}} cần ôn",
+    "preparing": "Đang chuẩn bị phát âm…",
+    "failed": "Không phát được âm thanh. Vui lòng thử lại.",
+    "cached": "Đã phát từ bộ nhớ đệm",
+    "played": "Đã phát",
+    "shadowListen": "Trước tiên hãy nghe một lần…",
+    "shadowNow": "Đến lượt bạn: nói lại cả câu theo cùng nhịp điệu.",
+    "delete": "Xóa",
+    "slow": "Chậm",
+    "shadow": "Nói theo",
+    "reviewed": "Đã ôn",
+    "nextReview": "Lần tới: {{date}}",
+    "emptyTitle": "Bộ thẻ học của bạn vẫn đang trống",
+    "emptyDesc": "Hãy lưu một trong 5 câu hôm nay ở trên, hoặc lưu câu từ cuộc trò chuyện với Zoe mà bạn thực sự muốn học.",
+    "dailyNote": "5 câu hôm nay",
+    "modelDownloading": "Đang tải mô hình giọng nói (khoảng 88 MB, chỉ một lần). Lần này sẽ phát bằng giọng hệ thống trước.",
+    "modelReady": "Mô hình giọng nói đã sẵn sàng. Lần phát tiếp theo sẽ dùng giọng chất lượng cao.",
+    "tags": {
+      "correction": "Sửa tự nhiên",
+      "hint": "Gợi ý trả lời",
+      "vocab": "Từ quan trọng",
+      "phrase": "Cụm từ hữu ích",
+      "saved": "Đã lưu"
+    },
+    "stages": {
+      "new": "Mới",
+      "learning": "Đang học",
+      "review": "Đang ôn",
+      "familiar": "Đã quen"
+    }
   }
 }
