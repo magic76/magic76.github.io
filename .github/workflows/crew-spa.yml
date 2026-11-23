@@ -194,6 +194,7 @@ jobs:
           node --test tests/seo-lastmod-source.test.js
           npm run build:cloudflare
           npm run test:cloudflare
+          node --test tests/intent-seo.test.js
           node --test tests/seo-live.test.js
           node --test tests/seo-pages.test.js
           node --test tests/seo-ctr.test.js
