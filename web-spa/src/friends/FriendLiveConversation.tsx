@@ -208,7 +208,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  if(creatureEmbed)return <CreatureVoicePanel live={live} ready={!!creatureBridge.creature} status={friendVoiceStatus} guestStarted={guestStarted} setGuestStarted={setGuestStarted}/>;
  const voiceStart=<>
   {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
-  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" precall textEntry={textFirst} autoTextOnVerified={textFirst&&pendingTextStart}
+  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" precall textEntry={textFirst} autoTextOnVerified={textFirst&&(pendingTextStart||Boolean(dailyHandoff&&fortuneContinue))}
     onVerificationChange={setGuestVerified} focusStartOnVerified={homeFirstAction} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}} onTextGrant={async grant=>{setGuestStarted(true);setPendingTextStart(false);await live.start(grant,true)}}/>
    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
    :textFirst&&!active?null:<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}>{active?(live.micEnabled?<FriendCallControls live={live} onEnd={endAndReturn}/>:<button type="button" className="friend-unified-end" onClick={()=>void endAndReturn()}>{t("callCaptions.hangUp")}</button>):<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}</div>}
