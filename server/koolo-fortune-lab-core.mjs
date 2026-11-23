@@ -77,29 +77,39 @@ export function labPrompt(f){
  ].join("\n");
 }
 export async function generateLabChapters(f,{key,model,fetcher=fetch,timeoutMs=65000}){
- // Stop well before an edge timeout can replace our API JSON with an HTML
- // Cloudflare error page. The controller covers fetch and reading its body.
+ // Legacy Gemini 2.5 can return 404 for keys that are otherwise valid.
+ // Retry ONLY missing models, with current supported text models, within the
+ // SAME bounded request. No retry on quota, auth, quality, or network failures.
+ const candidates=[model];
+ if(/^gemini-2[.-]/.test(model))candidates.push("gemini-3.5-flash","gemini-3.5-flash-lite");
+ else if(model==="gemini-3.5-flash")candidates.push("gemini-3.5-flash-lite");
  const controller=new AbortController();
  const limit=Math.max(10,Math.min(65000,Number(timeoutMs)||65000));
  const timer=setTimeout(()=>controller.abort(),limit);
  try{
-  const response=await fetcher("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",{
-   method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
-   signal:controller.signal,
-   body:JSON.stringify({contents:[{role:"user",parts:[{text:labPrompt(f)}]}],
-    generationConfig:{responseMimeType:"application/json",temperature:0.45,maxOutputTokens:8192}})
-  });
-  if(!response.ok)throw Error("UPSTREAM_"+response.status);
-  if((response.headers?.get?.("content-type")||"").toLowerCase().includes("text/html"))
-   throw Error("UPSTREAM_INVALID_RESPONSE");
-  const data=await response.json();
-  const text=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("").trim();
-  if(!text||text.length>14000)throw Error("UPSTREAM_EMPTY");
-  let obj;try{obj=JSON.parse(text)}catch{throw Error("INVALID_JSON")}
-  const chapters=validateLabChapters(obj,f);
-  if(!chapters)throw Error("QUALITY_CHECK_FAILED");
-  return {chapters,usage:{promptTokens:Math.max(0,Number(data.usageMetadata?.promptTokenCount)||0),
-   outputTokens:Math.max(0,Number(data.usageMetadata?.candidatesTokenCount)||0)}};
+  for(const candidate of [...new Set(candidates)]){
+   const response=await fetcher("https://generativelanguage.googleapis.com/v1beta/models/"+candidate+":generateContent",{
+    method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
+    signal:controller.signal,
+    body:JSON.stringify({contents:[{role:"user",parts:[{text:labPrompt(f)}]}],
+     generationConfig:{responseMimeType:"application/json",temperature:0.45,maxOutputTokens:8192}})
+   });
+   if(response.status===404&&candidate!==candidates[candidates.length-1])continue;
+   if(!response.ok)throw Error("UPSTREAM_"+response.status);
+   if((response.headers?.get?.("content-type")||"").toLowerCase().includes("text/html"))
+    throw Error("UPSTREAM_INVALID_RESPONSE");
+   const data=await response.json();
+   const text=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("").trim();
+   if(!text||text.length>14000)throw Error("UPSTREAM_EMPTY");
+   let obj;try{obj=JSON.parse(text)}catch{throw Error("INVALID_JSON")}
+   const chapters=validateLabChapters(obj,f);
+   if(!chapters)throw Error("QUALITY_CHECK_FAILED");
+   return {model:candidate,chapters,usage:{
+    promptTokens:Math.max(0,Number(data.usageMetadata?.promptTokenCount)||0),
+    outputTokens:Math.max(0,Number(data.usageMetadata?.candidatesTokenCount)||0)
+   }};
+  }
+  throw Error("UPSTREAM_404");
  }catch(e){
   if(controller.signal.aborted)throw Error("UPSTREAM_TIMEOUT");
   throw e;
