@@ -46,26 +46,29 @@ export function FriendLearningTip({text}:{text:string}){
  const {t}=useTranslation("voice");
  return <div className="crew-text-learning-tip"><span>{t("textChat.learning.better")}</span> {text}</div>;
 }
-function saveLearningPhrase(value:string,target:string){
+function saveLearningPhrase(value:string,target:string,originalPrefix:string,savedNote:string){
  const [original,better]=value.includes(" → ")?value.split(" → ",2):["",value];
- addDeckItem({category:original?"correction":"phrase",originalText:(better||value).trim().slice(0,260),translation:"",notes:original?"原句："+original.trim().slice(0,180):"Zoe 對話收藏",language:normalizeLearningLanguage(target)});
+ addDeckItem({category:original?"correction":"phrase",originalText:(better||value).trim().slice(0,260),translation:"",notes:original?originalPrefix+original.trim().slice(0,180):savedNote,language:normalizeLearningLanguage(target)});
 }
 export function FriendLearningActions({text}:{text:string}){
- const target=useTeacherStore(state=>state.targetLanguage),[saved,setSaved]=useState(false),[busy,setBusy]=useState(false);
+ const {t}=useTranslation("voice"),target=useTeacherStore(state=>state.targetLanguage),[saved,setSaved]=useState(false),[busy,setBusy]=useState(false),[notice,setNotice]=useState("");
  const value=text.trim(),canSave=value.length>0&&value.length<=260;
  if(!value)return null;
+ const save=()=>{saveLearningPhrase(value,target,t("textChat.learning.originalPrefix"),t("textChat.learning.savedNote"));setSaved(true)};
  return <div className="crew-text-learning-actions">
-  <button type="button" disabled={busy} onClick={()=>{setBusy(true);void speakLearningText(value,target,{mode:value.split(/\s+/).length<=5?"phrase":"sentence"}).finally(()=>setBusy(false))}}>🔊 聽</button>
-  {canSave&&<button type="button" disabled={saved} onClick={()=>{saveLearningPhrase(value,target);setSaved(true)}}>{saved?"✓ 已收藏":"☆ 收藏成片語"}</button>}
+  <button type="button" disabled={busy} onClick={()=>{setBusy(true);setNotice("");void speakLearningText(value,target,{mode:value.split(/\s+/).length<=5?"phrase":"sentence",onModelStatus:status=>setNotice(t(status==="loading"?"textChat.learning.modelDownloading":"textChat.learning.modelReady"))}).finally(()=>setBusy(false))}}>🔊 {t("textChat.learning.listen")}</button>
+  {canSave&&<button type="button" disabled={saved} onClick={save}>{saved?t("textChat.learning.saved"):t("textChat.learning.savePhrase")}</button>}
+  {notice&&<small className="crew-text-learning-model-status" role="status">{notice}</small>}
  </div>;
 }
 export function FriendLearningSummary({phrases,onDismiss}:{phrases:string[];onDismiss:()=>void}){
  const {t}=useTranslation("voice"),target=useTeacherStore(state=>state.targetLanguage);
  const[saved,setSaved]=useState<string[]>([]);
+ const save=(phrase:string)=>{saveLearningPhrase(phrase,target,t("textChat.learning.originalPrefix"),t("textChat.learning.savedNote"));setSaved(list=>[...list,phrase])};
  if(!phrases.length)return null;
  return <section className="crew-text-learning-summary" aria-label={t("textChat.learning.summaryTitle")}>
   <div className="crew-text-learning-header"><strong>{t("textChat.learning.summaryTitle")}</strong>
    <button type="button" aria-label={t("textChat.learning.dismiss")} onClick={onDismiss}>×</button></div>
-  <ul>{phrases.slice(0,3).map((phrase,index)=><li key={index}><span>{phrase.includes(" → ")&&<span className="crew-text-learning-better">{t("textChat.learning.better")} </span>}{phrase}</span><button type="button" disabled={saved.includes(phrase)} onClick={()=>{saveLearningPhrase(phrase,target);setSaved(list=>[...list,phrase])}}>{saved.includes(phrase)?"✓":"＋ 收藏"}</button></li>)}</ul>
+  <ul>{phrases.slice(0,3).map((phrase,index)=><li key={index}><span>{phrase.includes(" → ")&&<span className="crew-text-learning-better">{t("textChat.learning.better")} </span>}{phrase}</span><button type="button" disabled={saved.includes(phrase)} onClick={()=>save(phrase)}>{saved.includes(phrase)?t("textChat.learning.savedShort"):t("textChat.learning.save")}</button></li>)}</ul>
  </section>;
 }
