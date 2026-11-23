@@ -203,6 +203,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
 
  const learnTools=[
   {to:"/teacher/vocabulary",icon:"cards" as IconName,title:tTeacher("learn.vocab"),desc:tTeacher("learn.vocabDesc")},
+  {to:"/teacher/phrasebook",icon:"cards" as IconName,title:en?"Phrases":"片語學習",desc:en?"Listen, shadow and review useful phrases.":"聽、慢速、跟讀、收藏，再用聽力小遊戲複習。"},
   {to:"/teacher/pronunciation",icon:"mic" as IconName,title:tTeacher("learn.pronunciation"),desc:tTeacher("learn.pronunciationDesc")},
   {to:"/teacher/textbook",icon:"book" as IconName,title:tTeacher("learn.textbook"),desc:tTeacher("learn.textbookDesc")},
   {to:"/teacher/board",icon:"teacher" as IconName,title:tTeacher("board.entryTitle"),desc:tTeacher("board.entryDesc")}
