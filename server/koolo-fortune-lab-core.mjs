@@ -55,6 +55,8 @@ export function validateLabChapters(raw,facts){
   result[name]=v;
  }
  if(new Set(Object.values(result)).size!==PARTS.length)return null;
+ // Detect meaningless repeat-filler without forcing traditional terminology.
+ if(Object.values(result).some(v=>/^(.{2,12})\1{5,}$/.test(v)))return null;
  // Plain-language chapters are not required to spell out a technical day master.
  // Both saved historical reports and new reports remain readable.
  if(!facts.annual.some(x=>result.timing.includes(String(x.year))))return null;
@@ -213,7 +215,7 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
    }
    if(typeof chapter!=="string")throw Error("QUALITY_CHECK_FAILED");
    const text=chapter.trim().replace(/\r\n/g,"\n");
-   if(text.length<150||text.length>700||/<[^>]+>|`{3}|[?？]|(?:你是否|你有沒有|不妨想想|請試著|想一想)|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(text))
+   if(text.length<150||text.length>700||/<[^>]+>|`{3}|[?？]|(?:你是否|你有沒有|不妨想想|請試著|想一想)|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(text)||/^(.{2,12})\1{5,}$/.test(text))
     throw Error("QUALITY_CHECK_FAILED");
    // The model may express the chart's influence in everyday terms without
    // naming the day master or any traditional technical term.
