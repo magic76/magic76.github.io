@@ -5,6 +5,7 @@ const ORIGINS=new Set(["https://koolo.app","https://www.3sssi.com"]);
 const SESSION="__Host-crew_session";
 const UUID=/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i;
 const HEADERS={"Content-Type":"application/json; charset=utf-8","Cache-Control":"private, no-store",
+ "X-Koolo-Fortune-Lab-API":"v1",
  "Vary":"Cookie","Referrer-Policy":"no-referrer","X-Content-Type-Options":"nosniff",
  "X-Robots-Tag":"noindex, nofollow, noarchive","X-Frame-Options":"DENY"};
 const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:HEADERS});
@@ -87,10 +88,14 @@ export async function labPost(ctx){
  if(!facts||!UUID.test(payload?.requestId||""))return reply({error:"INVALID_CHART_OR_QUESTIONS"},400);
  const now=nowSec(),id=crypto.randomUUID();
  try{
+  // A completed failed attempt should not permanently consume the daily 3-slot
+  // acceptance quota. Mark abandoned synchronous attempts stale after 15 min.
+  await a.db.prepare("UPDATE koolo_fortune_lab_reports SET status='failed',updated_at=? WHERE user_id=? AND status='generating' AND created_at<?")
+   .bind(now,a.userId,now-900).run();
   const insertion=await a.db.prepare(
    "INSERT INTO koolo_fortune_lab_reports(id,user_id,request_id,status,model,created_at,updated_at) "+
    "SELECT ?,?,?,'generating',?,?,? WHERE "+
-   "(SELECT COUNT(1) FROM koolo_fortune_lab_reports WHERE user_id=? AND created_at>=?)<3 "+
+   "(SELECT COUNT(1) FROM koolo_fortune_lab_reports WHERE user_id=? AND created_at>=? AND status IN ('generating','ready'))<3 "+
    "ON CONFLICT(user_id,request_id) DO NOTHING"
   ).bind(id,a.userId,payload.requestId,model,now,now,a.userId,taipeiStart(now)).run();
   if(Number(insertion.meta?.changes)!==1){
@@ -99,6 +104,7 @@ export async function labPost(ctx){
    return earlier?reply({error:"DUPLICATE_REQUEST",id:earlier.id,status:earlier.status},409):reply({error:"DAILY_LIMIT",limit:3},429);
   }
  }catch{return reply({error:"MIGRATION_REQUIRED"},503)}
+ const generationStart=Date.now();
  try{
   const generated=await generateLabChapters(facts,{key,model,fetcher:ctx.env?.FORTUNE_LAB_TEST_FETCH||fetch});
   const snapshot=JSON.stringify({version:"bazi-private-lab-v1",facts,chapters:generated.chapters});
@@ -115,6 +121,8 @@ export async function labPost(ctx){
    reason==="QUALITY_CHECK_FAILED"?"QUALITY_CHECK_FAILED":
    reason==="UPSTREAM_INVALID_RESPONSE"?"GEMINI_INVALID_RESPONSE":
    upstream?"GEMINI_UPSTREAM_"+upstream[1]:"GENERATION_FAILED";
+  // Do not log the birth chart, prompts, user id, response text, or API Key.
+  console.warn("[fortune-lab] generation failed",JSON.stringify({code,elapsedMs:Date.now()-generationStart}));
   return reply({error:code,id},code==="AI_TIMEOUT"?504:502);
  }
 }
