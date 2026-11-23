@@ -29,7 +29,7 @@ test("six distinct bilingual SEO intent guides are crawlable and functional",asy
    const structured=JSON.parse(json[1]);
    assert.equal(structured["@graph"].find(x=>x["@type"]==="BreadcrumbList").itemListElement.at(-1).item,url);
    if(en)assert.ok(html.includes("crew_ui_locale_v1"),rel);
-   const embedded=html.match(/<script>([^<]+)<\/script><\/body>/);
+   const embedded=html.match(/<script>([\s\S]*?)<\/script><\/body>/);
    assert.ok(embedded,rel);
    new vm.Script(embedded[1],{filename:rel});
    if(slug.startsWith("2027-"))assert.ok(html.includes("www-ws.gov.taipei"),rel);
