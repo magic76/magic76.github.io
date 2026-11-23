@@ -433,7 +433,8 @@ test("Teacher Web mirrors app learning deck reports and reading library",()=>{
  const ui=readUiLocale("teacher").my;assert.equal(ui.phrases,"收藏片語");
  assert.ok(deck.includes("saveReportLearning"));
  assert.ok(deck.includes("nextReviewAt"));
- assert.ok(phrasebook.includes("我複習過了"));
+ assert.ok(phrasebook.includes('t("phrasebook.reviewed")'));
+ assert.equal(readUiLocale("teacher").phrasebook.reviewed,"我複習過了");
  assert.ok(reports.includes("道地修正"));
  assert.ok(reports.includes("帶走的表達"));
  assert.ok(library.includes("classic_aesop_north_wind"));
