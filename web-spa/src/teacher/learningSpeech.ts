@@ -24,7 +24,6 @@ const tinyEngines=new Map<string,Promise<TinyEngine>>();
 let kokoroPromise:Promise<any>|null=null;
 let currentAudio:HTMLAudioElement|null=null;
 let currentUrl="";
-let systemUtterance:SpeechSynthesisUtterance|null=null;
 
 const importExternal=(url:string)=>import(/* @vite-ignore */ url) as Promise<any>;
 
@@ -63,7 +62,6 @@ function stopCurrentAudio(){
 export function stopLearningSpeech(){
  stopCurrentAudio();
  try{window.speechSynthesis?.cancel()}catch{}
- systemUtterance=null;
 }
 async function playBlob(blob:Blob):Promise<void>{
  stopLearningSpeech();
@@ -146,13 +144,12 @@ async function loadTiny(language:string):Promise<TinyEngine>{
   await loadScript(ORT_JS);
   const ort=(window as any).ort;if(!ort)throw new Error("ORT_UNAVAILABLE");
   ort.env.wasm.numThreads=1;ort.env.wasm.wasmPaths=ORT_BASE;
-  const [{G2P},model,voiceData,vocabData]=await Promise.all([
-   importExternal(G2P_URL),
+  const [{phonemize},model,voiceData,vocabData]=await Promise.all([
+   importExternal(UCCHARAN_URL),
    fetchCached(PICO_BASE+"kitten_tts_2_pico_"+language+"_int4.onnx"),
    fetchCached(PICO_BASE+"voices_"+language+".npz"),
    fetchCached(PICO_BASE+"vocab.json")
   ]);
-  const g2p=await G2P.create({languages:[language]});
   const voices=await parseNPZ(voiceData);
   const session=await ort.InferenceSession.create(model,{executionProviders:["wasm"],graphOptimizationLevel:"all",intraOpNumThreads:1});
   return{session,ort,phonemize,vocab:JSON.parse(new TextDecoder().decode(vocabData)),voices};
@@ -203,7 +200,7 @@ async function systemSpeak(text:string,language:string,speed:LearningSpeechSpeed
  // Preserve Koolo Android native TTS as the English fallback.
  if(language==="en"){await speakText(text,{speed});return}
  if("speechSynthesis" in window){
-  const utterance=new SpeechSynthesisUtterance(text);systemUtterance=utterance;utterance.lang=LANG_TAG[language]||language;utterance.rate=speed==="slow"?0.78:1;
+  const utterance=new SpeechSynthesisUtterance(text);utterance.lang=LANG_TAG[language]||language;utterance.rate=speed==="slow"?0.78:1;
   const voices=window.speechSynthesis.getVoices(),prefix=(LANG_TAG[language]||language).toLowerCase().split("-")[0];
   utterance.voice=voices.find(item=>item.lang.toLowerCase().startsWith(prefix))||null;
   await new Promise<void>((resolve,reject)=>{utterance.onend=()=>resolve();utterance.onerror=event=>event.error==="canceled"||event.error==="interrupted"?resolve():reject(new Error(event.error));window.speechSynthesis.speak(utterance)});
