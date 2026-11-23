@@ -225,7 +225,16 @@
       "checkQuestion": "Apakah kalimat ini terdengar alami?",
       "better": "Lebih alami:",
       "summaryTitle": "3 ungkapan hari ini",
-      "dismiss": "Tutup ringkasan"
+      "dismiss": "Tutup ringkasan",
+      "listen": "Dengarkan",
+      "saved": "✓ Tersimpan",
+      "savePhrase": "☆ Simpan sebagai frasa",
+      "savedShort": "✓",
+      "save": "＋ Simpan",
+      "originalPrefix": "Kalimat awal: ",
+      "savedNote": "Disimpan dari chat Zoe",
+      "modelDownloading": "Mengunduh model suara (sekitar 88 MB, hanya sekali). Kali ini suara sistem akan diputar lebih dulu.",
+      "modelReady": "Model suara sudah siap. Pemutaran berikutnya akan memakai suara berkualitas tinggi."
     },
     "typing": "{{name}} sedang mengetik",
     "nextHeading": "Kamu bisa bilang",
@@ -287,8 +296,7 @@
     "waitingForYou": "Ucapan Anda muncul di sini",
     "callControls": "Kontrol panggilan",
     "hangUp": "Akhiri panggilan"
-  }
- ,
+  },
   "suggestReplies": {
     "label": "Saran jawaban",
     "on": "Aktif",
