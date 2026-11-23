@@ -15,7 +15,10 @@ const ORT_JS="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/ort.min.j
 const ORT_BASE="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/";
 const PAKO_JS="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js";
 const HF="https://huggingface.co/KittenML/";
-const TINY_MODELS={\n nano2:{repo:"kitten-tts-2-nano",model:"kitten_tts_2_nano_en_int4.onnx",male:"danny"},\n pico2:{repo:"kitten-tts-2-pico",model:"kitten_tts_2_pico_en_int4.onnx",male:"otis"}\n};
+const TINY_MODELS={
+ nano2:{repo:"kitten-tts-2-nano",model:"kitten_tts_2_nano_en_int4.onnx",male:"danny"},
+ pico2:{repo:"kitten-tts-2-pico",model:"kitten_tts_2_pico_en_int4.onnx",male:"otis"}
+};
 const engines={};
 const scripts=new Map();
 let currentUrl="",busy=false;
