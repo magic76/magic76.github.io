@@ -4,7 +4,27 @@
 "use strict";
 var path="/api/fortune/report-lab",pagePath=location.pathname,chart=document.getElementById("chart"),button=document.getElementById("generate");
 var msg=document.getElementById("message"),chooser=document.getElementById("chooser"),reportEl=document.getElementById("report");
-var records=[];
+var records=[],submitting=false,pendingRequest=null;
+var PENDING_KEY="koolo_fortune_lab_pending_v1";
+function rememberPending(item){
+ pendingRequest=item;
+ try{
+  if(typeof sessionStorage!=="undefined"){
+   if(item)sessionStorage.setItem(PENDING_KEY,JSON.stringify(item));
+   else sessionStorage.removeItem(PENDING_KEY);
+  }
+ }catch{/* Storage must not prevent report creation. */}
+}
+function getPending(chartId){
+ var value=pendingRequest;
+ try{
+  if(typeof sessionStorage!=="undefined"){
+   var saved=JSON.parse(sessionStorage.getItem(PENDING_KEY)||"null");
+   if(saved)value=saved;
+  }
+ }catch{/* No session storage access is still safe within one page load. */}
+ return value&&value.chartId===chartId&&/^[a-f0-9-]{36}$/i.test(value.requestId)?value:null;
+}
 var ELS=["木","火","土","金","水"],COLORS=["#648676","#cb846a","#bda36b","#88949f","#60859e"];
 function node(id){return document.getElementById(id)}
 function say(text){msg.textContent=text}
@@ -46,7 +66,11 @@ async function api(query,init){
     var source=marker==="v1"?"命書 API 異常回應":"Cloudflare／代理層回應（非命書 API 格式）";
     throw Error(source+"（HTTP "+response.status+"）"+rayLabel+"。請至 Cloudflare Pages Functions 日誌查同時段錯誤，勿再重設 Key 或 SQL。");
    }
-   throw Error(apiError+"（HTTP "+response.status+"）");
+   var failure=Error(apiError+"（HTTP "+response.status+"）");
+   failure.code=apiError;
+   if(obj&&typeof obj.id==="string"&&/^[a-f0-9-]{36}$/i.test(obj.id))failure.reportId=obj.id;
+   if(obj&&typeof obj.status==="string")failure.reportStatus=obj.status;
+   throw failure;
   }
   if(!obj||typeof obj!=="object")throw Error("命書 API 回傳資料格式無效");
   return obj;
@@ -108,7 +132,7 @@ async function history(){
    var btn=document.createElement("button");
    btn.type="button";btn.textContent=new Date(x.createdAt*1000).toLocaleString("zh-TW")+
     " · "+(x.status==="ready"?"開啟命書":x.status==="generating"?"製作中":"生成未完成");
-   btn.disabled=x.status!=="ready";btn.addEventListener("click",function(){openReport(x.id)});
+   btn.disabled=x.status==="failed";btn.addEventListener("click",function(){openReport(x.id)});
    container.appendChild(btn)
   })
  }catch(e){node("history").textContent="無法讀取測試紀錄："+e.message}
@@ -151,23 +175,75 @@ function showBook(x){
  text("meta","私密驗收 · "+x.model+" · "+(x.usage&&x.usage.outputTokens||0)+" output tokens"+(legacy?" · 舊版命書":""));
  chooser.hidden=true;reportEl.hidden=false;window.scrollTo(0,0)
 }
+async function waitForReport(id){
+ // A duplicate POST must never start a second upstream generation while
+ // the previous one is still running. Poll this user's saved report instead.
+ var deadline=Date.now()+40000;
+ while(Date.now()<deadline){
+  await new Promise(function(resolve){setTimeout(resolve,3000)});
+  var result=await api("?report="+encodeURIComponent(id));
+  if(result.report&&result.report.status==="ready"){
+   rememberPending(null);
+   window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(id));
+   showBook(result.report);
+   return;
+  }
+  if(result.report&&result.report.status==="failed"){
+   rememberPending(null);
+   throw Error("上一次製作沒有完成，請再次按「產生專屬命書」重新製作。");
+  }
+ }
+ say("命書還在製作中，稍後按「產生專屬命書」可繼續查看進度，不會重複生成。");
+}
 async function openReport(id){
- try{say("");var x=await api("?report="+encodeURIComponent(id));if(x.report&&x.report.status==="ready"){
-  window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(id));showBook(x.report)
- }else say("報告尚未完成，請稍後再試")}
- catch(e){say("開啟失敗："+e.message)}
+ try{
+  say("");
+  var x=await api("?report="+encodeURIComponent(id));
+  if(x.report&&x.report.status==="ready"){
+   rememberPending(null);
+   window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(id));
+   showBook(x.report);
+  }else if(x.report&&x.report.status==="generating"){
+   say("命書仍在製作中，正在查看進度…");
+   await waitForReport(id);
+  }else say("這份命書未完成，可選擇命盤重新產生。");
+ }catch(e){say("開啟失敗："+e.message)}
 }
 button.addEventListener("click",async function(){
+ if(submitting)return;
+ submitting=true;
+ var pending=null;
  try{
   var r=records[Number(chart.value)];if(!r)throw Error("請先選擇命盤");
-  var facts=pickFacts(r);button.disabled=true;button.textContent="正在製作命書…";
-  say("AI 正在撰寫並檢查 10 頁命書，請保持此頁開啟。");
+  var facts=pickFacts(r),chartId=String(r.id);
+  pending=getPending(chartId)||{chartId:chartId,requestId:crypto.randomUUID()};
+  rememberPending(pending);
+  button.disabled=true;button.textContent="正在製作命書…";
+  say("正在製作專屬命書，請保持此頁開啟。");
   var x=await api("",{method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({requestId:crypto.randomUUID(),facts:facts})});
-  window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(x.report.id));
-  showBook(x.report)
- }catch(e){say("製作未完成："+(e instanceof Error?e.message:"請求失敗")+"。請記下錯誤代碼；若顯示 HTTP 5xx，請勿立即連續重試。")}
- finally{button.disabled=records.length===0;button.textContent="產生專屬命書（測試）";history()}
+   body:JSON.stringify({requestId:pending.requestId,facts:facts})});
+  if(x.report&&x.report.status==="ready"){
+   rememberPending(null);
+   window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(x.report.id));
+   showBook(x.report);
+  }else if(x.report&&x.report.status==="generating"){
+   say("這份命書已開始製作，正在查詢進度，不會重複生成。");
+   await waitForReport(x.report.id);
+  }else throw Error("命書回應狀態異常，請稍後再查看已有的命書。");
+ }catch(e){
+  if(e&&e.code==="DUPLICATE_REQUEST"&&e.reportId){
+   // Backward compatibility with older deployments returning 409 for every
+   // repeated request, regardless of completion state.
+   try{await openReport(e.reportId)}catch{say("已找到上一筆命書，請稍後查看製作紀錄。")}
+  }else{
+   if(e&&["BAD_JSON","BAD_CONTENT_TYPE","INVALID_CHART","DAILY_LIMIT","LOGIN_REQUIRED","AI_NOT_CONFIGURED"].includes(e.code))rememberPending(null);
+   say("製作未完成："+(e instanceof Error?e.message:"請求失敗")+"。若連線中斷，下一次按鈕會先確認原請求，不會直接重複製作。");
+  }
+ }finally{
+  submitting=false;button.disabled=records.length===0;
+  button.textContent="產生專屬命書（測試）";
+  history();
+ }
 });
 // Initialize chart picker before any optional bindings / network requests.
 selectCharts();
