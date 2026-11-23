@@ -115,3 +115,63 @@ export async function generateLabChapters(f,{key,model,fetcher=fetch,timeoutMs=6
   throw e;
  }finally{clearTimeout(timer)}
 }
+
+
+/** Write one independently checkpointed chapter per HTTP request. */
+export function labPartPrompt(f,part){
+ if(!PARTS.includes(part))throw Error("INVALID_PART");
+ const lines=labPrompt(f).split("\n");
+ const direction=lines.find(line=>line.startsWith(part+"："));
+ return [
+  lines[0],lines[1],lines[2],
+  "只回傳 JSON 物件，只有 \""+part+"\" 一個字串欄位，不要其他欄位、Markdown 或 HTML。",
+  direction,
+  "本章寫 210 至 340 個繁體中文字，必須有個人辨識度和至少兩個命盤依據，適度描述具體情境，不虛構已經發生的人生經歷，不保證未來事件。避免制式開場、空泛形容及重複其他章節。",
+  "命盤摘要："+JSON.stringify(f)
+ ].join("\n");
+}
+export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=20000}){
+ if(!PARTS.includes(part))throw Error("INVALID_PART");
+ const candidates=[model];
+ if(/^gemini-2[.-]/.test(model))candidates.push("gemini-3.5-flash","gemini-3.5-flash-lite");
+ else if(model==="gemini-3.5-flash")candidates.push("gemini-3.5-flash-lite");
+ const choices=[...new Set(candidates)];
+ const controller=new AbortController();
+ const limit=Math.max(10,Math.min(22000,Number(timeoutMs)||20000));
+ const timer=setTimeout(()=>controller.abort(),limit);
+ try{
+  for(const candidate of choices){
+   const response=await fetcher("https://generativelanguage.googleapis.com/v1beta/models/"+candidate+":generateContent",{
+    method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
+    signal:controller.signal,
+    body:JSON.stringify({contents:[{role:"user",parts:[{text:labPartPrompt(f,part)}]}],
+     generationConfig:{responseMimeType:"application/json",temperature:0.45,maxOutputTokens:3072}})
+   });
+   if(response.status===404&&candidate!==choices[choices.length-1])continue;
+   if(!response.ok)throw Error("UPSTREAM_"+response.status);
+   if((response.headers?.get?.("content-type")||"").toLowerCase().includes("text/html"))
+    throw Error("UPSTREAM_INVALID_RESPONSE");
+   const data=await response.json();
+   const responseText=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("").trim();
+   if(!responseText||responseText.length>5000)throw Error("UPSTREAM_EMPTY");
+   let obj;try{obj=JSON.parse(responseText)}catch{throw Error("INVALID_JSON")}
+   const chapter=obj?.[part];
+   if(typeof chapter!=="string")throw Error("QUALITY_CHECK_FAILED");
+   const text=chapter.trim().replace(/\r\n/g,"\n");
+   if(text.length<150||text.length>700||/<[^>]+>|\\x60{3}|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(text))
+    throw Error("QUALITY_CHECK_FAILED");
+   if(part==="personality"&&!text.includes(f.dayMaster)&&!text.includes(f.element))
+    throw Error("QUALITY_CHECK_FAILED");
+   if(part==="timing"&&!f.annual.some(x=>text.includes(String(x.year))))
+    throw Error("QUALITY_CHECK_FAILED");
+   return {model:candidate,text,usage:{
+    promptTokens:Math.max(0,Number(data.usageMetadata?.promptTokenCount)||0),
+    outputTokens:Math.max(0,Number(data.usageMetadata?.candidatesTokenCount)||0)
+   }};
+  }
+  throw Error("UPSTREAM_404");
+ }catch(e){
+  if(controller.signal.aborted)throw Error("UPSTREAM_TIMEOUT");
+  throw e;
+ }finally{clearTimeout(timer)}
+}
