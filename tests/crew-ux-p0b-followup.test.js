@@ -11,12 +11,13 @@ test("DAILY_LIMIT means shared capacity full, not personal consumption",()=>{
  assert.doesNotMatch(src,/data\.code==="ALREADY_USED"\|\|data\.code==="DAILY_LIMIT"/);
  assert.match(src,/!signedIn&&!config\.signinRequired&&config\.trial&&config\.trial\.used>=config\.trial\.limit\)\{setPhase\("exhausted"\);return\}/);
  const render=src.slice(src.indexOf('return <div className="notice guest-live-entry"'));
- assert.match(render,/aria-label=\{phase==="full"\?t\("guestTrial.limit"\)/);
+ assert.match(render,/aria-label=\{textEntry\?t\("voice:friendLive.textChat"\):phase==="full"\?t\("guestTrial.limit"\):phase==="exhausted"\?t\("guestTrial.usedUpTitle"\):t\("guestTrial.homeTitle"\)\}/);
  assert.match(render,/phase!=="exhausted"&&phase!=="full"&&<>/);
  const full=render.match(/\{phase==="full"&&[\s\S]*?\}\n/);
  assert.ok(full,"a distinct full status is rendered");
  assert.match(full[0],/role="status"/);
  assert.match(full[0],/guestTrial\.limit/);
+ assert.match(render,/\{phase==="full"&&<p role="status">\{t\("guestTrial.limit"\)\}<\/p>\}/);
  assert.doesNotMatch(full[0],/guestTrial\.(?:usedUpTitle|used)"/);
  assert.match(render,/\(phase==="exhausted"\|\|phase==="full"\)&&<>/);
  assert.equal((render.match(/t\("guestTrial.continueKey"\)/g)||[]).length,1);
