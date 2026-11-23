@@ -38,6 +38,21 @@ async function owner({request,env,verifyAdmin},method){
 }
 const rowSummary=r=>({id:String(r.id),status:String(r.status),createdAt:Number(r.created_at),
  model:String(r.model||""),usage:{promptTokens:Number(r.prompt_tokens||0),outputTokens:Number(r.output_tokens||0)}});
+function readyReport(row){
+ if(row.status!=="ready")return null;
+ let content;
+ try{content=JSON.parse(row.content_json||"")}catch{return null}
+ if(!content||!content.facts||!validateLabChapters(content.chapters,content.facts))return null;
+ return {...rowSummary(row),version:content.version||"bazi-private-lab-v1",facts:content.facts,chapters:content.chapters};
+}
+function existingReportResponse(row){
+ if(row.status==="ready"){
+  const report=readyReport(row);
+  return report?reply({report},200):reply({error:"REPORT_INVALID"},503);
+ }
+ if(row.status==="generating")return reply({report:rowSummary(row)},202);
+ return null;
+}
 export async function labGet(ctx){
  const a=await owner(ctx,"GET");if(a.error)return a.error;
  const url=new URL(ctx.request.url),id=url.searchParams.get("report");
@@ -47,10 +62,7 @@ export async function labGet(ctx){
    const row=await a.db.prepare("SELECT id,status,created_at,model,prompt_tokens,output_tokens,content_json FROM koolo_fortune_lab_reports WHERE id=? AND user_id=? LIMIT 1")
     .bind(id,a.userId).first();
    if(!row)return reply({error:"NOT_FOUND"},404);
-   if(row.status!=="ready")return reply({report:rowSummary(row)});
-   const content=JSON.parse(row.content_json);
-   if(!content||!content.facts||!validateLabChapters(content.chapters,content.facts))return reply({error:"REPORT_INVALID"},503);
-   return reply({report:{...rowSummary(row),version:content.version||"bazi-private-lab-v1",facts:content.facts,chapters:content.chapters}});
+   return existingReportResponse(row)||reply({report:rowSummary(row)});
   }catch{return reply({error:"UNAVAILABLE"},503)}
  }
  if(url.searchParams.has("list")){
@@ -86,7 +98,8 @@ export async function labPost(ctx){
  }catch{return reply({error:"BAD_JSON"},400)}
  const facts=normalizeLabFacts(payload?.facts);
  if(!facts||!UUID.test(payload?.requestId||""))return reply({error:"INVALID_CHART"},400);
- const now=nowSec(),id=crypto.randomUUID();
+ const now=nowSec();
+ let id=crypto.randomUUID();
  try{
   // A completed failed attempt should not permanently consume the daily 3-slot
   // acceptance quota. Mark abandoned synchronous attempts stale after 15 min.
@@ -99,9 +112,27 @@ export async function labPost(ctx){
    "ON CONFLICT(user_id,request_id) DO NOTHING"
   ).bind(id,a.userId,payload.requestId,model,now,now,a.userId,taipeiStart(now)).run();
   if(Number(insertion.meta?.changes)!==1){
-   const earlier=await a.db.prepare("SELECT id,status FROM koolo_fortune_lab_reports WHERE user_id=? AND request_id=?")
-    .bind(a.userId,payload.requestId).first();
-   return earlier?reply({error:"DUPLICATE_REQUEST",id:earlier.id,status:earlier.status},409):reply({error:"DAILY_LIMIT",limit:3},429);
+   const query="SELECT id,user_id,status,created_at,model,prompt_tokens,output_tokens,content_json FROM koolo_fortune_lab_reports WHERE user_id=? AND request_id=? LIMIT 1";
+   const earlier=await a.db.prepare(query).bind(a.userId,payload.requestId).first();
+   if(!earlier)return reply({error:"DAILY_LIMIT",limit:3},429);
+   const existing=existingReportResponse(earlier);
+   if(existing)return existing;
+   // A failed attempt may be explicitly retried with the SAME request ID.
+   // Conditional update is atomic: concurrent requests cannot run two Gemini
+   // generations. The active/ready count retains the existing daily limit.
+   const claimed=await a.db.prepare(
+    "UPDATE koolo_fortune_lab_reports SET status='generating',model=?,created_at=?,updated_at=?,content_json=NULL,prompt_tokens=0,output_tokens=0 "+
+    "WHERE user_id=? AND request_id=? AND status='failed' AND "+
+    "(SELECT COUNT(1) FROM koolo_fortune_lab_reports WHERE user_id=? AND created_at>=? AND status IN ('generating','ready'))<3"
+   ).bind(model,now,now,a.userId,payload.requestId,a.userId,taipeiStart(now)).run();
+   if(Number(claimed.meta?.changes)!==1){
+    // Another caller may have claimed the failed row while this caller waited.
+    const latest=await a.db.prepare(query).bind(a.userId,payload.requestId).first();
+    const resolved=latest&&existingReportResponse(latest);
+    if(resolved)return resolved;
+    return reply({error:"DAILY_LIMIT",limit:3},429);
+   }
+   id=String(earlier.id);
   }
  }catch{return reply({error:"MIGRATION_REQUIRED"},503)}
  const generationStart=Date.now();
