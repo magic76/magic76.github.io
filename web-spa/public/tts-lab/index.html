@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#f5f7ff">
-<title>Koolo TTS Lab · 六語語音試聽</title>
+<title>Koolo TTS Lab · 英西雙語試聽</title>
 <style>
 :root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif; color: #18253a; background: #f5f7ff; }
 * { box-sizing: border-box; }
@@ -31,6 +31,7 @@ button:disabled { cursor: not-allowed; opacity: .48; }
 .status { margin: 18px 0 0; padding: 13px 14px; border-radius: 12px; background: #eff3fb; font-size: 14px; line-height: 1.6; min-height: 50px; overflow-wrap: anywhere; }
 .status.error { background: #fff0ec; color: #982b22; }
 audio { display: block; width: 100%; margin-top: 16px; }
+audio[hidden] { display: none; }
 .note { color: #617089; font-size: 13px; line-height: 1.7; margin: 20px 3px; }
 @media(max-width:420px) { main { padding: 20px 14px 44px; } .panel { padding: 18px; } .actions { grid-template-columns: 1fr; } }
 </style>
@@ -39,35 +40,45 @@ audio { display: block; width: 100%; margin-top: 16px; }
 <main>
   <nav class="nav" aria-label="導覽"><a class="logo" href="/">Koolo ✳</a><span class="pill">VOICE EXPERIMENT</span></nav>
   <h1>輸入一句話，<br>聽聽 AI 怎麼說。</h1>
-  <p class="intro">試試中文、英文、日文、韓文、西班牙文和法文。這是獨立的語音品質試驗室，不會改動你原本的聊天體驗。</p>
+  <p class="intro">試聽英文與西班牙文的 AI 語音，選不同聲音、輸入自己的句子，看看哪個適合 Koolo。</p>
   <section class="panel" aria-label="語音生成">
     <label for="lang">想聽哪種語言？</label>
     <select id="lang">
-      <option value="zh">中文 Mandarin</option><option value="en">English</option><option value="ja">日本語</option>
-      <option value="ko">한국어</option><option value="es">Español</option><option value="fr">Français</option>
+      <option value="en">English · 英文</option><option value="es">Español · 西班牙文</option>
     </select>
+    <label for="speaker">喜歡哪種聲音？</label>
+    <select id="speaker" aria-label="選擇語音音色"></select>
     <label for="text">要說什麼？</label>
     <textarea id="text" maxlength="300" spellcheck="true" aria-describedby="limit"></textarea>
     <div class="meta"><span id="limit">最多 300 字</span><span id="count">0 / 300</span></div>
     <div class="actions"><button id="play" type="button" class="primary">▶ 生成並播放</button><button id="download" type="button" disabled>↓ 下載 MP3</button></div>
-    <p id="status" class="status" role="status" aria-live="polite">按下播放試聽；此模型已於 2026/11/20 被官方標記為退役，可能無法生成。</p>
+    <p id="status" class="status" role="status" aria-live="polite">準備好了！按下播放，聽聽這句話。</p>
     <audio id="audio" controls preload="none" hidden aria-label="語音試聽播放器"></audio>
   </section>
-  <p class="note">由 Cloudflare Workers AI · MeloTTS 提供。生成時間受模型及網路影響；此模型已被官方標示為退役；若不能生成，會顯示錯誤，不會假裝生成成功。</p>
+  <p class="note">使用 Cloudflare Workers AI · Deepgram Aura-2。每次生成會消耗語音額度；相同語言、句子與音色可使用快取。</p>
 </main>
 <script>
 (() => {
   'use strict';
   const endpoint = 'https://koolo-tts.shanliyoung.workers.dev/tts';
   const examples = {
-    zh: '背了十年單字，還是不敢開口？',
     en: "Hi, I'm Zoe! Want to practice English with me?",
-    ja: 'こんにちは！今日は一緒に日本語を練習しましょう。',
-    ko: '안녕하세요! 오늘 같이 한국어 연습해 볼까요?',
-    es: '¡Hola! ¿Te gustaría practicar español conmigo?',
-    fr: 'Bonjour ! Tu veux pratiquer le français avec moi ?',
+    es: '¡Hola! ¿Quieres practicar español conmigo hoy?',
+  };
+  const voices = {
+    en: [
+      ['luna', 'Luna'],
+      ['apollo', 'Apollo'],
+      ['asteria', 'Asteria'],
+    ],
+    es: [
+      ['aquila', 'Aquila'],
+      ['javier', 'Javier'],
+      ['selena', 'Selena'],
+    ],
   };
   const lang = document.querySelector('#lang');
+  const speaker = document.querySelector('#speaker');
   const text = document.querySelector('#text');
   const play = document.querySelector('#play');
   const download = document.querySelector('#download');
@@ -95,12 +106,24 @@ audio { display: block; width: 100%; margin-top: 16px; }
     status.textContent = message;
     status.classList.toggle('error', error);
   };
+  const updateVoices = () => {
+    speaker.replaceChildren();
+    for (const [value, label] of voices[lang.value]) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      speaker.append(option);
+    }
+  };
   lang.addEventListener('change', () => {
+    updateVoices();
     text.value = examples[lang.value];
     clearAudio(); updateCount();
     setStatus('已換成範例句，你也可以輸入自己的內容。');
   });
+  speaker.addEventListener('change', () => { clearAudio(); setStatus('已切換音色，按播放生成新的聲音。'); });
   text.addEventListener('input', updateCount);
+  updateVoices();
   text.value = examples[lang.value];
   updateCount();
   play.addEventListener('click', async () => {
@@ -110,13 +133,13 @@ audio { display: block; width: 100%; margin-top: 16px; }
       setStatus('請輸入 1～300 字的內容。', true); text.focus(); return;
     }
     clearAudio();
-    generating = true; play.disabled = true; download.disabled = true;
+    generating = true; play.disabled = true; download.disabled = true; lang.disabled = true; speaker.disabled = true; text.readOnly = true;
     setStatus('正在生成語音…');
     const started = performance.now();
     try {
       const response = await fetch(endpoint, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: message, lang: lang.value }),
+        body: JSON.stringify({ text: message, lang: lang.value, speaker: speaker.value }),
       });
       if (!response.ok) {
         const failure = await response.json().catch(() => ({}));
@@ -132,8 +155,8 @@ audio { display: block; width: 100%; margin-top: 16px; }
       setStatus(`生成完成 · ${seconds} 秒 · ${response.headers.get('X-TTS-Cache') === 'HIT' ? '快取命中' : '新生成'} · ${(blob.size / 1024).toFixed(1)} KB`);
       try { await audio.play(); } catch { setStatus(`生成完成 · ${seconds} 秒。請按下播放器的播放鍵。`); }
     } catch (error) {
-      setStatus(`生成失敗：${error.message}。若模型已退役，需要改用其他語音服務。`, true);
-    } finally { generating = false; play.disabled = false; }
+      setStatus(`生成失敗：${error.message}。請稍後再試。`, true);
+    } finally { generating = false; play.disabled = false; lang.disabled = false; speaker.disabled = false; text.readOnly = false; }
   });
   download.addEventListener('click', () => {
     if (!ready || !objectUrl) return;
