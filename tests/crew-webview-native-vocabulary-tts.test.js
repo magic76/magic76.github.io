@@ -26,20 +26,17 @@ test("native TTS navigation encodes vocabulary without modifying its rate",()=>{
   "crew-tts://speak?text=a%26b&rate=normal");
 });
 
-test("vocabulary routes speech via the device adapter, preserving legacy and browser fallback",()=>{
+test("vocabulary uses neural speech first while English fallback preserves the device adapter",()=>{
  const page=read("web-spa/src/teacher/VocabularyPage.tsx");
+ const speech=read("web-spa/src/teacher/learningSpeech.ts");
  const adapter=read("web-spa/src/lib/deviceCapabilities.ts");
- assert.match(page,/getDeviceCapabilities\(\)\.tts/);
- assert.match(page,/void speakText\(text,/);
+ assert.match(page,/speakLearningText\(text,"en"/);
+ assert.match(speech,/preferredLearningEngine\(value:string\):LearningSpeechEngine/);
+ assert.match(speech,/if\(code==="en"\)return"kokoro"/);
+ assert.match(speech,/if\(language==="en"\)\{await speakText\(text,\{speed\}\);return\}/);
  assert.match(adapter,/webMessagePort\(\)\?"native-message"/);
  assert.match(adapter,/hasCrewNativeVocabularyTts\(\)\?"native-legacy"/);
  assert.match(adapter,/window\.location\.assign\(nativeVocabularyTtsUrl\(text,options\.speed\)\)/);
  assert.match(adapter,/new SpeechSynthesisUtterance\(text\)/);
- assert.match(page,/vocabulary\.androidVoiceHint/);
- const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/teacher.json"));
- const en=JSON.parse(read("web-spa/src/i18n/locales/en/teacher.json"));
- for(const dictionary of [zh,en]){
-  assert.ok(dictionary.vocabulary.androidVoiceLabel);
-  assert.ok(dictionary.vocabulary.androidVoiceHint);
- }
+ assert.doesNotMatch(page,/getDeviceCapabilities\(\)\.tts|selectLocalEnglishVoice|speechPreferences/);
 });
