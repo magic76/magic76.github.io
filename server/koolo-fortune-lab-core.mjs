@@ -124,7 +124,7 @@ export function labPartPrompt(f,part){
  const direction=lines.find(line=>line.startsWith(part+"："));
  return [
   lines[0],lines[1],lines[2],
-  "只回傳 JSON 物件，只有 \""+part+"\" 一個字串欄位，不要其他欄位、Markdown 或 HTML。",
+  "本次僅撰寫："+part+"。只輸出本章完整的繁體中文正文，不要 JSON、Markdown、程式碼區塊、章節標題、前言或格式說明。",
   direction,
   "本章寫 210 至 340 個繁體中文字，必須有個人辨識度和至少兩個命盤依據，適度描述具體情境，不虛構已經發生的人生經歷，不保證未來事件。避免制式開場、空泛形容及重複其他章節。",
   "命盤摘要："+JSON.stringify(f)
@@ -150,7 +150,11 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
      method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
      signal:controller.signal,
      body:JSON.stringify({contents:[{role:"user",parts:[{text:labPartPrompt(f,part)}]}],
-      generationConfig:{responseMimeType:"application/json",temperature:0.45,maxOutputTokens:3072}})
+      // One chapter is already a single string. Avoid requiring a JSON wrapper
+     // for 200-300 Chinese characters: truncated JSON used to fail the book.
+     // Gemini 3's low thinking mode reserves capacity for the actual prose.
+     generationConfig:{temperature:0.4,maxOutputTokens:6144,
+      ...(/^gemini-3/.test(candidate)?{thinkingConfig:{thinkingLevel:"LOW"}}:{})}})
     });
     if([408,429,500,502,503,504].includes(response.status)&&attempt===0){
      await new Promise(resolve=>setTimeout(resolve,500));
@@ -162,11 +166,25 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
    if(!response.ok)throw Error("UPSTREAM_"+response.status);
    if((response.headers?.get?.("content-type")||"").toLowerCase().includes("text/html"))
     throw Error("UPSTREAM_INVALID_RESPONSE");
-   const data=await response.json();
-   const responseText=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("").trim();
-   if(!responseText||responseText.length>5000)throw Error("UPSTREAM_EMPTY");
-   let obj;try{obj=JSON.parse(responseText)}catch{throw Error("INVALID_JSON")}
-   const chapter=obj?.[part];
+   let data;
+   try{data=await response.json()}catch{throw Error("UPSTREAM_INVALID_RESPONSE")}
+   const candidateData=data.candidates?.[0];
+   const finishReason=String(candidateData?.finishReason||"").slice(0,32);
+   // A 200 response can still be a clipped generation. Never persist an
+   // unfinished chapter, even if some of its text passes the length check.
+   if(finishReason==="MAX_TOKENS")throw Error("UPSTREAM_TRUNCATED");
+   if(finishReason==="SAFETY"||finishReason==="PROHIBITED_CONTENT"||
+    finishReason==="BLOCKLIST")throw Error("UPSTREAM_BLOCKED");
+   if(finishReason&&finishReason!=="STOP")throw Error("UPSTREAM_UNFINISHED");
+   let chapter=(candidateData?.content?.parts||[]).filter(p=>!p.thought)
+    .map(p=>typeof p.text==="string"?p.text:"").join("").trim();
+   if(!chapter)throw Error("UPSTREAM_EMPTY");
+   // Accept well-formed legacy JSON defensively if a provider ignores the
+   // plain-text instruction. Never store malformed JSON as report prose.
+   if(chapter.startsWith("{")){
+    let obj;try{obj=JSON.parse(chapter)}catch{throw Error("UPSTREAM_INVALID_FORMAT")}
+    chapter=obj?.[part];
+   }
    if(typeof chapter!=="string")throw Error("QUALITY_CHECK_FAILED");
    const text=chapter.trim().replace(/\r\n/g,"\n");
    if(text.length<150||text.length>700||/<[^>]+>|\x60{3}|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(text))
@@ -175,7 +193,7 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
     throw Error("QUALITY_CHECK_FAILED");
    if(part==="timing"&&!f.annual.some(x=>text.includes(String(x.year))))
     throw Error("QUALITY_CHECK_FAILED");
-   return {model:candidate,text,finishReason:String(data.candidates?.[0]?.finishReason||"").slice(0,32),usage:{
+   return {model:candidate,text,finishReason,usage:{
     promptTokens:Math.max(0,Number(data.usageMetadata?.promptTokenCount)||0),
     outputTokens:Math.max(0,Number(data.usageMetadata?.candidatesTokenCount)||0)
    }};
