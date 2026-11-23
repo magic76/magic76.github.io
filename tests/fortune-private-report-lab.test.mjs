@@ -15,7 +15,7 @@ const post=ctx=>labPost({...ctx,verifyAdmin:async()=>true});
 
 const COOKIE="a".repeat(43),UUID="11111111-2222-4333-8444-555555555555";
 const THIS_YEAR=new Date(Date.now()+8*3600*1000).getUTCFullYear();
-const model="gemini-2.5-flash";
+const model="gemini-3.5-flash";
 const facts={
  fourPillars:"甲子 乙丑 丙寅 丁卯",dayMaster:"丙",dayMasterElement:"火",strength:"中和",
  weighted:{木:4,火:3,土:2,金:1,水:2},
@@ -300,6 +300,44 @@ test("authorized generation saves a complete private snapshot and never mutates 
  assert.equal(Object.keys(report.chapters).length,7);
  assert.ok(d.queries.some(x=>x.includes("status='ready'")));
  assert.ok(d.queries.every(x=>!/koolo_fortune_orders|koolo_fortune_reports|koolo_billing_orders|koolo_voice_wallets/.test(x)));
+});
+
+test("Gemini 2.5 404 falls back to Gemini 3.5 Flash within one D1 report attempt",async()=>{
+ const calls=[],d=db();
+ const fetcher=async(url,opts)=>{
+  calls.push(url);
+  if(url.includes("/gemini-2.5-flash:"))return new Response('{"error":"retired"}',{status:404});
+  assert.ok(url.includes("/gemini-3.5-flash:"),"fallback must use current text model");
+  return fakeProvider(url,opts);
+ };
+ const r=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(d,{KOOLO_FORTUNE_LAB_MODEL:"gemini-2.5-flash",FORTUNE_LAB_TEST_FETCH:fetcher})});
+ assert.equal(r.status,201);
+ const json=await r.json();
+ assert.equal(json.report.model,"gemini-3.5-flash");
+ assert.equal(calls.length,2);
+ assert.equal(d.queries.filter(sql=>sql.includes("INSERT INTO koolo_fortune_lab_reports")).length,1);
+ assert.ok(d.queries.some(sql=>sql.includes("SET status='ready',model=?")));
+});
+
+test("Gemini 3.5 Flash 404 falls back to Flash-Lite, but 403 is not retried",async()=>{
+ const f=normalizeLabFacts(facts),models=[];
+ const result=await generateLabChapters(f,{
+  key:"this-is-only-a-unit-test-key-123456",model:"gemini-3.5-flash",
+  fetcher:async(url,opts)=>{
+   models.push(url);
+   return url.includes("gemini-3.5-flash-lite:")?fakeProvider(url,opts):
+    new Response('{"error":"not found"}',{status:404});
+  }
+ });
+ assert.equal(result.model,"gemini-3.5-flash-lite");
+ assert.equal(models.length,2);
+ let authCalls=0;
+ await assert.rejects(generateLabChapters(f,{
+  key:"this-is-only-a-unit-test-key-123456",model:"gemini-2.5-flash",
+  fetcher:async()=>{authCalls++;return new Response("denied",{status:403})}
+ }),/UPSTREAM_403/);
+ assert.equal(authCalls,1,"permission errors must never trigger extra model requests");
 });
 
 test("report details are never accessible across accounts; missing items stay unknown",async()=>{
