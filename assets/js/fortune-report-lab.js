@@ -28,6 +28,13 @@ function getPending(chartId){
 var ELS=["木","火","土","金","水"],COLORS=["#648676","#cb846a","#bda36b","#88949f","#60859e"];
 function node(id){return document.getElementById(id)}
 function say(text){msg.textContent=text}
+function failedDescription(report){
+ var code=report&&report.progress&&report.progress.lastFailure||"GENERATION_FAILED";
+ var meaning=code==="QUALITY_CHECK_FAILED"||code==="GEMINI_INVALID_JSON"||code==="GEMINI_EMPTY"?
+  "本章內容未通過品質檢查":code.startsWith("GEMINI_UPSTREAM_")||code==="AI_TIMEOUT"?
+  "Gemini 服務暫時無法完成這一章":"本章製作暫時失敗";
+ return meaning+"（"+code+"）。已完成的章節仍保存在製作紀錄，按原紀錄可接續，不需要重做整份命書。";
+}
 function unexpectedApiResponse(response){
  var status=response.status,kind=(response.headers.get("content-type")||"").toLowerCase();
  if(response.type==="opaqueredirect"||(status>=300&&status<400))
@@ -180,8 +187,21 @@ async function continueReport(id){
  // D1 before the next starts. Reopening this report resumes from its checkpoint.
  var deadline=Date.now()+240000,completed=-1;
  while(Date.now()<deadline){
-  var result=await api("",{method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({action:"advance",reportId:id})});
+  var result;
+  try{
+   result=await api("",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({action:"advance",reportId:id})});
+  }catch(error){
+   // An edge-generated 502 can obscure a completed D1 checkpoint. Re-read
+   // the same owner-scoped report ID before exposing a generic proxy error.
+   try{
+    var latest=await api("?report="+encodeURIComponent(id));
+    if(!latest.report||!latest.report.progress)throw error;
+    result=latest;
+   }catch{throw error}
+  }
+  if(result.report&&result.report.status==="failed")
+   throw Error(failedDescription(result.report));
   if(result.report&&result.report.status==="ready"){
    rememberPending(null);
    window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(id));
@@ -211,7 +231,7 @@ async function waitForReport(id){
   }
   if(result.report&&result.report.status==="failed"){
    rememberPending(null);
-   throw Error("上一次製作沒有完成，請再次按「產生專屬命書」重新製作。");
+   throw Error(failedDescription(result.report));
   }
  }
  say("命書還在製作中，稍後按「產生專屬命書」可繼續查看進度，不會重複生成。");
