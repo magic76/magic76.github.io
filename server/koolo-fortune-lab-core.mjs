@@ -164,7 +164,7 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
     throw Error("QUALITY_CHECK_FAILED");
    if(part==="timing"&&!f.annual.some(x=>text.includes(String(x.year))))
     throw Error("QUALITY_CHECK_FAILED");
-   return {model:candidate,text,usage:{
+   return {model:candidate,text,finishReason:String(data.candidates?.[0]?.finishReason||"").slice(0,32),usage:{
     promptTokens:Math.max(0,Number(data.usageMetadata?.promptTokenCount)||0),
     outputTokens:Math.max(0,Number(data.usageMetadata?.candidatesTokenCount)||0)
    }};
