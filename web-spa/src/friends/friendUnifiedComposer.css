@@ -65,6 +65,7 @@
  box-sizing:border-box;width:100%;max-width:560px;margin:0 auto;color:#f7f7f7;
 }
 .friend-text-first-intro h1{margin:0;font-size:18px;line-height:1.4;color:#fff}
+.friend-text-first-stage .friend-unified-input-row textarea::placeholder{color:#ced4dd;opacity:1}
 .friend-text-first-intro a{display:inline-flex;align-items:center;justify-content:center;
  min-height:44px;min-width:44px;padding:0 8px;color:#d7e8ff;font-size:13px;
  text-decoration:underline;text-underline-offset:3px}
