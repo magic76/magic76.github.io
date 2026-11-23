@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {normalizeLabFacts,validateLabChapters,generateLabChapters,PARTS} from "../server/koolo-fortune-lab-core.mjs";
+import {normalizeLabFacts,validateLabChapters,generateLabChapters,labPrompt,PARTS} from "../server/koolo-fortune-lab-core.mjs";
 import {labGet,labPost,labPage} from "../server/koolo-fortune-report-lab.mjs";
 import {reportLabHtml} from "../server/koolo-fortune-lab-html.mjs";
 
@@ -22,7 +22,7 @@ const facts={
  counts:{resource:3,output:1,officer:2,directWealth:1,indirectWealth:2},
  luck:{ganZhi:"庚午"},
  annual:[0,1,2].map(n=>({year:THIS_YEAR+n,ganZhi:["丙午","丁未","戊申"][n],themes:["學習／支援"]})),
- relations:["子午 六沖"],questions:["我的職涯應該如何安排？","如何改善人際關係？"]
+ relations:["子午 六沖"]
 };
 function chapters(){
  const obj={};
@@ -76,6 +76,10 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  assert.equal((html.match(/class="sheet(?: dark)?"/g)||[]).length,10);
  assert.match(html,/列印／儲存為 PDF/);assert.match(html,/@page\{size:A4;margin:0\}/);
  assert.match(html,/四柱、五行統計、十神/);
+ assert.doesNotMatch(html,/<textarea|id="question1"|id="question2"|YOUR QUESTIONS/);
+ assert.match(html,/你的內在動機與壓力反應/);
+ assert.match(html,/適合你的成長方向與生活節奏/);
+ assert.doesNotMatch(html,/AI 個人化命理報告|AI PERSONAL GUIDANCE|AI 生成|老師給你的話/);
  assert.doesNotMatch(html,/KOOLO_FORTUNE_LAB_GEMINI_KEY|api[_-]?key\s*[:=]\s*["']/i);
  const app=readFileSync("web-spa/src/App.tsx","utf8");
  const price=readFileSync("web-spa/src/fortune/FortunePriceInterest.tsx","utf8");
@@ -95,7 +99,7 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  const pagesRoutes=JSON.parse(readFileSync("_routes.json","utf8"));
  assert.ok(pagesRoutes.include.includes("/fortune/report-lab"));
  const browserJs=readFileSync("assets/js/fortune-report-lab.js","utf8");
- assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js\?v=20261123-api2" defer><\/script>/);
+ assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js\?v=20261123-portrait1" defer><\/script>/);
  assert.match(readFileSync("_headers","utf8"),/\/assets\/js\/fortune-report-lab\.js\n  Cache-Control: no-store/);
  assert.doesNotMatch(html,/<script nonce=/);
  assert.match(r.headers.get("Content-Security-Policy"),/script-src 'self'/);
@@ -183,6 +187,8 @@ test("PWA API detects HTML fallback, HTML edge error and Access redirect without
    });
    assert.equal(options.redirect,"manual");
    assert.equal(options.headers.Accept,"application/json");
+   const incoming=JSON.parse(options.body);
+   assert.equal(Object.hasOwn(incoming.facts,"questions"),false,"browser must never transmit personal questions");
    return new Response(htmlStatus===302?null:htmlStatus===502?
     JSON.stringify({errors:[{message:"upstream internal key SECRET_DO_NOT_SHOW"}]}):
     "<!DOCTYPE html><html><body>Edge fallback</body></html>",{
@@ -196,12 +202,13 @@ test("PWA API detects HTML fallback, HTML edge error and Access redirect without
    {history:{replaceState(){}},scrollTo(){},print(){}},
    mockFetch,{randomUUID:()=>UUID},{error(){}}
   );
-  document.getElementById("question1").value="我的職涯應該如何安排？";
   await elements.get("generate").listeners.click();
   const message=elements.get("message").textContent;
   assert.match(message,expected);
   assert.doesNotMatch(message,/Unexpected token|<!DOCTYPE|SECRET_DO_NOT_SHOW|API_ERROR/i);
   assert.equal(elements.get("generate").disabled,false);
+  assert.equal(elements.has("question1"),false);
+  assert.equal(elements.has("question2"),false);
  }
 });
 
@@ -258,16 +265,30 @@ test("backend-admin rejection blocks the private page, report reads and generati
  assert.equal((await labPage({...context,verifyAdmin:async()=>{throw Error("auth backend unavailable")},request:pageRequest()})).status,404);
 });
 
-test("normalization rejects forged pillars, mismatched day master, unrelated date and excessive personal questions",()=>{
+test("normalization rejects forged chart facts but ignores legacy personal questions",()=>{
  assert.ok(normalizeLabFacts(facts));
  assert.equal(normalizeLabFacts({...facts,dayMaster:"戊"}),null);
  assert.equal(normalizeLabFacts({...facts,weighted:{...facts.weighted,火:-1}}),null);
  assert.equal(normalizeLabFacts({...facts,annual:facts.annual.slice(1)}),null);
- assert.equal(normalizeLabFacts({...facts,questions:["123","456"]}),null);
- assert.equal(normalizeLabFacts({...facts,questions:[...facts.questions,"third question"]}),null);
+ const legacyQuestions=["明天會不會發財？","我的職涯應該如何安排？"];
+ const legacy=normalizeLabFacts({...facts,questions:legacyQuestions});
+ assert.ok(legacy);
+ assert.equal(Object.hasOwn(legacy,"questions"),false);
+ assert.doesNotMatch(JSON.stringify(legacy),/發財|職涯應該/);
  const normalized=normalizeLabFacts({...facts,name:"PRIVATE PERSON",birthDate:"1990-01-01",email:"secret@example.com"});
  assert.equal(JSON.stringify(normalized).includes("PRIVATE PERSON"),false);
  assert.equal(JSON.stringify(normalized).includes("1990-01-01"),false);
+});
+
+test("portrait prompt relies on chart signals, not user Q&A, biography inventions or author identity",()=>{
+ const source=normalizeLabFacts({...facts,questions:["明天會不會發財？"]});
+ const prompt=labPrompt(source);
+ assert.match(prompt,/詳細人物側寫/);
+ assert.match(prompt,/內在驅動與壓力反應/);
+ assert.match(prompt,/長期成長方向/);
+ assert.match(prompt,/四柱/);
+ assert.doesNotMatch(prompt,/明天會不會發財|Koolo AI 命理老師|真人命理師|AI 系統/);
+ assert.doesNotMatch(JSON.stringify(source),/questions|明天會不會/);
 });
 
 test("generated narrative is validated, distinct and evidence grounded",()=>{
@@ -298,6 +319,8 @@ test("authorized generation saves a complete private snapshot and never mutates 
  assert.equal(report.usage.outputTokens,780);
  assert.equal(report.facts.fourPillars,"甲子 乙丑 丙寅 丁卯");
  assert.equal(Object.keys(report.chapters).length,7);
+ assert.equal(report.version,"bazi-private-lab-v2");
+ assert.equal(Object.hasOwn(report.facts,"questions"),false);
  assert.ok(d.queries.some(x=>x.includes("status='ready'")));
  assert.ok(d.queries.every(x=>!/koolo_fortune_orders|koolo_fortune_reports|koolo_billing_orders|koolo_voice_wallets/.test(x)));
 });
@@ -338,6 +361,21 @@ test("Gemini 3.5 Flash 404 falls back to Flash-Lite, but 403 is not retried",asy
   fetcher:async()=>{authCalls++;return new Response("denied",{status:403})}
  }),/UPSTREAM_403/);
  assert.equal(authCalls,1,"permission errors must never trigger extra model requests");
+});
+
+test("legacy Q&A books remain readable with their original version",async()=>{
+ const row={id:UUID,status:"ready",created_at:1795400000,model,
+  prompt_tokens:150,output_tokens:500,
+  content_json:JSON.stringify({version:"bazi-private-lab-v1",
+   facts:{...normalizeLabFacts(facts),questions:["我的職涯應該如何安排？"]},
+   chapters:chapters()})};
+ const response=await get({request:request("?report="+UUID),env:env(db({found:row}))});
+ assert.equal(response.status,200);
+ const {report}=await response.json();
+ assert.equal(report.version,"bazi-private-lab-v1");
+ assert.match(report.chapters.letter,/專屬命書/);
+ const browser=readFileSync("assets/js/fortune-report-lab.js","utf8");
+ assert.match(browser,/legacy=x\.version!=="bazi-private-lab-v2"/);
 });
 
 test("report details are never accessible across accounts; missing items stay unknown",async()=>{
