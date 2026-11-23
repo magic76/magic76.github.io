@@ -30,7 +30,9 @@ function node(id){return document.getElementById(id)}
 function say(text){msg.textContent=text}
 function failedDescription(report){
  var code=report&&report.progress&&report.progress.lastFailure||"GENERATION_FAILED";
- var meaning=code==="QUALITY_CHECK_FAILED"||code==="GEMINI_INVALID_JSON"||code==="GEMINI_EMPTY"?
+ var meaning=code==="GEMINI_TRUNCATED"?"Gemini 這次沒有完整寫完本章":
+  code==="GEMINI_INVALID_JSON"||code==="GEMINI_INVALID_FORMAT"?
+  "Gemini 回傳格式不完整":code==="QUALITY_CHECK_FAILED"||code==="GEMINI_EMPTY"?
   "本章內容未通過品質檢查":code.startsWith("GEMINI_UPSTREAM_")||code==="AI_TIMEOUT"?
   "Gemini 服務暫時無法完成這一章":"本章製作暫時失敗";
  return meaning+"（"+code+"）。已完成的章節仍保存在製作紀錄，按原紀錄可接續，不需要重做整份命書。";

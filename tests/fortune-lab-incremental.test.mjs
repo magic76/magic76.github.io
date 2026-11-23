@@ -92,15 +92,18 @@ function database(){
 function provider({calls=[],failAt=null,alwaysFailPart=null}={}){
  return async(_url,options)=>{
   const prompt=JSON.parse(options.body).contents[0].parts[0].text;
-  const part=PARTS.find(p=>prompt.includes('只有 "'+p+'" 一個字串欄位'));
+  const part=PARTS.find(p=>prompt.includes("本次僅撰寫："+p+"。"));
   assert.ok(part,"each AI request must ask for exactly one chapter");
-  assert.equal(JSON.parse(options.body).generationConfig.maxOutputTokens,3072);
+  const config=JSON.parse(options.body).generationConfig;
+  assert.equal(config.maxOutputTokens,6144);
+  assert.equal(config.responseMimeType,undefined,"single chapter needs no JSON wrapper");
+  assert.equal(config.thinkingConfig?.thinkingLevel,"LOW");
   calls.push(part);
   if(alwaysFailPart===part||(failAt&&calls.length===failAt))
    return new Response("upstream unavailable",{status:503});
   const txt=("依據丙火日主、木火互動與五行配置，這個人可能在面對選擇時同時重視效率和關係，適合透過觀察實際情況建立自己更舒服的節奏，而不是預設任何人生經歷。").repeat(4)+
    " 觀察年份 "+YEAR+" 年的節奏，重點是選擇與調整。本章專注於 "+part+" 的獨特面向。";
-  return new Response(JSON.stringify({candidates:[{content:{parts:[{text:JSON.stringify({[part]:txt})}]}}],
+  return new Response(JSON.stringify({candidates:[{content:{parts:[{text:txt}]},finishReason:"STOP"}],
    usageMetadata:{promptTokenCount:87,candidatesTokenCount:210}}),{
     headers:{"Content-Type":"application/json"},status:200});
  };
@@ -220,4 +223,60 @@ test("a transient upstream 503 retries once within the same chapter and checkpoi
  assert.equal(db.row.status,"generating");
  assert.ok(JSON.parse(db.row.content_json).chapters.preface);
  assert.equal(JSON.parse(db.row.content_json).lastFailure,null);
+});
+
+test("plain-text chapter avoids invalid JSON and the first passage is checkpointed",async()=>{
+ const normalized=normalizeLabFacts(facts);
+ assert.doesNotMatch(labPartPrompt(normalized,"preface"),/只回傳 JSON 物件/);
+ assert.match(labPartPrompt(normalized,"preface"),/只輸出本章完整的繁體中文正文/);
+ const raw=("依據日主丙火與原局五行木火較旺的線索，你在面對選擇時可能偏向把實際做法、人的感受和長期節奏一起考量。").repeat(4);
+ let upstreamCalls=0;
+ const reply=await generateLabPart(normalized,"preface",{
+  key:"only-test-key",model:"gemini-3.5-flash",
+  fetcher:async(_url,opt)=>{
+   upstreamCalls++;
+   assert.equal(JSON.parse(opt.body).generationConfig.responseMimeType,undefined);
+   return new Response(JSON.stringify({candidates:[{content:{parts:[{text:raw}]},finishReason:"STOP"}],
+    usageMetadata:{promptTokenCount:100,candidatesTokenCount:200}}),{status:200});
+  }
+ });
+ assert.equal(reply.text,raw);
+ assert.equal(reply.finishReason,"STOP");
+ assert.equal(upstreamCalls,1);
+});
+
+test("Gemini MAX_TOKENS does not save an incomplete first chapter; same report resumes",async()=>{
+ const db=database(),calls=[],normalized=normalizeLabFacts(facts);
+ const truncated=async(_url,opt)=>{
+  const prompt=JSON.parse(opt.body).contents[0].parts[0].text;
+  const part=PARTS.find(p=>prompt.includes("本次僅撰寫："+p+"。"));
+  calls.push(part);
+  return new Response(JSON.stringify({candidates:[{content:{parts:[{text:"不完整的正文".repeat(35)}]},
+   finishReason:"MAX_TOKENS"}],usageMetadata:{promptTokenCount:190,candidatesTokenCount:6144}}),{status:200});
+ };
+ const start=await post(db,truncated,{requestId:UUID,facts,pipeline:"chapters"});
+ const id=(await start.json()).report.id;
+ const failed=await post(db,truncated,{action:"advance",reportId:id});
+ assert.equal(failed.status,200);
+ assert.equal((await failed.json()).report.progress.lastFailure,"GEMINI_TRUNCATED");
+ assert.equal(db.row.status,"failed");
+ assert.deepEqual(JSON.parse(db.row.content_json).chapters,{});
+ assert.deepEqual(calls,["preface"],"do not retry truncated provider output automatically");
+ const recovered=await post(db,provider({calls}),{action:"advance",reportId:id});
+ assert.equal(recovered.status,202);
+ assert.equal((await recovered.json()).report.progress.completed,1);
+ assert.deepEqual(calls,["preface","preface"]);
+ assert.equal(JSON.parse(db.row.content_json).lastFailure,null);
+});
+
+test("malformed legacy JSON is refused, but valid legacy JSON remains readable",async()=>{
+ const normalized=normalizeLabFacts(facts);
+ const request=async text=>generateLabPart(normalized,"preface",{
+  key:"only-test-key",model:"gemini-3.5-flash",fetcher:async()=>new Response(
+   JSON.stringify({candidates:[{content:{parts:[{text}]},finishReason:"STOP"}]}),{status:200})
+ });
+ await assert.rejects(request('{"preface":"不完整'),/UPSTREAM_INVALID_FORMAT/);
+ const passage=("丙火日主與木火生助的配置，呈現重視效率與關係、願意持續調整節奏的傾向。").repeat(5);
+ const generated=await request(JSON.stringify({preface:passage}));
+ assert.equal(generated.text,passage);
 });

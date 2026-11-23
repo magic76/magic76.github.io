@@ -53,7 +53,7 @@ jobs:
       # This blocking fix needs case-by-case full-suite parity with the exact
       # PR base, before either worktree generates build-version timestamps.
       - name: Compare npm test failures against master (Cloudflare fix)
-        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets') || contains(github.event.pull_request.head.ref, 'fortune-lab-resumable'))
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets') || (contains(github.event.pull_request.head.ref, 'fortune-lab-resumable') || contains(github.event.pull_request.head.ref, 'fortune-lab-plain')))
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -122,7 +122,7 @@ jobs:
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'fortune-lab')
         run: node --test tests/fortune-private-report-lab.test.mjs tests/fortune-lab-incremental.test.mjs
       - name: Verify Cloudflare build for resumable Fortune Lab
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'fortune-lab-resumable')
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'fortune-lab-resumable') || contains(github.event.pull_request.head.ref, 'fortune-lab-plain'))
         run: |
           npm run build:cloudflare
           npm run test:cloudflare
