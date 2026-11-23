@@ -12,8 +12,7 @@ import {chooseVocabulary,vocabularyChoices,nativeVocabularyChoicesReady} from ".
 import {placementState,placementLabel,recordPlacement} from "./adaptivePlacement";
 import {incrementTodayVocabulary,recordVocab,todayVocabulary,vocabStats} from "./vocabularyProgress";
 import {trackUsageEvent} from "../analytics/usage";
-import {localEnglishVoices,selectLocalEnglishVoice,voiceId,readSpeechPreferences,saveSpeechPreferences,type VocabularySpeechSpeed} from "./vocabularySpeech";
-import {getDeviceCapabilities,speakText} from "../lib/deviceCapabilities";
+import {speakLearningText} from "./learningSpeech";
 import "./learningFlow.css";
 
 const DAILY_GOAL=20;
@@ -24,13 +23,7 @@ export function VocabularyPage(){
  const {t:tToday}=useTranslation("lesson");
  const stringsReady=useRouteNamespace("lesson");
  const native=useTeacherStore(s=>s.nativeLanguage);
- const[speechPreferences,setSpeechPreferences]=useState(readSpeechPreferences);
- const[voices,setVoices]=useState<SpeechSynthesisVoice[]>([]);
  const[speechError,setSpeechError]=useState("");
- const localVoices=useMemo(()=>localEnglishVoices(voices),[voices]);
- const ttsMode=getDeviceCapabilities().tts;
- const nativeTtsAvailable=ttsMode==="native-message"||ttsMode==="native-legacy";
- const voiceOptionsSupported=typeof window!=="undefined"&&"speechSynthesis" in window;
  const answerLockRef=useRef(false); // Synchronous guard against rapid double taps before React re-renders.
  const autoNextTimeoutRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const[refresh,setRefresh]=useState(0);
@@ -51,35 +44,13 @@ export function VocabularyPage(){
  const usingFallback=native!=="zh-TW"&&!nativeVocabularyChoicesReady(native);
  const stats=vocabStats(localizedVocabulary(native).map(x=>x[0]));
 
- // WebView exposes only the speech voices made available by Chromium.
- // getVoices can initially be empty; refresh when the OS engine finishes loading.
- useEffect(()=>{
-  if(!("speechSynthesis" in window))return;
-  const synth=window.speechSynthesis;
-  const refreshVoices=()=>setVoices(synth.getVoices());
-  refreshVoices();
-  synth.addEventListener("voiceschanged",refreshVoices);
-  return()=>synth.removeEventListener("voiceschanged",refreshVoices);
- },[]);
-
  // A pending auto-advance must never update a quiz after navigation away.
  useEffect(()=>()=>{if(autoNextTimeoutRef.current!==null)clearTimeout(autoNextTimeoutRef.current)},[]);
 
  function pronounce(text:string,slow=false){
-  if(ttsMode==="unavailable"){
-   setSpeechError(t("vocabulary.speechUnavailable"));return;
-  }
   setSpeechError("");
-  void speakText(text,{
-   speed:slow?"slow":speechPreferences.speed,
-   voice:selectLocalEnglishVoice(voices,speechPreferences.voice),
-   onError:()=>setSpeechError(t("vocabulary.speechFailed"))
-  }).catch(()=>setSpeechError(t("vocabulary.speechFailed")));
- }
-
- function changeSpeechPreferences(voice:string,speed:VocabularySpeechSpeed){
-  setSpeechPreferences({voice,speed});
-  saveSpeechPreferences(voice,speed);
+  void speakLearningText(text,"en",{speed:slow?"slow":"normal",mode:"word"})
+   .catch(()=>setSpeechError(t("vocabulary.speechFailed")));
  }
 
  useEffect(()=>{
@@ -170,26 +141,7 @@ export function VocabularyPage(){
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0])}>🔊 {t("vocabulary.listen")}</button>
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0],true)}>{t("vocabulary.listenSlow")}</button>
     </div>
-    <details className="crew-vocab-voice-settings">
-     <summary>{t("vocabulary.voiceSettings")}</summary>
-     <div className="crew-vocab-voice-controls">
-      <label>{t("vocabulary.voiceLabel")}
-       <select value={nativeTtsAvailable?"":localVoices.some(voice=>voiceId(voice)===speechPreferences.voice)?speechPreferences.voice:""}
-        disabled={nativeTtsAvailable||!voiceOptionsSupported} onChange={e=>changeSpeechPreferences(e.target.value,speechPreferences.speed)}>
-        <option value="">{nativeTtsAvailable?t("vocabulary.androidVoiceLabel"):t("vocabulary.autoVoice")}</option>
-        {!nativeTtsAvailable&&localVoices.map(voice=><option key={voiceId(voice)} value={voiceId(voice)}>{voice.name} ({voice.lang})</option>)}
-       </select>
-      </label>
-      <label>{t("vocabulary.speechSpeed")}
-       <select value={speechPreferences.speed} onChange={e=>changeSpeechPreferences(speechPreferences.voice,e.target.value==="slow"?"slow":"normal")}>
-        <option value="normal">{t("vocabulary.normalSpeed")}</option>
-        <option value="slow">{t("vocabulary.slowSpeed")}</option>
-       </select>
-      </label>
-      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0])}>{t("vocabulary.previewVoice")}</button>
-     </div>
-     <p className="crew-vocab-voice-hint">{nativeTtsAvailable?t("vocabulary.androidVoiceHint"):localVoices.length?t("vocabulary.localVoicesHint"):t("vocabulary.noLocalVoicesHint")}</p>
-    </details>
+    <p className="crew-vocab-voice-hint">{t("vocabulary.neuralVoiceHint",{defaultValue:"英文發音使用 Kokoro 本機 AI 語音；載入或裝置不支援時會自動改用系統語音。"})}</p>
     {speechError&&<p className="crew-vocab-voice-error" role="alert">{speechError}</p>}
     {needsContent&&<p className="crew-learning-translation-note" role="status">{usingFallback?t("vocabulary.fallbackNotice"):t("vocabulary.partialNotice")}
      {contentError&&<button className="btn secondary small" onClick={()=>{setContentError("");void ensureVocabularyContent(native,score).then(()=>setRefresh(v=>v+1)).catch(e=>setContentError(String(e)))}}>{t("vocabulary.retry")}</button>}
