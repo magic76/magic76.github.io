@@ -87,7 +87,7 @@ test("Teacher React keeps adaptive vocabulary review behavior",()=>{
  assert.ok(source.includes("function nextQuestion("));
  assert.ok(source.includes("setShowCompletion(true)"));
  assert.ok(!source.includes("window.setTimeout(()=>{setWord"));
- assert.ok(source.includes("speechSynthesis"));
+ assert.ok(source.includes("speakLearningText"));
 });
 
 test("all React Live products use shared manual-interrupt session hook",()=>{
