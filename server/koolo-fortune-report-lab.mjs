@@ -84,7 +84,7 @@ export async function labGet(ctx){
  }
  if(url.searchParams.has("list")){
   try{
-   const rows=await a.db.prepare("SELECT id,status,created_at,model,prompt_tokens,output_tokens FROM koolo_fortune_lab_reports WHERE user_id=? ORDER BY created_at DESC LIMIT 20")
+   const rows=await a.db.prepare("SELECT id,status,created_at,model,prompt_tokens,output_tokens,content_json FROM koolo_fortune_lab_reports WHERE user_id=? ORDER BY created_at DESC LIMIT 20")
     .bind(a.userId).all();
    return reply({items:(rows.results||[]).map(rowSummary)});
   }catch{return reply({error:"MIGRATION_REQUIRED"},503)}
