@@ -31,7 +31,16 @@ export function PhrasebookPage(){
   ...daily.map(item=>({...item,language:code}))
  ]),[items,daily,code]);
  const current=pool.length?pool[quizIndex%pool.length]:null;
- const choices=current?unique([current,...pool.filter(item=>item.text!==current.text)]).slice(0,3):[];
+ const choices=useMemo(()=>{
+  if(!current)return[];
+  const alternatives=pool.filter(item=>item.text!==current.text);
+  const picked=[current,...alternatives.slice(quizIndex%Math.max(1,alternatives.length),quizIndex%Math.max(1,alternatives.length)+2)];
+  while(picked.length<3&&alternatives[picked.length-1])picked.push(alternatives[picked.length-1]);
+  const clean=unique(picked).slice(0,3);
+  if(clean.length<2)return clean;
+  const shift=quizIndex%clean.length;
+  return [...clean.slice(shift),...clean.slice(0,shift)];
+ },[current,pool,quizIndex]);
  return <div className="crew-learning-focus crew-phrase-learning">
   <section className="hero crew-learning-page-heading"><span className="kicker">My Learning Deck</span><h1>片語學習</h1><p>把單字變成真的會說的句子：聽、慢速、跟讀，再用聽力小遊戲複習。</p></section>
 
