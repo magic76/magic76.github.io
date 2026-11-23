@@ -55,7 +55,8 @@ export function validateLabChapters(raw,facts){
   result[name]=v;
  }
  if(new Set(Object.values(result)).size!==PARTS.length)return null;
- if(!result.personality.includes(facts.dayMaster)&&!result.personality.includes(facts.element))return null;
+ // Plain-language chapters are not required to spell out a technical day master.
+ // Both saved historical reports and new reports remain readable.
  if(!facts.annual.some(x=>result.timing.includes(String(x.year))))return null;
  return result;
 }
@@ -120,13 +121,14 @@ export async function generateLabChapters(f,{key,model,fetcher=fetch,timeoutMs=6
 /** Write one independently checkpointed chapter per HTTP request. */
 export function labPartPrompt(f,part){
  if(!PARTS.includes(part))throw Error("INVALID_PART");
- const direction=labPrompt(f).split("\n").find(line=>line.startsWith(part+"："));
+ const directions={"preface":"開場先給讀者清楚的個性輪廓：你平時讓人感受到的特質、內心真正重視的事，以及兩者之間的反差。用一個具體生活場景說明，不以命理專有名詞開頭。","personality":"直接描述：你做決定的方式、你的三個鮮明長處、容易吃虧的習慣，以及壓力來時的典型反應。聚焦可觀察的性格，不問讀者任何問題。","career":"直接描述：你適合怎樣的工作節奏、與主管或同事合作的方式、發揮能力的條件、對金錢和資源的偏好與盲點。不推定實際職業或收入。","relationships":"直接描述：你如何建立信任、表達在意、面對衝突、維持界線，以及親密關係與朋友相處時的差異。不推定婚姻狀況或對方行為。","timing":"按命盤提供的三個年份逐一描述當年較適合把重心放在哪些方向、容易出現哪些選擇拉扯、如何調整節奏。年份必須明列；不保證必然事件。","letter":"直接揭示：你表面看起來的樣子與內在真正想得到的東西、最在乎的價值、受挫時怎樣保護自己、長期壓力的形成方式。這不是一封信，也不是安慰或勵志文。","plan":"直接描述：你長期值得維持的優勢、容易拖累自己的行為慣性、更適合你的選擇方式及生活步調。提供有針對性的洞察，不安排作業、反思題或四週練習。"};
  return [
-  "Koolo 繁體中文八字命書。直接以「你」寫專屬人物側寫，命理線索只代表傾向，不虛構已發生的職業、家庭、健康、收入或人生經歷。",
-  "本次僅撰寫："+part+"。只輸出本章完整的繁體中文正文，不要 JSON、Markdown、程式碼區塊、章節標題、前言或格式說明。",
-  direction,
-  "本章 210 至 340 個繁體中文字，至少結合兩項命盤線索及具體情境，有辨識度但不預言必然結果。不要空泛套話、問答、技術說明或特定健康、金錢、婚姻保證。",
-  "命盤摘要："+JSON.stringify(f)
+  "請為 Koolo 撰寫繁體中文個人命書。讀者已提供命盤，付費是為了清楚了解自己各方面，而不是來接受命理教學。直接以「你」描述這個人的特質、優勢、弱點和行為模式。寫出具體、有辨識度的個人側寫，而不是通用星座文。",
+  "本次僅撰寫："+part+"。只輸出本章完整的繁體中文正文，不要 JSON、Markdown、程式碼區塊、標題或前言。",
+  directions[part],
+  "採用日常白話，幾乎不用術語。命理依據藏在分析的因果裡，不要羅列四柱、十神、五行權重或命盤數字；如有必要提及一個專有名詞，必須同句用白話解釋。不可寫讀者提問、反問句、問號、邀請讀者反思、練習題、說教、雞湯、填空式建議；不要使用「你是否」「你有沒有」「不妨想想」「請試著」這類文句。",
+  "本章 210 至 340 個繁體中文字；用兩到三個有根據的觀察切入具體生活情境。僅依下面數據推論「可能的傾向」，不要虛構當事人的職業、健康、婚姻、財產或已經發生的人生經歷，也不要保證未來。",
+  "命盤參考數據（供寫作推論，不要原樣抄進正文）："+JSON.stringify(f)
  ].join("\n");
 }
 
@@ -211,10 +213,10 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
    }
    if(typeof chapter!=="string")throw Error("QUALITY_CHECK_FAILED");
    const text=chapter.trim().replace(/\r\n/g,"\n");
-   if(text.length<150||text.length>700||/<[^>]+>|`{3}|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(text))
+   if(text.length<150||text.length>700||/<[^>]+>|`{3}|[?？]|(?:你是否|你有沒有|不妨想想|請試著|想一想)|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(text))
     throw Error("QUALITY_CHECK_FAILED");
-   if(part==="personality"&&!text.includes(f.dayMaster)&&!text.includes(f.element))
-    throw Error("QUALITY_CHECK_FAILED");
+   // The model may express the chart's influence in everyday terms without
+   // naming the day master or any traditional technical term.
    if(part==="timing"&&!f.annual.some(x=>text.includes(String(x.year))))
     throw Error("QUALITY_CHECK_FAILED");
    return {model:candidate,text,finishReason,usage:{
