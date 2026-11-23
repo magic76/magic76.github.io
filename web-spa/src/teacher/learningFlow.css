@@ -131,3 +131,25 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 .crew-course-text-feedback{display:grid;gap:10px;margin:12px 4px;padding:14px;border:1px solid #9fddba;border-radius:14px;background:#eefaf2;color:#1b603d;font-size:14px;line-height:1.5}
 .crew-course-text-feedback .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;font-size:14px;text-align:center;white-space:normal}
 @media(prefers-reduced-motion:reduce){.crew-course-text-feedback *{transition:none!important;animation:none!important}}
+
+/* Phrase learning: daily phrases, shadowing and listening practice. */
+.crew-phrase-learning{width:min(100%,900px)}
+.crew-phrase-daily,.crew-listening-game{display:grid;gap:14px}
+.crew-phrase-daily .section-head,.crew-listening-game .section-head{margin:0}
+.crew-phrase-daily-list{display:grid;gap:9px}
+.crew-phrase-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px;border:1px solid var(--line,#e7e5ee);border-radius:14px;background:var(--surface-alt,#f8f7fa)}
+.crew-phrase-number{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:#eae5fc;color:#604cad;font-size:12px;font-weight:800}
+.crew-phrase-row>div{min-width:0}.crew-phrase-row strong{display:block;font-size:14px;line-height:1.45;overflow-wrap:anywhere}.crew-phrase-row small{display:block;margin-top:3px;color:var(--muted,#667085);font-size:12px;line-height:1.5}
+.crew-phrase-inline-actions,.crew-phrase-card-actions{display:flex;flex-wrap:wrap;gap:7px}
+.crew-listening-game>p{margin:0;color:var(--muted,#667085);font-size:13px}
+.crew-listening-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.crew-listening-choices .quiz-choice{min-height:86px;border:1px solid var(--line,#e7e5ee);border-radius:14px;background:var(--surface,#fff);padding:10px;color:var(--text,#1d2532);font:inherit;font-size:13px;font-weight:700;line-height:1.45;cursor:pointer}
+.crew-listening-choices .quiz-choice.correct{background:#edfaf2;border-color:#4aaf79;color:#186440}.crew-listening-choices .quiz-choice.wrong{background:#fff1f0;border-color:#d96d67;color:#ab2925}
+.crew-shadowing-cue{position:sticky;bottom:72px;z-index:4;margin:0;padding:12px 14px;border:1px solid #9fddba;border-radius:14px;background:#eefaf2;color:#1b603d;font-size:13px;font-weight:750;box-shadow:0 10px 30px rgba(28,80,54,.12)}
+.learning-deck-card .crew-phrase-card-actions{margin:10px 0}
+@media(max-width:620px){.crew-phrase-row{grid-template-columns:30px minmax(0,1fr)}.crew-phrase-inline-actions{grid-column:2}.crew-listening-choices{grid-template-columns:1fr}}
+
+.crew-vocab-example-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+.crew-vocab-example-actions .btn{min-height:44px}
+
+.learning-deck-card .text-button{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}

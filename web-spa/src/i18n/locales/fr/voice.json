@@ -225,7 +225,16 @@
       "checkQuestion": "Est-ce que cette phrase est naturelle ?",
       "better": "Plus naturel :",
       "summaryTitle": "3 expressions du jour",
-      "dismiss": "Masquer le récapitulatif"
+      "dismiss": "Masquer le récapitulatif",
+      "listen": "Écouter",
+      "saved": "✓ Enregistré",
+      "savePhrase": "☆ Enregistrer comme expression",
+      "savedShort": "✓",
+      "save": "＋ Enregistrer",
+      "originalPrefix": "Original : ",
+      "savedNote": "Enregistré depuis un chat avec Zoe",
+      "modelDownloading": "Téléchargement du modèle vocal (environ 88 Mo, une seule fois). Cette fois, la voix système sera utilisée d’abord.",
+      "modelReady": "Le modèle vocal est prêt. La prochaine lecture utilisera la voix haute qualité."
     },
     "typing": "{{name}} écrit",
     "nextHeading": "Tu peux dire",
@@ -287,8 +296,7 @@
     "waitingForYou": "Vos paroles apparaîtront ici",
     "callControls": "Commandes d'appel",
     "hangUp": "Raccrocher"
-  }
- ,
+  },
   "suggestReplies": {
     "label": "Suggestions de réponse",
     "on": "Activé",

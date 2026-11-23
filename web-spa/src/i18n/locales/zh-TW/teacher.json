@@ -66,7 +66,9 @@
     "library": "閱讀素材庫",
     "libraryDesc": "挑一篇短文閱讀，再接著做朗讀練習",
     "board": "AI 即時教學板",
-    "boardDesc": "語音講解同步變成例句、時間軸與練習題"
+    "boardDesc": "語音講解同步變成例句、時間軸與練習題",
+    "phrases": "片語學習",
+    "phrasesDesc": "聽、慢速、跟讀、收藏，再用聽力小遊戲複習。"
   },
   "tutor": {
     "title": "和老師練習",
@@ -245,9 +247,22 @@
       "tech": "科技",
       "social": "社交"
     },
-    "kicker": "單字練習"
+    "kicker": "單字練習",
+    "neuralVoiceHint": "英文發音使用 Kokoro 本機 AI 語音；模型尚未準備好或裝置不支援時會自動改用系統語音。",
+    "modelDownloading": "正在下載語音模型（約 88 MB，只需一次）。這次先用系統語音播放。",
+    "modelReady": "語音模型已準備好，下次播放會使用高品質語音。",
+    "listenExample": "聽例句",
+    "saved": "✓ 已收藏",
+    "saveExample": "☆ 收藏例句",
+    "fromWord": "來自單字：{{word}}"
   },
-  "languageHint": {"immersion":"完全沉浸：練習與解釋都只使用{{target}}。","base":"可以直接用{{native}}問意思、文法或文化差異；老師用{{native}}解釋，再用{{target}}示範。","beginner":"初階會提供較多母語引導。","advanced":"較高程度以{{target}}練習為主。","adaptive":"依口說表現自動調整，不必設定語言比例。"},
+  "languageHint": {
+    "immersion": "完全沉浸：練習與解釋都只使用{{target}}。",
+    "base": "可以直接用{{native}}問意思、文法或文化差異；老師用{{native}}解釋，再用{{target}}示範。",
+    "beginner": "初階會提供較多母語引導。",
+    "advanced": "較高程度以{{target}}練習為主。",
+    "adaptive": "依口說表現自動調整，不必設定語言比例。"
+  },
   "course": {
     "materialNotice": "情境課程目前只有英文教材；若要練習{{language}}，請改用老師對話，老師可用{{native}}協助解釋。",
     "nonEnglishNext": "生活情境練習（現有教材）",
@@ -411,5 +426,53 @@
     "practiceAria": "練習發音：{{phrase}}",
     "start": "開始情境對話",
     "footnote": "依照你在情境對話中實際說出的內容評估任務，不會只看關鍵字。"
+  },
+  "phrasebook": {
+    "kicker": "我的學習卡",
+    "title": "片語學習",
+    "intro": "把單字變成真的會說的句子：聽、慢速、跟讀，再用聽力小遊戲複習。",
+    "todayKicker": "今天",
+    "todayTitle": "今天 5 句",
+    "listen": "聽",
+    "save": "收藏",
+    "listeningKicker": "聽力",
+    "listeningTitle": "聽力小遊戲",
+    "questionNumber": "第 {{count}} 題",
+    "listeningPrompt": "先聽，不看答案。你剛剛聽到哪一句？",
+    "playQuestion": "播放題目",
+    "correct": "答對了 ✓",
+    "tryAgain": "再聽一次就會更熟",
+    "next": "下一題",
+    "mySaved": "我的收藏",
+    "savedCount": "{{count}} 張 · {{due}} 張待複習",
+    "preparing": "正在準備發音…",
+    "failed": "發音失敗，請再試一次。",
+    "cached": "已從快取播放",
+    "played": "已播放",
+    "shadowListen": "先聽一次…",
+    "shadowNow": "換你說：跟著剛才的節奏完整說一次。",
+    "delete": "刪除",
+    "slow": "慢速",
+    "shadow": "跟著說",
+    "reviewed": "我複習過了",
+    "nextReview": "下次：{{date}}",
+    "emptyTitle": "你的學習卡還是空的",
+    "emptyDesc": "先把上面的「今天 5 句」加入收藏，或從 Zoe 對話裡收藏你想真的學會的句子。",
+    "dailyNote": "今日 5 句",
+    "modelDownloading": "正在下載語音模型（約 88 MB，只需一次）。這次先用系統語音播放。",
+    "modelReady": "語音模型已準備好，下次播放會使用高品質語音。",
+    "tags": {
+      "correction": "道地糾錯",
+      "hint": "回答小抄",
+      "vocab": "重點單字",
+      "phrase": "實用金句",
+      "saved": "收藏"
+    },
+    "stages": {
+      "new": "新加入",
+      "learning": "學習中",
+      "review": "複習中",
+      "familiar": "已熟悉"
+    }
   }
 }

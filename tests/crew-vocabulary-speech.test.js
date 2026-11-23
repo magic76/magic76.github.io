@@ -48,25 +48,22 @@ test("voice preferences persist locally and unsupported values degrade safely",(
  assert.equal(helper.readSpeechPreferences().speed,"normal");
 });
 
-test("vocabulary page delegates speech to the shared device adapter without Gemini",()=>{
+test("vocabulary page uses Kokoro-first shared learning speech without Gemini",()=>{
  const page=fs.readFileSync("web-spa/src/teacher/VocabularyPage.tsx","utf8");
- const adapter=fs.readFileSync("web-spa/src/lib/deviceCapabilities.ts","utf8");
- assert.match(page,/synth\.getVoices\(\)/);
- assert.match(page,/addEventListener\("voiceschanged",refreshVoices\)/);
- assert.match(page,/removeEventListener\("voiceschanged",refreshVoices\)/);
- assert.match(page,/selectLocalEnglishVoice\(voices,speechPreferences\.voice\)/);
- assert.match(page,/void speakText\(text,/);
- assert.match(page,/speed:slow\?"slow":speechPreferences\.speed/);
+ const speech=fs.readFileSync("web-spa/src/teacher/learningSpeech.ts","utf8");
+ assert.match(page,/speakLearningText\(text,"en",\{speed:slow\?"slow":"normal",mode:"word",onModelStatus:/);
  assert.match(page,/onClick=\{\(\)=>pronounce\(word\[0\],true\)\}/);
- assert.match(page,/onChange=\{e=>changeSpeechPreferences\(/);
- assert.match(adapter,/new SpeechSynthesisUtterance\(text\)/);
- assert.match(adapter,/utterance\.pitch=1/);
- assert.match(adapter,/utterance\.rate=options\.speed/);
+ assert.match(speech,/kokoro-js@1\.2\.1/);
+ assert.match(speech,/Kokoro-82M-v1\.0-ONNX/);
+ assert.match(speech,/if\(code==="en"\)return"kokoro"/);
+ assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de","es","fr","it","pt"\]\)/);
+ assert.match(speech,/uccharan@1\.0\.0/);
+ assert.match(speech,/await speakText\(text,\{speed\}\)/);
  assert.doesNotMatch(page,/geminiKey\(|CrewAI\.call|useLiveSession|fetch\(/);
+ assert.doesNotMatch(page,/synth\.getVoices\(\)|selectLocalEnglishVoice|changeSpeechPreferences/);
  assert.match(page,/recordVocab\(word\[0\],correct\)/);
  for(const locale of ["zh-TW","en"]){
   const dict=JSON.parse(fs.readFileSync("web-spa/src/i18n/locales/"+locale+"/teacher.json","utf8"));
-  for(const key of ["voiceSettings","voiceLabel","autoVoice","normalSpeed","slowSpeed","localVoicesHint","noLocalVoicesHint","speechFailed"])
-   assert.ok(dict.vocabulary[key],locale+" "+key);
+  assert.ok(dict.vocabulary.speechFailed,locale+" speechFailed");
  }
 });

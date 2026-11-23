@@ -66,7 +66,9 @@
     "library": "読書ライブラリ",
     "libraryDesc": "短い文章を選び、声に出して読む練習",
     "board": "AI ライブ学習ボード",
-    "boardDesc": "話すだけで例文・タイムライン・問題が増える"
+    "boardDesc": "話すだけで例文・タイムライン・問題が増える",
+    "phrases": "フレーズ練習",
+    "phrasesDesc": "聞く・ゆっくり再生・シャドーイング・保存・リスニングゲームで復習できます。"
   },
   "tutor": {
     "title": "先生と練習",
@@ -245,9 +247,22 @@
       "tech": "テクノロジー",
       "social": "人付き合い"
     },
-    "kicker": "単語練習"
+    "kicker": "単語練習",
+    "neuralVoiceHint": "英語の発音には端末上の Kokoro AI 音声を使います。モデルの準備前や未対応の場合は、自動でシステム音声に切り替わります。",
+    "modelDownloading": "音声モデルをダウンロード中（約88 MB、初回のみ）。今回は先にシステム音声で再生します。",
+    "modelReady": "音声モデルの準備ができました。次回から高品質音声を使います。",
+    "listenExample": "例文を聞く",
+    "saved": "✓ 保存済み",
+    "saveExample": "☆ 例文を保存",
+    "fromWord": "単語から：{{word}}"
   },
-  "languageHint": {"immersion":"完全イマージョン：練習も説明も{{target}}だけで行います。","base":"意味や文法は{{native}}で質問できます。先生は{{native}}で説明し、{{target}}で練習します。","beginner":"初心者には母語でのサポートを増やします。","advanced":"話す力に合わせて{{target}}の練習を増やします。","adaptive":"話す力に合わせて自動調整します。"},
+  "languageHint": {
+    "immersion": "完全イマージョン：練習も説明も{{target}}だけで行います。",
+    "base": "意味や文法は{{native}}で質問できます。先生は{{native}}で説明し、{{target}}で練習します。",
+    "beginner": "初心者には母語でのサポートを増やします。",
+    "advanced": "話す力に合わせて{{target}}の練習を増やします。",
+    "adaptive": "話す力に合わせて自動調整します。"
+  },
   "course": {
     "materialNotice": "シーン別コースの教材は現在英語のみです。{{language}}を練習するには先生とのチャットを利用してください。説明は{{native}}で受けられます。",
     "nonEnglishNext": "場面別の会話練習（既存教材）",
@@ -411,5 +426,53 @@
     "practiceAria": "「{{phrase}}」の発音を練習",
     "start": "シチュエーション会話を始める",
     "footnote": "実際に話した内容から達成度を評価します。キーワードだけでは判定しません。"
+  },
+  "phrasebook": {
+    "kicker": "マイ学習デッキ",
+    "title": "フレーズ練習",
+    "intro": "単語を実際に話せる文へ。聞く、ゆっくり聞く、シャドーイング、そしてリスニングゲームで復習します。",
+    "todayKicker": "今日",
+    "todayTitle": "今日の5フレーズ",
+    "listen": "聞く",
+    "save": "保存",
+    "listeningKicker": "リスニング",
+    "listeningTitle": "リスニングゲーム",
+    "questionNumber": "第{{count}}問",
+    "listeningPrompt": "答えを見ずにまず聞いてください。どの文が聞こえましたか？",
+    "playQuestion": "問題を再生",
+    "correct": "正解 ✓",
+    "tryAgain": "もう一度聞くと、もっと定着します",
+    "next": "次へ",
+    "mySaved": "保存したフレーズ",
+    "savedCount": "{{count}}件 · 復習{{due}}件",
+    "preparing": "発音を準備中…",
+    "failed": "再生できませんでした。もう一度お試しください。",
+    "cached": "キャッシュから再生しました",
+    "played": "再生しました",
+    "shadowListen": "まず一度聞きましょう…",
+    "shadowNow": "あなたの番です。同じリズムで文全体を言ってみましょう。",
+    "delete": "削除",
+    "slow": "ゆっくり",
+    "shadow": "まねして言う",
+    "reviewed": "復習した",
+    "nextReview": "次回：{{date}}",
+    "emptyTitle": "学習デッキはまだ空です",
+    "emptyDesc": "上の「今日の5フレーズ」から保存するか、Zoeとのチャットで本当に覚えたい文を保存しましょう。",
+    "dailyNote": "今日の5フレーズ",
+    "modelDownloading": "音声モデルをダウンロード中（約88 MB、初回のみ）。今回は先にシステム音声で再生します。",
+    "modelReady": "音声モデルの準備ができました。次回から高品質音声を使います。",
+    "tags": {
+      "correction": "自然な言い換え",
+      "hint": "回答ヒント",
+      "vocab": "重要単語",
+      "phrase": "便利フレーズ",
+      "saved": "保存"
+    },
+    "stages": {
+      "new": "新規",
+      "learning": "学習中",
+      "review": "復習中",
+      "familiar": "習得済み"
+    }
   }
 }

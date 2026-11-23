@@ -225,7 +225,16 @@
       "checkQuestion": "我這句說得自然嗎？",
       "better": "更自然：",
       "summaryTitle": "今天學到的 3 個說法",
-      "dismiss": "收起學習小結"
+      "dismiss": "收起學習小結",
+      "listen": "聽",
+      "saved": "✓ 已收藏",
+      "savePhrase": "☆ 收藏成片語",
+      "savedShort": "✓",
+      "save": "＋ 收藏",
+      "originalPrefix": "原句：",
+      "savedNote": "Zoe 對話收藏",
+      "modelDownloading": "正在下載語音模型（約 88 MB，只需一次）。這次先用系統語音播放。",
+      "modelReady": "語音模型已準備好，下次播放會使用高品質語音。"
     },
     "typing": "{{name}} 正在輸入",
     "nextHeading": "接下來可以說",

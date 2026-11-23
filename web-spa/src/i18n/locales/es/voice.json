@@ -225,7 +225,16 @@
       "checkQuestion": "¿Suena natural esta frase?",
       "better": "Más natural:",
       "summaryTitle": "3 expresiones de hoy",
-      "dismiss": "Cerrar resumen"
+      "dismiss": "Cerrar resumen",
+      "listen": "Escuchar",
+      "saved": "✓ Guardado",
+      "savePhrase": "☆ Guardar como frase",
+      "savedShort": "✓",
+      "save": "＋ Guardar",
+      "originalPrefix": "Original: ",
+      "savedNote": "Guardado desde un chat con Zoe",
+      "modelDownloading": "Descargando el modelo de voz (unos 88 MB, solo una vez). Esta vez se reproducirá primero la voz del sistema.",
+      "modelReady": "El modelo de voz está listo. La próxima reproducción usará la voz de alta calidad."
     },
     "typing": "{{name}} está escribiendo",
     "nextHeading": "Puedes decir",
@@ -287,8 +296,7 @@
     "waitingForYou": "Lo que digas aparecerá aquí",
     "callControls": "Controles de llamada",
     "hangUp": "Colgar"
-  }
- ,
+  },
   "suggestReplies": {
     "label": "Sugerencias de respuesta",
     "on": "Activado",

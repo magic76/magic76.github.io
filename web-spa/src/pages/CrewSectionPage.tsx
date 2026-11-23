@@ -203,6 +203,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
 
  const learnTools=[
   {to:"/teacher/vocabulary",icon:"cards" as IconName,title:tTeacher("learn.vocab"),desc:tTeacher("learn.vocabDesc")},
+  {to:"/teacher/phrasebook",icon:"cards" as IconName,title:tTeacher("learn.phrases"),desc:tTeacher("learn.phrasesDesc")},
   {to:"/teacher/pronunciation",icon:"mic" as IconName,title:tTeacher("learn.pronunciation"),desc:tTeacher("learn.pronunciationDesc")},
   {to:"/teacher/textbook",icon:"book" as IconName,title:tTeacher("learn.textbook"),desc:tTeacher("learn.textbookDesc")},
   {to:"/teacher/board",icon:"teacher" as IconName,title:tTeacher("board.entryTitle"),desc:tTeacher("board.entryDesc")}

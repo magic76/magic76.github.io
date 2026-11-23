@@ -225,7 +225,16 @@
       "checkQuestion": "この言い方は自然ですか？",
       "better": "もっと自然：",
       "summaryTitle": "今日覚えた3つの表現",
-      "dismiss": "学習メモを閉じる"
+      "dismiss": "学習メモを閉じる",
+      "listen": "聞く",
+      "saved": "✓ 保存済み",
+      "savePhrase": "☆ フレーズとして保存",
+      "savedShort": "✓",
+      "save": "＋ 保存",
+      "originalPrefix": "元の文：",
+      "savedNote": "Zoeとのチャットから保存",
+      "modelDownloading": "音声モデルをダウンロード中（約88 MB、初回のみ）。今回は先にシステム音声で再生します。",
+      "modelReady": "音声モデルの準備ができました。次回から高品質音声を使います。"
     },
     "typing": "{{name}} が入力中",
     "nextHeading": "次はこう言ってみよう",
@@ -287,17 +296,7 @@
     "waitingForYou": "話した内容がここに表示されます",
     "callControls": "通話操作",
     "hangUp": "通話終了"
-  }
- ,
-  "suggestReplies": {
-    "label": "回答のヒント",
-    "on": "オン",
-    "off": "オフ",
-    "nextCall": "次回の通話から有効",
-    "instructions": "そのまま声に出しても、自分の言葉で答えても大丈夫です",
-    "unavailable": "このモデルは回答のヒントに対応していません"
-  }
- ,
+  },
   "suggestReplies": {
     "label": "回答のヒント",
     "on": "オン",

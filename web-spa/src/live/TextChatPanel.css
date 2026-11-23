@@ -151,3 +151,13 @@
 .crew-text-chat-history .crew-text-ai-row .crew-friend-avatar.crew-text-ai-avatar{width:38px;height:38px;min-width:38px;min-height:38px;max-width:38px;max-height:38px;border-radius:50%;object-fit:cover;flex:none}
 .crew-text-chat-history .crew-text-typing-row .crew-text-typing-bubble{flex:0 1 auto;min-width:0;max-width:calc(96% - 46px)}
 @media(max-width:420px){.crew-text-chat-history .crew-text-ai-row .crew-text-chat-message{max-width:calc(96% - 46px)}}
+
+/* Friend reply audio + phrase capture. */
+.crew-text-learning-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.crew-text-learning-actions button,.crew-text-learning-summary li>button{min-height:44px;border:1px solid #c7c0df;border-radius:10px;background:var(--surface,#fff);color:#4d427c;font:inherit;font-size:12px;font-weight:750;padding:7px 9px;cursor:pointer}
+.crew-text-learning-actions button:disabled,.crew-text-learning-summary li>button:disabled{opacity:.58;cursor:default}
+.crew-text-learning-summary li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:8px}
+.crew-text-learning-summary li>span{min-width:0}
+@media(max-width:420px){.crew-text-learning-summary li{grid-template-columns:1fr}.crew-text-learning-summary li>button{justify-self:start}}
+
+.crew-text-learning-model-status{flex-basis:100%;font-size:12px;line-height:1.5;color:var(--muted,#667085)}

@@ -66,7 +66,9 @@
     "library": "Perpustakaan bacaan",
     "libraryDesc": "Pilih artikel singkat lalu berlatih membaca keras",
     "board": "Papan belajar AI langsung",
-    "boardDesc": "See explanations, examples and quizzes evolve while talking"
+    "boardDesc": "See explanations, examples and quizzes evolve while talking",
+    "phrases": "Latihan frasa",
+    "phrasesDesc": "Dengarkan, perlambat, tirukan, simpan, lalu ulangi lewat permainan mendengar."
   },
   "tutor": {
     "title": "Berlatih dengan guru",
@@ -245,9 +247,22 @@
       "tech": "Teknologi",
       "social": "Sosial"
     },
-    "kicker": "Kosakata"
+    "kicker": "Kosakata",
+    "neuralVoiceHint": "Pelafalan bahasa Inggris memakai suara AI Kokoro di perangkat. Jika model belum siap atau tidak didukung, suara sistem akan digunakan otomatis.",
+    "modelDownloading": "Mengunduh model suara (sekitar 88 MB, hanya sekali). Kali ini suara sistem akan diputar lebih dulu.",
+    "modelReady": "Model suara sudah siap. Pemutaran berikutnya akan memakai suara berkualitas tinggi.",
+    "listenExample": "Dengarkan contoh",
+    "saved": "✓ Tersimpan",
+    "saveExample": "☆ Simpan contoh",
+    "fromWord": "Dari kata: {{word}}"
   },
-  "languageHint": {"immersion":"Imersi penuh: latihan dan penjelasan hanya dalam {{target}}.","base":"Tanyakan arti atau tata bahasa dalam {{native}}. Guru menjelaskan dalam {{native}} dan memberi contoh dalam {{target}}. ","beginner":"Pemula mendapat lebih banyak bantuan dalam bahasa ibu.","advanced":"Tingkat lanjut lebih banyak berlatih dalam {{target}}.","adaptive":"Bantuan menyesuaikan kemampuan berbicaramu."},
+  "languageHint": {
+    "immersion": "Imersi penuh: latihan dan penjelasan hanya dalam {{target}}.",
+    "base": "Tanyakan arti atau tata bahasa dalam {{native}}. Guru menjelaskan dalam {{native}} dan memberi contoh dalam {{target}}. ",
+    "beginner": "Pemula mendapat lebih banyak bantuan dalam bahasa ibu.",
+    "advanced": "Tingkat lanjut lebih banyak berlatih dalam {{target}}.",
+    "adaptive": "Bantuan menyesuaikan kemampuan berbicaramu."
+  },
   "course": {
     "materialNotice": "Materi kursus situasi saat ini hanya tersedia dalam bahasa Inggris. Untuk berlatih {{language}}, gunakan chat guru; penjelasan bisa dalam {{native}}.",
     "nonEnglishNext": "Latihan situasi sehari-hari (materi yang ada)",
@@ -411,5 +426,53 @@
     "practiceAria": "Practice pronunciation: {{phrase}}",
     "start": "Start scenario conversation",
     "footnote": "Progress is assessed from what you actually say, not just matching keywords."
+  },
+  "phrasebook": {
+    "kicker": "Deck belajarku",
+    "title": "Latihan frasa",
+    "intro": "Ubah kosakata menjadi kalimat yang benar-benar bisa kamu ucapkan: dengarkan, perlambat, tirukan, lalu ulangi lewat permainan mendengar.",
+    "todayKicker": "Hari ini",
+    "todayTitle": "5 frasa hari ini",
+    "listen": "Dengarkan",
+    "save": "Simpan",
+    "listeningKicker": "Mendengar",
+    "listeningTitle": "Permainan mendengar",
+    "questionNumber": "Soal {{count}}",
+    "listeningPrompt": "Dengarkan dulu tanpa melihat jawaban. Kalimat mana yang kamu dengar?",
+    "playQuestion": "Putar soal",
+    "correct": "Benar ✓",
+    "tryAgain": "Dengarkan sekali lagi agar lebih melekat",
+    "next": "Berikutnya",
+    "mySaved": "Frasa tersimpan",
+    "savedCount": "{{count}} tersimpan · {{due}} perlu diulang",
+    "preparing": "Menyiapkan pelafalan…",
+    "failed": "Pemutaran gagal. Coba lagi.",
+    "cached": "Diputar dari cache",
+    "played": "Diputar",
+    "shadowListen": "Dengarkan sekali dulu…",
+    "shadowNow": "Sekarang giliranmu: ulangi seluruh kalimat dengan ritme yang sama.",
+    "delete": "Hapus",
+    "slow": "Lambat",
+    "shadow": "Tirukan",
+    "reviewed": "Sudah diulang",
+    "nextReview": "Berikutnya: {{date}}",
+    "emptyTitle": "Deck belajarmu masih kosong",
+    "emptyDesc": "Simpan salah satu dari lima frasa hari ini atau kalimat dari chat Zoe yang benar-benar ingin kamu pelajari.",
+    "dailyNote": "5 frasa hari ini",
+    "modelDownloading": "Mengunduh model suara (sekitar 88 MB, hanya sekali). Kali ini suara sistem akan diputar lebih dulu.",
+    "modelReady": "Model suara sudah siap. Pemutaran berikutnya akan memakai suara berkualitas tinggi.",
+    "tags": {
+      "correction": "Koreksi alami",
+      "hint": "Petunjuk jawaban",
+      "vocab": "Kosakata penting",
+      "phrase": "Frasa berguna",
+      "saved": "Tersimpan"
+    },
+    "stages": {
+      "new": "Baru",
+      "learning": "Belajar",
+      "review": "Mengulang",
+      "familiar": "Sudah akrab"
+    }
   }
 }

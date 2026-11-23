@@ -225,7 +225,16 @@
       "checkQuestion": "Klingt dieser Satz natürlich?",
       "better": "Natürlicher:",
       "summaryTitle": "3 Wendungen von heute",
-      "dismiss": "Lernrückblick schließen"
+      "dismiss": "Lernrückblick schließen",
+      "listen": "Anhören",
+      "saved": "✓ Gespeichert",
+      "savePhrase": "☆ Als Satz speichern",
+      "savedShort": "✓",
+      "save": "＋ Speichern",
+      "originalPrefix": "Original: ",
+      "savedNote": "Aus Zoe-Chat gespeichert",
+      "modelDownloading": "Sprachmodell wird heruntergeladen (ca. 88 MB, nur einmal). Diesmal wird zuerst die Systemstimme verwendet.",
+      "modelReady": "Das Sprachmodell ist bereit. Beim nächsten Mal wird die hochwertige Stimme verwendet."
     },
     "typing": "{{name}} schreibt",
     "nextHeading": "Du könntest sagen",
@@ -287,8 +296,7 @@
     "waitingForYou": "Deine Worte erscheinen hier",
     "callControls": "Anrufsteuerung",
     "hangUp": "Auflegen"
-  }
- ,
+  },
   "suggestReplies": {
     "label": "Antwortvorschläge",
     "on": "Ein",

@@ -225,7 +225,16 @@
       "checkQuestion": "Câu này có tự nhiên không?",
       "better": "Tự nhiên hơn:",
       "summaryTitle": "3 cách diễn đạt hôm nay",
-      "dismiss": "Đóng phần tổng kết"
+      "dismiss": "Đóng phần tổng kết",
+      "listen": "Nghe",
+      "saved": "✓ Đã lưu",
+      "savePhrase": "☆ Lưu thành cụm từ",
+      "savedShort": "✓",
+      "save": "＋ Lưu",
+      "originalPrefix": "Câu gốc: ",
+      "savedNote": "Lưu từ cuộc trò chuyện với Zoe",
+      "modelDownloading": "Đang tải mô hình giọng nói (khoảng 88 MB, chỉ một lần). Lần này sẽ phát bằng giọng hệ thống trước.",
+      "modelReady": "Mô hình giọng nói đã sẵn sàng. Lần phát tiếp theo sẽ dùng giọng chất lượng cao."
     },
     "typing": "{{name}} đang nhập",
     "nextHeading": "Bạn có thể nói",
@@ -287,8 +296,7 @@
     "waitingForYou": "Lời bạn nói sẽ hiện ở đây",
     "callControls": "Điều khiển cuộc gọi",
     "hangUp": "Kết thúc"
-  }
- ,
+  },
   "suggestReplies": {
     "label": "Gợi ý trả lời",
     "on": "Bật",
