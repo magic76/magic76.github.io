@@ -225,7 +225,16 @@
       "checkQuestion": "Does this sentence sound natural?",
       "better": "More natural:",
       "summaryTitle": "3 expressions from today",
-      "dismiss": "Dismiss learning recap"
+      "dismiss": "Dismiss learning recap",
+      "listen": "Listen",
+      "saved": "✓ Saved",
+      "savePhrase": "☆ Save as phrase",
+      "savedShort": "✓",
+      "save": "＋ Save",
+      "originalPrefix": "Original: ",
+      "savedNote": "Saved from Zoe chat",
+      "modelDownloading": "Downloading the speech model (about 88 MB, one time only). System speech will play this time.",
+      "modelReady": "The speech model is ready. High-quality speech will be used next time."
     },
     "typing": "{{name}} is typing",
     "nextHeading": "You could say",
