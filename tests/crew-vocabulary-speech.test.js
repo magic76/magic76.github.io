@@ -51,7 +51,7 @@ test("voice preferences persist locally and unsupported values degrade safely",(
 test("vocabulary page uses Kokoro-first shared learning speech without Gemini",()=>{
  const page=fs.readFileSync("web-spa/src/teacher/VocabularyPage.tsx","utf8");
  const speech=fs.readFileSync("web-spa/src/teacher/learningSpeech.ts","utf8");
- assert.match(page,/speakLearningText\(text,"en",\{speed:slow\?"slow":"normal",mode:"word"\}\)/);
+ assert.match(page,/speakLearningText\(text,"en",\{speed:slow\?"slow":"normal",mode:"word",onModelStatus:/);
  assert.match(page,/onClick=\{\(\)=>pronounce\(word\[0\],true\)\}/);
  assert.match(speech,/kokoro-js@1\.2\.1/);
  assert.match(speech,/Kokoro-82M-v1\.0-ONNX/);
