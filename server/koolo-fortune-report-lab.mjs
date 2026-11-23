@@ -259,6 +259,10 @@ async function advanceLabReport(a,ctx,id,key,model){
    const latest=await load();
    return latest&&existingReportResponse(latest)||reply({error:"UNAVAILABLE"},503);
   }
+  console.info("[fortune-lab] chapter saved",JSON.stringify({part,elapsedMs:Date.now()-started,
+   model:result.model||model,finishReason:result.finishReason,chapterChars:result.text.length,
+   promptTokens:result.usage.promptTokens,outputTokens:result.usage.outputTokens,
+   completed:PARTS.filter(k=>typeof chapters[k]==="string").length}));
   const saved={...row,status:done?"ready":"generating",model:result.model||model,
    content_json:snapshot,prompt_tokens:usage.promptTokens,output_tokens:usage.outputTokens};
   return done?reply({report:readyReport(saved)},201):reply({report:rowSummary(saved)},202);
