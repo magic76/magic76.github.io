@@ -33,10 +33,9 @@ export function PhrasebookPage(){
  const current=pool.length?pool[quizIndex%pool.length]:null;
  const choices=useMemo(()=>{
   if(!current)return[];
-  const alternatives=pool.filter(item=>item.text!==current.text);
-  const picked=[current,...alternatives.slice(quizIndex%Math.max(1,alternatives.length),quizIndex%Math.max(1,alternatives.length)+2)];
-  while(picked.length<3&&alternatives[picked.length-1])picked.push(alternatives[picked.length-1]);
-  const clean=unique(picked).slice(0,3);
+  const alternatives=pool.filter(item=>item.text!==current.text),selected=[current];
+  for(let index=0;index<Math.min(2,alternatives.length);index++)selected.push(alternatives[(quizIndex+index)%alternatives.length]);
+  const clean=unique(selected);
   if(clean.length<2)return clean;
   const shift=quizIndex%clean.length;
   return [...clean.slice(shift),...clean.slice(0,shift)];
