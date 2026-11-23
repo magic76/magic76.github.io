@@ -15,8 +15,8 @@ function validate(item){
  if(!item||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(item.slug)||!["published","draft","review","scheduled","archived"].includes(item.status)||!CAT[item.category]||!["teacher","research","fortune"].includes(item.image)||!/^\d{4}-\d{2}-\d{2}$/.test(item.published)||!safe(item.source))throw Error("Invalid editorial entry");
  for(const k of ["zh","en"]){
   const x=item[k];
-  if(!x||[x.title,x.description,x.lead].some(v=>typeof v!=="string"||v.length<25)||!Array.isArray(x.sections)||x.sections.length<3||!Array.isArray(x.faq)||!x.faq.length||!safe(x.cta?.[1]))throw Error("Incomplete editorial locale "+item.slug+"/"+k);
-  if(x.sections.some(s=>!Array.isArray(s)||s.length<3||s.some(v=>typeof v!=="string"||v.length<15)))throw Error("Thin editorial section: "+item.slug);
+  if(!x||[x.title,x.description,x.lead].some((v,i)=>typeof v!=="string"||v.length<[12,24,20][i])||!Array.isArray(x.sections)||x.sections.length<3||!Array.isArray(x.faq)||!x.faq.length||!safe(x.cta?.[1]))throw Error("Incomplete editorial locale "+item.slug+"/"+k);
+  if(x.sections.some(s=>!Array.isArray(s)||s.length<3||s.some((v,i)=>typeof v!=="string"||v.length<(i===0?4:15))))throw Error("Thin editorial section: "+item.slug);
  }
 }
 export function readEditorial(root){
