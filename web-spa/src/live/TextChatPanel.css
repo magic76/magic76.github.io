@@ -159,3 +159,5 @@
 .crew-text-learning-summary li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:8px}
 .crew-text-learning-summary li>span{min-width:0}
 @media(max-width:420px){.crew-text-learning-summary li{grid-template-columns:1fr}.crew-text-learning-summary li>button{justify-self:start}}
+
+.crew-text-learning-model-status{flex-basis:100%;font-size:12px;line-height:1.5;color:var(--muted,#667085)}
