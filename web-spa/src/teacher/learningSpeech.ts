@@ -199,6 +199,8 @@ async function picoBlob(text:string,language:string,speed:LearningSpeechSpeed){
 }
 async function systemSpeak(text:string,language:string,speed:LearningSpeechSpeed):Promise<void>{
  stopLearningSpeech();
+ // Preserve Koolo Android native TTS as the English fallback.
+ if(language==="en"){await speakText(text,{speed});return}
  if("speechSynthesis" in window){
   const utterance=new SpeechSynthesisUtterance(text);systemUtterance=utterance;utterance.lang=LANG_TAG[language]||language;utterance.rate=speed==="slow"?0.78:1;
   const voices=window.speechSynthesis.getVoices(),prefix=(LANG_TAG[language]||language).toLowerCase().split("-")[0];
