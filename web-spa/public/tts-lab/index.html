@@ -50,10 +50,10 @@ audio { display: block; width: 100%; margin-top: 16px; }
     <textarea id="text" maxlength="300" spellcheck="true" aria-describedby="limit"></textarea>
     <div class="meta"><span id="limit">最多 300 字</span><span id="count">0 / 300</span></div>
     <div class="actions"><button id="play" type="button" class="primary">▶ 生成並播放</button><button id="download" type="button" disabled>↓ 下載 MP3</button></div>
-    <p id="status" class="status" role="status" aria-live="polite">準備好了，按下播放就能試聽。</p>
+    <p id="status" class="status" role="status" aria-live="polite">按下播放試聽；此模型已於 2026/11/20 被官方標記為退役，可能無法生成。</p>
     <audio id="audio" controls preload="none" hidden aria-label="語音試聽播放器"></audio>
   </section>
-  <p class="note">由 Cloudflare Workers AI · MeloTTS 提供。生成時間受模型及網路影響；模型若已退役，會直接顯示錯誤，不會假裝生成成功。</p>
+  <p class="note">由 Cloudflare Workers AI · MeloTTS 提供。生成時間受模型及網路影響；此模型已被官方標示為退役；若不能生成，會顯示錯誤，不會假裝生成成功。</p>
 </main>
 <script>
 (() => {
