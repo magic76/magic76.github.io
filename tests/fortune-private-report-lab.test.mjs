@@ -84,7 +84,7 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  assert.doesNotMatch(printedBook,/AI\s*生成|AI 個人|娛樂參考|私人驗收|非真人|非科學|命理解讀不是|專業保證/);
  assert.match(printedBook,/Koolo 專屬命書/);
  assert.match(html,/@media print\{/);
- assert.match(html,/#chooser,#report>\.actions,#message\{display:none!important\}/);
+ assert.match(html,/#chooser,#report>\.actions,#message,\.reader-nav\{display:none!important\}/);
  assert.doesNotMatch(html,/KOOLO_FORTUNE_LAB_GEMINI_KEY|api[_-]?key\s*[:=]\s*["']/i);
  const app=readFileSync("web-spa/src/App.tsx","utf8");
  const price=readFileSync("web-spa/src/fortune/FortunePriceInterest.tsx","utf8");
@@ -104,7 +104,7 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  const pagesRoutes=JSON.parse(readFileSync("_routes.json","utf8"));
  assert.ok(pagesRoutes.include.includes("/fortune/report-lab"));
  const browserJs=readFileSync("assets/js/fortune-report-lab.js","utf8");
- assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js\?v=20261123-chapters4" defer><\/script>/);
+ assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js\?v=20261123-reader1" defer><\/script>/);
  assert.match(readFileSync("_headers","utf8"),/\/assets\/js\/fortune-report-lab\.js\n  Cache-Control: no-store/);
  assert.doesNotMatch(html,/<script nonce=/);
  assert.match(r.headers.get("Content-Security-Policy"),/script-src 'self'/);

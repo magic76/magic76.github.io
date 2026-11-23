@@ -154,6 +154,48 @@ async function history(){
  }catch(e){node("history").textContent="無法讀取測試紀錄："+e.message}
 }
 function text(id,value){node(id).textContent=String(value==null?"":value)}
+// A deliberately fictional, hand-authored book. Preview uses no API, Gemini,
+// D1 or local chart. Never treat the fixture as a real person's paid report.
+function sampleBook(){
+ var year=new Date(Date.now()+28800000).getUTCFullYear();
+ var chapters={
+  preface:"你給人的第一印象通常是有主見、反應快，而且願意把事情推進。但真正熟悉你的人會發現，你並不只是在追求速度，也很在意彼此是不是能好好合作。當大家都還在觀望時，你往往會先找到一個可以開始的方向；等情況變得複雜，你又會花時間思考哪些細節值得堅持。這讓你在需要主動承擔的場合很有存在感，也可能讓你不知不覺把太多責任放在自己身上。你的特色不是一直往前衝，而是同時想把事情做好，也想讓身邊的人跟得上。",
+  personality:"你做決定時，通常先憑直覺看見重點，再回頭確認細節是否可行。這種方式讓你面對變化時不容易停在原地，別人也容易感受到你的行動力。你擅長把抽象的想法變成具體方向，遇到阻礙也願意找另一條路。比較需要留意的是，你對自己的要求常常比表面看起來更高。當進度不如預期，你可能先加快腳步，而不是讓別人知道你正在承受壓力。適度把想法說清楚，能讓你的能力被理解，而不必每件事都靠自己完成。",
+  career:"你比較容易在有明確目標、又保留一定自主空間的工作環境發揮。完全照表操作的事情，做久了可能讓你覺得難以施展；但如果所有規則都不清楚，你也會因為要反覆補洞而感到疲憊。你適合負責把混亂整理出方向，或把不同人的想法變成可執行的方案。在金錢和資源上，你傾向願意為長期有用的事投入，卻也可能因為看見機會而同時分散注意力。當你能分清哪些值得持續、哪些只是短暫興趣，整體步調會更穩定。",
+  relationships:"你對重要的人通常不是只靠漂亮的話表達在意，而是會記得小事、主動處理問題，或在對方需要的時候伸手幫忙。你期待關係裡有信任，也希望彼此保有自己的空間。遇到意見不合時，你有時會先想解決辦法，卻忽略對方當下可能更需要被理解。這不代表你不重視感受，而是你習慣把關心化成行動。當你願意先聽完對方的想法，再提出自己的方式，關係往往更容易維持舒服的距離，也不必一直由你扛起所有安排。",
+  timing:"接下來三年的重點並不完全一樣。"+year+" 年較適合整理手上已經開始的事情，把分散的心力集中在真正重要的方向；"+(year+1)+" 年可能更重視合作、關係與外界變化，如何與不同步調的人一起前進會成為值得留意的課題；"+(year+2)+" 年則有機會重新衡量長期目標，想清楚哪些承諾值得保留。這些描述是命盤呈現的象徵傾向，而非必定發生的事件。對你來說，最有幫助的不是急著抓住所有機會，而是在不同階段把心力放在合適的位置。",
+  letter:"你看起來可以很獨立，遇到事情也常先想到自己能做些什麼，但內心其實很在意努力是不是有意義，以及自己的付出是否被真正看見。你不一定需要很多稱讚，卻希望重要的人理解你的用心。受挫時，你可能會把注意力轉向下一件可以完成的事，藉由行動重新找回掌控感。這樣的習慣讓你有韌性，也容易讓疲憊被藏得太深。當你不用一直證明自己能處理所有問題，原本用來緊繃防守的力氣，反而能回到真正值得你投入的人與事。",
+  plan:"你的長期優勢，在於願意嘗試、能快速整理方向，也有把想法落地的能力。比起不斷增加新的目標，你更適合把少數真正重要的事情做深，讓累積逐漸產生力量。你可能不喜歡被單一模式限制，但有一些穩定的生活節奏，反而能讓你更自在地探索。遇到新的選擇時，你不必只看哪一條路最快，也可以看它是否符合你想長期維持的關係、工作方式與生活感受。當行動力與耐心開始互相配合，你更容易走出有自己風格的方向。"
+ };
+ return {demo:true,status:"ready",version:"bazi-private-lab-v2",createdAt:Math.floor(Date.now()/1000),
+  model:"示範內容",usage:{promptTokens:0,outputTokens:0},
+  facts:{fourPillars:"甲子 乙丑 丙寅 丁卯",dayMaster:"丙",element:"火",strength:"中和",
+   weighted:{"木":32,"火":26,"土":18,"金":10,"水":14},counts:{resource:4,output:3,officer:2,directWealth:1,indirectWealth:2},
+   luck:"庚午",relations:["外在表達與內心節奏有所拉扯"],annual:[0,1,2].map(function(n){
+    return {year:year+n,ganZhi:["丙午","丁未","戊申"][n],themes:[["整理目標"],["合作關係"],["長期方向"]][n]}
+   })},
+  chapters:chapters};
+}
+var readerIndex=0;
+var readerTitles=["封面","你的整體樣貌","命盤特質","性格與優勢","工作與金錢","人際與感情","未來三年","內在世界","成長方向","封底"];
+function readerSpread(){return !!(window.matchMedia&&window.matchMedia("(min-width:900px)").matches)}
+function readerPages(){return document.querySelectorAll?Array.from(document.querySelectorAll("#bookPages .sheet")):[]}
+function readerGo(index){
+ var pages=readerPages(),count=pages.length;if(!count)return;
+ var size=readerSpread()?2:1;
+ var next=Math.max(0,Math.min(count-1,Math.floor(index/size)*size));
+ reportEl.dataset.direction=next<readerIndex?"prev":"next";
+ readerIndex=next;
+ pages.forEach(function(page,i){
+  var visible=i>=next&&i<next+size;
+  page.className=page.className.replace(/\s+is-active/g,"")+(visible?" is-active":"");
+  if(page.setAttribute)page.setAttribute("aria-hidden",visible?"false":"true");
+ });
+ text("pageCounter",(next+1)+(size>1&&next+1<count?"–"+Math.min(count,next+size):"")+" / "+count);
+ text("pageTitle",readerTitles[next]||"命書");
+ node("prevPage").disabled=next===0;
+ node("nextPage").disabled=next+size>=count;
+}
 function showBook(x){
  if(!x||x.status!=="ready"||!x.facts||!x.chapters){say("報告尚未完成");return}
  var f=x.facts,c=x.chapters,legacy=x.version!=="bazi-private-lab-v2";
@@ -169,10 +211,15 @@ function showBook(x){
  text("section9Intro",legacy?"把命理中的反思化成真實行動，從能做到的小事開始。":"發揮既有的優勢，也為習慣與選擇保留新的可能。");
  ["preface","personality","career","relationships","timing","letter","plan"].forEach(function(k){text(k,c[k])});
  text("coverYear",new Date(x.createdAt*1000).getFullYear());text("pillars2",f.fourPillars);text("master2",f.dayMaster+" · "+f.element+" · "+f.strength);
- text("signals","日主："+f.dayMaster+"（"+f.element+"）；當前大運："+(f.luck||"未提供")+"。"+
-  (f.relations.length?"原局互動："+f.relations.join("、")+"。":""));
- text("careerFacts","印星 "+f.counts.resource+" · 食傷 "+f.counts.output+" · 官殺 "+f.counts.officer+
-  " · 正財 "+f.counts.directWealth+" · 偏財 "+f.counts.indirectWealth+"。這些是已計算的十神記號，非實際收入預測。");
+ text("signals","你的核心特質偏向"+f.element+"所象徵的主動與表達。"+
+  (f.relations.length?"命盤也呈現出不同想法與生活節奏之間的拉扯。":""));
+ var workSignals=[
+  {v:f.counts.resource,label:"學習、整理資訊與吸收經驗"},
+  {v:f.counts.output,label:"表達、創作與推動想法"},
+  {v:f.counts.officer,label:"承擔責任與掌握規則"},
+  {v:f.counts.directWealth+f.counts.indirectWealth,label:"安排資源與評估風險"}
+ ].sort(function(a,b){return b.v-a.v});
+ text("careerFacts","命盤比較突出的工作傾向包括「"+workSignals.slice(0,2).map(function(x){return x.label}).join("」與「")+"」。這是做事習慣的側寫，不代表實際收入。");
  var bars=node("elements");bars.replaceChildren();
  var max=Math.max.apply(Math,ELS.map(function(el){return f.weighted[el]}));
  ELS.forEach(function(el,i){
@@ -186,10 +233,15 @@ function showBook(x){
  var timeline=node("timeline");timeline.replaceChildren();
  f.annual.forEach(function(y){
   var line=document.createElement("article"),year=document.createElement("b"),desc=document.createElement("span");
-  year.textContent=String(y.year);desc.textContent=y.ganZhi+" · "+(y.themes.join("／")||"年度觀察");line.append(year,desc);timeline.appendChild(line)
+  year.textContent=String(y.year);desc.textContent=y.themes.join("／")||"這一年的生活重心";line.append(year,desc);timeline.appendChild(line)
  });
- text("meta","私密驗收 · "+x.model+" · "+(x.usage&&x.usage.outputTokens||0)+" output tokens"+(legacy?" · 舊版命書":""));
- chooser.hidden=true;reportEl.hidden=false;window.scrollTo(0,0)
+ text("meta",x.demo?"示範預覽 · 虛構命盤與範例文字 · 未呼叫 AI、不會儲存資料":
+  "你的專屬命書已完成"+(legacy?" · 舊版命書":""));
+ chooser.hidden=true;reportEl.hidden=false;
+ reportEl.className="reader-open"+(x.demo?" demo-report":"");
+ readerIndex=0;
+ readerGo(0);
+ window.scrollTo(0,0)
 }
 async function continueReport(id){
  // A single request creates at most one chapter; each chapter is committed to
@@ -310,6 +362,30 @@ selectCharts();
 node("refreshCharts")?.addEventListener("click",selectCharts);
 node("back")?.addEventListener("click",function(){reportEl.hidden=true;chooser.hidden=false;window.history.replaceState(null,"",pagePath);window.scrollTo(0,0)});
 node("print")?.addEventListener("click",function(){window.print()});
+node("preview")?.addEventListener("click",function(){say("");showBook(sampleBook())});
+node("prevPage")?.addEventListener("click",function(){readerGo(readerIndex-(readerSpread()?2:1))});
+node("nextPage")?.addEventListener("click",function(){readerGo(readerIndex+(readerSpread()?2:1))});
+var swipeStart=null;
+node("bookPages")?.addEventListener("touchstart",function(e){
+ if(e.touches&&e.touches.length===1)swipeStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
+},{passive:true});
+node("bookPages")?.addEventListener("touchend",function(e){
+ if(!swipeStart||!e.changedTouches||!e.changedTouches[0])return;
+ var dx=e.changedTouches[0].clientX-swipeStart.x,dy=e.changedTouches[0].clientY-swipeStart.y;
+ swipeStart=null;
+ if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.35)
+  readerGo(readerIndex+(dx<0?1:-1)*(readerSpread()?2:1));
+},{passive:true});
+if(window.addEventListener){
+ window.addEventListener("keydown",function(e){
+  if(reportEl.hidden||e.altKey||e.ctrlKey||e.metaKey)return;
+  if(e.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName||""))return;
+  if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
+   e.preventDefault();readerGo(readerIndex+(e.key==="ArrowRight"?1:-1)*(readerSpread()?2:1));
+  }
+ });
+ window.addEventListener("resize",function(){if(!reportEl.hidden)readerGo(readerIndex)});
+}
 void history();
 var match=/^#id=([0-9a-f-]{36})$/i.exec(location.hash);
 if(match)openReport(match[1]);
