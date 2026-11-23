@@ -310,6 +310,60 @@ test("lost retry race returns another caller's generating state without duplicat
  assert.equal(calls,0);
 });
 
+
+test("mobile PWA retry reuses the same request ID after a lost 502, without resubmitting another report",async()=>{
+ const source=readFileSync("assets/js/fortune-report-lab.js","utf8");
+ const reading={id:"chart-123",mode:"bazi",createdAt:"2026-11-23T00:00:00Z",result:{
+  fourPillars:facts.fourPillars,dayMaster:facts.dayMaster,dayMasterElement:facts.dayMasterElement,
+  dayMasterStrength:facts.strength,weightedFiveElements:facts.weighted,annualTimeline:facts.annual,
+  careerProfile:{resourceCount:3,outputCount:1,officerCount:2},
+  wealthProfile:{directWealthCount:1,indirectWealthCount:2}
+ }};
+ const elements=new Map();
+ const make=()=>({value:"",textContent:"",disabled:false,hidden:false,children:[],listeners:{},
+  appendChild(child){this.children.push(child)},replaceChildren(...children){this.children=children},
+  addEventListener(name,fn){this.listeners[name]=fn},append(...children){this.children.push(...children)},
+  style:{setProperty(){}}
+ });
+ const document={
+  getElementById(id){if(!elements.has(id))elements.set(id,make());return elements.get(id)},
+  createElement(){return make()}
+ };
+ const storage=new Map(),requests=[];
+ const mockStorage={
+  getItem(key){return storage.get(key)||null},
+  setItem(key,value){storage.set(key,value)},
+  removeItem(key){storage.delete(key)}
+ };
+ const fetch=async (path,opts)=>{
+  if(path.includes("?list=1"))return new Response(JSON.stringify({items:[]}),{
+   headers:{"content-type":"application/json"}
+  });
+  if(opts.method==="POST"){
+   requests.push(JSON.parse(opts.body));
+   return new Response(JSON.stringify({error:"GENERATION_FAILED",id:UUID}),{
+    status:502,headers:{"content-type":"application/json","x-koolo-fortune-lab-api":"v1"}
+   });
+  }
+  throw Error("Unexpected request in test: "+path);
+ };
+ new Function("document","localStorage","sessionStorage","location","window","fetch","crypto","console",source)(
+  document,{getItem(key){return key==="crew_fortune_readings_v2"?JSON.stringify([reading]):null}},
+  mockStorage,{pathname:"/fortune/report-lab",hash:""},
+  {history:{replaceState(){}},scrollTo(){},print(){}},
+  fetch,{randomUUID:()=>UUID},{error(){}}
+ );
+ const click=elements.get("generate").listeners.click;
+ await click();
+ await click();
+ assert.equal(requests.length,2);
+ assert.equal(requests[0].requestId,UUID);
+ assert.equal(requests[1].requestId,UUID);
+ assert.equal(storage.has("koolo_fortune_lab_pending_v1"),true);
+ assert.equal(Object.hasOwn(requests[0].facts,"questions"),false);
+ assert.match(elements.get("message").textContent,/製作未完成/);
+});
+
 test("first-party generation failures are marked as JSON and failed jobs do not consume daily quota",async()=>{
  const dbInstance=db();
  const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
