@@ -186,13 +186,17 @@ function readerGo(index){
  var next=Math.max(0,Math.min(count-1,Math.floor(index/size)*size));
  var wasActive=pages.map(function(page){return /(?:^|\s)is-active(?:\s|$)/.test(page.className)});
  var turning=next!==readerIndex&&wasActive.some(Boolean);
- reportEl.dataset.direction=next<readerIndex?"prev":"next";
+ var forward=next>readerIndex;
+ reportEl.dataset.direction=forward?"next":"prev";
  readerIndex=next;
  if(readerFlipTimer!==null){clearTimeout(readerFlipTimer);readerFlipTimer=null}
  var leaving=false;
  pages.forEach(function(page,i){
   var visible=i>=next&&i<next+size;
-  var flipOut=turning&&wasActive[i]&&!visible;
+  // A spread turns one real leaf: the right page going forward, the left
+  // page going backward. Mobile turns its single visible page.
+  var flipOut=turning&&wasActive[i]&&!visible&&
+   (size===1||(forward?i%2===1:i%2===0));
   page.className=page.className.replace(/\s+is-active|\s+is-leaving/g,"")+
    (visible?" is-active":flipOut?" is-leaving":"");
   if(page.setAttribute)page.setAttribute("aria-hidden",visible?"false":"true");
