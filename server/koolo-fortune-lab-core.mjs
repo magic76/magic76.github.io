@@ -158,7 +158,7 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
    const chapter=obj?.[part];
    if(typeof chapter!=="string")throw Error("QUALITY_CHECK_FAILED");
    const text=chapter.trim().replace(/\r\n/g,"\n");
-   if(text.length<150||text.length>700||/<[^>]+>|\\x60{3}|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(text))
+   if(text.length<150||text.length>700||/<[^>]+>|\x60{3}|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(text))
     throw Error("QUALITY_CHECK_FAILED");
    if(part==="personality"&&!text.includes(f.dayMaster)&&!text.includes(f.element))
     throw Error("QUALITY_CHECK_FAILED");
