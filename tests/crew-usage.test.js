@@ -58,11 +58,11 @@ test("private usage toolbar exposes the Aura-2 TTS lab entry only in admin navig
  assert.ok(dashboard.includes("AI 語音試聽 · 英／西"));
  assert.ok(css.includes(".usage-toolbar .usage-tts-lab-link{"));
  assert.ok(css.includes(".usage-toolbar .usage-tts-lab-link:focus-visible{"));
- assert.match(css,/\\.usage-tts-lab-link\\{[^}]*min-height:44px/);
+ assert.ok(css.includes("min-height:44px;background:#244c60"));
  assert.ok(!adminEntry.includes("/tts-lab/"));
  assert.match(lab,/<option value="en">/);
  assert.match(lab,/<option value="es">/);
- assert.match(lab,/audio\\[hidden\\]\\s*\\{\\s*display:\\s*none/);
+ assert.ok(lab.includes("audio[hidden] { display: none; }"));
 });
 
 test("event handler rejects unconfigured deployment and invalid or spoofed events",async()=>{
