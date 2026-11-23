@@ -39,7 +39,8 @@ async function owner({request,env,verifyAdmin},method){
 const PROGRESS_VERSION="bazi-private-lab-progress-v1";
 function parseProgress(row){
  let obj;try{obj=JSON.parse(row.content_json||"null")}catch{return null}
- if(!obj||obj.version!==PROGRESS_VERSION||!obj.chapters||!normalizeLabFacts(obj.facts))return null;
+ if(!obj||obj.version!==PROGRESS_VERSION||!obj.chapters||
+  typeof obj.facts?.fourPillars!=="string"||typeof obj.facts?.dayMaster!=="string")return null;
  return obj;
 }
 function progressSummary(row){
