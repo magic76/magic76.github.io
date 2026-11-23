@@ -97,7 +97,7 @@ function provider({calls=[],failAt=null,alwaysFailPart=null}={}){
   const config=JSON.parse(options.body).generationConfig;
   assert.equal(config.maxOutputTokens,6144);
   assert.equal(config.responseMimeType,undefined,"single chapter needs no JSON wrapper");
-  assert.equal(config.thinkingConfig?.thinkingLevel,"LOW");
+  assert.equal(config.thinkingConfig?.thinkingLevel,"MINIMAL");
   calls.push(part);
   if(alwaysFailPart===part||(failAt&&calls.length===failAt))
    return new Response("upstream unavailable",{status:503});
@@ -279,4 +279,63 @@ test("malformed legacy JSON is refused, but valid legacy JSON remains readable",
  const passage=("丙火日主與木火生助的配置，呈現重視效率與關係、願意持續調整節奏的傾向。").repeat(5);
  const generated=await request(JSON.stringify({preface:passage}));
  assert.equal(generated.text,passage);
+});
+
+test("slow primary switches to Flash-Lite within one bounded chapter, preserving the report quality gate",async()=>{
+ const normalized=normalizeLabFacts(facts),calls=[];
+ const passage=("丙火日主與原局木火互動，讓你在面對挑戰時可能更在意穩定節奏與清晰分工。").repeat(6);
+ const result=await generateLabPart(normalized,"letter",{
+  key:"only-test-key",model:"gemini-3.5-flash",timeoutMs:180,
+  fetcher:async(url,options)=>{
+   const model=url.split("/models/")[1].split(":")[0];
+   calls.push(model);
+   const config=JSON.parse(options.body).generationConfig;
+   assert.equal(config.thinkingConfig.thinkingLevel,"MINIMAL");
+   assert.match(JSON.parse(options.body).contents[0].parts[0].text,/本次僅撰寫：letter/);
+   if(model==="gemini-3.5-flash"){
+    // Match a real fetch that is cancelled when the provider stalls.
+    return new Promise((_,reject)=>{
+     if(options.signal.aborted)reject(new DOMException("Aborted","AbortError"));
+     else options.signal.addEventListener("abort",()=>reject(new DOMException("Aborted","AbortError")),{once:true});
+    });
+   }
+   return new Response(JSON.stringify({candidates:[{content:{parts:[{text:passage}]},finishReason:"STOP"}],
+    usageMetadata:{promptTokenCount:220,candidatesTokenCount:240}}),{status:200});
+  }
+ });
+ assert.deepEqual(calls,["gemini-3.5-flash","gemini-3.5-flash-lite"]);
+ assert.equal(result.model,"gemini-3.5-flash-lite");
+ assert.equal(result.text,passage);
+ assert.equal(result.usage.outputTokens,240);
+});
+
+test("every chapter prompt is concise, fact-grounded, and preserves the chapter direction",()=>{
+ const normalized=normalizeLabFacts(facts);
+ for(const part of PARTS){
+  const prompt=labPartPrompt(normalized,part);
+  assert.ok(prompt.length<1000,part+" request should avoid repeating full-book instructions");
+  assert.ok(prompt.includes("四柱")||prompt.includes("命盤摘要"));
+  assert.match(prompt,/不虛構/);
+  assert.match(prompt,/本章 210 至 340/);
+ }
+ assert.match(labPartPrompt(normalized,"letter"),/內在驅動/);
+});
+
+test("report list includes chapter counts but not private chart facts",async()=>{
+ const db=database(),ai=provider();
+ const start=await post(db,ai,{requestId:UUID,facts,pipeline:"chapters"});
+ const id=(await start.json()).report.id;
+ for(let i=0;i<5;i++)await post(db,ai,{action:"advance",reportId:id});
+ const request=new Request("https://koolo.app/api/fortune/report-lab?list=1",{
+  headers:{"Cookie":"__Host-crew_session="+"a".repeat(43)}
+ });
+ const response=await labGet({request,env:env(db,ai),verifyAdmin:async()=>true});
+ assert.equal(response.status,200);
+ const data=await response.json();
+ assert.equal(data.items[0].progress.completed,5);
+ assert.equal(data.items[0].progress.total,7);
+ assert.equal(data.items[0].id,id);
+ assert.equal(Object.hasOwn(data.items[0],"facts"),false);
+ assert.equal(Object.hasOwn(data.items[0],"content_json"),false);
+ assert.doesNotMatch(JSON.stringify(data),/fourPillars|dayMaster/);
 });
