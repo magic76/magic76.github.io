@@ -80,6 +80,11 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  assert.match(html,/你的內在動機與壓力反應/);
  assert.match(html,/適合你的成長方向與生活節奏/);
  assert.doesNotMatch(html,/AI 個人化命理報告|AI PERSONAL GUIDANCE|AI 生成|老師給你的話/);
+ const printedBook=html.slice(html.indexOf('<article class="sheet dark"'));
+ assert.doesNotMatch(printedBook,/AI\s*生成|AI 個人|娛樂參考|私人驗收|非真人|非科學|命理解讀不是|專業保證/);
+ assert.match(printedBook,/Koolo 專屬命書/);
+ assert.match(html,/@media print\{/);
+ assert.match(html,/#chooser,#report>\.actions,#message\{display:none!important\}/);
  assert.doesNotMatch(html,/KOOLO_FORTUNE_LAB_GEMINI_KEY|api[_-]?key\s*[:=]\s*["']/i);
  const app=readFileSync("web-spa/src/App.tsx","utf8");
  const price=readFileSync("web-spa/src/fortune/FortunePriceInterest.tsx","utf8");
