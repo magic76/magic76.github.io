@@ -14,15 +14,33 @@ test("page-turn reader has 10 print-safe pages, controls, and a no-AI preview en
  assert.match(html,/id="nextPage"/);
  assert.match(html,/#report\.reader-open \.sheet\.is-active/);
  assert.match(html,/@media print\{/);
- assert.match(html,/\.sheet\.is-active\{display:flex!important;animation:none!important/);
+ assert.match(html,/\.sheet\.is-active,#report\.reader-open \.sheet\.is-leaving\{display:flex!important;position:relative!important/);
  assert.equal((html.match(/<article class="sheet(?: dark)?"/g)||[]).length,10);
  assert.doesNotMatch(html,/留給自己的一題|建議：每週做一件/);
- assert.match(html,/v=20261123-reader1/);
+ assert.match(html,/v=20261123-reader2/);
+ assert.match(html,/touch-action:pan-y pinch-zoom/);
+ assert.match(html,/overscroll-behavior-x:none/);
+ assert.match(html,/overflow-x:clip/);
+ assert.match(html,/#report\.reader-open \.sheet\{display:none;width:100%;max-width:100%;min-width:0/);
+ assert.match(html,/backface-visibility:hidden/);
+ assert.match(html,/transform-origin:left center/);
+ assert.match(html,/transform-origin:right center/);
+ assert.match(html,/@keyframes paper-turn-forward/);
+ assert.match(html,/rotateY\(-155deg\)/);
+ assert.match(html,/@keyframes paper-turn-backward/);
+ assert.match(html,/rotateY\(155deg\)/);
+ assert.match(html,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.doesNotMatch(html,/page-turn-in|rotateY\(-3deg\)/);
 });
 
 test("mock preview instantly renders 10 pages without POST, Gemini, D1 writes or stored chart",async()=>{
  const listeners=new Map();
  let desktop=false,postCount=0,nonListReads=0,printed=0;
+ const flipTasks=new Map();
+ let nextTaskId=1;
+ const startFlipTimer=(fn,ms)=>{assert.equal(ms,600);const id=nextTaskId++;flipTasks.set(id,fn);return id};
+ const clearFlipTimer=id=>flipTasks.delete(id);
+ const finishFlips=()=>{for(const [id,fn] of flipTasks){flipTasks.delete(id);fn()}};
  const make=(id="")=>({id,value:"",textContent:"",className:"",disabled:false,hidden:false,
   dataset:{},children:[],listeners:{},style:{setProperty(){}},
   addEventListener(type,fn){this.listeners[type]=fn},
@@ -50,10 +68,11 @@ test("mock preview instantly renders 10 pages without POST, Gemini, D1 writes or
   if(!path.includes("?list=1"))nonListReads++;
   return new Response(JSON.stringify({items:[]}),{status:200,headers:{"content-type":"application/json"}});
  };
- new Function("document","localStorage","location","window","fetch","crypto","console",source)(
+ new Function("document","localStorage","location","window","fetch","crypto","console","setTimeout","clearTimeout",source)(
   document,{getItem(){return null}},
   {pathname:"/fortune/report-lab",hash:""},window,fetch,
-  {randomUUID:()=>"11111111-2222-4333-8444-555555555555"},{error(){}}
+  {randomUUID:()=>"11111111-2222-4333-8444-555555555555"},{error(){}},
+  startFlipTimer,clearFlipTimer
  );
  els.get("preview").listeners.click();
  assert.equal(postCount,0,"preview must not call Gemini or create a D1 report");
@@ -71,21 +90,30 @@ test("mock preview instantly renders 10 pages without POST, Gemini, D1 writes or
  assert.equal(els.get("pageCounter").textContent,"2 / 10");
  assert.equal(pages[1].className.includes("is-active"),true);
  assert.equal(pages[0].className.includes("is-active"),false);
+ assert.equal(pages[0].className.includes("is-leaving"),true,"old page hinges over incoming page");
+ assert.equal(flipTasks.size,1);
  assert.equal(els.get("prevPage").disabled,false);
  const finger=els.get("bookPages").listeners;
  finger.touchstart({touches:[{clientX:240,clientY:220}]});
  finger.touchend({changedTouches:[{clientX:120,clientY:229}]});
  assert.equal(els.get("pageCounter").textContent,"3 / 10","left swipe turns forward");
+ assert.equal(flipTasks.size,1,"rapid swipe cancels previous leaf cleanup");
  finger.touchstart({touches:[{clientX:110,clientY:220}]});
  finger.touchend({changedTouches:[{clientX:240,clientY:222}]});
  assert.equal(els.get("pageCounter").textContent,"2 / 10","right swipe turns backward");
+ assert.equal(els.get("report").dataset.direction,"prev");
+ finishFlips();
+ assert.equal(pages.some(p=>p.className.includes("is-leaving")),false,"turn completes with no ghost page");
  let prevented=false;
  listeners.get("keydown")({key:"ArrowRight",preventDefault(){prevented=true},target:{tagName:"BODY"}});
  assert.equal(prevented,true);
  assert.equal(els.get("pageCounter").textContent,"3 / 10");
+ assert.equal(els.get("report").dataset.direction,"next");
  desktop=true;listeners.get("resize")();
  assert.equal(els.get("pageCounter").textContent,"3–4 / 10");
  assert.equal(pages.filter(p=>p.className.includes("is-active")).length,2);
+ finishFlips();
+ assert.equal(pages.some(p=>p.className.includes("is-leaving")),false);
  els.get("print").listeners.click();assert.equal(printed,1);
  assert.equal(postCount,0);
  for(const name of ["preface","personality","career","relationships","timing","letter","plan"]){
