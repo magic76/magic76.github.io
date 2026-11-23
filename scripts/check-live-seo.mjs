@@ -37,7 +37,8 @@ export function inspectPublicPage(html,url,headers={}){
  assertThat(!robots.includes('noindex'),'Public page contains noindex');
  assertThat(!String(headers['x-robots-tag']||'').toLowerCase().includes('noindex'),'Public page has noindex HTTP header');
  assertThat(/<h1(?:\s[^>]*)?>/i.test(html),'No server-rendered h1');
- assertThat(html.includes('data-crew-ssg-path="'),'Missing React SSR/SSG markup');
+ const editorialPath=/^\/(?:en\/)?articles\//.test(new URL(url).pathname);
+ assertThat(html.includes(editorialPath?'data-editorial-ssg-path="':'data-crew-ssg-path="'),editorialPath?'Missing static article content':'Missing React SSR/SSG markup');
  const json=html.match(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/i);
  assertThat(json,'Missing structured data');
  try{JSON.parse(json[1]);}catch(e){throw Error('Malformed JSON-LD: '+e.message);}
