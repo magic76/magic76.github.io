@@ -71,20 +71,20 @@
  text-decoration:underline;text-underline-offset:3px}
 .friend-text-first-intro a:focus-visible{outline:3px solid #bad5ff;outline-offset:2px}
 .friend-text-first-stage>.friend-live-footnote{display:none}
-.friend-live-page .friend-precall-stage.friend-text-first-stage{
+.friend-live-page:has(.friend-unified-composer) .friend-precall-stage.friend-text-first-stage{
  box-sizing:border-box;display:flex;flex-direction:column;min-height:0;
  height:calc(var(--crew-friend-viewport-height,100dvh) - var(--crew-friend-stage-top,68px));
  max-height:calc(var(--crew-friend-viewport-height,100dvh) - var(--crew-friend-stage-top,68px));
  overflow:hidden;
 }
-.friend-live-page .friend-precall-stage.friend-text-first-stage>.guest-live-entry{
+.friend-live-page:has(.friend-unified-composer) .friend-precall-stage.friend-text-first-stage>.guest-live-entry{
  flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;
 }
-.friend-live-page .friend-precall-stage.friend-text-first-stage>.friend-unified-composer{
+.friend-live-page:has(.friend-unified-composer) .friend-precall-stage.friend-text-first-stage>.friend-unified-composer{
  position:static;z-index:auto;flex:none;margin-top:auto;
 }
 @media(max-width:640px){
- .friend-live-page .friend-precall-stage.friend-text-first-stage{padding:8px 12px max(8px,env(safe-area-inset-bottom,0px))}
+ .friend-live-page:has(.friend-unified-composer) .friend-precall-stage.friend-text-first-stage{padding:8px 12px max(8px,env(safe-area-inset-bottom,0px))}
 }
 @media(prefers-reduced-motion:reduce){
  .friend-text-first-stage>.guest-live-entry{scroll-behavior:auto}
