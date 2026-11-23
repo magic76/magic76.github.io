@@ -29,7 +29,8 @@ const SOURCE_PATHS={
 };
 const cache=new Map();
 export function seoLastmod(slug){
- const source=slug.startsWith("fortune/numerology")?"scripts/numerology-seo.mjs":
+ const source=["free-english-speaking","ai-english-conversation","english-interview-practice","2027-bazi-luck","2027-personal-year","2027-goat-zodiac"].some(s=>slug==="guides/"+s)?"scripts/intent-seo.mjs":
+  slug.startsWith("fortune/numerology")?"scripts/numerology-seo.mjs":
   slug.startsWith("fortune/bazi")?"scripts/bazi-seo.mjs":
   slug.startsWith("guides/")?"web-spa/src/guides/catalog.ts":
    slug.startsWith("teacher/course/")?"scripts/course-seo.mjs":SOURCE_PATHS[slug];
