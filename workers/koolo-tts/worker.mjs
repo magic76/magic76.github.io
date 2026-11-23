@@ -38,13 +38,13 @@ async function cacheKeyFor(request, lang, text) {
   const bytes = new TextEncoder().encode(JSON.stringify([lang, text]));
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   const hash = [...new Uint8Array(digest)].map((n) => n.toString(16).padStart(2, '0')).join('');
-  return new Request(new URL(\`/__tts_cache/\${hash}\`, request.url).toString());
+  return new Request(new URL(`/__tts_cache/${hash}`, request.url).toString());
 }
 
 function audioResponse(body, origin, cacheStatus) {
   const headers = corsHeaders(origin);
   headers.set('Content-Type', 'audio/mpeg');
-  headers.set('Cache-Control', \`public, max-age=\${CACHE_TTL_SECONDS}\`);
+  headers.set('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}`);
   headers.set('X-Content-Type-Options', 'nosniff');
   headers.set('X-TTS-Cache', cacheStatus);
   return new Response(body, { status: 200, headers });
@@ -96,7 +96,7 @@ export default {
     if (!env.TTS_RATE_LIMITER?.limit) return json({ error: 'RATE_LIMITER_UNAVAILABLE' }, 503, origin);
     try {
       const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-      const { success } = await env.TTS_RATE_LIMITER.limit({ key: \`tts:\${ip}\` });
+      const { success } = await env.TTS_RATE_LIMITER.limit({ key: `tts:${ip}` });
       if (!success) return json({ error: 'RATE_LIMITED', retryAfterSeconds: 60 }, 429, origin);
     } catch { return json({ error: 'RATE_LIMITER_UNAVAILABLE' }, 503, origin); }
 
@@ -114,7 +114,7 @@ export default {
       const response = audioResponse(audio, origin, 'MISS');
       if (cache && ctx?.waitUntil) {
         const stored = new Response(response.clone().body, {
-          headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': \`public, max-age=\${CACHE_TTL_SECONDS}\` },
+          headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': `public, max-age=${CACHE_TTL_SECONDS}` },
         });
         ctx.waitUntil(cache.put(cacheKey, stored).catch(() => {}));
       }
