@@ -104,7 +104,7 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  const pagesRoutes=JSON.parse(readFileSync("_routes.json","utf8"));
  assert.ok(pagesRoutes.include.includes("/fortune/report-lab"));
  const browserJs=readFileSync("assets/js/fortune-report-lab.js","utf8");
- assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js\?v=20261123-portrait1" defer><\/script>/);
+ assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js\?v=20261123-retry1" defer><\/script>/);
  assert.match(readFileSync("_headers","utf8"),/\/assets\/js\/fortune-report-lab\.js\n  Cache-Control: no-store/);
  assert.doesNotMatch(html,/<script nonce=/);
  assert.match(r.headers.get("Content-Security-Policy"),/script-src 'self'/);
@@ -215,6 +215,153 @@ test("PWA API detects HTML fallback, HTML edge error and Access redirect without
   assert.equal(elements.has("question1"),false);
   assert.equal(elements.has("question2"),false);
  }
+});
+
+
+function duplicateDb(stored,{loseClaim=false}={}){
+ const queries=[];
+ return {queries,prepare(sql){
+  queries.push(sql);
+  return {bind(...args){
+   return {
+    async first(){
+     if(sql.includes("FROM crew_auth_sessions"))return {user_id:UUID};
+     if(sql.includes("FROM koolo_fortune_lab_reports"))return stored;
+     return null;
+    },
+    async all(){return {results:[]}},
+    async run(){
+     if(sql.includes("SET status='failed'")&&sql.includes("created_at<?"))
+      return {meta:{changes:0}};
+     if(sql.startsWith("INSERT INTO koolo_fortune_lab_reports"))
+      return {meta:{changes:0}};
+     if(sql.includes("SET status='generating'")){
+      if(loseClaim){stored.status="generating";return {meta:{changes:0}}}
+      stored.status="generating";return {meta:{changes:1}};
+     }
+     if(sql.includes("SET status='ready'"))stored.status="ready";
+     return {meta:{changes:1}};
+    }
+   };
+  }};
+ }};
+}
+
+test("duplicate requestId returns an existing ready book without calling Gemini",async()=>{
+ const id="aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa";
+ const stored={id,user_id:UUID,request_id:UUID,status:"ready",created_at:100000,
+  model,prompt_tokens:260,output_tokens:780,content_json:JSON.stringify({
+   version:"bazi-private-lab-v2",facts:normalizeLabFacts(facts),chapters:chapters()
+  })};
+ let aiCalls=0;
+ const database=duplicateDb(stored);
+ const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(database,{FORTUNE_LAB_TEST_FETCH:async()=>{aiCalls++;throw Error("duplicate book must not call Gemini")}})});
+ assert.equal(res.status,200);
+ const {report}=await res.json();
+ assert.equal(report.id,id);
+ assert.equal(report.version,"bazi-private-lab-v2");
+ assert.equal(report.status,"ready");
+ assert.equal(aiCalls,0);
+ assert.equal(database.queries.some(q=>q.includes("SET status='generating'")),false);
+ assert.equal(res.headers.get("X-Koolo-Fortune-Lab-API"),"v1");
+});
+
+test("duplicate generating ID returns 202 without another Gemini generation",async()=>{
+ const stored={id:UUID,user_id:UUID,request_id:UUID,status:"generating",created_at:Math.floor(Date.now()/1000),
+  model,prompt_tokens:0,output_tokens:0,content_json:null};
+ let calls=0;
+ const database=duplicateDb(stored);
+ const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(database,{FORTUNE_LAB_TEST_FETCH:async()=>{calls++;throw Error("no duplicate generation")}})});
+ assert.equal(res.status,202);
+ assert.equal((await res.json()).report.status,"generating");
+ assert.equal(calls,0);
+ assert.equal((await get({request:request("?report="+UUID),env:env(database)})).status,202);
+});
+
+test("failed requestId is atomically reclaimed without creating a second row",async()=>{
+ const originalId="aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa";
+ const stored={id:originalId,user_id:UUID,request_id:UUID,status:"failed",created_at:100000,
+  model,prompt_tokens:0,output_tokens:0,content_json:null};
+ const database=duplicateDb(stored);
+ let calls=0;
+ const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(database,{FORTUNE_LAB_TEST_FETCH:async(url,opts)=>{calls++;return fakeProvider(url,opts)}})});
+ assert.equal(res.status,201);
+ const {report}=await res.json();
+ assert.equal(report.id,originalId);
+ assert.equal(report.status,"ready");
+ assert.equal(calls,1);
+ assert.equal(database.queries.filter(q=>q.includes("INSERT INTO koolo_fortune_lab_reports")).length,1);
+ assert.equal(database.queries.filter(q=>q.includes("SET status='generating'")).length,1);
+ assert.match(database.queries.join("\n"),/status='failed' AND/);
+});
+
+test("lost retry race returns another caller's generating state without duplicate Gemini work",async()=>{
+ const stored={id:UUID,user_id:UUID,request_id:UUID,status:"failed",created_at:100000,
+  model,prompt_tokens:0,output_tokens:0,content_json:null};
+ const database=duplicateDb(stored,{loseClaim:true});
+ let calls=0;
+ const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(database,{FORTUNE_LAB_TEST_FETCH:async()=>{calls++;throw Error("no second Gemini call")}})});
+ assert.equal(res.status,202);
+ assert.equal((await res.json()).report.status,"generating");
+ assert.equal(calls,0);
+});
+
+
+test("mobile PWA retry reuses the same request ID after a lost 502, without resubmitting another report",async()=>{
+ const source=readFileSync("assets/js/fortune-report-lab.js","utf8");
+ const reading={id:"chart-123",mode:"bazi",createdAt:"2026-11-23T00:00:00Z",result:{
+  fourPillars:facts.fourPillars,dayMaster:facts.dayMaster,dayMasterElement:facts.dayMasterElement,
+  dayMasterStrength:facts.strength,weightedFiveElements:facts.weighted,annualTimeline:facts.annual,
+  careerProfile:{resourceCount:3,outputCount:1,officerCount:2},
+  wealthProfile:{directWealthCount:1,indirectWealthCount:2}
+ }};
+ const elements=new Map();
+ const make=()=>({value:"",textContent:"",disabled:false,hidden:false,children:[],listeners:{},
+  appendChild(child){this.children.push(child)},replaceChildren(...children){this.children=children},
+  addEventListener(name,fn){this.listeners[name]=fn},append(...children){this.children.push(...children)},
+  style:{setProperty(){}}
+ });
+ const document={
+  getElementById(id){if(!elements.has(id))elements.set(id,make());return elements.get(id)},
+  createElement(){return make()}
+ };
+ const storage=new Map(),requests=[];
+ const mockStorage={
+  getItem(key){return storage.get(key)||null},
+  setItem(key,value){storage.set(key,value)},
+  removeItem(key){storage.delete(key)}
+ };
+ const fetch=async (path,opts)=>{
+  if(path.includes("?list=1"))return new Response(JSON.stringify({items:[]}),{
+   headers:{"content-type":"application/json"}
+  });
+  if(opts.method==="POST"){
+   requests.push(JSON.parse(opts.body));
+   return new Response(JSON.stringify({error:"GENERATION_FAILED",id:UUID}),{
+    status:502,headers:{"content-type":"application/json","x-koolo-fortune-lab-api":"v1"}
+   });
+  }
+  throw Error("Unexpected request in test: "+path);
+ };
+ new Function("document","localStorage","sessionStorage","location","window","fetch","crypto","console",source)(
+  document,{getItem(key){return key==="crew_fortune_readings_v2"?JSON.stringify([reading]):null}},
+  mockStorage,{pathname:"/fortune/report-lab",hash:""},
+  {history:{replaceState(){}},scrollTo(){},print(){}},
+  fetch,{randomUUID:()=>UUID},{error(){}}
+ );
+ const click=elements.get("generate").listeners.click;
+ await click();
+ await click();
+ assert.equal(requests.length,2);
+ assert.equal(requests[0].requestId,UUID);
+ assert.equal(requests[1].requestId,UUID);
+ assert.equal(storage.has("koolo_fortune_lab_pending_v1"),true);
+ assert.equal(Object.hasOwn(requests[0].facts,"questions"),false);
+ assert.match(elements.get("message").textContent,/製作未完成/);
 });
 
 test("first-party generation failures are marked as JSON and failed jobs do not consume daily quota",async()=>{
