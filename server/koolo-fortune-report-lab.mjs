@@ -252,7 +252,7 @@ async function advanceLabReport(a,ctx,id,key,model){
   if(done&&!validateLabChapters(chapters,progress.facts))throw Error("QUALITY_CHECK_FAILED");
   const snapshot=JSON.stringify(done?
    {version:"bazi-private-lab-v2",facts:progress.facts,chapters}:
-   {...progress,chapters,usage,lease:null});
+   {...progress,chapters,usage,lastFailure:null,lease:null});
   if(snapshot.length>50000)throw Error("REPORT_TOO_LARGE");
   const write=await a.db.prepare(
    "UPDATE koolo_fortune_lab_reports SET status=?,model=?,content_json=?,prompt_tokens=?,output_tokens=?,updated_at=? "+
