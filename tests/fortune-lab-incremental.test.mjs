@@ -204,7 +204,7 @@ test("ready legacy rows remain accessible, while unauthenticated or foreign resu
   headers:{"Origin":"https://koolo.app","Content-Type":"application/json"},
   body:JSON.stringify({action:"advance",reportId:id})});
  assert.equal((await labPost({request:noCookie,env:env(db,provider()),verifyAdmin:async()=>true})).status,401);
- assert.ok(labPartPrompt(normalizeLabFacts(facts),"letter").includes("內在驅動"));
+ assert.ok(labPartPrompt(normalizeLabFacts(facts),"letter").includes("內在真正想得到"));
  await assert.rejects(generateLabPart(normalizeLabFacts(facts),"bad",{
   key:"only-test-key",model:"gemini-3.5-flash",fetcher:provider()
  }),/INVALID_PART/);
