@@ -38,12 +38,11 @@ export function normalizeLabFacts(raw){
   return {year:v.year,ganZhi:v.ganZhi,themes};
  });
  if(annual.some(x=>!x))return null;
- if(!Array.isArray(raw.questions)||raw.questions.length<1||raw.questions.length>2)return null;
- const questions=raw.questions.map(x=>safeText(x,160));
- if(questions.some(x=>x.length<5))return null;
+ // Legacy browser payloads may still include questions; deliberately ignore
+ // them. The profile is determined by verified chart facts only.
  const relations=Array.isArray(raw.relations)?raw.relations.slice(0,5).map(x=>safeText(x,35)).filter(Boolean):[];
  return {fourPillars:p.join(" "),dayMaster:master,element,strength,weighted,counts,
-  luck:ganZhi?ganZhi:"",annual,questions,relations};
+  luck:ganZhi?ganZhi:"",annual,relations};
 }
 export function validateLabChapters(raw,facts){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
@@ -62,18 +61,19 @@ export function validateLabChapters(raw,facts){
 }
 export function labPrompt(f){
  return [
- "請以溫暖、沉穩、有見地的繁體中文，直接為命主撰寫專屬八字命書。不要用制式聲明開場，也不要自稱老師或以第一人稱介紹作者身分。",
- "只有下方已計算的命盤數據可當事實。不可編造四柱、干支、十神、流年或必定發生的事件。不許生死疾病預言、投資保證或宿命式語氣。所有建議都應保留個人選擇與現實條件的空間。",
- '只回傳 JSON object，七個字串欄位："preface","personality","career","relationships","timing","letter","plan"。每段約 160 到 300 字；letter 約 230 到 400 字。不得重複內容。',
- "preface：直接從命主的日主、五行特色與當下人生課題切入，像一封專門寫給這個人的信；第一段不要講製作方式、原理或免責聲明。",
- "personality：務必寫出日主或五行，提出優勢、盲點與可驗證的情境，從實際人生選擇反思。",
- "career：包含事業與財富，參照提供的十神計數，指出限制及可操作的方向。",
- "relationships：描述溝通方式、界線與關係，沒有婚期預言。",
- "timing：逐一說明三個提供的年度及主題，使用實際年份，不保證任何事件。",
- "letter：針對命主個人問題逐題回覆，給可執行的具體建議；自然收束，不加任何作者頭銜或署名。",
- "plan：列出四週具體可執行、可衡量的行動。",
- "這是 Koolo 專屬命書服務。正文只寫命盤解讀與具體建議，不說明撰寫者身分、製作技術、平台原理或免責聲明，也不要編造曾面談、通靈、神諭或專業診斷的經歷。文字要有個性、克制、不空泛，不要套話；不需回傳封面、五行分數或 HTML。",
- "命盤摘要（沒有姓名／出生日期）："+JSON.stringify(f)
+  "請撰寫一份 Koolo 的繁體中文個人八字命書。這是依據命盤線索所寫的詳細人物側寫，不是問答服務。以命主為主角，直接寫出可供閱讀的完整剖析，像一本專門談他的書，而不是通用星座文章。",
+  "僅可引用下方命盤數據作為命理依據：四柱、日主、身強弱、五行權重、十神計數、大運、原局互動與三年流年。不要編造命主的職業、家庭、經歷、健康、收入或個性事實；區分象徵推論與實際人生，不把傾向寫成已發生的事情。",
+  "全文採第二人稱、自然且細膩，不要自稱作者、老師或講述如何製作。不要放技術身分介紹、冗長聲明、讀者提問、訪談或個人問題的回答，也不要預設命主正在求財、轉職或戀愛。不要斷言會發財、結婚、升遷、患病或遇到災厄。",
+  '只輸出 JSON object，七個字串欄位："preface","personality","career","relationships","timing","letter","plan"。每段約 180–310 字；letter 與 plan 約 200–320 字。這七段分別描寫不同面向，不要複製、重述同一套形容詞。',
+  "preface：這個人整體的命盤輪廓。用日主、身強弱與最突出的五行互動描寫核心氣質、內在矛盾及辨識度；開門見山，不寫場面話或製作介紹。",
+  "personality：詳細描述外在表現和內在思考差異、擅長的能力、看待規則或變化的方式、選擇時的慣性，以及容易忽略的盲點；把至少兩項具體命盤線索連到可觀察的生活情境。",
+  "career：描述適合發揮的工作方式、合作與自主需求、專長發展、資源管理與金錢態度；可引用十神數據，但不可保證收入、投資獲利或特定職位。",
+  "relationships：描寫親密關係、朋友與合作相處時的傾向，包括如何表達關心、衝突時的反應、信任與界線；不推斷特定人的婚姻狀態或家庭經歷。",
+  "timing：說明命盤提供的當前大運與接下來三個確切年份各自的關注主題、可能適合發揮和調整的面向；逐一明列三年年份，不預言必然事件。",
+  "letter：這個人的內在驅動與壓力反應。描寫重視的價值、遇到挫折或轉折時的防衛習慣、內心需求與自我拉扯，提供有根據而克制的觀察；這不是回覆問題的信件。",
+  "plan：這個人的長期成長方向。總結值得保留的優勢、需要練習的彈性、可能更舒服的生活節奏及建立選擇的方法；不要寫四週任務清單或對明天的預言。",
+  "每章至少結合一至兩個有別於其他章節的命盤線索與具體情境；細緻、有辨識度但不故弄玄虛。正文只討論這個人的特質與方向，不說明平台、撰寫者或製作技術。不得傳回 HTML。",
+  "命盤摘要（沒有姓名、出生日期或個人提問）："+JSON.stringify(f)
  ].join("\n");
 }
 export async function generateLabChapters(f,{key,model,fetcher=fetch,timeoutMs=65000}){
