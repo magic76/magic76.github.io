@@ -24,7 +24,7 @@ export function VocabularyPage(){
  const {t:tToday}=useTranslation("lesson");
  const stringsReady=useRouteNamespace("lesson");
  const native=useTeacherStore(s=>s.nativeLanguage);
- const[speechError,setSpeechError]=useState(""),[savedExample,setSavedExample]=useState("");
+ const[speechError,setSpeechError]=useState(""),[speechNotice,setSpeechNotice]=useState(""),[savedExample,setSavedExample]=useState("");
  const answerLockRef=useRef(false); // Synchronous guard against rapid double taps before React re-renders.
  const autoNextTimeoutRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const[refresh,setRefresh]=useState(0);
@@ -50,7 +50,8 @@ export function VocabularyPage(){
 
  function pronounce(text:string,slow=false){
   setSpeechError("");
-  void speakLearningText(text,"en",{speed:slow?"slow":"normal",mode:"word"})
+  setSpeechNotice("");
+  void speakLearningText(text,"en",{speed:slow?"slow":"normal",mode:"word",onModelStatus:status=>setSpeechNotice(t(status==="loading"?"vocabulary.modelDownloading":"vocabulary.modelReady"))})
    .catch(()=>setSpeechError(t("vocabulary.speechFailed")));
  }
 
@@ -144,7 +145,8 @@ export function VocabularyPage(){
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0])}>🔊 {t("vocabulary.listen")}</button>
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0],true)}>{t("vocabulary.listenSlow")}</button>
     </div>
-    <p className="crew-vocab-voice-hint">{t("vocabulary.neuralVoiceHint",{defaultValue:"英文發音使用 Kokoro 本機 AI 語音；載入或裝置不支援時會自動改用系統語音。"})}</p>
+    <p className="crew-vocab-voice-hint">{t("vocabulary.neuralVoiceHint")}</p>
+    {speechNotice&&<p className="crew-vocab-voice-hint" role="status">{speechNotice}</p>}
     {speechError&&<p className="crew-vocab-voice-error" role="alert">{speechError}</p>}
     {needsContent&&<p className="crew-learning-translation-note" role="status">{usingFallback?t("vocabulary.fallbackNotice"):t("vocabulary.partialNotice")}
      {contentError&&<button className="btn secondary small" onClick={()=>{setContentError("");void ensureVocabularyContent(native,score).then(()=>setRefresh(v=>v+1)).catch(e=>setContentError(String(e)))}}>{t("vocabulary.retry")}</button>}
@@ -158,10 +160,10 @@ export function VocabularyPage(){
     </div>
     {revealed&&<div className="crew-learning-answer-feedback" role="status">
      <strong>{feedback} {picked!==word[1]&&" · "+word[1]}</strong>
-     {word[2]&&<><p>{word[2]}</p><div className="crew-vocab-example-actions">
-      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[2])}>🔊 聽例句</button>
-      <button className="btn secondary small" type="button" disabled={savedExample===word[2]} onClick={()=>{addDeckItem({category:"phrase",originalText:word[2],translation:"",notes:"來自單字："+word[0],language:"en"});setSavedExample(word[2])}}>{savedExample===word[2]?"✓ 已收藏":"☆ 收藏例句"}</button>
-     </div></>}
+     {word[2]&&<p>{word[2]}</p>}{word[2]&&<div className="crew-vocab-example-actions">
+      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[2])}>🔊 {t("vocabulary.listenExample")}</button>
+      <button className="btn secondary small" type="button" disabled={savedExample===word[2]} onClick={()=>{addDeckItem({category:"phrase",originalText:word[2],translation:"",notes:t("vocabulary.fromWord",{word:word[0]}),language:"en"});setSavedExample(word[2])}}>{savedExample===word[2]?t("vocabulary.saved"):t("vocabulary.saveExample")}</button>
+     </div>}
     </div>}
     {revealed&&picked!==word[1]&&<button className="btn primary crew-learning-full-cta" onClick={nextQuestion}>{t("vocabulary.nextQuestion")} <Arrow/></button>}
    </div>}
