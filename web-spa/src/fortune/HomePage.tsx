@@ -91,8 +91,10 @@ export function FortuneHomePage(){
      <span className="fortune-mode-copy"><strong>{t("home.vedic")}</strong><span className="fortune-mode-description">{t("home.vedicDesc")}</span></span>
     </Link>
    </div>
-   <a className="text-button" href="/fortune/bazi/">{t("home.bazi")} · {t("home.baziDesc")} <Arrow/></a>
-   <a className="text-button" href="/fortune/numerology/">{t("home.tarot")} · {t("home.tarotDesc")} <Arrow/></a>
+   <div className="fortune-journey-guides">
+    <a href="/fortune/bazi/"><span>{t("home.bazi")} · {t("home.baziDesc")}</span><Arrow className="crew-arrow--plain"/></a>
+    <a href="/fortune/numerology/"><span>{t("home.tarot")} · {t("home.tarotDesc")}</span><Arrow className="crew-arrow--plain"/></a>
+   </div>
   </section>
   {(list===null||Boolean(latest)||Boolean(error))&&<section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
    {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
@@ -105,9 +107,9 @@ export function FortuneHomePage(){
       </div>
      </div>
      <div className="fortune-journey-actions">
-      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")} <Arrow/></Link>
+      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")}</Link>
       <button className="btn secondary" type="button" disabled={Boolean(openingId)} onClick={()=>void explain(latest.id)}>
-       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")} <Arrow/>
+       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")}
       </button>
      </div>
     </div>:
