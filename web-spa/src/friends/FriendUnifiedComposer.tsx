@@ -56,6 +56,9 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
   if(!connected||busy||blocked||!pendingText.current)return;
   const text=pendingText.current;pendingText.current="";void send(text);
  },[connected,busy,blocked]);
+ useEffect(()=>{
+  if(pendingText.current)setNotice(t(verificationReady?"friendLive.connectingText":"friendLive.verifyBeforeSend"));
+ },[verificationReady,t]);
  const submit=(event:FormEvent)=>{event.preventDefault();void send(draft)};
  const keyDown=(event:KeyboardEvent<HTMLTextAreaElement>)=>{
   if(event.key==="Enter"&&!event.shiftKey&&!event.nativeEvent.isComposing){
