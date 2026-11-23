@@ -89,3 +89,4 @@ https://:version.magic76-github-io.pages.dev/*
 /assets/js/fortune-report-lab.js
   Cache-Control: no-store, max-age=0
   X-Content-Type-Options: nosniff
+\n# TTS experiments are private product-evaluation pages.\n/tts-lab/*\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store, max-age=0\n
