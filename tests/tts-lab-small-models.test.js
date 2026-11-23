@@ -12,7 +12,7 @@ test("TTS comparison lab pins local model runtimes and keeps production isolated
  assert.match(page,/Kitten TTS 2 Nano int4/);
  assert.match(page,/Kitten TTS 2 Pico int4/);
  assert.match(page,/At first, I thought learning English/);
- assert.match(page,/Three thoughtful travelers/);
+ assert.match(js,/Three thoughtful travelers/);
  assert.match(js,/kokoro-js@1\.2\.1/);
  assert.match(js,/KittenTTS-web@c846fe92858f3447f4912226471f5a63983b3f94/);
  assert.match(js,/onnxruntime-web@1\.24\.3/);
