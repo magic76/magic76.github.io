@@ -11,13 +11,13 @@ const KOKORO_MODEL="onnx-community/Kokoro-82M-v1.0-ONNX";
 const ORT_JS="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/ort.min.js";
 const ORT_BASE="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/";
 const PAKO_URL="https://esm.sh/pako@2.1.0";
-const G2P_URL="https://esm.sh/@piper-plus/g2p@0.5.0";
+const UCCHARAN_URL="https://esm.sh/uccharan@1.0.0";
 const PICO_BASE="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";
-const PICO_LANGUAGES=new Set(["es","fr","pt"]);
+const PICO_LANGUAGES=new Set(["de","es","fr","it","pt"]);
 const LANG_TAG:Record<string,string>={en:"en-US",es:"es-ES",fr:"fr-FR",de:"de-DE",it:"it-IT",pt:"pt-BR",ja:"ja-JP",ko:"ko-KR",vi:"vi-VN",th:"th-TH",zh:"zh-TW",id:"id-ID",ru:"ru-RU",hi:"hi-IN"};
 
 type RawVoice={rows:number;cols:number;data:Float32Array};
-type TinyEngine={session:any;ort:any;g2p:any;vocab:Record<string,number>;voices:Record<string,RawVoice>};
+type TinyEngine={session:any;ort:any;phonemize:(text:string,options?:any)=>Promise<string>|string;vocab:Record<string,number>;voices:Record<string,RawVoice>};
 const generated=new Map<string,Blob>();
 const scripts=new Map<string,Promise<void>>();
 const tinyEngines=new Map<string,Promise<TinyEngine>>();
@@ -154,7 +154,7 @@ async function loadTiny(language:string):Promise<TinyEngine>{
   const g2p=await G2P.create({languages:[language]});
   const voices=await parseNPZ(voiceData);
   const session=await ort.InferenceSession.create(model,{executionProviders:["wasm"],graphOptimizationLevel:"all",intraOpNumThreads:1});
-  return{session,ort,g2p,vocab:JSON.parse(new TextDecoder().decode(vocabData)),voices};
+  return{session,ort,phonemize,vocab:JSON.parse(new TextDecoder().decode(vocabData)),voices};
  })().catch(error=>{tinyEngines.delete(language);throw error});
  tinyEngines.set(language,promise);return promise;
 }
@@ -182,7 +182,7 @@ function wavBlob(samples:Float32Array,rate=24000){
 }
 async function picoBlob(text:string,language:string,speed:LearningSpeechSpeed){
  const engine=await loadTiny(language);
- const result=engine.g2p.phonemize(text,{language}),phonemes=Array.isArray(result?.tokens)?result.tokens.join(""):"";
+ const phonemes=String(await engine.phonemize(text,{lang:language}));
  const tokens=encodeTiny(phonemes,engine.vocab);if(tokens.length<4||tokens.length>353)throw new Error("PICO_INPUT_UNSUPPORTED");
  const voice=engine.voices[Object.keys(engine.voices)[0]];if(!voice)throw new Error("PICO_VOICE_UNAVAILABLE");
  const row=Math.min(tokens.length-1,voice.rows-1),style=voice.data.slice(row*voice.cols,(row+1)*voice.cols);
