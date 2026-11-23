@@ -217,6 +217,99 @@ test("PWA API detects HTML fallback, HTML edge error and Access redirect without
  }
 });
 
+
+function duplicateDb(stored,{loseClaim=false}={}){
+ const queries=[];
+ return {queries,prepare(sql){
+  queries.push(sql);
+  return {bind(...args){
+   return {
+    async first(){
+     if(sql.includes("FROM crew_auth_sessions"))return {user_id:UUID};
+     if(sql.includes("FROM koolo_fortune_lab_reports"))return stored;
+     return null;
+    },
+    async all(){return {results:[]}},
+    async run(){
+     if(sql.includes("SET status='failed'")&&sql.includes("created_at<?"))
+      return {meta:{changes:0}};
+     if(sql.startsWith("INSERT INTO koolo_fortune_lab_reports"))
+      return {meta:{changes:0}};
+     if(sql.includes("SET status='generating'")){
+      if(loseClaim){stored.status="generating";return {meta:{changes:0}}}
+      stored.status="generating";return {meta:{changes:1}};
+     }
+     if(sql.includes("SET status='ready'"))stored.status="ready";
+     return {meta:{changes:1}};
+    }
+   };
+  }};
+ }};
+}
+
+test("duplicate requestId returns an existing ready book without calling Gemini",async()=>{
+ const id="aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa";
+ const stored={id,user_id:UUID,request_id:UUID,status:"ready",created_at:100000,
+  model,prompt_tokens:260,output_tokens:780,content_json:JSON.stringify({
+   version:"bazi-private-lab-v2",facts:normalizeLabFacts(facts),chapters:chapters()
+  })};
+ let aiCalls=0;
+ const database=duplicateDb(stored);
+ const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(database,{FORTUNE_LAB_TEST_FETCH:async()=>{aiCalls++;throw Error("duplicate book must not call Gemini")}})});
+ assert.equal(res.status,200);
+ const {report}=await res.json();
+ assert.equal(report.id,id);
+ assert.equal(report.version,"bazi-private-lab-v2");
+ assert.equal(report.status,"ready");
+ assert.equal(aiCalls,0);
+ assert.equal(database.queries.some(q=>q.includes("SET status='generating'")),false);
+ assert.equal(res.headers.get("X-Koolo-Fortune-Lab-API"),"v1");
+});
+
+test("duplicate generating ID returns 202 without another Gemini generation",async()=>{
+ const stored={id:UUID,user_id:UUID,request_id:UUID,status:"generating",created_at:Math.floor(Date.now()/1000),
+  model,prompt_tokens:0,output_tokens:0,content_json:null};
+ let calls=0;
+ const database=duplicateDb(stored);
+ const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(database,{FORTUNE_LAB_TEST_FETCH:async()=>{calls++;throw Error("no duplicate generation")}})});
+ assert.equal(res.status,202);
+ assert.equal((await res.json()).report.status,"generating");
+ assert.equal(calls,0);
+ assert.equal((await get({request:request("?report="+UUID),env:env(database)})).status,202);
+});
+
+test("failed requestId is atomically reclaimed without creating a second row",async()=>{
+ const originalId="aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa";
+ const stored={id:originalId,user_id:UUID,request_id:UUID,status:"failed",created_at:100000,
+  model,prompt_tokens:0,output_tokens:0,content_json:null};
+ const database=duplicateDb(stored);
+ let calls=0;
+ const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(database,{FORTUNE_LAB_TEST_FETCH:async(url,opts)=>{calls++;return fakeProvider(url,opts)}})});
+ assert.equal(res.status,201);
+ const {report}=await res.json();
+ assert.equal(report.id,originalId);
+ assert.equal(report.status,"ready");
+ assert.equal(calls,1);
+ assert.equal(database.queries.filter(q=>q.includes("INSERT INTO koolo_fortune_lab_reports")).length,1);
+ assert.equal(database.queries.filter(q=>q.includes("SET status='generating'")).length,1);
+ assert.match(database.queries.join("\n"),/status='failed' AND/);
+});
+
+test("lost retry race returns another caller's generating state without duplicate Gemini work",async()=>{
+ const stored={id:UUID,user_id:UUID,request_id:UUID,status:"failed",created_at:100000,
+  model,prompt_tokens:0,output_tokens:0,content_json:null};
+ const database=duplicateDb(stored,{loseClaim:true});
+ let calls=0;
+ const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(database,{FORTUNE_LAB_TEST_FETCH:async()=>{calls++;throw Error("no second Gemini call")}})});
+ assert.equal(res.status,202);
+ assert.equal((await res.json()).report.status,"generating");
+ assert.equal(calls,0);
+});
+
 test("first-party generation failures are marked as JSON and failed jobs do not consume daily quota",async()=>{
  const dbInstance=db();
  const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
