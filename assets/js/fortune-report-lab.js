@@ -132,7 +132,7 @@ async function history(){
    var btn=document.createElement("button");
    btn.type="button";btn.textContent=new Date(x.createdAt*1000).toLocaleString("zh-TW")+
     " · "+(x.status==="ready"?"開啟命書":x.status==="generating"?"製作中":"生成未完成");
-   btn.disabled=x.status==="failed";btn.addEventListener("click",function(){openReport(x.id)});
+   btn.disabled=false;btn.addEventListener("click",function(){openReport(x.id)});
    container.appendChild(btn)
   })
  }catch(e){node("history").textContent="無法讀取測試紀錄："+e.message}
@@ -175,6 +175,27 @@ function showBook(x){
  text("meta","私密驗收 · "+x.model+" · "+(x.usage&&x.usage.outputTokens||0)+" output tokens"+(legacy?" · 舊版命書":""));
  chooser.hidden=true;reportEl.hidden=false;window.scrollTo(0,0)
 }
+async function continueReport(id){
+ // A single request creates at most one chapter; each chapter is committed to
+ // D1 before the next starts. Reopening this report resumes from its checkpoint.
+ var deadline=Date.now()+240000,completed=-1;
+ while(Date.now()<deadline){
+  var result=await api("",{method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({action:"advance",reportId:id})});
+  if(result.report&&result.report.status==="ready"){
+   rememberPending(null);
+   window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(id));
+   showBook(result.report);return;
+  }
+  var step=result.report&&result.report.progress;
+  if(!step)throw Error("進度暫時無法確認，請從製作紀錄重新開啟，不會重複產生已完成章節。");
+  completed=step.completed;
+  say("正在撰寫專屬命書：已完成 "+completed+"／"+step.total+" 個章節。"+
+   (step.busy?"正在等待上一次寫作完成…":"逐章保存中，連線中斷也能接續。"));
+  await new Promise(function(resolve){setTimeout(resolve,step.busy?2500:400)});
+ }
+ say("已完成 "+Math.max(0,completed)+"／7 個章節，可從製作紀錄接續，不需重新開始。");
+}
 async function waitForReport(id){
  // A duplicate POST must never start a second upstream generation while
  // the previous one is still running. Poll this user's saved report instead.
@@ -203,10 +224,13 @@ async function openReport(id){
    rememberPending(null);
    window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(id));
    showBook(x.report);
+  }else if(x.report&&x.report.progress){
+   say("找到未完成的命書，從已保存的章節接續製作。");
+   await continueReport(id);
   }else if(x.report&&x.report.status==="generating"){
    say("命書仍在製作中，正在查看進度…");
    await waitForReport(id);
-  }else say("這份命書未完成，可選擇命盤重新產生。");
+  }else say("這份舊版命書未完成，請選擇原命盤重新產生。");
  }catch(e){say("開啟失敗："+e.message)}
 }
 button.addEventListener("click",async function(){
@@ -221,11 +245,14 @@ button.addEventListener("click",async function(){
   button.disabled=true;button.textContent="正在製作命書…";
   say("正在製作專屬命書，請保持此頁開啟。");
   var x=await api("",{method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({requestId:pending.requestId,facts:facts})});
+   body:JSON.stringify({requestId:pending.requestId,facts:facts,pipeline:"chapters"})});
   if(x.report&&x.report.status==="ready"){
    rememberPending(null);
    window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(x.report.id));
    showBook(x.report);
+  }else if(x.report&&x.report.status==="generating"&&x.report.progress){
+   say("已開始分章製作，完成一章就會保存一次。");
+   await continueReport(x.report.id);
   }else if(x.report&&x.report.status==="generating"){
    say("這份命書已開始製作，正在查詢進度，不會重複生成。");
    await waitForReport(x.report.id);
