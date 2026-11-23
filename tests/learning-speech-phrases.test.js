@@ -7,6 +7,7 @@ test("learning speech routes English to Kokoro and supported European targets to
  const speech=read("web-spa/src/teacher/learningSpeech.ts");
  assert.match(speech,/kokoro-js@1\.2\.1/);
  assert.match(speech,/Kokoro-82M-v1\.0-ONNX/);
+ assert.match(speech,/from_pretrained\(KOKORO_MODEL,\{device:"wasm",dtype:"q8"\}\)/);
  assert.match(speech,/if\(code==="en"\)return"kokoro"/);
  assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de","es","fr","it","pt"\]\)/);
  assert.match(speech,/uccharan@1\.0\.0/);
