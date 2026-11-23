@@ -66,7 +66,9 @@
     "library": "Biblioteca de lectura",
     "libraryDesc": "Elige un texto breve y practica leyendo en voz alta",
     "board": "Pizarra de enseñanza en vivo con IA",
-    "boardDesc": "See explanations, examples and quizzes evolve while talking"
+    "boardDesc": "See explanations, examples and quizzes evolve while talking",
+    "phrases": "Práctica de frases",
+    "phrasesDesc": "Escucha, baja la velocidad, repite, guarda y repasa con un juego de comprensión auditiva."
   },
   "tutor": {
     "title": "Practicar con un profesor",
@@ -245,9 +247,22 @@
       "tech": "Tecnología",
       "social": "Vida social"
     },
-    "kicker": "Vocabulario"
+    "kicker": "Vocabulario",
+    "neuralVoiceHint": "La pronunciación en inglés usa la voz local de IA Kokoro. Si el modelo aún no está listo o no es compatible, se usa automáticamente la voz del sistema.",
+    "modelDownloading": "Descargando el modelo de voz (unos 88 MB, solo una vez). Esta vez se reproducirá primero la voz del sistema.",
+    "modelReady": "El modelo de voz está listo. La próxima reproducción usará la voz de alta calidad.",
+    "listenExample": "Escuchar ejemplo",
+    "saved": "✓ Guardado",
+    "saveExample": "☆ Guardar ejemplo",
+    "fromWord": "De la palabra: {{word}}"
   },
-  "languageHint": {"immersion":"Inmersión total: práctica y explicaciones solo en {{target}}.","base":"Puedes preguntar por significados o gramática en {{native}}. Tu profesor explica en {{native}} y da ejemplos en {{target}}. ","beginner":"Los principiantes reciben más ayuda en su idioma.","advanced":"En niveles avanzados se practica más {{target}}.","adaptive":"La ayuda se adapta a tu nivel al hablar."},
+  "languageHint": {
+    "immersion": "Inmersión total: práctica y explicaciones solo en {{target}}.",
+    "base": "Puedes preguntar por significados o gramática en {{native}}. Tu profesor explica en {{native}} y da ejemplos en {{target}}. ",
+    "beginner": "Los principiantes reciben más ayuda en su idioma.",
+    "advanced": "En niveles avanzados se practica más {{target}}.",
+    "adaptive": "La ayuda se adapta a tu nivel al hablar."
+  },
   "course": {
     "materialNotice": "Los cursos por situaciones solo tienen material en inglés por ahora. Para practicar {{language}}, usa el chat con tu profesor; puede explicarte en {{native}}.",
     "nonEnglishNext": "Practicar situaciones cotidianas (lecciones actuales)",
@@ -411,5 +426,53 @@
     "practiceAria": "Practice pronunciation: {{phrase}}",
     "start": "Start scenario conversation",
     "footnote": "Progress is assessed from what you actually say, not just matching keywords."
+  },
+  "phrasebook": {
+    "kicker": "Mi mazo de aprendizaje",
+    "title": "Práctica de frases",
+    "intro": "Convierte palabras en frases que realmente puedas decir: escucha, baja la velocidad, repite y repasa con un juego auditivo.",
+    "todayKicker": "Hoy",
+    "todayTitle": "5 frases de hoy",
+    "listen": "Escuchar",
+    "save": "Guardar",
+    "listeningKicker": "Escucha",
+    "listeningTitle": "Juego de escucha",
+    "questionNumber": "Pregunta {{count}}",
+    "listeningPrompt": "Escucha primero sin mirar las respuestas. ¿Qué frase oíste?",
+    "playQuestion": "Reproducir pregunta",
+    "correct": "Correcto ✓",
+    "tryAgain": "Escúchala una vez más para fijarla mejor",
+    "next": "Siguiente",
+    "mySaved": "Mis frases guardadas",
+    "savedCount": "{{count}} guardadas · {{due}} para repasar",
+    "preparing": "Preparando pronunciación…",
+    "failed": "No se pudo reproducir. Inténtalo de nuevo.",
+    "cached": "Reproducido desde caché",
+    "played": "Reproducido",
+    "shadowListen": "Primero escucha una vez…",
+    "shadowNow": "Tu turno: repite toda la frase con el mismo ritmo.",
+    "delete": "Eliminar",
+    "slow": "Lento",
+    "shadow": "Repetir",
+    "reviewed": "Ya la repasé",
+    "nextReview": "Próxima: {{date}}",
+    "emptyTitle": "Tu mazo de aprendizaje está vacío",
+    "emptyDesc": "Guarda una de las cinco frases de hoy o una frase de un chat con Zoe que de verdad quieras aprender.",
+    "dailyNote": "5 frases de hoy",
+    "modelDownloading": "Descargando el modelo de voz (unos 88 MB, solo una vez). Esta vez se reproducirá primero la voz del sistema.",
+    "modelReady": "El modelo de voz está listo. La próxima reproducción usará la voz de alta calidad.",
+    "tags": {
+      "correction": "Corrección natural",
+      "hint": "Pista de respuesta",
+      "vocab": "Palabra clave",
+      "phrase": "Frase útil",
+      "saved": "Guardado"
+    },
+    "stages": {
+      "new": "Nuevo",
+      "learning": "Aprendiendo",
+      "review": "Repasando",
+      "familiar": "Dominado"
+    }
   }
 }
