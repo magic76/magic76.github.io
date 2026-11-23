@@ -88,7 +88,7 @@ audio { display: block; width: 100%; margin-top: 16px; }
     download.disabled = true;
   };
   const updateCount = () => {
-    count.textContent = \`\${Array.from(text.value).length} / 300\`;
+    count.textContent = `${Array.from(text.value).length} / 300`;
     if (!generating) clearAudio();
   };
   const setStatus = (message, error = false) => {
@@ -120,7 +120,7 @@ audio { display: block; width: 100%; margin-top: 16px; }
       });
       if (!response.ok) {
         const failure = await response.json().catch(() => ({}));
-        throw new Error(\`\${failure.error || 'HTTP_' + response.status}（HTTP \${response.status}）\`);
+        throw new Error(`${failure.error || 'HTTP_' + response.status}（HTTP ${response.status}）`);
       }
       if (!response.headers.get('Content-Type')?.includes('audio/')) throw new Error('回傳內容不是音訊');
       const blob = await response.blob();
@@ -129,17 +129,17 @@ audio { display: block; width: 100%; margin-top: 16px; }
       objectUrl = URL.createObjectURL(blob);
       audio.src = objectUrl; audio.hidden = false;
       download.disabled = false; ready = true;
-      setStatus(\`生成完成 · \${seconds} 秒 · \${response.headers.get('X-TTS-Cache') === 'HIT' ? '快取命中' : '新生成'} · \${(blob.size / 1024).toFixed(1)} KB\`);
-      try { await audio.play(); } catch { setStatus(\`生成完成 · \${seconds} 秒。請按下播放器的播放鍵。\`); }
+      setStatus(`生成完成 · ${seconds} 秒 · ${response.headers.get('X-TTS-Cache') === 'HIT' ? '快取命中' : '新生成'} · ${(blob.size / 1024).toFixed(1)} KB`);
+      try { await audio.play(); } catch { setStatus(`生成完成 · ${seconds} 秒。請按下播放器的播放鍵。`); }
     } catch (error) {
-      setStatus(\`生成失敗：\${error.message}。若模型已退役，需要改用其他語音服務。\`, true);
+      setStatus(`生成失敗：${error.message}。若模型已退役，需要改用其他語音服務。`, true);
     } finally { generating = false; play.disabled = false; }
   });
   download.addEventListener('click', () => {
     if (!ready || !objectUrl) return;
     const link = document.createElement('a');
     link.href = objectUrl;
-    link.download = \`koolo-tts-\${lang.value}.mp3\`;
+    link.download = `koolo-tts-${lang.value}.mp3`;
     document.body.append(link); link.click(); link.remove();
   });
 })();
