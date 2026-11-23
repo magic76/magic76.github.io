@@ -3,7 +3,7 @@ import {GUEST_TOKEN_ENDPOINT} from "../lib/guestTrial";
 import {awardCreatureChatEnergy} from "../pages/creatureChatRewards.mjs";
 import {GuestKeyRecovery} from "./GuestKeyRecovery";
 import {textChatByokMessage} from "./textChatByokMessage";
-import {useFriendTextLearning,FriendLearningCheck,FriendLearningTip,FriendLearningSummary} from "./TextChatLearning";
+import {useFriendTextLearning,FriendLearningCheck,FriendLearningTip,FriendLearningSummary,FriendLearningActions} from "./TextChatLearning";
 import {buildShortsTextSystems} from "./shortsTextContext";
 import {createTypingReveal} from "./typingReveal";
 import {sendGuestTextWithRenewal} from "./guestTextFlow";
@@ -348,7 +348,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {historyReady&&!messages.length&&!draft.trim()&&!busy&&sessionScope.startsWith("friend:")&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} starters={starters}/>}
    {messages.map((m,i)=><div key={i} className={isFriend&&m.role==="assistant"?"crew-text-ai-row":"crew-text-chat-row"}>{isFriend&&m.role==="assistant"&&chatFriend&&<FriendAvatar friend={chatFriend} className="crew-text-ai-avatar" decorative/>}<div className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?t("textChat.ui.you"):speaker}</strong><p>{m.text}</p>
    {isFriend&&m.role==="user"&&!messages.slice(i+1).some(item=>item.role==="user")&&learning.canCheck(i,m.text)&&<FriendLearningCheck disabled={busy||(guestMode&&["unavailable","exhausted","paused"].includes(guestPhase))} onClick={()=>learning.check(i,m.text,value=>void sendMessage(value))}/>}
-   {isFriend&&m.role==="assistant"&&(!busy||i!==messages.length-1)&&learning.notes.find(note=>note.index===i&&note.reply===m.text)?.tip&&<FriendLearningTip text={learning.notes.find(note=>note.index===i)?.tip||""}/>}{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}
+   {isFriend&&m.role==="assistant"&&(!busy||i!==messages.length-1)&&learning.notes.find(note=>note.index===i&&note.reply===m.text)?.tip&&<FriendLearningTip text={learning.notes.find(note=>note.index===i)?.tip||""}/>}{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>} {isFriend&&m.role==="assistant"&&(!busy||i!==messages.length-1)&&<FriendLearningActions text={m.text}/>}
    {m.role==="assistant"&&busy&&i===messages.length-1&&<span className="crew-text-stream-cursor" aria-hidden="true">▍</span>}</div></div>)}
    {busy&&pendingSend.current&&!pendingSend.current.sent&&<p className="crew-text-chat-pending" role="status">
     {t("textChat.ui.notSent")}{pendingSend.current.value}
