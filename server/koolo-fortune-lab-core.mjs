@@ -120,49 +120,75 @@ export async function generateLabChapters(f,{key,model,fetcher=fetch,timeoutMs=6
 /** Write one independently checkpointed chapter per HTTP request. */
 export function labPartPrompt(f,part){
  if(!PARTS.includes(part))throw Error("INVALID_PART");
- const lines=labPrompt(f).split("\n");
- const direction=lines.find(line=>line.startsWith(part+"："));
+ const direction=labPrompt(f).split("\n").find(line=>line.startsWith(part+"："));
  return [
-  lines[0],lines[1],lines[2],
+  "Koolo 繁體中文八字命書。直接以「你」寫專屬人物側寫，命理線索只代表傾向，不虛構已發生的職業、家庭、健康、收入或人生經歷。",
   "本次僅撰寫："+part+"。只輸出本章完整的繁體中文正文，不要 JSON、Markdown、程式碼區塊、章節標題、前言或格式說明。",
   direction,
-  "本章寫 210 至 340 個繁體中文字，必須有個人辨識度和至少兩個命盤依據，適度描述具體情境，不虛構已經發生的人生經歷，不保證未來事件。避免制式開場、空泛形容及重複其他章節。",
+  "本章 210 至 340 個繁體中文字，至少結合兩項命盤線索及具體情境，有辨識度但不預言必然結果。不要空泛套話、問答、技術說明或特定健康、金錢、婚姻保證。",
   "命盤摘要："+JSON.stringify(f)
  ].join("\n");
 }
-export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=20000}){
+
+export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=28000}){
  if(!PARTS.includes(part))throw Error("INVALID_PART");
  const candidates=[model];
  if(/^gemini-2[.-]/.test(model))candidates.push("gemini-3.5-flash","gemini-3.5-flash-lite");
  else if(model==="gemini-3.5-flash")candidates.push("gemini-3.5-flash-lite");
  const choices=[...new Set(candidates)];
  const controller=new AbortController();
- const limit=Math.max(10,Math.min(22000,Number(timeoutMs)||20000));
+ // Split the overall budget between the primary model and a faster fallback.
+ // A slow primary must not make the owner wait for a 20s failure just to retry.
+ const limit=Math.max(10,Math.min(30000,Number(timeoutMs)||28000));
  const timer=setTimeout(()=>controller.abort(),limit);
+ const started=Date.now();
  try{
-  for(const candidate of choices){
+  for(let i=0;i<choices.length;i++){
+   if(controller.signal.aborted)throw Error("UPSTREAM_TIMEOUT");
+   const candidate=choices[i],hasFallback=i<choices.length-1;
+   const remaining=Math.max(10,limit-(Date.now()-started));
+   const candidateLimit=hasFallback?Math.min(12000,Math.max(10,Math.floor(remaining*0.46))):remaining;
+   const attemptController=new AbortController();
+   const cancel=()=>attemptController.abort();
+   controller.signal.addEventListener("abort",cancel,{once:true});
+   const attemptTimer=setTimeout(()=>attemptController.abort(),candidateLimit);
    let response;
-   // The provider can return a transient 429 or 5xx immediately. Retry only
-   // once within this chapter's 20-second overall deadline. Completed chapters
-   // are never repeated; auth/invalid-model/quality errors are not retried.
-   for(let attempt=0;attempt<2;attempt++){
-    response=await fetcher("https://generativelanguage.googleapis.com/v1beta/models/"+candidate+":generateContent",{
-     method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
-     signal:controller.signal,
-     body:JSON.stringify({contents:[{role:"user",parts:[{text:labPartPrompt(f,part)}]}],
-      // One chapter is already a single string. Avoid requiring a JSON wrapper
-     // for 200-300 Chinese characters: truncated JSON used to fail the book.
-     // Gemini 3's low thinking mode reserves capacity for the actual prose.
-     generationConfig:{temperature:0.4,maxOutputTokens:6144,
-      ...(/^gemini-3/.test(candidate)?{thinkingConfig:{thinkingLevel:"LOW"}}:{})}})
-    });
-    if([408,429,500,502,503,504].includes(response.status)&&attempt===0){
-     await new Promise(resolve=>setTimeout(resolve,500));
-     continue;
+   try{
+    // Retry one short-lived 429/5xx. Any long wait instead transfers to the
+    // fallback candidate within the same HTTP request and D1 chapter lease.
+    for(let attempt=0;attempt<2;attempt++){
+     response=await fetcher("https://generativelanguage.googleapis.com/v1beta/models/"+candidate+":generateContent",{
+      method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
+      signal:attemptController.signal,
+      body:JSON.stringify({contents:[{role:"user",parts:[{text:labPartPrompt(f,part)}]}],
+       generationConfig:{temperature:0.4,maxOutputTokens:6144,
+        ...(/^gemini-3\.5-flash(?:-lite)?$/.test(candidate)?
+         {thinkingConfig:{thinkingLevel:"MINIMAL"}}:
+         /^gemini-3/.test(candidate)?{thinkingConfig:{thinkingLevel:"LOW"}}:{})}})
+     });
+     if([408,429,500,502,503,504].includes(response.status)&&attempt===0){
+      await new Promise(resolve=>setTimeout(resolve,250));
+      continue;
+     }
+     break;
     }
-    break;
+   }catch(e){
+    if(controller.signal.aborted)throw Error("UPSTREAM_TIMEOUT");
+    if(attemptController.signal.aborted){
+     // Abort the slow primary and try the faster model before the request's
+     // overall deadline. No completed chapter is regenerated.
+     if(hasFallback){
+      console.info("[fortune-lab] slow model fallback",JSON.stringify({part,model:candidate,elapsedMs:Date.now()-started}));
+      continue;
+     }
+     throw Error("UPSTREAM_TIMEOUT");
+    }
+    throw e;
+   }finally{
+    clearTimeout(attemptTimer);
+    controller.signal.removeEventListener("abort",cancel);
    }
-   if(response.status===404&&candidate!==choices[choices.length-1])continue;
+   if(response.status===404&&hasFallback)continue;
    if(!response.ok)throw Error("UPSTREAM_"+response.status);
    if((response.headers?.get?.("content-type")||"").toLowerCase().includes("text/html"))
     throw Error("UPSTREAM_INVALID_RESPONSE");
@@ -170,8 +196,6 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
    try{data=await response.json()}catch{throw Error("UPSTREAM_INVALID_RESPONSE")}
    const candidateData=data.candidates?.[0];
    const finishReason=String(candidateData?.finishReason||"").slice(0,32);
-   // A 200 response can still be a clipped generation. Never persist an
-   // unfinished chapter, even if some of its text passes the length check.
    if(finishReason==="MAX_TOKENS")throw Error("UPSTREAM_TRUNCATED");
    if(finishReason==="SAFETY"||finishReason==="PROHIBITED_CONTENT"||
     finishReason==="BLOCKLIST")throw Error("UPSTREAM_BLOCKED");
@@ -179,15 +203,15 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
    let chapter=(candidateData?.content?.parts||[]).filter(p=>!p.thought)
     .map(p=>typeof p.text==="string"?p.text:"").join("").trim();
    if(!chapter)throw Error("UPSTREAM_EMPTY");
-   // Accept well-formed legacy JSON defensively if a provider ignores the
-   // plain-text instruction. Never store malformed JSON as report prose.
+   // Keep accepting successful historic JSON output when a provider ignores
+   // the current plain-text prompt, but never store incomplete JSON as prose.
    if(chapter.startsWith("{")){
     let obj;try{obj=JSON.parse(chapter)}catch{throw Error("UPSTREAM_INVALID_FORMAT")}
     chapter=obj?.[part];
    }
    if(typeof chapter!=="string")throw Error("QUALITY_CHECK_FAILED");
    const text=chapter.trim().replace(/\r\n/g,"\n");
-   if(text.length<150||text.length>700||/<[^>]+>|\x60{3}|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(text))
+   if(text.length<150||text.length>700||/<[^>]+>|`{3}|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(text))
     throw Error("QUALITY_CHECK_FAILED");
    if(part==="personality"&&!text.includes(f.dayMaster)&&!text.includes(f.element))
     throw Error("QUALITY_CHECK_FAILED");

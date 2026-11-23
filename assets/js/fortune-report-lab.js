@@ -26,6 +26,7 @@ function getPending(chartId){
  return value&&value.chartId===chartId&&/^[a-f0-9-]{36}$/i.test(value.requestId)?value:null;
 }
 var ELS=["木","火","土","金","水"],COLORS=["#648676","#cb846a","#bda36b","#88949f","#60859e"];
+var CHAPTER_LABELS=["命盤輪廓","個性與優勢","工作與財運","人際與感情","運勢與時機","內在動機","成長方向"];
 function node(id){return document.getElementById(id)}
 function say(text){msg.textContent=text}
 function failedDescription(report){
@@ -35,7 +36,9 @@ function failedDescription(report){
   "Gemini 回傳格式不完整":code==="QUALITY_CHECK_FAILED"||code==="GEMINI_EMPTY"?
   "本章內容未通過品質檢查":code.startsWith("GEMINI_UPSTREAM_")||code==="AI_TIMEOUT"?
   "Gemini 服務暫時無法完成這一章":"本章製作暫時失敗";
- return meaning+"（"+code+"）。已完成的章節仍保存在製作紀錄，按原紀錄可接續，不需要重做整份命書。";
+ var count=Number(report&&report.progress&&report.progress.completed)||0;
+ return meaning+"（"+code+"）。"+(count>0?"已保存 "+count+"／7 章；":"")+
+  "已完成的章節仍保存在製作紀錄，按原紀錄可接續，不需要重做整份命書。";
 }
 function unexpectedApiResponse(response){
  var status=response.status,kind=(response.headers.get("content-type")||"").toLowerCase();
@@ -139,8 +142,12 @@ async function history(){
   if(result.items.length===0){container.textContent="目前尚無測試命書";return}
   result.items.forEach(function(x){
    var btn=document.createElement("button");
-   btn.type="button";btn.textContent=new Date(x.createdAt*1000).toLocaleString("zh-TW")+
-    " · "+(x.status==="ready"?"開啟命書":x.status==="generating"?"製作中":"生成未完成");
+   btn.type="button";
+   var progress=x.progress&&Number.isInteger(x.progress.completed)?x.progress:null;
+   var caption=x.status==="ready"?"開啟命書":progress?
+    (x.status==="failed"?"繼續製作":"製作中")+" · 已完成 "+progress.completed+"／"+progress.total+" 章":
+    x.status==="generating"?"製作中":"生成未完成";
+   btn.textContent=new Date(x.createdAt*1000).toLocaleString("zh-TW")+" · "+caption;
    btn.disabled=false;btn.addEventListener("click",function(){openReport(x.id)});
    container.appendChild(btn)
   })
@@ -212,8 +219,10 @@ async function continueReport(id){
   var step=result.report&&result.report.progress;
   if(!step)throw Error("進度暫時無法確認，請從製作紀錄重新開啟，不會重複產生已完成章節。");
   completed=step.completed;
-  say("正在撰寫專屬命書：已完成 "+completed+"／"+step.total+" 個章節。"+
-   (step.busy?"正在等待上一次寫作完成…":"逐章保存中，連線中斷也能接續。"));
+  say("已完成 "+completed+"／"+step.total+" 章。"+
+   (step.busy?"上一章正在寫作中…":
+    completed<step.total?"正在撰寫「"+CHAPTER_LABELS[completed]+"」，每章完成就會保存。":
+    "正在整理完整命書…"));
   await new Promise(function(resolve){setTimeout(resolve,step.busy?2500:400)});
  }
  say("已完成 "+Math.max(0,completed)+"／7 個章節，可從製作紀錄接續，不需重新開始。");
@@ -286,7 +295,9 @@ button.addEventListener("click",async function(){
    try{await openReport(e.reportId)}catch{say("已找到上一筆命書，請稍後查看製作紀錄。")}
   }else{
    if(e&&["BAD_JSON","BAD_CONTENT_TYPE","INVALID_CHART","DAILY_LIMIT","LOGIN_REQUIRED","AI_NOT_CONFIGURED"].includes(e.code))rememberPending(null);
-   say("製作未完成："+(e instanceof Error?e.message:"請求失敗")+"。若連線中斷，下一次按鈕會先確認原請求，不會直接重複製作。");
+   var detail=e instanceof Error?e.message:"請求失敗";
+   say("製作未完成："+detail+
+    (detail.includes("按原紀錄可接續")?"":"。若連線中斷，下一次按鈕會先確認原請求，不會直接重複製作。"));
   }
  }finally{
   submitting=false;button.disabled=records.length===0;
