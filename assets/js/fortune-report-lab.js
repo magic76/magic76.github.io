@@ -67,8 +67,6 @@ function pickFacts(r){
  var annual=(x.annualTimeline||[]).filter(function(v){return v.year>=year&&v.year<=year+2}).sort(function(a,b){return a.year-b.year});
  if(annual.length!==3)throw Error("此命盤缺少接下來三年的計算資料，請重新算一次八字。");
  var weighted={};ELS.forEach(function(e){weighted[e]=Number(x.weightedFiveElements&&x.weightedFiveElements[e]||0)});
- var q=[node("question1").value.trim(),node("question2").value.trim()].filter(Boolean);
- if(q.length<1||q.some(function(t){return t.length<5||t.length>160}))throw Error("請填入至少一題，並將每題控制在 5–160 字。");
  return {fourPillars:String(x.fourPillars||""),dayMaster:String(x.dayMaster||""),
  dayMasterElement:String(x.dayMasterElement||""),strength:String(x.dayMasterStrength||""),weighted:weighted,
  counts:{resource:number(x.careerProfile&&x.careerProfile.resourceCount),output:number(x.careerProfile&&x.careerProfile.outputCount),
@@ -76,7 +74,7 @@ function pickFacts(r){
  indirectWealth:number(x.wealthProfile&&x.wealthProfile.indirectWealthCount)},
  luck:{ganZhi:String(x.currentLuckPillar&&x.currentLuckPillar.ganZhi||"")},
  annual:annual.map(function(v){return{year:v.year,ganZhi:v.ganZhi,themes:Array.isArray(v.themes)?v.themes.slice(0,4):[]}}),
- relations:Array.isArray(x.natalInteractions)?x.natalInteractions.slice(0,5):[],questions:q};
+ relations:Array.isArray(x.natalInteractions)?x.natalInteractions.slice(0,5):[]};
 }
 function selectCharts(){
  // All chart history is local. This lookup must finish synchronously, not spin
