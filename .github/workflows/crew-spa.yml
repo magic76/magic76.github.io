@@ -188,7 +188,7 @@ jobs:
           npm run build:cloudflare
           npm run test:cloudflare
       - name: Validate Cloudflare prerender and sitemap (SEO PRs only)
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'seo-')
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'seo-') || contains(github.event.pull_request.head.ref, 'editorial-articles'))
         run: |
           node --check scripts/seo-lastmod.mjs
           node --test tests/seo-lastmod-source.test.js
@@ -196,6 +196,7 @@ jobs:
           npm run test:cloudflare
           node --test tests/intent-seo.test.js
           node --test tests/seo-live.test.js
+          node --test tests/editorial-articles.test.js
           node --test tests/seo-pages.test.js
           node --test tests/seo-ctr.test.js
           node --test tests/koolo-seo-cutover.test.js
