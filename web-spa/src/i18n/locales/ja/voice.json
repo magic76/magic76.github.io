@@ -109,6 +109,8 @@
     "postStarter": "この写真で何があったの？",
     "postUnavailable": "元の投稿が見つからないため、通常のおしゃべりに切り替えました。",
     "textChat": "テキストチャット",
+    "verifyBeforeSend": "先に認証を完了してください",
+    "connectingText": "認証が完了しました。接続してメッセージを送信しています…",
     "voiceChat": "音声チャット",
     "useVoice": "音声に切り替え",
     "useText": "テキストに切り替え",

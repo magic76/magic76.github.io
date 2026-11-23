@@ -109,6 +109,8 @@
     "postStarter": "Was passiert auf diesem Foto?",
     "postUnavailable": "Der ursprüngliche Beitrag wurde nicht gefunden, daher ist das ein normaler Chat.",
     "textChat": "Text-Chat",
+    "verifyBeforeSend": "Bitte schließe zuerst die Verifizierung ab",
+    "connectingText": "Verifiziert. Nachricht wird verbunden und gesendet…",
     "voiceChat": "Sprach-Chat",
     "useVoice": "Zu Sprache wechseln",
     "useText": "Zu Text wechseln",

@@ -109,6 +109,8 @@
     "postStarter": "Apa yang sedang terjadi di foto ini?",
     "postUnavailable": "Postingan asli tidak ditemukan, jadi ini obrolan biasa dengan temanmu.",
     "textChat": "Obrolan teks",
+    "verifyBeforeSend": "Selesaikan verifikasi terlebih dahulu",
+    "connectingText": "Verifikasi selesai. Menghubungkan dan mengirim pesan…",
     "voiceChat": "Obrolan suara",
     "useVoice": "Beralih ke suara",
     "useText": "Beralih ke teks",

@@ -109,6 +109,8 @@
     "postStarter": "Que se passe-t-il sur cette photo ?",
     "postUnavailable": "Publication d’origine introuvable : c’est une discussion normale avec ton ami.",
     "textChat": "Chat écrit",
+    "verifyBeforeSend": "Veuillez d’abord terminer la vérification",
+    "connectingText": "Vérification terminée. Connexion et envoi du message…",
     "voiceChat": "Chat vocal",
     "useVoice": "Passer à la voix",
     "useText": "Passer à l’écrit",
