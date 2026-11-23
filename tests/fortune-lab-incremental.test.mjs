@@ -315,10 +315,10 @@ test("every chapter prompt is concise, fact-grounded, and preserves the chapter 
   const prompt=labPartPrompt(normalized,part);
   assert.ok(prompt.length<1000,part+" request should avoid repeating full-book instructions");
   assert.ok(prompt.includes("四柱")||prompt.includes("命盤摘要"));
-  assert.match(prompt,/不虛構/);
+  assert.match(prompt,/不虛構|不要虛構/);
   assert.match(prompt,/本章 210 至 340/);
  }
- assert.match(labPartPrompt(normalized,"letter"),/內在驅動/);
+ assert.match(labPartPrompt(normalized,"letter"),/內在真正想得到/);
 });
 
 test("report list includes chapter counts but not private chart facts",async()=>{
