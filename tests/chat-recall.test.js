@@ -79,7 +79,7 @@ test("all 11 locale groups are string-only, complete and use matching interpolat
   const voice=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/voice.json`));
   assert.equal(Object.keys(voice.guestText).length,25,lang+": guest quota keys");
   assert.equal(Object.keys(voice.textChat.followUps).length,3);
-  assert.deepEqual(Object.keys(voice.textChat.learning).sort(),["better","checkButton","checkQuestion","dismiss","summaryTitle"]);
+  assert.deepEqual(Object.keys(voice.textChat.learning).sort(),["better","checkButton","checkQuestion","dismiss","listen","modelDownloading","modelReady","originalPrefix","save","savePhrase","saved","savedNote","savedShort","summaryTitle"]);
   for(const group of groups){
    const values=voice.textChat[group];assert.ok(values,lang+"."+group);
    const keys=Object.keys(values).sort();if(!baseline[group])baseline[group]=keys;else assert.deepEqual(keys,baseline[group]);
