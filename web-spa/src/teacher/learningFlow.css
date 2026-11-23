@@ -148,3 +148,6 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 .crew-shadowing-cue{position:sticky;bottom:72px;z-index:4;margin:0;padding:12px 14px;border:1px solid #9fddba;border-radius:14px;background:#eefaf2;color:#1b603d;font-size:13px;font-weight:750;box-shadow:0 10px 30px rgba(28,80,54,.12)}
 .learning-deck-card .crew-phrase-card-actions{margin:10px 0}
 @media(max-width:620px){.crew-phrase-row{grid-template-columns:30px minmax(0,1fr)}.crew-phrase-inline-actions{grid-column:2}.crew-listening-choices{grid-template-columns:1fr}}
+
+.crew-vocab-example-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+.crew-vocab-example-actions .btn{min-height:40px}
