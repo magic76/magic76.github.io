@@ -176,7 +176,7 @@ function sampleBook(){
    })},
   chapters:chapters};
 }
-var readerIndex=0;
+var readerIndex=0,readerFlipTimer=null;
 var readerTitles=["封面","你的整體樣貌","命盤特質","性格與優勢","工作與金錢","人際與感情","未來三年","內在世界","成長方向","封底"];
 function readerSpread(){return !!(window.matchMedia&&window.matchMedia("(min-width:900px)").matches)}
 function readerPages(){return document.querySelectorAll?Array.from(document.querySelectorAll("#bookPages .sheet")):[]}
@@ -184,13 +184,26 @@ function readerGo(index){
  var pages=readerPages(),count=pages.length;if(!count)return;
  var size=readerSpread()?2:1;
  var next=Math.max(0,Math.min(count-1,Math.floor(index/size)*size));
+ var wasActive=pages.map(function(page){return /(?:^|\s)is-active(?:\s|$)/.test(page.className)});
+ var turning=next!==readerIndex&&wasActive.some(Boolean);
  reportEl.dataset.direction=next<readerIndex?"prev":"next";
  readerIndex=next;
+ if(readerFlipTimer!==null){clearTimeout(readerFlipTimer);readerFlipTimer=null}
+ var leaving=false;
  pages.forEach(function(page,i){
   var visible=i>=next&&i<next+size;
-  page.className=page.className.replace(/\s+is-active/g,"")+(visible?" is-active":"");
+  var flipOut=turning&&wasActive[i]&&!visible;
+  page.className=page.className.replace(/\s+is-active|\s+is-leaving/g,"")+
+   (visible?" is-active":flipOut?" is-leaving":"");
   if(page.setAttribute)page.setAttribute("aria-hidden",visible?"false":"true");
+  if(flipOut)leaving=true;
  });
+ // The actual page turns over the new page, then returns to display:none.
+ // Cancel old cleanup if the user swipes again before the animation ends.
+ if(leaving)readerFlipTimer=setTimeout(function(){
+  pages.forEach(function(page){page.className=page.className.replace(/\s+is-leaving/g,"")});
+  readerFlipTimer=null;
+ },600);
  text("pageCounter",(next+1)+(size>1&&next+1<count?"–"+Math.min(count,next+size):"")+" / "+count);
  text("pageTitle",readerTitles[next]||"命書");
  node("prevPage").disabled=next===0;
@@ -376,6 +389,7 @@ node("bookPages")?.addEventListener("touchend",function(e){
  if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.35)
   readerGo(readerIndex+(dx<0?1:-1)*(readerSpread()?2:1));
 },{passive:true});
+node("bookPages")?.addEventListener("touchcancel",function(){swipeStart=null},{passive:true});
 if(window.addEventListener){
  window.addEventListener("keydown",function(e){
   if(reportEl.hidden||e.altKey||e.ctrlKey||e.metaKey)return;
