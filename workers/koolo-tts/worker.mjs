@@ -63,7 +63,7 @@ async function asAudio(value) {
   if (value instanceof ArrayBuffer || ArrayBuffer.isView(value) || value instanceof ReadableStream) {
     bytes = new Uint8Array(await new Response(value).arrayBuffer());
   } else if (value && typeof value.audio === 'string') {
-    const base64 = value.audio.replace(/^data:audio\\/[^;]+;base64,/, '');
+    const base64 = value.audio.replace(/^data:audio\/[^;]+;base64,/, '');
     bytes = Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
   } else {
     return null;
