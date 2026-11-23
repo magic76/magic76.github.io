@@ -20,7 +20,8 @@ Page URL after deployment: `https://koolo.app/fortune/report-lab` (the `/api/for
 3. Cloudflare Pages project -> Settings -> Variables and Secrets -> **Production** (runtime). There is **no separate fortune-lab enabled switch**:
    - **No `KOOLO_FORTUNE_LAB_USER_IDS` is needed.** Existing `KOOLO_ADMIN_EMAILS` and/or Cloudflare Access settings continue to control dashboard administrator access.
    - `KOOLO_FORTUNE_LAB_GEMINI_KEY` = a valid Gemini developer key (**Secret**, never `VITE_*` or committed to Git).
-   - Optional `KOOLO_FORTUNE_LAB_MODEL` = `gemini-2.5-flash` by default (**Text**). If unavailable on the key/account, set to a supported Gemini text model and re-deploy.
+   - Optional `KOOLO_FORTUNE_LAB_MODEL` = `gemini-3.5-flash` by default (**Text**). If unavailable on the key/account, set to a supported Gemini text model and re-deploy.
+   - If a legacy explicitly configured `gemini-2.5-flash` is inaccessible and Gemini returns **404**, the lab automatically retries with `gemini-3.5-flash` (then `gemini-3.5-flash-lite` if also 404). The daily attempt is inserted only once, and the final report records the model actually used. For default `gemini-3.5-flash`, a 404 falls back to Flash-Lite. Other errors (401/403/429/5xx) are never retried automatically.
    - Existing `CREW_AUTH_DB` binding remains unchanged. To authorize a Google admin login, the existing `0005_verified_admin_email.sql` migration and `KOOLO_ADMIN_EMAILS` configuration must already be in place, just as for `/usage`.
 4. Deploy Pages once the runtime variables are saved, including the new `/fortune/report-lab` Pages Function route in `_routes.json`. Open `https://koolo.app/fortune/report-lab` directly; no menu entry is added.
 
