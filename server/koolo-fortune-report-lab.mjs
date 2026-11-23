@@ -50,7 +50,7 @@ export async function labGet(ctx){
    if(row.status!=="ready")return reply({report:rowSummary(row)});
    const content=JSON.parse(row.content_json);
    if(!content||!content.facts||!validateLabChapters(content.chapters,content.facts))return reply({error:"REPORT_INVALID"},503);
-   return reply({report:{...rowSummary(row),facts:content.facts,chapters:content.chapters}});
+   return reply({report:{...rowSummary(row),version:content.version||"bazi-private-lab-v1",facts:content.facts,chapters:content.chapters}});
   }catch{return reply({error:"UNAVAILABLE"},503)}
  }
  if(url.searchParams.has("list")){
@@ -85,7 +85,7 @@ export async function labPost(ctx){
   payload=JSON.parse(raw);
  }catch{return reply({error:"BAD_JSON"},400)}
  const facts=normalizeLabFacts(payload?.facts);
- if(!facts||!UUID.test(payload?.requestId||""))return reply({error:"INVALID_CHART_OR_QUESTIONS"},400);
+ if(!facts||!UUID.test(payload?.requestId||""))return reply({error:"INVALID_CHART"},400);
  const now=nowSec(),id=crypto.randomUUID();
  try{
   // A completed failed attempt should not permanently consume the daily 3-slot
@@ -107,14 +107,14 @@ export async function labPost(ctx){
  const generationStart=Date.now();
  try{
   const generated=await generateLabChapters(facts,{key,model,fetcher:ctx.env?.FORTUNE_LAB_TEST_FETCH||fetch});
-  const snapshot=JSON.stringify({version:"bazi-private-lab-v1",facts,chapters:generated.chapters});
+  const snapshot=JSON.stringify({version:"bazi-private-lab-v2",facts,chapters:generated.chapters});
   if(snapshot.length>50000)throw Error("REPORT_TOO_LARGE");
   // Persist the actual model used when a retired model returns 404, rather
   // than attributing a successful book to the failed initial model.
   const generatedModel=generated.model||model;
   await a.db.prepare("UPDATE koolo_fortune_lab_reports SET status='ready',model=?,content_json=?,prompt_tokens=?,output_tokens=?,updated_at=? WHERE id=? AND user_id=? AND status='generating'")
    .bind(generatedModel,snapshot,generated.usage.promptTokens,generated.usage.outputTokens,nowSec(),id,a.userId).run();
-  return reply({report:{id,status:"ready",createdAt:now,model:generatedModel,usage:generated.usage,facts,chapters:generated.chapters}},201);
+  return reply({report:{id,status:"ready",version:"bazi-private-lab-v2",createdAt:now,model:generatedModel,usage:generated.usage,facts,chapters:generated.chapters}},201);
  }catch(e){
   try{await a.db.prepare("UPDATE koolo_fortune_lab_reports SET status='failed',updated_at=? WHERE id=? AND user_id=? AND status='generating'")
    .bind(nowSec(),id,a.userId).run()}catch{/* no unauthorized write */}
