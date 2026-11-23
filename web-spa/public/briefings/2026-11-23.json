@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-23",
+  "generatedAt": "2026-11-23T03:15:50.934Z",
+  "edition": "public",
+  "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 2 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
+  "items": [
+    {
+      "id": "451c7a862ccb0924",
+      "title": "ArcTrace: Black-Box Ownership Verification of LLM-Based Forecasting Models via Learned Numeric Preferences",
+      "summary": "Large language models (LLMs) adapted into numeric forecasters increasingly inform decisions in energy, transport, finance and public health. Enforcing trade-secret protection, model licenses and the traceability expected by recent AI regulations requires tracing such a model to its source after it has been copied, fine",
+      "publishedAt": "2026-11-20T00:00:00Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "ArcTrace: Black-Box Ownership Verification of LLM-Based Forecasting Models via Learned Numeric Preferences",
+          "url": "https://doi.org/10.21203/rs.3.rs-11528359/v1",
+          "publishedAt": "2026-11-20T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 95,
+      "body": "Large language models (LLMs) adapted into numeric forecasters increasingly inform decisions in energy, transport, finance and public health. Enforcing trade-secret protection, model licenses and the traceability expected by recent AI regulations requires tracing such a model to its source after it has been copied, fine"
+    },
+    {
+      "id": "45402fb9d67b00c1",
+      "title": "LiveKit Agents AI agent update: You can recover caller answers that GPT-Live transcribes but never delegates. After a quiet grace period, a detector checks missed",
+      "summary": "You can recover caller answers that GPT-Live transcribes but never delegates. After a quiet grace period, a detector checks missed turns and starts backend delegation when needed, with a note for answers spoken over the agent. GPTLiveModel(delegation_recovery=True) - **xAI**: `xai/stt-2` through Inference, with word alignment for adaptive interruption. - **Google**: Gemini 4 Carbon, Gemini 4 Hydro",
+      "publishedAt": "2026-11-13T17:37:40Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "LiveKit Agents livekit-agents@1.8.12",
+          "url": "https://github.com/livekit/agents/releases/tag/livekit-agents%401.8.12",
+          "publishedAt": "2026-11-13T17:37:40Z",
+          "kind": "官方產品更新"
+        }
+      ],
+      "score": 86,
+      "body": "You can recover caller answers that GPT-Live transcribes but never delegates. After a quiet grace period, a detector checks missed turns and starts backend delegation when needed, with a note for answers spoken over the agent. GPTLiveModel(delegation_recovery=True) - **xAI**: `xai/stt-2` through Inference, with word alignment for adaptive interruption. - **Google**: Gemini 4 Carbon, Gemini 4 Hydrogen (also through Inference), and `gemini-decision-1` through the Decisions API."
+    }
+  ]
+}
