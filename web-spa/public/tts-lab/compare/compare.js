@@ -15,6 +15,7 @@ const ORT_JS="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/ort.min.j
 const ORT_BASE="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/";
 const PAKO_JS="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js";
 const HF="https://huggingface.co/KittenML/";
+const TINY_MODELS={\n nano2:{repo:"kitten-tts-2-nano",model:"kitten_tts_2_nano_en_int4.onnx",male:"danny"},\n pico2:{repo:"kitten-tts-2-pico",model:"kitten_tts_2_pico_en_int4.onnx",male:"otis"}\n};
 const engines={};
 const scripts=new Map();
 let currentUrl="",busy=false;
@@ -112,17 +113,17 @@ async function tinyRuntime(){
 }
 async function loadTiny(kind){
  if(engines[kind])return engines[kind];
- const id=kind==="nano2"?"nano":"pico",repo="kitten-tts-2-"+id,base=HF+repo+"/resolve/main/";
+ const cfg=TINY_MODELS[kind],base=HF+cfg.repo+"/resolve/main/";
  setStatus(kind,"準備 ONNX runtime / phonemizer…");const rt=await tinyRuntime();setProgress(kind,8);
  const [model,voicesData,vocabData]=await Promise.all([
-  fetchCached(base+"kitten_tts_2_"+id+"_en_int4.onnx",kind,"int4 ONNX"),
+  fetchCached(base+cfg.model,kind,"int4 ONNX"),
   fetchCached(base+"voices_en.npz",kind,"英文 voice pack"),
   fetchCached(base+"vocab.json",kind,"vocab")
  ]);
  setProgress(kind,70);const vocab=JSON.parse(new TextDecoder().decode(vocabData)),voices=parseNPZ(voicesData),key=voice.value==="female"?"eleanor":"danny";
  const embedding=voices[Object.keys(voices)[0]];if(!embedding)throw Error("找不到 voice embedding");
  setStatus(kind,"建立 ONNX session…");const session=await rt.ort.InferenceSession.create(model,{executionProviders:["wasm"],graphOptimizationLevel:"all",intraOpNumThreads:1});
- setProgress(kind,100);return engines[kind]={...rt,session,vocab,voices,repo};
+ setProgress(kind,100);return engines[kind]={...rt,session,vocab,voices,cfg};
 }
 function encodeTiny(phonemes,vocab){
  const ids=[];for(const ch of phonemes){if(Object.prototype.hasOwnProperty.call(vocab,ch))ids.push(vocab[ch]);else if(ch==="("||ch===")")ids.push(vocab[","])}
@@ -140,7 +141,7 @@ function finishTiny(samples,durations){
 async function tinyTts(kind){
  const label=kind==="nano2"?"Kitten TTS 2 Nano int4":"Kitten TTS 2 Pico int4",v=sample();stopAll();const started=performance.now(),e=await loadTiny(kind);
  setStatus(kind,"phonemize + 生成長句…");const phonemes=await e.phon.phonemize(v),tokens=encodeTiny(phonemes,e.vocab);if(tokens.length>353)throw Error("這句對 tiny 實驗 port 太長，請換短一點的範例。");
- const key=voice.value==="female"?"eleanor":(kind==="pico2"?"otis":"danny"),emb=e.voices[key]||e.voices[Object.keys(e.voices)[0]],row=Math.min(tokens.length-1,emb.rows-1),style=emb.data.slice(row*emb.cols,(row+1)*emb.cols);
+ const key=voice.value==="female"?"eleanor":e.cfg.male,emb=e.voices[key]||e.voices[Object.keys(e.voices)[0]],row=Math.min(tokens.length-1,emb.rows-1),style=emb.data.slice(row*emb.cols,(row+1)*emb.cols);
  const feeds={input_ids:new e.ort.Tensor("int64",BigInt64Array.from(tokens.map(BigInt)),[1,tokens.length]),style:new e.ort.Tensor("float32",style,[1,style.length]),speed:new e.ort.Tensor("float32",Float32Array.of(Number(speed.value)),[1])};
  const r=tinyResult(await e.session.run(feeds)),pcm=finishTiny(r.samples,r.durations);await playBlob(wavBlob(pcm,24000),label,((performance.now()-started)/1000).toFixed(1)+" 秒");
  setStatus(kind,"完成 · 實驗 port（非官方 Web frontend）。");
