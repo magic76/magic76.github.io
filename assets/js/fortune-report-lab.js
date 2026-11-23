@@ -35,7 +35,19 @@ async function api(query,init){
    throw Error(unexpectedApiResponse(response));
   var obj;
   try{obj=await response.json()}catch{throw Error("命書 API JSON 格式錯誤（HTTP "+response.status+"），請查看 Cloudflare Pages 日誌。")}
-  if(!response.ok)throw Error((obj&&obj.error||"API_ERROR")+"（HTTP "+response.status+"）");
+  if(!response.ok){
+   var apiError=obj&&typeof obj.error==="string"&&/^[A-Z][A-Z0-9_]{1,55}$/.test(obj.error)?obj.error:null;
+   if(!apiError){
+    // Cloudflare/proxy JSON errors may be 502 with {errors:[...]} rather than
+    // the first-party {error:"..."} contract. Do not show untrusted raw text.
+    var marker=response.headers.get("x-koolo-fortune-lab-api");
+    var ray=response.headers.get("cf-ray")||"";
+    var rayLabel=/^[A-Za-z0-9-]{8,80}$/.test(ray)?"；Ray ID "+ray:"";
+    var source=marker==="v1"?"命書 API 異常回應":"Cloudflare／代理層回應（非命書 API 格式）";
+    throw Error(source+"（HTTP "+response.status+"）"+rayLabel+"。請至 Cloudflare Pages Functions 日誌查同時段錯誤，勿再重設 Key 或 SQL。");
+   }
+   throw Error(apiError+"（HTTP "+response.status+"）");
+  }
   if(!obj||typeof obj!=="object")throw Error("命書 API 回傳資料格式無效");
   return obj;
  }catch(error){
