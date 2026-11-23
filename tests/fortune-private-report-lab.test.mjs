@@ -164,7 +164,8 @@ test("PWA API detects HTML fallback, HTML edge error and Access redirect without
  for(const [htmlStatus,expected] of [
   [200,/回傳網頁而非資料（HTTP 200）/],
   [504,/HTML 錯誤頁（HTTP 504）/],
-  [302,/命書 API 被重新導向/]
+  [302,/命書 API 被重新導向/],
+  [502,/Cloudflare／代理層回應（非命書 API 格式）（HTTP 502）；Ray ID abcd1234abcd1234-TPE/]
  ]){
   const elements=new Map();
   const make=()=>({value:"",textContent:"",disabled:false,hidden:false,children:[],listeners:{},
@@ -182,8 +183,11 @@ test("PWA API detects HTML fallback, HTML edge error and Access redirect without
    });
    assert.equal(options.redirect,"manual");
    assert.equal(options.headers.Accept,"application/json");
-   return new Response(htmlStatus===302?null:"<!DOCTYPE html><html><body>Edge fallback</body></html>",{
-    status:htmlStatus,headers:{"content-type":"text/html"}
+   return new Response(htmlStatus===302?null:htmlStatus===502?
+    JSON.stringify({errors:[{message:"upstream internal key SECRET_DO_NOT_SHOW"}]}):
+    "<!DOCTYPE html><html><body>Edge fallback</body></html>",{
+    status:htmlStatus,headers:htmlStatus===502?
+     {"content-type":"application/json","cf-ray":"abcd1234abcd1234-TPE"}:{"content-type":"text/html"}
    });
   };
   new Function("document","localStorage","location","window","fetch","crypto","console",browserJs)(
@@ -196,9 +200,21 @@ test("PWA API detects HTML fallback, HTML edge error and Access redirect without
   await elements.get("generate").listeners.click();
   const message=elements.get("message").textContent;
   assert.match(message,expected);
-  assert.doesNotMatch(message,/Unexpected token|<!DOCTYPE/i);
+  assert.doesNotMatch(message,/Unexpected token|<!DOCTYPE|SECRET_DO_NOT_SHOW|API_ERROR/i);
   assert.equal(elements.get("generate").disabled,false);
  }
+});
+
+test("first-party generation failures are marked as JSON and failed jobs do not consume daily quota",async()=>{
+ const dbInstance=db();
+ const res=await post({request:request("",{method:"POST",body:{requestId:UUID,facts}}),
+  env:env(dbInstance,{FORTUNE_LAB_TEST_FETCH:async()=>new Response("unavailable",{status:502})})});
+ assert.equal(res.status,502);
+ assert.equal(res.headers.get("X-Koolo-Fortune-Lab-API"),"v1");
+ assert.equal((await res.json()).error,"GEMINI_UPSTREAM_502");
+ assert.ok(dbInstance.queries.some(q=>q.includes("status='failed'")&&q.includes("created_at<?")));
+ assert.ok(dbInstance.queries.some(q=>q.includes("status IN ('generating','ready')")));
+ assert.ok(dbInstance.queries.some(q=>q.includes("SET status='failed'")));
 });
 
 test("a stalled Gemini request is aborted before the edge timeout",async()=>{
