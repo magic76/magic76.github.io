@@ -98,7 +98,7 @@ function provider({calls=[],failAt=null}={}){
   calls.push(part);
   if(failAt&&calls.length===failAt)return new Response("upstream unavailable",{status:503});
   const txt=("依據丙火日主、木火互動與五行配置，這個人可能在面對選擇時同時重視效率和關係，適合透過觀察實際情況建立自己更舒服的節奏，而不是預設任何人生經歷。").repeat(4)+
-   " 觀察年份 "+YEAR+" 年的節奏，重點是選擇與調整。";
+   " 觀察年份 "+YEAR+" 年的節奏，重點是選擇與調整。本章專注於 "+part+" 的獨特面向。";
   return new Response(JSON.stringify({candidates:[{content:{parts:[{text:JSON.stringify({[part]:txt})}]}}],
    usageMetadata:{promptTokenCount:87,candidatesTokenCount:210}}),{
     headers:{"Content-Type":"application/json"},status:200});
