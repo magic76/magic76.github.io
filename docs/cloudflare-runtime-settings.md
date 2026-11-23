@@ -22,7 +22,7 @@
 | --- | --- | --- | --- |
 | `KOOLO_ADMIN_EMAILS`（沿用後台） | **Text**／Production runtime，已設定者無須重設 | 與 `/usage` 後台同一套 Google 已驗證管理員權限（也支援原本 Cloudflare Access 的驗證） | **不新增命理專用 UUID 名單**。報告仍需 Koolo 登入以綁定使用者帳號 |
 | `KOOLO_FORTUNE_LAB_GEMINI_KEY` | **Secret**／Production runtime | 伺服器端生成私有命書使用的 Gemini Key | 必須填有效 Key，**不要用 `VITE_*`，不要提交至 GitHub** |
-| `KOOLO_FORTUNE_LAB_MODEL` | **Text**／Production runtime，可省略 | 命書使用的 Gemini 文字模型 | 預設 `gemini-2.5-flash`；必要時改成該 Key 可用的文字模型 |
+| `KOOLO_FORTUNE_LAB_MODEL` | **Text**／Production runtime，可省略 | 命書使用的 Gemini 文字模型 | 預設 `gemini-3.5-flash`；必要時改成該 Key 可用的文字模型 |
 
 **不需要再設定 `KOOLO_FORTUNE_LAB_ENABLED`**，驗收台直接沿用後台管理權限（仍需 Koolo 登入）。
 
