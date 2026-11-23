@@ -10,7 +10,7 @@ Page URL after deployment: `https://koolo.app/fortune/report-lab` (the `/api/for
 - Administrators who can use `/usage` and are also logged into Koolo can use this lab. Cloudflare Access alone **without a Koolo login** is not enough, because report ownership and storage require a signed-in user. Non-admin accounts receive **404** (missing Koolo login receives **401**). The HTML interface itself is not delivered to unauthorized users.
 - The route is marked `noindex, nofollow, noarchive`, `no-store`, strict CSP, and has no public navigation link.
 - No ECPay callback, purchase report or voice wallet is changed.
-- Each allowed account can create **at most 3 reports per Taipei day**, enforced in the D1 insert, including failures.
+- Each allowed account can have **at most 3 in-progress or ready reports per Taipei day**. Failed reports do not consume one of these slots, and abandoned synchronous generations are marked failed after 15 minutes on the next submission.
 - Generated text and compact derived chart facts live in **`koolo_fortune_lab_reports`** only. Access is scoped to `user_id`. Birth date, place, raw profile, private API key and payment details are **not** submitted.
 
 ## Required Cloudflare setup
@@ -68,7 +68,7 @@ category so the next diagnosis can target the appropriate layer.
 - Synchronous generation may fail if a browser/network request disconnects. For paid customers, use **Queues/Workflows with idempotent retries** and a persisted job lifecycle.
 - Browser print-to-PDF is for owner quality assurance only; production should implement server-controlled PDF generation and private R2 storage or equivalent.
 - Production purchase still needs verified ECPay callback, D1 product catalog extension, double-charge prevention, billing reconciliation, refunds, permanent paid entitlements, and separation from the test table.
-- **Off switch**: set `KOOLO_FORTUNE_LAB_ENABLED=0` and redeploy; data remains for owner until manually removed according to retention policy.
+- The private lab is controlled by the existing server-side management authorization; there is no separate enabled switch. Revoke access through the existing admin policy. Report data remains until explicitly removed according to retention policy.
 
 ## Testing before merging
 
@@ -81,3 +81,7 @@ npm run test:cloudflare
 ```
 
 Do not trigger manual GitHub Actions merely for this private acceptance feature; local tests and a controlled Pages deployment suffice.
+
+### Diagnosing non-first-party HTTP 502 JSON
+
+A valid private lab API JSON response includes the server marker `X-Koolo-Fortune-Lab-API: v1` and, on error, a safe `error` code. If the client receives HTTP 502 JSON without the `error` field, it now displays a distinct **Cloudflare/proxy response** message and a safe `CF-Ray` request ID when available; it does not print untrusted upstream response bodies. Use that Ray ID and timestamp in **Cloudflare Pages → Observability → Logs** to identify the platform failure; only the owner with Cloudflare access can inspect these logs. If a marked error is returned, inspect the safe `GEMINI_UPSTREAM_...`, `AI_TIMEOUT` or `QUALITY_CHECK_FAILED` code instead. Never expose API keys, user cookies, birth data or full prompt contents in reports or logs.
