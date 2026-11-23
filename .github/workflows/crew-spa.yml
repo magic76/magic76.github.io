@@ -53,7 +53,7 @@ jobs:
       # This blocking fix needs case-by-case full-suite parity with the exact
       # PR base, before either worktree generates build-version timestamps.
       - name: Compare npm test failures against master (Cloudflare fix)
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets')
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets') || contains(github.event.pull_request.head.ref, 'fortune-lab-resumable'))
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -121,6 +121,12 @@ jobs:
       - name: Validate private Fortune Lab API, PWA errors and bounded Gemini generation
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'fortune-lab')
         run: node --test tests/fortune-private-report-lab.test.mjs tests/fortune-lab-incremental.test.mjs
+      - name: Verify Cloudflare build for resumable Fortune Lab
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'fortune-lab-resumable')
+        run: |
+          npm run build:cloudflare
+          npm run test:cloudflare
+          npm run check:bundle
       - name: Validate ECPay sandbox order and callback security (ECPay PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'ecpay-stage')
         run: node --test tests/koolo-ecpay-stage.test.mjs tests/fortune-paid-reports.test.mjs
