@@ -141,12 +141,23 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
  const timer=setTimeout(()=>controller.abort(),limit);
  try{
   for(const candidate of choices){
-   const response=await fetcher("https://generativelanguage.googleapis.com/v1beta/models/"+candidate+":generateContent",{
-    method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
-    signal:controller.signal,
-    body:JSON.stringify({contents:[{role:"user",parts:[{text:labPartPrompt(f,part)}]}],
-     generationConfig:{responseMimeType:"application/json",temperature:0.45,maxOutputTokens:3072}})
-   });
+   let response;
+   // The provider can return a transient 429 or 5xx immediately. Retry only
+   // once within this chapter's 20-second overall deadline. Completed chapters
+   // are never repeated; auth/invalid-model/quality errors are not retried.
+   for(let attempt=0;attempt<2;attempt++){
+    response=await fetcher("https://generativelanguage.googleapis.com/v1beta/models/"+candidate+":generateContent",{
+     method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
+     signal:controller.signal,
+     body:JSON.stringify({contents:[{role:"user",parts:[{text:labPartPrompt(f,part)}]}],
+      generationConfig:{responseMimeType:"application/json",temperature:0.45,maxOutputTokens:3072}})
+    });
+    if([408,429,500,502,503,504].includes(response.status)&&attempt===0){
+     await new Promise(resolve=>setTimeout(resolve,500));
+     continue;
+    }
+    break;
+   }
    if(response.status===404&&candidate!==choices[choices.length-1])continue;
    if(!response.ok)throw Error("UPSTREAM_"+response.status);
    if((response.headers?.get?.("content-type")||"").toLowerCase().includes("text/html"))
