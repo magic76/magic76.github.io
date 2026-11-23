@@ -31,6 +31,8 @@ test("#66: typed message survives verification and uses a text-only Live grant",
  assert.match(starter,/onVerificationChange\?\.\(true\)/);
  assert.match(starter,/onVerificationChange\?\.\(false\)/);
  assert.match(page,/onTextGrant=\{async grant=>\{setGuestStarted\(true\);setPendingTextStart\(false\);await live\.start\(grant,true\)\}\}/);
+ assert.match(page,/pendingTextStart\|\|Boolean\(dailyHandoff&&fortuneContinue\)/);
+ assert.match(composer,/if\(pendingText\.current\)setNotice\(t\(verificationReady/);
 });
 test("#66: non-text voice entry stays on the original guest gate",()=>{
  assert.match(composer,/if\(!onVerificationNeeded\)\{setNotice\(t\("guestTrial\.homeDesc"/);
