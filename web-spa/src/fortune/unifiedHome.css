@@ -12,7 +12,7 @@
 .fortune-journey-latest-head p,.fortune-journey-empty p{margin:0;color:var(--muted);line-height:1.6;overflow-wrap:anywhere}
 .fortune-journey-latest-head small{display:block;color:var(--muted);margin-top:8px}
 .fortune-journey-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
-.fortune-journey-actions .btn{display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;min-width:160px;flex:1}
+.fortune-journey-actions .btn{display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;min-width:160px;flex:1;white-space:normal;overflow-wrap:anywhere}
 .fortune-journey-empty .btn{width:fit-content;min-height:44px}
 .fortune-journey-all{color:var(--accent);font-size:13px;font-weight:750;text-decoration:none}
 .fortune-journey-history .fortune-history-list{margin-top:12px}
@@ -23,6 +23,18 @@
 .fortune-journey-home a:focus-visible,.fortune-journey-home button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 @media(max-width:600px){.fortune-journey-latest,.fortune-journey-empty{border-radius:18px;padding:18px}.fortune-journey-actions{flex-direction:column}.fortune-journey-actions .btn{width:100%}.fortune-journey-history .section-head{align-items:center}.fortune-journey-other-links{display:grid;grid-template-columns:minmax(0,1fr)}.fortune-journey-other-links a{min-width:0}}
 @media(prefers-reduced-motion:reduce){.fortune-journey-actions .btn{transition:none}}
+
+/* Secondary SEO explainers must never mix text and detached circle arrows. */
+.fortune-journey-guides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.fortune-journey-guides>a{
+ display:flex;align-items:center;gap:12px;min-width:0;min-height:44px;
+ padding:10px 14px;border:1px solid var(--line);border-radius:12px;
+ background:var(--surface);color:var(--text);font-size:13px;font-weight:700;
+ line-height:1.5;text-decoration:none
+}
+.fortune-journey-guides>a>span:first-child{min-width:0;overflow-wrap:anywhere}
+.fortune-journey-guides .crew-arrow{margin-left:auto}
+@media(max-width:600px){.fortune-journey-guides{grid-template-columns:minmax(0,1fr)}}
 
 /* Three reading approaches share one compact visual hierarchy. */
 .fortune-journey-create .fortune-home-mode{
