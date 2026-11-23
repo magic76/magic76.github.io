@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#101713">
+<title>Koolo TTS Lab · Kokoro 本機語音</title>
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;color-scheme:dark;background:#0c110e;color:#f4f7f5}
+*{box-sizing:border-box}body{margin:0;min-width:280px;background:radial-gradient(circle at top,#20352a 0,#0c110e 48%);min-height:100vh}
+main{max-width:680px;margin:auto;padding:24px 16px 56px}.nav{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:28px}
+a{color:#9ce7bb}.logo{text-decoration:none;color:#eef8f1;font-weight:800}.pill{border:1px solid #42604f;border-radius:999px;padding:6px 10px;font-size:12px;color:#bfe0cc}
+h1{font-size:clamp(30px,8vw,44px);letter-spacing:-.04em;line-height:1.1;margin:0 0 12px}.intro{color:#b3c6bc;line-height:1.7;margin:0 0 22px}
+.card{background:rgba(22,32,27,.94);border:1px solid #31473a;border-radius:22px;padding:20px;margin:14px 0;box-shadow:0 16px 40px rgba(0,0,0,.18)}
+label{display:block;font-size:13px;color:#b8c9bf;margin-bottom:7px}input,select{width:100%;border:1px solid #425b4c;background:#101713;color:#fff;border-radius:12px;padding:13px 14px;font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+button{border:0;border-radius:13px;padding:13px 14px;font-size:15px;font-weight:750;cursor:pointer;background:#edf5f0;color:#102017}
+button.primary{background:#67e49e;color:#092013}button:disabled{opacity:.45;cursor:not-allowed}
+.presets{display:flex;gap:8px;overflow:auto;padding:10px 0 2px}.presets button{white-space:nowrap;background:#26372e;color:#d9e8df;padding:9px 11px}
+.status{margin-top:12px;border-radius:12px;background:#101713;padding:12px;color:#c7d6ce;min-height:48px;line-height:1.45;overflow-wrap:anywhere}
+.meter{height:8px;background:#26372e;border-radius:99px;overflow:hidden;margin-top:8px}.meter span{display:block;height:100%;width:0;background:#67e49e;transition:width .15s ease}
+.note{font-size:12px;color:#99aaa1;line-height:1.6}.badge{display:inline-flex;border:1px solid #3d5648;border-radius:999px;padding:6px 9px;font-size:12px;color:#c7d6ce}
+audio{width:100%;margin-top:12px}audio[hidden]{display:none}
+@media(max-width:520px){.grid,.actions{grid-template-columns:1fr}.card{padding:16px}}
+</style>
+</head>
+<body>
+<main>
+<nav class="nav"><a class="logo" href="/tts-lab/">← TTS Lab</a><span class="pill">LOCAL AI</span></nav>
+<h1>Kokoro 本機語音</h1>
+<p class="intro">不呼叫 Koolo 的 TTS Worker，直接在瀏覽器下載 Kokoro 模型，用 WebGPU 或 WASM 本機生成。拿同一個單字跟系統 TTS 比較。</p>
+
+<section class="card">
+<label for="text">測試英文</label>
+<input id="text" maxlength="120" value="comfortable" autocomplete="off" spellcheck="false">
+<div class="presets" aria-label="測試字詞">
+<button type="button" data-word="comfortable">comfortable</button>
+<button type="button" data-word="entrepreneur">entrepreneur</button>
+<button type="button" data-word="thought">thought</button>
+<button type="button" data-word="world">world</button>
+<button type="button" data-word="schedule">schedule</button>
+<button type="button" data-word="I really like this movie.">短句</button>
+</div>
+</section>
+
+<section class="card">
+<div class="grid">
+<div><label for="voice">Kokoro voice</label><select id="voice">
+<option value="af_heart">Heart · 美式女聲</option>
+<option value="af_bella">Bella · 美式女聲</option>
+<option value="am_michael">Michael · 美式男聲</option>
+<option value="bf_emma">Emma · 英式女聲</option>
+<option value="bm_george">George · 英式男聲</option>
+</select></div>
+<div><label for="speed">速度</label><select id="speed">
+<option value="1">正常 1.0×</option>
+<option value="0.85">慢速 0.85×</option>
+</select></div>
+</div>
+<div class="actions">
+<button id="system" type="button">🔊 系統 TTS</button>
+<button id="kokoro" class="primary" type="button">✨ Kokoro</button>
+</div>
+<audio id="player" controls preload="none" hidden></audio>
+</section>
+
+<section class="card">
+<span id="runtime" class="badge">偵測執行環境…</span>
+<div id="status" class="status" role="status" aria-live="polite">Kokoro 尚未載入。第一次按 Kokoro 才下載模型。</div>
+<div class="meter" aria-hidden="true"><span id="progress"></span></div>
+<p class="note">Kokoro JS 1.2.1，模型 onnx-community/Kokoro-82M-v1.0-ONNX。WebGPU 優先用 fp32；沒有 WebGPU 就用 WASM q8。WASM q8 模型約 90MB 級，首次載入會慢，之後可由瀏覽器快取重用。</p>
+</section>
+</main>
+
+<script type="module">
+const KOKORO_URL="https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js";
+const MODEL_ID="onnx-community/Kokoro-82M-v1.0-ONNX";
+const $=selector=>document.querySelector(selector);
+const text=$("#text"),voice=$("#voice"),speed=$("#speed"),system=$("#system"),kokoro=$("#kokoro"),player=$("#player"),status=$("#status"),runtime=$("#runtime"),progress=$("#progress");
+let ttsPromise=null,objectUrl="";
+const hasWebGpu=typeof navigator!=="undefined"&&"gpu" in navigator;
+runtime.textContent=hasWebGpu?"WebGPU 可用 · fp32":"WebGPU 不可用 · WASM q8";
+
+for(const button of document.querySelectorAll("[data-word]"))button.addEventListener("click",()=>{text.value=button.dataset.word||"";});
+function value(){const v=text.value.trim();if(!v)throw new Error("先輸入要念的英文。");return v;}
+function fail(error){console.error(error);status.textContent="失敗："+(error instanceof Error?error.message:String(error));}
+system.addEventListener("click",()=>{
+ try{
+  const v=value();
+  if(!("speechSynthesis" in window))throw new Error("這個瀏覽器沒有系統 TTS。");
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(v);u.lang="en-US";u.rate=Number(speed.value);speechSynthesis.speak(u);
+  status.textContent="正在播放系統 TTS。";
+ }catch(error){fail(error);}
+});
+function onProgress(info){
+ if(!info||typeof info!=="object")return;
+ const p=typeof info.progress==="number"?Math.max(0,Math.min(100,info.progress)):0;
+ if(p)progress.style.width=p+"%";
+ if(info.status==="progress"&&info.file)status.textContent="下載模型："+info.file+" · "+Math.round(p)+"%";
+}
+async function load(){
+ if(!ttsPromise){
+  ttsPromise=(async()=>{
+   status.textContent="載入 Kokoro runtime…";
+   const {KokoroTTS}=await import(KOKORO_URL);
+   const device=hasWebGpu?"webgpu":"wasm";
+   const dtype=hasWebGpu?"fp32":"q8";
+   status.textContent="載入模型（"+device+" / "+dtype+"）…";
+   const tts=await KokoroTTS.from_pretrained(MODEL_ID,{device,dtype,progress_callback:onProgress});
+   progress.style.width="100%";status.textContent="Kokoro 已就緒。";return tts;
+  })().catch(error=>{ttsPromise=null;progress.style.width="0";throw error;});
+ }
+ return ttsPromise;
+}
+kokoro.addEventListener("click",async()=>{
+ try{
+  const v=value();speechSynthesis?.cancel();kokoro.disabled=true;
+  const started=performance.now(),tts=await load();
+  status.textContent="Kokoro 正在生成「"+v+"」…";
+  const audio=await tts.generate(v,{voice:voice.value,speed:Number(speed.value)});
+  if(objectUrl)URL.revokeObjectURL(objectUrl);
+  objectUrl=URL.createObjectURL(audio.toBlob());player.src=objectUrl;player.hidden=false;
+  await player.play();
+  status.textContent="Kokoro 播放中 · 點擊到開始播放 "+((performance.now()-started)/1000).toFixed(1)+" 秒";
+ }catch(error){fail(error);}
+ finally{kokoro.disabled=false;}
+});
+window.addEventListener("pagehide",()=>{speechSynthesis?.cancel();if(objectUrl)URL.revokeObjectURL(objectUrl);});
+</script>
+</body>
+</html>
