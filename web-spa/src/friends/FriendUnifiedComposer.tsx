@@ -32,8 +32,9 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
   const text=value.trim();
   if(!text||busy)return;
   if(blocked){setNotice(t("friendLive.preparingPost"));return}
-  if(connecting){setNotice(t("friendLive.connectingText"));return}
+  if(connecting){setNotice(t(onVerificationNeeded?"friendLive.connectingText":"friendLive.preparingPost"));return}
   if(!connected&&!hasKey){
+   if(!onVerificationNeeded){setNotice(t("guestTrial.homeDesc",{ns:"common"}));return}
    // Keep the submitted message until verification grants a text-only Live socket.
    pendingText.current=text;autoSent.current=true;
    setNotice(t(verificationReady?"friendLive.connectingText":"friendLive.verifyBeforeSend"));
