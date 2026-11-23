@@ -80,8 +80,9 @@ async function playBlob(blob:Blob):Promise<void>{
 async function loadKokoro(){
  if(!kokoroPromise)kokoroPromise=(async()=>{
   const {KokoroTTS}=await importExternal(KOKORO_URL);
-  const webgpu=typeof navigator!=="undefined"&&"gpu" in navigator;
-  return KokoroTTS.from_pretrained(KOKORO_MODEL,{device:webgpu?"webgpu":"wasm",dtype:webgpu?"fp32":"q8"});
+  // Learning calls are short; q8/WASM keeps the first download around 92 MB
+  // instead of the ~326 MB fp32 WebGPU model used by the quality lab.
+  return KokoroTTS.from_pretrained(KOKORO_MODEL,{device:"wasm",dtype:"q8"});
  })().catch(error=>{kokoroPromise=null;throw error});
  return kokoroPromise;
 }
