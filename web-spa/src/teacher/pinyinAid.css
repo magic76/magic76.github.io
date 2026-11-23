@@ -1,6 +1,0 @@
-.crew-pinyin-aid{display:block;max-width:100%;margin-top:4px}
-.crew-pinyin-reading{display:block;color:#82663b;font-size:.84em;line-height:1.65;letter-spacing:.02em;overflow-wrap:anywhere;user-select:text}
-.crew-pinyin-reveal{display:inline-block;margin-top:3px;padding:3px 7px;border:1px solid rgba(129,105,64,.28);border-radius:7px;background:transparent;color:#82663b;font:inherit;font-size:.82em;line-height:1.5;cursor:pointer}
-.crew-pinyin-reveal:focus-visible{outline:2px solid currentColor;outline-offset:2px}
-.live-line .crew-pinyin-aid,.workspace-bubble .crew-pinyin-aid,.crew-text-chat-message .crew-pinyin-aid{width:100%}
-@media (prefers-color-scheme:dark){.crew-pinyin-reading,.crew-pinyin-reveal{color:#cdb786}}

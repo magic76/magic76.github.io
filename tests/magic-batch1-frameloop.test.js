@@ -1,2 +1,0 @@
-const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');
-test('Magic canvas pauses offscreen and resumes',()=>{const hook=fs.readFileSync('web-spa/src/magic/useMagicFrameloop.ts','utf8');const scene=fs.readFileSync('web-spa/src/magic/MagicScene3D.tsx','utf8');assert.match(hook,/IntersectionObserver/);assert.match(hook,/'never'/);assert.match(hook,/invalidate.current/);assert.match(scene,/useMagicFrameloop\(props.reducedMotion\)/);});

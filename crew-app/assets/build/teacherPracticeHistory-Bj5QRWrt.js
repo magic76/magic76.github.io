@@ -1,3 +1,0 @@
-var e=`crew_teacher_practice_history_v1_`;function t(t,n){let r=e+encodeURIComponent(n)+`_`+t;try{return Math.max(0,Math.min(9999,Number(localStorage.getItem(r)||0)||0))}catch{return 0}}function n(n,r,i,a,o){if(o||i<25e3||a<1)return!1;let s=e+encodeURIComponent(r)+`_`+n;try{return localStorage.setItem(s,String(Math.min(9999,t(n,r)+1))),!0}catch{return!1}}function r(e,n){let r=t(e,n);return r?`
-[VERIFIED PRACTICE HISTORY, NOT SHARED BIOGRAPHY]
-The learner completed `+r+` practice session(s) with this tutor in this language. Welcome them naturally if appropriate, but do not invent previous topics, conversations, accomplishments or emotions. Never announce the count unprompted.`:``}export{n,r,t};

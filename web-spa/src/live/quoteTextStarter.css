@@ -1,4 +1,0 @@
-/* In a resumed Zoe thread, the opted-in quote stays directly above the composer. */
-.friend-text-stage .crew-quote-resume-starters{order:2;flex:0 0 auto;gap:0}
-.crew-quote-resume-starters .crew-text-starters-heading{display:none}
-.crew-quote-resume-starters .crew-text-starter{min-height:44px}

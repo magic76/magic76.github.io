@@ -1,4 +1,0 @@
-.crew-game-voice-picker{display:grid;gap:5px;min-width:160px;max-width:100%;font-size:12px;font-weight:700;color:var(--text,#514857)}
-.crew-game-voice-picker select{box-sizing:border-box;width:100%;min-height:40px;border-radius:10px;border:1px solid #cfc5d6;padding:8px 10px;font:inherit;font-size:13px;background:var(--surface,#fff);color:var(--text,#514857)}
-.crew-game-voice-picker select:disabled{opacity:.65;cursor:not-allowed}
-.crew-game-voice-picker small{font-weight:400;font-size:11px;line-height:1.4;color:var(--muted,#7b7380)}

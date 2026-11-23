@@ -1,8 +1,0 @@
-/* Keep the discoverable board action adjacent to, but distinct from, teacher switching. */
-.teacher-live-entry-actions{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap}
-.teacher-live-entry-actions .teacher-live-change-action{margin:0}
-.teacher-live-entry-actions .teacher-live-board-entry{border:1px solid #bad9c1;background:#eaf5ed;color:#276142;padding:7px 13px;border-radius:999px;min-height:36px;font-weight:650}
-.teacher-live-entry-actions .teacher-live-board-entry:hover:not(:disabled){background:#d9eddf}
-.teacher-live-entry-actions .teacher-live-board-entry:focus-visible{outline:2px solid #328e56;outline-offset:2px}
-.teacher-live-entry-actions button:disabled{opacity:.5;cursor:wait}
-@media(max-width:580px){.teacher-live-entry-actions{gap:7px}.teacher-live-entry-actions .teacher-live-change-action{font-size:12px}}

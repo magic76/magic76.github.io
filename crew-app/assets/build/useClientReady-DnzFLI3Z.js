@@ -1,1 +1,0 @@
-import{i as e,t}from"./react-DB-4Zxce.js";var n=e(t());function r(){let[e,t]=(0,n.useState)(!1);return(0,n.useEffect)(()=>t(!0),[]),e}export{r as t};
