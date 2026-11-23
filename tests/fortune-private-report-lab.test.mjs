@@ -104,7 +104,7 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  const pagesRoutes=JSON.parse(readFileSync("_routes.json","utf8"));
  assert.ok(pagesRoutes.include.includes("/fortune/report-lab"));
  const browserJs=readFileSync("assets/js/fortune-report-lab.js","utf8");
- assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js\?v=20261123-chapters1" defer><\/script>/);
+ assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js\?v=20261123-chapters2" defer><\/script>/);
  assert.match(readFileSync("_headers","utf8"),/\/assets\/js\/fortune-report-lab\.js\n  Cache-Control: no-store/);
  assert.doesNotMatch(html,/<script nonce=/);
  assert.match(r.headers.get("Content-Security-Policy"),/script-src 'self'/);
@@ -543,4 +543,59 @@ test("provider failure does not mark a report ready",async()=>{
   env:env(d,{FORTUNE_LAB_TEST_FETCH:async()=>new Response("bad",{status:503})})});
  assert.equal(r.status,502);assert.ok(d.queries.some(q=>q.includes("status='failed'")));
  assert.ok(!d.queries.some(q=>q.includes("status='ready'")));
+});
+
+test("PWA recovers an obscured 502 from the saved report and shows the classified failure",async()=>{
+ const browserJs=readFileSync("assets/js/fortune-report-lab.js","utf8");
+ const reading={id:"reading_test",mode:"bazi",createdAt:"2026-11-23T00:00:00Z",result:{
+  fourPillars:facts.fourPillars,dayMaster:facts.dayMaster,dayMasterElement:facts.dayMasterElement,
+  dayMasterStrength:facts.strength,weightedFiveElements:facts.weighted,annualTimeline:facts.annual,
+  careerProfile:{resourceCount:3,outputCount:1,officerCount:2},
+  wealthProfile:{directWealthCount:1,indirectWealthCount:2}
+ }};
+ const elements=new Map();
+ const make=()=>({value:"",textContent:"",disabled:false,hidden:false,children:[],listeners:{},
+  appendChild(child){this.children.push(child)},replaceChildren(...items){this.children=items},
+  addEventListener(name,fn){this.listeners[name]=fn},append(...items){this.children.push(...items)},
+  style:{setProperty(){}}
+ });
+ const document={
+  getElementById(id){if(!elements.has(id))elements.set(id,make());return elements.get(id)},
+  createElement(){return make()}
+ };
+ let generationPosts=0,progressReads=0;
+ const json=(body,status=200)=>new Response(JSON.stringify(body),{status,
+  headers:{"content-type":"application/json"}});
+ const mockFetch=async(path,options)=>{
+  if(path.includes("?list=1"))return json({items:[]});
+  if(path.includes("?report=")){
+   progressReads++;
+   return json({report:{id:UUID,status:"failed",
+    progress:{completed:0,total:7,busy:false,lastFailure:"GEMINI_UPSTREAM_503"}}});
+  }
+  const payload=JSON.parse(options.body);
+  if(payload.action==="advance"){
+   generationPosts++;
+   return json({errors:[{message:"PRIVATE_UPSTREAM_RESPONSE_MUST_NOT_LEAK"}]},502);
+  }
+  assert.equal(payload.pipeline,"chapters");
+  return json({report:{id:UUID,status:"generating",
+   progress:{completed:0,total:7,busy:false}}},202);
+ };
+ const sessionStorage={item:null,getItem(){return this.item},setItem(_,value){this.item=value},
+  removeItem(){this.item=null}};
+ new Function("document","localStorage","sessionStorage","location","window","fetch","crypto","console",browserJs)(
+  document,{getItem(key){return key==="crew_fortune_readings_v2"?JSON.stringify([reading]):null}},
+  sessionStorage,{pathname:"/fortune/report-lab",hash:""},
+  {history:{replaceState(){}},scrollTo(){},print(){}},mockFetch,
+  {randomUUID:()=>UUID},{error(){}}
+ );
+ await elements.get("generate").listeners.click();
+ const message=elements.get("message").textContent;
+ assert.match(message,/GEMINI_UPSTREAM_503/);
+ assert.match(message,/已完成的章節仍保存在製作紀錄/);
+ assert.doesNotMatch(message,/PRIVATE_UPSTREAM_RESPONSE_MUST_NOT_LEAK|Cloudflare／代理層回應/);
+ assert.equal(generationPosts,1);
+ assert.equal(progressReads,1,"recover from the existing report instead of starting a new one");
+ assert.equal(JSON.parse(sessionStorage.item).requestId,UUID);
 });
