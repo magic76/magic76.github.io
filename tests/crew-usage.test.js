@@ -47,6 +47,24 @@ test("private fortune report lab is reachable from /usage PWA but not public sit
  assert.ok(page.includes("verifyAdmin:verifyAccess"));
 });
 
+
+test("private usage toolbar exposes the Aura-2 TTS lab entry only in admin navigation",()=>{
+ const dashboard=fs.readFileSync(path.join(root,"web-spa/src/analytics/UsageDashboardPage.tsx"),"utf8");
+ const css=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage-dashboard.css"),"utf8");
+ const adminEntry=fs.readFileSync(path.join(root,"web-spa/src/pages/KooloAdminEntry.tsx"),"utf8");
+ const lab=fs.readFileSync(path.join(root,"web-spa/public/tts-lab/index.html"),"utf8");
+ // Link placement is private; the standalone static lab and its Worker API are not authentication-gated.
+ assert.ok(dashboard.includes('<a href="/tts-lab/" className="usage-jump usage-tts-lab-link"'));
+ assert.ok(dashboard.includes("AI 語音試聽 · 英／西"));
+ assert.ok(css.includes(".usage-toolbar .usage-tts-lab-link{"));
+ assert.ok(css.includes(".usage-toolbar .usage-tts-lab-link:focus-visible{"));
+ assert.match(css,/\\.usage-tts-lab-link\\{[^}]*min-height:44px/);
+ assert.ok(!adminEntry.includes("/tts-lab/"));
+ assert.match(lab,/<option value="en">/);
+ assert.match(lab,/<option value="es">/);
+ assert.match(lab,/audio\\[hidden\\]\\s*\\{\\s*display:\\s*none/);
+});
+
 test("event handler rejects unconfigured deployment and invalid or spoofed events",async()=>{
  const {onRequestPost}=compile("functions/api/usage/event.ts");
  const noBinding=await onRequestPost({request:request(),env:{}});
