@@ -22,6 +22,7 @@ const generated=new Map<string,Blob>();
 const scripts=new Map<string,Promise<void>>();
 const tinyEngines=new Map<string,Promise<TinyEngine>>();
 let kokoroPromise:Promise<any>|null=null;
+let kokoroReady=false;
 let currentAudio:HTMLAudioElement|null=null;
 let currentUrl="";
 
@@ -81,7 +82,7 @@ async function loadKokoro(){
   // Learning calls are short; q8/WASM keeps the first download around 92 MB
   // instead of the ~326 MB fp32 WebGPU model used by the quality lab.
   return KokoroTTS.from_pretrained(KOKORO_MODEL,{device:"wasm",dtype:"q8"});
- })().catch(error=>{kokoroPromise=null;throw error});
+ })().then(tts=>{kokoroReady=true;return tts}).catch(error=>{kokoroPromise=null;kokoroReady=false;throw error});
  return kokoroPromise;
 }
 async function kokoroBlob(text:string,speed:LearningSpeechSpeed){
@@ -209,10 +210,16 @@ async function systemSpeak(text:string,language:string,speed:LearningSpeechSpeed
  await speakText(text,{speed});
 }
 
-export async function speakLearningText(text:string,languageValue:string,options:{speed?:LearningSpeechSpeed;mode?:LearningSpeechMode}={}):Promise<LearningSpeechResult>{
+export async function speakLearningText(text:string,languageValue:string,options:{speed?:LearningSpeechSpeed;mode?:LearningSpeechMode;onModelStatus?:(status:"loading"|"ready")=>void}={}):Promise<LearningSpeechResult>{
  const value=text.trim();if(!value)throw new Error("EMPTY_SPEECH_TEXT");
  const language=normalizeLearningLanguage(languageValue),speed=options.speed||"normal",preferred=preferredLearningEngine(language);
  const key=cacheKey(value,language,speed,preferred),cached=generated.get(key);
+ if(preferred==="kokoro"&&!kokoroReady){
+  options.onModelStatus?.("loading");
+  void loadKokoro().then(()=>options.onModelStatus?.("ready")).catch(()=>{});
+  await systemSpeak(value,language,speed);
+  return{engine:"system",language,cached:false};
+ }
  try{
   if(cached){await playBlob(cached);return{engine:preferred,language,cached:true}}
   if(preferred==="kokoro"){
