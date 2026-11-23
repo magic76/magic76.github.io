@@ -93,8 +93,8 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
     callback:token=>{
      if(!active.current)return;
      setChallenge(token);onVerificationChange?.(true);
-     // Load code only after human verification; no microphone, token or paid
-     // request runs until the visitor explicitly presses Start.
+     // Preload code only after human verification. A token is issued only
+     // after an explicit Start or a previously submitted text message.
      void ensureLive().catch(()=>{/* begin() surfaces retryable load errors. */});
     },
     "expired-callback":()=>{if(active.current){setChallenge("");onVerificationChange?.(false)}},
