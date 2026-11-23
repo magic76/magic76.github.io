@@ -1,5 +1,5 @@
 import {reportLabHtml} from "./koolo-fortune-lab-html.mjs";
-import {normalizeLabFacts,validateLabChapters,generateLabChapters} from "./koolo-fortune-lab-core.mjs";
+import {normalizeLabFacts,validateLabChapters,generateLabChapters,generateLabPart,PARTS} from "./koolo-fortune-lab-core.mjs";
 /** Private acceptance lab. No real checkout or grants. Admin permission is delegated to the existing /usage verifyAccess guard on every request. */
 const ORIGINS=new Set(["https://koolo.app","https://www.3sssi.com"]);
 const SESSION="__Host-crew_session";
@@ -36,8 +36,20 @@ async function owner({request,env,verifyAdmin},method){
   return {db:env.CREW_AUTH_DB,userId:r.user_id};
  }catch{return {error:reply({error:"UNAVAILABLE"},503)}}
 }
+const PROGRESS_VERSION="bazi-private-lab-progress-v1";
+function parseProgress(row){
+ let obj;try{obj=JSON.parse(row.content_json||"null")}catch{return null}
+ if(!obj||obj.version!==PROGRESS_VERSION||!obj.chapters||!normalizeLabFacts(obj.facts))return null;
+ return obj;
+}
+function progressSummary(row){
+ const saved=parseProgress(row);if(!saved)return null;
+ return {completed:PARTS.filter(k=>typeof saved.chapters[k]==="string").length,
+  total:PARTS.length,busy:!!(saved.lease&&Number(saved.lease.until)>Date.now())};
+}
 const rowSummary=r=>({id:String(r.id),status:String(r.status),createdAt:Number(r.created_at),
- model:String(r.model||""),usage:{promptTokens:Number(r.prompt_tokens||0),outputTokens:Number(r.output_tokens||0)}});
+ model:String(r.model||""),usage:{promptTokens:Number(r.prompt_tokens||0),outputTokens:Number(r.output_tokens||0)},
+ ...(progressSummary(r)?{progress:progressSummary(r)}:{})});
 function readyReport(row){
  if(row.status!=="ready")return null;
  let content;
@@ -96,35 +108,49 @@ export async function labPost(ctx){
   if(raw.length>7000)return reply({error:"TOO_LARGE"},413);
   payload=JSON.parse(raw);
  }catch{return reply({error:"BAD_JSON"},400)}
+ if(payload?.action==="advance"){
+  if(!UUID.test(payload?.reportId||""))return reply({error:"NOT_FOUND"},404);
+  return advanceLabReport(a,ctx,String(payload.reportId),key,model);
+ }
  const facts=normalizeLabFacts(payload?.facts);
  if(!facts||!UUID.test(payload?.requestId||""))return reply({error:"INVALID_CHART"},400);
+ const incremental=payload?.pipeline==="chapters";
+ const progressSeed=incremental?JSON.stringify({version:PROGRESS_VERSION,facts,chapters:{},
+  usage:{promptTokens:0,outputTokens:0},lease:null}):null;
+ let progressSource=progressSeed;
  const now=nowSec();
  let id=crypto.randomUUID();
  try{
   // A completed failed attempt should not permanently consume the daily 3-slot
   // acceptance quota. Mark abandoned synchronous attempts stale after 15 min.
-  await a.db.prepare("UPDATE koolo_fortune_lab_reports SET status='failed',updated_at=? WHERE user_id=? AND status='generating' AND created_at<?")
-   .bind(now,a.userId,now-900).run();
+  await a.db.prepare("UPDATE koolo_fortune_lab_reports SET status='failed',updated_at=? WHERE user_id=? AND status='generating' AND created_at<? AND updated_at<?")
+   .bind(now,a.userId,now-900,now-900).run();
   const insertion=await a.db.prepare(
-   "INSERT INTO koolo_fortune_lab_reports(id,user_id,request_id,status,model,created_at,updated_at) "+
-   "SELECT ?,?,?,'generating',?,?,? WHERE "+
+   "INSERT INTO koolo_fortune_lab_reports(id,user_id,request_id,status,model,content_json,created_at,updated_at) "+
+   "SELECT ?,?,?,'generating',?,?,?,? WHERE "+
    "(SELECT COUNT(1) FROM koolo_fortune_lab_reports WHERE user_id=? AND created_at>=? AND status IN ('generating','ready'))<3 "+
    "ON CONFLICT(user_id,request_id) DO NOTHING"
-  ).bind(id,a.userId,payload.requestId,model,now,now,a.userId,taipeiStart(now)).run();
+  ).bind(id,a.userId,payload.requestId,model,progressSeed,now,now,a.userId,taipeiStart(now)).run();
   if(Number(insertion.meta?.changes)!==1){
    const query="SELECT id,user_id,status,created_at,model,prompt_tokens,output_tokens,content_json FROM koolo_fortune_lab_reports WHERE user_id=? AND request_id=? LIMIT 1";
    const earlier=await a.db.prepare(query).bind(a.userId,payload.requestId).first();
    if(!earlier)return reply({error:"DAILY_LIMIT",limit:3},429);
    const existing=existingReportResponse(earlier);
    if(existing)return existing;
+   if(incremental){
+    const earlierProgress=parseProgress(earlier);
+    if(earlierProgress&&JSON.stringify(earlierProgress.facts)!==JSON.stringify(facts))
+     return reply({error:"CHART_MISMATCH"},409);
+    progressSource=earlier?.content_json||progressSeed;
+   }
    // A failed attempt may be explicitly retried with the SAME request ID.
    // Conditional update is atomic: concurrent requests cannot run two Gemini
    // generations. The active/ready count retains the existing daily limit.
    const claimed=await a.db.prepare(
-    "UPDATE koolo_fortune_lab_reports SET status='generating',model=?,created_at=?,updated_at=?,content_json=NULL,prompt_tokens=0,output_tokens=0 "+
+    "UPDATE koolo_fortune_lab_reports SET status='generating',model=?,created_at=?,updated_at=?,content_json=CASE WHEN ?=1 THEN COALESCE(content_json,?) ELSE NULL END,prompt_tokens=0,output_tokens=0 "+
     "WHERE user_id=? AND request_id=? AND status='failed' AND "+
     "(SELECT COUNT(1) FROM koolo_fortune_lab_reports WHERE user_id=? AND created_at>=? AND status IN ('generating','ready'))<3"
-   ).bind(model,now,now,a.userId,payload.requestId,a.userId,taipeiStart(now)).run();
+   ).bind(model,now,now,incremental?1:0,progressSeed,a.userId,payload.requestId,a.userId,taipeiStart(now)).run();
    if(Number(claimed.meta?.changes)!==1){
     // Another caller may have claimed the failed row while this caller waited.
     const latest=await a.db.prepare(query).bind(a.userId,payload.requestId).first();
@@ -135,6 +161,10 @@ export async function labPost(ctx){
    id=String(earlier.id);
   }
  }catch{return reply({error:"MIGRATION_REQUIRED"},503)}
+ // New PWA protocol returns immediately; one chapter is generated by each
+ // subsequent authenticated advance call. Legacy clients retain old behavior.
+ if(incremental)return reply({report:rowSummary({id,status:"generating",created_at:now,
+  model,content_json:progressSource,prompt_tokens:0,output_tokens:0})},202);
  const generationStart=Date.now();
  try{
   const generated=await generateLabChapters(facts,{key,model,fetcher:ctx.env?.FORTUNE_LAB_TEST_FETCH||fetch});
@@ -158,5 +188,94 @@ export async function labPost(ctx){
   // Do not log the birth chart, prompts, user id, response text, or API Key.
   console.warn("[fortune-lab] generation failed",JSON.stringify({code,elapsedMs:Date.now()-generationStart}));
   return reply({error:code,id},code==="AI_TIMEOUT"?504:502);
+ }
+}
+
+
+/** Resume a checkpointed report by owner-scoped ID, with a compare-and-swap lease. */
+async function advanceLabReport(a,ctx,id,key,model){
+ const query="SELECT id,status,created_at,model,content_json,prompt_tokens,output_tokens FROM koolo_fortune_lab_reports WHERE id=? AND user_id=? LIMIT 1";
+ const load=()=>a.db.prepare(query).bind(id,a.userId).first();
+ let row;try{row=await load()}catch{return reply({error:"UNAVAILABLE"},503)}
+ if(!row)return reply({error:"NOT_FOUND"},404);
+ const already=existingReportResponse(row);
+ if(row.status==="ready")return already||reply({error:"REPORT_INVALID"},503);
+ let progress=parseProgress(row);
+ if(!progress)return reply({error:"RESUME_REQUIRES_CHART",id},409);
+ if(row.status==="failed"){
+  const now=nowSec();
+  let claim;
+  try{claim=await a.db.prepare(
+   "UPDATE koolo_fortune_lab_reports SET status='generating',created_at=?,updated_at=? "+
+   "WHERE id=? AND user_id=? AND status='failed' AND "+
+   "(SELECT COUNT(1) FROM koolo_fortune_lab_reports WHERE user_id=? AND created_at>=? AND status IN ('generating','ready'))<3"
+  ).bind(now,now,id,a.userId,a.userId,taipeiStart(now)).run()}
+  catch{return reply({error:"UNAVAILABLE"},503)}
+  if(Number(claim.meta?.changes)!==1){
+   const latest=await load();
+   return latest&&existingReportResponse(latest)||reply({error:"DAILY_LIMIT",limit:3},429);
+  }
+  row.status="generating";row.created_at=now;
+ }
+ if(row.status!=="generating")return reply({error:"REPORT_INVALID"},409);
+ if(progress.lease&&Number(progress.lease.until)>Date.now())
+  return reply({report:rowSummary(row)},202);
+ const part=PARTS.find(k=>typeof progress.chapters[k]!=="string");
+ if(!part)return reply({error:"REPORT_INVALID"},409);
+ const token=crypto.randomUUID();
+ const reserved=JSON.stringify({...progress,lease:{token,until:Date.now()+45000}});
+ const previous=row.content_json;
+ let lease;
+ try{
+  lease=await a.db.prepare(
+   "UPDATE koolo_fortune_lab_reports SET content_json=?,updated_at=? "+
+   "WHERE id=? AND user_id=? AND status='generating' AND content_json=?"
+  ).bind(reserved,nowSec(),id,a.userId,previous).run();
+ }catch{return reply({error:"UNAVAILABLE"},503)}
+ if(Number(lease.meta?.changes)!==1){
+  const latest=await load();
+  return latest&&existingReportResponse(latest)||reply({error:"UNAVAILABLE"},503);
+ }
+ const started=Date.now();
+ try{
+  const result=await generateLabPart(progress.facts,part,
+   {key,model,fetcher:ctx.env?.FORTUNE_LAB_TEST_FETCH||fetch});
+  const chapters={...progress.chapters,[part]:result.text};
+  const usage={promptTokens:Number(progress.usage?.promptTokens||0)+result.usage.promptTokens,
+   outputTokens:Number(progress.usage?.outputTokens||0)+result.usage.outputTokens};
+  const done=PARTS.every(k=>typeof chapters[k]==="string");
+  if(done&&!validateLabChapters(chapters,progress.facts))throw Error("QUALITY_CHECK_FAILED");
+  const snapshot=JSON.stringify(done?
+   {version:"bazi-private-lab-v2",facts:progress.facts,chapters}:
+   {...progress,chapters,usage,lease:null});
+  if(snapshot.length>50000)throw Error("REPORT_TOO_LARGE");
+  const write=await a.db.prepare(
+   "UPDATE koolo_fortune_lab_reports SET status=?,model=?,content_json=?,prompt_tokens=?,output_tokens=?,updated_at=? "+
+   "WHERE id=? AND user_id=? AND status='generating' AND content_json=?"
+  ).bind(done?"ready":"generating",result.model||model,snapshot,usage.promptTokens,usage.outputTokens,
+   nowSec(),id,a.userId,reserved).run();
+  if(Number(write.meta?.changes)!==1){
+   const latest=await load();
+   return latest&&existingReportResponse(latest)||reply({error:"UNAVAILABLE"},503);
+  }
+  const saved={...row,status:done?"ready":"generating",model:result.model||model,
+   content_json:snapshot,prompt_tokens:usage.promptTokens,output_tokens:usage.outputTokens};
+  return done?reply({report:readyReport(saved)},201):reply({report:rowSummary(saved)},202);
+ }catch(e){
+  // Retain completed chapters. Only the request owning the lease can fail it.
+  try{await a.db.prepare(
+   "UPDATE koolo_fortune_lab_reports SET status='failed',content_json=?,updated_at=? "+
+   "WHERE id=? AND user_id=? AND status='generating' AND content_json=?"
+  ).bind(JSON.stringify({...progress,lease:null}),nowSec(),id,a.userId,reserved).run()}
+  catch{/* preserve the original failure code */}
+  const reason=e instanceof Error?e.message:"";
+  const upstream=/^UPSTREAM_(400|401|403|404|408|429|500|502|503|504)$/.exec(reason);
+  const code=reason==="UPSTREAM_TIMEOUT"?"AI_TIMEOUT":
+   reason==="QUALITY_CHECK_FAILED"?"QUALITY_CHECK_FAILED":
+   reason==="UPSTREAM_INVALID_RESPONSE"?"GEMINI_INVALID_RESPONSE":
+   upstream?"GEMINI_UPSTREAM_"+upstream[1]:"GENERATION_FAILED";
+  console.warn("[fortune-lab] chapter failed",JSON.stringify({part,code,elapsedMs:Date.now()-started}));
+  return reply({error:code,id,progress:{completed:PARTS.indexOf(part),total:PARTS.length}},
+   code==="AI_TIMEOUT"?504:502);
  }
 }
