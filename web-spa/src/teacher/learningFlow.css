@@ -150,4 +150,6 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 @media(max-width:620px){.crew-phrase-row{grid-template-columns:30px minmax(0,1fr)}.crew-phrase-inline-actions{grid-column:2}.crew-listening-choices{grid-template-columns:1fr}}
 
 .crew-vocab-example-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
-.crew-vocab-example-actions .btn{min-height:40px}
+.crew-vocab-example-actions .btn{min-height:44px}
+
+.learning-deck-card .text-button{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
