@@ -11,7 +11,7 @@ Page URL after deployment: `https://koolo.app/fortune/report-lab` (the `/api/for
 - The route is marked `noindex, nofollow, noarchive`, `no-store`, strict CSP, and has no public navigation link.
 - No ECPay callback, purchase report or voice wallet is changed.
 - Each allowed account can have **at most 3 in-progress or ready reports per Taipei day**. Failed reports do not consume one of these slots, and abandoned synchronous generations are marked failed after 15 minutes on the next submission.
-- Generated text and compact derived chart facts live in **`koolo_fortune_lab_reports`** only. Access is scoped to `user_id`. Birth date, place, raw profile, private API key and payment details are **not** submitted.
+- Generated text and compact derived chart facts live in **`koolo_fortune_lab_reports`** only. Access is scoped to `user_id`. Birth date, place, raw profile, optional questions, private API key and payment details are **not** submitted. The book is a chart-based personal portrait, not a Q&A service.
 
 ## Required Cloudflare setup
 
@@ -28,9 +28,9 @@ Page URL after deployment: `https://koolo.app/fortune/report-lab` (the `/api/for
 ## How to test the 10-page book
 
 1. In the same browser + origin (`koolo.app`), create an ordinary BaZi chart using `/fortune/reading?mode=bazi`.
-2. Directly open the private lab URL. Select a saved BaZi chart, write one or two non-sensitive questions, and press **產生專屬命書（測試）**.
+2. Directly open the private lab URL. Select a saved BaZi chart and press **產生專屬命書（測試）**. No question entry is shown or required. Existing/stale client-supplied `questions` are ignored by the server and never forwarded to the model.
 3. Keep the browser tab open for the bounded Gemini request; the V1 acceptance flow is **synchronous**, not a durable Queue job. Failed checks return an error and do not save a ready report.
-4. Review 10 designed pages: cover, opening letter, computed chart, personality, work/wealth, relationships, three-year timeline, AI guide letter, four-week action plan, back cover.
+4. Review 10 designed pages: cover, distinctive personal overview, computed chart and five elements, nuanced personality/strengths/blind spots, work/wealth style, relationships, three-year life rhythms, inner motivations and stress responses, growth directions and life pace, back cover.
 5. Press **列印／儲存為 PDF**; choose Save as PDF, A4, enable background graphics, and disable browser headers/footers. Compare with the previously approved 10-page PDF layout.
 6. Reload the lab. Use **已產生的測試命書** to open the account-owned saved snapshot. Visit using another signed-in account: no lab access or snapshot.
 7. Test mobile widths 360 and 390, and 1280 desktop. Mobile pages may grow vertically to prevent text clipping; print uses fixed A4 pages.
@@ -60,6 +60,13 @@ HTML response is not a local-chart or D1 migration problem.
 Changing the SQL or Gemini key cannot fix an edge rewrite that returns HTML.
 If the error persists, record only the displayed HTTP status and error
 category so the next diagnosis can target the appropriate layer.
+
+## Private lab content experience (portrait v2)
+
+- New reports use the `bazi-private-lab-v2` snapshot version. The content is a **detailed profile of the person**, addressing core temperament, inner drives, strengths/blind spots, relationships, career/resource style, life-cycle themes and personal development. No "ask your question" step and no forecasting individual events such as getting rich tomorrow.
+- Copy across the book and print pages is labeled as the **Koolo personal book service**. The book body does not repeatedly introduce its author, technology, or disclaimers; it also does not claim a human consultation or knowledge of real-life facts not provided by the chart.
+- Interpretations remain anchored to the existing calculated chart facts, not external guesses about the reader's biography. Legacy `bazi-private-lab-v1` reports remain retrievable without rewriting their stored content; the display labels their older question-based sections correctly.
+- No D1 migration or new Cloudflare secret is needed for this copy/flow revision.
 
 ## Constraints / open risks before charging customers
 

@@ -67,8 +67,6 @@ function pickFacts(r){
  var annual=(x.annualTimeline||[]).filter(function(v){return v.year>=year&&v.year<=year+2}).sort(function(a,b){return a.year-b.year});
  if(annual.length!==3)throw Error("此命盤缺少接下來三年的計算資料，請重新算一次八字。");
  var weighted={};ELS.forEach(function(e){weighted[e]=Number(x.weightedFiveElements&&x.weightedFiveElements[e]||0)});
- var q=[node("question1").value.trim(),node("question2").value.trim()].filter(Boolean);
- if(q.length<1||q.some(function(t){return t.length<5||t.length>160}))throw Error("請填入至少一題，並將每題控制在 5–160 字。");
  return {fourPillars:String(x.fourPillars||""),dayMaster:String(x.dayMaster||""),
  dayMasterElement:String(x.dayMasterElement||""),strength:String(x.dayMasterStrength||""),weighted:weighted,
  counts:{resource:number(x.careerProfile&&x.careerProfile.resourceCount),output:number(x.careerProfile&&x.careerProfile.outputCount),
@@ -76,7 +74,7 @@ function pickFacts(r){
  indirectWealth:number(x.wealthProfile&&x.wealthProfile.indirectWealthCount)},
  luck:{ganZhi:String(x.currentLuckPillar&&x.currentLuckPillar.ganZhi||"")},
  annual:annual.map(function(v){return{year:v.year,ganZhi:v.ganZhi,themes:Array.isArray(v.themes)?v.themes.slice(0,4):[]}}),
- relations:Array.isArray(x.natalInteractions)?x.natalInteractions.slice(0,5):[],questions:q};
+ relations:Array.isArray(x.natalInteractions)?x.natalInteractions.slice(0,5):[]};
 }
 function selectCharts(){
  // All chart history is local. This lookup must finish synchronously, not spin
@@ -118,7 +116,17 @@ async function history(){
 function text(id,value){node(id).textContent=String(value==null?"":value)}
 function showBook(x){
  if(!x||x.status!=="ready"||!x.facts||!x.chapters){say("報告尚未完成");return}
- var f=x.facts,c=x.chapters;
+ var f=x.facts,c=x.chapters,legacy=x.version!=="bazi-private-lab-v2";
+ // Earlier saved books keep their original Q&A structure and must not be
+ // silently rewritten or mislabeled as the new character portrait.
+ text("section8Tag",legacy?"A PERSONAL LETTER":"INNER MOTIVATIONS");
+ text("section8Subtag",legacy?"YOUR QUESTIONS":"INNER WORLD");
+ text("section8Heading",legacy?"寫給你的話":"你的內在動機與壓力反應");
+ text("section8Intro",legacy?"寫給正在思考人生的你":"那些在選擇、挫折與轉折時浮現的內心節奏");
+ text("section9Tag",legacy?"YOUR NEXT 30 DAYS":"GROWTH & DIRECTION");
+ text("section9Subtag",legacy?"A PRACTICAL PLAN":"YOUR PATH");
+ text("section9Heading",legacy?"接下來的 30 天，你可以這樣走":"適合你的成長方向與生活節奏");
+ text("section9Intro",legacy?"把命理中的反思化成真實行動，從能做到的小事開始。":"發揮既有的優勢，也為習慣與選擇保留新的可能。");
  ["preface","personality","career","relationships","timing","letter","plan"].forEach(function(k){text(k,c[k])});
  text("coverYear",new Date(x.createdAt*1000).getFullYear());text("pillars2",f.fourPillars);text("master2",f.dayMaster+" · "+f.element+" · "+f.strength);
  text("signals","日主："+f.dayMaster+"（"+f.element+"）；當前大運："+(f.luck||"未提供")+"。"+
@@ -140,7 +148,7 @@ function showBook(x){
   var line=document.createElement("article"),year=document.createElement("b"),desc=document.createElement("span");
   year.textContent=String(y.year);desc.textContent=y.ganZhi+" · "+(y.themes.join("／")||"年度觀察");line.append(year,desc);timeline.appendChild(line)
  });
- text("meta","私密驗收 · "+x.model+" · "+(x.usage&&x.usage.outputTokens||0)+" output tokens");
+ text("meta","私密驗收 · "+x.model+" · "+(x.usage&&x.usage.outputTokens||0)+" output tokens"+(legacy?" · 舊版命書":""));
  chooser.hidden=true;reportEl.hidden=false;window.scrollTo(0,0)
 }
 async function openReport(id){
