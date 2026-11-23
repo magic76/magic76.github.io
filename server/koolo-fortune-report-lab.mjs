@@ -45,8 +45,12 @@ function parseProgress(row){
 }
 function progressSummary(row){
  const saved=parseProgress(row);if(!saved)return null;
- return {completed:PARTS.filter(k=>typeof saved.chapters[k]==="string").length,
+ const summary={completed:PARTS.filter(k=>typeof saved.chapters[k]==="string").length,
   total:PARTS.length,busy:!!(saved.lease&&Number(saved.lease.until)>Date.now())};
+ // Only the authenticated owner can retrieve this controlled, non-PII code.
+ if(row.status==="failed"&&typeof saved.lastFailure==="string"&&
+  /^[A-Z][A-Z0-9_]{2,55}$/.test(saved.lastFailure))summary.lastFailure=saved.lastFailure;
+ return summary;
 }
 const rowSummary=r=>({id:String(r.id),status:String(r.status),createdAt:Number(r.created_at),
  model:String(r.model||""),usage:{promptTokens:Number(r.prompt_tokens||0),outputTokens:Number(r.output_tokens||0)},
@@ -224,7 +228,7 @@ async function advanceLabReport(a,ctx,id,key,model){
  const part=PARTS.find(k=>typeof progress.chapters[k]!=="string");
  if(!part)return reply({error:"REPORT_INVALID"},409);
  const token=crypto.randomUUID();
- const reserved=JSON.stringify({...progress,lease:{token,until:Date.now()+45000}});
+ const reserved=JSON.stringify({...progress,lastFailure:null,lease:{token,until:Date.now()+45000}});
  const previous=row.content_json;
  let lease;
  try{
@@ -248,7 +252,7 @@ async function advanceLabReport(a,ctx,id,key,model){
   if(done&&!validateLabChapters(chapters,progress.facts))throw Error("QUALITY_CHECK_FAILED");
   const snapshot=JSON.stringify(done?
    {version:"bazi-private-lab-v2",facts:progress.facts,chapters}:
-   {...progress,chapters,usage,lease:null});
+   {...progress,chapters,usage,lastFailure:null,lease:null});
   if(snapshot.length>50000)throw Error("REPORT_TOO_LARGE");
   const write=await a.db.prepare(
    "UPDATE koolo_fortune_lab_reports SET status=?,model=?,content_json=?,prompt_tokens=?,output_tokens=?,updated_at=? "+
@@ -267,20 +271,31 @@ async function advanceLabReport(a,ctx,id,key,model){
    content_json:snapshot,prompt_tokens:usage.promptTokens,output_tokens:usage.outputTokens};
   return done?reply({report:readyReport(saved)},201):reply({report:rowSummary(saved)},202);
  }catch(e){
-  // Retain completed chapters. Only the request owning the lease can fail it.
-  try{await a.db.prepare(
-   "UPDATE koolo_fortune_lab_reports SET status='failed',content_json=?,updated_at=? "+
-   "WHERE id=? AND user_id=? AND status='generating' AND content_json=?"
-  ).bind(JSON.stringify({...progress,lease:null}),nowSec(),id,a.userId,reserved).run()}
-  catch{/* preserve the original failure code */}
+  // Classify without recording the prompt, birth chart, raw upstream response,
+  // user identifier or API key. A failed chapter stays resumable by this owner.
   const reason=e instanceof Error?e.message:"";
   const upstream=/^UPSTREAM_(400|401|403|404|408|429|500|502|503|504)$/.exec(reason);
   const code=reason==="UPSTREAM_TIMEOUT"?"AI_TIMEOUT":
    reason==="QUALITY_CHECK_FAILED"?"QUALITY_CHECK_FAILED":
    reason==="UPSTREAM_INVALID_RESPONSE"?"GEMINI_INVALID_RESPONSE":
+   reason==="UPSTREAM_EMPTY"?"GEMINI_EMPTY":
+   reason==="INVALID_JSON"?"GEMINI_INVALID_JSON":
+   reason==="REPORT_TOO_LARGE"?"REPORT_TOO_LARGE":
    upstream?"GEMINI_UPSTREAM_"+upstream[1]:"GENERATION_FAILED";
-  console.warn("[fortune-lab] chapter failed",JSON.stringify({part,code,elapsedMs:Date.now()-started}));
-  return reply({error:code,id,progress:{completed:PARTS.indexOf(part),total:PARTS.length}},
-   code==="AI_TIMEOUT"?504:502);
+  const failedContent=JSON.stringify({...progress,lease:null,lastFailure:code});
+  let persisted=false;
+  try{
+   const result=await a.db.prepare(
+    "UPDATE koolo_fortune_lab_reports SET status='failed',content_json=?,updated_at=? "+
+    "WHERE id=? AND user_id=? AND status='generating' AND content_json=?"
+   ).bind(failedContent,nowSec(),id,a.userId,reserved).run();
+   persisted=Number(result.meta?.changes)===1;
+  }catch{/* Preserve the original classified error. */}
+  console.warn("[fortune-lab] chapter failed",JSON.stringify({part,code,elapsedMs:Date.now()-started,persisted}));
+  if(!persisted)return reply({error:"UNAVAILABLE",id},503);
+  // This is an expected application-level *generation outcome*, not a broken
+  // HTTP gateway. Return 200 with a typed failed report to avoid Cloudflare
+  // custom 5xx error-page replacement hiding the actionable failure code.
+  return reply({report:rowSummary({...row,status:"failed",content_json:failedContent})});
  }
 }

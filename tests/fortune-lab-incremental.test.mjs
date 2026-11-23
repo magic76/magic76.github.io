@@ -89,14 +89,15 @@ function database(){
  }};
  return db;
 }
-function provider({calls=[],failAt=null}={}){
+function provider({calls=[],failAt=null,alwaysFailPart=null}={}){
  return async(_url,options)=>{
   const prompt=JSON.parse(options.body).contents[0].parts[0].text;
   const part=PARTS.find(p=>prompt.includes('只有 "'+p+'" 一個字串欄位'));
   assert.ok(part,"each AI request must ask for exactly one chapter");
   assert.equal(JSON.parse(options.body).generationConfig.maxOutputTokens,3072);
   calls.push(part);
-  if(failAt&&calls.length===failAt)return new Response("upstream unavailable",{status:503});
+  if(alwaysFailPart===part||(failAt&&calls.length===failAt))
+   return new Response("upstream unavailable",{status:503});
   const txt=("依據丙火日主、木火互動與五行配置，這個人可能在面對選擇時同時重視效率和關係，適合透過觀察實際情況建立自己更舒服的節奏，而不是預設任何人生經歷。").repeat(4)+
    " 觀察年份 "+YEAR+" 年的節奏，重點是選擇與調整。本章專注於 "+part+" 的獨特面向。";
   return new Response(JSON.stringify({candidates:[{content:{parts:[{text:JSON.stringify({[part]:txt})}]}}],
@@ -135,15 +136,17 @@ test("a new report returns immediately; seven bounded chapters commit one at a t
  assert.ok(db.statements.every(s=>!/koolo_fortune_orders|koolo_voice_wallets/.test(s)));
 });
 test("a failed third chapter preserves the first two and retry never repeats them",async()=>{
- const db=database(),calls=[],ai=provider({calls,failAt:3});
+ const db=database(),calls=[],ai=provider({calls,alwaysFailPart:"career"});
  const start=await post(db,ai,{requestId:UUID,facts,pipeline:"chapters"});
  const id=(await start.json()).report.id;
  await post(db,ai,{action:"advance",reportId:id});
  await post(db,ai,{action:"advance",reportId:id});
  const fail=await post(db,ai,{action:"advance",reportId:id});
- assert.equal(fail.status,502);
+ assert.equal(fail.status,200,"expected provider failure is a JSON report outcome, not an edge 502");
  assert.equal(fail.headers.get("X-Koolo-Fortune-Lab-API"),"v1");
- assert.equal((await fail.json()).error,"GEMINI_UPSTREAM_503");
+ const failure=(await fail.json()).report;
+ assert.equal(failure.status,"failed");
+ assert.equal(failure.progress.lastFailure,"GEMINI_UPSTREAM_503");
  assert.equal(db.row.status,"failed");
  assert.equal(JSON.parse(db.row.content_json).chapters.preface.length>150,true);
  assert.equal(JSON.parse(db.row.content_json).chapters.personality.length>150,true);
@@ -154,7 +157,7 @@ test("a failed third chapter preserves the first two and retry never repeats the
  assert.equal((await resumed.json()).report.progress.completed,3);
  for(let i=3;i<7;i++)resumed=await post(db,provider({calls}),{action:"advance",reportId:id});
  assert.equal(resumed.status,201);
- assert.deepEqual(calls,["preface","personality","career","career","relationships","timing","letter","plan"]);
+ assert.deepEqual(calls,["preface","personality","career","career","career","relationships","timing","letter","plan"]);
 });
 test("a live per-chapter D1 lease prevents concurrent Gemini charges; expired leases recover",async()=>{
  const db=database(),calls=[];
@@ -202,4 +205,19 @@ test("ready legacy rows remain accessible, while unauthenticated or foreign resu
  await assert.rejects(generateLabPart(normalizeLabFacts(facts),"bad",{
   key:"only-test-key",model:"gemini-3.5-flash",fetcher:provider()
  }),/INVALID_PART/);
+});
+
+test("a transient upstream 503 retries once within the same chapter and checkpoints success",async()=>{
+ const db=database(),calls=[],ai=provider({calls,failAt:1});
+ const start=await post(db,ai,{requestId:UUID,facts,pipeline:"chapters"});
+ const id=(await start.json()).report.id;
+ const response=await post(db,ai,{action:"advance",reportId:id});
+ assert.equal(response.status,202);
+ const data=(await response.json()).report;
+ assert.equal(data.status,"generating");
+ assert.equal(data.progress.completed,1);
+ assert.deepEqual(calls,["preface","preface"]);
+ assert.equal(db.row.status,"generating");
+ assert.ok(JSON.parse(db.row.content_json).chapters.preface);
+ assert.equal(JSON.parse(db.row.content_json).lastFailure,null);
 });
