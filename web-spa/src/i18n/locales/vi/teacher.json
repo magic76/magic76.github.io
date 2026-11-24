@@ -248,8 +248,9 @@
       "social": "Giao tiếp xã hội"
     },
     "kicker": "Từ vựng",
-    "neuralVoiceHint": "Phát âm tiếng Anh dùng Kitten Nano trên thiết bị; các ngôn ngữ được hỗ trợ khác dùng Kitten Pico. Giọng hệ thống được dùng cho đến khi mô hình sẵn sàng.",
-    "modelDownloading": "Đang chuẩn bị giọng Kitten: khoảng 13 MB cho tiếng Anh Nano (các ngôn ngữ khác nhỏ hơn), chỉ tải một lần. Lần này dùng giọng hệ thống.",
+    "neuralVoiceHint": "Phát âm tiếng Anh dùng Kokoro trên thiết bị; các ngôn ngữ được hỗ trợ khác dùng Kitten Pico. Hệ thống sẽ đọc cho đến khi mô hình sẵn sàng.",
+    "modelDownloading": "Đang chuẩn bị giọng tiếng Anh Kokoro ({{runtime}}, khoảng {{size}} MB; chỉ tải một lần). Lần này sẽ dùng giọng hệ thống.",
+    "modelDownloadingPico": "Đang chuẩn bị mô hình Kitten Pico nhỏ hơn (chỉ tải một lần). Lần này sẽ dùng giọng hệ thống.",
     "modelReady": "Mô hình giọng nói đã sẵn sàng. Lần phát tiếp theo sẽ dùng giọng chất lượng cao.",
     "listenExample": "Nghe câu ví dụ",
     "saved": "✓ Đã lưu",
@@ -459,7 +460,8 @@
     "emptyTitle": "Bộ thẻ học của bạn vẫn đang trống",
     "emptyDesc": "Hãy lưu một trong 5 câu hôm nay ở trên, hoặc lưu câu từ cuộc trò chuyện với Zoe mà bạn thực sự muốn học.",
     "dailyNote": "5 câu hôm nay",
-    "modelDownloading": "Đang chuẩn bị giọng Kitten: khoảng 13 MB cho tiếng Anh Nano (các ngôn ngữ khác nhỏ hơn), chỉ tải một lần. Lần này dùng giọng hệ thống.",
+    "modelDownloading": "Đang chuẩn bị giọng tiếng Anh Kokoro ({{runtime}}, khoảng {{size}} MB; chỉ tải một lần). Lần này sẽ dùng giọng hệ thống.",
+    "modelDownloadingPico": "Đang chuẩn bị mô hình Kitten Pico nhỏ hơn (chỉ tải một lần). Lần này sẽ dùng giọng hệ thống.",
     "modelReady": "Mô hình giọng nói đã sẵn sàng. Lần phát tiếp theo sẽ dùng giọng chất lượng cao.",
     "tags": {
       "correction": "Sửa tự nhiên",

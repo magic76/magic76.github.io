@@ -233,7 +233,8 @@
       "save": "＋ 收藏",
       "originalPrefix": "原句：",
       "savedNote": "Zoe 對話收藏",
-      "modelDownloading": "正在準備 Kitten 語音模型（英文 Nano 約 13 MB，其他語言更小），只需下載一次。這次先用系統語音播放。",
+      "modelDownloading": "正在準備 Kokoro 英文語音（{{runtime}}，約 {{size}} MB），只需下載一次。這次先用系統語音播放。",
+      "modelDownloadingPico": "正在準備 Kitten Pico 語音模型（下載量較小），只需下載一次。這次先用系統語音播放。",
       "modelReady": "語音模型已準備好，下次播放會使用高品質語音。"
     },
     "typing": "{{name}} 正在輸入",
