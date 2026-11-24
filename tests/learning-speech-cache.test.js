@@ -49,7 +49,7 @@ test("Kokoro cache matches the actual WebGPU fp32 or WASM q8 ONNX file",async()=
   const cold=vm.runInNewContext(
    'const KOKORO_MODEL_ID="onnx-community/Kokoro-82M-v1.0-ONNX";'+
    'const KOKORO_CACHE="transformers-cache";const PICO_BASE="";const MODEL_CACHE="koolo-learning-speech-v1";'+code+
-   ';({hasCachedTinyModel,learningSpeechDownloadSettings})',ctx);
+   ';({hasCachedTinyModel,learningSpeechDownloadSettings})',{...ctx});
   stored.delete(model+"model_quantized.onnx");
   assert.equal(await cold.hasCachedTinyModel("en"),false);
   assert.equal(cold.learningSpeechDownloadSettings().size,88);
