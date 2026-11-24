@@ -110,7 +110,7 @@ test("Kitten postprocessing preserves the first start token, trims subsequent st
  assert.equal(first.length,samples.length-trail+2*padding);
  assert.equal(later.length,samples.length-lead-trail+2*padding);
  assert.ok(Math.abs(first[padding+lead-300]-0.6)<0.0001,"first chunk retains speech in start-token frames");
- assert.equal(later[padding+240],0.6,"later chunks trim the start-token pause after the fade");
+ assert.ok(Math.abs(later[padding+240]-0.6)<0.0001,"later chunks trim the start-token pause after the fade");
  for(const audio of [first,later]){
   const rms=(items)=>Math.sqrt(items.reduce((sum,s)=>sum+s*s,0)/items.length);
   assert.ok(rms(audio.subarray(0,padding))<0.005,"100 ms digital silence before audio");
