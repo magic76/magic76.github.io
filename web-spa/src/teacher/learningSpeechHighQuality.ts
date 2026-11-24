@@ -211,7 +211,6 @@ export async function generateHighQuality(text:string,language:string,speed:"nor
 export async function removeHighQuality(language:string){
  const key=languageKey(language);if(!key||importing.has(key))return;
  saveConsent(language,false);prepared.delete(language);
- const gpu=await webGpuAvailable();
  if(typeof caches!=="undefined")try{
   const assets=await caches.open(ASSET_CACHE);
   await Promise.all([assets.delete(markerUrl(language,true)),assets.delete(markerUrl(language,false))]);
