@@ -37,8 +37,6 @@ test("no learning path imports Kokoro runtimes or WebGPU models",()=>{
 });
 
 test("cold, cached-weight and failed preparation all speak immediately without obsolete UI hints",async()=>{
- const fn=extract("export async function speakLearningText(","\n}",).replace(/\s*$/,"")+"\n}"; // replaced below with exact function source
- // The final speech function reaches EOF, so extract its full text directly.
  const code=stripTypeScriptTypes(speech.slice(speech.indexOf("export async function speakLearningText(")).replace("export ",""),{mode:"strip"});
  for(const hit of [false,true]){
   const statuses=[],played=[];let rejectPreparation;
