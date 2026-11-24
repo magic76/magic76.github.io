@@ -12,6 +12,7 @@ import {Link,useLocation,useNavigate} from "react-router-dom";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {NATIVE_LANGUAGES} from "../teacher/teacherLocale";
 import {TeacherPinyinSetting} from "../teacher/TeacherPinyinSetting";
+import {LearningSpeechOptIn} from "../teacher/learningSpeechOptIn";
 import {DAILY_GOALS,DEFAULT_GOAL_MINUTES,getDailyGoalMinutes,setDailyGoalMinutes} from "../teacher/learningToday";
 import {useClientReady} from "../lib/useClientReady";
 import {isCrewAndroidShell} from "../lib/platform";
@@ -88,6 +89,7 @@ export function SettingsPage(){
     <small className="crew-settings-field-hint">{english?"Language you want to learn with Koolo Teacher.":"老師教你學習的語言；不會更改 App 介面。"}</small>
    </label>
    <TeacherPinyinSetting targetLanguage={target} value={pinyinMode} onChange={setPinyinMode} english={english} showWhenUnavailable/>
+   <LearningSpeechOptIn language={target}/>
    <label>{t("group.nativeLanguage")}
     <select value={native} onChange={e=>setNative(e.target.value as typeof native)}>
      {NATIVE_LANGUAGES.map(([code,label])=><option key={code} value={code}>{label}</option>)}
