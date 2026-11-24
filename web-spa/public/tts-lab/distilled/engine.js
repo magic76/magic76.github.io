@@ -10,7 +10,7 @@ async function bytes(url){
  let cache;try{cache=await caches.open("koolo-tts-distilled-v1");const hit=await cache.match(url);if(hit)return new Uint8Array(await hit.arrayBuffer())}catch{}
  let error;for(let i=0;i<2;i++)try{const r=await fetch(url);if(!r.ok)throw Error("HTTP "+r.status+" "+url);const copy=r.clone(),data=new Uint8Array(await r.arrayBuffer());if(!data.length)throw Error("資源為空");try{await cache?.put(url,copy)}catch{}return data}catch(e){error=e}throw error
 }
-async function loadRuntime(load=importModule,bases=ORT_BASES,report=status){
+async function loadRuntime(load=importModule,bases=ORT_BASES,report=status,verify=async()=>{}){
  const errors=[];
  for(const base of bases){
   const url=base+"ort.wasm.min.mjs";
@@ -21,12 +21,12 @@ async function loadRuntime(load=importModule,bases=ORT_BASES,report=status){
    api.env.wasm.numThreads=1;api.env.wasm.proxy=false;
    // JS, WASM and glue must all be from the same pinned distribution.
    api.env.wasm.wasmPaths=base;
+   await verify(api);
    return api;
   }catch(e){errors.push(new URL(base).hostname+": "+(e.message||String(e)))}
  }
  throw Error("ONNX WASM runtime 載入失敗："+errors.join("；"));
 }
-async function runtime(){if(!ort)ort=await loadRuntime();return ort}
 async function phonemes(text,voice,profile){
  const lang=voice.startsWith("b")?"en-gb":"en-us";
  if(!g2p){g2p=await import(UC+"index.js");await g2p.init({wasm:await bytes(UC+"dist/uccharan_wasm_bg.wasm"),dataBaseUrl:UC+"data/"})}
@@ -49,7 +49,14 @@ async function parseNPZ(data){
  while(off+30<=data.length&&view.getUint32(off,true)===0x04034b50){const method=view.getUint16(off+8,true),size=view.getUint32(off+18,true),nl=view.getUint16(off+26,true),xl=view.getUint16(off+28,true),ds=off+30+nl+xl,de=ds+size;if(de>data.length||!size)throw Error("無效的 NPZ");const name=dec.decode(data.slice(off+30,off+30+nl));if(name.endsWith(".npy")){let raw=data.slice(ds,de);if(method===8)raw=inflateRaw(raw);else if(method!==0)throw Error("不支援的 NPZ 壓縮");out[name.slice(0,-4)]=parseNPY(raw)}off=de}return out
 }
 const json=async url=>JSON.parse(new TextDecoder().decode(await bytes(url)));
-async function session(url){await runtime();status("下載或讀取模型快取…");const data=await bytes(url);status("建立 WASM 推論環境…");return ort.InferenceSession.create(data,{executionProviders:["wasm"],intraOpNumThreads:1,graphOptimizationLevel:"all"})}
+async function session(url){
+ status("下載或讀取模型快取…");const data=await bytes(url);let result;
+ ort=await loadRuntime(importModule,ORT_BASES,status,async api=>{
+  status("建立 WASM 推論環境…"+new URL(api.env.wasm.wasmPaths).hostname);
+  result=await api.InferenceSession.create(data,{executionProviders:["wasm"],intraOpNumThreads:1,graphOptimizationLevel:"all"});
+ });
+ return result
+}
 async function load(id){
  if(id.startsWith("paradee")){
  const config=await json(PARA+"config.json");return{session:await session(PARA+"onnx/"+(id==="paradee8"?"paradee_int8.onnx":"paradee.onnx")),vocab:config.vocab,voices:config.voices}
