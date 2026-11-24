@@ -193,10 +193,10 @@ function readerGo(index){
  var leaving=false;
  pages.forEach(function(page,i){
   var visible=i>=next&&i<next+size;
-  // A spread turns one real leaf: the right page going forward, the left
-  // page going backward. Mobile turns its single visible page.
+  // Always turn the right-hand leaf toward the left, even when navigating
+  // to an earlier spread. Mobile turns its single visible page.
   var flipOut=turning&&wasActive[i]&&!visible&&
-   (size===1||(forward?i%2===1:i%2===0));
+   (size===1||i%2===1);
   page.className=page.className.replace(/\s+is-active|\s+is-leaving/g,"")+
    (visible?" is-active":flipOut?" is-leaving":"");
   if(page.setAttribute)page.setAttribute("aria-hidden",visible?"false":"true");
