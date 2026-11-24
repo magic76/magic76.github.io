@@ -19,13 +19,13 @@ test("Pico retains pinned uccharan runtime and classic worker cache",()=>{
 });
 
 test("Kokoro cache matches the actual WebGPU fp32 or WASM q8 ONNX file",async()=>{
- const start=speech.indexOf("function hasWebGpu("),end=speech.indexOf("function requestPersistentStorage()",start);
+ const start=speech.indexOf("let webGpuAvailable="),end=speech.indexOf("function requestPersistentStorage()",start);
  assert.ok(start>=0&&end>start);
  const code=stripTypeScriptTypes(speech.slice(start,end).replace("export function","function"),{mode:"strip"});
  const model="https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/onnx/";
  const pico="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/kitten_tts_2_pico_de_int4.onnx";
- const stored=new Set([model+"model.onnx",pico]),navigator={gpu:{}};
- const ctx={window:{caches:true},navigator,URL,learningSpeechRoute:language=>language==="en"?{engine:"kokoro",model:"base"}:{engine:"pico"},caches:{open:async()=>({
+ const stored=new Set([model+"model.onnx",pico]),navigator={gpu:{requestAdapter:async()=>({})}};
+ const ctx={window:{caches:true},navigator,URL,ready:new Set(),warming:new Map(),learningSpeechRoute:language=>language==="en"?{engine:"kokoro",model:"base"}:{engine:"pico"},caches:{open:async()=>({
   match:async url=>stored.has(url)?{ok:true}:undefined,keys:async()=>[...stored].map(url=>({url}))
  })}};
  const mod=vm.runInNewContext(
@@ -34,15 +34,28 @@ test("Kokoro cache matches the actual WebGPU fp32 or WASM q8 ONNX file",async()=
   'const KOKORO_CACHE="transformers-cache";'+
   'const PICO_BASE="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";'+
   'const MODEL_CACHE="koolo-learning-speech-v1";'+code+
-  ';({hasCachedTinyModel,learningSpeechDownloadSettings})',ctx);
+  ';({hasCachedTinyModel,learningSpeechDownloadSettings,disableWebGpu})',ctx);
  assert.equal(await mod.hasCachedTinyModel("en"),true);
  assert.equal(await mod.hasCachedTinyModel("de"),true);
  assert.equal(mod.learningSpeechDownloadSettings().size,310);
- delete navigator.gpu;
+ mod.disableWebGpu();
  assert.equal(await mod.hasCachedTinyModel("en"),false,"q8 must not inherit an fp32 cache hit");
  stored.add(model+"model_quantized.onnx");
  assert.equal(await mod.hasCachedTinyModel("en"),true);
  assert.equal(mod.learningSpeechDownloadSettings().size,88);
+ // A GPU property without an actual adapter must not count as fp32 support.
+ for(const requestAdapter of [async()=>null,async()=>{throw Error("no adapter")} ]){
+  navigator.gpu={requestAdapter};
+  const cold=vm.runInNewContext(
+   'const KOKORO_MODEL_ID="onnx-community/Kokoro-82M-v1.0-ONNX";'+
+   'const KOKORO_CACHE="transformers-cache";const PICO_BASE="";const MODEL_CACHE="koolo-learning-speech-v1";'+code+
+   ';({hasCachedTinyModel,learningSpeechDownloadSettings})',ctx);
+  stored.delete(model+"model_quantized.onnx");
+  assert.equal(await cold.hasCachedTinyModel("en"),false);
+  assert.equal(cold.learningSpeechDownloadSettings().size,88);
+  stored.add(model+"model_quantized.onnx");
+  assert.equal(await cold.hasCachedTinyModel("en"),true);
+ }
  assert.match(speech,/storage\.persist\(\)/);
  assert.match(speech,/if\(!hit\)options\.onModelStatus\?\.\("loading",language\)/);
  assert.match(speech,/void ensureTiny\(language\)\.catch/);
