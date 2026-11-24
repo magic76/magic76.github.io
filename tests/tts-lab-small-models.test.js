@@ -26,8 +26,8 @@ test("TTS labs remain noindexed and hub links to comparison",()=>{
 test("only relevant cards are shown, and unsupported engines cannot run",()=>{
  const source=js.match(/const engineLanguages=\{[\s\S]*?\};/)[0];
  const routes=vm.runInNewContext(source+";JSON.stringify(engineLanguages)");
- assert.deepEqual(JSON.parse(routes),{system:["en","zh","ja","ko","es"],nano2:["es"],pico2:["en","es"],sano:["zh","es"],eeh:["ja"],korean:["ko"]});
- assert.deepEqual([...page.matchAll(/data-engine="([^"]+)"/g)].map(m=>m[1]).sort(),["eeh","korean","nano2","pico2","sano","system"]);
+ assert.deepEqual(JSON.parse(routes),{system:["en","zh","ja","ko","es"],nano2:["es"],pico2:["en","es"],sano:["zh","es"],eeh:["ja"],piperLow:["zh"],piperMedium:["zh"]});
+ assert.deepEqual([...page.matchAll(/data-engine="([^"]+)"/g)].map(m=>m[1]).sort(),["eeh","nano2","pico2","piperLow","piperMedium","sano","system"]);
  assert.ok(js.includes('b.closest(".model").hidden=!available'));
  assert.match(js,/!supports\(id,language\.value\)/);
  assert.match(js,/u\.lang=locale/);
@@ -49,21 +49,34 @@ test("language-specific tiny assets, sessions and research links",()=>{
 test("research candidates actually dispatch local synthesis workers",()=>{
  const worker=read("web-spa/public/tts-lab/compare/lightweight-worker.js");
  assert.doesNotThrow(()=>new vm.Script(worker));
- for(const id of ["sano","eeh","korean"]){
+ for(const id of ["sano","eeh"]){
   assert.ok(page.includes('data-engine="'+id+'"'));
   assert.ok(js.includes(id+':()=>researchTts("'+id+'")'));
  }
- assert.ok(js.includes('new Worker("./lightweight-worker.js")'));
+ assert.ok(js.includes('new Worker("./lightweight-worker.js?v=903")'));
  assert.ok(js.includes('type:"speak",text:v'));
  assert.ok(js.includes('wavBlob(result.audio,result.sampleRate)'));
  assert.match(worker,/_snt_voice_synthesize/);
- assert.match(worker,/synth\.speakEach/);
- assert.match(worker,/session\.run/);
+ assert.match(worker,/synth\.speak\(/);
  assert.match(worker,/loadZhG2P/);
- assert.match(worker,/ko-loan/);
  assert.match(worker,/eeh-dict\.bin\.gz/);
  assert.match(worker,/chinese-xiaoya/);
- assert.match(worker,/executionProviders:\["wasm"\]/);
- assert.match(page,/非商業/);
+ assert.doesNotMatch(page+js+worker,/ooodev\/korean-tts|loadKorean|KSS|data-engine="korean"/);
  assert.match(js,/worker\?\.terminate\(\);researchWorkers\.delete/);
+});
+
+test("eeh uses fetched JavaScript MIME and explicit WASM bytes; Chinese Piper routes both tiers",()=>{
+ const worker=read("web-spa/public/tts-lab/compare/lightweight-worker.js");
+ assert.match(worker,/async function loadEehModule/);
+ assert.ok(worker.includes('new Blob([source],{type:"text/javascript"})'));
+ assert.ok(worker.includes('return await import(url)'));
+ assert.ok(worker.includes('module.default({module_or_path:wasm})'));
+ assert.doesNotMatch(worker,/import\(EEH\+/);
+ assert.match(js,/@realtimex\/piper-tts-web@1\.1\.1/);
+ assert.ok(js.includes('voiceId="zh_CN-huayan-"+tier'));
+ assert.ok(js.includes('new sdk.TtsSession'));
+ assert.ok(js.includes('engines[id].predict(value)'));
+ assert.match(page,/20\.6 MB/);
+ assert.match(page,/63\.2 MB/);
+ assert.match(page,/訓練資料授權/);
 });
