@@ -38,6 +38,6 @@ test("cold, cached and failed preparation never wait for local inference before 
   const result=await speak("bonjour","fr",{onModelStatus:s=>statuses.push(s)});
   assert.equal(result.engine,"system");assert.deepEqual(played,["bonjour"]);assert.deepEqual(statuses,hit?[]:["loading"]);
   fail(Error("offline"));await new Promise(resolve=>setImmediate(resolve));
-  assert.equal(statuses.at(-1),"ready");
+  assert.deepEqual(statuses,hit?[]:["loading","ready"]);
  }
 });
