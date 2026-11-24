@@ -17,7 +17,7 @@ test("page-turn reader has 10 print-safe pages, controls, and a no-AI preview en
  assert.match(html,/\.sheet\.is-active\{display:flex!important;position:relative!important/);
  assert.equal((html.match(/<article class="sheet(?: dark)?"/g)||[]).length,10);
  assert.doesNotMatch(html,/留給自己的一題|建議：每週做一件/);
- assert.match(html,/v=20261124-pageflip3/);
+ assert.match(html,/v=20261124-pageflip4/);
  assert.match(html,/touch-action:pan-y pinch-zoom/);
  assert.match(html,/overscroll-behavior-x:none/);
  assert.match(html,/overflow-x:clip/);
@@ -34,7 +34,7 @@ test("page-turn reader has 10 print-safe pages, controls, and a no-AI preview en
  assert.match(source,/readerFlip\.flipPrev\("bottom"\)/);
  assert.doesNotMatch(source,/readerFlip\.turnToPage\(spread.first-1\)/);
  assert.match(source,/useMouseEvents:true,swipeDistance:45/);
- assert.match(source,/showPageCorners:true/);
+ assert.match(source,/disableFlipByClick:false,showPageCorners:true/);
  assert.match(source,/bindReaderSwipe\(node\("bookPages"\)\)/);
  assert.doesNotMatch(source,/bindReaderSwipe\(node\("flipBook"\)\)/);
  assert.match(source,/copy\.querySelectorAll\("\[id\]"\)/);
@@ -145,7 +145,7 @@ test("StPageFlip adapter delegates real page turns and preserves canonical repor
  const node=id=>{if(!nodes.has(id))nodes.set(id,make());return nodes.get(id)};
  const text=(id,value)=>{node(id).textContent=value};
  class PageFlip{
-  constructor(host,settings){instances++;assert.equal(settings.flippingTime,850);assert.equal(settings.showCover,true);assert.equal(settings.mobileScrollSupport,true);assert.equal(settings.useMouseEvents,true);assert.equal(settings.showPageCorners,true)}
+  constructor(host,settings){instances++;assert.equal(settings.flippingTime,850);assert.equal(settings.showCover,true);assert.equal(settings.mobileScrollSupport,true);assert.equal(settings.useMouseEvents,true);assert.equal(settings.showPageCorners,true);assert.equal(settings.disableFlipByClick,false)}
   on(name,fn){events.set(name,fn)}
   loadFromHTML(items){calls.push(["load",items]);events.get("init")()}
   updateFromHtml(items){calls.push(["update",items]);events.get("update")()}
@@ -187,6 +187,67 @@ test("StPageFlip adapter delegates real page turns and preserves canonical repor
  window.matchMedia=()=>({matches:true});flags.clear();
  assert.equal(adapter.openFlip(),false);adapter.readerStep(1);assert.equal(calls.at(-1)[0],"fallback");
 });
+
+
+test("real StPageFlip 2.0.7 portrait previous works via button, right swipe and slow drag",()=>{
+ // Run the pinned production browser bundle, not a stub of flipPrev. The
+ // synthetic DOM supplies layout geometry and events without a browser.
+ const vendor=readFileSync("node_modules/page-flip/dist/js/page-flip.browser.js","utf8");
+ const config=source.match(/new window\.St\.PageFlip\(host,(\{[\s\S]*?\})\);/);
+ assert.ok(config,"extract actual reader settings");
+ const settings=new Function("return ("+config[1]+");")();
+ runVendorRegression(vendor,settings,assert);
+});
+function runVendorRegression(vendor,settings,assert){
+ const width=372,height=width*settings.height/settings.width;
+ const raf=[],timers=[],windowEvents=new Map();
+ let clock=0;
+ class Element{
+  constructor(cls=""){this.children=[];this.dataset={};this.style={};this.parentElement=null;this.tagName="DIV";this.events=new Map();const names=new Set(cls.split(" "));this.classList={add:(...x)=>x.forEach(k=>names.add(k)),remove:(...x)=>x.forEach(k=>names.delete(k)),contains:k=>names.has(k)}}
+  get offsetWidth(){return width}
+  get offsetHeight(){return Math.ceil(height)}
+  appendChild(el){this.children.push(el);el.parentElement=this;return el}
+  insertAdjacentHTML(where,html){for(const m of html.matchAll(/class="([^"]+)"/g))this.appendChild(new Element(m[1]))}
+  querySelector(sel){for(const child of this.children){if(child.classList.contains(sel.slice(1)))return child;const found=child.querySelector(sel);if(found)return found}return null}
+  cloneNode(){const copy=new Element();copy.dataset={...this.dataset};return copy}
+  remove(){if(this.parentElement)this.parentElement.children=this.parentElement.children.filter(x=>x!==this)}
+  addEventListener(name,fn){this.events.set(name,fn)}
+  removeEventListener(name){this.events.delete(name)}
+  getBoundingClientRect(){return {left:0,top:0}}
+ }
+ const window={navigator:{userAgent:"Chromium"},addEventListener:(n,f)=>windowEvents.set(n,f),removeEventListener:n=>windowEvents.delete(n)};
+ const St=new Function("window","requestAnimationFrame","setTimeout","document","Date","exports","module","define",vendor+"\nreturn this.St;").call({},window,fn=>raf.push(fn),fn=>timers.push(fn),undefined,{now:()=>clock},undefined,undefined,undefined);
+ function setup(opts){
+  const host=new Element(),book=new St.PageFlip(host,opts),pages=Array.from({length:10},()=>new Element());
+  pages[0].dataset.density=pages[9].dataset.density="hard";
+  book.loadFromHTML(pages);while(timers.length)timers.shift()();
+  return {book,block:host.querySelector(".stf__block")};
+ }
+ function finish(book){book.getRender().finishAnimation();assert.equal(book.getState(),"read")}
+ const broken=setup({...settings,disableFlipByClick:true}).book;
+ broken.turnToPage(3);broken.flipPrev("bottom");
+ assert.equal(broken.getState(),"read","reproduce upstream corner guard");
+ assert.equal(broken.getCurrentPageIndex(),3);
+ const {book,block}=setup(settings);
+ assert.equal(book.getOrientation(),"portrait");
+ book.turnToPage(3);
+ book.flipPrev("bottom");assert.equal(book.getState(),"flipping");finish(book);assert.equal(book.getCurrentPageIndex(),2);
+ book.flipNext("bottom");assert.equal(book.getState(),"flipping");finish(book);assert.equal(book.getCurrentPageIndex(),3);
+ const touch=(x,y)=>({target:block,changedTouches:[{clientX:x,clientY:y}],cancelable:true,preventDefault(){}});
+ block.events.get("touchstart")(touch(15,90));clock+=100;windowEvents.get("touchend")(touch(200,94));
+ assert.equal(book.getState(),"flipping","right swipe starts real reverse curl");finish(book);assert.equal(book.getCurrentPageIndex(),2);
+ while(timers.length)timers.shift()();
+ // Advance past native swipeTimeout: this case must be a real slow drag,
+ // not another fast swipe that invokes flipPrev automatically.
+ block.events.get("touchstart")(touch(12,90));clock+=300;while(timers.length)timers.shift()();
+ windowEvents.get("touchmove")(touch(30,95));
+ assert.equal(book.getState(),"user_fold");assert.ok(book.getFlipController().getCalculation());
+ windowEvents.get("touchmove")(touch(290,95));
+ clock+=300;windowEvents.get("touchend")(touch(290,95));
+ finish(book);assert.equal(book.getCurrentPageIndex(),1);
+ book.flipPrev("bottom");finish(book);assert.equal(book.getCurrentPageIndex(),0);
+ book.flipPrev("bottom");assert.equal(book.getState(),"read");assert.equal(book.getCurrentPageIndex(),0);
+}
 
 test("new Gemini prompt asks for character analysis, fewer terms, and no questions",()=>{
  const year=new Date(Date.now()+28800000).getUTCFullYear();
