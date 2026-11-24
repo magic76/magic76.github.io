@@ -31,7 +31,7 @@ async function run(id){
  const r=rows.get(id);setBusy(true);r.status.classList.remove("error");for(const x of rows.values())x.audio.pause();
  try{
  const t=performance.now(),warm=loaded===id;
- if(!warm){resetWorker();worker=new Worker("./engine.js");await request(id,{type:"load"},s=>r.status.textContent=s);loaded=id}
+ if(!warm){resetWorker();worker=new Worker("./engine.js?v=runtime2");await request(id,{type:"load"},s=>r.status.textContent=s);loaded=id}
  const ready=performance.now();r.status.textContent="生成語音…";
  const result=await request(id,{type:"speak",text,voice:$("#voice").value,speed:Number($("#speed").value)},s=>r.status.textContent=s);
  const end=performance.now();if(!(result.buffer instanceof ArrayBuffer)||result.buffer.byteLength<=44)throw Error("未取得有效音訊");
