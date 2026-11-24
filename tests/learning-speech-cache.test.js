@@ -21,7 +21,7 @@ test("Nano and Pico use pinned ONNX/WASM assets and the same persistent cache",(
  assert.match(worker,/await engine\.session\.run\(feeds\)/);
  assert.match(worker,/const cacheName="koolo-learning-speech-v1"/);
  assert.match(worker,/kitten_tts_2_nano_en_int4\.onnx/);
- assert.match(worker,/g2pLanguage\(language\).*?"en-us"/);
+ assert.match(worker,/language==="en"\?"en-us":language/);
  assert.match(speech,/storage\.persist\(\)/);
  assert.doesNotMatch(speech+worker,/from_pretrained|kokoro-js@|onnx-community\/Kokoro.*resolve\/main/);
 });
