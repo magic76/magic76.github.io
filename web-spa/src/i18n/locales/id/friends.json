@@ -95,6 +95,7 @@
   "chatModeHintBilingual": "Disarankan: gunakan terutama bahasa yang dipelajari. Jika buntu, tanya dalam bahasa ibu. Satu bahasa tiap balasan; teman Anda menyesuaikan secara alami.",
   "chatModeHintImmersion": "Selalu mengobrol dalam bahasa yang dipelajari. Teman Anda menyesuaikan kejelasan, tetapi tidak berganti ke bahasa ibu.",
   "liveStatus": {
+    "micMuted": "Mikrofon dibisukan",
     "speaking": "Temanmu sedang berbicara",
     "idle": "Silakan bicara kapan saja",
     "hearing": "Sedang mendengarkanmu",

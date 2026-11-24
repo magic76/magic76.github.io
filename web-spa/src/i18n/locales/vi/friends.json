@@ -95,6 +95,7 @@
   "chatModeHintBilingual": "Khuyên dùng: chủ yếu nói ngôn ngữ đang học. Khi bí, có thể hỏi bằng tiếng mẹ đẻ. Mỗi câu trả lời dùng một ngôn ngữ.",
   "chatModeHintImmersion": "Luôn trò chuyện bằng ngôn ngữ đang học. Bạn AI sẽ nói dễ hiểu hơn nhưng không chuyển sang tiếng mẹ đẻ.",
   "liveStatus": {
+    "micMuted": "Mic đang tắt",
     "speaking": "Bạn của bạn đang nói",
     "idle": "Bạn có thể nói bất cứ lúc nào",
     "hearing": "Đang nghe bạn nói",

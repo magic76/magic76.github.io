@@ -1,5 +1,9 @@
 {
   "controls": {
+    "myTurn": "ขอพูดบ้าง",
+    "friendVoice": "เสียงเพื่อน",
+    "muteFriend": "ปิดเสียงเพื่อน",
+    "unmuteFriend": "เปิดเสียงเพื่อน",
     "start": "เริ่ม",
     "restart": "เริ่มอีกครั้ง",
     "retryMic": "อนุญาตไมโครโฟนอีกครั้ง",

@@ -1,5 +1,9 @@
 {
   "controls": {
+    "myTurn": "Đến lượt tôi",
+    "friendVoice": "Giọng bạn chat",
+    "muteFriend": "Tắt tiếng bạn chat",
+    "unmuteFriend": "Bật tiếng bạn chat",
     "start": "Bắt đầu",
     "restart": "Bắt đầu lại",
     "retryMic": "Cho phép micrô lại",

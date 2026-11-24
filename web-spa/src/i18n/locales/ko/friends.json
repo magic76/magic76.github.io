@@ -95,6 +95,7 @@
   "chatModeHintBilingual": "추천: 주로 학습 언어로 대화하세요. 막히면 모국어로 질문해도 됩니다. 한 응답에 한 언어를 사용하며 친구가 자연스럽게 조절합니다.",
   "chatModeHintImmersion": "항상 학습 언어로 대화합니다. 친구는 표현을 쉽게 조절하지만 모국어로 바꾸지 않습니다.",
   "liveStatus": {
+    "micMuted": "마이크 음소거 중",
     "speaking": "친구가 말하는 중",
     "idle": "언제든 말해도 돼요",
     "hearing": "듣고 있어요",

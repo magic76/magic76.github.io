@@ -95,6 +95,7 @@
   "chatModeHintBilingual": "推薦：主要用想學的語言聊天，聽不懂時可以用母語問；每次只說一種語言，朋友會自然調整難度。",
   "chatModeHintImmersion": "全程只用想學的語言；朋友會配合你的理解程度，但不切回母語。",
   "liveStatus": {
+    "micMuted": "麥克風已靜音",
     "speaking": "朋友說話中",
     "idle": "隨時可以說話",
     "hearing": "正在聽你說",

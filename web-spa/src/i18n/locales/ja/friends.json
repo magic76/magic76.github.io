@@ -95,6 +95,7 @@
   "chatModeHintBilingual": "おすすめ：主に学習言語で話します。困ったら母語で質問できます。返答は一度に一言語で、友達が自然に調整します。",
   "chatModeHintImmersion": "常に学習言語で会話します。友達はわかりやすく話しますが、母語には切り替えません。",
   "liveStatus": {
+    "micMuted": "マイクはミュート中",
     "speaking": "友達が話しています",
     "idle": "いつでも話せます",
     "hearing": "聞いています",

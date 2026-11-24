@@ -95,6 +95,7 @@
   "chatModeHintBilingual": "Conseillé : discutez surtout dans la langue que vous apprenez. Si vous bloquez, posez des questions dans votre langue maternelle. Une langue par réponse ; votre ami s'adapte naturellement.",
   "chatModeHintImmersion": "Discutez toujours dans la langue apprise. Votre ami simplifie ses propos, mais ne passe pas à votre langue maternelle.",
   "liveStatus": {
+    "micMuted": "Micro coupé",
     "speaking": "Ton ami parle",
     "idle": "Tu peux parler",
     "hearing": "À l’écoute",
