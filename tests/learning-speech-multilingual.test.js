@@ -27,13 +27,21 @@ test("en/US/GB use Nano; de/es/fr/it/pt use Pico; other learning languages use d
  assert.match(worker,/language==="en"\?"eleanor":/,"Nano selects Eleanor voice");
 });
 
-test("no learning path imports Kokoro runtimes or WebGPU models",()=>{
- assert.doesNotMatch(speech+worker,/kokoro-js@|kokoro-js-jp|@uzen|learningSpeechKokoro|learningSpeech\.kokoro\.worker|KokoroTTS|probeWebGpu|model_quantized\.onnx/);
- for(const file of ["learningSpeechKokoro.ts","learningSpeech.kokoro.worker.ts","learningSpeechRoutes.ts"]){
-  assert.equal(fs.existsSync("web-spa/src/teacher/"+file),false,file+" removed from learning runtime");
- }
+test("Kokoro is isolated behind a deliberate optional import without changing the default voices",()=>{
+ const optional=read("web-spa/src/teacher/learningSpeechHighQuality.ts");
+ const routes=read("web-spa/src/teacher/learningSpeechRoutes.ts");
+ assert.match(speech,/localStorage\.getItem\("koolo-kokoro-optin-v1"\)/);
+ assert.match(speech,/if\(hasOptIn\)/);
+ assert.match(speech,/await import\("\.\/learningSpeechHighQuality"\)/);
+ assert.match(optional,/export function importHighQuality/);
+ assert.match(optional,/await prepare\(language\)/);
+ assert.match(optional,/export async function highQualityReadyOrWarm/);
+ assert.match(optional,/if\(!hasConsent\(language\)\)return false/);
+ assert.match(routes,/en:\{engine:"kokoro"/);
+ assert.match(routes,/fr:\{engine:"kokoro"/);
+ assert.match(routes,/de:\{engine:"pico"/);
+ assert.doesNotMatch(speech,/cleanupLegacyKokoroCache/);
  assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.worker\.ts",import\.meta\.url\),\{type:"classic"\}\)/);
- assert.match(speech,/cleanupLegacyKokoroCache\(\)/);
 });
 
 test("cold, cached-weight and failed preparation all speak immediately without obsolete UI hints",async()=>{
