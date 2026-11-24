@@ -125,9 +125,8 @@ function prepare(language:string):Promise<void>{
  const prior=preparing.get(language);if(prior)return prior;
  const task=(async()=>{
   const run=async(gpu:boolean)=>{
-   if(useMain)(await import("./learningSpeechKokoro")).prepareKokoro(language,gpu);
-   else await requestWorker({type:"prepare",language,webgpu:gpu});
    if(useMain)await (await import("./learningSpeechKokoro")).prepareKokoro(language,gpu);
+   else await requestWorker({type:"prepare",language,webgpu:gpu});
   };
   const gpu=await webGpuAvailable();
   try{await run(gpu)}
