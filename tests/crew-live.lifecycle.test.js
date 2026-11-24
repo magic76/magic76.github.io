@@ -1271,3 +1271,66 @@ test("text Live output delivers incremental transcript before final turnComplete
  assert.equal(micRequests,0);
  await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+test("protected friend greeting drops ambient speech until playback drains",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const changes=[];
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,
+    deps,openingPrompt:"Welcome",protectOpening:true,onOpeningProtectionChange:v=>changes.push(v)});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  const noise=()=>session.processor.onaudioprocess({inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}});
+  const audioCount=()=>socket.sent.filter(item=>item.realtimeInput?.audio).length;
+  for(let i=0;i<20;i++)noise();
+  assert.equal(session.getMicHealth().setupBufferedMs,0);
+  socket.open();socket.message({setupComplete:{}});await starting;
+  assert.equal(socket.sent.filter(item=>item.clientContent?.turns?.[0]?.parts?.[0]?.text==="Welcome").length,1);
+  for(let i=0;i<20;i++)noise();
+  assert.equal(audioCount(),0);
+  const pcm=Buffer.alloc(9600).toString("base64");
+  socket.message({serverContent:{modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]},turnComplete:true}});
+  noise();
+  assert.equal(audioCount(),0,"turnComplete is not playback completion");
+  await session.waitForPlaybackDrain(1000);await wait(50);
+  noise();
+  assert.equal(audioCount(),1,"only fresh audio after greeting is forwarded");
+  assert.deepEqual(changes,[true,false]);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("protected opening can be interrupted before any model audio",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,
+    deps,openingPrompt:"Welcome",protectOpening:true});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();socket.message({setupComplete:{}});await starting;
+  assert.equal(session.interrupt(),true);
+  assert.equal(session.activeAttempt.openingProtected,false);
+  assert.equal(session.activeAttempt.openingTimer,null);
+  session.processor.onaudioprocess({inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}});
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("protected opening timeout unlocks microphone",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  let expire;
+  deps.setTimeout=(fn,ms)=>{if(ms===15000){expire=fn;return -1;}return setTimeout(fn,ms);};
+  deps.clearTimeout=id=>{if(id!==-1)clearTimeout(id);};
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,
+    deps,openingPrompt:"Welcome",protectOpening:true});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();socket.message({setupComplete:{}});await starting;
+  assert.equal(typeof expire,"function");
+  expire();
+  assert.equal(session.activeAttempt.openingProtected,false);
+  assert.equal(session.interruptPending,true);
+  session.processor.onaudioprocess({inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}});
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});

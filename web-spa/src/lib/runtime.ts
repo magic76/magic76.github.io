@@ -9,6 +9,7 @@ export type LiveSessionOptions={
  allowMicUpgrade?:boolean; // Friend text-first Live: capture mic later on the same socket
  trackTextTurns?:boolean; // Include keyboard input in the same voice transcript
  system:string;openingPrompt:string;voice:string;volume:number;models?:string[];manualInterruptOnly?:boolean;
+ protectOpening?:boolean;onOpeningProtectionChange?:(protectedOpening:boolean)=>void;
  maxLiveAttempts?:number;maxResumeAttempts?:number;connectTimeoutMs?:number;replyTimeoutMs?:number;
  turnTiming?:{silenceDurationMs:number;endOfSpeechSensitivity:"END_SENSITIVITY_LOW"|"END_SENSITIVITY_HIGH"};
  tools?:Array<{functionDeclarations:Array<Record<string,unknown>>}|{googleSearch:Record<string,never>}>;
