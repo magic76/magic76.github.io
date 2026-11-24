@@ -21,6 +21,7 @@ const TruthNewsPage=lazy(()=>import("./games/TruthNewsPage").then(m=>({default:m
 const CyberOrbPage=lazy(()=>import("./pages/CyberOrbPage").then(m=>({default:m.CyberOrbPage})));
 
 const FeedbackPage=lazy(()=>withNamespace("feedback",import("./pages/FeedbackPage")).then(m=>({default:m.FeedbackPage})));
+const PurchaseInfoPage=lazy(()=>import("./pages/PurchaseSupportPage").then(m=>({default:m.PurchaseInfoPage})));const PurchaseOrdersPage=lazy(()=>import("./pages/PurchaseSupportPage").then(m=>({default:m.PurchaseOrdersPage})));
 const PrivacyPage=lazy(()=>import("./pages/PrivacyPage").then(m=>({default:m.PrivacyPage})));const HomePage=lazy(()=>import("./pages/HomePage").then(m=>({default:m.HomePage})));const SettingsPage=lazy(()=>import("./pages/SettingsPage").then(m=>({default:m.SettingsPage})));
 const TeacherFortunePage=lazy(()=>import("./teacher/TeacherFortunePage").then(m=>({default:m.TeacherFortunePage})));const TeacherLayout=lazy(()=>import("./teacher/TeacherLayout").then(m=>({default:m.TeacherLayout})));const PracticePage=lazy(()=>withNamespace("lesson",import("./teacher/PracticePage")).then(m=>({default:m.PracticePage})));const TutorPage=lazy(()=>import("./teacher/TutorPage").then(m=>({default:m.TutorPage})));const MyPage=lazy(()=>import("./teacher/MyPage").then(m=>({default:m.MyPage})));const VocabularyPage=lazy(()=>import("./teacher/VocabularyPage").then(m=>({default:m.VocabularyPage})));const CoursePage=lazy(()=>withNamespace("lesson",import("./teacher/CoursePage")).then(m=>({default:m.CoursePage})));const PronunciationPage=lazy(()=>withNamespace(["lesson","voice"],import("./teacher/PronunciationPage")).then(m=>({default:m.PronunciationPage})));const TextbookPage=lazy(()=>withNamespace(["lesson","voice"],import("./teacher/TextbookPage")).then(m=>({default:m.TextbookPage})));const PhrasebookPage=lazy(()=>import("./teacher/PhrasebookPage").then(m=>({default:m.PhrasebookPage})));const ReportsPage=lazy(()=>import("./teacher/ReportsPage").then(m=>({default:m.ReportsPage})));const ReadingLibraryPage=lazy(()=>import("./teacher/ReadingLibraryPage").then(m=>({default:m.ReadingLibraryPage})));const TeacherLivePage=lazy(()=>withNamespace(["lesson","voice"],import("./teacher/LivePage")).then(m=>({default:m.TeacherLivePage})));
 const TeacherBoardPage=lazy(()=>withNamespace("voice",import("./teacher/TeacherBoardPage")).then(m=>({default:m.TeacherBoardPage})));
@@ -98,6 +99,8 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/account" element={<AppChrome product="settings"><AccountPage/></AppChrome>}/>
 <Route path="/me/voice-credits" element={<AppChrome product="settings"><VoiceCreditsPage/></AppChrome>}/>
 <Route path="/feedback" element={<AppChrome product="settings"><FeedbackPage/></AppChrome>}/>
+<Route path="/purchase-info" element={<AppChrome product="settings"><PurchaseInfoPage/></AppChrome>}/>
+<Route path="/me/orders" element={<AppChrome product="settings"><PurchaseOrdersPage/></AppChrome>}/>
 <Route path="/privacy" element={<AppChrome product="settings"><PrivacyPage/></AppChrome>}/>
 <Route path="/guides/:slug" element={<AppChrome product="teacher"><GuidePage/></AppChrome>}/>
 <Route path="/usage" element={<AppChrome product="briefing"><UsageDashboardPage/></AppChrome>}/>

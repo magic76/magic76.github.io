@@ -207,7 +207,7 @@ for(const {code,stage} of previewLocales){
 // routes out of these rewrites; do not use a broad wildcard over /games or /research.
 const privatePaths=[
  "/phone","/chat","/explore","/mate","/town","/magic","/learn","/me","/orb",
- "/settings","/account","/privacy","/usage","/usage/feedback","/feedback","/research/board",
+ "/settings","/account","/privacy","/purchase-info","/me/orders","/usage","/usage/feedback","/feedback","/research/board",
  "/briefing","/briefing/board","/friend/live","/teacher/live","/teacher/voice-lab","/teacher/board",
  ...["practice","fortune","shorts","friends","roles","learn","tutor","me","vocabulary","course","pronunciation","textbook","phrasebook","reports","memory","reading-library"].map(s=>"/teacher/"+s),
  ...["shelf","me","create","physical","live"].map(s=>"/story/"+s),
