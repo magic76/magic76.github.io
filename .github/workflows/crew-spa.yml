@@ -57,6 +57,7 @@ jobs:
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           set -euo pipefail
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
@@ -84,7 +85,7 @@ jobs:
             cat "$RUNNER_TEMP/koolo-new-failures.txt"
             exit 1
           fi
-          if [ "${{ github.event.pull_request.head.ref }}" = "chatgpt/kokoro-lab-en" ] && ! cmp -s "$RUNNER_TEMP/koolo-base-failures.txt" "$RUNNER_TEMP/koolo-head-failures.txt"; then
+          if [ "$PR_HEAD_REF" = "chatgpt/kokoro-lab-en" ] && ! cmp -s "$RUNNER_TEMP/koolo-base-failures.txt" "$RUNNER_TEMP/koolo-head-failures.txt"; then
             echo "::error::Unique npm test failure names differ from master"
             exit 1
           fi
