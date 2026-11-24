@@ -7,17 +7,29 @@ type WorkerScope={caches:CacheStorage;ort?:any;importScripts:(...urls:string[])=
 const scope=self as unknown as WorkerScope;
 const ORT_JS="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/ort.min.js";
 const ORT_BASE="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/";
-const PAKO_URL="https://esm.sh/pako@2.1.0";
+const PAKO_URL="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.esm.mjs";
 const UCCHARAN_BASE="https://cdn.jsdelivr.net/npm/uccharan@1.0.0/";
 const UCCHARAN_URL=UCCHARAN_BASE+"index.js";
 const PICO_BASE="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";
 const NANO_BASE="https://huggingface.co/KittenML/kitten-tts-2-nano/resolve/main/";
 const tinyEngines=new Map<string,Promise<TinyEngine>>();
-const importExternal=(url:string)=>import(/* @vite-ignore */ url) as Promise<any>;
+// A failed dynamic import may remain in the worker's module map. Retry with
+// a different URL for the same pinned CDN file, not a different version.
+const importModule=(url:string)=>import(/* @vite-ignore */ url) as Promise<any>;
+async function importExternal(url:string,load=importModule):Promise<any>{
+ try{return await load(url)}
+ catch{
+  const retryUrl=new URL(url);
+  retryUrl.searchParams.set("learning-speech-retry","1");
+  return await load(retryUrl.href);
+ }
+}
 let ortPromise:Promise<any>|null=null;
 function getRuntime():Promise<any>{
  if(!ortPromise)ortPromise=Promise.resolve().then(()=>{
-  scope.importScripts(ORT_JS);
+  try{scope.importScripts(ORT_JS)}catch{
+   scope.importScripts(ORT_JS+"?learning-speech-retry=1");
+  }
   const ort=scope.ort;if(!ort)throw Error("ORT_UNAVAILABLE");
   ort.env.wasm.numThreads=1;ort.env.wasm.wasmPaths=ORT_BASE;
   return ort;
@@ -26,17 +38,23 @@ function getRuntime():Promise<any>{
 }
 async function fetchCached(url:string):Promise<Uint8Array>{
  const cacheName="koolo-learning-speech-v1";
+ let cache:Cache|undefined;
  if("caches" in scope){
   try{
-   const cache=await scope.caches.open(cacheName),hit=await cache.match(url);
+   cache=await scope.caches.open(cacheName);
+   const hit=await cache.match(url);
    if(hit)return new Uint8Array(await hit.arrayBuffer());
-   const response=await fetch(url);if(!response.ok)throw new Error("HTTP_"+response.status);
-   try{await cache.put(url,response.clone())}catch{}
-   return new Uint8Array(await response.arrayBuffer());
-  }catch{}
+  }catch{/* Storage errors must not prevent network loading. */}
  }
- const response=await fetch(url);if(!response.ok)throw new Error("HTTP_"+response.status);
- return new Uint8Array(await response.arrayBuffer());
+ // Keep the canonical URL as the cache key, including when retrying a CDN fetch.
+ async function download(){
+  const response=await fetch(url);if(!response.ok)throw new Error("HTTP_"+response.status);
+  const bytes=await response.clone().arrayBuffer();
+  if(cache)try{await cache.put(url,response)}catch{}
+  return new Uint8Array(bytes);
+ }
+ try{return await download()}
+ catch{return await download()}
 }
 function float16ToFloat(bits:number){
  const sign=(bits&0x8000)?-1:1,exp=(bits>>10)&0x1f,frac=bits&0x3ff;
