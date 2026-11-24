@@ -2,7 +2,7 @@ import{useMemo,useRef,useState}from"react";
 import{useTranslation}from"react-i18next";
 import{addDeckItem,dueDeckItems,learningDeck,removeDeckItem,reviewDeckItem,type DeckItem}from"./learningDeck";
 import{dailyPhrases}from"./dailyPhrases";
-import{normalizeLearningLanguage,speakLearningText}from"./learningSpeech";
+import{normalizeLearningLanguage,speakLearningText,learningSpeechDownloadSettings}from"./learningSpeech";
 import{useTeacherStore}from"../store/teacherStore";
 import"./learningFlow.css";
 
@@ -15,7 +15,7 @@ export function PhrasebookPage(){
  const shadowTimer=useRef<number|null>(null),due=dueDeckItems().length,daily=useMemo(()=>dailyPhrases(code),[code]);
  const tag=(x:DeckItem)=>t("phrasebook.tags."+x.category,{defaultValue:t("phrasebook.tags.saved")});
  const stage=(x:DeckItem)=>t("phrasebook.stages."+(x.reviewCount>=5?"familiar":x.reviewCount>=2?"review":x.reviewCount>=1?"learning":"new"));
- const modelStatus=(status:"loading"|"ready")=>setSpeechStatus(t(status==="loading"?"phrasebook.modelDownloading":"phrasebook.modelReady"));
+ const modelStatus=(status:"loading"|"ready",language:string)=>setSpeechStatus(t(status==="loading"?(language==="en"?"phrasebook.modelDownloading":"phrasebook.modelDownloadingPico"):"phrasebook.modelReady",learningSpeechDownloadSettings()));
  function refresh(){setItems(learningDeck())}
  async function listen(text:string,language=code,slow=false){
   setSpeechStatus(t("phrasebook.preparing"));

@@ -12,7 +12,7 @@ import {chooseVocabulary,vocabularyChoices,nativeVocabularyChoicesReady} from ".
 import {placementState,placementLabel,recordPlacement} from "./adaptivePlacement";
 import {incrementTodayVocabulary,recordVocab,todayVocabulary,vocabStats} from "./vocabularyProgress";
 import {trackUsageEvent} from "../analytics/usage";
-import {speakLearningText} from "./learningSpeech";
+import {speakLearningText,learningSpeechDownloadSettings} from "./learningSpeech";
 import {addDeckItem} from "./learningDeck";
 import "./learningFlow.css";
 
@@ -51,7 +51,7 @@ export function VocabularyPage(){
  function pronounce(text:string,slow=false){
   setSpeechError("");
   setSpeechNotice("");
-  void speakLearningText(text,"en",{speed:slow?"slow":"normal",mode:"word",onModelStatus:status=>setSpeechNotice(t(status==="loading"?"vocabulary.modelDownloading":"vocabulary.modelReady"))})
+  void speakLearningText(text,"en",{speed:slow?"slow":"normal",mode:"word",onModelStatus:status=>setSpeechNotice(t(status==="loading"?"vocabulary.modelDownloading":"vocabulary.modelReady",learningSpeechDownloadSettings()))})
    .catch(()=>setSpeechError(t("vocabulary.speechFailed")));
  }
 
