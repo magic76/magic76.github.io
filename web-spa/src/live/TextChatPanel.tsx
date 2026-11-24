@@ -1,3 +1,4 @@
+import {LearningSpeechOptIn} from "../teacher/learningSpeechOptIn";
 import {LiveTextConversation,easyFriendTextReplyRule} from "./liveTextChat";
 import {GUEST_TOKEN_ENDPOINT} from "../lib/guestTrial";
 import {awardCreatureChatEnergy} from "../pages/creatureChatRewards.mjs";
@@ -343,6 +344,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {guestPhase==="exhausted"&&<small role="status">{t("textChat.ui.exhausted")}</small>}
    {(guestPhase==="unavailable"||guestPhase==="exhausted")&&<GuestKeyRecovery exhausted={guestPhase==="exhausted"} hasKey={hasKey}/>}
   </div>}
+  {isFriend&&<LearningSpeechOptIn language={targetLanguage}/>}
   <div ref={history} className="crew-text-chat-history" role="log" aria-label={t("textChat.ui.conversation")} aria-live="polite" aria-relevant="additions">
    {!messages.length&&!firstStarter&&<p className="crew-text-chat-empty">{t("textChat.ui.empty",{name:speaker})}</p>}
    {historyReady&&!messages.length&&!draft.trim()&&!busy&&sessionScope.startsWith("friend:")&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} starters={starters}/>}
