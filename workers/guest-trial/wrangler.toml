@@ -13,6 +13,8 @@ custom_domain = true
 
 [vars]
 GUEST_TRIAL_ENABLED = "1"
+# Shared D1 daily quotas; existing member signer/metering must be configured.
+GUEST_DAILY_QUOTAS_V2 = "1"
 # Crew Video TTS: max new jobs per UTC day (valid 1–50; invalid/missing -> 20).
 CREW_VIDEO_TTS_MAX_JOBS_PER_DAY = "20"
 GUEST_TURNSTILE_SITE_KEY = "0x4AAAAAAFpJ8ljaQjJq_Aqy"
