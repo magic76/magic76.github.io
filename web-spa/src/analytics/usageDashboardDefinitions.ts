@@ -16,7 +16,7 @@ export const names:Record<string,string>={
  game_route_loaded:"遊戲頁面載入完成",game_route_stalled:"遊戲載入超過 8 秒",game_route_asset_error:"遊戲資源載入失敗",
  vocabulary_practice:"單字作答",textbook_study:"教材語音開始",textbook_open:"教材陪讀開啟",
  story_reading:"故事閱讀",story_narration:"語音說故事",story_created:"故事創作",
- fortune_calculated:"命盤計算",fortune_ai_interpreted:"AI 命理解讀",fortune_price_view:"八字價格曝光",fortune_price_interest:"八字付費意願",
+ fortune_calculated:"命盤計算",fortune_ai_interpreted:"AI 命理解讀",fortune_price_view:"八字價格曝光",fortune_price_interest:"八字報告意願（含歷史付費調查）",
  fortune_identity_shared:"命格卡分享",fortune_identity_feedback:"命格卡回饋",fortune_identity_copy_link:"命格卡邀請連結複製",
  gemini_key_missing:"缺少 Gemini Key",gemini_key_verified:"Gemini Key 驗證成功",
  guest_trial_entry_view:"免費試用入口曝光",guest_trial_unavailable:"免費試用入口不可用",guest_trial_start_click:"點擊開始免費試用",guest_trial_mic_denied:"免費試用麥克風拒絕",guest_trial_setup_failed:"免費試用準備失敗",

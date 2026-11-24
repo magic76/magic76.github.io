@@ -257,3 +257,6 @@
  .teacher-my-summary .actions{margin-bottom:14px}
  .teacher-my-summary .teacher-stats+.teacher-stats{margin-top:10px}
 }
+
+/* Fixed tracks: a missing icon must never push copy into the 40px icon column. */
+.crew-section-card>.crew-section-card-icon{grid-column:1;grid-row:1}.crew-section-card>.crew-section-card-copy{grid-column:2;grid-row:1}.crew-section-card>.crew-section-arrow{grid-column:3;grid-row:1;justify-self:end}
