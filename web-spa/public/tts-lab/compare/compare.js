@@ -67,6 +67,8 @@ $("#copy-sample").addEventListener("click",async()=>{try{await navigator.clipboa
 let previousLanguage=language.value;
 language.addEventListener("change",()=>{
  drafts[previousLanguage]=text.value;stopAll();
+ // Release language-specific research memory on mobile; downloaded assets remain cached.
+ for(const worker of researchWorkers.values())worker.terminate();researchWorkers.clear();
  if(currentUrl){URL.revokeObjectURL(currentUrl);currentUrl="";}
  player.removeAttribute("src");player.hidden=true;player.load();now.textContent="尚未播放";
  previousLanguage=language.value;
