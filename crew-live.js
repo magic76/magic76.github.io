@@ -322,7 +322,8 @@
     var attempt=this.activeAttempt;
     if(!this.ready||!this._isActiveAttempt(attempt))return false;
     if(this.interruptPending)return true;
-    if(!this.modelSpeaking&&!this.hasPendingPlayback())return false;
+    if(!attempt.openingProtected&&!this.modelSpeaking&&!this.hasPendingPlayback())return false;
+    this._releaseOpeningProtection(attempt);
     this.interruptPending=true;
     this.interruptStopSeen=false;
     this.interruptInputSeen=false;
@@ -384,6 +385,10 @@
     if(attempt.replyTimer){
       this._deps.clearTimeout(attempt.replyTimer);
       attempt.replyTimer=null;
+    }
+    if(attempt.openingProtected){
+      this._releaseOpeningProtection(attempt);
+      this._clearPlayback();
     }
   };
 
@@ -606,6 +611,36 @@
     }
   };
 
+  // Opt-in friend calls reserve the first turn for the companion.
+  // Ambient input is discarded, never replayed after the greeting.
+  LiveSession.prototype._wantsProtectedOpening=function(){
+    return !this.textOnly&&this.options.protectOpening===true&&
+      !this.openingSent&&!!String(this.options.openingPrompt||"").trim();
+  };
+
+  LiveSession.prototype._releaseOpeningProtection=function(attempt){
+    if(!attempt||!attempt.openingProtected)return;
+    attempt.openingProtected=false;
+    if(attempt.openingTimer!=null){
+      this._deps.clearTimeout(attempt.openingTimer);
+      attempt.openingTimer=null;
+    }
+    if(this.options.onOpeningProtectionChange)this.options.onOpeningProtectionChange(false);
+  };
+
+  LiveSession.prototype._protectOpening=function(attempt){
+    attempt.openingProtected=true;
+    this.preSetupFrames=[];
+    this.preSetupSamples=0;
+    var self=this;
+    attempt.openingTimer=this._deps.setTimeout(function(){
+      if(!self._isActiveAttempt(attempt)||!attempt.openingProtected)return;
+      self.interrupt();
+    },15000);
+    if(this.options.onOpeningProtectionChange)this.options.onOpeningProtectionChange(true);
+    this._status("朋友正在準備開場…");
+  };
+
   LiveSession.prototype._sendOpening=function(attempt){
     if(!this._isActiveAttempt(attempt)||this.openingSent)return;
     var prompt=(this.options.openingPrompt||"").trim();
@@ -632,6 +667,7 @@
     text=String(text||"").trim();
     var attempt=this.activeAttempt;
     if(!text||!this.ready||!this._isActiveAttempt(attempt))return false;
+    if(attempt.openingProtected&&!this.interrupt())return false;
     try{
       attempt.socket.send(JSON.stringify({
         clientContent:{
@@ -795,6 +831,8 @@
 
   LiveSession.prototype._handleMicFrame=function(samples,rate,rms){
     if(!this.running||this.stopping||this.micMuted)return;
+    if((this.activeAttempt&&this.activeAttempt.openingProtected)||
+       (!this.ready&&this._wantsProtectedOpening()))return;
     if(this.manualInterruptOnly&&this.modelSpeaking)return;
     if(!samples||!samples.length)return;
     var now=this._deps.now();
@@ -914,6 +952,7 @@
     var interrupted=!!server.interrupted;
 
     if(interrupted){
+      this._releaseOpeningProtection(attempt);
       this._clearPlayback();
       if(this.options.onSpeaking)this.options.onSpeaking(false);
       if(this.interruptPending)this.interruptStopSeen=true;
@@ -1020,6 +1059,7 @@
       this.waitForPlaybackDrain().then(function(){
         if(!self._isActiveAttempt(attempt)||self.interruptPending||self.playbackEpoch!==playbackEpoch)return;
         self.modelSpeaking=false;
+        self._releaseOpeningProtection(attempt);
         if(self.options.onSpeaking)self.options.onSpeaking(false);
         self._status(self.textOnly?"可以繼續輸入訊息":"你可以直接繼續說");
       });
@@ -1114,6 +1154,8 @@
       closedByClient:"",
       setupTimer:null,
       replyTimer:null,
+      openingProtected:false,
+      openingTimer:null,
       socket:null,
       resumed:!!connectOptions.resumeHandle
     };
@@ -1339,8 +1381,10 @@
       return;
     }
     this._startCapture();
-    // Do not overwrite the learner's first spoken sentence with a greeting.
-    var hadBufferedSpeech=this._flushPreSetupAudio(attempt);
+    // Other products retain the existing early-learner-speech priority.
+    var protectedOpening=!attempt.resumed&&this._wantsProtectedOpening();
+    if(protectedOpening)this._protectOpening(attempt);
+    var hadBufferedSpeech=!protectedOpening&&this._flushPreSetupAudio(attempt);
     if(hadBufferedSpeech&&!this.openingSent){
       this.openingSent=true;
       this.openingDecision="skipped-early-speech";

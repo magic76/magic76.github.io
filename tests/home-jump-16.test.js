@@ -14,8 +14,12 @@ test("#16: primary CTAs do not change wording after quota or resume hydration",(
  const mobileCta=button(mobile,"cmh-zoe-primary");
  const desktopCta=button(desktop,"kdh-primary");
  assert.ok(mobileCta&&desktopCta,"mobile and desktop primary buttons remain present");
- assert.ok(mobileCta.includes('t("showcase29.textZoe")'));
- assert.ok(desktopCta.includes('t("showcase29.desktop.text")'));
+ assert.ok(mobileCta.includes('t("showcase29.voice")'));
+ assert.ok(desktopCta.includes('t("showcase29.desktop.voice")'));
+ assert.match(mobileCta,/<Icon name="chat"\/>/);
+ assert.match(desktopCta,/<Icon name="chat"\/>/);
+ assert.doesNotMatch(mobile.split('className="cmh-zoe-actions"')[1].split("</div>")[0],/cmh-zoe-secondary|showcase29\.textZoe/);
+ assert.doesNotMatch(desktop.split('className="kdh-zoe-actions"')[1].split("</div>")[0],/kdh-secondary|showcase29\.desktop\.text/);
  assert.doesNotMatch(mobileCta,/friendResume\s*\?/);
  assert.doesNotMatch(desktopCta,/validResume\s*\?/);
  const copy=portal.match(/className="crew-portal-cta-label">([\s\S]*?)<\/span>/)?.[1];
@@ -32,6 +36,8 @@ test("#16: all eleven localized primary labels are neutral and JSON leaves remai
  for(const locale of locales){
   const resource=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/home.json"));
   verify(resource,locale);
+  assert.ok(resource.showcase29.voice.trim(),locale);
+  assert.equal(resource.showcase29.voice,resource.showcase29.desktop.voice,locale);
   assert.equal(resource.world.chatStableWith,resource.world.chatWithFriend,locale);
   assert.ok(resource.world.chatStableWith.includes("{{name}}"),locale);
  }

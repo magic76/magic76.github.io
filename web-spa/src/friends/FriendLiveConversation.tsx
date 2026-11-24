@@ -133,7 +133,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
    shortsHook,selectedQuestion,lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
    conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
-  persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
+  persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
   onInputSpeech:replyHints.onInputSpeech,
   onObservedExchange:turn=>{
    // Only this confirmed two-sided turn represents a successful conversation.

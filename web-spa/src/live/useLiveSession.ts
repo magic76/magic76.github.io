@@ -19,6 +19,7 @@ type Config={
  createPlaybackRoute?:LiveSessionOptions["createPlaybackRoute"];
  separateCaptureContext?:boolean;
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
+ protectOpening?:boolean;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
  onInputSpeech?:()=>void;
@@ -86,6 +87,7 @@ export function useLiveSession(config:Config){
  const [turns,setTurns]=useState<LiveTurn[]>([]),[input,setInput]=useState(""),[output,setOutput]=useState("");
  const [searchSources,setSearchSources]=useState<GroundingSource[]>([]),[searchUnavailable,setSearchUnavailable]=useState(false),[searchSuggestions,setSearchSuggestions]=useState("");
  const [micEnabled,setMicEnabled]=useState(false);
+ const [openingProtected,setOpeningProtected]=useState(false);
  const [muted,setMuted]=useState(false),[durationMs,setDurationMs]=useState(0),[report,setReport]=useState<Record<string,unknown>|null>(null);
  const [errorKind,setErrorKind]=useState<LiveErrorKind>(null),[visionSending,setVisionSending]=useState(false),[lastImage,setLastImage]=useState<LiveImage|null>(null),[visionError,setVisionError]=useState("");
  const visionSendingRef=useRef(false),awaitingTutorRef=useRef(false),recoveryRequestRef=useRef(false);
@@ -255,6 +257,8 @@ export function useLiveSession(config:Config){
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
     openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume:volumeRef.current,
+    protectOpening:configRef.current.protectOpening,
+    onOpeningProtectionChange:value=>{if(isActive())setOpeningProtected(value)},
     // Native Live Google Search is disabled: a server-side 1011 can close the audio session.
     // Grounding is fetched separately on explicit user actions, never in WebSocket setup.
     tools:grant?undefined:configRef.current.tools,
@@ -275,7 +279,7 @@ export function useLiveSession(config:Config){
       if(!isActive())return;
      if(v==="connecting"||v==="error"){cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}
      if(v==="requesting-mic")setState("requesting-mic");
-     else if(v==="connecting")setState("connecting");
+     else if(v==="connecting"){setOpeningProtected(false);setState("connecting")}
      else if(v==="ready"){recordGuestConnect();setState("listening");setFriendPhase("idle")}
      else if(v==="error"){recordGuestFailure();setState("error")}
     },
@@ -516,7 +520,7 @@ export function useLiveSession(config:Config){
    void closeSession(session,"page-leave");
   };
  },[closeSession,snapshot]);
- return{state,status,micEnabled,enableMicrophone,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
+ return{state,status,micEnabled,openingProtected,enableMicrophone,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
 
 

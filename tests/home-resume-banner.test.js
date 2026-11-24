@@ -34,7 +34,6 @@ test("first carousel slide uses the last known friend and keeps Zoe for first vi
  assert.match(mobile,/const friendResume=resumeFriend\?activity:null/);
  assert.match(mobile,/friendResume\?t\("layout2.resumeTitle",\{name:resumeFriend!\.name\}\):t\("mobileHero.title"/);
  assert.match(mobile,/src=\{resumeFriend\?\.avatar\|\|zoePhoto\}/);
- assert.match(mobile,/textDestination=resumeId\?"\/friend\/live\?id="\+encodeURIComponent\(resumeId\)\+"&from=home&chat=text":ZOE_TEXT/);
  assert.match(mobile,/voiceDestination=resumeId\?"\/friend\/live\?id="\+encodeURIComponent\(resumeId\)\+"&from=home&entry=bubble":ZOE_VOICE/);
  assert.doesNotMatch(mobile,/className="cmh-other-resume"/);
  assert.equal((mobile.match(/<section className=/g)||[]).length>=3,true);
@@ -44,7 +43,7 @@ test("return card resumes the last friend without exposing transcript text",()=>
  assert.doesNotMatch(mobile,/cmh-resume-preview-row|cmh-preview-eye|formatResumePreview\(friendResume\.preview/);
  assert.doesNotMatch(mobile,/PREVIEW_HIDDEN_KEY|previewHidden|togglePreview/);
  assert.doesNotMatch(art,/\.cmh-resume-preview-row\{|\.cmh-preview-eye\{/);
- assert.match(mobile,/className="cmh-zoe-primary"[^\n]*showcase29\.textZoe/);
+ assert.match(mobile,/className="cmh-zoe-primary"[^\n]*showcase29\.voice/);
  assert.match(art,/\.cmh-zoe-return \.cmh-chat-pop\{display:none!important\}/);
  assert.match(art,/\.cmh-chat-pop-first\{top:179px/);
  for(const width of [360,375,390,412])assert.ok(width>=360&&width<=767);

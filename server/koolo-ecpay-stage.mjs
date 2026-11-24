@@ -8,6 +8,9 @@ const TEST_MERCHANT="3002607";
 const TEST_KEY="pwFHCqoQZGmho4w6";
 const TEST_IV="EkRm7iFT261dpevs";
 const SESSION="__Host-crew_session";
+const BOOK_AMOUNT=99;
+const LEGACY_TABLE="koolo_fortune_stage_orders",BOOK_TABLE="koolo_fortune_stage_book_orders";
+const ALL_ORDERS="(SELECT id,user_id,merchant_trade_no,amount_twd,state,facts_json,report_json,trade_no_hash,created_at,paid_at FROM "+LEGACY_TABLE+" UNION ALL SELECT id,user_id,merchant_trade_no,amount_twd,state,facts_json,report_json,trade_no_hash,created_at,paid_at FROM "+BOOK_TABLE+")";
 const ID_RE=/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i;
 const respond=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{
  "Content-Type":"application/json; charset=utf-8","Cache-Control":"private, no-store",
@@ -71,7 +74,7 @@ export function buildTestReport(f){
  const money=f.directWealth>f.indirectWealth?"較偏向穩定規劃的切入角度":
   f.indirectWealth>f.directWealth?"較偏向彈性機會與風險控管的切入角度":"適合平衡穩定與彈性的切入角度";
  return {sections:[
-  {title:"測試版提醒",body:"這份報告由命盤摘要資料產生，是綠界測試付款、伺服器製作與跨裝置保存的驗收樣本。沒有真正收費，也不是正式的 NT$79 深度產品。"},
+  {title:"測試版提醒",body:"這份報告由命盤摘要資料產生，是綠界測試付款、伺服器製作與跨裝置保存的驗收樣本。沒有真正收費，也不是正式交付的專屬一生命書。"},
   {title:"命盤摘要",body:"四柱："+f.fourPillars+"。日主："+f.dayMaster+"（"+f.element+"），旺衰標記："+f.strength+"。這些是傳統命理的象徵語言，不是客觀人格測量。"},
   {title:"性格與優勢",body:"以日主「"+f.element+"」作為自我觀察起點，整理自己在合作、學習及壓力下的表現。建議記下三個近期實際案例，辨認何時這種描述符合你、何時不符合。"},
   {title:"工作與職涯",body:"印星 "+f.resource+"、食傷 "+f.output+"、官殺 "+f.officer+"。三類訊號中「"+work+"」相對突出，可思考如何配置學習、表達與承擔責任的時間。實際求職和升遷仍取決於技能、工作環境與選擇。"},
@@ -83,7 +86,7 @@ export function buildTestReport(f){
 }
 function tradeDate(now=Date.now()){return new Date(now+8*3600*1000).toISOString().slice(0,19).replaceAll("-","/").replace("T"," ")}
 function responseOrder(row,includeReport=false){
- const data={id:String(row.id),state:row.state,createdAt:Number(row.created_at),sandbox:true};
+ const data={id:String(row.id),state:row.state,createdAt:Number(row.created_at),amountTwd:Number(row.amount_twd),sandbox:true};
  if(includeReport&&row.state==="paid"&&typeof row.report_json==="string"){
   try{const report=JSON.parse(row.report_json);if(Array.isArray(report.sections))data.report=report}catch{/* never leak raw content */}
  }
@@ -91,8 +94,8 @@ function responseOrder(row,includeReport=false){
 }
 export async function stageConfig(context){
  const a=await owner(context);if(a.error)return a.error;
- try{await a.db.prepare("SELECT id FROM koolo_fortune_stage_orders LIMIT 1").first();
-  return respond({enabled:true,sandbox:true,amountTwd:79});
+ try{await a.db.prepare("SELECT id FROM "+ALL_ORDERS+" LIMIT 1").first();
+  return respond({enabled:true,sandbox:true,amountTwd:BOOK_AMOUNT});
  }catch{return respond({error:"MIGRATION_REQUIRED"},503)}
 }
 export async function stageOrder(context){
@@ -106,15 +109,15 @@ export async function stageOrder(context){
  const now=Math.floor(Date.now()/1000),id=crypto.randomUUID();
  const tradeNo="K"+id.replaceAll("-","").slice(0,18); // <=20, unique merchant trade number
  try{
-  const count=await a.db.prepare("SELECT COUNT(1) AS n FROM koolo_fortune_stage_orders WHERE user_id=? AND created_at>?")
+  const count=await a.db.prepare("SELECT COUNT(1) AS n FROM "+ALL_ORDERS+" WHERE user_id=? AND created_at>?")
    .bind(a.userId,now-86400).first();
   if(Number(count?.n||0)>=12)return respond({error:"TEST_DAILY_LIMIT"},429);
-  await a.db.prepare("INSERT INTO koolo_fortune_stage_orders(id,user_id,merchant_trade_no,facts_json,created_at) VALUES(?,?,?,?,?)")
-   .bind(id,a.userId,tradeNo,JSON.stringify(facts),now).run();
+  await a.db.prepare("INSERT INTO "+BOOK_TABLE+"(id,user_id,merchant_trade_no,amount_twd,facts_json,created_at) VALUES(?,?,?,?,?,?)")
+   .bind(id,a.userId,tradeNo,BOOK_AMOUNT,JSON.stringify(facts),now).run();
   const fields={
    MerchantID:TEST_MERCHANT,MerchantTradeNo:tradeNo,MerchantTradeDate:tradeDate(),
-   PaymentType:"aio",TotalAmount:"79",TradeDesc:"Koolo Bazi Sandbox",
-   ItemName:"Koolo Bazi Test Report",
+   PaymentType:"aio",TotalAmount:String(BOOK_AMOUNT),TradeDesc:"Koolo Life Book Sandbox",
+   ItemName:"Koolo Personal Life Book (Test)",
    ReturnURL:"https://koolo.app/api/fortune/ecpay/test-notify",
    ClientBackURL:"https://koolo.app/fortune/ecpay/test?order="+encodeURIComponent(id),
    ChoosePayment:"Credit",EncryptType:"1"
@@ -127,7 +130,7 @@ export async function stageOrders(context){
  const a=await owner(context);if(a.error)return a.error;
  try{
   const result=await a.db.prepare(
-   "SELECT id,state,created_at,report_json FROM koolo_fortune_stage_orders WHERE user_id=? ORDER BY created_at DESC LIMIT 20"
+   "SELECT id,state,created_at,amount_twd,report_json FROM "+ALL_ORDERS+" WHERE user_id=? ORDER BY created_at DESC LIMIT 20"
   ).bind(a.userId).all();
   return respond({sandbox:true,orders:(result.results||[]).map(responseOrder)});
  }catch{return respond({error:"STAGE_UNAVAILABLE"},503)}
@@ -138,7 +141,7 @@ export async function stageOrderStatus(context){
  if(!ID_RE.test(id||""))return respond({error:"INVALID_ORDER"},400);
  try{
   const row=await a.db.prepare(
-   "SELECT id,state,created_at,report_json FROM koolo_fortune_stage_orders WHERE id=? AND user_id=? LIMIT 1"
+   "SELECT id,state,created_at,amount_twd,report_json FROM "+ALL_ORDERS+" WHERE id=? AND user_id=? LIMIT 1"
   ).bind(id,a.userId).first();
   return row?respond({order:responseOrder(row,true)}):respond({error:"NOT_FOUND"},404);
  }catch{return respond({error:"STAGE_UNAVAILABLE"},503)}
@@ -156,26 +159,33 @@ export async function stageNotify({request,env}){
  const values=Object.fromEntries(p),mac=values.CheckMacValue;
  if(typeof mac!=="string"||!/^[A-F0-9]{64}$/i.test(mac)||!secureEqual(mac.toUpperCase(),await ecpayCheckMac(values)))return nack(403);
  if(values.MerchantID!==TEST_MERCHANT||!/^[A-Za-z0-9]{1,20}$/.test(values.MerchantTradeNo||"")||
-  values.TradeAmt!=="79"||!/^Credit(?:_|$)/.test(values.PaymentType||"")||
+  !["79",String(BOOK_AMOUNT)].includes(values.TradeAmt)||!/^Credit(?:_|$)/.test(values.PaymentType||"")||
   !/^[A-Za-z0-9]{1,40}$/.test(values.TradeNo||""))return nack(422);
  try{
+  // Legacy callbacks continue to resolve only against the original 79 TWD table.
+  const table=values.TradeAmt==="79"?LEGACY_TABLE:BOOK_TABLE;
+  const other=table===LEGACY_TABLE?BOOK_TABLE:LEGACY_TABLE;
   const row=await env.CREW_AUTH_DB.prepare(
-   "SELECT id,user_id,state,facts_json,trade_no_hash FROM koolo_fortune_stage_orders WHERE merchant_trade_no=? AND amount_twd=79 LIMIT 1"
-  ).bind(values.MerchantTradeNo).first();
+   "SELECT id,user_id,state,facts_json,trade_no_hash FROM "+table+" WHERE merchant_trade_no=? AND amount_twd=? LIMIT 1"
+  ).bind(values.MerchantTradeNo,Number(values.TradeAmt)).first();
   if(!row)return nack(404);
   if(values.RtnCode!=="1"||values.SimulatePaid==="1")return ack(); // nonpayment / backend simulation grants nothing
   const tradeHash=await sha(TEST_MERCHANT+":"+values.TradeNo);
   if(row.state==="paid")return row.trade_no_hash===tradeHash?ack():nack(409);
   if(row.state!=="pending")return nack(409);
+  // One ECPay trade cannot be attached to another legacy or book order.
+  // Keep callbacks for legacy orders working even before migration 0013.
+  let otherReady=true,duplicate;try{duplicate=await env.CREW_AUTH_DB.prepare("SELECT id FROM "+other+" WHERE trade_no_hash=? LIMIT 1").bind(tradeHash).first()}catch(e){if(table!==LEGACY_TABLE||!/no such table/i.test(String(e)))throw e;otherReady=false}
+  if(duplicate)return nack(409);
   const facts=compactFacts(JSON.parse(row.facts_json));
   if(!facts)return nack(503);
   const snapshot=JSON.stringify(buildTestReport(facts)),now=Math.floor(Date.now()/1000);
   const result=await env.CREW_AUTH_DB.prepare(
-   "UPDATE koolo_fortune_stage_orders SET state='paid',paid_at=?,trade_no_hash=?,report_json=? WHERE id=? AND state='pending'"
-  ).bind(now,tradeHash,snapshot,row.id).run();
+   "UPDATE "+table+" SET state='paid',paid_at=?,trade_no_hash=?,report_json=? WHERE id=? AND state='pending' AND NOT EXISTS (SELECT 1 FROM "+table+" WHERE trade_no_hash=?)"+(otherReady?" AND NOT EXISTS (SELECT 1 FROM "+other+" WHERE trade_no_hash=?)":"")
+  ).bind(now,tradeHash,snapshot,row.id,tradeHash,...(otherReady?[tradeHash]:[])).run();
   if(Number(result.meta?.changes)===1)return ack();
   const updated=await env.CREW_AUTH_DB.prepare(
-   "SELECT state,trade_no_hash FROM koolo_fortune_stage_orders WHERE id=?"
+   "SELECT state,trade_no_hash FROM "+table+" WHERE id=?"
   ).bind(row.id).first();
   return updated?.state==="paid"&&updated.trade_no_hash===tradeHash?ack():nack(409);
  }catch{return nack(503)}

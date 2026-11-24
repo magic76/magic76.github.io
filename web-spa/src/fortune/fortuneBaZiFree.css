@@ -20,8 +20,9 @@
 .fortune-bazi-free-topic{padding:0}
 .fortune-bazi-free-topic summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px;min-height:48px;list-style:none}
 .fortune-bazi-free-topic summary::-webkit-details-marker{display:none}
-.fortune-bazi-free-topic summary span{transition:transform .2s}
-.fortune-bazi-free-topic[open] summary span{transform:rotate(180deg)}
+.fortune-bazi-topic-toggle{display:grid;place-items:center;flex:0 0 20px;width:20px;height:20px;font-size:1.2rem;font-weight:500;line-height:1}
+.fortune-bazi-topic-toggle::before{content:"+"}
+.fortune-bazi-free-topic[open] .fortune-bazi-topic-toggle::before{content:"−"}
 .fortune-bazi-topic-body{padding:0 14px 14px}
 .fortune-bazi-topic-body small{display:block;margin-bottom:8px;opacity:.75;overflow-wrap:anywhere}
 .fortune-bazi-topic-body p+p{margin-top:10px}

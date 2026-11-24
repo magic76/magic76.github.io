@@ -67,6 +67,7 @@ return Array.from({length:days},(_,i)=>{
   <a href="#free-quota" className="usage-jump">免費額度管理</a>
   <a href="#guest-trial-stats" className="usage-jump">免費試用統計</a>
   <a href="/usage/feedback" className="usage-jump">意見回饋管理</a>
+  {data&&<a href="/sandbox-lab" className="usage-jump">即時互動沙盒</a>}
   <a href="/fortune/report-lab" className="usage-jump usage-report-lab-link" aria-label="開啟專屬命書私人驗收台">專屬命書驗收</a>
   <a href="https://koolo.app/admin/payment-test" className="usage-jump">正式金流驗證</a>
   <UsageExportControls data={data} days={days} category={selected} bars={bars} categoryEventTotal={totalMany(rows,selected.events)} disabled={loading||!!error||!data||data.days!==days}/>

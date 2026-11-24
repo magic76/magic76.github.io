@@ -14,7 +14,7 @@ export function FriendCallControls({live,onEnd}:{live:ReturnTypeOfLive;onEnd:()=
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M3 15c5-4 13-4 18 0l-3 5-4-3h-4l-4 3-3-5Z"/></svg>
     <small>{t("callCaptions.hangUp")}</small>
    </button>
-   <button type="button" className="friend-phone-button" disabled={live.state!=="speaking"} onClick={()=>{window.dispatchEvent(new Event("crew-friend-call-interrupt"));live.interrupt()}} aria-label={t("controls.myTurn")}>
+   <button type="button" className="friend-phone-button" disabled={!ready||(live.state!=="speaking"&&!live.openingProtected)} onClick={()=>{window.dispatchEvent(new Event("crew-friend-call-interrupt"));live.interrupt()}} aria-label={t("controls.myTurn")}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 5v14M8 8v8M12 3v18M16 8v8M20 5v14"/></svg>
     <small>{t("controls.myTurn")}</small>
    </button>
