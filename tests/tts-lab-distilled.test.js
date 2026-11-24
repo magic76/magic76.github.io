@@ -23,5 +23,7 @@ test("WASM ESM runtime tries matching pinned CDNs and reports both failures",asy
  assert.match(calls[0],/cdn\.jsdelivr\.net.*@1\.24\.3\/dist\/ort\.wasm\.min\.mjs$/);
  assert.match(calls[1],/unpkg\.com.*@1\.24\.3\/dist\/ort\.wasm\.min\.mjs$/);
  assert.equal(fake.env.wasm.wasmPaths,api.ORT_BASES[1]);assert.equal(fake.env.wasm.numThreads,1);assert.equal(fake.env.wasm.proxy,false);
+ const initCalls=[];const sessionAPI=await api.loadRuntime(async url=>({InferenceSession:{},Tensor:class{},env:{wasm:{}},url}),api.ORT_BASES,()=>{},async runtime=>{initCalls.push(runtime.url);if(initCalls.length===1)throw Error("WASM fetch failed")});
+ assert.equal(initCalls.length,2);assert.match(sessionAPI.url,/unpkg/);
  await assert.rejects(api.loadRuntime(async()=>{throw Error("network")},api.ORT_BASES,()=>{}),/cdn\.jsdelivr\.net.*unpkg\.com/);
 });
