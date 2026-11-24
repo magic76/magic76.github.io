@@ -77,6 +77,8 @@ test("only the requested fp32 or q8 weight counts as an imported model",async()=
  assert.match(high,/cachedImport\(language\)/);
  assert.match(high,/if\(!await cachedImport\(language\)\)/);
  assert.match(high,/navigator\.storage\?\.persist\?\.\(\)/);
+ assert.match(high,/localStorage\.getItem\(WASM_PREFERENCE_KEY\)/);
+ assert.match(high,/localStorage\.setItem\(WASM_PREFERENCE_KEY,"1"\)/);
 });
 
 test("failed import is retryable; current voice engine remains available",async()=>{
