@@ -47,7 +47,7 @@ export function FortunePurchasedReportsPage(){
    </article>)}
   </section>:<section className="panel section fortune-purchases-message">
    <h2>{copy("目前沒有已購買報告","No purchased reports yet")}</h2>
-   <p>{copy("NT$79 八字深度報告正在準備收款功能。免費命盤仍可正常使用；本機算過的命盤請到「我的命盤」查看。","The NT$79 deep report checkout isn't available yet. Free readings still work; your local charts remain in My Readings.")}</p>
+   <p>{copy("八字深度報告（預定原價 NT$79）正在準備限時免費活動，尚未開放領取。免費命盤仍可正常使用；本機算過的命盤請到「我的命盤」查看。","A limited-time free trial of the deep report (planned regular price NT$79) is being prepared. Claims are not open yet. Free charts remain in My Readings.")}</p>
    <Link className="btn secondary" to="/fortune/history">{copy("查看我的命盤","View local readings")}</Link>
   </section>)}
  </main>;

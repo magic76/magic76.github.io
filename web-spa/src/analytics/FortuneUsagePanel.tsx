@@ -3,8 +3,8 @@ import {num,total,type Row,type EventUsers} from "./usageExport";
 const metrics=[
  {event:"fortune_calculated",label:"命盤計算成功",hint:"八字／塔羅／印度星盤"},
  {event:"fortune_ai_interpreted",label:"AI 解讀成功",hint:"成功取得解讀的事件"},
- {event:"fortune_price_view",label:"NT$79 區塊載入",hint:"八字意願調查元件顯示"},
- {event:"fortune_price_interest",label:"點擊「我有興趣」",hint:"NT$79 意願調查點擊"}
+ {event:"fortune_price_view",label:"八字體驗區塊載入",hint:"含歷史 NT$79 意願調查曝光"},
+ {event:"fortune_price_interest",label:"免費體驗意願點擊",hint:"含歷史 NT$79 意願調查點擊，非實際領取"}
 ] as const;
 
 /** Uses the same existing private aggregate report; no additional tracking or user data. */
