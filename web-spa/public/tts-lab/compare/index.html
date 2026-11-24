@@ -35,12 +35,14 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 <main>
 <nav class="nav"><a class="logo" href="/tts-lab/">← TTS Lab</a><span class="pill">MODEL SHOOTOUT</span></nav>
 <h1>同一句話，直接比聲音。</h1>
-<p class="intro">比較系統語音、Kokoro 與三種更小的 Kitten 路線。每個 AI 模型都只在你按下時才載入，正式單字頁完全不受影響。</p>
+<p class="intro">比較系統語音、Kokoro 的不同運算後端、Piper、Supertonic 3 與三種 Kitten 路線。每個 AI 模型都只在你按下時才載入，正式單字頁完全不受影響。</p>
 
 <section class="card">
 <label for="text">長句測試</label>
 <textarea id="text" maxlength="520" spellcheck="true">At first, I thought learning English meant memorizing every word perfectly, but after I started speaking a little every day, I realized that rhythm, confidence, and the courage to keep going mattered much more than sounding perfect.</textarea>
 <div class="presets">
+<button type="button" data-preset="word">單字</button>
+<button type="button" data-preset="short">短句</button>
 <button type="button" data-preset="natural">自然對話</button>
 <button type="button" data-preset="pronunciation">發音挑戰</button>
 <button type="button" data-preset="story">故事節奏</button>
@@ -51,6 +53,8 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 </div>
 </section>
 
+<p class="note" id="device-info" role="status">檢查 WebGPU Adapter 與 WASM 多執行緒條件…</p>
+<p class="note">請用相同英文文字及正常速度比較。各模型僅在點選後下載；GPU q8 為實驗路徑，不會偷偷改用 WASM。首次準備含下載、初始化，後續只比較生成；不保證所有裝置都能執行。</p>
 <section class="models" aria-label="TTS 模型比較">
 <article class="model">
 <div><h2>系統 TTS</h2><div class="meta"><span class="tag">0 MB</span><span class="tag">Baseline</span></div></div>
@@ -60,10 +64,45 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 </article>
 
 <article class="model">
-<div><h2>Kokoro 82M</h2><div class="meta"><span class="tag">約 90 MB q8</span><span class="tag">Browser-ready</span></div></div>
-<p>目前你覺得效果很好的基準。WebGPU 優先，否則 WASM。</p>
-<button class="primary" data-engine="kokoro">播放 Kokoro</button>
+<div><h2>Kokoro 82M · WASM q8</h2><div class="meta"><span class="tag">約 90 MB q8</span><span class="tag">CPU / WASM</span></div></div>
+<p>固定 CPU / WASM q8，與目前學習頁相同模型格式。</p>
+<button class="primary" data-engine="kokoro">播放 Kokoro WASM q8</button>
 <div class="status" id="status-kokoro">首次按下才載入。</div><div class="progress"><span id="progress-kokoro"></span></div>
+</article>
+
+<article class="model">
+<div><h2>Kokoro 82M · WebGPU q8</h2><div class="meta"><span class="tag">約 90 MB q8</span><span class="tag">實驗 GPU</span></div></div>
+<p>與 WASM q8 使用相同精度，測量 GPU 實際差異。可能遇到不支援的運算。</p>
+<button data-engine="kokoroGpuQ8">播放 WebGPU q8</button>
+<div class="status" id="status-kokoroGpuQ8">需可用 GPU Adapter。</div><div class="progress"><span id="progress-kokoroGpuQ8"></span></div>
+</article>
+
+<article class="model">
+<div><h2>Kokoro 82M · WebGPU fp32</h2><div class="meta"><span class="tag">較大下載</span><span class="tag">GPU</span></div></div>
+<p>官方常用 WebGPU 精度，與 GPU q8 比較速度及音質。</p>
+<button data-engine="kokoroGpuFp32">播放 WebGPU fp32</button>
+<div class="status" id="status-kokoroGpuFp32">需可用 GPU Adapter。</div><div class="progress"><span id="progress-kokoroGpuFp32"></span></div>
+</article>
+
+<article class="model">
+<div><h2>Piper · WASM</h2><div class="meta"><span class="tag">英文 HFC medium</span><span class="tag">OPFS 快取</span></div></div>
+<p>CPU 本機語音；慢速選項以播放器調速，非模型調速。</p>
+<button data-engine="piper">播放 Piper</button>
+<div class="status" id="status-piper">首次下載語音模型及 runtime。</div><div class="progress"><span id="progress-piper"></span></div>
+</article>
+
+<article class="model">
+<div><h2>Supertonic 3 · WASM</h2><div class="meta"><span class="tag">混合 q8 / fp32</span><span class="tag">31 語言模型</span></div></div>
+<p>社群 Transformers.js ONNX 移植；本頁先比較英文，首次下載較大。</p>
+<button data-engine="supertonicWasm">播放 Supertonic WASM</button>
+<div class="status" id="status-supertonicWasm">首次載入多個 ONNX 模型。</div><div class="progress"><span id="progress-supertonicWasm"></span></div>
+</article>
+
+<article class="model">
+<div><h2>Supertonic 3 · WebGPU</h2><div class="meta"><span class="tag">fp16 約 200 MB 權重</span><span class="tag">31 語言模型</span></div></div>
+<p>測試同一模型的 GPU 路徑。首次下載量較大，需要 GPU 支援。</p>
+<button data-engine="supertonicGpu">播放 Supertonic WebGPU</button>
+<div class="status" id="status-supertonicGpu">首次載入多個 ONNX 模型。</div><div class="progress"><span id="progress-supertonicGpu"></span></div>
 </article>
 
 <article class="model">
@@ -94,6 +133,7 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 <div class="small">提示：第一次下載時間不是模型品質。先聽自然度、重音、連音與停頓；第二次再比較生成速度。</div>
 </section>
 
+<p class="note">新增方案來源：<a href="https://github.com/therealtimex/piper-tts-web" target="_blank" rel="noopener noreferrer">Piper Web</a> · <a href="https://huggingface.co/open-world-group/Supertonic-3-ONNX" target="_blank" rel="noopener noreferrer">Supertonic 3 ONNX（社群轉換、OpenRAIL-M）</a>。此頁只作實驗，不代表已適合正式產品。</p>
 <p class="note">注意：8.8MB / 4MB 是 ONNX 模型檔本身，不代表完整首次下載量。TTS 2 Nano 英文 voice pack 另外約 5.22MB，還有 ONNX runtime 與 phonemizer。兩個 TTS 2 tiny 項目是 Koolo Lab 的實驗 browser port，不是 KittenML 官方 Web SDK 支援路徑。</p>
 </main>
 <script src="./compare.js"></script>

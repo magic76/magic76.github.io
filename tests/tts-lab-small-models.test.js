@@ -30,3 +30,22 @@ test("TTS labs remain noindexed and hub links to the comparison",()=>{
  assert.match(hub,/href="\/tts-lab\/compare\/"/);
  assert.match(headers,/\/tts-lab\/\*\n  X-Robots-Tag: noindex, nofollow/);
 });
+
+test("comparison exposes explicit GPU and WASM paths and never silently falls back",()=>{
+ const page=read("web-spa/public/tts-lab/compare/index.html");
+ const js=read("web-spa/public/tts-lab/compare/compare.js");
+ for(const id of ["kokoro","kokoroGpuQ8","kokoroGpuFp32","piper","supertonicWasm","supertonicGpu"]){
+  assert.ok(page.includes('data-engine="'+id+'"'));
+  assert.ok(page.includes('id="status-'+id+'"'));
+ }
+ assert.match(js,/navigator\.gpu\?\.requestAdapter\(\)/);
+ assert.match(js,/kokoroTts\("kokoroGpuQ8","webgpu","q8"\)/);
+ assert.match(js,/kokoroTts\("kokoroGpuFp32","webgpu","fp32"\)/);
+ assert.match(js,/device="wasm",dtype="q8"/);
+ assert.match(js,/@realtimex\/piper-tts-web@1\.1\.1/);
+ assert.match(js,/open-world-group\/Supertonic-3-ONNX/);
+ assert.match(js,/latent_denoiser:"q8"/);
+ assert.match(js,/crossOriginIsolated/);
+ assert.match(js,/function timing\(/);
+ assert.doesNotThrow(()=>new (require("node:vm").Script)(js));
+});
