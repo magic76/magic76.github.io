@@ -44,7 +44,7 @@ const locales={en:"en-US",zh:"zh-TW",ja:"ja-JP",ko:"ko-KR",es:"es-ES"};
 const languageNames={en:"英文",zh:"中文",ja:"日文",ko:"韓文",es:"西班牙文"};
 const engineLanguages={
  system:["en","zh","ja","ko","es"],
- nano2:["es"],pico2:["en","es"],sano:["zh","es"],eeh:["ja"],korean:["ko"]
+ nano2:["es"],pico2:["en","es"],sano:["zh","es"],eeh:["ja"],piperLow:["zh"],piperMedium:["zh"]
 };
 let activePreset="word";
 const drafts={};
@@ -245,13 +245,12 @@ function workerRequest(worker,id,message){
 }
 async function researchTts(id){
  const lang=language.value,v=sample(),rate=Number(speed.value),selected=voice.value,key=id+":"+lang;
- if(id==="korean"&&!researchWorkers.has(key)&&!window.confirm("韓文 KSS 模型僅供個人非商業研究；首次下載約 40 MB 或更多。確定繼續？"))return;
  stopAll();
  const started=performance.now(),warm=researchWorkers.has(key);
  let worker=researchWorkers.get(key);
  try{
   if(!worker){
-   worker=new Worker("./lightweight-worker.js");
+   worker=new Worker("./lightweight-worker.js?v=903");
    setStatus(id,"準備本機模型…");setProgress(id,0);
    await workerRequest(worker,id,{type:"load",engine:id,lang});
    researchWorkers.set(key,worker);
@@ -260,7 +259,7 @@ async function researchTts(id){
   setProgress(id,100);setStatus(id,"生成語音…");
   const result=await workerRequest(worker,id,{type:"speak",text:v,voice:selected,speed:rate});
   if(!(result.audio instanceof Float32Array)||!result.audio.length||!Number.isFinite(result.sampleRate)||result.sampleRate<=0)throw Error("未回傳有效音訊");
-  const elapsed=timing(ready-started,performance.now()-ready,warm),name={sano:"sanoTTS",eeh:"eeh-1",korean:"Tiny Voca 韓文"}[id];
+  const elapsed=timing(ready-started,performance.now()-ready,warm),name={sano:"sanoTTS",eeh:"eeh-1"}[id];
   await playBlob(wavBlob(result.audio,result.sampleRate),name+" · "+result.voice,elapsed);
   setStatus(id,elapsed+" · "+result.voice+" · "+(result.audio.length/result.sampleRate).toFixed(1)+" 秒音訊");
  }catch(e){
@@ -268,7 +267,36 @@ async function researchTts(id){
  }
 }
 
-const handlers={system:systemTts,nano2:()=>tinyTts("nano2"),pico2:()=>tinyTts("pico2"),sano:()=>researchTts("sano"),eeh:()=>researchTts("eeh"),korean:()=>researchTts("korean")};
+
+const PIPER_SDK="https://cdn.jsdelivr.net/npm/@realtimex/piper-tts-web@1.1.1/+esm";
+async function piperChinese(id){
+ const value=sample(),rate=Number(speed.value),tier=id==="piperLow"?"x_low":"medium",voiceId="zh_CN-huayan-"+tier;
+ stopAll();
+ const started=performance.now(),warm=!!engines[id];
+ if(!warm){
+  setStatus(id,"準備 Piper WASM…");
+  const sdk=await import(PIPER_SDK);
+  const progress=p=>{if(p.total>0)setProgress(id,p.loaded/p.total*100);};
+  const stored=await sdk.stored().catch(()=>[]);
+  if(!stored.includes(voiceId)){
+   setStatus(id,"下載 "+voiceId+"…");
+   await sdk.download(voiceId,progress);
+  }
+  engines[id]=new sdk.TtsSession({voiceId,progress,logger:msg=>setStatus(id,String(msg))});
+ }
+ const ready=performance.now();
+ setStatus(id,"生成中文語音…");
+ try{
+  const blob=await engines[id].predict(value);
+  if(!(blob instanceof Blob)||blob.size<=44)throw Error("Piper 未回傳有效音訊");
+  const result=timing(ready-started,performance.now()-ready,warm);
+  await playBlob(blob,"Piper WASM · Huayan "+tier,result);
+  player.playbackRate=rate;
+  setProgress(id,100);setStatus(id,result+" · 固定音色 · 慢速為播放調速"+(warm?"":" · 首次生成可能含初始化"));
+ }catch(e){delete engines[id];throw e;}
+}
+
+const handlers={system:systemTts,nano2:()=>tinyTts("nano2"),pico2:()=>tinyTts("pico2"),sano:()=>researchTts("sano"),eeh:()=>researchTts("eeh"),piperLow:()=>piperChinese("piperLow"),piperMedium:()=>piperChinese("piperMedium")};
 for(const b of document.querySelectorAll("[data-engine]"))b.addEventListener("click",async()=>{const id=b.dataset.engine;if(busy||!supports(id,language.value))return;busy=true;language.disabled=true;updateLanguageButtons();try{await handlers[id]()}catch(e){console.error(e);setStatus(id,"失敗："+(e instanceof Error?e.message:String(e)),true)}finally{busy=false;language.disabled=false;updateLanguageButtons()}});
 $("#language-info").textContent="英文 · 2 個本站試聽選項";
 updateLanguageButtons();
