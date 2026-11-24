@@ -167,10 +167,46 @@ async function updateFeedback(request:Request,env:Context["env"]):Promise<Respon
  }catch{return respond({error:"Feedback update failed"},502)}
 }
 
+async function freeQuotaReport(env:Context["env"]){
+ const db=env.CREW_AUTH_DB;
+ if(!db)return respond({error:"Auth D1 unavailable"},503);
+ try{
+  const policy=await db.prepare("SELECT enabled,text_cap,voice_cap,updated_at FROM crew_free_quota_policy WHERE id=1").first<{enabled:number;text_cap:number;voice_cap:number;updated_at:number}>();
+  if(!policy)return respond({error:"Quota migration required"},503);
+  const day=taipeiReportDay();
+  const dayStart=Math.floor((Date.now()+8*3600000)/86400000)*86400-8*3600;
+  const [voice,text,guestVoice,memberVoice]=await Promise.all([
+   db.prepare("SELECT used FROM crew_guest_voice_daily WHERE day=?").bind(day).first<{used:number}>(),
+   db.prepare("SELECT used FROM crew_guest_text_daily WHERE day=?").bind(day).first<{used:number}>(),
+   db.prepare("SELECT COALESCE(SUM(used),0) AS used FROM crew_guest_voice_usage WHERE day=?").bind(day).first<{used:number}>(),
+   db.prepare("SELECT COALESCE(SUM(used),0) AS used FROM crew_guest_usage WHERE updated_at>=? AND updated_at<?").bind(dayStart,dayStart+86400).first<{used:number}>()
+  ]);
+  return respond({day,enabled:policy.enabled===1,textCap:policy.text_cap,voiceCap:policy.voice_cap,updatedAt:policy.updated_at,
+   voiceUsed:Number(voice?.used??0),textUsed:Number(text?.used??0),guestVoiceUsed:Number(guestVoice?.used??0),memberVoiceUsed:Number(memberVoice?.used??0)});
+ }catch{return respond({error:"Quota migration or DB unavailable"},503)}
+}
+async function updateFreeQuota(request:Request,env:Context["env"]){
+ const origin=new URL(request.url).origin;
+ if(request.headers.get("origin")!==origin||request.headers.get("sec-fetch-site")==="cross-site")return respond({error:"Origin rejected"},403);
+ if(!/^application\/json(?:\s*;|$)/i.test(request.headers.get("content-type")||""))return respond({error:"JSON required"},415);
+ if(Number(request.headers.get("content-length")||"0")>512)return respond({error:"Too large"},413);
+ const db=env.CREW_AUTH_DB;if(!db)return respond({error:"Auth D1 unavailable"},503);
+ try{
+  const raw=await request.text();if(raw.length>512)return respond({error:"Too large"},413);
+  let input;try{input=JSON.parse(raw)}catch{return respond({error:"Invalid JSON"},400)}
+  if(!input||typeof input.enabled!=="boolean"||!Number.isInteger(input.textCap)||input.textCap<1||input.textCap>10000||!Number.isInteger(input.voiceCap)||input.voiceCap<1||input.voiceCap>1000)
+   return respond({error:"Invalid quota limits"},400);
+  const changed=await db.prepare("UPDATE crew_free_quota_policy SET enabled=?,text_cap=?,voice_cap=?,updated_at=? WHERE id=1").bind(input.enabled?1:0,input.textCap,input.voiceCap,Date.now()).run();
+  if(changed.meta?.changes!==1)return respond({error:"Quota migration required"},503);
+  return freeQuotaReport(env);
+ }catch{return respond({error:"Quota update failed"},503)}
+}
+
 export async function onRequestGet({request,env}:Context){
  if(!await verifyAccess(request,env))return respond({error:"Access denied or not configured"},403);
  const view=new URL(request.url).searchParams.get("view");
  if(view==="feedback")return listFeedback(request,env);
+ if(view==="free-quota")return freeQuotaReport(env);
  if(view==="accounts"){
   const db=env.CREW_AUTH_DB;
   if(!db||typeof db.prepare!=="function")return respond({error:"Auth D1 binding unavailable"},503);
@@ -248,7 +284,9 @@ export async function onRequestGet({request,env}:Context){
 }
 export async function onRequestPost({request,env}:Context){
  if(!await verifyAccess(request,env))return respond({error:"Access denied or not configured"},403);
- if(new URL(request.url).searchParams.get("view")!=="feedback")return respond({error:"Invalid report view"},400);
+ const view=new URL(request.url).searchParams.get("view");
+ if(view==="free-quota")return updateFreeQuota(request,env);
+ if(view!=="feedback")return respond({error:"Invalid report view"},400);
  return updateFeedback(request,env);
 }
 export async function onRequest(){
