@@ -11,7 +11,7 @@ const PICO_BASE="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/
 const MODEL_CACHE="koolo-learning-speech-v1";
 const PICO_LANGUAGES=new Set(["de","es","fr","it","pt"]);
 const LANG_TAG:Record<string,string>={en:"en-US",es:"es-ES",fr:"fr-FR",de:"de-DE",it:"it-IT",pt:"pt-BR",ja:"ja-JP",ko:"ko-KR",vi:"vi-VN",th:"th-TH",zh:"zh-TW",id:"id-ID",ru:"ru-RU",hi:"hi-IN"};
-type WorkerRequest={id:number;type:"prepare"|"generate";language:string;text?:string;speed?:LearningSpeechSpeed};
+type WorkerRequest={id:number;type:"prepare"|"generate";language:string;text?:string;speed?:LearningSpeechSpeed;keepStart?:boolean};
 type WorkerReply={id:number;ok:boolean;buffer?:ArrayBuffer;error?:string};
 const generated=new Map<string,Blob[]>();
 const ready=new Set<string>();
@@ -128,8 +128,8 @@ function ensureTiny(language:string):Promise<void>{
  warming.set(language,task);
  return task;
 }
-async function generateTiny(text:string,language:string,speed:LearningSpeechSpeed){
- const reply=await requestWorker({type:"generate",language,text,speed});
+async function generateTiny(text:string,language:string,speed:LearningSpeechSpeed,keepStart:boolean){
+ const reply=await requestWorker({type:"generate",language,text,speed,keepStart});
  if(!reply.buffer)throw Error("TINY_EMPTY_AUDIO");
  return new Blob([reply.buffer],{type:"audio/wav"});
 }
@@ -198,12 +198,12 @@ export async function speakLearningText(text:string,languageValue:string,options
   }
   if(preferred!=="system"){
    const chunks=segmentLearningSpeech(value),blobs:Blob[]=[];
-   let next=generateTiny(chunks[0],language,speed);
+   let next=generateTiny(chunks[0],language,speed,true);
    for(let index=0;index<chunks.length;index++){
     const blob=await next;if(id!==playbackId)return{engine:preferred,language,cached:false};
     blobs.push(blob);
     // Start producing the following clause before playing this one.
-    if(index+1<chunks.length)next=generateTiny(chunks[index+1],language,speed);
+    if(index+1<chunks.length)next=generateTiny(chunks[index+1],language,speed,false);
     await playBlob(blob,id);
    }
    if(id===playbackId)remember(key,blobs);
