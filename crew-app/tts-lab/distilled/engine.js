@@ -49,15 +49,71 @@ async function parseNPZ(data){
  while(off+30<=data.length&&view.getUint32(off,true)===0x04034b50){const method=view.getUint16(off+8,true),size=view.getUint32(off+18,true),nl=view.getUint16(off+26,true),xl=view.getUint16(off+28,true),ds=off+30+nl+xl,de=ds+size;if(de>data.length||!size)throw Error("無效的 NPZ");const name=dec.decode(data.slice(off+30,off+30+nl));if(name.endsWith(".npy")){let raw=data.slice(ds,de);if(method===8)raw=inflateRaw(raw);else if(method!==0)throw Error("不支援的 NPZ 壓縮");out[name.slice(0,-4)]=parseNPY(raw)}off=de}return out
 }
 const json=async url=>JSON.parse(new TextDecoder().decode(await bytes(url)));
-async function session(url){
- status("下載或讀取模型快取…");const data=await bytes(url);let result;
+async function session(url,expectedSize){
+ status("下載或讀取模型快取…");const data=await bytes(url);if(expectedSize&&data.byteLength!==expectedSize)throw Error("模型下載不完整："+data.byteLength+" / "+expectedSize+" bytes");let result;
  ort=await loadRuntime(importModule,ORT_BASES,status,async api=>{
   status("建立 WASM 推論環境…"+new URL(api.env.wasm.wasmPaths).hostname);
   result=await api.InferenceSession.create(data,{executionProviders:["wasm"],intraOpNumThreads:1,graphOptimizationLevel:"all"});
  });
  return result
 }
+const KOREAN_VOICES=["seoyeon","minjun","jihoon"];
+const PIPER_ROOT=HF+"rhasspy/piper-voices/resolve/main/zh/zh_CN/huayan/";
+const PIPER_MODELS={piperLow:{tier:"x_low",size:20628813,rate:16000},piperMedium:{tier:"medium",size:63201294,rate:22050}};
+let espeakPromise,openccPromise;
+async function espeakText(text,language){
+ if(!espeakPromise)espeakPromise=import(CDN+"phonemizer@1.2.1").catch(e=>{espeakPromise=null;throw e});
+ const {phonemize,list_voices}=await espeakPromise;
+ const voices=await list_voices();
+ if(!voices.some(v=>v.languages?.some(l=>l.name===language)))throw Error("eSpeak 不支援 "+language);
+ const result=await phonemize(text,language);
+ if(!Array.isArray(result)||!result.length)throw Error("發音轉換失敗");
+ return result.join(" ").trim();
+}
+async function simplified(text){
+ if(!openccPromise)openccPromise=import(CDN+"opencc-js@1.4.2/dist/esm/full.js").then(m=>m.Converter({from:"tw",to:"cn"})).catch(e=>{openccPromise=null;throw e});
+ return (await openccPromise)(text);
+}
+function koreanMisaki(p){
+ const map={"aɪ":"I","aʊ":"W","dz":"ʣ","dʒ":"ʤ","eɪ":"A","oʊ":"O","əʊ":"Q","ss":"S","ts":"ʦ","tʃ":"ʧ","ɔɪ":"Y","œ̃":"B","ɔ̃":"C","ɑ̃":"D","ɛ̃":"E","ʊ̃":"V","ũ":"U","õ":"X","ɐ̃":"Z"};
+ let result=p.replace(/[\u0361\u035c^]/gu,"").replace(/\([a-z-]+\)/gu,"");
+ for(const [a,b] of Object.entries(map))result=result.split(a).join(b);
+ return result.replace(/[\u0329\u032a]/gu,"");
+}
+function piperIds(p,map){
+ if(!map?.["^"]||!map?.["_"]||!map?.["$"])throw Error("Piper 發音字典不完整");
+ const ids=[...map["^"],...map["_"]];let count=0;
+ for(const ch of p.normalize("NFD"))if(map[ch]){ids.push(...map[ch],...map["_"]);count++}
+ if(!count||ids.length>900)throw Error("有效音素不足或句子太長");ids.push(...map["$"]);return ids;
+}
+async function loadPiper(id){
+ const cfg=PIPER_MODELS[id],base=PIPER_ROOT+cfg.tier+"/zh_CN-huayan-"+cfg.tier+".onnx";
+ const config=await json(base+".json");
+ if(config.audio?.sample_rate!==cfg.rate||!config.phoneme_id_map||!["cmn","zh"].includes(config.espeak?.voice))throw Error("Piper 發音設定不符");
+ return {session:await session(base,cfg.size),config,rate:cfg.rate};
+}
+function requestSano(worker,message,onStatus=status){
+ return new Promise((resolve,reject)=>{
+  let timer;const cleanup=()=>{clearTimeout(timer);worker.removeEventListener("message",onMessage);worker.removeEventListener("error",onError)};
+  const fail=e=>{cleanup();reject(e)};
+  const onError=e=>fail(Error(e.message||"sanoTTS Worker 失敗"));
+  const onMessage=({data})=>{if(data.type==="status"){onStatus(data.text);return}if(data.id!==message.id)return;cleanup();if(data.type==="error")reject(Error(data.message));else resolve(data)};
+  worker.addEventListener("message",onMessage);worker.addEventListener("error",onError);timer=setTimeout(()=>fail(Error("sanoTTS 操作逾時")),message.type==="load"?240000:90000);
+  worker.postMessage(message);
+ });
+}
 async function load(id){
+ if(id==="piperLow"||id==="piperMedium")return loadPiper(id);
+ if(id==="sanoZh"){
+  const worker=new Worker("../compare/lightweight-worker.js?v=903");
+  try{await requestSano(worker,{type:"load",engine:"sano",lang:"zh",id:ctxId});return {worker}}catch(e){worker.terminate();throw e}
+ }
+ if(id==="mini4ko"||id==="mini8ko"){
+  const root=HF+"KittenML/kitten-tts-2-mini/resolve/main/";
+  const [vocab,voices]=await Promise.all([json(root+"vocab.json"),bytes(root+"voices_ko.npz").then(parseNPZ)]);
+  if(!KOREAN_VOICES.every(v=>voices[v]))throw Error("韓文音色包不完整");
+  return {session:await session(root+(id==="mini4ko"?"kitten_tts_2_mini_int4.onnx":"kitten_tts_2_mini.onnx")),vocab,voices};
+ }
  if(id.startsWith("paradee")){
  const config=await json(PARA+"config.json");return{session:await session(PARA+"onnx/"+(id==="paradee8"?"paradee_int8.onnx":"paradee.onnx")),vocab:config.vocab,voices:config.voices}
  }
@@ -93,6 +149,24 @@ function wav(samples,rate=24000){
  for(let i=0;i<samples.length;i++){const x=Math.max(-1,Math.min(1,samples[i]));v.setInt16(44+2*(i+pad),x<0?x*32768:x*32767,true)}return b
 }
 async function speak(text,voice,speed){
+ if(model==="sanoZh"){
+  const r=await requestSano(engine.worker,{type:"speak",text,voice:"female",speed,id:ctxId});return {buffer:wav(r.audio,r.sampleRate),voice:r.voice};
+ }
+ if(model==="piperLow"||model==="piperMedium"){
+  const config=engine.config,p=await espeakText(await simplified(text),config.espeak.voice),ids=piperIds(p,config.phoneme_id_map);
+  const t=ort.Tensor,feeds={input:new t("int64",BigInt64Array.from(ids,BigInt),[1,ids.length]),input_lengths:new t("int64",BigInt64Array.of(BigInt(ids.length)),[1]),scales:new t("float32",Float32Array.of(config.inference.noise_scale,config.inference.length_scale/speed,config.inference.noise_w),[3])};
+  if(engine.session.inputNames.includes("sid"))feeds.sid=new t("int64",BigInt64Array.of(0n),[1]);
+  const out=await engine.session.run(feeds),samples=Object.values(out).find(t=>t.data instanceof Float32Array)?.data;
+  if(!samples)throw Error("Piper 沒有有效 waveform");return {buffer:wav(samples,engine.rate),voice:"Huayan"};
+ }
+ if(model==="mini4ko"||model==="mini8ko"){
+  if(!KOREAN_VOICES.includes(voice))throw Error("請選韓文音色");
+  const p=koreanMisaki(await espeakText(text,"ko")),ids=tokenIds(p,engine.vocab,true),emb=engine.voices[voice];
+  const row=Math.min(ids.length-1,emb.rows-1),style=emb.data.slice(row*emb.cols,(row+1)*emb.cols);
+  const t=ort.Tensor,feeds={input_ids:new t("int64",BigInt64Array.from(ids,BigInt),[1,ids.length]),style:new t("float32",style,[1,style.length]),speed:new t("float32",Float32Array.of(speed),[1])};
+  const out=await engine.session.run(feeds),samples=out.waveform?.data||Object.values(out).find(t=>t.data instanceof Float32Array)?.data;
+  if(!samples)throw Error("Kitten 沒有有效 waveform");return {buffer:wav(samples),voice};
+ }
  if(model==="kokoro"){const a=await engine.tts.generate(text,{voice,speed});return{buffer:wav(a.audio,a.sampling_rate||24000),voice}}
  if(model==="phonon"){const samples=await engine.tts.synth(text);return{buffer:wav(samples),voice:"Phonon 預設音色 · 原速"}}
  const kitten=model==="nano8"||model==="mini4",p=await phonemes(text,voice,kitten?"kitten":"kokoro"),ids=tokenIds(p,engine.vocab,kitten);
