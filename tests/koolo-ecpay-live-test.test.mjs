@@ -69,3 +69,20 @@ test("usage dashboard links to a protected server page rather than a public SPA 
  assert.match(handler,/liveTestPost\(\{\.\.\.context,verifyAdmin:verifyAccess\}\)/);
  assert.doesNotMatch(read("web-spa/src/App.tsx"),/path="\/admin\/payment-test"/);
 });
+
+test("native HTML forms preserve Origin; reject null, missing and foreign origins before creating orders",async()=>{
+ let inserts=0;
+ const db={prepare(sql){return{bind(){return this},async first(){return sql.includes("crew_auth_sessions")?{user_id:"u1"}:null},async all(){return {results:[]}},async run(){inserts++;return {meta:{changes:1}}}}}};
+ const e={...env,ECPAY_ENABLED:"true",CREW_AUTH_DB:db};
+ const res=await liveTestPage({request:new Request(page,{headers:{Cookie:cookie}}),env:e,verifyAdmin:admin});
+ assert.equal(res.headers.get("Referrer-Policy"),"strict-origin");
+ assert.match(await res.text(),/<form method="post" action="\/admin\/payment-test">/);
+ const send=origin=>liveTestPost({request:new Request(page,{method:"POST",headers:{Cookie:cookie,...(origin===undefined?{}:{Origin:origin})},body:new URLSearchParams({action:"create",id:"12345678-1234-1234-1234-123456789012",confirm:"yes"})}),env:e,verifyAdmin:admin});
+ for(const origin of ["null",undefined,"https://evil.invalid","https://www.koolo.app"]){
+  const rejected=await send(origin);assert.equal(rejected.status,403);assert.equal(await rejected.text(),"Bad origin");
+ }
+ assert.equal(inserts,0);
+ const ok=await send(host);assert.equal(ok.status,201);assert.equal(inserts,1);
+ assert.equal(ok.headers.get("Referrer-Policy"),"strict-origin");
+ assert.match(await ok.text(),/action="https:\/\/payment\.ecpay\.com\.tw\/Cashier\/AioCheckOut\/V5"/);
+});
