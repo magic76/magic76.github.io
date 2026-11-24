@@ -19,7 +19,7 @@ test("mobile home effects preserve slides, carousel timing, shortcuts and existi
  assert.ok(home.includes("if(!homeMotion)return"));
 });
 
-test("no duplicate homepage chat bubble; original text-chat CTA remains the only Zoe text entry",()=>{
+test("no duplicate homepage chat bubble; single unified CTA remains the only Zoe hero entry",()=>{
  const home=read("web-spa/src/pages/MobileHomePage.tsx");
  const art=read("web-spa/src/pages/mobileHomeEffects.css");
  const hero=read("web-spa/src/pages/mobileHomeHeroV3.css");
@@ -27,8 +27,8 @@ test("no duplicate homepage chat bubble; original text-chat CTA remains the only
  assert.doesNotMatch(home,/cmh-chat-pop-last|showcase29\.bubble/);
  assert.doesNotMatch(art,/cmh-friend-invite|cmh-friend-pop|cmh-chat-pop-last/);
  assert.doesNotMatch(hero,/cmh-chat-pop-last/);
- assert.match(home,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=home&chat=text"/);
- assert.match(home,/<Link to=\{textDestination\} tabIndex=\{activeSlide===0\?0:-1\} className="cmh-zoe-primary"/);
+ assert.match(home,/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
+ assert.match(home,/<Link to=\{voiceDestination\} tabIndex=\{activeSlide===0\?0:-1\} className="cmh-zoe-primary"/);
  assert.match(home,/cmh-chat-pop-first/,"retain the distinct non-interactive Hey! decoration");
  assert.match(hero,/\.cmh-chat-pop-first/);
 });

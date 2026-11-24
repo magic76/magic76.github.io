@@ -30,7 +30,6 @@ test("mobile hero follows last active friend identity without storing any transc
  assert.doesNotMatch(page,/cmh-other-resume/);
  assert.match(resume,/mode:entry.mode,resume:null/);
   assert.doesNotMatch(resume,/export function saveFriendResume/);
- assert.match(page,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=home&chat=text"/);
  assert.match(page,/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
 });
 

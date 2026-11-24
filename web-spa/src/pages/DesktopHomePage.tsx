@@ -19,7 +19,6 @@ import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./desktopHome.css";
 
 const PREVIEW_HIDDEN_KEY="crew_home_hide_message_preview_v1";
-const ZOE_TEXT="/friend/live?id=zoe&from=home&chat=text";
 const ZOE_VOICE="/friend/live?id=zoe&from=home&entry=bubble";
 type Recent={key:string;kind:"teacher"|"story"|"fortune"|"play"|"friend";title:string;description:string;to:string;cover?:string};
 type Shortcut={id:string;zh:string;en:string;icon:IconName;to:string;event:"friend"|"learn"|"play"|"story"|"fortune"|"shorts"|"timeline"};
@@ -54,7 +53,6 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
  const friend=activity?CREW_FRIENDS.find(person=>person.id===activity.friendId):null;
  const validResume=friend?activity?.resume:null;
  const id=friend?.id;
- const textTo=id?"/friend/live?id="+encodeURIComponent(id)+"&from=home&chat=text":ZOE_TEXT;
  const voiceTo=id?"/friend/live?id="+encodeURIComponent(id)+"&from=home&entry=bubble":ZOE_VOICE;
  const togglePreview=()=>{
   const next=!previewHidden;
@@ -70,8 +68,7 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
      <h1>{friend?t("layout2.resumeTitle",{name:friend.name}):t("mobileHero.title")}</h1>
      <p>{friend?t("showcase29.desktop.resumeDesc"):t("mobileHero.subtitle")}</p>
      <div className="kdh-zoe-actions">
-      <Link className="kdh-primary" to={textTo} onClick={()=>track("friend")}><Icon name="chat"/>{t("showcase29.desktop.text")}</Link>
-      <Link className="kdh-secondary" to={voiceTo} onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{t("showcase29.desktop.voice")}</Link>
+      <Link className="kdh-primary" to={voiceTo} onClick={()=>track("friend")}><Icon name="chat"/>{t("showcase29.desktop.voice")}</Link>
      </div>
      {validResume&&<div className="kdh-resume-line">
       <span>{previewHidden?t("layout2.previewHidden"):formatResumePreview(validResume.preview,58)}</span>

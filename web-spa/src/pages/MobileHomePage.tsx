@@ -23,7 +23,6 @@ import "./mobileHome.css";
 import "./mobileHomeHeroV3.css";
 import "./mobileHomeEffects.css";
 
-const ZOE_TEXT="/friend/live?id=zoe&from=home&chat=text";
 const ZOE_VOICE="/friend/live?id=zoe&from=home&entry=bubble";
 const GAMES=["1a2b","connect4","reversi"] as const;
 const SLIDES=["zoe","friends","game","learn"] as const;
@@ -101,7 +100,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  const resumeFriend=activity?CREW_FRIENDS.find(friend=>friend.id===activity.friendId):null;
  const friendResume=resumeFriend?activity:null;
  const resumeId=friendResume?.friendId;
- const textDestination=resumeId?"/friend/live?id="+encodeURIComponent(resumeId)+"&from=home&chat=text":ZOE_TEXT;
  const voiceDestination=resumeId?"/friend/live?id="+encodeURIComponent(resumeId)+"&from=home&entry=bubble":ZOE_VOICE;
  const track=(detail:App["event"])=>trackUsageEvent("home_entry_click",detail);
  const todayLink="/games/"+featured;
@@ -135,8 +133,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
       <div className="cmh-zoe-actions">
-       <Link to={textDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.textZoe")}</Link>
-       <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{t("showcase29.voice")}</Link>
+       <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.voice")}</Link>
       </div>
      </section>
      <section className="cmh-slide cmh-slide-friends" data-active={activeSlide===1} aria-hidden={activeSlide!==1}
