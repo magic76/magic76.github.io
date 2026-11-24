@@ -15,7 +15,7 @@ test("Desktop Layout 2 stays fixed while mobile restores the four-slide carousel
  assert.match(mobile,/className="cmh-carousel-dots"/);
  assert.doesNotMatch(mobile,/cmh-layout2-hero|cmh-layout2-other|cmh-layout2-primary/);
  assert.equal((desktop.match(/className="crew-portal-cta"/g)||[]).length,1);
- assert.match(mobile,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=home&chat=text"/);
+ assert.match(mobile,/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
  assert.match(desktop,/const HOME_ZOE=ZOE\+"&from=home&chat=text"/);
  assert.match(desktop,/const destination=exhausted\?"\/account#settings-gemini"/);
  assert.match(desktop,/const target=destination/);
@@ -52,7 +52,7 @@ test("Desktop modes and deep links stay intact; mobile slide actions use origina
  assert.match(mobile,/onKeyDown=\{event=>/);
 });
 
-test("Mobile quota follows carousel, hides for BYOK and preserves voice secondary action",()=>{
+test("Mobile quota follows carousel, hides for BYOK and preserves one primary chat action",()=>{
  const a=mobile.indexOf('className="cmh-zoe-primary"');
  const dots=mobile.indexOf('className="cmh-carousel-dots"');
  const q=mobile.indexOf('className="cmh-allowance-slot"');
@@ -65,13 +65,13 @@ test("Mobile quota follows carousel, hides for BYOK and preserves voice secondar
   assert.ok(mobile.includes("world.freeAllowance."+key));
   assert.ok(desktop.includes("world.freeAllowance."+key));
  }
- assert.match(mobile,/className="cmh-zoe-secondary"/);
+ assert.doesNotMatch(mobile.split('className="cmh-zoe-actions"')[1].split("</div>")[0],/cmh-zoe-secondary/);
  assert.match(mobile,/className="cmh-zoe-primary"/);
-  assert.match(mobile,/className="cmh-zoe-primary"[^\n]*showcase29\.textZoe/);
+  assert.match(mobile,/className="cmh-zoe-primary"[^\n]*showcase29\.voice/);
  assert.match(mobile,/t\("showcase29\.voice"\)/);
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json")).showcase29;
  assert.equal(zh.textZoe,"文字聊天");
- assert.equal(zh.voice,"語音聊天");
+ assert.equal(zh.voice,"開始聊天");
  assert.match(desktop,/className="crew-portal-layout2-voice"/);
 });
 
@@ -79,7 +79,7 @@ test("Last friend resumes in the first mobile slide and desktop without removing
  assert.match(mobile,/const resumeFriend=activity\?CREW_FRIENDS.find/);
  assert.match(mobile,/const friendResume=resumeFriend\?activity:null/);
  assert.match(mobile,/resumeFriend\?\.avatar\|\|zoePhoto/);
- assert.match(mobile,/textDestination=resumeId\?"\/friend\/live\?id="\+encodeURIComponent\(resumeId\)/);
+ assert.match(mobile,/voiceDestination=resumeId\?"\/friend\/live\?id="\+encodeURIComponent\(resumeId\)/);
  assert.doesNotMatch(mobile,/className="cmh-other-resume"/);
  assert.doesNotMatch(mobile,/PREVIEW_HIDDEN_KEY|setPreviewHidden|className="cmh-preview-eye"/);
  assert.match(desktop,/readLatestFriendActivity\(\)/);
