@@ -1,4 +1,5 @@
 /** Crew guest Live trial. All long-lived credentials stay on the Worker. */
+import {quotaV2,readFreeQuotaPolicy,freeQuotaDay,reserveVoiceCapacity,releaseVoiceCapacity,reserveGuestVoice,releaseGuestVoice} from "../../../server/free-quota.mjs";
 const json=(value,status=200)=>new Response(JSON.stringify(value),{
  status,headers:{"content-type":"application/json;charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}
 });
@@ -81,6 +82,7 @@ function guestTrialConfigurationIssue(env){
  for(const name of [MEMBER_SIGNIN_FLAG,MEMBER_METER_FLAG]){
   if(env[name]!==undefined&&!["0","1"].includes(env[name]))return "signin_flag_invalid";
  }
+ if(quotaV2(env)&&(!memberMeterEnabled(env)||!env.CREW_AUTH_DB?.prepare))return "member_quota_binding_missing";
  if(memberMeterEnabled(env)){
   if(!env.CREW_AUTH_DB||typeof env.CREW_GUEST_TICKET_SECRET!=="string"||env.CREW_GUEST_TICKET_SECRET.length<32)
    return "member_quota_binding_missing";
@@ -114,6 +116,19 @@ export async function onRequestGet({request,env}){
  const config={enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,seconds:SESSION_SECONDS,
   ...(env[MEMBER_SIGNIN_FLAG]==="1"?{signinRequired:true}:{}),
   ...(memberMeterEnabled(env)?{memberMetering:true}:{})};
+ if(quotaV2(env)){
+  try{
+   const policy=await readFreeQuotaPolicy(env);
+   if(!policy.enabled)return disabled();
+   const ip=request.headers.get("cf-connecting-ip"),agent=request.headers.get("user-agent");
+   if(env[MEMBER_SIGNIN_FLAG]!=="1"&&ip&&agent){
+    const hash=await fingerprint(ip,agent,env.GUEST_TURNSTILE_SECRET);
+    const claim=await env.CREW_AUTH_DB.prepare("SELECT used FROM crew_guest_voice_usage WHERE visitor_hash=? AND day=?").bind(hash,freeQuotaDay()).first();
+    return json({...config,dailyQuota:true,trial:{used:Math.min(1,Number(claim?.used)||0),limit:1}});
+   }
+   return json({...config,dailyQuota:true});
+  }catch{return disabled()}
+ }
  // Anonymous D1 claims are one use per rolling window. Never guess when the
  // store is unavailable or reveal fingerprints or overall worker capacity.
  if(env[MEMBER_SIGNIN_FLAG]!=="1"&&env.GUEST_DB&&env.GUEST_HASH_SALT){
@@ -167,8 +182,8 @@ async function mintToken(key,now){
 }
 
 /** Only Pages can mint this HMAC assertion from a valid HttpOnly member session. */
-async function memberTicket(raw,secret){
- if(typeof raw!=="string"||raw.length>1024)return null;
+export async function memberTicket(raw,secret){
+ if(typeof secret!=="string"||secret.length<32||typeof raw!=="string"||raw.length>1024)return null;
  const parts=raw.split(".");
  if(parts.length!==2||parts.some(p=>!/^[A-Za-z0-9_-]+$/.test(p)))return null;
  try{
@@ -223,6 +238,43 @@ async function issueMemberTrial(input,env){
  }
 }
 
+async function issueDailyAnonymousTrial(request,env,day){
+ const db=env.CREW_AUTH_DB;
+ const hash=await fingerprint(request.headers.get("cf-connecting-ip"),request.headers.get("user-agent"),env.GUEST_TURNSTILE_SECRET);
+ let claimed=false,minted=false;
+ try{
+  // Check the personal allowance before spending a shared edge limiter slot.
+  if(!await reserveGuestVoice(db,hash,day))return json({code:"ALREADY_USED"},429);
+  claimed=true;
+  const limit=await env.GUEST_TRIAL_RATE_LIMITER.limit({key:"crew-public-guest"});
+  if(limit?.success!==true)return json({code:"DAILY_LIMIT"},429);
+  const issuedAt=Date.now(),token=await mintToken(selectGuestGeminiKey(env),issuedAt);
+  minted=true;
+  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+310000).toISOString()});
+ }catch{return json({error:"Guest trial temporarily unavailable"},503)}
+ finally{
+  if(claimed&&!minted)try{await releaseGuestVoice(db,hash,day)}catch{}
+ }
+}
+async function issueV2Trial(request,input,env){
+ const db=env.CREW_AUTH_DB,day=freeQuotaDay();
+ let reserved=false,issued=false;
+ try{
+  const policy=await readFreeQuotaPolicy(env);
+  if(!policy.enabled)return json({error:"Guest trial unavailable"},503);
+  const isMember=env[MEMBER_SIGNIN_FLAG]==="1"||Object.prototype.hasOwnProperty.call(input,"authTicket");
+  if(isMember&&!await memberTicket(input.authTicket,env.CREW_GUEST_TICKET_SECRET))return json({code:"SIGNIN_REQUIRED"},401);
+  if(!await reserveVoiceCapacity(db,day,policy.voiceCap))return json({code:"DAILY_LIMIT"},429);
+  reserved=true;
+  const result=isMember?await issueMemberTrial(input,env):await issueDailyAnonymousTrial(request,env,day);
+  issued=result.ok;
+  return result;
+ }catch{return json({error:"Guest trial temporarily unavailable"},503)}
+ finally{
+  if(reserved&&!issued)try{await releaseVoiceCapacity(db,day)}catch{}
+ }
+}
+
 export async function onRequestPost({request,env}){
  const url=new URL(request.url);
  if(!validHost(url,env))return json({error:"Not found"},404);
@@ -247,6 +299,7 @@ export async function onRequestPost({request,env}){
   if(!await verifyCaptcha(input.challengeToken,ip,env.GUEST_TURNSTILE_SECRET,url.hostname))
    return json({error:"Verification failed"},403);
  }catch{return json({error:"Verification temporarily unavailable"},503)}
+ if(quotaV2(env))return issueV2Trial(request,input,env);
  // In meter-only mode, signed-in visitors receive account-counted trials,
  // while unsigned visitors retain the existing anonymous flow.
  if(env[MEMBER_SIGNIN_FLAG]==="1"||

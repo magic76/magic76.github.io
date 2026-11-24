@@ -99,7 +99,7 @@
   "layout2": {"title": "Sprachen mit {{name}}","action": "Sag {{name}} Hallo","description": "Du brauchst kein Thema. Sag einfach Hallo.","voice": "Stattdessen per Sprache chatten","more": "Lust auf etwas anderes?","resumeTitle": "Mit {{name}} weiterchatten",
     "previewLabel": "Zuletzt:","resumeAction": "Textchat fortsetzen","chatTitle": "Sag erst mal Hallo","chatDescription": "Sprich mit einem KI-Freund und schau, wohin es führt.","previewHidden": "Letzte Nachricht ausgeblendet","showPreview": "Letzte Nachricht zeigen","hidePreview": "Letzte Nachricht ausblenden"},
   "world": {
-    "freeAllowance": {"full": "Ohne Anmeldung · {{count}} Texte + {{minutes}} Min. Sprache täglich. Morgen wieder", "textOnly": "Ohne Anmeldung · {{count}} Gratis-Nachrichten täglich. Morgen wieder", "voiceUsed": "Sprachzeit heute verbraucht · {{count}} Nachrichten täglich. Morgen wieder"},
+    "freeAllowance": {"full": "Ohne Anmeldung · {{count}} Texte + {{minutes}} Min. Sprache täglich. Morgen wieder", "memberDaily": "Mitglieder: {{count}} Nachrichten täglich · {{minutes}} Sprachminuten übrig", "memberTextOnly": "Mitglieder: {{count}} Nachrichten täglich", "textOnly": "Ohne Anmeldung · {{count}} Gratis-Nachrichten täglich. Morgen wieder", "voiceUsed": "Sprachzeit heute verbraucht · {{count}} Nachrichten täglich. Morgen wieder"},
     "practiceLang": {"label": "Übungssprache:", "aria": "Sprache zum Üben im Chat und Gespräch wählen"},
     "modes": {
       "chat": {

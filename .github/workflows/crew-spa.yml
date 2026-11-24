@@ -123,6 +123,9 @@ jobs:
       - name: Validate keyless Teacher/Friend text and legacy guest Live (guest-text PRs only)
         if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'guest-text') || contains(github.event.pull_request.head.ref, 'text-chat-recovery') || contains(github.event.pull_request.head.ref, 'live-keyboard') || contains(github.event.pull_request.head.ref, 'live-text-v1beta') || contains(github.event.pull_request.head.ref, 'false-quota'))
         run: node --test tests/guest-text-chat.test.js tests/guest-trial.test.js tests/short-chat-memory.test.js tests/crew-guest-config-cache.test.js tests/crew-live.lifecycle.test.js tests/crew-live-text-stream.test.js
+      - name: Validate daily free quotas (free quota PRs only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'free-quota')
+        run: node --test tests/free-daily-quotas.test.mjs tests/guest-text-chat.test.js tests/guest-trial.test.js tests/guest-text-verify-on-send.test.js tests/guest-home-allowance.test.js tests/crew-auth.test.js tests/crew-guest-config-cache.test.js tests/guest-text-error.test.js
       - name: Validate Fortune report quality (Fortune PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'fortune-')
         run: node --test tests/fortune-ai-quality.test.js tests/fortune-report-depth.test.js tests/fortune-usefulness-a.test.js tests/fortune-usefulness-b.test.js tests/fortune-identity.test.js tests/fortune-mode-covers.test.js tests/fortune-tarot-artwork.test.js tests/fortune-share-cards.test.js tests/fortune-daily-card.test.js

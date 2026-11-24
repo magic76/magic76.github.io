@@ -21,6 +21,7 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
  const microphoneHelp=()=>t("guestTrial.micSitePermission");
  const [siteKey,setSiteKey]=useState("");
  const [signinRequired,setSigninRequired]=useState(false);
+ const [dailyQuota,setDailyQuota]=useState(false);
  const [memberSignedIn,setMemberSignedIn]=useState(false);
  const [phase,setPhase]=useState<"checking"|"ready"|"login"|"exhausted"|"full"|"unavailable"|"starting"|"error">("checking");
  const [challenge,setChallenge]=useState("");
@@ -47,7 +48,7 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
     if(guestTrialDiscoveryEnabled())trackUsageEvent("guest_trial_unavailable",role);
     setPhase("unavailable");return;
    }
-   setSigninRequired(Boolean(config.signinRequired));
+   setSigninRequired(Boolean(config.signinRequired));setDailyQuota(Boolean(config.dailyQuota));
    let signedIn=false;
    if(config.trial){setRemaining(config.trial.limit-config.trial.used);setQuotaLimit(config.trial.limit)}
    if(config.memberMetering||config.signinRequired){
@@ -199,8 +200,9 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
     <Link className="btn" to="/account" {...linkTarget}>{t("guestTrial.signInAction")}</Link></>}
-   {phase==="exhausted"&&<><strong>{t("guestTrial.usedUpTitle")}</strong><p role="status">{memberSignedIn?(quotaLimit!==null?t("guestTrial.usedMember",{limit:quotaLimit}):t("guestTrial.usedMemberNoCount")):t("guestTrial.used")}</p></>}
+   {phase==="exhausted"&&<><strong>{t("guestTrial.usedUpTitle")}</strong><p role="status">{(memberSignedIn||dailyQuota)?(quotaLimit!==null?t("guestTrial.usedMember",{limit:quotaLimit}):t("guestTrial.usedMemberNoCount")):t("guestTrial.used")}</p></>}
    {phase==="full"&&<p role="status">{t("guestTrial.limit")}</p>}
+   {phase==="exhausted"&&dailyQuota&&!memberSignedIn&&<Link className="btn" to="/account" {...linkTarget}>{t("voice:guestText.memberUpgrade")}</Link>}
    {(phase==="exhausted"||phase==="full")&&<>
     <Link className="btn" to="/account#settings-gemini" {...linkTarget}>{t("guestTrial.continueKey")}</Link>
     <Link className="btn secondary" to="/games/1a2b" {...linkTarget}>{t("guestTrial.free1a2b")}</Link></>}

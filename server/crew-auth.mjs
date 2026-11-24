@@ -178,7 +178,18 @@ export async function sessionInfo({request,env}){
     ...(currentDay&&Number(usage?.used)>0?{lastUsedAt:updatedAt}:{})};
   }catch{/* Phase 3 migration is optional until rollout; never break existing login. */}
  }
- return json({enabled:true,providers,user,...(trial?{trial}:{})});
+ let textTrial=null;
+ if(user){
+  try{
+   const policy=await env.CREW_AUTH_DB.prepare("SELECT id FROM crew_free_quota_policy WHERE id=1").first();
+   if(policy){
+    const day=new Date(Date.now()+8*3600000).toISOString().slice(0,10);
+    const usage=await env.CREW_AUTH_DB.prepare("SELECT used FROM crew_guest_text_usage WHERE visitor_hash=? AND day=?").bind("member:"+user.id,day).first();
+    textTrial={used:Math.max(0,Math.min(50,Number(usage?.used)||0)),limit:50};
+   }
+  }catch{/* No quota schema yet; do not invent a balance. */}
+ }
+ return json({enabled:true,providers,user,...(trial?{trial}:{}),...(textTrial?{textTrial}:{})});
 }
 export async function logout({request,env}){
  if(!validHost(request))return json({error:"Not found"},404);

@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useState} from "react";
 import {AccountStatsPanel} from "./AccountStatsPanel";
 import {MembershipDiagnosticsPanel} from "./MembershipDiagnosticsPanel";
+import {FreeQuotaPanel} from "./FreeQuotaPanel";
 import {UsageOverviewCards} from "./UsageOverviewCards";
 import {FortuneUsagePanel} from "./FortuneUsagePanel";
 import {PlatformUsagePanel,type PlatformUsage} from "./PlatformUsagePanel";
@@ -63,6 +64,7 @@ return Array.from({length:days},(_,i)=>{
   <button type="button" aria-pressed={days===7} onClick={()=>setDays(7)}>最近 7 天</button>
   <button type="button" aria-pressed={days===30} onClick={()=>setDays(30)}>最近 30 天</button>
   <a href="#fortune-usage" className="usage-jump">命理成效</a>
+  <a href="#free-quota" className="usage-jump">免費額度管理</a>
   <a href="#guest-trial-stats" className="usage-jump">免費試用統計</a>
   <a href="/usage/feedback" className="usage-jump">意見回饋管理</a>
   <a href="/fortune/report-lab" className="usage-jump usage-report-lab-link" aria-label="開啟專屬命書私人驗收台">專屬命書驗收</a>
@@ -71,6 +73,7 @@ return Array.from({length:days},(_,i)=>{
   <span className="usage-source">資料來源：Cloudflare Web 事件（Android Firebase 另計）</span>
  </div>
 </section>
+<FreeQuotaPanel/>
 {loading?<section className="panel section" role="status">正在讀取匿名使用事件…</section>:
  error?<section className="panel section" role="alert"><strong>無法讀取使用資料</strong><p>{error}</p><p className="meta">請確認 Cloudflare Access、Analytics Engine Binding 與唯讀 Token，參考 docs/CREW_USAGE.md。</p></section>:
  data&&<>

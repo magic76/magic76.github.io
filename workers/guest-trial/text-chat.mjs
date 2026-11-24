@@ -2,6 +2,8 @@
  * Separate from the five-minute Live voice token / account quota.
  * Store only anonymous salted counters and short-lived token hashes in D1.
  */
+import {memberTicket} from "../../functions/api/guest/token.js";
+import {quotaV2,readFreeQuotaPolicy,memberTextQuotaKey,MEMBER_TEXT_LIMIT} from "../../server/free-quota.mjs";
 const MODEL="gemini-3.5-flash-lite";
 const DAILY_TURNS=12,GLOBAL_DAILY_TURNS=1500,SESSION_MS=30*60*1000;
 const MAX_BODY=20000,MIN_TURN_GAP_MS=2500;
@@ -46,7 +48,7 @@ async function parseInput(request){
   return {value};
  }catch{return {error:json({code:"BAD_REQUEST"},400)}}
 }
-async function createSession(request,env,input,deps,visitor){
+async function createSession(request,env,input,deps,visitor,quotaKey=visitor,dailyLimit=DAILY_TURNS,v2=false){
  if(typeof input.challengeToken!=="string"||input.challengeToken.length<10||input.challengeToken.length>2048)
   return json({code:"VERIFY_REQUIRED"},400);
  let verified=false;
@@ -56,14 +58,14 @@ async function createSession(request,env,input,deps,visitor){
  const db=env.CREW_AUTH_DB,now=Date.now(),day=taipeiDay(now);
  try{
   await ensureTables(db);
-  const record=await db.prepare("SELECT used FROM crew_guest_text_usage WHERE visitor_hash=? AND day=?").bind(visitor,day).first();
-  if(Number(record?.used||0)>=DAILY_TURNS)return json({code:"DAILY_LIMIT",remaining:0},429);
+  const record=await db.prepare("SELECT used FROM crew_guest_text_usage WHERE visitor_hash=? AND day=?").bind(quotaKey,day).first();
+  if(Number(record?.used||0)>=dailyLimit)return json({code:"DAILY_LIMIT",remaining:0},429);
   const token=hex(crypto.getRandomValues(new Uint8Array(32)));
   const hash=await sha256(token);
   await db.prepare("DELETE FROM crew_guest_text_sessions WHERE expires_at<?").bind(now).run();
   await db.prepare("INSERT INTO crew_guest_text_sessions (token_hash,visitor_hash,expires_at) VALUES (?,?,?)")
    .bind(hash,visitor,now+SESSION_MS).run();
-  return json({sessionToken:token,remaining:DAILY_TURNS-Number(record?.used||0),expiresAt:now+SESSION_MS});
+  return json({sessionToken:token,remaining:dailyLimit-Number(record?.used||0),expiresAt:now+SESSION_MS,...(v2?{dailyLimit}:{})});
  }catch{return json({code:"TEMP_UNAVAILABLE"},503)}
 }
 function cleanMessages(raw){
@@ -83,7 +85,7 @@ async function refund(db,visitor,day){
  try{await db.prepare("UPDATE crew_guest_text_usage SET used=MAX(0,used-1) WHERE visitor_hash=? AND day=?").bind(visitor,day).run()}catch{}
  try{await db.prepare("UPDATE crew_guest_text_daily SET used=MAX(0,used-1) WHERE day=?").bind(day).run()}catch{}
 }
-async function sendText(env,input,deps,visitor){
+async function sendText(env,input,deps,visitor,quotaKey=visitor,dailyLimit=DAILY_TURNS,globalLimit=GLOBAL_DAILY_TURNS,v2=false){
  const messages=cleanMessages(input.messages);
  if(!messages||typeof input.system!=="string"||input.system.length>6000||
     typeof input.sessionToken!=="string"||!/^[0-9a-f]{64}$/.test(input.sessionToken))
@@ -96,20 +98,20 @@ async function sendText(env,input,deps,visitor){
    .bind(await sha256(input.sessionToken)).first();
   if(!session||session.visitor_hash!==visitor||session.expires_at<=now)return json({code:"SESSION_EXPIRED"},401);
   await db.prepare("INSERT OR IGNORE INTO crew_guest_text_usage (visitor_hash,day,used,last_at) VALUES (?,?,0,0)")
-   .bind(visitor,day).run();
+   .bind(quotaKey,day).run();
   const grant=await db.prepare("UPDATE crew_guest_text_usage SET used=used+1,last_at=? WHERE visitor_hash=? AND day=? AND used<? AND last_at<=?")
-   .bind(now,visitor,day,DAILY_TURNS,now-MIN_TURN_GAP_MS).run();
+   .bind(now,quotaKey,day,dailyLimit,now-MIN_TURN_GAP_MS).run();
   if(grant.meta?.changes!==1){
-   const status=await db.prepare("SELECT used FROM crew_guest_text_usage WHERE visitor_hash=? AND day=?").bind(visitor,day).first();
-   return Number(status?.used||0)>=DAILY_TURNS
+   const status=await db.prepare("SELECT used FROM crew_guest_text_usage WHERE visitor_hash=? AND day=?").bind(quotaKey,day).first();
+   return Number(status?.used||0)>=dailyLimit
     ?json({code:"DAILY_LIMIT",remaining:0},429):json({code:"TOO_FAST"},429);
   }
   reservedVisitor=true;
   await db.prepare("INSERT OR IGNORE INTO crew_guest_text_daily (day,used) VALUES (?,0)").bind(day).run();
   const total=await db.prepare("UPDATE crew_guest_text_daily SET used=used+1 WHERE day=? AND used<?")
-   .bind(day,GLOBAL_DAILY_TURNS).run();
+   .bind(day,globalLimit).run();
   if(total.meta?.changes!==1){
-   await db.prepare("UPDATE crew_guest_text_usage SET used=MAX(0,used-1) WHERE visitor_hash=? AND day=?").bind(visitor,day).run();
+   await db.prepare("UPDATE crew_guest_text_usage SET used=MAX(0,used-1) WHERE visitor_hash=? AND day=?").bind(quotaKey,day).run();
    reservedVisitor=false;
    return json({code:"CAPACITY"},429);
   }
@@ -126,12 +128,12 @@ async function sendText(env,input,deps,visitor){
   const reply=(body?.candidates?.[0]?.content?.parts||[])
    .map(part=>typeof part?.text==="string"?part.text:"").join("").trim().slice(0,2800);
   if(!reply)throw Error("empty upstream reply");
-  const quota=await db.prepare("SELECT used FROM crew_guest_text_usage WHERE visitor_hash=? AND day=?").bind(visitor,day).first();
-  return json({reply,remaining:Math.max(0,DAILY_TURNS-Number(quota?.used||DAILY_TURNS))});
+  const quota=await db.prepare("SELECT used FROM crew_guest_text_usage WHERE visitor_hash=? AND day=?").bind(quotaKey,day).first();
+  return json({reply,remaining:Math.max(0,dailyLimit-Number(quota?.used??dailyLimit)),...(v2?{dailyLimit}:{})});
  }catch{
-  if(reservedGlobal)await refund(db,visitor,day);
+  if(reservedGlobal)await refund(db,quotaKey,day);
   else if(reservedVisitor){
-   try{await db.prepare("UPDATE crew_guest_text_usage SET used=MAX(0,used-1) WHERE visitor_hash=? AND day=?").bind(visitor,day).run()}catch{}
+   try{await db.prepare("UPDATE crew_guest_text_usage SET used=MAX(0,used-1) WHERE visitor_hash=? AND day=?").bind(quotaKey,day).run()}catch{}
   }
   return json({code:"TEMP_UNAVAILABLE"},503);
  }
@@ -140,8 +142,26 @@ async function sendText(env,input,deps,visitor){
 export async function onTextRequest(request,env,deps){
  const origin=request.headers.get("origin");
  if(!["https://www.3sssi.com","https://koolo.app"].includes(origin)||new URL(request.url).origin!==origin)return json({code:"ORIGIN_REJECTED"},403);
- if(request.method==="GET")return json(configured(env)
-  ?{enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,dailyLimit:DAILY_TURNS}:{enabled:false});
+ const v2=quotaV2(env);
+ let policy;
+ if(v2&&configured(env)){
+  try{
+   if(typeof env.CREW_GUEST_TICKET_SECRET!=="string"||env.CREW_GUEST_TICKET_SECRET.length<32)throw Error("Signer unavailable");
+   policy=await readFreeQuotaPolicy(env);
+  }catch{return request.method==="GET"?json({enabled:false}):json({code:"TEMP_UNAVAILABLE"},503)}
+  if(!policy.enabled)return request.method==="GET"?json({enabled:false}):json({code:"TEMP_UNAVAILABLE"},503);
+ }
+ if(request.method==="GET"){
+  if(!configured(env))return json({enabled:false});
+  const config={enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,dailyLimit:DAILY_TURNS};
+  if(!v2)return json(config);
+  try{
+   const visitor=await visitorHash(request,env);
+   await ensureTables(env.CREW_AUTH_DB);
+   const usage=visitor?await env.CREW_AUTH_DB.prepare("SELECT used FROM crew_guest_text_usage WHERE visitor_hash=? AND day=?").bind(visitor,taipeiDay(Date.now())).first():null;
+   return json({...config,memberDailyLimit:MEMBER_TEXT_LIMIT,...(visitor?{remaining:Math.max(0,DAILY_TURNS-Number(usage?.used||0))}:{})});
+  }catch{return json({enabled:false})}
+ }
  if(request.method!=="POST")return json({code:"METHOD_NOT_ALLOWED"},405);
  if(!configured(env))return json({code:"TEMP_UNAVAILABLE"},503);
  const visitor=await visitorHash(request,env);
@@ -149,7 +169,16 @@ export async function onTextRequest(request,env,deps){
  const parsed=await parseInput(request);
  if(parsed.error)return parsed.error;
  const input=parsed.value;
- if(input.action==="start")return createSession(request,env,input,deps,visitor);
- if(input.action==="send")return sendText(env,input,deps,visitor);
+ let sessionVisitor=visitor,quotaKey=visitor,dailyLimit=DAILY_TURNS;
+ if(v2&&Object.prototype.hasOwnProperty.call(input,"authTicket")){
+  const member=await memberTicket(input.authTicket,env.CREW_GUEST_TICKET_SECRET);
+  if(!member)return json({code:"SESSION_EXPIRED"},401);
+  quotaKey=memberTextQuotaKey(member.userId);
+  // A verified member grant is valid only for the same account AND device fingerprint.
+  sessionVisitor=await sha256("member-session|"+member.userId+"|"+visitor);
+  dailyLimit=MEMBER_TEXT_LIMIT;
+ }
+ if(input.action==="start")return createSession(request,env,input,deps,sessionVisitor,quotaKey,dailyLimit,v2);
+ if(input.action==="send")return sendText(env,input,deps,sessionVisitor,quotaKey,dailyLimit,policy?.textCap??GLOBAL_DAILY_TURNS,v2);
  return json({code:"BAD_REQUEST"},400);
 }

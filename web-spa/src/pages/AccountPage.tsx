@@ -4,9 +4,9 @@ import{useTranslation}from"react-i18next";
 import"./account.css";
 import{GeminiConnectionPanel}from"./GeminiConnectionPanel";
 type User={id:string;name:string;provider:"google"|"github"};
-type Session={enabled:boolean;providers:{google:boolean;github:boolean};user:User|null;trial?:{used:number;limit:number;lastUsedAt?:number}};
+type Session={enabled:boolean;providers:{google:boolean;github:boolean};user:User|null;trial?:{used:number;limit:number;lastUsedAt?:number};textTrial?:{used:number;limit:number}};
 export function AccountPage(){
- const {t,i18n}=useTranslation("common");const [query]=useSearchParams();const location=useLocation();
+ const {t,i18n}=useTranslation(["common","voice"]);const [query]=useSearchParams();const location=useLocation();
  const geminiFirst=location.hash==="#settings-gemini"||query.has("returnTo");
  useEffect(()=>{
   if(!geminiFirst)return;
@@ -49,6 +49,10 @@ export function AccountPage(){
       {state.trial.used<state.trial.limit
        ?<Link className="btn secondary small" to="/teacher/roles?mode=teacher">{t("guestTrial.start")}</Link>
        :<Link className="btn secondary small" to="/account#settings-gemini">{t("guestTrial.setupKey")}</Link>}
+     </section>}
+    {state.textTrial&&<section className="crew-account-trial" aria-label={t("voice:textChat.ui.freePractice")}>
+      <strong>{t("voice:textChat.ui.freeDaily",{count:state.textTrial.limit})}</strong>
+      <p role="status">{t("voice:textChat.ui.remaining",{count:Math.max(0,state.textTrial.limit-state.textTrial.used)})}</p>
      </section>}
     <button className="btn secondary" disabled={busy} type="button" onClick={()=>void signOut()}>{t("auth.signOut")}</button></>:
    state?.enabled?<><h2>{t("auth.choose")}</h2><div className="crew-account-buttons">

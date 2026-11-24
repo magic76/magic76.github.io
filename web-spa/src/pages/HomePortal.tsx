@@ -166,9 +166,9 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
     </Link>
     <div className="crew-portal-invitation-meta">
      {!hasKey&&<div className="crew-portal-status-slot">
-      {ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})}</p>}
-      {ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
-      {ready&&!hasKey&&(!trial.resolved||!trial.enabled||trial.remaining===null||(trial.remaining>0&&trial.seconds===null))&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
+      {ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null&&<p className="crew-portal-remaining" role="status">{trial.memberTextLimit?t("world.freeAllowance.memberDaily",{count:trial.memberTextLimit,minutes:(trial.remaining??0)*trial.seconds/60}):t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})}</p>}
+      {ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0&&<p className="crew-portal-remaining" role="status">{trial.memberTextLimit?t("world.freeAllowance.memberDaily",{count:trial.memberTextLimit,minutes:0}):t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
+      {ready&&!hasKey&&(!trial.resolved||!trial.enabled||trial.remaining===null||(trial.remaining>0&&trial.seconds===null))&&<p className="crew-portal-remaining" role="status">{trial.memberTextLimit?t("world.freeAllowance.memberTextOnly",{count:trial.memberTextLimit}):t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
      </div>}
      <div className="crew-portal-practice-holder">
       {ready?<Suspense fallback={<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}><HomeTargetLanguage/></Suspense>

@@ -122,7 +122,7 @@ test("unavailable phase rejects a pending challenge and first send restores the 
 });
 
 test("Worker contract, layout constraints and locale status copy are preserved",()=>{
- assert.match(panel,/body:JSON\.stringify\(\{action:"start",challengeToken\}\)/);
+ assert.match(panel,/body:JSON\.stringify\(\{action:"start",challengeToken,\.\.\.\(authTicket\?\{authTicket\}:\{\}\)\}\)/);
  assert.match(panel,/action:"send",sessionToken:token,system:guestSystem/);
  assert.match(panel,/sendGuestTextWithRenewal\(/);
  assert.match(panel,/invalidateGuestGrant\(\)/);

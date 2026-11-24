@@ -10,7 +10,7 @@ export const GUEST_TOKEN_ENDPOINT=typeof window!=="undefined"&&
 export function guestTrialDiscoveryEnabled():boolean{
  return typeof window!=="undefined"&&(!isCrewAndroidShell()||["https://koolo.app","https://www.koolo.app"].includes(window.location.origin));
 }
-export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number;signinRequired?:boolean;memberMetering?:boolean;trial?:{used:number;limit:number}};
+export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number;signinRequired?:boolean;memberMetering?:boolean;dailyQuota?:boolean;trial?:{used:number;limit:number}};
 export function invalidateGuestTrialConfig(){cachedConfig=null;cachedAt=0}
 export type GuestTrialGrant={token:string;model:string;seconds:number;issuedAt:string;expiresAt:string};
 // Share one in-flight GET across the home guide and Live entry. No token, proof,
@@ -32,6 +32,7 @@ export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
   return value?.enabled===true&&typeof value.siteKey==="string"&&value.siteKey&&Number(value.seconds)===300
    ?{enabled:true,siteKey:value.siteKey,seconds:300,signinRequired:value.signinRequired===true,
      memberMetering:value.memberMetering===true||value.signinRequired===true,
+     ...(value.dailyQuota===true?{dailyQuota:true}:{}),
       ...(Number.isInteger(value.trial?.used)&&Number.isInteger(value.trial?.limit)&&value.trial.limit>0&&value.trial.used>=0&&value.trial.used<=value.trial.limit
        ?{trial:{used:value.trial.used,limit:value.trial.limit}}:{})}:{enabled:false};
  }catch{return {enabled:false}}
