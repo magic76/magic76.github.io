@@ -73,10 +73,47 @@ test("eeh uses fetched JavaScript MIME and explicit WASM bytes; Chinese Piper ro
  assert.ok(worker.includes('module.default({module_or_path:wasm})'));
  assert.doesNotMatch(worker,/import\(EEH\+/);
  assert.match(js,/@realtimex\/piper-tts-web@1\.1\.1/);
- assert.ok(js.includes('voiceId="zh_CN-huayan-"+tier'));
- assert.ok(js.includes('new sdk.TtsSession'));
+ assert.ok(js.includes('voiceId="zh_CN-huayan-"+cfg.tier'));
+ assert.ok(js.includes('sdk.TtsSession.create('));
  assert.ok(js.includes('engines[id].predict(value)'));
  assert.match(page,/20\.6 MB/);
  assert.match(page,/63\.2 MB/);
  assert.match(page,/訓練資料授權/);
+});
+
+test("Piper rejects invalid cache and HTTP responses before model initialization",async()=>{
+ const source=js.slice(js.indexOf("const PIPER_SDK="),js.indexOf("async function piperChinese("));
+ const {createHash,webcrypto}=require("node:crypto");
+ const data=new Blob([Uint8Array.of(8,1,58,2,1,2)]),cfg={size:data.size,sha:createHash("sha256").update(Buffer.from(await data.arrayBuffer())).digest("hex")};
+ let files=new Map([["test.onnx",new Blob(["bad"])]]);
+ const removed=[],written=[],status=[];
+ const dir={
+  async getFileHandle(name,{create}={}){
+   if(!files.has(name)&&!create)throw Object.assign(Error("missing"),{name:"NotFoundError"});
+   return {async getFile(){return files.get(name)},async createWritable(){let value;return {async write(blob){value=blob;written.push(name)},async close(){files.set(name,value)},async abort(){}}}};
+  },
+  async removeEntry(name){removed.push(name);files.delete(name)}
+ };
+ let response={ok:false,status:404,blob:async()=>data},fetches=0;
+ const ctx={crypto:webcrypto,Uint8Array,Blob,fetch:async()=>{fetches++;return response},setStatus:(_id,msg)=>status.push(msg)};
+ const api=vm.runInNewContext(source+";({verifyPiperFile,preparePiperFile,createPiperSession})",ctx);
+ assert.equal(await api.verifyPiperFile(new Blob(["bad"]), "model",cfg),false);
+ assert.equal(await api.verifyPiperFile(new Blob(["123456"]), "model",cfg),false);
+ assert.equal(await api.verifyPiperFile(data,"model",cfg),true);
+ await assert.rejects(api.preparePiperFile(dir,"test.onnx","https://example.invalid","model",cfg,"piperLow"),/HTTP 404/);
+ assert.deepEqual(removed,["test.onnx"]);
+ assert.equal(written.length,0);
+ response={ok:true,blob:async()=>new Blob(["123456"])};
+ await assert.rejects(api.preparePiperFile(dir,"test.onnx","https://example.invalid","model",cfg,"piperLow"),/完整性驗證失敗/);
+ assert.equal(written.length,0);
+ response={ok:true,blob:async()=>data};
+ await api.preparePiperFile(dir,"test.onnx","https://example.invalid","model",cfg,"piperLow");
+ assert.equal(written.length,1);
+ await api.preparePiperFile(dir,"test.onnx","https://example.invalid","model",cfg,"piperLow");
+ assert.equal(fetches,3);
+ const sdk={TtsSession:{_instance:{voiceId:"wrong"},async create({voiceId}){if(this._instance)return this._instance;return this._instance={voiceId,ready:true}}}};
+ const low=await api.createPiperSession(sdk,"low","piperLow"),medium=await api.createPiperSession(sdk,"medium","piperMedium");
+ assert.notEqual(low,medium);
+ assert.equal(low.voiceId,"low");assert.equal(medium.voiceId,"medium");assert.equal(sdk.TtsSession._instance,null);
+ assert.doesNotMatch(source,/sdk\.download\(|sdk\.stored\(|sdk\.flush\(/);
 });
