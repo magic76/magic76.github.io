@@ -39,6 +39,7 @@ export function FortunePriceInterest({readingId}:{readingId:string}){
    }}>{copy("我有興趣 · NT$79","I'm interested · NT$79")}</button>}
   <small>{copy("這只是意願調查，不是預購或付款。報告內容與交付方式仍在規劃。","Interest survey only: no purchase, preorder, or payment. Content and delivery are still being planned.")}</small>
   {stageReady&&<Link className="btn secondary small" to={"/fortune/ecpay/test?history="+encodeURIComponent(readingId)}>{copy("管理員：前往綠界付款測試（不會扣款）","Admin: test ECPay payment (no charge)")}</Link>}
+  <Link className="text-button" to="/purchase-info">{copy("查看商品與付款說明","Products and payment information")}</Link>
   <Link className="text-button" to="/fortune/purchases">{copy("已買過報告？到我的報告書架","Already purchased? Open your report library")}</Link>
  </section>;
 }
