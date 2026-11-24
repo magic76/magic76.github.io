@@ -44,3 +44,28 @@ test("isolated persistence and route registration",()=>{
  const routes=JSON.parse(readFileSync(new URL("../_routes.json",import.meta.url),"utf8"));
  assert.ok(routes.include.includes("/admin/payment-test"));assert.ok(routes.include.includes("/api/fortune/*"));
 });
+
+test("valid live callback is idempotent, rejects conflicting trade, and accepts in-flight notices with checkout disabled",async()=>{
+ const row={id:"r1",paid_at:null,trade_no_hash:null};
+ let writes=0;
+ const db={prepare(sql){let args;return {bind(...values){args=values;return this},async first(){return {...row}},async run(){
+  if(sql.includes("SET paid_at=")&&!row.paid_at){row.paid_at=args[0];row.trade_no_hash=args[2];writes++;return {meta:{changes:1}}}
+  if(sql.includes("callback_result=?")&&!row.paid_at){row.callback_result=args[1];return {meta:{changes:1}}}
+  return {meta:{changes:0}};
+ }}}};
+ const f={MerchantID:cfg.merchant,MerchantTradeNo:"KL123456781234123412",TradeAmt:"10",TradeNo:"123456789",PaymentType:"Credit_CreditCard",RtnCode:"1",SimulatePaid:"0"};
+ const send=async(extra={})=>{const v={...f,...extra};return liveTestNotify({request:new Request(notify,{method:"POST",body:new URLSearchParams({...v,CheckMacValue:await liveMac(v,cfg)})}),env:{...env,CREW_AUTH_DB:db}})};
+ assert.equal((await send({SimulatePaid:"1"})).status,200);assert.equal(row.paid_at,null);
+ assert.equal((await send({RtnCode:"0"})).status,200);assert.equal(row.paid_at,null);
+ const ok=await send();assert.equal(ok.status,200);assert.equal(await ok.text(),"1|OK");
+ assert.equal((await send()).status,200);assert.equal(writes,1);
+ assert.equal((await send({TradeNo:"987654321"})).status,409);assert.equal(writes,1);
+});
+test("usage dashboard links to a protected server page rather than a public SPA route",()=>{
+ const read=p=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
+ assert.match(read("web-spa/src/analytics/UsageDashboardPage.tsx"),/href="https:\/\/koolo\.app\/admin\/payment-test"/);
+ const handler=read("functions/admin/payment-test.js");
+ assert.match(handler,/liveTestPage\(\{\.\.\.context,verifyAdmin:verifyAccess\}\)/);
+ assert.match(handler,/liveTestPost\(\{\.\.\.context,verifyAdmin:verifyAccess\}\)/);
+ assert.doesNotMatch(read("web-spa/src/App.tsx"),/path="\/admin\/payment-test"/);
+});

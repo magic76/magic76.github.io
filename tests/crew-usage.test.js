@@ -23,7 +23,7 @@ function request(data=payload,extra={}){
 }
 test("Pages Functions only run on allowlisted APIs and the localized root",()=>{
  const routes=JSON.parse(fs.readFileSync(path.join(root,"_routes.json"),"utf8"));
- assert.deepEqual(routes.include,["/api/usage/*","/api/feedback","/api/auth/*","/api/membership/*","/api/fortune/*","/fortune/report-lab","/api/voice/*","/api/books","/"]);
+ assert.deepEqual(routes.include,["/api/usage/*","/api/feedback","/api/auth/*","/api/membership/*","/api/fortune/*","/fortune/report-lab","/admin/payment-test","/api/voice/*","/api/books","/"]);
  // Even if included in a future Pages config, guest APIs must never be served by Pages Functions.
  assert.deepEqual(routes.exclude,["/api/guest/*"]);
  const adapter=fs.readFileSync(path.join(root,"scripts/prepare-cloudflare.mjs"),"utf8");
