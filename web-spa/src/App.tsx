@@ -53,6 +53,7 @@ const ShortsProfilePage=lazy(()=>import("./teacher/ShortsProfilePage").then(m=>(
 const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.ShortsPage})));
 const MatePage=lazy(()=>withNamespace("mate",import("./mate/MatePage")).then(m=>({default:m.MatePage})));
 const CrewTownPage=lazy(()=>import("./town/Town3DPage").then(m=>({default:m.Town3DPage})));
+const SandboxLab=lazy(()=>import("./sandbox/SandboxLab").then(m=>({default:m.SandboxLab})));
 const MagicPage=lazy(()=>withNamespace("magic",import("./magic/MagicPage")).then(m=>({default:m.MagicPage})));
 const SoulsPage=lazy(()=>withNamespace("voice",import("./souls/SoulsPage")).then(m=>({default:m.SoulsPage})));
 const BooksPage=lazy(()=>import("./books/BooksPage"));
@@ -103,6 +104,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/me/orders" element={<AppChrome product="settings"><PurchaseOrdersPage/></AppChrome>}/>
 <Route path="/privacy" element={<AppChrome product="settings"><PrivacyPage/></AppChrome>}/>
 <Route path="/guides/:slug" element={<AppChrome product="teacher"><GuidePage/></AppChrome>}/>
+<Route path="/sandbox-lab" element={<AppChrome product="briefing"><SandboxLab/></AppChrome>}/>
 <Route path="/usage" element={<AppChrome product="briefing"><UsageDashboardPage/></AppChrome>}/>
 <Route path="/usage/feedback" element={<AppChrome product="briefing"><FeedbackInboxPage/></AppChrome>}/>
 <Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="fortune" element={<TeacherFortunePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="shorts/:friendId" element={<ShortsProfilePage/>}/><Route path="friends" element={<Navigate to="/teacher/roles?mode=friends" replace/>}/><Route path="roles" element={<RolesPage/>}/><Route path="learn" element={<Navigate to="/learn" replace/>}/><Route path="tutor" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<VocabularyPage/>}/><Route path="course" element={<CoursePage/>}/><Route path="course/:slug" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<PhrasebookPage/>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
