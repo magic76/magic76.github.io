@@ -43,7 +43,7 @@
 
 ## 尚未啟用：未來正式金流
 
-正式綠界 MerchantID、HashKey、HashIV 的 **Cloudflare Secret 名稱尚未確定／尚未實作**，不要因這份清單自行新增猜測的設定名稱。待正式收款 PR 明確定義環境變數、伺服器驗章及金流安全閘門，再將其補入這份表，並與測試設定明確區隔。**絕不在此文件填入正式金鑰值。**
+正式金流僅限管理員驗證台，尚未接商品：`ECPAY_MERCHANT_ID`（Text/Secret）、`ECPAY_HASH_KEY` 和 `ECPAY_HASH_IV`（Secret）、`ECPAY_ENV=production`（Text）、`ECPAY_ENABLED=false`（Text；只有 `true` 開啟新訂單）。須先執行 `0011_ecpay_live_test.sql`，詳見 `docs/koolo-ecpay-live-test.md`。不要公開任何金鑰值。
 
 ## 自己驗證
 

@@ -1,0 +1,46 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {liveCheckoutFields,liveMac,liveTestPage,liveTestPost,liveTestNotify} from "../server/koolo-ecpay-live-test.mjs";
+const host="https://koolo.app",page=host+"/admin/payment-test",notify=host+"/api/fortune/ecpay/live-test-notify";
+const cfg={ready:true,merchant:"1234567",key:"0123456789ABCDEF",iv:"FEDCBA9876543210"};
+const cookie="__Host-crew_session="+"a".repeat(43);
+const env={ECPAY_MERCHANT_ID:cfg.merchant,ECPAY_HASH_KEY:cfg.key,ECPAY_HASH_IV:cfg.iv,ECPAY_ENV:"production",ECPAY_ENABLED:"false",CREW_AUTH_DB:{prepare(sql){return{bind(){return this},async first(){return sql.includes("crew_auth_sessions")?{user_id:"u1"}:null},async all(){return {results:[]}}}}}};
+const admin=async()=>true;
+test("checkout has fixed live amount and dedicated callback",async()=>{
+ const id="12345678-1234-1234-1234-123456789012";
+ const f=liveCheckoutFields(cfg,"KL123456781234123412",id,new Date("2026-11-24T00:00:00Z"));
+ assert.equal(f.TotalAmount,"10");assert.equal(f.MerchantID,cfg.merchant);
+ assert.equal(f.ReturnURL,notify);assert.equal(f.ClientBackURL,page+"?order="+id);
+ assert.equal(f.MerchantTradeDate,"2026/11/24 08:00:00");
+ assert.match(await liveMac(f,cfg),/^[A-F0-9]{64}$/);
+ await assert.rejects(liveMac(f,{...cfg,ready:false}),/LIVE_NOT_CONFIGURED/);
+});
+test("admin gate, disabled checkout and secrets never rendered",async()=>{
+ const request=new Request(page,{headers:{Cookie:cookie}});
+ assert.equal((await liveTestPage({request,env,verifyAdmin:async()=>false})).status,404);
+ assert.equal((await liveTestPage({request:new Request(page),env,verifyAdmin:admin})).status,401);
+ const result=await liveTestPage({request,env,verifyAdmin:admin});assert.equal(result.status,200);
+ const body=await result.text();assert.match(body,/已關閉/);assert.match(body,/disabled/);
+ for(const s of [cfg.key,cfg.iv,cfg.merchant])assert.ok(!body.includes(s));
+ const req=origin=>new Request(page,{method:"POST",headers:{Cookie:cookie,Origin:origin},body:new URLSearchParams({action:"create",id:"12345678-1234-1234-1234-123456789012",confirm:"yes"})});
+ assert.equal((await liveTestPost({request:req("https://evil.invalid"),env,verifyAdmin:admin})).status,403);
+ assert.equal((await liveTestPost({request:req(host),env,verifyAdmin:admin})).status,403);
+});
+test("callback rejects forged, duplicate parameters, wrong amount, stage config",async()=>{
+ const send=async(v,override={},mac=true)=>liveTestNotify({request:new Request(notify,{method:"POST",body:new URLSearchParams({...v,CheckMacValue:mac?await liveMac(v,cfg):"0".repeat(64)})}),env:{...env,...override}});
+ const f={MerchantID:cfg.merchant,MerchantTradeNo:"KL123456781234123412",TradeAmt:"10",TradeNo:"123456789",PaymentType:"Credit_CreditCard",RtnCode:"1",SimulatePaid:"0"};
+ assert.equal((await send(f,{},false)).status,403);
+ assert.equal((await send({...f,TradeAmt:"11"})).status,422);
+ assert.equal((await send(f,{ECPAY_ENV:"stage"})).status,503);
+ assert.equal((await send(f)).status,404);
+ assert.equal((await liveTestNotify({request:new Request(notify,{method:"POST",body:new URLSearchParams("MerchantID=a&MerchantID=b")}),env})).status,403);
+});
+test("isolated persistence and route registration",()=>{
+ const source=readFileSync(new URL("../server/koolo-ecpay-live-test.mjs",import.meta.url),"utf8");
+ assert.doesNotMatch(source,/koolo_fortune_orders|koolo_fortune_reports|koolo_voice_wallets|koolo_billing_orders/);
+ assert.match(source,/payment\.ecpay\.com\.tw\/Cashier\/QueryTradeInfo\/V5/);
+ assert.match(source,/WHERE id=\? AND paid_at IS NULL/);
+ const routes=JSON.parse(readFileSync(new URL("../_routes.json",import.meta.url),"utf8"));
+ assert.ok(routes.include.includes("/admin/payment-test"));assert.ok(routes.include.includes("/api/fortune/*"));
+});
