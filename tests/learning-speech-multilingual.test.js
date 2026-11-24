@@ -41,3 +41,33 @@ test("cold, cached and failed preparation never wait for local inference before 
   assert.deepEqual(statuses,hit?[]:["loading","ready"]);
  }
 });
+
+test("GPU initialization failure retries WASM before marking model ready",async()=>{
+ const source=read("web-spa/src/teacher/learningSpeech.ts");
+ const start=source.indexOf("function ensureTiny("),end=source.indexOf("async function generateTiny(",start);
+ // Replace only the lazy main import with an injected runtime for the VM.
+ const code=stripTypeScriptTypes(source.slice(start,end).replaceAll('import("./learningSpeechKokoro")','loadRuntime()'),{mode:"strip"});
+ for(const failWasmWorker of [false,true]){
+  const calls=[],ready=new Set(),warming=new Map();
+  const ctx={ready,warming,learningSpeechRoute:route,useKokoroMain:false,probeWebGpu:async()=>true,
+   disableWebGpu:()=>calls.push("disable"),requestWorker:async req=>{
+    calls.push(req.webgpu?"worker-gpu":"worker-wasm");
+    if(req.webgpu||failWasmWorker)throw Error("backend unavailable");
+   },loadRuntime:async()=>({prepareKokoro:async(_,gpu)=>{calls.push(gpu?"main-gpu":"main-wasm");assert.equal(gpu,false)}}),
+   requestPersistentStorage(){calls.push("persist")},console:{warn(){}}};
+  const ensure=vm.runInNewContext(code+";ensureTiny",ctx);
+  const pending=ensure("en");assert.equal(ready.has("en"),false);
+  await pending;
+  assert.equal(ready.has("en"),true);
+  assert.deepEqual(calls,failWasmWorker?["worker-gpu","disable","worker-wasm","main-wasm","persist"]:["worker-gpu","disable","worker-wasm","persist"]);
+ }
+ const ready=new Set(),warming=new Map(),attempts=[];
+ const ctx={ready,warming,learningSpeechRoute:route,useKokoroMain:false,probeWebGpu:async()=>true,
+  disableWebGpu(){},requestWorker:async req=>{attempts.push(req.webgpu);throw Error("backend unavailable")},
+  loadRuntime:async()=>({prepareKokoro:async(_,gpu)=>{attempts.push(gpu);throw Error("WASM unavailable")}}),
+  requestPersistentStorage(){throw Error("must not persist failed model")},console:{warn(){}}};
+ const ensure=vm.runInNewContext(code+";ensureTiny",ctx);
+ await assert.rejects(ensure("en"),/WASM unavailable/);
+ assert.equal(ready.has("en"),false);assert.equal(warming.has("en"),false);
+ assert.deepEqual(attempts,[true,false,false]);
+});
