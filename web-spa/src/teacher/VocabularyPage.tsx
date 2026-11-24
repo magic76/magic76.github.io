@@ -13,6 +13,7 @@ import {placementState,placementLabel,recordPlacement} from "./adaptivePlacement
 import {incrementTodayVocabulary,recordVocab,todayVocabulary,vocabStats} from "./vocabularyProgress";
 import {trackUsageEvent} from "../analytics/usage";
 import {speakLearningText} from "./learningSpeech";
+import {LearningSpeechOptIn} from "./learningSpeechOptIn";
 import {addDeckItem} from "./learningDeck";
 import "./learningFlow.css";
 
@@ -141,6 +142,7 @@ export function VocabularyPage(){
     <div className="quiz-meta"><span className="pill">{t("vocabulary.topics."+vocabularyTopicGroup(word[4]))}</span><span className="pill">{t("vocabulary.streak",{count:streak})}</span></div>
     <p className="crew-learning-question-prompt">{t("vocabulary.pickMeaning")}</p>
     <div className="quiz-word" key={word[0]} data-word={word[0]}>{word[0]}</div>
+    <LearningSpeechOptIn language="en"/>
     <div className="crew-vocab-pronunciation-actions">
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0])}>🔊 {t("vocabulary.listen")}</button>
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0],true)}>{t("vocabulary.listenSlow")}</button>
