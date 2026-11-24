@@ -4,8 +4,10 @@
  */
 "use strict";
 const SANO="https://ampixa.github.io/sanoTTS/";
-const EEH="https://huggingface.co/ctrltokyo/eeh-1/resolve/a42c72e/demo/";
+const EEH="https://huggingface.co/ctrltokyo/eeh-1/resolve/a42c72e45bc814946e645a69acb15a184325a9a2/demo/";
 const KO="https://ooodev.github.io/korean-tts/assets/";
+const KO_MIRROR="https://raw.githubusercontent.com/ooodev/korean-tts/HEAD/tiny-voca/web/public/assets/";
+const SANO_VOICES=["https://huggingface.co/ampixa/sanoTTS/resolve/main/web/voices/","https://raw.githubusercontent.com/Ampixa/sanoTTS/master/web/voices/",SANO+"voices/"];
 const PY="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
 const ORT="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
 let adapter;
@@ -20,7 +22,15 @@ async function bytes(url, label){
  try{await store?.put(url,new Response(data));}catch{}
  return data;
 }
-const json=async(url,label)=>JSON.parse(new TextDecoder().decode(await bytes(url,label)));
+const decodeJson=data=>JSON.parse(new TextDecoder().decode(data));
+const json=async(url,label)=>decodeJson(await bytes(url,label));
+async function mirrorBytes(urls,label){
+ let last;
+ for(const url of urls){try{return await bytes(url,label);}catch(e){last=e;}}
+ throw last;
+}
+const koreanBytes=(name,label)=>mirrorBytes([KO+name,KO_MIRROR+name],label);
+const sanoBytes=(key,name,label)=>mirrorBytes(SANO_VOICES.map(root=>root+key+"/"+name),label);
 async function gunzip(data){
  if(data[0]!==31||data[1]!==139)return data;
  const stream=new Blob([data]).stream().pipeThrough(new DecompressionStream("gzip"));
@@ -83,12 +93,11 @@ function unpackWeights(data,shape){
 }
 async function loadSano(lang){
  const key=lang==="zh"?"chinese-xiaoya":"spanish";
- const voiceBase=SANO+"voices/"+key+"/";
  status("準備 sanoTTS 執行環境");
  importScripts(SANO+"snt_voice.js");
  const runtime=await SaanoVoice({locateFile:name=>SANO+name});
- const meta=await json(voiceBase+"meta.json","下載音色設定");
- const [f,d]=await Promise.all([bytes(voiceBase+meta.front,"下載聲學模型"),bytes(voiceBase+meta.dec,"下載解碼模型")]);
+ const meta=decodeJson(await sanoBytes(key,"meta.json","下載音色設定"));
+ const [f,d]=await Promise.all([sanoBytes(key,meta.front,"下載聲學模型"),sanoBytes(key,meta.dec,"下載解碼模型")]);
  if(f.length!==meta.front_bytes||d.length!==meta.dec_bytes)throw Error("音色檔長度不符");
  const front=meta.weights==="f16"?unpackWeights(f,meta.front_dims):f;
  const dec=meta.weights==="f16"?unpackWeights(d,meta.dec_dims):d;
@@ -139,7 +148,7 @@ async function loadKorean(){
  const py=await loadPyodide({indexURL:PY});
  await py.loadPackage(["numpy","nltk"]);
  const files=["pyfront.zip","dizione.zip","mecab-dict.json","phonemizer/cmudict.zip",...["lexicon.tsv","align.json","g2p.json","g2p.npz","homographs.json"].map(x=>"phonemizer/"+x)];
- const [config,model,...assets]=await Promise.all([json(KO+"config.json","下載韓文設定"),bytes(KO+"model.onnx","下載韓文模型"),...files.map(x=>bytes(KO+x,"下載韓文發音資源"))]);
+ const [config,model,...assets]=await Promise.all([koreanBytes("config.json","下載韓文設定").then(decodeJson),koreanBytes("model.onnx","下載韓文模型"),...files.map(x=>koreanBytes(x,"下載韓文發音資源"))]);
  if(!config.voices.includes("KSS")||config.sample_rate!==24000)throw Error("韓文模型設定不符");
  py.FS.mkdirTree("/dizione-data");py.FS.mkdirTree("/nltk_data/corpora");
  py.unpackArchive(assets[0].buffer,"zip",{extractDir:"/pyfront"});
