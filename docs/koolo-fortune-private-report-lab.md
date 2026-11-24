@@ -1,4 +1,4 @@
-# Koolo NT$379 — private AI report acceptance lab (NOT public)
+# Koolo NT$99 (previously planned NT$379) — private AI report acceptance lab (NOT public)
 
 ## Scope and access
 
