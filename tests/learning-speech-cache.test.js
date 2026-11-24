@@ -95,3 +95,45 @@ test("English Nano requests en-us.ucd, never en.ucd; French Pico retains fr.ucd"
  assert.deepEqual(loaded,["en-us","fr"]);
  assert.match(worker,/lang:g2pLanguage\(language\),profile:"kitten"/);
 });
+
+test("Kitten postprocessing preserves the first start token, trims subsequent starts and pads each WAV",async()=>{
+ const start=worker.indexOf("function trimTiny("),end=worker.indexOf("async function tinyBlob(",start);
+ assert.ok(start>=0&&end>start);
+ const code=stripTypeScriptTypes(worker.slice(start,end),{mode:"strip"});
+ const {trimTiny,wavBlob}=vm.runInNewContext(code+";({trimTiny,wavBlob})",{Float32Array,ArrayBuffer,DataView,Blob});
+ const spf=600,padding=2400,durations=[16,4,12],lead=(durations[0]-1)*spf,trail=(durations.at(-1)-1)*spf;
+ const samples=new Float32Array(durations.reduce((sum,n)=>sum+n,0)*spf);
+ // The first consonant starts 12.5 ms before the old trim point: it must survive.
+ samples.fill(0.6,lead-300,lead+600);
+ samples.fill(0.3,lead+1100,lead+2200);
+ const first=trimTiny(samples,durations,true),later=trimTiny(samples,durations,false);
+ assert.equal(first.length,samples.length-trail+2*padding);
+ assert.equal(later.length,samples.length-lead-trail+2*padding);
+ assert.ok(Math.abs(first[padding+lead-300]-0.6)<0.0001,"first chunk retains speech in start-token frames");
+ assert.equal(later[padding+100],0.6,"later chunks trim the start-token pause");
+ for(const audio of [first,later]){
+  const rms=(items)=>Math.sqrt(items.reduce((sum,s)=>sum+s*s,0)/items.length);
+  assert.ok(rms(audio.subarray(0,padding))<0.005,"100 ms digital silence before audio");
+  assert.ok(rms(audio.subarray(-padding))<0.005,"100 ms digital silence after audio");
+  assert.ok(rms(audio.subarray(0,240))<0.005,"opening 10 ms contains no clipped speech");
+  const wav=new DataView(await wavBlob(audio).arrayBuffer());
+  assert.equal(wav.getUint32(24,true),24000);
+  assert.equal(wav.getUint32(40,true),audio.length*2);
+  for(let n=0;n<padding;n++){
+   assert.equal(wav.getInt16(44+n*2,true),0,"WAV starts with digital silence");
+   assert.equal(wav.getInt16(44+(audio.length-1-n)*2,true),0,"WAV ends with digital silence");
+  }
+ }
+ assert.match(worker,/const lead=keepStart\?0:/);
+ assert.match(worker,/const trail=Math\.max\(0,\(durations\[durations\.length-1\]-1\)\*spf\)/);
+ assert.match(worker,/const padSamples=2400/);
+ assert.doesNotMatch(worker,/\[5000:-10000\]/);
+});
+
+test("separate Nano and Pico requests use keepStart only for the first clause",()=>{
+ assert.match(speech,/generateTiny\(chunks\[0\],language,speed,true\)/);
+ assert.match(speech,/generateTiny\(chunks\[index\+1\],language,speed,false\)/);
+ assert.match(speech,/requestWorker\(\{type:"generate",language,text,speed,keepStart\}\)/);
+ assert.match(worker,/request\.keepStart!==false/);
+ assert.match(worker,/trimTiny\(new Float32Array\(waveform\.data\),durations,keepStart\)/);
+});
