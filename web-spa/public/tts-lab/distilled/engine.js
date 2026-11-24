@@ -60,15 +60,68 @@ async function session(url,expectedSize){
 const KOREAN_VOICES=["seoyeon","minjun","jihoon"];
 const PIPER_ROOT=HF+"rhasspy/piper-voices/resolve/main/zh/zh_CN/huayan/";
 const PIPER_MODELS={piperLow:{tier:"x_low",size:20628813,rate:16000},piperMedium:{tier:"medium",size:63201294,rate:22050}};
+// Full eSpeak NG build (including cmn and ko dictionaries), from the upstream
+// browser demo at a pinned revision. Only Asian models request these assets.
+const FULL_ESPEAK=HF+"spaces/csukuangfj/piper-phonemize/resolve/29c4a1977913f70e282d8328e87f54100672bf17/";
+const ESPEAK_FILE="piper-phonemize-wasm-main";
 let espeakPromise,openccPromise;
+function espeakSentences(api,text,voice){
+ const alloc=value=>{const size=api.lengthBytesUTF8(value)+1,p=api._malloc(size);if(!p)throw Error("eSpeak 記憶體不足");api.stringToUTF8(value,p,size);return p};
+ let tp=0,vp=0,result=0;
+ try{
+  tp=alloc(text);vp=alloc(voice);result=api._PiperPhonemizeText(tp,vp);
+  if(!result)throw Error("eSpeak 音素轉換失敗："+voice);
+  const n=api._PiperPhonemizeResultGetNumSentences(result),sentences=[];
+  if(n<1||n>1000)throw Error("eSpeak 句子數量不符");
+  for(let i=0;i<n;i++){
+   const count=api._PiperPhonemizeResultGetNumPhonemes(result,i),ptr=api._PiperPhonemizeResultGetPhonemes(result,i);
+   if(count<0||count>10000||(!ptr&&count))throw Error("eSpeak 音素資料不符");
+   if(count)sentences.push(Array.from(api.HEAPU32.subarray(ptr>>>2,(ptr>>>2)+count),code=>String.fromCodePoint(code)).join(""));
+  }
+  if(!sentences.length||!sentences.join("").trim())throw Error("eSpeak 未產生音素："+voice);
+  return sentences;
+ }finally{if(result)api._PiperPhonemizeDestroyResult(result);if(tp)api._free(tp);if(vp)api._free(vp)}
+}
+async function fullEspeak(){
+ status("準備完整中韓文發音字典（約 18 MB，首次下載）…");
+ const [script,wasm,dict]=await Promise.all([".js",".wasm",".data"].map(ext=>bytes(FULL_ESPEAK+ESPEAK_FILE+ext)));
+ const source=new TextDecoder().decode(script);
+ if(!source.includes("Module")||!source.includes("wasm"))throw Error("完整 eSpeak JS 資源格式不符");
+ if(wasm[0]!==0||wasm[1]!==97||wasm[2]!==115||wasm[3]!==109||dict.byteLength<1000000)throw Error("完整 eSpeak WASM 或字典資源不完整");
+ const url=URL.createObjectURL(new Blob([script],{type:"text/javascript"}));
+ try{
+  return await new Promise((resolve,reject)=>{
+   const timer=setTimeout(()=>reject(Error("完整 eSpeak 初始化逾時")),90000);
+   const fail=e=>{clearTimeout(timer);reject(e instanceof Error?e:Error(String(e)))};
+   self.Module={
+    locateFile:name=>FULL_ESPEAK+name,
+    wasmBinary:wasm,
+    getPreloadedPackage:(name,size)=>{if(!name.endsWith(".data")||dict.byteLength!==size)throw Error("eSpeak 字典大小不符："+name);return dict.buffer},
+    onAbort:reason=>fail(Error("完整 eSpeak WASM："+reason)),
+    onRuntimeInitialized(){
+     try{
+      const api=self.Module,dir="/usr/share/espeak-ng-data",size=api.lengthBytesUTF8(dir)+1,ptr=api._malloc(size);
+      if(!ptr)throw Error("eSpeak 記憶體不足");
+      let rate;try{api.stringToUTF8(dir,ptr,size);rate=api._PiperPhonemizeInitialize(ptr)}finally{api._free(ptr)}
+      if(rate<=0)throw Error("完整 eSpeak 字典初始化失敗");
+      clearTimeout(timer);resolve(api);
+     }catch(e){fail(e)}
+    }
+   };
+   try{
+    // The upstream Emscripten bundle is a classic script. Fetch its verified
+    // assets first; execute only the JS blob, avoiding cross-origin script MIME.
+    self.importScripts(url);
+   }catch(e){fail(e)}
+  });
+ }finally{URL.revokeObjectURL(url)}
+}
 async function espeakText(text,language){
- if(!espeakPromise)espeakPromise=import(CDN+"phonemizer@1.2.1").catch(e=>{espeakPromise=null;throw e});
- const {phonemize,list_voices}=await espeakPromise;
- const voices=await list_voices();
- if(!voices.some(v=>v.languages?.some(l=>l.name===language)))throw Error("eSpeak 不支援 "+language);
- const result=await phonemize(text,language);
- if(!Array.isArray(result)||!result.length)throw Error("發音轉換失敗");
- return result.join(" ").trim();
+ const voice=language==="zh"?"cmn":language;
+ if(!["cmn","ko"].includes(voice))throw Error("非中韓文發音路徑："+voice);
+ if(!espeakPromise)espeakPromise=fullEspeak().catch(e=>{espeakPromise=null;throw e});
+ const api=await espeakPromise;
+ return espeakSentences(api,text,voice).join(" ").trim();
 }
 async function simplified(text){
  if(!openccPromise)openccPromise=import(CDN+"opencc-js@1.4.2/dist/esm/full.js").then(m=>m.Converter({from:"tw",to:"cn"})).catch(e=>{openccPromise=null;throw e});
