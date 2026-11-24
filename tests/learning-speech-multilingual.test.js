@@ -13,16 +13,17 @@ function extract(start,end){
  return stripTypeScriptTypes(speech.slice(a,b).replace(/\bexport\s+/g,""),{mode:"strip"});
 }
 
-test("en/US/GB use Nano; de/es/fr/it/pt use Pico; other learning languages use device TTS",()=>{
+test("en/US/GB use Paradee, Asian languages use their selected models, and existing Pico languages are preserved",()=>{
  const code=extract("export function normalizeLearningLanguage(","export function picoLearningLanguages(");
  const {normalizeLearningLanguage,preferredLearningEngine}=vm.runInNewContext(
   code+";({normalizeLearningLanguage,preferredLearningEngine})",
   {TARGET_LANGUAGES:[],PICO_LANGUAGES:new Set(["de","es","fr","it","pt"])});
- for(const language of ["en","en-US","en-GB","EN-us","EN-gb"])assert.equal(preferredLearningEngine(language),"nano",language);
+ for(const language of ["en","en-US","en-GB","EN-us","EN-gb"])assert.equal(preferredLearningEngine(language),"paradee",language);
  for(const language of ["de","es","fr","it","pt","pt-BR"])assert.equal(preferredLearningEngine(language),"pico",language);
- for(const language of ["ja","ko","zh-TW","hi","vi","th","id","ru"])assert.equal(preferredLearningEngine(language),"system",language);
+ for(const [language,engine] of [["ja","eeh"],["ko","mini"],["zh","piper"],["zh-TW","piper"]])assert.equal(preferredLearningEngine(language),engine,language);
+ for(const language of ["hi","vi","th","id","ru"])assert.equal(preferredLearningEngine(language),"system",language);
  assert.equal(normalizeLearningLanguage("en-GB"),"en-GB");
- assert.match(speech,/modelLanguage\(message.language\)/,"worker receives canonical Nano en");
+ assert.match(speech,/instance\.postMessage\(\{\.\.\.message,id\}\)/,"worker preserves the requested dialect");
  assert.match(worker,/language==="en"\?"en-us":language/,"Nano G2P uses real en-us data pack");
  assert.match(worker,/language==="en"\?"eleanor":/,"Nano selects Eleanor voice");
 });
@@ -43,7 +44,7 @@ test("cold, cached-weight and failed preparation all speak immediately without o
   const preparation=new Promise((_,reject)=>{rejectPreparation=reject});
   const context={
    playbackId:1,stopLearningSpeech(){},cleanupLegacyKokoroCache(){},
-   normalizeLearningLanguage:x=>x,preferredLearningEngine:()=> "nano",
+   normalizeLearningLanguage:x=>x,preferredLearningEngine:()=> "paradee",modelLanguage:x=>x,
    cacheKey:()=>"",generated:new Map(),ready:new Set(),hasCachedTinyModel:async()=>hit,
    ensureTiny:()=>preparation,systemSpeak:async text=>played.push(text),console:{warn(){}}
   };
@@ -62,7 +63,7 @@ test("cold, cached-weight and failed preparation all speak immediately without o
 test("successful preparation requests storage persistence once and avoids duplicate workers",async()=>{
  const code=extract("function ensureTiny(","async function generateTiny(");
  let attempts=0,persisted=0;
- const ctx={ready:new Set(),warming:new Map(),requestWorker:async()=>{attempts++},
+ const ctx={modelLanguage:x=>x,ready:new Set(),warming:new Map(),requestWorker:async()=>{attempts++},
   requestPersistentStorage(){persisted++}};
  const ensure=vm.runInNewContext(code+";ensureTiny",ctx);
  await Promise.all([ensure("en"),ensure("en")]);
