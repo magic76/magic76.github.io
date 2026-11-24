@@ -29,18 +29,18 @@ test("Nano and Pico use pinned ONNX/WASM assets and the same persistent cache",(
 test("cache hits for en/US/GB share Paradee weights; selected languages use their own weights",async()=>{
  const code=slice(speech,"function modelLanguage(","function requestPersistentStorage(");
  const paradee="https://huggingface.co/sahilmahendrakar/Paradee-8M-v1.3/resolve/main/onnx/paradee_int8.onnx";
- const piper="https://piper/model.onnx",mini="https://mini/model.onnx",eeh="https://eeh/model.gz";
+ const mini="https://mini/model.onnx",eeh="https://eeh/model.gz";
  const pico="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";
  const stored=new Set([paradee,pico+"kitten_tts_2_pico_de_int4.onnx"]);
- const context={PARADEE_MODEL:paradee,PIPER_MODEL:piper,MINI_MODEL:mini,EEH_MODEL:eeh,PICO_BASE:pico,MODEL_CACHE:"koolo-learning-speech-v1",
-  preferredLearningEngine:code=>code.toLowerCase().startsWith("en")?"paradee":({zh:"piper",ko:"mini",ja:"eeh"}[code]||"pico"),
+ const context={PARADEE_MODEL:paradee,MINI_MODEL:mini,EEH_MODEL:eeh,PICO_BASE:pico,MODEL_CACHE:"koolo-learning-speech-v1",
+  preferredLearningEngine:code=>code.toLowerCase().startsWith("en")?"paradee":({zh:"system",ko:"mini",ja:"eeh"}[code]||"pico"),
   window:{caches:true},caches:{keys:async()=>[],open:async()=>({match:async url=>stored.has(url)?{ok:true}:undefined})}};
  const {modelUrl,hasCachedTinyModel}=vm.runInNewContext(code+";({modelUrl,hasCachedTinyModel})",context);
  for(const en of ["en","en-US","en-GB"]){
   assert.equal(modelUrl(en),paradee);
   assert.equal(await hasCachedTinyModel(en),true,en);
  }
- assert.equal(modelUrl("zh"),piper);assert.equal(modelUrl("ko"),mini);assert.equal(modelUrl("ja"),eeh);
+ assert.equal(modelUrl("zh"),"");assert.equal(await hasCachedTinyModel("zh"),false);assert.equal(modelUrl("ko"),mini);assert.equal(modelUrl("ja"),eeh);
  assert.equal(await hasCachedTinyModel("de"),true);
  assert.equal(await hasCachedTinyModel("fr"),false);
  assert.match(speech,/if\(!hit\)options\.onModelStatus\?\.\("loading",language\)/);

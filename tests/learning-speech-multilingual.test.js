@@ -13,15 +13,15 @@ function extract(start,end){
  return stripTypeScriptTypes(speech.slice(a,b).replace(/\bexport\s+/g,""),{mode:"strip"});
 }
 
-test("en/US/GB use Paradee, Asian languages use their selected models, and existing Pico languages are preserved",()=>{
+test("en/US/GB use Paradee, Japanese and Korean use their selected models, and existing Pico languages are preserved",()=>{
  const code=extract("export function normalizeLearningLanguage(","export function picoLearningLanguages(");
  const {normalizeLearningLanguage,preferredLearningEngine}=vm.runInNewContext(
   code+";({normalizeLearningLanguage,preferredLearningEngine})",
   {TARGET_LANGUAGES:[],PICO_LANGUAGES:new Set(["de","es","fr","it","pt"])});
  for(const language of ["en","en-US","en-GB","EN-us","EN-gb"])assert.equal(preferredLearningEngine(language),"paradee",language);
  for(const language of ["de","es","fr","it","pt","pt-BR"])assert.equal(preferredLearningEngine(language),"pico",language);
- for(const [language,engine] of [["ja","eeh"],["ko","mini"],["zh","piper"],["zh-TW","piper"]])assert.equal(preferredLearningEngine(language),engine,language);
- for(const language of ["hi","vi","th","id","ru"])assert.equal(preferredLearningEngine(language),"system",language);
+ for(const [language,engine] of [["ja","eeh"],["ko","mini"]])assert.equal(preferredLearningEngine(language),engine,language);
+ for(const language of ["zh","zh-TW","zh-CN","zh-Hant","zh-Hans","zh-Hant-TW","ZH_tw","hi","vi","th","id","ru"])assert.equal(preferredLearningEngine(language),"system",language);
  assert.equal(normalizeLearningLanguage("en-GB"),"en-GB");
  assert.match(speech,/instance\.postMessage\(\{\.\.\.message,id\}\)/,"worker preserves the requested dialect");
  assert.match(worker,/language==="en"\?"en-us":language/,"Nano G2P uses real en-us data pack");

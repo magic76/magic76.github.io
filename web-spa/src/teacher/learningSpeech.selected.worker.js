@@ -1,4 +1,4 @@
-/* Browser-only learning speech: Paradee INT8, Piper Huayan Medium, Kitten Mini INT4, eeh-1. */
+/* Browser-only learning speech: Paradee INT8, Kitten Mini INT4, eeh-1. */
 const CDN="https://cdn.jsdelivr.net/npm/",ORT=CDN+"onnxruntime-web@1.24.3/dist/",UC=CDN+"uccharan@1.0.0/",HF="https://huggingface.co/";
 const PARA=HF+"sahilmahendrakar/Paradee-8M-v1.3/resolve/main/";
 let engine,model,ort,g2p;
@@ -75,13 +75,11 @@ async function session(url,expectedSize){
  return result
 }
 const KOREAN_VOICE="seoyeon";
-const PIPER_ROOT=HF+"rhasspy/piper-voices/resolve/main/zh/zh_CN/huayan/";
-const PIPER_MODELS={piperMedium:{tier:"medium",size:63201294,rate:22050}};
-// Full eSpeak NG build (including cmn and ko dictionaries), from the upstream
-// browser demo at a pinned revision. Only Asian models request these assets.
+// Full eSpeak NG build (including the Korean dictionary), from the upstream
+// browser demo at a pinned revision. Only the Korean model requests these assets.
 const FULL_ESPEAK=HF+"spaces/csukuangfj/piper-phonemize/resolve/29c4a1977913f70e282d8328e87f54100672bf17/";
 const ESPEAK_FILE="piper-phonemize-wasm-main";
-let espeakPromise,openccPromise;
+let espeakPromise;
 function espeakSentences(api,text,voice){
  const alloc=value=>{const size=api.lengthBytesUTF8(value)+1,p=api._malloc(size);if(!p)throw Error("eSpeak 記憶體不足");api.stringToUTF8(value,p,size);return p};
  let tp=0,vp=0,result=0;
@@ -100,7 +98,7 @@ function espeakSentences(api,text,voice){
  }finally{if(result)api._PiperPhonemizeDestroyResult(result);if(tp)api._free(tp);if(vp)api._free(vp)}
 }
 async function fullEspeak(){
- status("準備完整中韓文發音字典（約 18 MB，首次下載）…");
+ status("準備完整韓文發音字典（約 18 MB，首次下載）…");
  const [script,wasm,dict]=await Promise.all([".js",".wasm",".data"].map(ext=>bytes(FULL_ESPEAK+ESPEAK_FILE+ext)));
  const source=new TextDecoder().decode(script);
  if(!source.includes("Module")||!source.includes("wasm"))throw Error("完整 eSpeak JS 資源格式不符");
@@ -134,34 +132,17 @@ async function fullEspeak(){
  }finally{URL.revokeObjectURL(url)}
 }
 async function espeakText(text,language){
- const voice=language==="zh"?"cmn":language;
- if(!["cmn","ko"].includes(voice))throw Error("非中韓文發音路徑："+voice);
+ if(language!=="ko")throw Error("非韓文發音路徑："+language);
+ const voice=language;
  if(!espeakPromise)espeakPromise=fullEspeak().catch(e=>{espeakPromise=null;throw e});
  const api=await espeakPromise;
  return espeakSentences(api,text,voice).join(" ").trim();
-}
-async function simplified(text){
- if(!openccPromise)openccPromise=importRetry(CDN+"opencc-js@1.4.2/dist/esm/full.js").then(m=>m.Converter({from:"tw",to:"cn"})).catch(e=>{openccPromise=null;throw e});
- return (await openccPromise)(text);
 }
 function koreanMisaki(p){
  const map={"aɪ":"I","aʊ":"W","dz":"ʣ","dʒ":"ʤ","eɪ":"A","oʊ":"O","əʊ":"Q","ss":"S","ts":"ʦ","tʃ":"ʧ","ɔɪ":"Y","œ̃":"B","ɔ̃":"C","ɑ̃":"D","ɛ̃":"E","ʊ̃":"V","ũ":"U","õ":"X","ɐ̃":"Z"};
  let result=p.replace(/[\u0361\u035c^]/gu,"").replace(/\([a-z-]+\)/gu,"");
  for(const [a,b] of Object.entries(map))result=result.split(a).join(b);
  return result.replace(/[\u0329\u032a]/gu,"");
-}
-function piperIds(p,map){
- if(!map?.["^"]||!map?.["_"]||!map?.["$"])throw Error("Piper 發音字典不完整");
- const ids=[...map["^"],...map["_"]];let count=0;
- for(const ch of p.normalize("NFD"))if(map[ch]){ids.push(...map[ch],...map["_"]);count++}
- if(!count||ids.length>900)throw Error("有效音素不足或句子太長");ids.push(...map["$"]);return ids;
-}
-async function loadPiper(id){
- const cfg=PIPER_MODELS[id],base=PIPER_ROOT+cfg.tier+"/zh_CN-huayan-"+cfg.tier+".onnx";
- const config=await json(base+".json");
- if(config.audio?.sample_rate!==cfg.rate||!config.phoneme_id_map||!["cmn","zh"].includes(config.espeak?.voice))throw Error("Piper 發音設定不符");
- await espeakText(await simplified("你好"),config.espeak.voice);
- return {session:await session(base,cfg.size),config,rate:cfg.rate};
 }
 const EEH="https://huggingface.co/ctrltokyo/eeh-1/resolve/a42c72e45bc814946e645a69acb15a184325a9a2/demo/";
 async function gunzip(data){
@@ -213,7 +194,6 @@ async function mirrorBytes(urls){let error;for(const url of urls)try{return awai
 function selectedLanguage(language){return /^en(?:-|$)/i.test(language)?"en":language}
 async function loadSelected(id){
  if(id==="ja")return await loadEeh();
- if(id==="zh")return await loadPiper("piperMedium");
  if(id==="ko"){
   const root=HF+"KittenML/kitten-tts-2-mini/resolve/main/";
   const [vocab,voices]=await Promise.all([json(root+"vocab.json"),bytes(root+"voices_ko.npz").then(parseNPZ),espeakText("안녕하세요","ko")]);
@@ -242,13 +222,6 @@ function wav(samples,rate=24000){
 }
 async function speakSelected(text,language,speed){
  if(model==="ja"){const a=await engine.speak(text,"female",speed);return wav(a.audio,a.sampleRate)}
- if(model==="zh"){
-  const config=engine.config,p=await espeakText(await simplified(text),config.espeak.voice),ids=piperIds(p,config.phoneme_id_map);
-  const t=ort.Tensor,feeds={input:new t("int64",BigInt64Array.from(ids,BigInt),[1,ids.length]),input_lengths:new t("int64",BigInt64Array.of(BigInt(ids.length)),[1]),scales:new t("float32",Float32Array.of(config.inference.noise_scale,config.inference.length_scale/speed,config.inference.noise_w),[3])};
-  if(engine.session.inputNames.includes("sid"))feeds.sid=new t("int64",BigInt64Array.of(0n),[1]);
-  const out=await engine.session.run(feeds),samples=Object.values(out).find(t=>t.data instanceof Float32Array)?.data;
-  if(!samples)throw Error("Piper empty audio");return wav(samples,engine.rate);
- }
  if(model==="ko"){
   const p=koreanMisaki(await espeakText(text,"ko")),ids=tokenIds(p,engine.vocab,true),emb=engine.voices[KOREAN_VOICE];
   const row=Math.min(ids.length-1,emb.rows-1),style=emb.data.slice(row*emb.cols,(row+1)*emb.cols);

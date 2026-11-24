@@ -3,7 +3,7 @@ import {speakText} from "../lib/deviceCapabilities";
 
 export type LearningSpeechSpeed="normal"|"slow";
 export type LearningSpeechMode="word"|"phrase"|"sentence";
-export type LearningSpeechEngine="paradee"|"pico"|"eeh"|"piper"|"mini"|"system";
+export type LearningSpeechEngine="paradee"|"pico"|"eeh"|"mini"|"system";
 export type LearningSpeechResult={engine:LearningSpeechEngine;language:string;cached:boolean};
 
 // Reclaim Kokoro learning weights without touching unrelated Transformers.js models.
@@ -22,7 +22,6 @@ function cleanupLegacyKokoroCache(){
  })();
 }
 const PARADEE_MODEL="https://huggingface.co/sahilmahendrakar/Paradee-8M-v1.3/resolve/main/onnx/paradee_int8.onnx";
-const PIPER_MODEL="https://huggingface.co/rhasspy/piper-voices/resolve/main/zh/zh_CN/huayan/medium/zh_CN-huayan-medium.onnx";
 const MINI_MODEL="https://huggingface.co/KittenML/kitten-tts-2-mini/resolve/main/kitten_tts_2_mini_int4.onnx";
 const EEH_MODEL="https://huggingface.co/ctrltokyo/eeh-1/resolve/a42c72e45bc814946e645a69acb15a184325a9a2/demo/model/eeh.safetensors.gz";
 const PICO_BASE="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";
@@ -46,6 +45,7 @@ let cancelAudio:(()=>void)|null=null;
 
 export function normalizeLearningLanguage(value:string):string{
  const normalized=String(value||"").trim();
+ if(/^zh(?:[-_]|$)/i.test(normalized))return "zh";
  if(/^en-gb$/i.test(normalized))return "en-GB";
  if(/^en-us$/i.test(normalized))return "en-US";
  return TARGET_LANGUAGES.find(item=>item.code===normalized||item.value===normalized||item.spoken===normalized)?.code||(/^[a-z]{2}(?:-[A-Z]{2})?$/.test(normalized)?normalized.split("-")[0]:"en");
@@ -55,7 +55,6 @@ export function preferredLearningEngine(value:string):LearningSpeechEngine{
  if(code==="en"||code==="en-US"||code==="en-GB")return"paradee";
  if(code==="ja")return"eeh";
  if(code==="ko")return"mini";
- if(code==="zh")return"piper";
  if(PICO_LANGUAGES.has(code))return"pico";
  return"system";
 }
@@ -103,7 +102,6 @@ function modelLanguage(language:string){return preferredLearningEngine(language)
 function modelUrl(language:string){
  switch(preferredLearningEngine(language)){
   case "paradee":return PARADEE_MODEL;
-  case "piper":return PIPER_MODEL;
   case "mini":return MINI_MODEL;
   case "eeh":return EEH_MODEL;
   case "pico":return PICO_BASE+"kitten_tts_2_pico_"+language+"_int4.onnx";
