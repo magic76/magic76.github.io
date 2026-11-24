@@ -1,6 +1,7 @@
 import {useEffect,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {learningSpeechRoute} from "./learningSpeechRoutes";
+import {normalizeLearningLanguage} from "./learningSpeech";
 import type {HighQualityStatus} from "./learningSpeechHighQuality";
 import "./learningSpeechOptIn.css";
 
@@ -21,7 +22,8 @@ const LABELS:Record<string,Copy>={
 export function LearningSpeechOptIn({language}:{language:string}){
  const {i18n}=useTranslation();
  const [status,setStatus]=useState<HighQualityStatus|"checking">("checking");
- const supported=learningSpeechRoute(language).engine==="kokoro";
+ const code=normalizeLearningLanguage(language);
+ const supported=learningSpeechRoute(code).engine==="kokoro";
  const locale=i18n.resolvedLanguage||i18n.language;
  const copy=LABELS[locale]||LABELS[locale.split("-")[0]]||LABELS.en;
  useEffect(()=>{
@@ -29,19 +31,19 @@ export function LearningSpeechOptIn({language}:{language:string}){
   let mounted=true,unsubscribe=()=>{};
   void import("./learningSpeechHighQuality").then(mod=>{
    if(!mounted)return;
-   const update=()=>{void mod.highQualityStatus(language).then(next=>{if(mounted)setStatus(next)}).catch(()=>{if(mounted)setStatus("idle")})};
+   const update=()=>{void mod.highQualityStatus(code).then(next=>{if(mounted)setStatus(next)}).catch(()=>{if(mounted)setStatus("idle")})};
    unsubscribe=mod.subscribeHighQuality(update);
    update();
   }).catch(()=>{if(mounted)setStatus("idle")});
   return()=>{mounted=false;unsubscribe()};
- },[language,supported]);
+ },[code,supported]);
  const change=async()=>{
   setStatus("loading");
   try{
    const mod=await import("./learningSpeechHighQuality");
-   if(status==="ready")await mod.removeHighQuality(language);
-   else await mod.importHighQuality(language);
-   setStatus(await mod.highQualityStatus(language));
+   if(status==="ready")await mod.removeHighQuality(code);
+   else await mod.importHighQuality(code);
+   setStatus(await mod.highQualityStatus(code));
   }catch(error){
    console.warn("[learning-speech] Optional high-quality voice action failed",error);
    setStatus("idle");
