@@ -11,6 +11,13 @@ const presets={
 };
 const languagePresets={
  en:presets,
+ es:{
+  word:"Cómodo.",
+  short:"¿Te gustaría practicar español conmigo todos los días?",
+  natural:"Al principio pensaba que aprender español consistía en memorizar cada palabra a la perfección. Después de hablar un poco cada día, descubrí que el ritmo, la confianza y las ganas de seguir practicando eran más importantes.",
+  pronunciation:"Tres tristes tigres tragaban trigo en un trigal. El perro de Rosa corre rápido por el ferrocarril.",
+  story:"El sábado por la tarde, una amiga entró en una pequeña cafetería junto al río, pidió una bebida caliente y habló de sus planes para el próximo año."
+ },
  zh:{
   word:"舒服。",
   short:"你願意每天和我一起練習說中文嗎？",
@@ -33,20 +40,22 @@ const languagePresets={
   story:"토요일 저녁에 친구는 강가에 있는 작은 카페에 들어갔어요. 따뜻한 차를 주문하고 창밖을 바라보면서 내년 계획에 대해 이야기했어요."
  }
 };
-const locales={en:"en-US",zh:"zh-TW",ja:"ja-JP",ko:"ko-KR"};
-const languageNames={en:"英文",zh:"中文",ja:"日文",ko:"韓文"};
+const locales={en:"en-US",zh:"zh-TW",ja:"ja-JP",ko:"ko-KR",es:"es-ES"};
+const languageNames={en:"英文",zh:"中文",ja:"日文",ko:"韓文",es:"西班牙文"};
 const engineLanguages={
- system:["en","zh","ja","ko"],
+ system:["en","zh","ja","ko","es"],
  kokoro:["en"],kokoroGpuQ8:["en"],kokoroGpuFp32:["en"],
- piper:["en","zh"],piperPlus:["en","zh","ja"],
- supertonicWasm:["en","ja","ko"],supertonicGpu:["en","ja","ko"],
- kitten08:["en"],nano2:["en"],pico2:["en"]
+ piper:["en","zh","es"],piperPlus:["en","zh","ja","es"],piperJapanese:["ja"],
+ supertonicWasm:["en","ja","ko","es"],supertonicGpu:["en","ja","ko","es"],
+ kitten08:["en"],nano2:["en","es"],pico2:["en","es"]
 };
 let activePreset="natural";
 const drafts={};
 for(const b of document.querySelectorAll("[data-preset]"))b.addEventListener("click",()=>{activePreset=b.dataset.preset;text.value=languagePresets[language.value][activePreset];});
 function supports(id,lang){return engineLanguages[id]?.includes(lang)===true;}
 function updateLanguageButtons(reset=false){
+ for(const el of document.querySelectorAll("[data-extra-langs]"))el.hidden=!el.dataset.extraLangs.split(",").includes(language.value);
+ $("#external-candidates").hidden=language.value==="en";
  for(const b of document.querySelectorAll("[data-engine]")){
   const id=b.dataset.engine,available=supports(id,language.value);
   b.disabled=busy||!available;
@@ -56,6 +65,7 @@ function updateLanguageButtons(reset=false){
   }
  }
 }
+$("#copy-sample").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(text.value);$("#copy-status").textContent="已複製";}catch{$("#copy-status").textContent="無法使用剪貼簿，請手動選取文字。";}});
 let previousLanguage=language.value;
 language.addEventListener("change",()=>{
  drafts[previousLanguage]=text.value;stopAll();
@@ -75,11 +85,12 @@ const SUPERTONIC_MODEL="open-world-group/Supertonic-3-ONNX";
 const KITTEN_WEB="https://cdn.jsdelivr.net/gh/KittenML/KittenTTS-web@c846fe92858f3447f4912226471f5a63983b3f94/examples/html/assets/kittentts-web.js";
 const ORT_JS="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/ort.min.js";
 const ORT_BASE="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/";
+const UCCHARAN_URL="https://esm.sh/uccharan@1.0.0";
 const PAKO_JS="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js";
 const HF="https://huggingface.co/KittenML/";
 const TINY_MODELS={
- nano2:{repo:"kitten-tts-2-nano",model:"kitten_tts_2_nano_en_int4.onnx",male:"danny"},
- pico2:{repo:"kitten-tts-2-pico",model:"kitten_tts_2_pico_en_int4.onnx",male:"otis"}
+ nano2:{repo:"kitten-tts-2-nano",model:"kitten_tts_2_nano_en_int4.onnx",esModel:"kitten_tts_2_nano_es_int4.onnx",male:"danny"},
+ pico2:{repo:"kitten-tts-2-pico",model:"kitten_tts_2_pico_en_int4.onnx",esModel:"kitten_tts_2_pico_es_int4.onnx",male:"otis"}
 };
 const engines={};
 const scripts=new Map();
@@ -157,7 +168,7 @@ async function kokoroTts(id="kokoro",device="wasm",dtype="q8"){
  await playBlob(a.toBlob(),"Kokoro "+device+" "+dtype,result);setStatus(id,result);
 }
 async function piperTts(){
- const v=sample(),rate=Number(speed.value),voiceId=language.value==="zh"?"zh_CN-huayan-medium":voice.value==="female"?"en_US-hfc_female-medium":"en_US-hfc_male-medium";stopAll();
+ const v=sample(),rate=Number(speed.value),voiceId=language.value==="zh"?"zh_CN-huayan-medium":language.value==="es"?"es_ES-carlfm-x_low":voice.value==="female"?"en_US-hfc_female-medium":"en_US-hfc_male-medium";stopAll();
  const id="piper",started=performance.now();setStatus(id,"載入 Piper runtime…");
  const sdk=engines.piperSDK||(engines.piperSDK=await import(PIPER_URL));
  const key="piper:"+voiceId,warm=!!engines[key];
@@ -172,13 +183,13 @@ async function piperTts(){
  const result=timing(ready-started,performance.now()-ready,warm);
  await playBlob(blob,"Piper WASM",result);player.playbackRate=rate;setProgress(id,100);setStatus(id,result+" · "+voiceId);
 }
-async function piperPlusTts(){
- const v=sample(),lang=language.value,rate=Number(speed.value),id="piperPlus";stopAll();
+async function piperPlusTts(id="piperPlus"){
+ const v=sample(),lang=language.value,rate=Number(speed.value),model=id==="piperJapanese"?"ayousanz/piper-plus-tsukuyomi-chan":"ayousanz/piper-plus-css10-ja-6lang";stopAll();
  const started=performance.now(),warm=!!engines[id];
  if(!warm){
   setStatus(id,"準備 Piper Plus 與發音字典…");
   const [{PiperPlus},ort]=await Promise.all([import("piper-plus"),import("onnxruntime-web")]);
-  engines[id]=await PiperPlus.initialize({model:"ayousanz/piper-plus-css10-ja-6lang",ort,onProgress:({progress,message})=>{
+  engines[id]=await PiperPlus.initialize({model,ort,onProgress:({progress,message})=>{
    if(Number.isFinite(progress))setProgress(id,progress*100);
    if(message)setStatus(id,message);
   }});
@@ -187,7 +198,7 @@ async function piperPlusTts(){
  const a=await engines[id].synthesize(v,{language:lang,lengthScale:1/rate});
  if(!a.samples?.length)throw Error("Piper Plus 未回傳有效 PCM");
  const result=timing(ready-started,performance.now()-ready,warm);
- await playBlob(a.toBlob(),"Piper Plus · "+languageNames[lang],result);
+ await playBlob(a.toBlob(),(id==="piperJapanese"?"Piper Plus:つくよみちゃん":"Piper Plus CSS10")+" · "+languageNames[lang],result);
  setProgress(id,100);setStatus(id,result+" · 固定音色（不受男女聲選擇影響）");
 }
 function splitSupertonic(value,lang){
@@ -266,19 +277,29 @@ async function tinyRuntime(){
  const phon=new sdk.CEPhonemizer({dialect:"en-us"});await phon.downloadIfNeeded("KooloTtsLabTiny");
  return engines.tinyRuntime={sdk,ort,phon};
 }
-async function loadTiny(kind){
- if(engines[kind])return engines[kind];
+async function loadTiny(kind,lang){
+ const cacheKey=kind+":"+lang;
+ if(engines[cacheKey])return engines[cacheKey];
  const cfg=TINY_MODELS[kind],base=HF+cfg.repo+"/resolve/main/";
- setStatus(kind,"準備 ONNX runtime / phonemizer…");const rt=await tinyRuntime();setProgress(kind,8);
+ setStatus(kind,"準備 ONNX runtime / phonemizer…");
+ let rt;
+ if(lang==="es"){
+  await Promise.all([loadScript(PAKO_JS),loadScript(ORT_JS)]);
+  const ort=window.ort;if(!ort)throw Error("ONNX runtime 初始化失敗");
+  ort.env.wasm.numThreads=1;ort.env.wasm.wasmPaths=ORT_BASE;
+  const {phonemize}=await import(UCCHARAN_URL);
+  rt={ort,phon:{phonemize:async value=>String(await phonemize(value,{lang:"es"}))}};
+ }else rt=await tinyRuntime();
+ setProgress(kind,8);
  const [model,voicesData,vocabData]=await Promise.all([
-  fetchCached(base+cfg.model,kind,"int4 ONNX"),
-  fetchCached(base+"voices_en.npz",kind,"英文 voice pack"),
+  fetchCached(base+(lang==="es"?cfg.esModel:cfg.model),kind,"int4 ONNX"),
+  fetchCached(base+"voices_"+lang+".npz",kind,languageNames[lang]+" voice pack"),
   fetchCached(base+"vocab.json",kind,"vocab")
  ]);
  setProgress(kind,70);const vocab=JSON.parse(new TextDecoder().decode(vocabData)),voices=parseNPZ(voicesData),key=voice.value==="female"?"eleanor":"danny";
  const embedding=voices[Object.keys(voices)[0]];if(!embedding)throw Error("找不到 voice embedding");
  setStatus(kind,"建立 ONNX session…");const session=await rt.ort.InferenceSession.create(model,{executionProviders:["wasm"],graphOptimizationLevel:"all",intraOpNumThreads:1});
- setProgress(kind,100);return engines[kind]={...rt,session,vocab,voices,cfg};
+ setProgress(kind,100);return engines[cacheKey]={...rt,session,vocab,voices,cfg};
 }
 function encodeTiny(phonemes,vocab){
  const ids=[];for(const ch of phonemes){if(Object.prototype.hasOwnProperty.call(vocab,ch))ids.push(vocab[ch]);else if(ch==="("||ch===")")ids.push(vocab[","])}
@@ -294,16 +315,16 @@ function finishTiny(samples,durations){
  const out=new Float32Array(w);const f=Math.min(120,Math.floor(out.length/8));for(let i=0;i<f;i++){out[i]*=i/Math.max(1,f-1);out[out.length-1-i]*=i/Math.max(1,f-1)}return out;
 }
 async function tinyTts(kind){
- const label=kind==="nano2"?"Kitten TTS 2 Nano int4":"Kitten TTS 2 Pico int4",v=sample();stopAll();const started=performance.now(),e=await loadTiny(kind);
- setStatus(kind,"phonemize + 生成長句…");const phonemes=await e.phon.phonemize(v),tokens=encodeTiny(phonemes,e.vocab);if(tokens.length>353)throw Error("這句對 tiny 實驗 port 太長，請換短一點的範例。");
- const key=voice.value==="female"?"eleanor":e.cfg.male,emb=e.voices[key]||e.voices[Object.keys(e.voices)[0]],row=Math.min(tokens.length-1,emb.rows-1),style=emb.data.slice(row*emb.cols,(row+1)*emb.cols);
+ const label=kind==="nano2"?"Kitten TTS 2 Nano int4":"Kitten TTS 2 Pico int4",v=sample(),lang=language.value;stopAll();const started=performance.now(),warm=!!engines[kind+":"+lang],e=await loadTiny(kind,lang),ready=performance.now();
+ setStatus(kind,"phonemize + 生成長句…");const phonemes=await e.phon.phonemize(v),tokens=encodeTiny(phonemes,e.vocab);if(tokens.length<4||tokens.length>353)throw Error("此文字的有效音素數量不適合 tiny 實驗 port，請換短一點的範例。");
+ const key=lang==="es"?(voice.value==="female"?"sofia":"pablo"):(voice.value==="female"?"eleanor":e.cfg.male),emb=e.voices[key];if(!emb)throw Error("找不到指定音色："+key);const row=Math.min(tokens.length-1,emb.rows-1),style=emb.data.slice(row*emb.cols,(row+1)*emb.cols);
  const feeds={input_ids:new e.ort.Tensor("int64",BigInt64Array.from(tokens.map(BigInt)),[1,tokens.length]),style:new e.ort.Tensor("float32",style,[1,style.length]),speed:new e.ort.Tensor("float32",Float32Array.of(Number(speed.value)),[1])};
- const r=tinyResult(await e.session.run(feeds)),pcm=finishTiny(r.samples,r.durations);await playBlob(wavBlob(pcm,24000),label,((performance.now()-started)/1000).toFixed(1)+" 秒");
- setStatus(kind,"完成 · 實驗 port（非官方 Web frontend）。");
+ const r=tinyResult(await e.session.run(feeds)),pcm=finishTiny(r.samples,r.durations);const result=timing(ready-started,performance.now()-ready,warm);await playBlob(wavBlob(pcm,24000),label+" · "+languageNames[lang],result);
+ setStatus(kind,result+" · "+key+" · 實驗 port");
 }
 
-const handlers={system:systemTts,kokoro:()=>kokoroTts(),kokoroGpuQ8:()=>kokoroTts("kokoroGpuQ8","webgpu","q8"),kokoroGpuFp32:()=>kokoroTts("kokoroGpuFp32","webgpu","fp32"),piper:piperTts,piperPlus:piperPlusTts,supertonicWasm:()=>supertonicTts("supertonicWasm","wasm"),supertonicGpu:()=>supertonicTts("supertonicGpu","webgpu"),kitten08:kitten08Tts,nano2:()=>tinyTts("nano2"),pico2:()=>tinyTts("pico2")};
+const handlers={system:systemTts,kokoro:()=>kokoroTts(),kokoroGpuQ8:()=>kokoroTts("kokoroGpuQ8","webgpu","q8"),kokoroGpuFp32:()=>kokoroTts("kokoroGpuFp32","webgpu","fp32"),piper:piperTts,piperPlus:()=>piperPlusTts(),piperJapanese:()=>piperPlusTts("piperJapanese"),supertonicWasm:()=>supertonicTts("supertonicWasm","wasm"),supertonicGpu:()=>supertonicTts("supertonicGpu","webgpu"),kitten08:kitten08Tts,nano2:()=>tinyTts("nano2"),pico2:()=>tinyTts("pico2")};
 for(const b of document.querySelectorAll("[data-engine]"))b.addEventListener("click",async()=>{const id=b.dataset.engine;if(busy||!supports(id,language.value))return;busy=true;language.disabled=true;updateLanguageButtons();try{await handlers[id]()}catch(e){console.error(e);setStatus(id,"失敗："+(e instanceof Error?e.message:String(e)),true)}finally{busy=false;language.disabled=false;updateLanguageButtons()}});
 updateLanguageButtons();
-window.addEventListener("pagehide",()=>{try{engines.piperPlus?.dispose?.()}catch{}stopAll();if(currentUrl)URL.revokeObjectURL(currentUrl);try{engines.kitten08?.dispose?.()}catch{}try{engines.tinyRuntime?.phon?.dispose?.()}catch{}});
+window.addEventListener("pagehide",()=>{try{engines.piperPlus?.dispose?.()}catch{}try{engines.piperJapanese?.dispose?.()}catch{}stopAll();if(currentUrl)URL.revokeObjectURL(currentUrl);try{engines.kitten08?.dispose?.()}catch{}try{engines.tinyRuntime?.phon?.dispose?.()}catch{}});
 })();
