@@ -16,7 +16,7 @@ export function sectionForRoute(pathname:string,search=""):CrewSection{
   return "learn";
  }
  // Personal collections reached from Mine stay on Mine, not Explore.
- if(pathname==="/story/me"||pathname==="/fortune/history"||pathname.startsWith("/fortune/purchases"))return "me";
+ if(pathname==="/story/me"||pathname==="/fortune/history"||(pathname==="/fortune/premium"&&!new URLSearchParams(search).has("history"))||pathname.startsWith("/fortune/purchases"))return "me";
  if(root==="town"||root==="magic"||root==="discover"||root==="orb"||root==="guides")return "explore";
  if(["fortune","timeline","games","story","research","briefing","circle","books","mate","souls"].includes(root))return "explore";
  if(["settings","account","privacy","usage","feedback"].includes(root))return "me";

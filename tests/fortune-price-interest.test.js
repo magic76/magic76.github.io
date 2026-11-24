@@ -33,14 +33,14 @@ test("planned 69/99 offers are distinct and no live purchase is enabled",()=>{
 test("69 website trial reads the actual chart rather than fictional sample",()=>{
  const component=read("web-spa/src/fortune/FortunePriceInterest.tsx"),page=read("web-spa/src/fortune/ReadingPage.tsx"),model=read("web-spa/src/fortune/baziWebsiteReading.ts"),view=read("web-spa/src/fortune/FortuneBaziWebsiteReading.tsx");
  assert.doesNotMatch(component,/UNLOCK_SAMPLE|虛構命盤/);
- assert.match(page,/FortunePriceInterest readingId=\{reading!\.id\} result=\{reading!\.result\}/);
- assert.match(component,/FortuneBaziWebsiteReading result=\{result\}/);
- assert.match(component,/免費閱讀我的完整解析/);
+ assert.match(page,/FortunePriceInterest readingId=\{reading!\.id\}/);
+ assert.doesNotMatch(component,/<FortuneBaziWebsiteReading/);assert.match(component,/navigate\(premiumHref\(readingId\)/);
+ assert.match(component,/免費解鎖我的完整解析/);
  assert.equal((model.match(/\btopic\("/g)||[]).length,8);
  assert.equal((model.match(/\bsection\("/g)||[]).length,24);
  for(const field of ["dayMaster","weightedFiveElements","careerProfile","wealthProfile","relationshipProfile","luckPillars","annualTimeline"])assert.ok(model.includes(field));
  assert.match(model,/length:5/);assert.match(model,/未包含該年的計算資料/);
- assert.match(view,/aria-pressed/);assert.match(view,/fortune-website-timeline/);
+ assert.match(view,/to=\{url\(t\.id\)\}/);assert.match(view,/fortune-website-timeline/);
  assert.doesNotMatch(model+view,/CrewAI\.call|fetch\(|geminiKey\(/);
 });
 
@@ -55,4 +55,31 @@ test("website model varies with actual chart and does not invent missing years",
  assert.deepEqual(a.years.map(x=>x.year),[2027,2028,2029,2030,2031]);
  assert.equal(a.years[0].ganZhi,"丁未");assert.equal(a.years[1].available,false);assert.equal(a.years[1].ganZhi,"—");
  assert.equal(a.current.ganZhi,"甲子");assert.equal(b.current,undefined);
+});
+
+test("premium reading is a separate route with chart-scoped trial history",()=>{
+ const app=read("web-spa/src/App.tsx"),page=read("web-spa/src/fortune/FortunePremiumPage.tsx"),store=read("web-spa/src/fortune/premiumStore.ts"),history=read("web-spa/src/fortune/HistoryPage.tsx"),mine=read("web-spa/src/pages/CrewSectionPage.tsx");
+ assert.match(app,/<Route path="premium" element=\{<FortunePremiumPage\/>\}/);
+ assert.match(page,/hasPremiumTrial\(id\)/);assert.match(page,/readPremiumChart\(id\)/);
+ assert.match(page,/reading=\{reading\}/);assert.match(history,/hasPremiumTrial\(x\.id\)/);
+ assert.match(history,/clearPremiumTrials\(\)/);assert.match(history,/removePremiumTrial\(x\.id\)/);
+ assert.match(mine,/to="\/fortune\/premium"/);
+ assert.doesNotMatch(store+page,/fetch\(|CrewAI\.call|paymentIntent|geminiKey\(/);
+});
+test("local premium free trial does not unlock other charts or resurrect deleted records",async()=>{
+ const orig=global.localStorage;const map=new Map();
+ global.localStorage={getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,String(v)),removeItem:k=>map.delete(k)};
+ try{
+  const s=await import("../web-spa/src/fortune/premiumStore.ts");
+  const a={id:"a",mode:"bazi",result:{dayMaster:"甲"}},b={id:"b",mode:"bazi",result:{dayMaster:"乙"}},other={id:"other",mode:"tarot",result:{dayMaster:"甲"}};
+  map.set("crew_fortune_readings_v2",JSON.stringify([a,b,other]));
+  assert.equal(s.unlockPremiumTrial("a"),true);assert.equal(s.hasPremiumTrial("b"),false);assert.equal(s.unlockPremiumTrial("other"),false);
+  assert.deepEqual(s.readPremiumTrials().map(x=>x.id),["a"]);
+  assert.match(s.premiumHref("a","life"),/\/fortune\/premium\?history=a&chapter=life/);
+  map.set("crew_fortune_readings_v2",JSON.stringify([b]));
+  assert.equal(s.hasPremiumTrial("a"),false);assert.deepEqual(s.readPremiumTrials(),[]);
+  assert.equal(s.unlockPremiumTrial("b"),true);s.removePremiumTrial("b");assert.equal(s.hasPremiumTrial("b"),false);
+  assert.equal(s.unlockPremiumTrial("b"),true);s.clearPremiumTrials();assert.deepEqual(s.readPremiumTrials(),[]);
+  map.set("crew_fortune_readings_v2","invalid");assert.equal(s.unlockPremiumTrial("b"),false);
+ }finally{global.localStorage=orig}
 });

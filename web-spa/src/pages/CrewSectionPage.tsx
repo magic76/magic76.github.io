@@ -330,7 +330,12 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
        <span className="crew-section-card-copy"><strong>{tCommon("auth.account")}</strong><small>{tCommon("auth.intro")}</small></span>
        <Arrow className="crew-section-arrow"/>
       </Link>}
-      {section==="me"&&<Link className="crew-section-card" to="/fortune/purchases">
+      {section==="me"&&<Link className="crew-section-card" to="/fortune/premium">
+        <span className="crew-section-card-icon"><Icon name="fortune"/></span>
+        <span className="crew-section-card-copy"><strong>{en?"My life readings":"我的人生解析"}</strong><small>{en?"Reopen unlocked free-trial readings in this browser.":"重新閱讀此瀏覽器已解鎖的專屬人生解析。"}</small></span>
+        <Arrow className="crew-section-arrow"/>
+       </Link>}
+       {section==="me"&&<Link className="crew-section-card" to="/fortune/purchases">
        <span className="crew-section-card-icon"><Icon name="fortune"/></span>
        <span className="crew-section-card-copy"><strong>{en?"Purchased fortune reports":"已購買命理報告"}</strong><small>{en?"Reopen a paid report on any device after signing in.":"登入後跨裝置重新閱讀已購買的完整報告。"}</small></span>
        <Arrow className="crew-section-arrow"/>

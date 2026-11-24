@@ -1,18 +1,20 @@
 import{useEffect,useRef,useState}from"react";
 import{useTranslation}from"react-i18next";
-import{Link}from"react-router-dom";
+import{Link,useNavigate}from"react-router-dom";
 import{trackUsageEvent}from"../analytics/usage";
 import"./fortunePriceInterest.css";
-import{FortuneBaziWebsiteReading}from"./FortuneBaziWebsiteReading";
+import{hasPremiumTrial,unlockPremiumTrial,premiumHref}from"./premiumStore";
 const INTEREST_KEY="koolo_fortune_bazi_interest_v1";
 const viewed=new Set<string>();
 let interestRecordedThisSession=false;
 function savedInterest(){try{return localStorage.getItem(INTEREST_KEY)==="yes"}catch{return false}}
-export function FortunePriceInterest({readingId,result}:{readingId:string;result:any}){
+export function FortunePriceInterest({readingId}:{readingId:string}){
  const{i18n}=useTranslation();
  const zh=/^zh(?:-|$)/i.test(i18n.resolvedLanguage||i18n.language);
  const copy=(z:string,e:string)=>zh?z:e;
- const[opened,setOpened]=useState(false);
+ const navigate=useNavigate();
+ const unlocked=hasPremiumTrial(readingId);
+ const[unlockError,setUnlockError]=useState(false);
  const[stageReady,setStageReady]=useState(false);
  useEffect(()=>{const controller=new AbortController();void fetch("/api/fortune/ecpay/test-config",{credentials:"same-origin",cache:"no-store",signal:controller.signal}).then(r=>{if(r.ok&&!controller.signal.aborted)setStageReady(true)}).catch(()=>{});return()=>controller.abort()},[]);
  const seen=useRef(new Set<string>());
@@ -27,18 +29,19 @@ export function FortunePriceInterest({readingId,result}:{readingId:string;result
   </div>
   <p>{copy("從性格到未來五年，先免費閱讀自己的完整解析。","Explore your personality and the next five years free.")}</p>
   <div className="fortune-product-options">
-   <article className="fortune-product-option">
-    <span className="fortune-price-interest-eyebrow">{copy("在網站閱讀","Read on the website")}</span>
-    <div className="fortune-product-title"><h4>{copy("完整人生解析","Full life reading")}</h4><div className="fortune-trial-price"><s>NT$69</s><strong>{copy("限時免費","Free trial")}</strong></div></div>
+   <article className="fortune-product-option fortune-product-premium">
+    <span className="fortune-price-interest-eyebrow">{copy("你的專屬命理空間","Your personal reading space")}</span>
+    <div className="fortune-product-title"><h4>{copy("完整人生解析","Full life reading")}</h4><div className="fortune-trial-price">{unlocked?<strong>{copy("已解鎖","Unlocked")}</strong>:<><s>NT$69</s><strong>{copy("限時免費","Free trial")}</strong></>}</div></div>
     <p>{copy("完整命盤解鎖：依你的個人命盤整理 8 大主題、24 個解析細項，包含未來五年逐年解讀。","Full chart unlock: 8 topics, 24 insights and five individual years based on your chart.")}</p>
     <div className="fortune-trial-topics">{[["性格天賦","Personality"],["事業發展","Career"],["財富格局","Resources"],["愛情伴侶","Love"],["人際家庭","People"],["人生階段","Life stages"],["未來五年","Five years"],["行動建議","Action guide"]].map(([z,e])=><span key={z}>{copy(z,e)}</span>)}</div>
-    <button type="button" className="fortune-price-interest-button" aria-expanded={opened} aria-controls="fortune-personal-trial" onClick={()=>{
-     setOpened(v=>!v);
-     if(!opened&&!savedInterest()&&!interestRecordedThisSession){interestRecordedThisSession=true;try{localStorage.setItem(INTEREST_KEY,"yes")}catch{}trackUsageEvent("fortune_price_interest","bazi")}
-    }}>{opened?copy("收合完整解析","Close full reading"):copy("免費閱讀我的完整解析","Read my full reading free")}</button>
-    <small>{copy("預定原價 NT$69 · 目前免費閱讀，不需付款。","Planned regular price NT$69 · Read free now, no payment.")}</small>
+    {unlocked?<Link className="fortune-price-interest-button fortune-price-interest-link" to={premiumHref(readingId)}>{copy("進入我的人生解析","Open my life reading")} <span aria-hidden="true">→</span></Link>:<button type="button" className="fortune-price-interest-button" onClick={()=>{
+     if(!unlockPremiumTrial(readingId)){setUnlockError(true);return}
+     if(!savedInterest()&&!interestRecordedThisSession){interestRecordedThisSession=true;try{localStorage.setItem(INTEREST_KEY,"yes")}catch{}trackUsageEvent("fortune_price_interest","bazi")}
+     navigate(premiumHref(readingId),{state:{justUnlocked:true}});
+    }}>{copy("免費解鎖我的完整解析","Unlock my full reading free")} <span aria-hidden="true">→</span></button>}
+    {unlockError&&<p role="alert">{copy("無法保存這筆命盤的解鎖紀錄，請確認瀏覽器允許本機儲存後重試。","Unable to save this reading. Allow browser storage and try again.")}</p>}
+    <small>{unlocked?copy("已保存在這個瀏覽器的命盤紀錄中。","Saved with your charts on this browser."):copy("預定原價 NT$69 · 目前免費閱讀，不需付款。","Planned regular price NT$69 · Read free now, no payment.")}</small>
    </article>
-   <div id="fortune-personal-trial" className="fortune-trial-reading" hidden={!opened}>{opened&&<FortuneBaziWebsiteReading result={result} zh={zh}/>}</div>
    <article className="fortune-product-option fortune-product-book">
     <span className="fortune-price-interest-eyebrow">{copy("閱讀與收藏","Read and keep")}</span>
     <div className="fortune-product-title"><h4>{copy("專屬一生命書","Personal life book")}</h4><strong>NT$99</strong></div>
