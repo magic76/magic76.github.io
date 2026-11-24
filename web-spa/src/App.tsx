@@ -31,7 +31,7 @@ const FortuneLayout=lazy(()=>import("./fortune/FortuneLayout").then(m=>({default
 const VoiceLabPage=lazy(()=>import("./teacher/VoiceLabPage").then(m=>({default:m.VoiceLabPage})));
 const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(m=>({default:m.UsageDashboardPage})));
 const FeedbackInboxPage=lazy(()=>import("./analytics/FeedbackInboxPage").then(m=>({default:m.FeedbackInboxPage})));
-const AccountPage=lazy(()=>import("./pages/AccountPage").then(m=>({default:m.AccountPage})));const VoiceCreditsPage=lazy(()=>import("./pages/VoiceCreditsPage").then(m=>({default:m.VoiceCreditsPage})));
+const AccountPage=lazy(()=>withNamespace("voice",import("./pages/AccountPage")).then(m=>({default:m.AccountPage})));const VoiceCreditsPage=lazy(()=>import("./pages/VoiceCreditsPage").then(m=>({default:m.VoiceCreditsPage})));
 const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:m.TimelinePage})));
 
 
