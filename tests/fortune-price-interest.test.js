@@ -43,3 +43,16 @@ test("69 website trial reads the actual chart rather than fictional sample",()=>
  assert.match(view,/aria-pressed/);assert.match(view,/fortune-website-timeline/);
  assert.doesNotMatch(model+view,/CrewAI\.call|fetch\(|geminiKey\(/);
 });
+
+test("website model varies with actual chart and does not invent missing years",async()=>{
+ const {buildBaziWebsiteReading}=await import("../web-spa/src/fortune/baziWebsiteReading.ts");
+ const a=buildBaziWebsiteReading({dayMaster:"甲",dayMasterElement:"木",careerProfile:{resourceCount:4,outputCount:1,officerCount:2},wealthProfile:{directWealthCount:3,indirectWealthCount:0},relationshipProfile:{spousePalace:"子"},luckPillars:[{ganZhi:"甲子",startYear:2020,endYear:2029}],annualTimeline:[{year:2027,ganZhi:"丁未",stemTenGod:"食神",luckPillar:"甲子"}]},2026);
+ const b=buildBaziWebsiteReading({dayMaster:"壬",dayMasterElement:"水",careerProfile:{resourceCount:0,outputCount:4,officerCount:1},wealthProfile:{directWealthCount:0,indirectWealthCount:3}},2026);
+ assert.equal(a.topics.length,8);assert.equal(a.topics.flatMap(x=>x.sections).length,24);
+ assert.notEqual(a.topics[0].sections[0].body[0],b.topics[0].sections[0].body[0]);
+ assert.match(a.topics[0].sections[0].body[0],/樹幹/);assert.match(b.topics[0].sections[0].body[0],/江海/);
+ assert.match(a.topics[1].sections[0].body[0],/學習與方法/);assert.match(b.topics[1].sections[0].body[0],/表達與成果/);
+ assert.deepEqual(a.years.map(x=>x.year),[2027,2028,2029,2030,2031]);
+ assert.equal(a.years[0].ganZhi,"丁未");assert.equal(a.years[1].available,false);assert.equal(a.years[1].ganZhi,"—");
+ assert.equal(a.current.ganZhi,"甲子");assert.equal(b.current,undefined);
+});

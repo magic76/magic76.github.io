@@ -10,12 +10,25 @@ const count=(v:unknown)=>typeof v==="number"&&Number.isFinite(v)&&v>=0?v:null;
 const show=(v:number|null)=>v===null?"—":String(v);
 const list=(v:unknown)=>Array.isArray(v)?v.filter(x=>typeof x==="string"&&x.trim()).join("、"):"";
 const elements:Record<string,Pair>={木:pair("循序成長、建立方向","gradual growth and direction"),火:pair("表達、連結與推動","expression and momentum"),土:pair("穩定、整合與承接","stability and integration"),金:pair("判斷、原則與取捨","judgment and structure"),水:pair("觀察、理解與調整","observation and flexibility")};
+const stems:Record<string,Pair>={
+ 甲:pair("像樹幹向上延伸，著重長期方向與原則。優勢是把分散的努力累積成一個可持續的目標，盲點是方向確立後不容易及時轉彎。","Like a growing trunk: long-term direction and principles, with a possible reluctance to change course."),
+ 乙:pair("像藤蔓依環境延展，著重協調、適應與逐步成長。優勢是能找到不同人的連接點，盲點是顧慮太多而延後自己的決定。","Like a vine: adaptability and connecting people, with a risk of delaying your own decisions."),
+ 丙:pair("像陽光向外照耀，著重分享、推進與公開表達。優勢是讓想法被看見並帶動氣氛，盲點是容易把一時的熱情當成長期承諾。","Like sunlight: outward expression and momentum, with a risk of mistaking enthusiasm for lasting commitment."),
+ 丁:pair("像燈火集中照亮局部，著重細節、感受與持續投入。優勢是深入掌握小範圍問題，盲點是太在意他人的反應或局部細節。","Like a lamp: focused attention and sensitivity, with a risk of dwelling on small details or reactions."),
+ 戊:pair("像山地提供穩固支撐，著重承諾、秩序和長期承擔。優勢是維持事情的連續性，盲點是可能把維持現狀看得比更新方法更重要。","Like a mountain: reliability and continuity, with a risk of prioritizing the status quo."),
+ 己:pair("像田園整理並滋養各種資源，著重實用、分配與照顧。優勢是把不同需求安排妥當，盲點是太常為別人承擔額外的工作。","Like cultivated soil: practical resource allocation and care, with a risk of taking on too much."),
+ 庚:pair("像未經打磨的金屬，著重效率、取捨與直接解決問題。優勢是能在複雜情境中做明確決定，盲點是可能低估他人需要的理解時間。","Like raw metal: clear decisions and efficiency, with a risk of overlooking others' pace."),
+ 辛:pair("像精細加工的金屬，著重品質、標準與精準辨識。優勢是能看見容易被忽略的差異，盲點是反覆修正而難以接受已經足夠好的成果。","Like refined metal: precision and quality, with a risk of endless refinement."),
+ 壬:pair("像江海流動，著重探索、整合資訊與開拓可能。優勢是能連接不同領域的想法，盲點是同時投入太多方向而分散精力。","Like a river or ocean: exploration and connecting ideas, with a risk of spreading effort too thin."),
+ 癸:pair("像雨露滲入細處，著重觀察、累積理解與細微調整。優勢是能留意變化中的小訊號，盲點是資訊尚不完整時可能遲遲不願採取行動。","Like rain: observation and subtle adjustment, with a risk of delaying action until information is complete.")
+};
 const gods:Record<string,Pair>={正印:pair("累積知識與支援","learning and support"),偏印:pair("獨立研究與新方法","independent research"),食神:pair("創作與穩定輸出","steady creative output"),傷官:pair("表達與改善流程","expression and improvement"),正官:pair("責任與制度","responsibility and structure"),七殺:pair("挑戰與決策","challenge and decisions"),正財:pair("穩定資源與規劃","steady resource planning"),偏財:pair("機會與彈性資源","opportunities and flexibility"),比肩:pair("自主與同儕合作","autonomy and peer collaboration"),劫財:pair("競爭與資源界線","competition and resource boundaries")};
 const god=(v:unknown)=>gods[String(v)]||pair("生活重心的調整","adjusting priorities");
 const arr=(v:unknown):any[]=>Array.isArray(v)?v:[];
 export function buildBaziWebsiteReading(r:any,year:number){
  const dm=str(r?.dayMaster), strength=str(r?.dayMasterStrength), element=str(r?.dayMasterElement);
  const nature=elements[element]||pair("自身的行動方式","personal ways of acting");
+ const archetype=stems[dm.charAt(0)];
  const career=r?.careerProfile||{},wealth=r?.wealthProfile||{},rel=r?.relationshipProfile||{};
  const resource=count(career.resourceCount),output=count(career.outputCount),officer=count(career.officerCount);
  const ranked=[{n:resource,z:"學習與方法",e:"learning and methods"},{n:output,z:"表達與成果",e:"expression and delivery"},{n:officer,z:"責任與管理",e:"responsibility and management"}].filter(x=>x.n!==null).sort((a,b)=>b.n!-a.n!);
@@ -44,7 +57,7 @@ export function buildBaziWebsiteReading(r:any,year:number){
  });
  const topics=[
  topic("personality","核心性格","Core personality",[
- section("你的性格底色","Your baseline","你的日主是「"+dm+"」，五行屬"+element+"，在傳統八字裡代表"+nature[0]+"的處事象徵。這不表示你在每個情境都會有相同反應，而是提供一個理解自己決策習慣的角度。當外部要求與個人節奏不一致時，先分清楚是目標本身不認同，還是執行方式不適合；兩者需要的調整完全不同。","Your day master is "+dm+" ("+element+"), traditionally associated with "+nature[1]+". Distinguish disagreement with a goal from discomfort with the way it is pursued; each calls for a different adjustment."),
+ section("你的性格底色","Your baseline","你的日主是「"+dm+"」，五行屬"+element+"，在傳統八字裡代表"+nature[0]+"的處事象徵。"+(archetype?archetype[0]:"")+"這不表示你在每個情境都會有相同反應，而是提供一個理解自己決策習慣的角度。當外部要求與個人節奏不一致時，先分清楚是目標本身不認同，還是執行方式不適合；兩者需要的調整完全不同。","Your day master is "+dm+" ("+element+"), traditionally associated with "+nature[1]+". "+(archetype?archetype[1]+" ":"")+"Distinguish disagreement with a goal from discomfort with the way it is pursued; each calls for a different adjustment."),
  section("天賦如何發揮","Putting strengths to work","加權五行較突出的是"+high+"，而日主本身的力量描述為"+strength+"。前者反映命盤中不同元素的相對配置，後者是對日主所受支持與消耗的估計，不是能力高低的評分。適合把優勢放進有明確成果的情境，例如把熟悉的知識整理成流程、把經驗轉成作品，再用別人的真實回饋校正判斷。","Weighted elements most prominent: "+high+"; day-master strength: "+strength+". Neither measures talent. Put strengths into concrete outputs and use real feedback to refine your judgment."),
  section("性格盲點與壓力反應","Blind spots and pressure","命盤提供的調和元素線索為"+(balance||"—")+"。這類符號可用來提醒自己不要長期只使用同一種處事方式，而不是要求改變本性。例如遇到壓力時，把事情拆成需要立即處理、可以延後、應該交給他人的三類；在做重大選擇之前，先確認自己有足夠的資訊和休息，不用把疲憊誤認成能力不足。","Balancing elements: "+(balance||"not available")+". Treat this as a reminder to diversify responses, not a demand to change your nature. Separate urgent, deferrable and delegable tasks before making major choices.")
  ]),
