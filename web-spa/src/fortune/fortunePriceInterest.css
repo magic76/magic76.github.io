@@ -1,14 +1,34 @@
 .fortune-price-interest{margin:16px 0;padding:18px;border:1px solid var(--border,#d9e2eb);border-radius:18px;background:var(--surface,#fff);display:grid;gap:12px}
 .fortune-price-interest-heading{display:flex;justify-content:space-between;align-items:start;gap:12px}
 .fortune-price-interest-heading h3{font-size:1.1rem;margin:4px 0 0}
-.fortune-price-interest-heading strong{white-space:nowrap;font-size:1.2rem}
+.fortune-price-interest-heading>div{flex:1;min-width:0}
+.fortune-price-interest-heading strong{max-width:48%;min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:right;font-size:1.2rem}
 .fortune-price-interest-heading strong small{display:block;font-size:.7rem;font-weight:400;text-align:right}
 .fortune-price-interest-eyebrow{font-size:.75rem;opacity:.8}
 .fortune-price-interest p{margin:0;line-height:1.6}
 .fortune-price-interest-button{width:100%;min-height:44px;border:0;border-radius:12px;background:#244b76;color:#fff;font-weight:700;cursor:pointer}
 .fortune-price-interest-thanks{font-weight:700}
 .fortune-price-interest>small{font-size:.75rem;line-height:1.5;opacity:.8}
-@media(max-width:380px){.fortune-price-interest-heading{flex-direction:column}.fortune-price-interest-heading strong small{display:inline;text-align:left;margin-left:6px}}
+@media(max-width:380px){.fortune-price-interest-heading{flex-direction:column}.fortune-price-interest-heading strong{max-width:100%;text-align:left}.fortune-price-interest-heading strong small{display:inline;text-align:left;margin-left:6px}}
 
 .fortune-price-interest-preview{border:1px solid var(--border,#d9e2eb);border-radius:12px;padding:12px;font-size:.9rem}
 .fortune-price-interest-preview ul{margin:8px 0 0;padding-left:20px;line-height:1.6}
+
+.fortune-product-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fortune-product-option{min-width:0;border:1px solid var(--border,#d9e2eb);border-radius:14px;padding:12px;display:grid;align-content:start;gap:8px;overflow-wrap:anywhere}
+.fortune-product-book{border-color:#b69a65}
+.fortune-product-title{display:flex;align-items:baseline;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.fortune-product-title h4{margin:0;font-size:1rem;line-height:1.4}
+.fortune-product-title strong{font-size:1.25rem;white-space:nowrap}
+.fortune-product-option p,.fortune-product-option li{font-size:.88rem;line-height:1.6}
+.fortune-product-option ul{margin:0;padding-inline-start:1.2em}
+.fortune-product-option small{font-size:.76rem;line-height:1.5;color:inherit;opacity:.85}
+@media(max-width:560px){.fortune-product-options{grid-template-columns:minmax(0,1fr)}}
+
+.fortune-unlock-sample{border-top:1px solid var(--border,#d9e2eb);padding-top:8px;min-width:0}
+.fortune-unlock-sample summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.88rem;font-weight:700;list-style:none}
+.fortune-unlock-sample summary::after{content:"+";flex:none;font-size:1.1rem}
+.fortune-unlock-sample details[open]>summary::after,.fortune-unlock-sample[open]>summary::after{content:"−"}
+.fortune-unlock-sample details{border-top:1px solid var(--border,#d9e2eb)}
+.fortune-unlock-sample details p{margin:4px 0 12px}
+.fortune-unlock-sample-note{margin-bottom:8px!important;opacity:.8}

@@ -1,9 +1,8 @@
-.crew-arrow{display:inline-flex;align-items:center;justify-content:center;flex:none;vertical-align:middle;width:32px;height:32px;border-radius:999px;background:#285a48;color:#fff;box-sizing:border-box;line-height:1}
+/* Direction glyph only; the parent link/button supplies surface, focus and hit area. */
+.crew-arrow{display:inline-flex;align-items:center;justify-content:center;flex:none;vertical-align:middle;width:20px;height:20px;background:transparent;color:inherit;box-sizing:border-box;line-height:1}
 .crew-arrow svg{display:block;flex:none}
-.crew-arrow.is-disabled,[disabled]>.crew-arrow,[aria-disabled="true"]>.crew-arrow{background:#e2e6e3;color:#68776d;box-shadow:inset 0 0 0 1px #aab8ad}
+.crew-arrow.is-disabled,[disabled]>.crew-arrow,[aria-disabled="true"]>.crew-arrow{opacity:.5}
 a:focus-visible .crew-arrow,button:focus-visible .crew-arrow{outline:2px solid currentColor;outline-offset:3px}
-.crew-arrow--small{width:26px;height:26px}
+.crew-arrow--small{width:20px;height:20px}
 .crew-arrow--plain{width:20px;height:20px;background:transparent;color:inherit}
-.crew-arrow--plain.is-disabled,[disabled]>.crew-arrow--plain{background:#e2e6e3;color:#68776d}
 .crew-arrow--card{margin-left:auto;align-self:flex-end}
-@media(max-width:800px){.crew-arrow{width:32px;height:32px}.crew-arrow--plain{width:20px;height:20px}.crew-arrow--small{width:26px;height:26px}}

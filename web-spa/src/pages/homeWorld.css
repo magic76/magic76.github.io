@@ -1,9 +1,7 @@
 
 .crew-home-world .crew-home-shorts-controls{gap:10px}
 .crew-home-world .crew-home-shorts-controls button:disabled{opacity:1;background:#e2e6e3;border-color:#aab8ad;color:#68776d}
-.crew-home-world .crew-home-shorts-controls .crew-arrow{background:#285a48;color:#fff}
-.crew-home-world .crew-home-shorts-controls button:disabled .crew-arrow{background:#e2e6e3;color:#68776d}
-.crew-home-world .crew-arrow.crew-home-world-explore-arrow{color:#fff;background:#285a48;font-size:inherit}
+.crew-home-world .crew-arrow.crew-home-world-explore-arrow{color:inherit;font-size:inherit}
 /* The portal and real Shorts feed share one world. Everything is scoped to this
    homepage wrapper; the full Shorts page and existing app surfaces stay intact. */
 .crew-home-world{
@@ -69,7 +67,7 @@
 .crew-home-world-explore-icon{display:grid;place-items:center;flex:none;width:34px;height:38px;color:#d9bfe7}
 .crew-home-world-explore-icon svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.2}
 .crew-home-world-timeline-icon{font:40px Georgia,serif}
-.crew-home-world-explore-arrow{margin-left:auto;color:#fff;font-size:19px}
+.crew-home-world-explore-arrow{margin-left:auto;color:inherit;font-size:19px}
 @media(max-width:900px){
  .crew-home-world .crew-home-short-card,.crew-home-world .crew-home-short-placeholder{flex-basis:calc((100% - 32px)/3);height:295px;min-height:295px}
  .crew-home-world .crew-home-short-end-link{min-height:295px}
@@ -121,10 +119,10 @@
 .crew-home-world .crew-home-recent-copy strong{color:#f7f1e8}
 .crew-home-world .crew-home-recent-copy small{color:#c4b6cf;font-size:12px}
 .crew-home-world .crew-home-recent .crew-home-recent-art{background:#362845;color:#d9c1ff}
-.crew-home-world .crew-home-recent-arrow{color:#fff}
+.crew-home-world .crew-home-recent-arrow{color:inherit}
 @media(max-width:620px){
  .crew-home-world .crew-home-continue{margin:0 18px 20px;padding-top:14px}
- .crew-home-world .crew-home-recent{grid-template-columns:52px minmax(0,1fr) 18px;gap:11px;min-height:87px;padding:12px;border-radius:16px}
+ .crew-home-world .crew-home-recent{grid-template-columns:52px minmax(0,1fr) 20px;gap:11px;min-height:87px;padding:12px;border-radius:16px}
  .crew-home-world .crew-home-recent-art{height:52px;width:52px;border-radius:12px}
  .crew-home-world .crew-home-recent-copy strong{font-size:14px}
 }

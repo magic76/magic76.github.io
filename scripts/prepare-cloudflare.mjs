@@ -110,6 +110,11 @@ for(const folder of ["features","assets","social"]){
  if(!existsSync(join(root,folder)))throw Error("Required public asset folder is missing: "+folder);
  cpSync(join(root,folder),join(out,folder),{recursive:true,force:false,errorOnExist:false});
 }
+// Private report reader: serve the pinned MIT browser bundle from our own origin.
+const flipVendor=join(out,"assets","vendor","page-flip-2.0.7");
+mkdirSync(flipVendor,{recursive:true});
+cpSync(join(root,"node_modules","page-flip","dist","js","page-flip.browser.js"),join(flipVendor,"page-flip.browser.js"));
+cpSync(join(root,"node_modules","page-flip","LICENSE"),join(flipVendor,"LICENSE"));
 for(const filename of ["crew.js","crew-live.js","crew-live-input-worklet.js","crew-live-output-worklet.js","crew-live-ui.js","robots.txt","sitemap.xml","seo.css","_headers","_routes.json"]){
  if(!existsSync(join(root,filename)))throw Error("Required static runtime file is missing: "+filename);
  cpSync(join(root,filename),join(out,filename));
@@ -207,7 +212,7 @@ for(const {code,stage} of previewLocales){
 // routes out of these rewrites; do not use a broad wildcard over /games or /research.
 const privatePaths=[
  "/phone","/chat","/explore","/mate","/town","/magic","/learn","/me","/orb",
- "/settings","/account","/privacy","/usage","/usage/feedback","/feedback","/research/board",
+ "/settings","/account","/privacy","/usage","/usage/feedback","/feedback","/purchase-info","/me/orders","/research/board",
  "/briefing","/briefing/board","/friend/live","/teacher/live","/teacher/voice-lab","/teacher/board",
  ...["practice","fortune","shorts","friends","roles","learn","tutor","me","vocabulary","course","pronunciation","textbook","phrasebook","reports","memory","reading-library"].map(s=>"/teacher/"+s),
  ...["shelf","me","create","physical","live"].map(s=>"/story/"+s),

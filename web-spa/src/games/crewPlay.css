@@ -1,8 +1,8 @@
 
 /* Shared Arrow: reserve a stable right-edge slot for every game card. */
-.crew-play-game-card{grid-template-columns:86px minmax(0,1fr) 32px}
-.crew-play-game-card .crew-play-open{justify-self:end;align-self:end;width:32px;height:32px;font-size:inherit;color:#fff}
-@media(max-width:800px){.crew-play-game-card{grid-template-columns:72px minmax(0,1fr) 32px}}
+.crew-play-game-card{grid-template-columns:86px minmax(0,1fr) 20px}
+.crew-play-game-card .crew-play-open{justify-self:end;align-self:end;width:20px;height:20px;font-size:inherit;color:inherit}
+@media(max-width:800px){.crew-play-game-card{grid-template-columns:72px minmax(0,1fr) 20px}}
 /* Crew Play: isolated, responsive app surfaces (does not modify Teacher or Story). */
 .crew-play-page{width:min(100%,1020px);margin:0 auto;padding:18px 16px max(65px,env(safe-area-inset-bottom))}
 .crew-play-hero,.crew-play-game-header{position:relative;text-align:center;margin:8px 0 25px}
@@ -11,7 +11,7 @@
 .crew-play-hero h1,.crew-play-game-header h1{font-size:clamp(27px,5vw,38px);line-height:1.25;letter-spacing:-.035em;margin:14px 0 7px}
 .crew-play-hero p,.crew-play-game-header p{font-size:13px;color:var(--muted);line-height:1.7;margin:0 auto;max-width:560px}
 .crew-play-catalog{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:15px}
-.crew-play-game-card{display:grid;grid-template-columns:86px minmax(0,1fr) 14px;align-items:center;gap:13px;min-height:118px;padding:13px;border-radius:20px;border:1px solid var(--line);background:var(--surface,#fff);color:var(--text);text-decoration:none;box-shadow:0 5px 25px #17194908;transition:transform .18s,border-color .18s}
+.crew-play-game-card{display:grid;grid-template-columns:86px minmax(0,1fr) 20px;align-items:center;gap:13px;min-height:118px;padding:13px;border-radius:20px;border:1px solid var(--line);background:var(--surface,#fff);color:var(--text);text-decoration:none;box-shadow:0 5px 25px #17194908;transition:transform .18s,border-color .18s}
 .crew-play-game-card:hover,.crew-play-game-card:focus-visible{transform:translateY(-3px);border-color:#9990d8}
 .crew-play-game-art{height:90px;border-radius:15px;display:grid;place-items:center;font-size:45px;font-weight:700;color:#fff;background:radial-gradient(circle at 25% 18%,#e7a56c,#a24c5c)}
 .crew-play-game-art.game-1{background:radial-gradient(circle at 26% 20%,#ffcf56,#de7256)}
@@ -87,7 +87,7 @@
 .crew-play-question-grid button{display:flex;align-items:center;justify-content:space-between;gap:7px;min-height:49px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface,#fff);color:var(--text);text-align:left;font:inherit;font-size:12px;cursor:pointer}
 .crew-play-question-grid button.asked{background:#f2f2fb;cursor:default;color:#747390}
 .crew-play-question-grid strong{flex:none;font-size:11px;color:#6462b1}
-.crew-play-question-arrow{flex:none;color:#fff}
+.crew-play-question-arrow{flex:none;color:inherit}
 .crew-play-question-history{padding:11px;border-radius:12px;background:var(--surface-secondary,#f6f7fa)}
 .crew-play-question-history>strong{font-size:12px}
 .crew-play-question-history ul{display:grid;gap:5px;padding:0;margin:9px 0 0;list-style:none}
@@ -109,7 +109,7 @@
  .crew-play-hero,.crew-play-game-header{padding-top:36px}
  .crew-play-game-header h1{margin-top:5px}
  .crew-play-catalog{grid-template-columns:1fr;gap:9px}
- .crew-play-game-card{min-height:92px;grid-template-columns:72px minmax(0,1fr) 14px;padding:9px}
+ .crew-play-game-card{min-height:92px;grid-template-columns:72px minmax(0,1fr) 20px;padding:9px}
  .crew-play-game-art{height:72px;font-size:36px}
  .crew-play-board-panel{padding:10px 6px}
  .crew-connect-board{padding:4px;border-width:3px;border-radius:10px}

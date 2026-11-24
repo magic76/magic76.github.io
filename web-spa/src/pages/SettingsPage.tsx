@@ -68,12 +68,12 @@ export function SettingsPage(){
   <Arrow className="crew-settings-orb-arrow"/>
  </Link>}
  {showOverview&&<nav className="crew-settings-nav" aria-label={t("group.navAria")}>
-  <a href="#settings-interface"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{english?"Interface language":"介面語言"}</strong><small>{english?"Change display language":"更改顯示語言"}</small></span><Arrow/></a>
-  <a href="#settings-learning"><span className="crew-settings-nav-icon"><Icon name="teacher"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navLearning")}</strong><small>{t("group.learningIntro")}</small></span><Arrow/></a>
-  <a href="#settings-voice"><span className="crew-settings-nav-icon"><Icon name="mic"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navVoice")}</strong><small>{t("group.voiceIntro")}</small></span><Arrow/></a>
-  <a href="#settings-data"><span className="crew-settings-nav-icon"><Icon name="history"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navMemory")}</strong><small>{t("group.memoryIntro")}</small></span><Arrow/></a>
-  <a href="#settings-device"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navDevice")}</strong><small>{t("device.heading")}</small></span><Arrow/></a>
-  <a href="#settings-advanced"><span className="crew-settings-nav-icon"><Icon name="sparkles"/></span><span className="crew-settings-nav-copy"><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><Arrow/></a>
+  <a href="#settings-interface"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{english?"Interface language":"介面語言"}</strong><small>{english?"Change display language":"更改顯示語言"}</small></span><Arrow direction="chevron-right"/></a>
+  <a href="#settings-learning"><span className="crew-settings-nav-icon"><Icon name="teacher"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navLearning")}</strong><small>{t("group.learningIntro")}</small></span><Arrow direction="chevron-right"/></a>
+  <a href="#settings-voice"><span className="crew-settings-nav-icon"><Icon name="mic"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navVoice")}</strong><small>{t("group.voiceIntro")}</small></span><Arrow direction="chevron-right"/></a>
+  <a href="#settings-data"><span className="crew-settings-nav-icon"><Icon name="history"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navMemory")}</strong><small>{t("group.memoryIntro")}</small></span><Arrow direction="chevron-right"/></a>
+  <a href="#settings-device"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navDevice")}</strong><small>{t("device.heading")}</small></span><Arrow direction="chevron-right"/></a>
+  <a href="#settings-advanced"><span className="crew-settings-nav-icon"><Icon name="sparkles"/></span><span className="crew-settings-nav-copy"><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><Arrow direction="chevron-right"/></a>
  </nav>}
  {!showOverview&&<button type="button" className="crew-settings-back" onClick={backToOverview}><Arrow direction="left" className="crew-arrow--plain"/> {english?"All settings":"所有設定"}</button>}
  <div className={"crew-settings-content"+(activeCategory?" active-"+activeCategory:"")}>
