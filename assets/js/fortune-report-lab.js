@@ -176,7 +176,7 @@ function sampleBook(){
    })},
   chapters:chapters};
 }
-var readerIndex=0,readerFlipTimer=null;
+var readerIndex=0;
 var readerTitles=["封面","你的整體樣貌","命盤特質","性格與優勢","工作與金錢","人際與感情","未來三年","內在世界","成長方向","封底"];
 function readerSpread(){return !!(window.matchMedia&&window.matchMedia("(min-width:900px)").matches)}
 function readerPages(){return document.querySelectorAll?Array.from(document.querySelectorAll("#bookPages .sheet")):[]}
@@ -184,35 +184,95 @@ function readerGo(index){
  var pages=readerPages(),count=pages.length;if(!count)return;
  var size=readerSpread()?2:1;
  var next=Math.max(0,Math.min(count-1,Math.floor(index/size)*size));
- var wasActive=pages.map(function(page){return /(?:^|\s)is-active(?:\s|$)/.test(page.className)});
- var turning=next!==readerIndex&&wasActive.some(Boolean);
- var forward=next>readerIndex;
- reportEl.dataset.direction=forward?"next":"prev";
+ reportEl.dataset.direction=next>readerIndex?"next":"prev";
  readerIndex=next;
- if(readerFlipTimer!==null){clearTimeout(readerFlipTimer);readerFlipTimer=null}
- var leaving=false;
  pages.forEach(function(page,i){
   var visible=i>=next&&i<next+size;
-  // Always turn the right-hand leaf toward the left, even when navigating
-  // to an earlier spread. Mobile turns its single visible page.
-  var flipOut=turning&&wasActive[i]&&!visible&&
-   (size===1||i%2===1);
-  page.className=page.className.replace(/\s+is-active|\s+is-leaving/g,"")+
-   (visible?" is-active":flipOut?" is-leaving":"");
+  page.className=page.className.replace(/\s+is-active|\s+is-leaving/g,"")+(visible?" is-active":"");
   if(page.setAttribute)page.setAttribute("aria-hidden",visible?"false":"true");
-  if(flipOut)leaving=true;
  });
- // The actual page turns over the new page, then returns to display:none.
- // Cancel old cleanup if the user swipes again before the animation ends.
- if(leaving)readerFlipTimer=setTimeout(function(){
-  pages.forEach(function(page){page.className=page.className.replace(/\s+is-leaving/g,"")});
-  readerFlipTimer=null;
- },600);
  text("pageCounter",(next+1)+(size>1&&next+1<count?"–"+Math.min(count,next+size):"")+" / "+count);
  text("pageTitle",readerTitles[next]||"命書");
  node("prevPage").disabled=next===0;
  node("nextPage").disabled=next+size>=count;
 }
+
+var readerFlip=null,flipUnavailable=false;
+function flipSpread(index){
+ var count=readerPages().length;
+ var landscape=readerFlip.getOrientation()==="landscape";
+ var first=landscape&&index>0&&index<count-1?1+2*Math.floor((index-1)/2):index;
+ return {first:first,last:landscape&&first>0&&first<count-1?Math.min(first+1,count-1):first,count:count};
+}
+function syncFlip(){
+ if(!readerFlip||reportEl.hidden||!reportEl.classList.contains("flip-enhanced"))return;
+ var spread=flipSpread(readerFlip.getCurrentPageIndex());
+ readerIndex=spread.first;
+ text("pageCounter",(spread.first+1)+(spread.last>spread.first?"–"+(spread.last+1):"")+" / "+spread.count);
+ text("pageTitle",readerTitles[spread.first]||"命書");
+ node("prevPage").disabled=spread.first===0;
+ node("nextPage").disabled=spread.last===spread.count-1;
+}
+function flipLeaves(){
+ return readerPages().map(function(page,i){
+  var leaf=document.createElement("div"),copy=page.cloneNode(true);
+  leaf.className="flip-leaf";
+  if(i===0||i===readerPages().length-1)leaf.dataset.density="hard";
+  copy.className=copy.className.replace(/\s+is-active|\s+is-leaving/g,"");
+  copy.removeAttribute("aria-hidden");
+  copy.removeAttribute("id");
+  copy.querySelectorAll("[id]").forEach(function(el){el.removeAttribute("id")});
+  leaf.appendChild(copy);
+  return leaf;
+ });
+}
+function openFlip(){
+ var host=node("flipBook");
+ if(flipUnavailable||!window.St||typeof window.St.PageFlip!=="function"||
+    (window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches))return false;
+ try{
+  host.hidden=false;
+  var leaves=flipLeaves();
+  if(readerFlip){
+   readerFlip.updateFromHtml(leaves);
+   readerFlip.turnToPage(0);
+   readerFlip.update();
+  }else{
+   readerFlip=new window.St.PageFlip(host,{width:450,height:740,size:"stretch",
+    minWidth:320,maxWidth:520,minHeight:1,maxHeight:900,autoSize:true,usePortrait:true,
+    showCover:true,drawShadow:true,maxShadowOpacity:.48,flippingTime:850,
+    mobileScrollSupport:true,useMouseEvents:false,disableFlipByClick:true,showPageCorners:false});
+   ["init","flip","changeOrientation","update"].forEach(function(event){readerFlip.on(event,syncFlip)});
+   readerFlip.on("changeState",function(e){if(e.data==="read")syncFlip()});
+   readerFlip.loadFromHTML(leaves);
+  }
+  reportEl.classList.add("flip-enhanced");
+  syncFlip();
+  return true;
+ }catch(error){
+  console.error("[fortune-reader] PageFlip unavailable",error);
+  flipUnavailable=true;
+  host.hidden=true;
+  reportEl.classList.remove("flip-enhanced");
+  return false;
+ }
+}
+function readerStep(delta){
+ if(readerFlip&&reportEl.classList.contains("flip-enhanced")){
+  var state=readerFlip.getState();
+  if(state==="flipping"||state==="user_fold")return;
+  var spread=flipSpread(readerFlip.getCurrentPageIndex());
+  if(delta>0&&spread.last<spread.count-1)readerFlip.flipNext("bottom");
+  else if(delta<0&&spread.first>0){
+   // Back navigation is an immediate return, never a reverse paper curl.
+   readerFlip.turnToPage(spread.first-1);
+   syncFlip();
+  }
+  return;
+ }
+ readerGo(readerIndex+delta*(readerSpread()?2:1));
+}
+
 function showBook(x){
  if(!x||x.status!=="ready"||!x.facts||!x.chapters){say("報告尚未完成");return}
  var f=x.facts,c=x.chapters,legacy=x.version!=="bazi-private-lab-v2";
@@ -258,6 +318,7 @@ function showBook(x){
  reportEl.className="reader-open"+(x.demo?" demo-report":"");
  readerIndex=0;
  readerGo(0);
+ if(!openFlip())node("flipBook").hidden=true;
  window.scrollTo(0,0)
 }
 async function continueReport(id){
@@ -380,29 +441,35 @@ node("refreshCharts")?.addEventListener("click",selectCharts);
 node("back")?.addEventListener("click",function(){reportEl.hidden=true;chooser.hidden=false;window.history.replaceState(null,"",pagePath);window.scrollTo(0,0)});
 node("print")?.addEventListener("click",function(){window.print()});
 node("preview")?.addEventListener("click",function(){say("");showBook(sampleBook())});
-node("prevPage")?.addEventListener("click",function(){readerGo(readerIndex-(readerSpread()?2:1))});
-node("nextPage")?.addEventListener("click",function(){readerGo(readerIndex+(readerSpread()?2:1))});
-var swipeStart=null;
-node("bookPages")?.addEventListener("touchstart",function(e){
- if(e.touches&&e.touches.length===1)swipeStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
-},{passive:true});
-node("bookPages")?.addEventListener("touchend",function(e){
- if(!swipeStart||!e.changedTouches||!e.changedTouches[0])return;
- var dx=e.changedTouches[0].clientX-swipeStart.x,dy=e.changedTouches[0].clientY-swipeStart.y;
- swipeStart=null;
- if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.35)
-  readerGo(readerIndex+(dx<0?1:-1)*(readerSpread()?2:1));
-},{passive:true});
-node("bookPages")?.addEventListener("touchcancel",function(){swipeStart=null},{passive:true});
+node("prevPage")?.addEventListener("click",function(){readerStep(-1)});
+node("nextPage")?.addEventListener("click",function(){readerStep(1)});
+// Own navigation gestures so StPageFlip cannot play a reverse curl on a
+// right swipe. The forward animation remains the library's real paper curl.
+function bindReaderSwipe(host){
+ if(!host)return;
+ var swipeStart=null;
+ host.addEventListener("touchstart",function(e){
+  swipeStart=e.touches&&e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;
+ },{passive:true});
+ host.addEventListener("touchend",function(e){
+  if(!swipeStart||!e.changedTouches||!e.changedTouches[0])return;
+  var dx=e.changedTouches[0].clientX-swipeStart.x,dy=e.changedTouches[0].clientY-swipeStart.y;
+  swipeStart=null;
+  if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.35)readerStep(dx<0?1:-1);
+ },{passive:true});
+ host.addEventListener("touchcancel",function(){swipeStart=null},{passive:true});
+}
+bindReaderSwipe(node("bookPages"));
+bindReaderSwipe(node("flipBook"));
 if(window.addEventListener){
  window.addEventListener("keydown",function(e){
   if(reportEl.hidden||e.altKey||e.ctrlKey||e.metaKey)return;
   if(e.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName||""))return;
   if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
-   e.preventDefault();readerGo(readerIndex+(e.key==="ArrowRight"?1:-1)*(readerSpread()?2:1));
+   e.preventDefault();readerStep(e.key==="ArrowRight"?1:-1);
   }
  });
- window.addEventListener("resize",function(){if(!reportEl.hidden)readerGo(readerIndex)});
+ window.addEventListener("resize",function(){if(!reportEl.hidden&&!(readerFlip&&reportEl.classList.contains("flip-enhanced")))readerGo(readerIndex)});
 }
 void history();
 var match=/^#id=([0-9a-f-]{36})$/i.exec(location.hash);

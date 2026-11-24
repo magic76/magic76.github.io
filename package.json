@@ -27,7 +27,8 @@
     "@react-three/fiber": "9.8.1",
     "three": "0.182.0",
     "pinyin-pro": "3.29.5",
-    "opencc-js": "1.4.2"
+    "opencc-js": "1.4.2",
+    "page-flip": "2.0.7"
   },
   "devDependencies": {
     "@types/react": "19.3.0",

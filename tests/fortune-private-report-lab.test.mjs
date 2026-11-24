@@ -104,7 +104,7 @@ test("owner-only acceptance HTML has 10 pages, is hidden from normal app navigat
  const pagesRoutes=JSON.parse(readFileSync("_routes.json","utf8"));
  assert.ok(pagesRoutes.include.includes("/fortune/report-lab"));
  const browserJs=readFileSync("assets/js/fortune-report-lab.js","utf8");
- assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js\?v=20261124-reader3" defer><\/script>/);
+ assert.match(html,/<script src="\/assets\/js\/fortune-report-lab\.js\?v=20261124-pageflip2" defer><\/script>/);
  assert.match(readFileSync("_headers","utf8"),/\/assets\/js\/fortune-report-lab\.js\n  Cache-Control: no-store/);
  assert.doesNotMatch(html,/<script nonce=/);
  assert.match(r.headers.get("Content-Security-Policy"),/script-src 'self'/);
