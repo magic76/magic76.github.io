@@ -138,7 +138,7 @@ export function FortuneReadingPage(){
    {showAiSetup&&!geminiKey()&&<div className="fortune-ai-entry-setup" id="fortune-ai-setup"><p>{t("reading.needKey")}</p><GeminiSetupNotice returnTo={"/fortune/reading?history="+encodeURIComponent(reading!.id)}/></div>}
   </section>}
   {reading!.mode==="bazi"&&<FortuneBaZiFreeSummary result={reading!.result}/>}
-  {reading!.mode==="bazi"&&<FortunePriceInterest readingId={reading!.id} result={reading!.result} key={reading!.id}/>}
+  {reading!.mode==="bazi"&&<FortunePriceInterest readingId={reading!.id} key={reading!.id}/>}
   {reading!.mode==="bazi"&&<div className="fortune-early-share"><button className="btn secondary" type="button" onClick={()=>setShareOpen(true)}>{labels.share}</button></div>}
   {reading!.mode!=="bazi"&&<FortuneReadingOverview mode={reading!.mode} result={reading!.result} phase={computeCurrentPhase(reading!.mode,reading!.result,reading!.profile.birthDate,new Date())} ai={reading!.ai||""}/>}
   {reading!.mode!=="bazi"&&<details className="fortune-reading-extra"><summary>{t("reading.topic.keyYears")}</summary><div className="fortune-reading-extra-body"><FortuneDailyStrip reading={reading!}/><FortuneYearHighlights mode={reading!.mode} result={reading!.result} phase={computeCurrentPhase(reading!.mode,reading!.result,reading!.profile.birthDate,new Date())}/></div></details>}

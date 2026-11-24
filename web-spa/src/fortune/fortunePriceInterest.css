@@ -46,3 +46,7 @@
 .fortune-website-timeline,.fortune-website-years{display:grid;gap:8px}.fortune-website-timeline>div{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:9px;border:1px solid var(--border,#d9e2eb);border-radius:8px}.fortune-website-timeline>div[data-current=true]{border-color:#244b76;font-weight:700}
 .fortune-website-pagination{display:flex;justify-content:space-between;align-items:center;gap:6px}.fortune-website-pagination button{min-width:0;white-space:normal}
 @media(min-width:561px){.fortune-product-options:has(.fortune-trial-reading:not([hidden])){grid-template-columns:minmax(0,1fr)}}
+
+.fortune-product-premium{border-color:#b99b60;background:linear-gradient(150deg,var(--surface,#fff) 50%,rgba(185,155,96,.10))}
+.fortune-product-premium .fortune-price-interest-button{background:#193f36;color:#fff8e8}
+.fortune-price-interest-link{display:flex;align-items:center;justify-content:center;text-decoration:none;gap:8px;padding:8px}
