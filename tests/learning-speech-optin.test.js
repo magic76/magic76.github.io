@@ -34,7 +34,8 @@ test("default pronunciation never imports or downloads Kokoro before consent",as
 test("manual UI has 11 complete locales and presents loading only during an explicit import",()=>{
  const locales=['zh-TW','en','ja','ko','es','fr','de','pt-BR','id','vi','th'];
  for(const locale of locales)assert.match(ui,new RegExp('(?:^|\\s|")'+locale.replace("-","\\-")+'(?:"?:)'),locale);
- for(const key of ["add","loading","remove"])assert.equal((ui.match(new RegExp(key+":","g"))||[]).length,11,key);
+ const dictionary=ui.slice(ui.indexOf("const LABELS:"),ui.indexOf("export function LearningSpeechOptIn"));
+ for(const key of ["add","loading","remove"])assert.equal((dictionary.match(new RegExp(key+":","g"))||[]).length,11,key);
  assert.match(ui,/const code=normalizeLearningLanguage\(language\)/);
  assert.match(ui,/status==="loading"&&<span[^>]*role="status"/);
  assert.match(ui,/await mod\.importHighQuality\(code\)/);
