@@ -29,3 +29,12 @@ test("planned 69/99 offers are distinct and no live purchase is enabled",()=>{
  assert.doesNotMatch(component,/NT\$(?:79|379)/);assert.match(component,/尚未開放購買/);assert.match(read("web-spa/src/fortune/fortunePriceInterest.css"),/@media\(max-width:560px\)/);
  assert.match(read("migrations/crew-auth/0006_fortune_paid_reports.sql"),/CHECK\(amount_twd=79\)/);
 });
+
+test("69 website sample is explicitly fictional and never grants paid access",()=>{
+ const component=read("web-spa/src/fortune/FortunePriceInterest.tsx");
+ assert.match(component,/UNLOCK_SAMPLE\.map/);
+ assert.match(component,/免費試閱網站深度解析/);
+ assert.match(component,/虛構命盤展示內容深度/);
+ for(const topic of ["命格總覽","天賦與盲點","事業與職涯","財富與資源","愛情與人際","大運與流年"])assert.ok(component.includes(topic));
+ assert.match(component,/尚未開放購買/);
+});
