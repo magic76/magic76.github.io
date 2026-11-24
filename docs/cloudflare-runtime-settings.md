@@ -16,7 +16,7 @@
 
 **部署步驟**：到 **Cloudflare → Workers & Pages → Koolo Pages 專案 → Settings → Variables and Secrets → Production** 設定前兩個 Text；`CREW_AUTH_DB` 在 **Settings → Bindings → D1 database**。設定完成需確認新部署已套用，測試入口為 `koolo.app/fortune/ecpay/test`。
 
-## NT$379 私人命書驗收台（僅限管理員）
+## NT$99 私人命書驗收台（僅限管理員）
 
 | Cloudflare 設定名稱 | 類型 / 範圍 | 用途 | 設定方式 |
 | --- | --- | --- | --- |
