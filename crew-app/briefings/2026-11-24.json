@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-24",
+  "generatedAt": "2026-11-24T06:31:04.645Z",
+  "edition": "public",
+  "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 1 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
+  "items": [
+    {
+      "id": "1b011fa040f80893",
+      "title": "LangGraph AI agent update: * fix(langgraph): stream a child graph on its own thread to a caller streaming subgraphs (#9698)",
+      "summary": "* fix(langgraph): stream a child graph on its own thread to a caller streaming subgraphs (#9698)",
+      "publishedAt": "2026-11-14T01:43:55Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "LangGraph 1.2.22",
+          "url": "https://github.com/langchain-ai/langgraph/releases/tag/1.2.22",
+          "publishedAt": "2026-11-14T01:43:55Z",
+          "kind": "官方產品更新"
+        }
+      ],
+      "score": 78,
+      "body": "* fix(langgraph): stream a child graph on its own thread to a caller streaming subgraphs (#9698)"
+    }
+  ]
+}
