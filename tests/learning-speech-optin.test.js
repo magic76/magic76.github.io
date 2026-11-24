@@ -35,9 +35,10 @@ test("manual UI has 11 complete locales and presents loading only during an expl
  const locales=['zh-TW','en','ja','ko','es','fr','de','pt-BR','id','vi','th'];
  for(const locale of locales)assert.match(ui,new RegExp('(?:^|\\s|")'+locale.replace("-","\\-")+'(?:"?:)'),locale);
  for(const key of ["add","loading","remove"])assert.equal((ui.match(new RegExp(key+":","g"))||[]).length,11,key);
+ assert.match(ui,/const code=normalizeLearningLanguage\(language\)/);
  assert.match(ui,/status==="loading"&&<span[^>]*role="status"/);
- assert.match(ui,/await mod\.importHighQuality\(language\)/);
- assert.match(ui,/await mod\.removeHighQuality\(language\)/);
+ assert.match(ui,/await mod\.importHighQuality\(code\)/);
+ assert.match(ui,/await mod\.removeHighQuality\(code\)/);
  for(const path of ["web-spa/src/teacher/PhrasebookPage.tsx","web-spa/src/teacher/VocabularyPage.tsx","web-spa/src/pages/SettingsPage.tsx","web-spa/src/live/TextChatPanel.tsx"])
   assert.match(read(path),/<LearningSpeechOptIn language=/,path);
  const css=read("web-spa/src/teacher/learningSpeechOptIn.css");
