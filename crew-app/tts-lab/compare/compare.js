@@ -269,30 +269,90 @@ async function researchTts(id){
 
 
 const PIPER_SDK="https://cdn.jsdelivr.net/npm/@realtimex/piper-tts-web@1.1.1/+esm";
+const PIPER_BASE="https://huggingface.co/rhasspy/piper-voices/resolve/main/zh/zh_CN/huayan/";
+const PIPER_MODELS={
+ piperLow:{tier:"x_low",size:20628813,configSize:5954,rate:16000,sha:"d30b143fac66d821a1285aa013295adf5cd129d3cc11d70334e51c7b20662c37"},
+ piperMedium:{tier:"medium",size:63201294,configSize:6922,rate:22050,sha:"9929917bf8cabb26fd528ea44d3a6699c11e87317a14765312420be230be0f3d"}
+};
+// SDK 1.1.1 uses OPFS piper/<basename>. Validate and close the exact files
+// before creating a session; do not call its unvalidated download() helper.
+async function verifyPiperFile(blob,kind,cfg){
+ if(!blob||blob.size!==(kind==="model"?cfg.size:cfg.configSize))return false;
+ if(kind==="model"){
+  const digest=await crypto.subtle.digest("SHA-256",await blob.arrayBuffer());
+  const hex=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,"0")).join("");
+  return hex===cfg.sha;
+ }
+ try{
+  const c=JSON.parse(await blob.text());
+  return c.audio?.sample_rate===cfg.rate&&c.audio?.quality===cfg.tier&&c.espeak?.voice==="cmn"&&(c.phoneme_type??"espeak")==="espeak"&&
+   Object.keys(c.phoneme_id_map||{}).length>0&&c.speaker_id_map!=null&&
+   ["noise_scale","length_scale","noise_w"].every(key=>Number.isFinite(c.inference?.[key]));
+ }catch{return false;}
+}
+async function getPiperDirectory(){
+ if(!navigator.storage?.getDirectory)throw Error("此瀏覽器不支援 Piper 本機模型儲存（OPFS）");
+ const root=await navigator.storage.getDirectory();
+ return root.getDirectoryHandle("piper",{create:true});
+}
+async function readPiperFile(dir,name){
+ try{return await (await dir.getFileHandle(name)).getFile();}catch(e){if(e.name!=="NotFoundError")throw e;return null;}
+}
+async function preparePiperFile(dir,name,url,kind,cfg,id){
+ const label=kind==="model"?"ONNX 模型":"發音設定";
+ const old=await readPiperFile(dir,name);
+ if(await verifyPiperFile(old,kind,cfg)){setStatus(id,label+"已驗證（本機快取）");return;}
+ if(old){
+  setStatus(id,label+"快取損壞，重新下載…");
+  await dir.removeEntry(name);
+ }else setStatus(id,"下載 "+label+"…");
+ const response=await fetch(url,{cache:"reload"});
+ if(!response.ok)throw Error(label+"下載失敗：HTTP "+response.status);
+ const blob=await response.blob();
+ if(!await verifyPiperFile(blob,kind,cfg))throw Error(label+"完整性驗證失敗（收到 "+blob.size+" bytes；預期 "+(kind==="model"?cfg.size:cfg.configSize)+"）");
+ const handle=await dir.getFileHandle(name,{create:true}),writer=await handle.createWritable();
+ try{await writer.write(blob);await writer.close();}
+ catch(e){try{await writer.abort();}catch{}try{await dir.removeEntry(name);}catch{}throw e;}
+ setStatus(id,label+"已驗證並儲存");
+}
+async function preparePiperAssets(id,cfg){
+ const dir=await getPiperDirectory(),voiceId="zh_CN-huayan-"+cfg.tier,model=voiceId+".onnx",url=PIPER_BASE+cfg.tier+"/"+model;
+ await preparePiperFile(dir,model+".json",url+".json","config",cfg,id);
+ setProgress(id,10);
+ await preparePiperFile(dir,model,url,"model",cfg,id);
+ setProgress(id,90);
+ return voiceId;
+}
+async function createPiperSession(sdk,voiceId,id){
+ // The pinned SDK's static singleton otherwise reuses the old graph even
+ // when voiceId changes. Only the Lab uses this SDK in this document.
+ sdk.TtsSession._instance=null;
+ try{
+  const session=await sdk.TtsSession.create({voiceId,allowLocalModels:true,fallbackStrategy:"cdn",logger:msg=>setStatus(id,String(msg))});
+  if(!session.ready||session.voiceId!==voiceId)throw Error("Piper 初始化後的音色不符");
+  return session;
+ }finally{sdk.TtsSession._instance=null;}
+}
 async function piperChinese(id){
- const value=sample(),rate=Number(speed.value),tier=id==="piperLow"?"x_low":"medium",voiceId="zh_CN-huayan-"+tier;
+ const value=sample(),rate=Number(speed.value),cfg=PIPER_MODELS[id],tier=cfg.tier;
  stopAll();
  const started=performance.now(),warm=!!engines[id];
- if(!warm){
-  setStatus(id,"準備 Piper WASM…");
-  const sdk=await import(PIPER_SDK);
-  const progress=p=>{if(p.total>0)setProgress(id,p.loaded/p.total*100);};
-  const stored=await sdk.stored().catch(()=>[]);
-  if(!stored.includes(voiceId)){
-   setStatus(id,"下載 "+voiceId+"…");
-   await sdk.download(voiceId,progress);
-  }
-  engines[id]=new sdk.TtsSession({voiceId,progress,logger:msg=>setStatus(id,String(msg))});
- }
- const ready=performance.now();
- setStatus(id,"生成中文語音…");
  try{
+  if(!warm){
+   setStatus(id,"驗證 Piper 模型檔…");
+   const voiceId=await preparePiperAssets(id,cfg);
+   const sdk=await import(PIPER_SDK);
+   setStatus(id,"建立已驗證的 Piper WASM Session…");
+   engines[id]=await createPiperSession(sdk,voiceId,id);
+  }
+  const ready=performance.now();setProgress(id,100);
+  setStatus(id,"生成中文語音…");
   const blob=await engines[id].predict(value);
   if(!(blob instanceof Blob)||blob.size<=44)throw Error("Piper 未回傳有效音訊");
   const result=timing(ready-started,performance.now()-ready,warm);
   await playBlob(blob,"Piper WASM · Huayan "+tier,result);
   player.playbackRate=rate;
-  setProgress(id,100);setStatus(id,result+" · 固定音色 · 慢速為播放調速"+(warm?"":" · 首次生成可能含初始化"));
+  setStatus(id,result+" · 固定音色 · 慢速為播放調速");
  }catch(e){delete engines[id];throw e;}
 }
 
