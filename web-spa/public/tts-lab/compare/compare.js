@@ -285,7 +285,7 @@ async function verifyPiperFile(blob,kind,cfg){
  }
  try{
   const c=JSON.parse(await blob.text());
-  return c.audio?.sample_rate===cfg.rate&&c.audio?.quality===cfg.tier&&c.espeak?.voice==="cmn"&&c.phoneme_type==="espeak"&&
+  return c.audio?.sample_rate===cfg.rate&&c.audio?.quality===cfg.tier&&c.espeak?.voice==="cmn"&&(c.phoneme_type??"espeak")==="espeak"&&
    Object.keys(c.phoneme_id_map||{}).length>0&&c.speaker_id_map!=null&&
    ["noise_scale","length_scale","noise_w"].every(key=>Number.isFinite(c.inference?.[key]));
  }catch{return false;}
