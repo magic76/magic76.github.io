@@ -1,7 +1,7 @@
 
 /* Shared Arrow: reserve a stable right-edge slot for every game card. */
 .crew-play-game-card{grid-template-columns:86px minmax(0,1fr) 32px}
-.crew-play-game-card .crew-play-open{justify-self:end;align-self:end;width:32px;height:32px;font-size:inherit;color:#fff}
+.crew-play-game-card .crew-play-open{justify-self:end;align-self:end;width:20px;height:20px;font-size:inherit;color:inherit}
 @media(max-width:800px){.crew-play-game-card{grid-template-columns:72px minmax(0,1fr) 32px}}
 /* Crew Play: isolated, responsive app surfaces (does not modify Teacher or Story). */
 .crew-play-page{width:min(100%,1020px);margin:0 auto;padding:18px 16px max(65px,env(safe-area-inset-bottom))}
@@ -87,7 +87,7 @@
 .crew-play-question-grid button{display:flex;align-items:center;justify-content:space-between;gap:7px;min-height:49px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface,#fff);color:var(--text);text-align:left;font:inherit;font-size:12px;cursor:pointer}
 .crew-play-question-grid button.asked{background:#f2f2fb;cursor:default;color:#747390}
 .crew-play-question-grid strong{flex:none;font-size:11px;color:#6462b1}
-.crew-play-question-arrow{flex:none;color:#fff}
+.crew-play-question-arrow{flex:none;color:inherit}
 .crew-play-question-history{padding:11px;border-radius:12px;background:var(--surface-secondary,#f6f7fa)}
 .crew-play-question-history>strong{font-size:12px}
 .crew-play-question-history ul{display:grid;gap:5px;padding:0;margin:9px 0 0;list-style:none}
