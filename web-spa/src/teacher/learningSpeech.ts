@@ -8,7 +8,6 @@ export type LearningSpeechEngine="kokoro"|"pico"|"system";
 export type LearningSpeechResult={engine:LearningSpeechEngine;language:string;cached:boolean};
 
 const KOKORO_MODEL_ID="onnx-community/Kokoro-82M-v1.0-ONNX";
-const KOKORO_BASE="https://huggingface.co/"+KOKORO_MODEL_ID+"/resolve/main/onnx/";
 const KOKORO_CACHE="transformers-cache";
 const PICO_BASE="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";
 const MODEL_CACHE="koolo-learning-speech-v1";
@@ -240,7 +239,7 @@ export async function speakLearningText(text:string,languageValue:string,options
   if(!hit)options.onModelStatus?.("loading",language);
   void ensureTiny(language).catch(error=>{
    console.warn("[learning-speech] local speech model could not initialise",error);
-  }).finally(()=>{options.onModelStatus?.("ready",language)});
+  }).finally(()=>{if(id===playbackId&&!hit)options.onModelStatus?.("ready",language)});
   await systemSpeak(value,language,speed);
   return{engine:"system",language,cached:false};
  }
