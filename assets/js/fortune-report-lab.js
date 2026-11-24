@@ -193,6 +193,7 @@ function readerGo(index){
  });
  text("pageCounter",(next+1)+(size>1&&next+1<count?"–"+Math.min(count,next+size):"")+" / "+count);
  text("pageTitle",readerTitles[next]||"命書");
+ if(!node("previewPageJump").hidden)node("previewPageJump").value=String(next);
  node("prevPage").disabled=next===0;
  node("nextPage").disabled=next+size>=count;
 }
@@ -210,6 +211,7 @@ function syncFlip(){
  readerIndex=spread.first;
  text("pageCounter",(spread.first+1)+(spread.last>spread.first?"–"+(spread.last+1):"")+" / "+spread.count);
  text("pageTitle",readerTitles[spread.first]||"命書");
+ if(!node("previewPageJump").hidden)node("previewPageJump").value=String(spread.first);
  node("prevPage").disabled=spread.first===0;
  node("nextPage").disabled=spread.last===spread.count-1;
 }
@@ -272,8 +274,87 @@ function readerStep(delta){
  readerGo(readerIndex+delta*(readerSpread()?2:1));
 }
 
+
+// Editorial acceptance fixture only. No user chart, API, AI, or D1 write.
+var legacyBookPages=null,legacyBookTitles=readerTitles.slice();
+function extendedPreviewData(){
+ var year=new Date(Date.now()+28800000).getUTCFullYear();
+ var rows=[["命格","命盤總論","丙火日主 · 中和（示例）","你給人的印象常是反應快，願意讓事情開始動起來，但真正維持你投入的並不是速度，而是事情是否值得做。當目標能讓你理解自己正在創造什麼，你會比較願意花時間補足細節。","以示範命盤的木火組合而言，理解與表達互相支持；這是傳統象徵下的性格閱讀，並不是對真實經歷的判定。"],["命格","五行的分布","示範權重，非吉凶評分","木與火的示例權重較高，可從學習、成長與表達理解其互動；土的承接特質則提示把構想整理成能維持的成果。","五行較少不等於能力較差，也不代表需要購買任何補運物品。權重只提供閱讀命盤的一個角度。"],["性格","外在性格","火的表達象徵","在團體中，你可能習慣先把問題講清楚，並指出可以開始的方向。與其等所有資訊齊備，你比較容易透過實際嘗試找出缺口。","這種明快的表現容易讓人感覺你很有把握，但你內心未必已經作好所有決定。適合留給自己修正方向的餘裕。"],["性格","內在動機","木火互動","你比較在乎投入能不能產生有意義的改變，不一定需要掌聲；若一直做看不到目的的事，熱情可能逐漸消退。","當別人理解你的出發點，而不只評價結果，你更容易產生穩定的合作意願。獨立並不等於不需要被理解。"],["性格","天賦與潛能","印星 4 · 食傷 3（示例）","一個值得發展的能力，是把分散的資訊整理成有順序的知識，再轉成其他人能使用的方式。這種能力可能在教學、研究、設計或問題處理中表現出來。","比起單純蒐集更多資料，你的優勢更可能出現在理解之後的重新組織。作品、流程與清楚說明都是承接這種能力的形式。"],["性格","優勢的另一面","學習與輸出之間","當你看到解法時，可能希望其他人也能立刻理解。如果大家還在討論背景，你卻已經進入執行階段，就容易出現步調差異。","這不代表你的想法太快或他人的能力不足，而是資訊傳遞與理解需要不同時間。清楚交代推理過程，是優勢能被團隊接住的重要條件。"],["性格","情緒與壓力","表達與承接的平衡","遇到壓力時，你可能傾向先尋找能做的事，透過完成小目標重新取得掌控感。這讓你不容易因短暫受挫而停止前進。","但當所有情緒都被轉成待辦，疲憊也可能沒有被真正處理。適合你的休息不一定是完全停止，而是暫時不必為任何成果負責。"],["事業","工作環境與節奏","印星、食傷、官殺（示例）","適合你的工作不必限定特定產業，而是要具備清楚的目標、合理的自主權，以及可以看見成果的回饋。你較可能喜歡有空間改善原有流程的任務。","如果規則不斷改變而責任又不清楚，你可能把心力耗在反覆補洞。穩定的合作契約比一味追求自由更能支撐長期發展。"],["事業","專業發展方向","知識與成果的連結","學習新領域時，能把理解轉成實際成果，是比單純累積資格更有辨識度的路徑。你可以在需要理解問題、設計方法與持續迭代的環境中累積專長。","這並不表示命盤指定了某個職業，而是描述工作方式的可能偏好。實際選擇仍取決於能力、機會及生活條件。"],["事業","領導與創業特質","食傷與責任線索","主動開路的特質有助於建立方向，但領導還包含讓其他人知道怎麼參與。若同時承擔構想、執行與驗收，短期可能有效，長期卻容易變成所有問題的唯一出口。","能清楚交付目標與決策權的環境，比一個人掌握所有細節更容易讓成果延續。創業與管理也仍需依現實條件評估。"],["財富","正財與穩定累積","正財 1（示例）","正財在傳統八字中象徵有規律的資源安排。對這張示範命盤而言，它不是收入大小的指標，而是提醒機會探索需要一個穩定的承接方式。","例如維持清楚的固定支出、長期承諾與資源分配，可以讓新的嘗試不必每次都從零開始。命盤不能用來推算實際薪水。"],["財富","偏財與機會觀","偏財 2（示例）","偏財的象徵較偏向流動的機會及資源。你可能容易注意到某個工具、合作方式或新的需求所帶來的可能性。","當每個新方向都值得探索時，稀缺的反而是注意力。機會的價值需要放在真實成本及風險中評估，不能由命理判斷獲利機率。"],["財富","金錢與資源的取捨","正偏財交互閱讀","你的資源安排可能需要兼顧兩種需求：一部分維持生活與承諾，另一部分保留嘗試的自由。只強調其中一種，容易讓生活變得過度僵化或分散。","真正值得長期累積的，不只金錢，也包含經驗、工具、信任和能重複使用的知識。這是資源觀的側寫，不是理財建議。"],["關係","愛情中的表達方式","日支寅（示例）","你可能透過行動表示在意，例如記住對方說過的事，或主動分擔需要處理的問題。比起熱烈的承諾，持續可靠更能反映你的投入。","遇到對方只是想被聽見的時刻，直接給解法可能讓關心被誤解。行動與理解並不是相反的事，兩者配合會讓關係更有空間。"],["關係","適合相處的伴侶特質","關係需求的象徵閱讀","比較適合你的相處方式，可能是雙方能說清楚自己的需求，也能保留各自的興趣和節奏。彼此有不同意見時，不必透過猜測來決定對方的想法。","命盤不能判定某個人的外貌、職業或何時出現。這一章談的是可能的互動需求，而不是指定命中注定的對象。"],["關係","親密關係與衝突","行動與理解的平衡","當溝通卡住時，你可能習慣快速定位問題、找出能實行的辦法。但關係裡的困難未必是需要立刻解決的技術問題。","如果對方的感受還沒被理解，過早決定下一步可能增加距離。先確認彼此正在討論同一件事，再安排具體行動，更符合長期信任的建立方式。"],["關係","家庭、朋友與人際","支持與界線的象徵","對家人或朋友，你可能傾向在有需要時提供實際協助，而不一定經常用語言表達關心。這種支持方式適合清楚的分工與承諾。","值得留意的是，不必把所有人的困難都變成自己的責任。能維持彼此獨立的關係，才比較有機會在長期相處中保存原本的善意。"],["人生","人生階段總覽","示範階段，不是實際大運表","前期可著重理解自己喜歡的事與學習方式；中期更適合思考能力如何累積、責任如何分配；後期則能從資源與時間的取捨理解生活重心。","正式版本須由出生資料計算完整大運，才能列出真實的年齡與年份區間。本頁只展示閱讀架構，未聲稱這些階段對應特定事件。"],["人生","當前十年大運","庚午（虛構示例）","在示範解讀中，規則、資源與表達之間的關係可以作為長期觀察主題。一個十年階段不是十年都發生同一件事，而是用來理解不同生活議題如何交錯。","正式版本會以實際大運起訖年及命盤互動為依據，不以這個示範干支替代任何真實使用者的命盤。"],["總結","長期優勢與人生方向","回到這張示範命盤","你比較有辨識度的特質，不是單純快速，而是願意理解新的事物，並將理解變成成果。當探索、表達與承接能配合，努力比較容易留下長期價值。","不必每次都靠增加目標證明自己仍在前進。把能持續的事做深，並讓關係、工作和生活保有各自的空間，是這張示範命盤的核心閱讀方向。"]];
+ var years=[["整理與聚焦","示範年度的主軸是把原有投入重新整理。工作上較值得關注的是哪些成果可以延續，哪些方向需要先確認需求；關係上則可留意時間與注意力如何分配。","資源面可以觀察既有承諾是否排擠重要目標。這個主題是版型示例，不代表該年必定出現變動。"],["合作與界線","第二個年度示例將重心放在合作方式。工作上可能需要更明確地區分責任與決策；在人際中，理解不同步調可以讓原先的熱情轉成可靠的合作。","資源安排重視投入與回饋是否對等。這不是預測特定合作對象或契約。"],["累積與驗證","第三個年度示例適合呈現長期能力與實際成果之間的關係。工作面可區分有明確回饋的探索及只消耗注意力的嘗試。","感情與人際可觀察承諾如何落實；金錢面仍需依真實條件衡量。這些主題沒有事件或獲利保證。"],["調整與選擇","第四個年度示例重點在於原有方向與新機會的取捨。不是所有變動都值得追逐，也不是所有既有安排都需要維持。","工作、關係與資源可分別考量它們的長期價值。正式版本將依該年干支與完整命盤互動分析，而非套用這段示範。"],["承接與長期方向","第五個年度示例用於整理前幾年所累積的能力與選擇。比起增加更多責任，更值得重視的是哪些成果能被持續使用、哪些關係能保持互相支持。","人生節奏應考量實際生活狀態；命盤的年度象徵不是需要照表執行的時間表。"]];
+ var annual=years.map(function(row,i){
+  var y=year+i,cycle=((y-4)%60+60)%60;
+  return ["流年",y+" 年 · "+row[0],"年度版型示例 · "+"甲乙丙丁戊己庚辛壬癸"[cycle%10]+"子丑寅卯辰巳午未申酉戌亥"[cycle%12],row[1],row[2]];
+ });
+ return [["封面","專屬一生命書","PERSONAL LIFE BOOK","從命格到人生，讀懂自己的不同面向","示範版本 · 非正式個人命書"],
+ ["目錄","命書目錄","CONTENTS","命格 03–04 · 性格 05–09 · 事業 10–12 · 財富 13–15","關係 16–19 · 人生 20–21 · 流年 22–26 · 總結 27"]].concat(rows.slice(0,-1),annual,[rows[rows.length-1]],[
+ ["封底","一本可以重新翻閱的書","KOOLO FORTUNE","命盤提供線索，生活給出答案。","示範內容 · 未呼叫 AI"]]);
+}
+function previewEl(tag,cls,value){
+ var el=document.createElement(tag);if(cls)el.className=cls;
+ if(value!==undefined)el.textContent=value;return el;
+}
+function buildExtendedPage(row,i,total){
+ var dark=i===0||i===total-1;
+ var page=previewEl("article","sheet"+(dark?" dark":"")+" extended-preview-sheet");
+ var n=String(i+1).padStart(2,"0");
+ page.setAttribute("aria-label","第 "+(i+1)+" 頁 "+row[1]);
+ var top=previewEl("div",dark?"cover-top":"page-top");
+ top.append(previewEl("span","",dark?"KOOLO FORTUNE":n+" / "+row[0]),previewEl("span","","DEMO EDITION"));page.appendChild(top);
+ if(dark){
+  var orbit=previewEl("div","orbit");orbit.appendChild(previewEl("b","",i===0?"命":"心"));page.appendChild(orbit);
+  var title=previewEl("div","cover-title");title.append(previewEl("small","",row[2]),previewEl("h2","",row[1]),previewEl("p","",row[3]),previewEl("p","",row[4]));page.appendChild(title);
+ }else{
+  page.append(previewEl("h2","",row[1]),previewEl("p","section-lead",row[2]));
+  if(i===3){
+   var chart=previewEl("div","element-chart");
+   [32,26,18,10,14].forEach(function(v,k){
+    var line=previewEl("div","element-row"),track=previewEl("div","element-bar"),fill=previewEl("span","");
+    fill.style.width=v+"%";fill.style.setProperty("--bar-color",COLORS[k]);track.appendChild(fill);
+    line.append(previewEl("b","",ELS[k]),track,previewEl("small","",String(v)));chart.appendChild(line);
+   });page.appendChild(chart);
+  }
+  var panel=previewEl("div",i===1?"fact-panel":"cream-panel");
+  panel.append(previewEl("p","bodycopy",row[3]),previewEl("p","bodycopy",row[4]));page.appendChild(panel);
+ }
+ var footer=previewEl("footer","");footer.append(previewEl("span","","KOOLO / 示範命書"),previewEl("span","",n));page.appendChild(footer);return page;
+}
+function restoreLegacyBook(){
+ if(!legacyBookPages)return;
+ node("bookPages").replaceChildren.apply(node("bookPages"),legacyBookPages);
+ legacyBookPages=null;readerTitles=legacyBookTitles.slice();
+ node("previewPageJump").hidden=true;
+ text("print","列印／儲存為 PDF（10 頁）");
+}
+function showExtendedPreview(){
+ restoreLegacyBook();
+ var rows=extendedPreviewData();
+ legacyBookPages=readerPages();
+ var pages=rows.map(function(row,i){return buildExtendedPage(row,i,rows.length)});
+ node("bookPages").replaceChildren.apply(node("bookPages"),pages);
+ readerTitles=rows.map(function(row){return row[1]});
+ var jump=node("previewPageJump");jump.replaceChildren();
+ rows.forEach(function(row,i){var option=previewEl("option","",String(i+1).padStart(2,"0")+" · "+row[1]);option.value=String(i);jump.appendChild(option)});
+ jump.hidden=false;jump.value="0";
+ text("print","列印／儲存為 PDF（"+rows.length+" 頁）");
+ text("meta","28 頁示範預覽 · 虛構命盤及示例文字 · 未呼叫 AI、不儲存資料");
+ chooser.hidden=true;reportEl.hidden=false;reportEl.className="reader-open demo-report extended-report";
+ readerIndex=0;readerGo(0);
+ if(!openFlip())node("flipBook").hidden=true;
+ window.scrollTo(0,0);
+}
+function jumpExtendedPage(){
+ if(!legacyBookPages)return;
+ var page=Number(node("previewPageJump").value);
+ if(!Number.isInteger(page)||page<0||page>=readerPages().length)return;
+ if(readerFlip&&reportEl.classList.contains("flip-enhanced")){
+  if(readerFlip.getState()!=="read"){node("previewPageJump").value=String(readerIndex);return}
+  readerFlip.turnToPage(page);syncFlip();
+ }else readerGo(page);
+}
+
 function showBook(x){
  if(!x||x.status!=="ready"||!x.facts||!x.chapters){say("報告尚未完成");return}
+ restoreLegacyBook();
  var f=x.facts,c=x.chapters,legacy=x.version!=="bazi-private-lab-v2";
  // Earlier saved books keep their original Q&A structure and must not be
  // silently rewritten or mislabeled as the new character portrait.
@@ -440,6 +521,8 @@ node("refreshCharts")?.addEventListener("click",selectCharts);
 node("back")?.addEventListener("click",function(){reportEl.hidden=true;chooser.hidden=false;window.history.replaceState(null,"",pagePath);window.scrollTo(0,0)});
 node("print")?.addEventListener("click",function(){window.print()});
 node("preview")?.addEventListener("click",function(){say("");showBook(sampleBook())});
+node("previewExtended")?.addEventListener("click",function(){say("");showExtendedPreview()});
+node("previewPageJump")?.addEventListener("change",jumpExtendedPage);
 node("prevPage")?.addEventListener("click",function(){readerStep(-1)});
 node("nextPage")?.addEventListener("click",function(){readerStep(1)});
 // Only the static fallback owns swipe listeners. The enhanced book uses
