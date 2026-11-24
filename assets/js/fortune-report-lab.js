@@ -176,7 +176,7 @@ function sampleBook(){
    })},
   chapters:chapters};
 }
-var readerIndex=0,readerFlipTimer=null;
+var readerIndex=0;
 var readerTitles=["封面","你的整體樣貌","命盤特質","性格與優勢","工作與金錢","人際與感情","未來三年","內在世界","成長方向","封底"];
 function readerSpread(){return !!(window.matchMedia&&window.matchMedia("(min-width:900px)").matches)}
 function readerPages(){return document.querySelectorAll?Array.from(document.querySelectorAll("#bookPages .sheet")):[]}
@@ -184,37 +184,20 @@ function readerGo(index){
  var pages=readerPages(),count=pages.length;if(!count)return;
  var size=readerSpread()?2:1;
  var next=Math.max(0,Math.min(count-1,Math.floor(index/size)*size));
- var wasActive=pages.map(function(page){return /(?:^|\s)is-active(?:\s|$)/.test(page.className)});
- var turning=next!==readerIndex&&wasActive.some(Boolean);
- var forward=next>readerIndex;
- reportEl.dataset.direction=forward?"next":"prev";
+ reportEl.dataset.direction=next>readerIndex?"next":"prev";
  readerIndex=next;
- if(readerFlipTimer!==null){clearTimeout(readerFlipTimer);readerFlipTimer=null}
- var leaving=false;
  pages.forEach(function(page,i){
   var visible=i>=next&&i<next+size;
-  // Always turn the right-hand leaf toward the left, even when navigating
-  // to an earlier spread. Mobile turns its single visible page.
-  var flipOut=turning&&wasActive[i]&&!visible&&
-   (size===1||i%2===1);
-  page.className=page.className.replace(/\s+is-active|\s+is-leaving/g,"")+
-   (visible?" is-active":flipOut?" is-leaving":"");
+  page.className=page.className.replace(/\s+is-active|\s+is-leaving/g,"")+(visible?" is-active":"");
   if(page.setAttribute)page.setAttribute("aria-hidden",visible?"false":"true");
-  if(flipOut)leaving=true;
  });
- // The actual page turns over the new page, then returns to display:none.
- // Cancel old cleanup if the user swipes again before the animation ends.
- if(leaving)readerFlipTimer=setTimeout(function(){
-  pages.forEach(function(page){page.className=page.className.replace(/\s+is-leaving/g,"")});
-  readerFlipTimer=null;
- },600);
  text("pageCounter",(next+1)+(size>1&&next+1<count?"–"+Math.min(count,next+size):"")+" / "+count);
  text("pageTitle",readerTitles[next]||"命書");
  node("prevPage").disabled=next===0;
  node("nextPage").disabled=next+size>=count;
 }
 
-var readerFlip=null;
+var readerFlip=null,flipUnavailable=false;
 function flipSpread(index){
  var count=readerPages().length;
  var landscape=readerFlip.getOrientation()==="landscape";
@@ -222,7 +205,7 @@ function flipSpread(index){
  return {first:first,last:landscape&&first>0&&first<count-1?Math.min(first+1,count-1):first,count:count};
 }
 function syncFlip(){
- if(!readerFlip||reportEl.hidden)return;
+ if(!readerFlip||reportEl.hidden||!reportEl.classList.contains("flip-enhanced"))return;
  var spread=flipSpread(readerFlip.getCurrentPageIndex());
  readerIndex=spread.first;
  text("pageCounter",(spread.first+1)+(spread.last>spread.first?"–"+(spread.last+1):"")+" / "+spread.count);
@@ -245,7 +228,7 @@ function flipLeaves(){
 }
 function openFlip(){
  var host=node("flipBook");
- if(!window.St||typeof window.St.PageFlip!=="function"||
+ if(flipUnavailable||!window.St||typeof window.St.PageFlip!=="function"||
     (window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches))return false;
  try{
   host.hidden=false;
@@ -268,6 +251,7 @@ function openFlip(){
   return true;
  }catch(error){
   console.error("[fortune-reader] PageFlip unavailable",error);
+  flipUnavailable=true;
   host.hidden=true;
   reportEl.classList.remove("flip-enhanced");
   return false;
