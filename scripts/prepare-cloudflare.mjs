@@ -110,6 +110,11 @@ for(const folder of ["features","assets","social"]){
  if(!existsSync(join(root,folder)))throw Error("Required public asset folder is missing: "+folder);
  cpSync(join(root,folder),join(out,folder),{recursive:true,force:false,errorOnExist:false});
 }
+// Private report reader: serve the pinned MIT browser bundle from our own origin.
+const flipVendor=join(out,"assets","vendor","page-flip-2.0.7");
+mkdirSync(flipVendor,{recursive:true});
+cpSync(join(root,"node_modules","page-flip","dist","js","page-flip.browser.js"),join(flipVendor,"page-flip.browser.js"));
+cpSync(join(root,"node_modules","page-flip","LICENSE"),join(flipVendor,"LICENSE"));
 for(const filename of ["crew.js","crew-live.js","crew-live-input-worklet.js","crew-live-output-worklet.js","crew-live-ui.js","robots.txt","sitemap.xml","seo.css","_headers","_routes.json"]){
  if(!existsSync(join(root,filename)))throw Error("Required static runtime file is missing: "+filename);
  cpSync(join(root,filename),join(out,filename));
