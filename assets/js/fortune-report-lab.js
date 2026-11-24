@@ -241,7 +241,7 @@ function openFlip(){
    readerFlip=new window.St.PageFlip(host,{width:450,height:740,size:"stretch",
     minWidth:320,maxWidth:520,minHeight:1,maxHeight:900,autoSize:true,usePortrait:true,
     showCover:true,drawShadow:true,maxShadowOpacity:.48,flippingTime:850,
-    mobileScrollSupport:true,swipeDistance:45,disableFlipByClick:true,showPageCorners:true});
+    mobileScrollSupport:true,useMouseEvents:false,disableFlipByClick:true,showPageCorners:false});
    ["init","flip","changeOrientation","update"].forEach(function(event){readerFlip.on(event,syncFlip)});
    readerFlip.on("changeState",function(e){if(e.data==="read")syncFlip()});
    readerFlip.loadFromHTML(leaves);
@@ -263,7 +263,11 @@ function readerStep(delta){
   if(state==="flipping"||state==="user_fold")return;
   var spread=flipSpread(readerFlip.getCurrentPageIndex());
   if(delta>0&&spread.last<spread.count-1)readerFlip.flipNext("bottom");
-  else if(delta<0&&spread.first>0)readerFlip.flipPrev("bottom");
+  else if(delta<0&&spread.first>0){
+   // Back navigation is an immediate return, never a reverse paper curl.
+   readerFlip.turnToPage(spread.first-1);
+   syncFlip();
+  }
   return;
  }
  readerGo(readerIndex+delta*(readerSpread()?2:1));
@@ -439,18 +443,24 @@ node("print")?.addEventListener("click",function(){window.print()});
 node("preview")?.addEventListener("click",function(){say("");showBook(sampleBook())});
 node("prevPage")?.addEventListener("click",function(){readerStep(-1)});
 node("nextPage")?.addEventListener("click",function(){readerStep(1)});
-var swipeStart=null;
-node("bookPages")?.addEventListener("touchstart",function(e){
- if(e.touches&&e.touches.length===1)swipeStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
-},{passive:true});
-node("bookPages")?.addEventListener("touchend",function(e){
- if(!swipeStart||!e.changedTouches||!e.changedTouches[0])return;
- var dx=e.changedTouches[0].clientX-swipeStart.x,dy=e.changedTouches[0].clientY-swipeStart.y;
- swipeStart=null;
- if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.35)
-  readerGo(readerIndex+(dx<0?1:-1)*(readerSpread()?2:1));
-},{passive:true});
-node("bookPages")?.addEventListener("touchcancel",function(){swipeStart=null},{passive:true});
+// Own navigation gestures so StPageFlip cannot play a reverse curl on a
+// right swipe. The forward animation remains the library's real paper curl.
+function bindReaderSwipe(host){
+ if(!host)return;
+ var swipeStart=null;
+ host.addEventListener("touchstart",function(e){
+  swipeStart=e.touches&&e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;
+ },{passive:true});
+ host.addEventListener("touchend",function(e){
+  if(!swipeStart||!e.changedTouches||!e.changedTouches[0])return;
+  var dx=e.changedTouches[0].clientX-swipeStart.x,dy=e.changedTouches[0].clientY-swipeStart.y;
+  swipeStart=null;
+  if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.35)readerStep(dx<0?1:-1);
+ },{passive:true});
+ host.addEventListener("touchcancel",function(){swipeStart=null},{passive:true});
+}
+bindReaderSwipe(node("bookPages"));
+bindReaderSwipe(node("flipBook"));
 if(window.addEventListener){
  window.addEventListener("keydown",function(e){
   if(reportEl.hidden||e.altKey||e.ctrlKey||e.metaKey)return;
