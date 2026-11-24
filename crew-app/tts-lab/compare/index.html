@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#101713">
 <title>Koolo TTS Lab · 小模型比較</title>
 <style>
+[hidden]{display:none!important}
 :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;color-scheme:dark;background:#0b100d;color:#f4f7f5}
 *{box-sizing:border-box}body{margin:0;min-width:280px;background:radial-gradient(circle at top,#20362a 0,#0b100d 48%);min-height:100vh}
 main{max-width:780px;margin:auto;padding:24px 16px 64px}.nav{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:26px}
@@ -14,14 +15,14 @@ a{color:#9ce7bb}.logo{text-decoration:none;color:#eef8f1;font-weight:800}.pill{b
 h1{font-size:clamp(30px,8vw,46px);letter-spacing:-.04em;line-height:1.08;margin:0 0 12px}.intro{color:#b3c6bc;line-height:1.7;margin:0 0 22px}
 .card{background:rgba(22,32,27,.94);border:1px solid #31473a;border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 16px 40px rgba(0,0,0,.18)}
 textarea,select{width:100%;border:1px solid #425b4c;background:#101713;color:#fff;border-radius:12px;padding:13px 14px;font-size:16px}
-textarea{min-height:150px;resize:vertical;line-height:1.55}label{display:block;font-size:13px;color:#b8c9bf;margin-bottom:7px}
+textarea{min-height:88px;resize:vertical;line-height:1.55}label{display:block;font-size:13px;color:#b8c9bf;margin-bottom:7px}
 .presets{display:flex;gap:8px;overflow:auto;padding:10px 0 2px}.presets button{white-space:nowrap;background:#26372e;color:#d9e8df;padding:9px 11px}
 button{border:0;border-radius:13px;padding:12px 13px;font-size:14px;font-weight:750;cursor:pointer;background:#edf5f0;color:#102017}
 button.primary{background:#67e49e;color:#092013}button:disabled{opacity:.45;cursor:not-allowed}
 .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .models{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
 .model{border:1px solid #354c3e;border-radius:18px;padding:15px;background:#111914;display:flex;flex-direction:column;gap:10px}
-.model h2{font-size:17px;margin:0}.model p{font-size:12px;color:#9eb0a6;line-height:1.55;margin:0;min-height:38px}
+.candidate{border-top:1px solid #354c3e;padding:12px 0}.candidate p{margin:5px 0}.model h2{font-size:17px;margin:0}.model p{font-size:12px;color:#9eb0a6;line-height:1.55;margin:0;min-height:38px}
 .model .meta{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:11px;border:1px solid #3d5648;border-radius:999px;padding:5px 8px;color:#c5d8cd}
 .tag.warn{border-color:#725c31;color:#f2d69c}.status{font-size:12px;color:#b9cbc1;line-height:1.5;min-height:36px;overflow-wrap:anywhere}
 .status.error{color:#ffb9ad}.progress{height:6px;background:#26372e;border-radius:99px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:#67e49e;transition:width .15s ease}
@@ -35,14 +36,14 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 <main>
 <nav class="nav"><a class="logo" href="/tts-lab/">← TTS Lab</a><span class="pill">MODEL SHOOTOUT</span></nav>
 <h1>同一句話，直接比聲音。</h1>
-<p class="intro">比較系統語音、Kokoro 的不同運算後端、Piper、Supertonic 3 與三種 Kitten 路線。每個 AI 模型都只在你按下時才載入，正式單字頁完全不受影響。</p>
+<p class="intro">只比較適合手機即時發音的輕量候選。先選語言，再試單字與短句；大型模型已移出本頁。</p>
 
 <section class="card">
 <label for="language">測試語言</label>
 <select id="language"><option value="en">English · 英文</option><option value="zh">中文 · 國語</option><option value="ja">日本語 · 日文</option><option value="ko">한국어 · 韓文</option><option value="es">Español · 西班牙文</option></select>
 <p class="note" id="language-info" role="status">選擇語言後會自動換成對應的測試句。</p>
 <label for="text">測試文字（可自行修改）</label>
-<textarea id="text" maxlength="520" spellcheck="true">At first, I thought learning English meant memorizing every word perfectly, but after I started speaking a little every day, I realized that rhythm, confidence, and the courage to keep going mattered much more than sounding perfect.</textarea>
+<textarea id="text" maxlength="520" spellcheck="true" lang="en-US">Comfortable.</textarea>
 <div class="presets">
 <button type="button" data-preset="word">單字</button>
 <button type="button" data-preset="short">短句</button>
@@ -56,8 +57,7 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 </div>
 </section>
 
-<p class="note" id="device-info" role="status">檢查 WebGPU Adapter 與 WASM 多執行緒條件…</p>
-<p class="note">請用相同語言、文字及正常速度比較。不支援所選語言的模型會停用，不會用英文音色硬念。各模型僅在點選後下載；GPU q8 為實驗路徑，不會偷偷改用 WASM。首次準備含下載、初始化，後續只比較生成；不保證所有裝置都能執行。</p>
+<p class="note">第一次包含下載與初始化；第二次看生成時間。理想目標：單字 300ms、短句 500ms 內生成。模型檔不等於完整下載量。</p>
 <section class="models" aria-label="TTS 模型比較">
 <article class="model">
 <div><h2>系統 TTS</h2><div class="meta"><span class="tag">0 MB</span><span class="tag">Baseline</span></div></div>
@@ -66,90 +66,30 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 <div class="status" id="status-system">不用下載模型。</div><div class="progress"><span id="progress-system"></span></div>
 </article>
 
-<article class="model">
-<div><h2>Kokoro 82M · WASM q8</h2><div class="meta"><span class="tag">約 90 MB q8</span><span class="tag">CPU / WASM</span></div></div>
-<p>固定 CPU / WASM q8，與目前學習頁相同模型格式。</p>
-<button class="primary" data-engine="kokoro">播放 Kokoro WASM q8</button>
-<div class="status" id="status-kokoro">首次按下才載入。</div><div class="progress"><span id="progress-kokoro"></span></div>
-</article>
-
-<article class="model">
-<div><h2>Kokoro 82M · WebGPU q8</h2><div class="meta"><span class="tag">約 90 MB q8</span><span class="tag">實驗 GPU</span></div></div>
-<p>與 WASM q8 使用相同精度，測量 GPU 實際差異。可能遇到不支援的運算。</p>
-<button data-engine="kokoroGpuQ8">播放 WebGPU q8</button>
-<div class="status" id="status-kokoroGpuQ8">需可用 GPU Adapter。</div><div class="progress"><span id="progress-kokoroGpuQ8"></span></div>
-</article>
-
-<article class="model">
-<div><h2>Kokoro 82M · WebGPU fp32</h2><div class="meta"><span class="tag">較大下載</span><span class="tag">GPU</span></div></div>
-<p>官方常用 WebGPU 精度，與 GPU q8 比較速度及音質。</p>
-<button data-engine="kokoroGpuFp32">播放 WebGPU fp32</button>
-<div class="status" id="status-kokoroGpuFp32">需可用 GPU Adapter。</div><div class="progress"><span id="progress-kokoroGpuFp32"></span></div>
-</article>
-
-<article class="model">
-<div><h2>Piper · WASM</h2><div class="meta"><span class="tag">HFC / Huayan / Carlfm</span><span class="tag">OPFS 快取</span></div></div>
-<p>英文 HFC、中文 Huayan 或西班牙 Carlfm（後兩者固定音色）；慢速選項以播放器調速。</p>
-<button data-engine="piper">播放 Piper</button>
-<div class="status" id="status-piper">首次下載語音模型及 runtime。</div><div class="progress"><span id="progress-piper"></span></div>
-</article>
-
-<article class="model">
-<div><h2>Piper Plus · 本機</h2><div class="meta"><span class="tag">英 / 中 / 日 / 西</span><span class="tag warn">實驗</span></div></div>
-<p>CSS10 Japanese 多語模型，固定單一音色；含日文專用 G2P。中文以國語為主，簡體文字可能較準；SDK 自動選擇 WebGPU / WASM。</p>
-<button data-engine="piperPlus">播放 Piper Plus</button>
-<div class="status" id="status-piperPlus">首次按下才載入模型和發音字典。</div><div class="progress"><span id="progress-piperPlus"></span></div>
-</article>
-
-<article class="model">
-<div><h2>Piper Plus · Tsukuyomi</h2><div class="meta"><span class="tag">日文女聲</span><span class="tag warn">實驗</span></div></div>
-<p>以日文語音訓練的另一個六語模型，本卡專供日文比較。固定女聲。音訊署名：Piper Plus:つくよみちゃん（非官方作品）。</p>
-<button data-engine="piperJapanese">播放 Tsukuyomi 日文</button>
-<div class="status" id="status-piperJapanese">首次按下才載入。</div><div class="progress"><span id="progress-piperJapanese"></span></div>
-</article>
-<article class="model">
-<div><h2>Supertonic 3 · WASM</h2><div class="meta"><span class="tag">混合 q8 / fp32</span><span class="tag">31 語言模型</span></div></div>
-<p>社群 Transformers.js ONNX 移植；支援英、日、韓、西班牙文，不支援中文，首次下載較大。</p>
-<button data-engine="supertonicWasm">播放 Supertonic WASM</button>
-<div class="status" id="status-supertonicWasm">首次載入多個 ONNX 模型。</div><div class="progress"><span id="progress-supertonicWasm"></span></div>
-</article>
-
-<article class="model">
-<div><h2>Supertonic 3 · WebGPU</h2><div class="meta"><span class="tag">fp16 約 200 MB 權重</span><span class="tag">31 語言模型</span></div></div>
-<p>測試同一模型的 GPU 路徑。首次下載量較大，需要 GPU 支援。</p>
-<button data-engine="supertonicGpu">播放 Supertonic WebGPU</button>
-<div class="status" id="status-supertonicGpu">首次載入多個 ONNX 模型。</div><div class="progress"><span id="progress-supertonicGpu"></span></div>
-</article>
-
-<article class="model">
-<div><h2>Kitten Nano 0.8 int8</h2><div class="meta"><span class="tag">約 25 MB</span><span class="tag">官方 Web SDK</span></div></div>
-<p>Kitten 官方 browser SDK 最小正式支援模型，ONNX Runtime Web。</p>
-<button data-engine="kitten08">播放 Kitten 25MB</button>
-<div class="status" id="status-kitten08">首次按下下載模型與 phonemizer。</div><div class="progress"><span id="progress-kitten08"></span></div>
-</article>
-
-<article class="model">
+<article class="model" hidden>
 <div><h2>Kitten TTS 2 Nano int4</h2><div class="meta"><span class="tag">8.83 MB 模型</span><span class="tag warn">實驗 Web port</span></div></div>
-<p>英、西班牙文獨立模型及音色包；英文 voice pack 約 5.22MB，西班牙文另下載。實驗移植。</p>
+<p>西班牙文對照候選，用來比較 Pico 與 Nano 的音質。</p>
 <button data-engine="nano2">播放 Nano 8.8MB</button>
 <div class="status" id="status-nano2">官方 ONNX + 對應語言 voice pack；西班牙文使用獨立 G2P。</div><div class="progress"><span id="progress-nano2"></span></div>
 </article>
 
 <article class="model">
 <div><h2>Kitten TTS 2 Pico int4</h2><div class="meta"><span class="tag">約 4 MB 模型</span><span class="tag warn">實驗 Web port</span></div></div>
-<p>最小候選，英、西班牙文各自約 4 MB 權重。適合單字及短句。</p>
-<button data-engine="pico2">播放 Pico 4MB</button>
+<p>英文及西班牙文的優先候選。西班牙文權重加音色包約 6.1 MB，另有共用執行環境。</p>
+<button class="primary" data-engine="pico2">播放 Pico 4MB</button>
 <div class="status" id="status-pico2">同樣是非官方 browser port，只拿來聽品質。</div><div class="progress"><span id="progress-pico2"></span></div>
 </article>
 </section>
 
-<section class="card" id="external-candidates">
-<h2 style="font-size:18px;margin:0 0 8px">更多候選 · 外部試聽</h2>
-<p class="note">以下是獨立展示頁，不納入本站速度統計。可先複製同一句測試文字，再於支援自訂文字的頁面試聽。</p>
+<section class="card" id="external-candidates" hidden>
+<h2 style="font-size:18px;margin:0 0 8px">輕量研究候選</h2>
+<p class="note">這些尚未接入本站推論，先到作者展示頁試聽或查看模型資料；不計入本站速度測試，也不自動下載。</p>
 <button id="copy-sample" type="button">複製目前測試文字</button><p id="copy-status" class="note" role="status"></p>
-<div data-extra-langs="zh" class="note"><a href="https://jiangzhuo9357-sherpa-onnx-tts-demos.static.hf.space/vits.html?model=melo-tts-zh-en" target="_blank" rel="noopener noreferrer">MeloTTS 中英 · 瀏覽器 WASM 展示</a>（約 163 MB）</div>
-<div data-extra-langs="zh,ja" class="note"><a href="https://jiangzhuo9357-sherpa-onnx-tts-demos.static.hf.space/kokoro.html?model=kokoro-v1_1" target="_blank" rel="noopener noreferrer">Kokoro 多語 v1.1 · 瀏覽器 WASM 展示</a>（約 130 MB；需選相應語言音色）</div>
-<div data-extra-langs="zh,ja,ko,es" class="note"><a href="https://hangry-labs.github.io/MeloTTS/" target="_blank" rel="noopener noreferrer">MeloTTS 中／日／韓／西班牙文 · 音質樣本</a>（外部預製音訊，不代表本機生成速度；日韓尚未整合純瀏覽器推論）</div>
+<div data-extra-langs="zh,es" class="candidate" hidden><strong>sanoTTS</strong><p class="note">超小型 WASM 語音；需確認發音準確度、完整下載量及 GPL 授權。</p><a href="https://ampixa.github.io/sanoTTS/" target="_blank" rel="noopener noreferrer">開啟作者試聽頁 ↗</a></div>
+<div data-extra-langs="zh" class="candidate" hidden><strong>Tiny Voca 中文</strong><p class="note">約 18 MB 權重；另需 Pyodide 發音處理。作者測試集 CER 23.5%，暫不適合教學正式版。</p><a href="https://github.com/xiaoliukuailiu/tiny-voca-zh" target="_blank" rel="noopener noreferrer">模型與原始碼 ↗</a></div>
+<div data-extra-langs="ja" class="candidate" hidden><strong>eeh-1</strong><p class="note">日文一男一女；18.2 MB 權重，另有詞典。作者報告瀏覽器首次壓縮傳輸約 26 MB，待驗證手機速度。</p><a href="https://huggingface.co/ctrltokyo/eeh-1" target="_blank" rel="noopener noreferrer">聽作者音訊樣本 ↗</a></div>
+<div data-extra-langs="ja" class="candidate" hidden><strong>Tiny Voca 日文</strong><p class="note">約 450 萬參數的研究方向；尚未確認輕量瀏覽器發音管線及完整下載量。</p><a href="https://github.com/gachimoto-code/tiny-voca-ja" target="_blank" rel="noopener noreferrer">模型與原始碼 ↗</a></div>
+<div data-extra-langs="ko" class="candidate" hidden><strong>Tiny Voca 韓文</strong><p class="note">實驗模型，瀏覽器完整下載量及訓練資料商用授權待審；暫不接入正式產品。</p><a href="https://github.com/ooodev/korean-tts" target="_blank" rel="noopener noreferrer">模型與原始碼 ↗</a></div>
 </section>
 <section class="result">
 <strong id="now">尚未播放</strong>
@@ -157,12 +97,8 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 <div class="small">提示：第一次下載時間不是模型品質。先聽自然度、重音、連音與停頓；第二次再比較生成速度。</div>
 </section>
 
-<p class="note">新增方案來源：<a href="https://github.com/therealtimex/piper-tts-web" target="_blank" rel="noopener noreferrer">Piper Web</a> · <a href="https://huggingface.co/open-world-group/Supertonic-3-ONNX" target="_blank" rel="noopener noreferrer">Supertonic 3 ONNX（社群轉換、OpenRAIL-M）</a>。<a href="https://huggingface.co/ayousanz/piper-plus-css10-ja-6lang" target="_blank" rel="noopener noreferrer">Piper Plus CSS10</a> · 此頁只作實驗，不代表已適合正式產品。</p>
-<p class="note">注意：8.8MB / 4MB 是 ONNX 模型檔本身，不代表完整首次下載量。TTS 2 Nano 英文 voice pack 另外約 5.22MB，還有 ONNX runtime 與 phonemizer。兩個 TTS 2 tiny 項目支援英／西班牙文，是 Koolo Lab 的實驗 browser port，不是 KittenML 官方 Web SDK 支援路徑。</p>
+<p class="note">Kitten 為實驗瀏覽器移植；模型、音色包與發音處理分開下載。不修改正式學習頁。</p>
 </main>
-<script type="importmap">
-{"imports":{"piper-plus":"https://unpkg.com/piper-plus@0.9.1/src/index.js","@piper-plus/g2p":"https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.5.0/src/index.js","onnxruntime-web":"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.1/dist/ort.min.mjs"}}
-</script>
 <script src="./compare.js"></script>
 </body>
 </html>

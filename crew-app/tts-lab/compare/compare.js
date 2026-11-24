@@ -44,12 +44,9 @@ const locales={en:"en-US",zh:"zh-TW",ja:"ja-JP",ko:"ko-KR",es:"es-ES"};
 const languageNames={en:"英文",zh:"中文",ja:"日文",ko:"韓文",es:"西班牙文"};
 const engineLanguages={
  system:["en","zh","ja","ko","es"],
- kokoro:["en"],kokoroGpuQ8:["en"],kokoroGpuFp32:["en"],
- piper:["en","zh","es"],piperPlus:["en","zh","ja","es"],piperJapanese:["ja"],
- supertonicWasm:["en","ja","ko","es"],supertonicGpu:["en","ja","ko","es"],
- kitten08:["en"],nano2:["en","es"],pico2:["en","es"]
+ nano2:["es"],pico2:["en","es"]
 };
-let activePreset="natural";
+let activePreset="word";
 const drafts={};
 for(const b of document.querySelectorAll("[data-preset]"))b.addEventListener("click",()=>{activePreset=b.dataset.preset;text.value=languagePresets[language.value][activePreset];});
 function supports(id,lang){return engineLanguages[id]?.includes(lang)===true;}
@@ -58,6 +55,7 @@ function updateLanguageButtons(reset=false){
  $("#external-candidates").hidden=language.value==="en";
  for(const b of document.querySelectorAll("[data-engine]")){
   const id=b.dataset.engine,available=supports(id,language.value);
+  b.closest(".model").hidden=!available;
   b.disabled=busy||!available;
   if(reset){
    setStatus(id,available?"按下試聽 · "+languageNames[language.value]:"目前此模型／瀏覽器發音管線不支援"+languageNames[language.value]+"。");
@@ -74,14 +72,10 @@ language.addEventListener("change",()=>{
  previousLanguage=language.value;
  text.value=drafts[previousLanguage]??languagePresets[previousLanguage][activePreset];
  text.lang=locales[previousLanguage];
- $("#language-info").textContent=languageNames[previousLanguage]+" · "+Object.keys(engineLanguages).filter(id=>supports(id,previousLanguage)).length+" 個可試選項（仍依裝置支援）";
+ $("#language-info").textContent=languageNames[previousLanguage]+" · "+Object.keys(engineLanguages).filter(id=>supports(id,previousLanguage)).length+" 個本站試聽選項（仍依裝置支援）";
  updateLanguageButtons(true);
 });
 
-const KOKORO_URL="https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js";
-const PIPER_URL="https://cdn.jsdelivr.net/npm/@realtimex/piper-tts-web@1.1.1/+esm";
-const TRANSFORMERS_URL="https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
-const SUPERTONIC_MODEL="open-world-group/Supertonic-3-ONNX";
 const KITTEN_WEB="https://cdn.jsdelivr.net/gh/KittenML/KittenTTS-web@c846fe92858f3447f4912226471f5a63983b3f94/examples/html/assets/kittentts-web.js";
 const ORT_JS="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/ort.min.js";
 const ORT_BASE="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/";
@@ -95,9 +89,6 @@ const TINY_MODELS={
 const engines={};
 const scripts=new Map();
 let currentUrl="",busy=false;
-const gpuAdapter=Promise.resolve().then(()=>navigator.gpu?.requestAdapter()).catch(()=>null);
-gpuAdapter.then(adapter=>{$("#device-info").textContent="WebGPU Adapter："+(adapter?"可用":"不可用")+" · crossOriginIsolated："+(window.crossOriginIsolated?"是":"否")+" · WASM 多執行緒條件："+(window.crossOriginIsolated&&typeof SharedArrayBuffer!=="undefined"?"具備（仍依 runtime 設定）":"不具備")+" · 邏輯核心："+(navigator.hardwareConcurrency||"未知");});
-
 function sample(){const v=text.value.trim();if(!v)throw Error("請先輸入測試句子。");return v;}
 function setStatus(id,msg,error=false){const el=$("#status-"+id);if(!el)return;el.textContent=msg;el.classList.toggle("error",error);}
 function setProgress(id,p){const el=$("#progress-"+id);if(el)el.style.width=Math.max(0,Math.min(100,p))+"%";}
@@ -152,105 +143,6 @@ async function systemTts(){
 function timing(prep,gen,warm){
  return (warm?"已載入":"首次準備")+" "+(prep/1000).toFixed(2)+" 秒 · 生成 "+(gen/1000).toFixed(2)+" 秒";
 }
-async function requireGpu(){if(!await gpuAdapter)throw Error("此裝置沒有可用 WebGPU Adapter；請改試 WASM 卡片。");}
-async function kokoroTts(id="kokoro",device="wasm",dtype="q8"){
- const v=sample(),selectedVoice=voice.value==="female"?"af_heart":"am_michael",rate=Number(speed.value);stopAll();
- const started=performance.now(),warm=!!engines[id];if(device==="webgpu")await requireGpu();
- setStatus(id,"載入 Kokoro "+device+" "+dtype+"…");
- if(!engines[id]){
-  const {KokoroTTS}=await import(KOKORO_URL);
-  engines[id]=await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX",{device,dtype,progress_callback:i=>{if(i?.status==="progress"&&typeof i.progress==="number")setProgress(id,i.progress)}});
-  setProgress(id,100);
- }
- const ready=performance.now();setStatus(id,"生成語音…");
- const a=await engines[id].generate(v,{voice:selectedVoice,speed:rate});
- const result=timing(ready-started,performance.now()-ready,warm);
- await playBlob(a.toBlob(),"Kokoro "+device+" "+dtype,result);setStatus(id,result);
-}
-async function piperTts(){
- const v=sample(),rate=Number(speed.value),voiceId=language.value==="zh"?"zh_CN-huayan-medium":language.value==="es"?"es_ES-carlfm-x_low":voice.value==="female"?"en_US-hfc_female-medium":"en_US-hfc_male-medium";stopAll();
- const id="piper",started=performance.now();setStatus(id,"載入 Piper runtime…");
- const sdk=engines.piperSDK||(engines.piperSDK=await import(PIPER_URL));
- const key="piper:"+voiceId,warm=!!engines[key];
- if(!warm){
-  const progress=p=>{if(p.total>0)setProgress(id,p.loaded/p.total*100);};
-  const stored=await sdk.stored().catch(()=>[]);
-  if(!stored.includes(voiceId)){setStatus(id,"下載 "+voiceId+"…");await sdk.download(voiceId,progress);}
-  engines[key]=true;
- }
- const ready=performance.now();setStatus(id,"生成語音（首次生成可能含 session 初始化）…");
- let blob;try{blob=await sdk.predict({text:v,voiceId});}catch(e){delete engines[key];throw e;}
- const result=timing(ready-started,performance.now()-ready,warm);
- await playBlob(blob,"Piper WASM",result);player.playbackRate=rate;setProgress(id,100);setStatus(id,result+" · "+voiceId);
-}
-async function piperPlusTts(id="piperPlus"){
- const v=sample(),lang=language.value,rate=Number(speed.value),model=id==="piperJapanese"?"ayousanz/piper-plus-tsukuyomi-chan":"ayousanz/piper-plus-css10-ja-6lang";stopAll();
- const started=performance.now(),warm=!!engines[id];
- if(!warm){
-  setStatus(id,"準備 Piper Plus 與發音字典…");
-  const [{PiperPlus},ort]=await Promise.all([import("piper-plus"),import("onnxruntime-web")]);
-  engines[id]=await PiperPlus.initialize({model,ort,onProgress:({progress,message})=>{
-   if(Number.isFinite(progress))setProgress(id,progress*100);
-   if(message)setStatus(id,message);
-  }});
- }
- const ready=performance.now();setStatus(id,"生成"+languageNames[lang]+"…");
- const a=await engines[id].synthesize(v,{language:lang,lengthScale:1/rate});
- if(!a.samples?.length)throw Error("Piper Plus 未回傳有效 PCM");
- const result=timing(ready-started,performance.now()-ready,warm);
- await playBlob(a.toBlob(),(id==="piperJapanese"?"Piper Plus:つくよみちゃん":"Piper Plus CSS10")+" · "+languageNames[lang],result);
- setProgress(id,100);setStatus(id,result+" · 固定音色（不受男女聲選擇影響）");
-}
-function splitSupertonic(value,lang){
- const limit=lang==="ja"||lang==="ko"?120:280,chars=Array.from(value.trim()),chunks=[];
- let offset=0;
- while(offset<chars.length){
-  let end=Math.min(offset+limit,chars.length);
-  if(end<chars.length){
-   for(let i=end;i>offset+Math.floor(limit/2);i--){
-    if(/[。！？.!?；;、，,\s]/u.test(chars[i-1])){end=i;break;}
-   }
-  }
-  const chunk=chars.slice(offset,end).join("").trim();
-  if(chunk)chunks.push(chunk);
-  offset=end;
- }
- return chunks;
-}
-async function supertonicTts(id,device){
- const v=sample(),lang=language.value,rate=Number(speed.value),style=voice.value==="female"?"F1":"M1";stopAll();
- const started=performance.now(),warm=!!engines[id];if(device==="webgpu")await requireGpu();
- if(!warm){
-  setStatus(id,"載入 Supertonic 3（大型模型）…");
-  const {pipeline}=await import(TRANSFORMERS_URL);
-  const dtype=device==="webgpu"?"fp16":{text_encoder:"fp32",latent_denoiser:"q8",voice_decoder:"fp32"};
-  engines[id]=await pipeline("text-to-speech",SUPERTONIC_MODEL,{device,dtype,progress_callback:i=>{if(i?.status==="progress"&&typeof i.progress==="number")setProgress(id,i.progress);}});
-  setProgress(id,100);
- }
- const ready=performance.now(),chunks=splitSupertonic(v,lang),parts=[];
- let sampleRate=0;for(let i=0;i<chunks.length;i++){
-  setStatus(id,"生成 "+(i+1)+"/"+chunks.length+"…");
-  const a=await engines[id]("<"+lang+">"+chunks[i]+"</"+lang+">",{speaker_embeddings:"https://huggingface.co/"+SUPERTONIC_MODEL+"/resolve/main/voices/"+style+".bin",num_inference_steps:5,speed:rate});
-  if(!a.audio?.length||!a.sampling_rate)throw Error("Supertonic 未回傳有效 PCM");
-  if(sampleRate&&sampleRate!==a.sampling_rate)throw Error("音訊取樣率不一致");
-  sampleRate=a.sampling_rate;parts.push(a.audio);
- }
- const gap=Math.round(sampleRate*0.12),pcm=new Float32Array(parts.reduce((n,a)=>n+a.length,0)+gap*(parts.length-1));let offset=0;
- for(const a of parts){pcm.set(a,offset);offset+=a.length+gap;}
- const result=timing(ready-started,performance.now()-ready,warm);
- await playBlob(wavBlob(pcm,sampleRate),"Supertonic 3 "+device,result);setStatus(id,result+" · "+(pcm.length/sampleRate).toFixed(1)+" 秒音訊");
-}
-
-async function kitten08Tts(){
- const v=sample();stopAll();const started=performance.now(),sdk=await loadKittenBundle();
- if(!engines.kitten08){setStatus("kitten08","準備官方 Web SDK…");
-  engines.kitten08=await sdk.KittenTTS.create({model:"nano-int8",defaultVoice:voice.value==="female"?"bella":"jasper",analytics:false},(p,info)=>{setProgress("kitten08",p*100);if(info?.asset)setStatus("kitten08",(info.stage||"載入")+" · "+info.asset)});
- }
- setStatus("kitten08","生成長句…");const r=await engines.kitten08.generate(v,{voice:voice.value==="female"?"bella":"jasper",speed:Number(speed.value)});
- await playBlob(new Blob([r.wavData()],{type:"audio/wav"}),"Kitten 0.8 Nano int8",((performance.now()-started)/1000).toFixed(1)+" 秒");
- setProgress("kitten08",100);setStatus("kitten08","完成。匿名 analytics 已關閉。");
-}
-
 function parseNPZ(data){
  const out={},view=new DataView(data.buffer,data.byteOffset,data.byteLength),dec=new TextDecoder();let off=0;
  while(off+30<=data.length&&view.getUint32(off,true)===0x04034b50){
@@ -323,8 +215,9 @@ async function tinyTts(kind){
  setStatus(kind,result+" · "+key+" · 實驗 port");
 }
 
-const handlers={system:systemTts,kokoro:()=>kokoroTts(),kokoroGpuQ8:()=>kokoroTts("kokoroGpuQ8","webgpu","q8"),kokoroGpuFp32:()=>kokoroTts("kokoroGpuFp32","webgpu","fp32"),piper:piperTts,piperPlus:()=>piperPlusTts(),piperJapanese:()=>piperPlusTts("piperJapanese"),supertonicWasm:()=>supertonicTts("supertonicWasm","wasm"),supertonicGpu:()=>supertonicTts("supertonicGpu","webgpu"),kitten08:kitten08Tts,nano2:()=>tinyTts("nano2"),pico2:()=>tinyTts("pico2")};
+const handlers={system:systemTts,nano2:()=>tinyTts("nano2"),pico2:()=>tinyTts("pico2")};
 for(const b of document.querySelectorAll("[data-engine]"))b.addEventListener("click",async()=>{const id=b.dataset.engine;if(busy||!supports(id,language.value))return;busy=true;language.disabled=true;updateLanguageButtons();try{await handlers[id]()}catch(e){console.error(e);setStatus(id,"失敗："+(e instanceof Error?e.message:String(e)),true)}finally{busy=false;language.disabled=false;updateLanguageButtons()}});
+$("#language-info").textContent="英文 · 2 個本站試聽選項";
 updateLanguageButtons();
-window.addEventListener("pagehide",()=>{try{engines.piperPlus?.dispose?.()}catch{}try{engines.piperJapanese?.dispose?.()}catch{}stopAll();if(currentUrl)URL.revokeObjectURL(currentUrl);try{engines.kitten08?.dispose?.()}catch{}try{engines.tinyRuntime?.phon?.dispose?.()}catch{}});
+window.addEventListener("pagehide",()=>{stopAll();if(currentUrl)URL.revokeObjectURL(currentUrl);try{engines.tinyRuntime?.phon?.dispose?.()}catch{}});
 })();
