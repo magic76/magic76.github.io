@@ -2,14 +2,30 @@
 const CDN="https://cdn.jsdelivr.net/npm/",ORT=CDN+"onnxruntime-web@1.24.3/dist/",UC=CDN+"uccharan@1.0.0/",HF="https://huggingface.co/";
 const PARA=HF+"sahilmahendrakar/Paradee-8M-v1.3/resolve/main/";
 const KOKORO=CDN+"kokoro-js@1.2.1/dist/kokoro.web.js";
-let engine,model,ctxId,ort,g2p;const langs=new Set();
+let engine,model,ctxId,ort,g2p;
+const ORT_BASES=[ORT,"https://unpkg.com/onnxruntime-web@1.24.3/dist/"];
+const importModule=url=>import(url);const langs=new Set();
 function status(text){self.postMessage({id:ctxId,status:text})}
 async function bytes(url){
  let cache;try{cache=await caches.open("koolo-tts-distilled-v1");const hit=await cache.match(url);if(hit)return new Uint8Array(await hit.arrayBuffer())}catch{}
  let error;for(let i=0;i<2;i++)try{const r=await fetch(url);if(!r.ok)throw Error("HTTP "+r.status+" "+url);const copy=r.clone(),data=new Uint8Array(await r.arrayBuffer());if(!data.length)throw Error("資源為空");try{await cache?.put(url,copy)}catch{}return data}catch(e){error=e}throw error
 }
-async function runtime(){
- if(!ort){importScripts(ORT+"ort.min.js");ort=self.ort;ort.env.wasm.numThreads=1;ort.env.wasm.wasmPaths=ORT;}return ort
+async function loadRuntime(load=importModule,bases=ORT_BASES,report=status,verify=async()=>{}){
+ const errors=[];
+ for(const base of bases){
+  const url=base+"ort.wasm.min.mjs";
+  try{
+   report("載入 ONNX WASM · "+new URL(base).hostname);
+   const mod=await load(url),api=mod.InferenceSession?mod:mod.default;
+   if(!api?.InferenceSession||!api?.Tensor||!api?.env?.wasm)throw Error("ONNX ESM exports 不完整");
+   api.env.wasm.numThreads=1;api.env.wasm.proxy=false;
+   // JS, WASM and glue must all be from the same pinned distribution.
+   api.env.wasm.wasmPaths=base;
+   await verify(api);
+   return api;
+  }catch(e){errors.push(new URL(base).hostname+": "+(e.message||String(e)))}
+ }
+ throw Error("ONNX WASM runtime 載入失敗："+errors.join("；"));
 }
 async function phonemes(text,voice,profile){
  const lang=voice.startsWith("b")?"en-gb":"en-us";
@@ -22,14 +38,25 @@ function parseNPY(data){
  const view=new DataView(data.buffer,data.byteOffset,data.byteLength),major=data[6],base=major>=2?12:10;
  const len=major>=2?view.getUint32(8,true):view.getUint16(8,true),header=new TextDecoder().decode(data.slice(base,base+len)),shape=header.match(/shape[^\(]*\(([^\)]*)\)/);
  if(!shape)throw Error("無效的 voice pack");const dims=shape[1].split(",").map(x=>Number(x.trim())).filter(n=>n>0);
- if(!header.includes("f4")||dims.length!==2)throw Error("不支援的 voice pack 格式");const start=base+len,raw=new DataView(data.buffer,data.byteOffset+start,data.length-start),floats=new Float32Array(raw.byteLength/4);for(let i=0;i<floats.length;i++)floats[i]=raw.getFloat32(i*4,!header.includes(">f4"));return{rows:dims[0],cols:dims[1],data:floats}
+ const half=header.includes("f2"),width=half?2:4;
+ if((!half&&!header.includes("f4"))||dims.length!==2)throw Error("不支援的 voice pack 格式");
+ const start=base+len,raw=new DataView(data.buffer,data.byteOffset+start,data.length-start),floats=new Float32Array(raw.byteLength/width),little=!header.includes(">f");
+ for(let i=0;i<floats.length;i++){if(!half){floats[i]=raw.getFloat32(i*4,little);continue}const bits=raw.getUint16(i*2,little),sign=bits&0x8000?-1:1,exp=(bits>>10)&31,frac=bits&1023;floats[i]=exp===0?sign*2**-14*frac/1024:exp===31?NaN:sign*2**(exp-15)*(1+frac/1024)}
+ if(floats.length!==dims[0]*dims[1]||!floats.every(Number.isFinite))throw Error("voice pack 資料不完整");return{rows:dims[0],cols:dims[1],data:floats}
 }
 async function parseNPZ(data){
  const {inflateRaw}=await import(CDN+"pako@2.1.0/dist/pako.esm.mjs"),out={},view=new DataView(data.buffer,data.byteOffset,data.byteLength),dec=new TextDecoder();let off=0;
  while(off+30<=data.length&&view.getUint32(off,true)===0x04034b50){const method=view.getUint16(off+8,true),size=view.getUint32(off+18,true),nl=view.getUint16(off+26,true),xl=view.getUint16(off+28,true),ds=off+30+nl+xl,de=ds+size;if(de>data.length||!size)throw Error("無效的 NPZ");const name=dec.decode(data.slice(off+30,off+30+nl));if(name.endsWith(".npy")){let raw=data.slice(ds,de);if(method===8)raw=inflateRaw(raw);else if(method!==0)throw Error("不支援的 NPZ 壓縮");out[name.slice(0,-4)]=parseNPY(raw)}off=de}return out
 }
 const json=async url=>JSON.parse(new TextDecoder().decode(await bytes(url)));
-async function session(url){await runtime();status("下載或讀取模型快取…");const data=await bytes(url);status("建立 WASM 推論環境…");return ort.InferenceSession.create(data,{executionProviders:["wasm"],intraOpNumThreads:1,graphOptimizationLevel:"all"})}
+async function session(url){
+ status("下載或讀取模型快取…");const data=await bytes(url);let result;
+ ort=await loadRuntime(importModule,ORT_BASES,status,async api=>{
+  status("建立 WASM 推論環境…"+new URL(api.env.wasm.wasmPaths).hostname);
+  result=await api.InferenceSession.create(data,{executionProviders:["wasm"],intraOpNumThreads:1,graphOptimizationLevel:"all"});
+ });
+ return result
+}
 async function load(id){
  if(id.startsWith("paradee")){
  const config=await json(PARA+"config.json");return{session:await session(PARA+"onnx/"+(id==="paradee8"?"paradee_int8.onnx":"paradee.onnx")),vocab:config.vocab,voices:config.voices}
@@ -72,7 +99,7 @@ async function speak(text,voice,speed){
  const feeds={input_ids:new ort.Tensor("int64",BigInt64Array.from(ids,BigInt),[1,ids.length]),speed:new ort.Tensor("float32",Float32Array.of(speed),[1])};
  let name=voice;
  if(kitten){name=voice.includes("f_")?"eleanor":"danny";const emb=engine.voices[name];if(!emb)throw Error("找不到音色 "+name);const row=Math.min(ids.length-1,emb.rows-1),style=emb.data.slice(row*emb.cols,(row+1)*emb.cols);feeds.style=new ort.Tensor("float32",style,[1,style.length])}
- else{const order=["af_heart","bf_isabella","am_puck","bm_fable","hf_alpha","hm_omega","ff_siwis","em_alex"],index=order.indexOf(voice);if(index<0)throw Error("未知音色");feeds.voice=new ort.Tensor("int64",BigInt64Array.of(BigInt(index)),[1])}
+ else{const order=Array.isArray(engine.voices)&&engine.voices.every(v=>typeof v==="string")?engine.voices:["af_heart","bf_isabella","am_puck","bm_fable","hf_alpha","hm_omega","ff_siwis","em_alex"],index=order.indexOf(voice);if(index<0)throw Error("未知音色");feeds.voice=new ort.Tensor("int64",BigInt64Array.of(BigInt(index)),[1])}
  const outputs=await engine.session.run(feeds),samples=outputs.waveform?.data||Object.values(outputs).find(t=>t.data instanceof Float32Array)?.data;
  if(!samples)throw Error("模型沒有 waveform");return{buffer:wav(samples),voice:name}
 }
