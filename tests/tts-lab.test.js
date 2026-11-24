@@ -23,7 +23,7 @@ test("all Kokoro language families have appropriate frontends and voices",()=>{
  assert.equal(routes.ja.voices.length,5);
  assert.equal(routes["en-US"].voices.length,20);
  assert.equal(routes["en-GB"].voices.length,8);
- for(const [lang,g2p] of [["es","es"],["fr","fr-fr"],["hi","hi"],["it","it"],["pt-BR","pt-br"]]){assert.equal(routes[lang].route,"base");assert.equal(routes[lang].g2p,g2p);}
+ for(const [lang,g2p] of [["es","es"],["fr","fr"],["hi","hi"],["it","it"],["pt-BR","pt-br"]]){assert.equal(routes[lang].route,"base");assert.equal(routes[lang].g2p,g2p);}
  for(const [lang,cfg] of Object.entries(routes)){assert.ok(page.includes('value="'+lang+'"'));assert.ok(cfg.sample.length>=2&&cfg.voices.length>0);assert.equal(new Set(cfg.voices).size,cfg.voices.length);}
- for(const s of ["KokoroJP.load({modelId:MODEL_ID,device,dtype})","tts.speak(v,selected,rate)","from_pretrained(ZH_MODEL","tts.generate_from_ids(input_ids,{voice:selected,speed:rate})","tts.generate(v,{voice:selected,speed:rate})","if(active?.route===route)return active.tts","audio.audio.every(Number.isFinite)"])assert.ok(code.includes(s),s);
+ for(const s of ["KokoroJP.load({modelId:MODEL_ID,device,dtype})","tts.speak(v,selected,rate)","from_pretrained(ZH_MODEL","tts.generate_from_ids(input_ids,{voice:selected,speed:rate})","tts.generate(v,{voice:selected,speed:rate})","if(active?.route===route)return active.tts","audio.audio.every(Number.isFinite)",'profile:"kokoro"','data/"+language+".ucd','uccharan@1.0.0/'])assert.ok(code.includes(s),s);
 });
