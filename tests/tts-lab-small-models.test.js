@@ -26,8 +26,8 @@ test("TTS labs remain noindexed and hub links to comparison",()=>{
 test("only relevant cards are shown, and unsupported engines cannot run",()=>{
  const source=js.match(/const engineLanguages=\{[\s\S]*?\};/)[0];
  const routes=vm.runInNewContext(source+";JSON.stringify(engineLanguages)");
- assert.deepEqual(JSON.parse(routes),{system:["en","zh","ja","ko","es"],nano2:["es"],pico2:["en","es"]});
- assert.deepEqual([...page.matchAll(/data-engine="([^"]+)"/g)].map(m=>m[1]).sort(),["nano2","pico2","system"]);
+ assert.deepEqual(JSON.parse(routes),{system:["en","zh","ja","ko","es"],nano2:["es"],pico2:["en","es"],sano:["zh","es"],eeh:["ja"],korean:["ko"]});
+ assert.deepEqual([...page.matchAll(/data-engine="([^"]+)"/g)].map(m=>m[1]).sort(),["eeh","korean","nano2","pico2","sano","system"]);
  assert.ok(js.includes('b.closest(".model").hidden=!available'));
  assert.match(js,/!supports\(id,language\.value\)/);
  assert.match(js,/u\.lang=locale/);
@@ -40,8 +40,30 @@ test("language-specific tiny assets, sessions and research links",()=>{
  assert.ok(js.includes('kind+":"+lang'));
  assert.ok(js.includes('phonemize(value,{lang:"es"})'));
  assert.ok(js.includes('"sofia":"pablo"'));
- assert.match(page,/ampixa.github.io\/sanoTTS/);
+ assert.match(page,/github.com\/Ampixa\/sanoTTS/);
  assert.match(page,/ctrltokyo\/eeh-1/);
- assert.match(page,/尚未接入本站推論/);
+ assert.match(page,/尚未確認可直接下載/);
  assert.ok(js.includes('el.hidden=!el.dataset.extraLangs.split(",").includes(language.value)'));
+});
+
+test("research candidates actually dispatch local synthesis workers",()=>{
+ const worker=read("web-spa/public/tts-lab/compare/lightweight-worker.js");
+ assert.doesNotThrow(()=>new vm.Script(worker));
+ for(const id of ["sano","eeh","korean"]){
+  assert.ok(page.includes('data-engine="'+id+'"'));
+  assert.ok(js.includes(id+':()=>researchTts("'+id+'")'));
+ }
+ assert.ok(js.includes('new Worker("./lightweight-worker.js")'));
+ assert.ok(js.includes('type:"speak",text:v'));
+ assert.ok(js.includes('wavBlob(result.audio,result.sampleRate)'));
+ assert.match(worker,/_snt_voice_synthesize/);
+ assert.match(worker,/synth\.speakEach/);
+ assert.match(worker,/session\.run/);
+ assert.match(worker,/loadZhG2P/);
+ assert.match(worker,/ko-loan/);
+ assert.match(worker,/eeh-dict\.bin\.gz/);
+ assert.match(worker,/chinese-xiaoya/);
+ assert.match(worker,/executionProviders:\["wasm"\]/);
+ assert.match(page,/非商業/);
+ assert.match(js,/worker\?\.terminate\(\);researchWorkers\.delete/);
 });
