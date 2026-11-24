@@ -3,24 +3,9 @@ import {speakText} from "../lib/deviceCapabilities";
 
 export type LearningSpeechSpeed="normal"|"slow";
 export type LearningSpeechMode="word"|"phrase"|"sentence";
-export type LearningSpeechEngine="nano"|"pico"|"system";
+export type LearningSpeechEngine="nano"|"pico"|"system"|"kokoro";
 export type LearningSpeechResult={engine:LearningSpeechEngine;language:string;cached:boolean};
 
-// Reclaim Kokoro learning weights without touching unrelated Transformers.js models.
-let legacyCleanupRequested=false;
-function cleanupLegacyKokoroCache(){
- if(legacyCleanupRequested||typeof caches==="undefined")return;
- legacyCleanupRequested=true;
- void (async()=>{
-  try{
-   const names=await caches.keys();
-   if(names.includes("kokoro-voices"))await caches.delete("kokoro-voices");
-   if(!names.includes("transformers-cache"))return;
-   const cache=await caches.open("transformers-cache");
-   for(const request of await cache.keys())if(/Kokoro-82M/i.test(request.url))await cache.delete(request).catch(()=>{});
-  }catch{/* Best effort: never interrupt pronunciation. */}
- })();
-}
 const NANO_BASE="https://huggingface.co/KittenML/kitten-tts-2-nano/resolve/main/";
 const PICO_BASE="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";
 const MODEL_CACHE="koolo-learning-speech-v1";
@@ -196,8 +181,38 @@ async function systemSpeak(text:string,language:string,speed:LearningSpeechSpeed
 export async function speakLearningText(text:string,languageValue:string,options:{speed?:LearningSpeechSpeed;mode?:LearningSpeechMode;onModelStatus?:(status:"loading"|"ready",language:string)=>void}={}):Promise<LearningSpeechResult>{
  const value=text.trim();if(!value)throw Error("EMPTY_SPEECH_TEXT");
  stopLearningSpeech();
- cleanupLegacyKokoroCache();
  const id=playbackId,language=normalizeLearningLanguage(languageValue),speed=options.speed||"normal",preferred=preferredLearningEngine(language);
+ // A model is never fetched implicitly. Consent is recorded only after a manual import.
+ const hasOptIn=(()=>{try{return Boolean(localStorage.getItem("koolo-kokoro-optin-v1"))}catch{return false}})();
+ if(hasOptIn){
+  try{
+   const high=await import("./learningSpeechHighQuality");
+   if(await high.highQualityReadyOrWarm(language)){
+    const highKey=cacheKey(value,language,speed,"kokoro"),hit=generated.get(highKey);
+    try{
+     if(hit){
+      for(const blob of hit){if(id!==playbackId)break;await playBlob(blob,id)}
+      return{engine:"kokoro",language,cached:true};
+     }
+     const chunks=segmentLearningSpeech(value),blobs:Blob[]=[];
+     let next=high.generateHighQuality(chunks[0],language,speed);
+     for(let index=0;index<chunks.length;index++){
+      const blob=await next;
+      if(id!==playbackId)return{engine:"kokoro",language,cached:false};
+      blobs.push(blob);
+      if(index+1<chunks.length)next=high.generateHighQuality(chunks[index+1],language,speed);
+      await playBlob(blob,id);
+     }
+     if(id===playbackId)remember(highKey,blobs);
+     return{engine:"kokoro",language,cached:false};
+    }catch(error){
+     if(id!==playbackId)return{engine:"system",language,cached:false};
+     console.warn("[learning-speech] Optional high-quality voice failed; falling back",error);
+    }
+   }
+  }catch(error){console.warn("[learning-speech] Optional voice not available",error)}
+  if(id!==playbackId)return{engine:"system",language,cached:false};
+ }
  const key=cacheKey(value,language,speed,preferred),cached=generated.get(key);
  if(preferred!=="system"&&!cached&&!ready.has(language)){
   const hit=await hasCachedTinyModel(language);
