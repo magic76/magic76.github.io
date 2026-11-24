@@ -24,3 +24,11 @@
 .fortune-product-option ul{margin:0;padding-inline-start:1.2em}
 .fortune-product-option small{font-size:.76rem;line-height:1.5;color:inherit;opacity:.85}
 @media(max-width:560px){.fortune-product-options{grid-template-columns:minmax(0,1fr)}}
+
+.fortune-unlock-sample{border-top:1px solid var(--border,#d9e2eb);padding-top:8px;min-width:0}
+.fortune-unlock-sample summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.88rem;font-weight:700;list-style:none}
+.fortune-unlock-sample summary::after{content:"+";flex:none;font-size:1.1rem}
+.fortune-unlock-sample details[open]>summary::after,.fortune-unlock-sample[open]>summary::after{content:"−"}
+.fortune-unlock-sample details{border-top:1px solid var(--border,#d9e2eb)}
+.fortune-unlock-sample details p{margin:4px 0 12px}
+.fortune-unlock-sample-note{margin-bottom:8px!important;opacity:.8}
