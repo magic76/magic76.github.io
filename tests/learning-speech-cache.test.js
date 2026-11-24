@@ -26,19 +26,21 @@ test("Nano and Pico use pinned ONNX/WASM assets and the same persistent cache",(
  assert.doesNotMatch(speech+worker,/from_pretrained|kokoro-js@|onnx-community\/Kokoro.*resolve\/main/);
 });
 
-test("cache hits for en/US/GB share Nano weights and never require Kokoro weights",async()=>{
+test("cache hits for en/US/GB share Paradee weights; selected languages use their own weights",async()=>{
  const code=slice(speech,"function modelLanguage(","function requestPersistentStorage(");
- const nano="https://huggingface.co/KittenML/kitten-tts-2-nano/resolve/main/";
+ const paradee="https://huggingface.co/sahilmahendrakar/Paradee-8M-v1.3/resolve/main/onnx/paradee_int8.onnx";
+ const piper="https://piper/model.onnx",mini="https://mini/model.onnx",eeh="https://eeh/model.gz";
  const pico="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";
- const stored=new Set([nano+"kitten_tts_2_nano_en_int4.onnx",pico+"kitten_tts_2_pico_de_int4.onnx"]);
- const context={NANO_BASE:nano,PICO_BASE:pico,MODEL_CACHE:"koolo-learning-speech-v1",
-  preferredLearningEngine:code=>code.toLowerCase().startsWith("en")?"nano":"pico",
-  window:{caches:true},caches:{open:async()=>({match:async url=>stored.has(url)?{ok:true}:undefined})}};
+ const stored=new Set([paradee,pico+"kitten_tts_2_pico_de_int4.onnx"]);
+ const context={PARADEE_MODEL:paradee,PIPER_MODEL:piper,MINI_MODEL:mini,EEH_MODEL:eeh,PICO_BASE:pico,MODEL_CACHE:"koolo-learning-speech-v1",
+  preferredLearningEngine:code=>code.toLowerCase().startsWith("en")?"paradee":({zh:"piper",ko:"mini",ja:"eeh"}[code]||"pico"),
+  window:{caches:true},caches:{keys:async()=>[],open:async()=>({match:async url=>stored.has(url)?{ok:true}:undefined})}};
  const {modelUrl,hasCachedTinyModel}=vm.runInNewContext(code+";({modelUrl,hasCachedTinyModel})",context);
  for(const en of ["en","en-US","en-GB"]){
-  assert.equal(modelUrl(en),nano+"kitten_tts_2_nano_en_int4.onnx");
+  assert.equal(modelUrl(en),paradee);
   assert.equal(await hasCachedTinyModel(en),true,en);
  }
+ assert.equal(modelUrl("zh"),piper);assert.equal(modelUrl("ko"),mini);assert.equal(modelUrl("ja"),eeh);
  assert.equal(await hasCachedTinyModel("de"),true);
  assert.equal(await hasCachedTinyModel("fr"),false);
  assert.match(speech,/if\(!hit\)options\.onModelStatus\?\.\("loading",language\)/);
@@ -46,7 +48,7 @@ test("cache hits for en/US/GB share Nano weights and never require Kokoro weight
 });
 
 test("obsolete model cleanup deletes only old Kokoro entries, never other ML weights",async()=>{
- const code=slice(speech,"let legacyCleanupRequested=","const NANO_BASE=");
+ const code=slice(speech,"let legacyCleanupRequested=","const PARADEE_MODEL=");
  const deleted=[],kept="https://huggingface.co/another-model/resolve/main/model.onnx";
  const cache={keys:async()=>[{url:"https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/onnx/model.onnx"},{url:kept}],delete:async req=>{deleted.push(req.url);return true}};
  const names=["transformers-cache","kokoro-voices"];
