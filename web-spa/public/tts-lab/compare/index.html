@@ -39,7 +39,7 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 
 <section class="card">
 <label for="language">測試語言</label>
-<select id="language"><option value="en">English · 英文</option><option value="zh">中文 · 國語</option><option value="ja">日本語 · 日文</option><option value="ko">한국어 · 韓文</option></select>
+<select id="language"><option value="en">English · 英文</option><option value="zh">中文 · 國語</option><option value="ja">日本語 · 日文</option><option value="ko">한국어 · 韓文</option><option value="es">Español · 西班牙文</option></select>
 <p class="note" id="language-info" role="status">選擇語言後會自動換成對應的測試句。</p>
 <label for="text">測試文字（可自行修改）</label>
 <textarea id="text" maxlength="520" spellcheck="true">At first, I thought learning English meant memorizing every word perfectly, but after I started speaking a little every day, I realized that rhythm, confidence, and the courage to keep going mattered much more than sounding perfect.</textarea>
@@ -88,22 +88,28 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 </article>
 
 <article class="model">
-<div><h2>Piper · WASM</h2><div class="meta"><span class="tag">HFC / Huayan medium</span><span class="tag">OPFS 快取</span></div></div>
-<p>英文 HFC 或中文 Huayan（單一音色）；慢速選項以播放器調速。</p>
+<div><h2>Piper · WASM</h2><div class="meta"><span class="tag">HFC / Huayan / Carlfm</span><span class="tag">OPFS 快取</span></div></div>
+<p>英文 HFC、中文 Huayan 或西班牙 Carlfm（後兩者固定音色）；慢速選項以播放器調速。</p>
 <button data-engine="piper">播放 Piper</button>
 <div class="status" id="status-piper">首次下載語音模型及 runtime。</div><div class="progress"><span id="progress-piper"></span></div>
 </article>
 
 <article class="model">
-<div><h2>Piper Plus · 本機</h2><div class="meta"><span class="tag">英 / 中 / 日</span><span class="tag warn">實驗</span></div></div>
+<div><h2>Piper Plus · 本機</h2><div class="meta"><span class="tag">英 / 中 / 日 / 西</span><span class="tag warn">實驗</span></div></div>
 <p>CSS10 Japanese 多語模型，固定單一音色；含日文專用 G2P。中文以國語為主，簡體文字可能較準；SDK 自動選擇 WebGPU / WASM。</p>
 <button data-engine="piperPlus">播放 Piper Plus</button>
 <div class="status" id="status-piperPlus">首次按下才載入模型和發音字典。</div><div class="progress"><span id="progress-piperPlus"></span></div>
 </article>
 
 <article class="model">
+<div><h2>Piper Plus · Tsukuyomi</h2><div class="meta"><span class="tag">日文女聲</span><span class="tag warn">實驗</span></div></div>
+<p>以日文語音訓練的另一個六語模型，本卡專供日文比較。固定女聲。音訊署名：Piper Plus:つくよみちゃん（非官方作品）。</p>
+<button data-engine="piperJapanese">播放 Tsukuyomi 日文</button>
+<div class="status" id="status-piperJapanese">首次按下才載入。</div><div class="progress"><span id="progress-piperJapanese"></span></div>
+</article>
+<article class="model">
 <div><h2>Supertonic 3 · WASM</h2><div class="meta"><span class="tag">混合 q8 / fp32</span><span class="tag">31 語言模型</span></div></div>
-<p>社群 Transformers.js ONNX 移植；支援英、日、韓文，不支援中文，首次下載較大。</p>
+<p>社群 Transformers.js ONNX 移植；支援英、日、韓、西班牙文，不支援中文，首次下載較大。</p>
 <button data-engine="supertonicWasm">播放 Supertonic WASM</button>
 <div class="status" id="status-supertonicWasm">首次載入多個 ONNX 模型。</div><div class="progress"><span id="progress-supertonicWasm"></span></div>
 </article>
@@ -124,19 +130,27 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 
 <article class="model">
 <div><h2>Kitten TTS 2 Nano int4</h2><div class="meta"><span class="tag">8.83 MB 模型</span><span class="tag warn">實驗 Web port</span></div></div>
-<p>模型很小，但英文 voice pack 約 5.22MB；目前官方 Web SDK 尚未支援 TTS 2 tiny。</p>
+<p>英、西班牙文獨立模型及音色包；英文 voice pack 約 5.22MB，西班牙文另下載。實驗移植。</p>
 <button data-engine="nano2">播放 Nano 8.8MB</button>
-<div class="status" id="status-nano2">用官方 ONNX + voice pack，phonemizer 暫借 0.8 Web 版。</div><div class="progress"><span id="progress-nano2"></span></div>
+<div class="status" id="status-nano2">官方 ONNX + 對應語言 voice pack；西班牙文使用獨立 G2P。</div><div class="progress"><span id="progress-nano2"></span></div>
 </article>
 
 <article class="model">
 <div><h2>Kitten TTS 2 Pico int4</h2><div class="meta"><span class="tag">約 4 MB 模型</span><span class="tag warn">實驗 Web port</span></div></div>
-<p>最小候選。適合確認「極小模型」聲音是否已經足夠單字學習。</p>
+<p>最小候選，英、西班牙文各自約 4 MB 權重。適合單字及短句。</p>
 <button data-engine="pico2">播放 Pico 4MB</button>
 <div class="status" id="status-pico2">同樣是非官方 browser port，只拿來聽品質。</div><div class="progress"><span id="progress-pico2"></span></div>
 </article>
 </section>
 
+<section class="card" id="external-candidates">
+<h2 style="font-size:18px;margin:0 0 8px">更多候選 · 外部試聽</h2>
+<p class="note">以下是獨立展示頁，不納入本站速度統計。可先複製同一句測試文字，再於支援自訂文字的頁面試聽。</p>
+<button id="copy-sample" type="button">複製目前測試文字</button><p id="copy-status" class="note" role="status"></p>
+<div data-extra-langs="zh" class="note"><a href="https://jiangzhuo9357-sherpa-onnx-tts-demos.static.hf.space/vits.html?model=melo-tts-zh-en" target="_blank" rel="noopener noreferrer">MeloTTS 中英 · 瀏覽器 WASM 展示</a>（約 163 MB）</div>
+<div data-extra-langs="zh,ja" class="note"><a href="https://jiangzhuo9357-sherpa-onnx-tts-demos.static.hf.space/kokoro.html?model=kokoro-v1_1" target="_blank" rel="noopener noreferrer">Kokoro 多語 v1.1 · 瀏覽器 WASM 展示</a>（約 130 MB；需選相應語言音色）</div>
+<div data-extra-langs="zh,ja,ko,es" class="note"><a href="https://hangry-labs.github.io/MeloTTS/" target="_blank" rel="noopener noreferrer">MeloTTS 中／日／韓／西班牙文 · 音質樣本</a>（外部預製音訊，不代表本機生成速度；日韓尚未整合純瀏覽器推論）</div>
+</section>
 <section class="result">
 <strong id="now">尚未播放</strong>
 <audio id="player" controls preload="none" hidden></audio>
@@ -144,7 +158,7 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 </section>
 
 <p class="note">新增方案來源：<a href="https://github.com/therealtimex/piper-tts-web" target="_blank" rel="noopener noreferrer">Piper Web</a> · <a href="https://huggingface.co/open-world-group/Supertonic-3-ONNX" target="_blank" rel="noopener noreferrer">Supertonic 3 ONNX（社群轉換、OpenRAIL-M）</a>。<a href="https://huggingface.co/ayousanz/piper-plus-css10-ja-6lang" target="_blank" rel="noopener noreferrer">Piper Plus CSS10</a> · 此頁只作實驗，不代表已適合正式產品。</p>
-<p class="note">注意：8.8MB / 4MB 是 ONNX 模型檔本身，不代表完整首次下載量。TTS 2 Nano 英文 voice pack 另外約 5.22MB，還有 ONNX runtime 與 phonemizer。兩個 TTS 2 tiny 項目是 Koolo Lab 的實驗 browser port，不是 KittenML 官方 Web SDK 支援路徑。</p>
+<p class="note">注意：8.8MB / 4MB 是 ONNX 模型檔本身，不代表完整首次下載量。TTS 2 Nano 英文 voice pack 另外約 5.22MB，還有 ONNX runtime 與 phonemizer。兩個 TTS 2 tiny 項目支援英／西班牙文，是 Koolo Lab 的實驗 browser port，不是 KittenML 官方 Web SDK 支援路徑。</p>
 </main>
 <script type="importmap">
 {"imports":{"piper-plus":"https://unpkg.com/piper-plus@0.9.1/src/index.js","@piper-plus/g2p":"https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.5.0/src/index.js","onnxruntime-web":"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.1/dist/ort.min.mjs"}}
