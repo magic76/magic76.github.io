@@ -1,0 +1,7 @@
+/* Explicit, opt-in local voice model. Applies to learning and chat settings. */
+.crew-hq-voice-control{display:flex;align-items:center;gap:10px;flex-wrap:wrap;max-width:100%;margin:10px 0}
+.crew-hq-voice-button{appearance:none;cursor:pointer;min-width:44px;min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid #285f54;background:#fff;color:#164438;font:inherit;font-size:14px;font-weight:700;line-height:1.5;text-align:center}
+.crew-hq-voice-button:hover{background:#f1f8f5}
+.crew-hq-voice-button:focus-visible{outline:3px solid #386bd1;outline-offset:2px}
+.crew-hq-voice-button:disabled{cursor:wait;opacity:.8}
+.crew-hq-voice-loading{font-size:13px;line-height:1.5;color:#164438}
