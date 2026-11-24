@@ -1,9 +1,18 @@
-import {useRef,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import {GUEST_TEXT_DAILY_TURNS} from "./guestAllowance";
 import {guestTextWorkerError} from "./guestTextError";
 type Config={dailyLimit?:number;memberDailyLimit?:number;remaining?:number};
 /** Only the Worker advertises the new entitlement. Account proof is never persisted. */
-export function useGuestTextQuota(){
+export function useGuestTextQuota(onNewDay:()=>void){
+ const callback=useRef(onNewDay);callback.current=onNewDay;
+ useEffect(()=>{
+  const day=()=>Math.floor((Date.now()+8*3600000)/86400000);
+  let last=day(),timer:number;
+  const refresh=()=>{if(day()!==last){last=day();callback.current()}};
+  const schedule=()=>{refresh();timer=window.setTimeout(schedule,(day()+1)*86400000-8*3600000-Date.now()+1000)};
+  schedule();document.addEventListener("visibilitychange",refresh);
+  return ()=>{window.clearTimeout(timer);document.removeEventListener("visibilitychange",refresh)};
+ },[]);
  const [remaining,setRemaining]=useState<number|null>(null);
  const [dailyLimit,setDailyLimit]=useState(GUEST_TEXT_DAILY_TURNS);
  const [memberQuota,setMemberQuota]=useState(false);

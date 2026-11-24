@@ -76,7 +76,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const [siteKey,setSiteKey]=useState("");
  const [guestStatus,setGuestStatus]=useState("");
  const [micFallbackNotice]=useState(takeMicFallbackNotice);
- const {remaining,setRemaining,dailyLimit,setDailyLimit,memberQuota,memberQuotaEnabled,applyConfig,textAuthTicket}=useGuestTextQuota();
+ const {remaining,setRemaining,dailyLimit,setDailyLimit,memberQuota,memberQuotaEnabled,applyConfig,textAuthTicket}=useGuestTextQuota(()=>{setGuestPhase(p=>p==="exhausted"?"checking":p);setConfigRetry(n=>n+1)});
  const mounted=useRef(true);
  const chatRoot=useRef<HTMLElement>(null);
  useTextChatKeyboard(chatRoot);
