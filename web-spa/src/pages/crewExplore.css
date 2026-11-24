@@ -1,8 +1,7 @@
 
-/* Shared arrow geometry and contrast, independent of artwork palette. */
-.crew-explore-tile .crew-arrow.crew-explore-arrow{width:32px;height:32px;bottom:14px;right:12px;background:#285a48;color:#fff;font-size:inherit}
+/* Shared plain arrow, with a reserved right edge independent of artwork. */
+.crew-explore-tile .crew-arrow.crew-explore-arrow{width:20px;height:20px;bottom:14px;right:12px;color:inherit;font-size:inherit}
 .crew-explore-tile[data-kind="town"] .crew-arrow.crew-explore-arrow,.crew-explore-tile[data-kind="magic"] .crew-arrow.crew-explore-arrow{bottom:14px}
-.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-arrow.crew-explore-arrow{background:#285a48}
 /* Crew Explore — nine destinations with image-backed illustrations and unchanged Timeline portraits. */
 .crew-section-explore{max-width:1120px;gap:23px}
 .crew-section-explore .crew-section-heading{padding:8px 2px 0}
@@ -55,8 +54,8 @@
 .crew-explore-text small{font-size:12px;line-height:1.65;color:var(--muted)}
 .crew-explore-arrow{
  position:absolute;bottom:14px;right:12px;display:grid;place-items:center;
- width:32px;height:32px;border-radius:50%;
- background:#285a48;color:#fff
+ width:20px;height:20px;
+ color:inherit
 }
 .crew-explore-tile:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(23,38,63,.09);border-color:var(--art-ink)}
 .crew-explore-tile:focus-visible{outline:3px solid var(--art-ink);outline-offset:3px}
@@ -122,8 +121,8 @@
  to{opacity:1;transform:translateY(0) scale(1)}
 }
 .crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-photo img{transform:scale(1.03)}
-.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-arrow{transform:translateX(2px);background:#285a48}
-.crew-explore-arrow{transition:transform 180ms var(--crew-motion-ease,ease-out),background-color 180ms ease}
+.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-arrow{transform:translateX(2px)}
+.crew-explore-arrow{transition:transform 180ms var(--crew-motion-ease,ease-out)}
 .crew-explore-life img{transition:transform 220ms var(--crew-motion-ease,ease-out)}
 .crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-life img:first-of-type{transform:translateY(9px) rotate(-11deg)}
 .crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-life img:nth-of-type(3){transform:translateY(7px) rotate(11deg)}
