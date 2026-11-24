@@ -4,6 +4,7 @@ type Reply={id:number;ok:boolean;buffer?:ArrayBuffer;error?:string};
 type Request={id:number;type:"prepare"|"generate";language:string;text?:string;speed?:"normal"|"slow";webgpu?:boolean};
 export type HighQualityStatus="idle"|"loading"|"ready";
 const STORAGE_KEY="koolo-kokoro-optin-v1";
+const WASM_PREFERENCE_KEY="koolo-kokoro-wasm-only-v1";
 const MODEL_CACHE="transformers-cache";
 const ASSET_CACHE="koolo-learning-speech-v1";
 const BASE_MODEL="onnx-community/Kokoro-82M-v1.0-ONNX";
@@ -47,6 +48,8 @@ function saveConsent(language:string,enabled:boolean){
 function notify(){for(const listener of listeners)listener()}
 export function subscribeHighQuality(listener:()=>void){listeners.add(listener);return()=>{listeners.delete(listener)}}
 async function webGpuAvailable(){
+ // A previous WebGPU session failure must not turn cached WASM q8 into a false fp32 hit.
+ try{if(localStorage.getItem(WASM_PREFERENCE_KEY)==="1")return false}catch{}
  if(disabledGpu)return false;
  if(!gpuProbe)gpuProbe=(async()=>{
   try{
@@ -134,6 +137,7 @@ function prepare(language:string):Promise<void>{
    if(gpu){
     console.warn("[learning-speech] WebGPU failed, retrying WASM q8",error);
     disabledGpu=true;prepared.clear();
+    try{localStorage.setItem(WASM_PREFERENCE_KEY,"1")}catch{}
     try{await run(false)}
     catch(wasmError){
      if(useMain)throw wasmError;
@@ -218,7 +222,10 @@ export async function removeHighQuality(language:string){
   if(!other){
    const cache=await caches.open(MODEL_CACHE),model=modelId(language);
    for(const request of await cache.keys())if(request.url.includes("/"+model+"/"))await cache.delete(request);
-   if(!grantList().length)await caches.delete("kokoro-voices");
+   if(!grantList().length){
+    await caches.delete("kokoro-voices");
+    try{localStorage.removeItem(WASM_PREFERENCE_KEY)}catch{}
+   }
   }
  }catch(error){console.warn("[learning-speech] Optional Kokoro cache cleanup failed",error)}
  notify();
