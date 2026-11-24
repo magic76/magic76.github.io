@@ -233,7 +233,8 @@
       "save": "＋ Speichern",
       "originalPrefix": "Original: ",
       "savedNote": "Aus Zoe-Chat gespeichert",
-      "modelDownloading": "Kitten-Sprachmodell wird geladen: ca. 13 MB für Englisch-Nano (andere Sprachen sind kleiner), nur einmal. Diesmal wird die Systemstimme verwendet.",
+      "modelDownloading": "Kokoro für englische Aussprache wird vorbereitet ({{runtime}}, ca. {{size}} MB; nur einmal herunterladen). Diesmal wird die Systemstimme verwendet.",
+      "modelDownloadingPico": "Das kleinere Kitten Pico Sprachmodell wird einmalig geladen. Diesmal wird die Systemstimme verwendet.",
       "modelReady": "Das Sprachmodell ist bereit. Beim nächsten Mal wird die hochwertige Stimme verwendet."
     },
     "typing": "{{name}} schreibt",

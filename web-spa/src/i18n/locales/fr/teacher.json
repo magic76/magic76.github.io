@@ -248,8 +248,9 @@
       "social": "Vie sociale"
     },
     "kicker": "Vocabulaire",
-    "neuralVoiceHint": "La prononciation anglaise utilise Kitten Nano sur l’appareil et les autres langues compatibles utilisent Kitten Pico. La voix du système prend le relais jusqu’à ce que le modèle soit prêt.",
-    "modelDownloading": "Préparation de la voix Kitten : environ 13 Mo pour l’anglais Nano (moins pour les autres langues), une seule fois. Cette fois, la voix du système est utilisée.",
+    "neuralVoiceHint": "La prononciation anglaise utilise Kokoro sur l’appareil ; les autres langues compatibles utilisent Kitten Pico. La voix système reste disponible pendant le chargement.",
+    "modelDownloading": "Préparation de Kokoro pour l’anglais ({{runtime}}, environ {{size}} Mo ; téléchargement unique). La voix du système sera utilisée cette fois.",
+    "modelDownloadingPico": "Préparation du modèle Kitten Pico, plus léger (téléchargement unique). La voix du système sera utilisée cette fois.",
     "modelReady": "Le modèle vocal est prêt. La prochaine lecture utilisera la voix haute qualité.",
     "listenExample": "Écouter l’exemple",
     "saved": "✓ Enregistré",
@@ -459,7 +460,8 @@
     "emptyTitle": "Ton jeu d’apprentissage est vide",
     "emptyDesc": "Enregistre l’une des cinq phrases du jour ou une phrase d’un chat avec Zoe que tu veux vraiment apprendre.",
     "dailyNote": "5 phrases du jour",
-    "modelDownloading": "Préparation de la voix Kitten : environ 13 Mo pour l’anglais Nano (moins pour les autres langues), une seule fois. Cette fois, la voix du système est utilisée.",
+    "modelDownloading": "Préparation de Kokoro pour l’anglais ({{runtime}}, environ {{size}} Mo ; téléchargement unique). La voix du système sera utilisée cette fois.",
+    "modelDownloadingPico": "Préparation du modèle Kitten Pico, plus léger (téléchargement unique). La voix du système sera utilisée cette fois.",
     "modelReady": "Le modèle vocal est prêt. La prochaine lecture utilisera la voix haute qualité.",
     "tags": {
       "correction": "Correction naturelle",

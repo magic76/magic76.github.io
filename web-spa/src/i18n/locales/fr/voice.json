@@ -233,7 +233,8 @@
       "save": "＋ Enregistrer",
       "originalPrefix": "Original : ",
       "savedNote": "Enregistré depuis un chat avec Zoe",
-      "modelDownloading": "Préparation de la voix Kitten : environ 13 Mo pour l’anglais Nano (moins pour les autres langues), une seule fois. Cette fois, la voix du système est utilisée.",
+      "modelDownloading": "Préparation de Kokoro pour l’anglais ({{runtime}}, environ {{size}} Mo ; téléchargement unique). La voix du système sera utilisée cette fois.",
+      "modelDownloadingPico": "Préparation du modèle Kitten Pico, plus léger (téléchargement unique). La voix du système sera utilisée cette fois.",
       "modelReady": "Le modèle vocal est prêt. La prochaine lecture utilisera la voix haute qualité."
     },
     "typing": "{{name}} écrit",
