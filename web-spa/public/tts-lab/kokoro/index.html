@@ -29,30 +29,17 @@ audio{width:100%;margin-top:12px}audio[hidden]{display:none}
 <main>
 <nav class="nav"><a class="logo" href="/tts-lab/">← TTS Lab</a><span class="pill">LOCAL AI</span></nav>
 <h1>Kokoro 本機語音</h1>
-<p class="intro">不呼叫 Koolo 的 TTS Worker，直接在瀏覽器下載 Kokoro 模型，用 WebGPU 或 WASM 本機生成。拿同一個單字跟系統 TTS 比較。</p>
+<p class="intro">不呼叫 Koolo 的 TTS Worker，直接在瀏覽器下載 Kokoro 模型，用 WebGPU 或 WASM 本機生成。選擇語言和音色，直接比較單字與短句。按播放才下載模型。</p>
 
 <section class="card">
-<label for="text">測試英文</label>
+<label for="lang">測試語言</label><select id="lang" style="margin-bottom:14px"><option value="en-US">美式英文</option><option value="en-GB">英式英文</option><option value="zh">中文 · 國語</option><option value="ja">日本語 · 日文</option><option value="es">Español · 西班牙文</option><option value="fr">Français · 法文</option><option value="hi">हिन्दी · 印地文</option><option value="it">Italiano · 義大利文</option><option value="pt-BR">Português · 巴西葡萄牙文</option></select><label for="text">測試文字</label>
 <input id="text" maxlength="120" value="comfortable" autocomplete="off" spellcheck="false">
-<div class="presets" aria-label="測試字詞">
-<button type="button" data-word="comfortable">comfortable</button>
-<button type="button" data-word="entrepreneur">entrepreneur</button>
-<button type="button" data-word="thought">thought</button>
-<button type="button" data-word="world">world</button>
-<button type="button" data-word="schedule">schedule</button>
-<button type="button" data-word="I really like this movie.">短句</button>
-</div>
+<div class="presets" id="presets" aria-label="測試字詞"></div>
 </section>
 
 <section class="card">
 <div class="grid">
-<div><label for="voice">Kokoro voice</label><select id="voice">
-<option value="af_heart">Heart · 美式女聲</option>
-<option value="af_bella">Bella · 美式女聲</option>
-<option value="am_michael">Michael · 美式男聲</option>
-<option value="bf_emma">Emma · 英式女聲</option>
-<option value="bm_george">George · 英式男聲</option>
-</select></div>
+<div><label for="voice">Kokoro voice</label><select id="voice"></select></div>
 <div><label for="speed">速度</label><select id="speed">
 <option value="1">正常 1.0×</option>
 <option value="0.85">慢速 0.85×</option>
@@ -69,65 +56,123 @@ audio{width:100%;margin-top:12px}audio[hidden]{display:none}
 <span id="runtime" class="badge">偵測執行環境…</span>
 <div id="status" class="status" role="status" aria-live="polite">Kokoro 尚未載入。第一次按 Kokoro 才下載模型。</div>
 <div class="meter" aria-hidden="true"><span id="progress"></span></div>
-<p class="note">Kokoro JS 1.2.1，模型 onnx-community/Kokoro-82M-v1.0-ONNX。WebGPU 優先用 fp32；沒有 WebGPU 就用 WASM q8。WASM q8 模型約 90MB 級，首次載入會慢，之後可由瀏覽器快取重用。</p>
+<p class="note" id="model-note"></p><p class="note">原模型有八種語言（英美分列九項），沒有韓文。中文為 v1.1 國語，不保證台灣腔；本頁僅供實驗。</p><p class="note">來源：<a href="https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md">音色與授權（含日文、法文 CC BY）</a> · <a href="https://github.com/uzen-zone/kokoro-js">中文移植</a> · <a href="https://github.com/nerosui/kokoro-js-jp/blob/main/THIRD_PARTY_NOTICES.md">日文移植及授權</a> · <a href="https://github.com/hexgrad/misaki">Misaki 音素</a> · <a href="https://github.com/cB-Sigma/uccharan">uccharan 發音處理</a></p>
 </section>
 </main>
 
 <script type="module">
+
 const KOKORO_URL="https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js";
 const MODEL_ID="onnx-community/Kokoro-82M-v1.0-ONNX";
-const $=selector=>document.querySelector(selector);
-const text=$("#text"),voice=$("#voice"),speed=$("#speed"),system=$("#system"),kokoro=$("#kokoro"),player=$("#player"),status=$("#status"),runtime=$("#runtime"),progress=$("#progress");
-let ttsPromise=null,objectUrl="";
+const ZH_URL="https://cdn.jsdelivr.net/npm/@uzen/kokoro-js@1.2.4/dist/kokoro.web.js";
+const ZH_MODEL="onnx-community/Kokoro-82M-v1.1-zh-ONNX";
+const JA_URL="https://cdn.jsdelivr.net/npm/kokoro-js-jp@0.2.0/dist/kokoro-jp.web.js";
+const G2P_BASE="https://cdn.jsdelivr.net/npm/uccharan@1.0.0/";
+const G2P_URL=G2P_BASE+"index.js";
+const ZH_VOICES=["zf_001","zf_002","zf_003","zf_004","zf_005","zf_006","zf_007","zf_008","zf_017","zf_018","zf_019","zf_021","zf_022","zf_023","zf_024","zf_026","zf_027","zf_028","zf_032","zf_036","zf_038","zf_039","zf_040","zf_042","zf_043","zf_044","zf_046","zf_047","zf_048","zf_049","zf_051","zf_059","zf_060","zf_067","zf_070","zf_071","zf_072","zf_073","zf_074","zf_075","zf_076","zf_077","zf_078","zf_079","zf_083","zf_084","zf_085","zf_086","zf_087","zf_088","zf_090","zf_092","zf_093","zf_094","zf_099","zm_009","zm_010","zm_011","zm_012","zm_013","zm_014","zm_015","zm_016","zm_020","zm_025","zm_029","zm_030","zm_031","zm_033","zm_034","zm_035","zm_037","zm_041","zm_045","zm_050","zm_052","zm_053","zm_054","zm_055","zm_056","zm_057","zm_058","zm_061","zm_062","zm_063","zm_064","zm_065","zm_066","zm_068","zm_069","zm_080","zm_081","zm_082","zm_089","zm_091","zm_095","zm_096","zm_097","zm_098","zm_100"];
+const LANGUAGES={
+ "en-US":{route:"base",locale:"en-US",sample:["comfortable","entrepreneur","thought","world","schedule","I really like this movie."],voices:["af_heart","af_bella","af_alloy","af_aoede","af_jessica","af_kore","af_nicole","af_nova","af_river","af_sarah","af_sky","am_michael","am_adam","am_echo","am_eric","am_fenrir","am_liam","am_onyx","am_puck","am_santa"]},
+ "en-GB":{route:"base",locale:"en-GB",sample:["comfortable","schedule","water","thought","world","I really like this film."],voices:["bf_emma","bf_alice","bf_isabella","bf_lily","bm_george","bm_daniel","bm_fable","bm_lewis"]},
+ zh:{route:"zh",locale:"zh-TW",sample:["舒服","你好","銀行","旅行","今天天氣很好。","你想和我一起練習中文嗎？"],voices:ZH_VOICES},
+ ja:{route:"ja",locale:"ja-JP",sample:["ありがとう","こんにちは","心地よい","旅行","今日はいい天気ですね。","一緒に日本語を練習しませんか？"],voices:["jf_alpha","jf_gongitsune","jf_nezumi","jf_tebukuro","jm_kumo"]},
+ es:{route:"base",locale:"es-ES",g2p:"es",sample:["cómodo","gracias","mañana","viaje","¡Buenos días!","¿Quieres practicar español conmigo?"],voices:["ef_dora","em_alex","em_santa"]},
+ fr:{route:"base",locale:"fr-FR",g2p:"fr",sample:["bonjour","merci","confortable","voyage","Il fait beau aujourd'hui.","Tu veux pratiquer le français avec moi ?"],voices:["ff_siwis"]},
+ hi:{route:"base",locale:"hi-IN",g2p:"hi",sample:["नमस्ते","धन्यवाद","आरामदायक","यात्रा","आज मौसम अच्छा है।","क्या आप मेरे साथ हिंदी का अभ्यास करना चाहेंगे?"],voices:["hf_alpha","hf_beta","hm_omega","hm_psi"]},
+ it:{route:"base",locale:"it-IT",g2p:"it",sample:["ciao","grazie","comodo","viaggio","Oggi è una bella giornata.","Vuoi praticare l'italiano con me?"],voices:["if_sara","im_nicola"]},
+ "pt-BR":{route:"base",locale:"pt-BR",g2p:"pt-br",sample:["olá","obrigado","confortável","viagem","Hoje está um dia lindo.","Quer praticar português comigo?"],voices:["pf_dora","pm_alex","pm_santa"]}
+};
+const $=s=>document.querySelector(s);
+const lang=$("#lang"),text=$("#text"),voice=$("#voice"),speed=$("#speed"),system=$("#system"),kokoro=$("#kokoro"),player=$("#player"),status=$("#status"),runtime=$("#runtime"),progress=$("#progress");
+let active=null,objectUrl="",busy=false,previousLang=lang.value,g2pPromise=null;
+const drafts=new Map(),selectedVoices=new Map();
 const hasWebGpu=typeof navigator!=="undefined"&&"gpu" in navigator;
-runtime.textContent=hasWebGpu?"WebGPU 可用 · fp32":"WebGPU 不可用 · WASM q8";
-
-for(const button of document.querySelectorAll("[data-word]"))button.addEventListener("click",()=>{text.value=button.dataset.word||"";});
-function value(){const v=text.value.trim();if(!v)throw new Error("先輸入要念的英文。");return v;}
-function fail(error){console.error(error);status.textContent="失敗："+(error instanceof Error?error.message:String(error));}
-system.addEventListener("click",()=>{
- try{
-  const v=value();
-  if(!("speechSynthesis" in window))throw new Error("這個瀏覽器沒有系統 TTS。");
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(v);u.lang="en-US";u.rate=Number(speed.value);speechSynthesis.speak(u);
-  status.textContent="正在播放系統 TTS。";
- }catch(error){fail(error);}
-});
-function onProgress(info){
- if(!info||typeof info!=="object")return;
- const p=typeof info.progress==="number"?Math.max(0,Math.min(100,info.progress)):0;
- if(p)progress.style.width=p+"%";
- if(info.status==="progress"&&info.file)status.textContent="下載模型："+info.file+" · "+Math.round(p)+"%";
+const device=hasWebGpu?"webgpu":"wasm";
+const dtype=hasWebGpu?"fp32":"q8";
+const notes={base:"v1.0 · Kokoro JS 1.2.1；英文和西、法、印地、義、葡文共用權重（WASM q8 約 90 MB）。其他五語使用 uccharan Kokoro 音素處理（實驗）。",zh:"v1.1 中文專用模型 · @uzen/kokoro-js 1.2.4。fp32 約 330 MB 權重，首次下載較大；100 個音色按需載入。",ja:"v1.0 · kokoro-js-jp 0.2.0，首次日文另外下載約 24 MB 壓縮詞典。"};
+function clearAudio(){try{speechSynthesis?.cancel();}catch{}player.pause();player.removeAttribute("src");player.hidden=true;player.load();if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl="";}
+function renderLanguage(){
+ const info=LANGUAGES[lang.value];
+ voice.replaceChildren(...info.voices.map(id=>{const o=document.createElement("option");o.value=id;o.textContent=id.split("_")[1]+(id[1]==="f"?" · 女聲":" · 男聲");return o;}));
+ voice.value=selectedVoices.get(lang.value)||info.voices[0];
+ text.value=drafts.get(lang.value)??info.sample[0];text.lang=info.locale;
+ $("#presets").replaceChildren(...info.sample.map((value,i)=>{const b=document.createElement("button");b.type="button";b.textContent=i===info.sample.length-1?"短句":value;b.addEventListener("click",()=>{text.value=value;clearAudio();});return b;}));
+ $("#model-note").textContent=notes[info.route];
+ runtime.textContent=(hasWebGpu?"WebGPU":"WASM")+" · "+(info.route==="zh"?"fp32":dtype);
+ progress.style.width=active?.route===info.route?"100%":"0";
+ status.textContent="選擇音色後按 Kokoro 播放。";
 }
-async function load(){
- if(!ttsPromise){
-  ttsPromise=(async()=>{
-   status.textContent="載入 Kokoro runtime…";
-   const {KokoroTTS}=await import(KOKORO_URL);
-   const device=hasWebGpu?"webgpu":"wasm";
-   const dtype=hasWebGpu?"fp32":"q8";
-   status.textContent="載入模型（"+device+" / "+dtype+"）…";
-   const tts=await KokoroTTS.from_pretrained(MODEL_ID,{device,dtype,progress_callback:onProgress});
-   progress.style.width="100%";status.textContent="Kokoro 已就緒。";return tts;
-  })().catch(error=>{ttsPromise=null;progress.style.width="0";throw error;});
+lang.addEventListener("change",()=>{drafts.set(previousLang,text.value);selectedVoices.set(previousLang,voice.value);previousLang=lang.value;clearAudio();renderLanguage();});
+voice.addEventListener("change",()=>{clearAudio();status.textContent="已切換音色。";});
+function value(){const v=text.value.trim();if(!v)throw Error("先輸入要念的文字。");return v;}
+function fail(e){console.error(e);status.textContent="失敗："+(e instanceof Error?e.message:String(e));}
+system.addEventListener("click",()=>{try{const v=value(),info=LANGUAGES[lang.value];if(!("speechSynthesis" in window))throw Error("此瀏覽器沒有系統 TTS");clearAudio();const u=new SpeechSynthesisUtterance(v);u.lang=info.locale;u.rate=Number(speed.value);speechSynthesis.speak(u);status.textContent="正在播放系統 TTS。";}catch(e){fail(e);}});
+function onProgress(i){if(i?.status==="progress"&&Number.isFinite(i.progress)){progress.style.width=Math.max(0,Math.min(100,i.progress))+"%";status.textContent="下載模型："+i.file+" · "+Math.round(i.progress)+"%";}}
+async function load(route){
+ if(active?.route===route)return active.tts;
+ const previous=active;active=null;
+ if(previous?.tts?.model?.dispose)await previous.tts.model.dispose();
+ progress.style.width="0";status.textContent="載入 Kokoro runtime…";
+ let tts;
+ if(route==="zh"){
+  const {KokoroTTS}=await import(ZH_URL);
+  tts=await KokoroTTS.from_pretrained(ZH_MODEL,{device,dtype:"fp32",voicePath:"https://huggingface.co/"+ZH_MODEL+"/resolve/main/voices",progress_callback:onProgress});
+ }else if(route==="ja"){
+  const {KokoroJP}=await import(JA_URL);
+  tts=await KokoroJP.load({modelId:MODEL_ID,device,dtype});
+ }else{
+  const {KokoroTTS}=await import(KOKORO_URL);
+  tts=await KokoroTTS.from_pretrained(MODEL_ID,{device,dtype,progress_callback:onProgress});
  }
- return ttsPromise;
+ active={route,tts};progress.style.width="100%";return tts;
 }
+// The stock phonemizer package ships English data only. Use the explicitly
+// multilingual uccharan Kokoro profile, with pinned language packs.
+const loadedG2P=new Map();
+async function fetchG2PAsset(path){
+ const res=await fetch(G2P_BASE+path);
+ if(!res.ok)throw Error("發音資源 "+path+" HTTP "+res.status);
+ return new Uint8Array(await res.arrayBuffer());
+}
+async function loadG2P(language){
+ if(!g2pPromise)g2pPromise=(async()=>{
+  const [mod,wasm]=await Promise.all([import(G2P_URL),fetchG2PAsset("dist/uccharan_wasm_bg.wasm")]);
+  await mod.init({wasm});return mod;
+ })().catch(e=>{g2pPromise=null;throw e;});
+ const mod=await g2pPromise;
+ if(!loadedG2P.has(language)){
+  const pending=(async()=>{const pack=await fetchG2PAsset("data/"+language+".ucd");await mod.loadLanguage(language,pack);})().catch(e=>{loadedG2P.delete(language);throw e;});
+  loadedG2P.set(language,pending);
+ }
+ await loadedG2P.get(language);return mod;
+}
+async function espeakGenerate(tts,info,v,selected,rate){
+ const mod=await loadG2P(info.g2p);
+ const p=String(mod.phonemizeSync(v,{lang:info.g2p,profile:"kokoro"})).trim();
+ if(!p)throw Error("無有效音素");
+ const {input_ids}=tts.tokenizer(p,{truncation:false});
+ if(input_ids.dims.at(-1)>511||input_ids.dims.at(-1)<3)throw Error("音素數量不符，請縮短文字");
+ return tts.generate_from_ids(input_ids,{voice:selected,speed:rate});
+}
+function setBusy(b){busy=b;lang.disabled=b;voice.disabled=b;speed.disabled=b;text.readOnly=b;system.disabled=b;kokoro.disabled=b;for(const el of $("#presets").querySelectorAll("button"))el.disabled=b;}
 kokoro.addEventListener("click",async()=>{
+ if(busy)return;
  try{
-  const v=value();speechSynthesis?.cancel();kokoro.disabled=true;
-  const started=performance.now(),tts=await load();
-  status.textContent="Kokoro 正在生成「"+v+"」…";
-  const audio=await tts.generate(v,{voice:voice.value,speed:Number(speed.value)});
-  if(objectUrl)URL.revokeObjectURL(objectUrl);
-  objectUrl=URL.createObjectURL(audio.toBlob());player.src=objectUrl;player.hidden=false;
-  await player.play();
-  status.textContent="Kokoro 播放中 · 點擊到開始播放 "+((performance.now()-started)/1000).toFixed(1)+" 秒";
- }catch(error){fail(error);}
- finally{kokoro.disabled=false;}
+  const v=value(),info=LANGUAGES[lang.value],selected=voice.value,rate=Number(speed.value);
+  if(!info.voices.includes(selected))throw Error("語言與音色不符");
+  clearAudio();setBusy(true);
+  const started=performance.now(),warm=active?.route===info.route,tts=await load(info.route),ready=performance.now();
+  status.textContent="生成語音…"+(info.route==="ja"?"（初次含日文詞典準備）":"");
+  const audio=info.route==="ja"?await tts.speak(v,selected,rate):info.g2p?await espeakGenerate(tts,info,v,selected,rate):await tts.generate(v,{voice:selected,speed:rate});
+  const generated=performance.now();
+  if(!audio?.audio?.length||!audio.audio.some(x=>Number.isFinite(x)&&x!==0)||!audio.audio.every(Number.isFinite))throw Error("模型未回傳有效聲音");
+  const blob=audio.toBlob();if(!blob||blob.size<=44)throw Error("音訊檔案為空");
+  objectUrl=URL.createObjectURL(blob);player.src=objectUrl;player.hidden=false;
+  const timing=(warm?"已載入":"模型準備")+" "+((ready-started)/1000).toFixed(2)+" 秒 · 生成 "+((generated-ready)/1000).toFixed(2)+" 秒";
+  try{await player.play();status.textContent="播放中 · "+timing;}catch{status.textContent="生成完成，請按播放器播放 · "+timing;}
+ }catch(e){fail(e);}finally{setBusy(false);}
 });
-window.addEventListener("pagehide",()=>{speechSynthesis?.cancel();if(objectUrl)URL.revokeObjectURL(objectUrl);});
+window.addEventListener("pagehide",()=>clearAudio());
+renderLanguage();
 </script>
 </body>
 </html>
