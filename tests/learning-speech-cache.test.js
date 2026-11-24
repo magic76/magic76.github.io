@@ -45,18 +45,12 @@ test("cache hits for en/US/GB share Nano weights and never require Kokoro weight
  assert.match(speech,/\.finally\(\(\)=>\{if\(id===playbackId&&!hit\)options\.onModelStatus\?\.\("ready",language\)\}\)/);
 });
 
-test("obsolete model cleanup deletes only old Kokoro entries, never other ML weights",async()=>{
- const code=slice(speech,"let legacyCleanupRequested=","const NANO_BASE=");
- const deleted=[],kept="https://huggingface.co/another-model/resolve/main/model.onnx";
- const cache={keys:async()=>[{url:"https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/onnx/model.onnx"},{url:kept}],delete:async req=>{deleted.push(req.url);return true}};
- const names=["transformers-cache","kokoro-voices"];
- const caches={keys:async()=>names,open:async name=>{assert.equal(name,"transformers-cache");return cache},delete:async name=>{deleted.push(name);return true}};
- const cleanup=vm.runInNewContext(code+";cleanupLegacyKokoroCache",{caches});
- cleanup();cleanup();
- await new Promise(resolve=>setImmediate(resolve));
- assert.equal(deleted.filter(x=>x==="kokoro-voices").length,1);
- assert.equal(deleted.filter(x=>x.includes("Kokoro-82M")).length,1);
- assert.ok(!deleted.includes(kept));
+test("ordinary learning speech never purges opted-in Kokoro weights",()=>{
+ assert.doesNotMatch(speech,/cleanupLegacyKokoroCache|caches\.delete\("kokoro-voices"\)/);
+ const high=fs.readFileSync("web-spa/src/teacher/learningSpeechHighQuality.ts","utf8");
+ assert.match(high,/export async function removeHighQuality/);
+ assert.match(high,/if\(!other\)\{/);
+ assert.match(high,/request\.url\.includes\("\/"\+model\+"\/"\)/);
 });
 
 test("uccharan maps English only to real en-us.ucd; French remains fr.ucd",async()=>{
