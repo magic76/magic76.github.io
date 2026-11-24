@@ -9,7 +9,7 @@ test("bazi-only non-transactional price experiment",()=>{
  const calls=[...component.matchAll(/fetch\("([^"]+)"/g)].map(m=>m[1]);
  assert.deepEqual(calls,["/api/fortune/ecpay/test-config"]);
  assert.doesNotMatch(component,/method:\s*["\x27]POST|checkout|paymentIntent/);
- assert.match(component,/完整命盤解鎖/);assert.match(component,/專屬一生命書/);assert.match(component,/NT\$99/);assert.match(component,/NT\$30/);assert.match(component,/預定原價 NT\$69/);assert.match(component,/限時免費/);assert.match(component,/尚未開放領取/);
+ assert.match(component,/完整命盤解鎖/);assert.match(component,/專屬一生命書/);assert.match(component,/NT\$99/);assert.match(component,/NT\$30/);assert.match(component,/預定原價 NT\$69/);assert.match(component,/限時免費/);assert.match(component,/目前免費閱讀/);
  for(const path of ["web-spa/src/analytics/usage.ts","functions/api/usage/event.ts","web-spa/src/analytics/usageDashboardDefinitions.ts","web-spa/src/analytics/usageExport.ts"]){
   assert.match(read(path),/fortune_price_view/);assert.match(read(path),/fortune_price_interest/);
  }
@@ -30,11 +30,16 @@ test("planned 69/99 offers are distinct and no live purchase is enabled",()=>{
  assert.match(read("migrations/crew-auth/0006_fortune_paid_reports.sql"),/CHECK\(amount_twd=79\)/);
 });
 
-test("69 website sample is explicitly fictional and never grants paid access",()=>{
- const component=read("web-spa/src/fortune/FortunePriceInterest.tsx");
- assert.match(component,/UNLOCK_SAMPLE\.map/);
- assert.match(component,/免費試閱網站深度解析/);
- assert.match(component,/虛構命盤展示內容深度/);
- for(const topic of ["命格總覽","天賦與盲點","事業與職涯","財富與資源","愛情與人際","大運與流年"])assert.ok(component.includes(topic));
- assert.match(component,/尚未開放購買/);
+test("69 website trial reads the actual chart rather than fictional sample",()=>{
+ const component=read("web-spa/src/fortune/FortunePriceInterest.tsx"),page=read("web-spa/src/fortune/ReadingPage.tsx"),model=read("web-spa/src/fortune/baziWebsiteReading.ts"),view=read("web-spa/src/fortune/FortuneBaziWebsiteReading.tsx");
+ assert.doesNotMatch(component,/UNLOCK_SAMPLE|虛構命盤/);
+ assert.match(page,/FortunePriceInterest readingId=\{reading!\.id\} result=\{reading!\.result\}/);
+ assert.match(component,/FortuneBaziWebsiteReading result=\{result\}/);
+ assert.match(component,/免費閱讀我的完整解析/);
+ assert.equal((model.match(/\btopic\("/g)||[]).length,8);
+ assert.equal((model.match(/\bsection\("/g)||[]).length,24);
+ for(const field of ["dayMaster","weightedFiveElements","careerProfile","wealthProfile","relationshipProfile","luckPillars","annualTimeline"])assert.ok(model.includes(field));
+ assert.match(model,/length:5/);assert.match(model,/未包含該年的計算資料/);
+ assert.match(view,/aria-pressed/);assert.match(view,/fortune-website-timeline/);
+ assert.doesNotMatch(model+view,/CrewAI\.call|fetch\(|geminiKey\(/);
 });
