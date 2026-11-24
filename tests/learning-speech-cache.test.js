@@ -114,3 +114,74 @@ test("short phrases remain one chunk and long sentences split into ordered claus
  assert.ok(chunks.length>=2&&chunks.every(part=>part.length<=100));
  assert.match(chunks[0],/^At first,/);
 });
+
+test("learning speech CDN modules use pinned jsDelivr, never esm.sh",()=>{
+ for(const file of fs.readdirSync("web-spa/src/teacher").filter(name=>/^learningSpeech.*\.ts$/.test(name))){
+  assert.doesNotMatch(fs.readFileSync("web-spa/src/teacher/"+file,"utf8"),/esm\.sh/i,file);
+ }
+ assert.match(worker,/const PAKO_URL="https:\/\/cdn\.jsdelivr\.net\/npm\/pako@2\.1\.0\/dist\/pako\.esm\.mjs"/);
+ assert.match(worker,/const ORT_JS="https:\/\/cdn\.jsdelivr\.net\/npm\/onnxruntime-web@1\.24\.3\/dist\/ort\.min\.js"/);
+ assert.match(worker,/const UCCHARAN_BASE="https:\/\/cdn\.jsdelivr\.net\/npm\/uccharan@1\.0\.0\/"/);
+ assert.match(worker,/await importExternal\(PAKO_URL\)/);
+ assert.match(worker,/importExternal\(UCCHARAN_URL\)/);
+});
+
+test("CDN dynamic import retries once with a fresh module URL and propagates final failure",async()=>{
+ const code=slice(worker,"async function importExternal(","let ortPromise:");
+ const load=vm.runInNewContext(code+";importExternal",{URL});
+ const url="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.esm.mjs";
+ for(const failures of [0,1,2]){
+  const calls=[],module={inflateRaw(){}};
+  const attempt=load(url,async href=>{
+   calls.push(href);
+   if(calls.length<=failures)throw Error("CDN unavailable");
+   return module;
+  });
+  if(failures===2)await assert.rejects(attempt,/CDN unavailable/);
+  else assert.equal(await attempt,module);
+  assert.deepEqual(calls,failures?[url,url+"?learning-speech-retry=1"]:[url]);
+ }
+});
+
+test("ORT classic script retries once and rejects when both requests fail",async()=>{
+ const code=slice(worker,"let ortPromise:","async function fetchCached(");
+ const url="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/ort.min.js";
+ for(const failures of [0,1,2]){
+  const calls=[],ort={env:{wasm:{}}};
+  const scope={importScripts(href){
+   calls.push(href);
+   if(calls.length<=failures)throw Error("script offline");
+   scope.ort=ort;
+  }};
+  const getRuntime=vm.runInNewContext(code+";getRuntime",{scope,ORT_JS:url,ORT_BASE:url.slice(0,url.lastIndexOf("/")+1)});
+  if(failures===2)await assert.rejects(getRuntime(),/script offline/);
+  else assert.equal(await getRuntime(),ort);
+  assert.deepEqual(calls,failures?[url,url+"?learning-speech-retry=1"]:[url]);
+ }
+});
+
+test("asset fetch retries exactly once, including without Cache Storage, and preserves canonical cache keys",async()=>{
+ const code=slice(worker,"async function fetchCached(","function float16ToFloat(");
+ const url="https://cdn.jsdelivr.net/npm/uccharan@1.0.0/data/en-us.ucd";
+ for(const useCache of [false,true])for(const failures of [0,1,2]){
+  const calls=[],writes=[];
+  const cache={match:async()=>undefined,put:async key=>writes.push(key)};
+  const scope=useCache?{caches:{open:async name=>{assert.equal(name,"koolo-learning-speech-v1");return cache}}}:{};
+  const response={ok:true,clone:()=>({arrayBuffer:async()=>Uint8Array.of(42).buffer})};
+  const fetch=async href=>{
+   calls.push(href);
+   if(calls.length<=failures)throw Error("asset offline");
+   return response;
+  };
+  const get=vm.runInNewContext(code+";fetchCached",{scope,fetch,Uint8Array});
+  if(failures===2)await assert.rejects(get(url),/asset offline/);
+  else assert.deepEqual(Array.from(await get(url)),[42]);
+  assert.deepEqual(calls,failures?[url,url]:[url]);
+  assert.deepEqual(writes,useCache&&failures<2?[url]:[]);
+ }
+ const get=vm.runInNewContext(code+";fetchCached",{
+  scope:{caches:{open:async()=>({match:async()=>({arrayBuffer:async()=>Uint8Array.of(7).buffer})})}},
+  fetch:async()=>{throw Error("cache hit must not fetch")},Uint8Array
+ });
+ assert.deepEqual(Array.from(await get(url)),[7]);
+});
