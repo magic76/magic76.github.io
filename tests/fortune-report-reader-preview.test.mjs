@@ -17,7 +17,7 @@ test("page-turn reader has 10 print-safe pages, controls, and a no-AI preview en
  assert.match(html,/\.sheet\.is-active\{display:flex!important;position:relative!important/);
  assert.equal((html.match(/<article class="sheet(?: dark)?"/g)||[]).length,10);
  assert.doesNotMatch(html,/留給自己的一題|建議：每週做一件/);
- assert.match(html,/v=20261124-pageflip2/);
+ assert.match(html,/v=20261124-pageflip3/);
  assert.match(html,/touch-action:pan-y pinch-zoom/);
  assert.match(html,/overscroll-behavior-x:none/);
  assert.match(html,/overflow-x:clip/);
@@ -31,10 +31,12 @@ test("page-turn reader has 10 print-safe pages, controls, and a no-AI preview en
  assert.match(source,/showCover:true,drawShadow:true/);
  assert.match(source,/flippingTime:850/);
  assert.match(source,/readerFlip\.flipNext\("bottom"\)/);
- assert.doesNotMatch(source,/readerFlip\.flipPrev\(/);
- assert.match(source,/readerFlip\.turnToPage\(spread.first-1\)/);
- assert.match(source,/useMouseEvents:false/);
- assert.match(source,/bindReaderSwipe\(node\("flipBook"\)\)/);
+ assert.match(source,/readerFlip\.flipPrev\("bottom"\)/);
+ assert.doesNotMatch(source,/readerFlip\.turnToPage\(spread.first-1\)/);
+ assert.match(source,/useMouseEvents:true,swipeDistance:45/);
+ assert.match(source,/showPageCorners:true/);
+ assert.match(source,/bindReaderSwipe\(node\("bookPages"\)\)/);
+ assert.doesNotMatch(source,/bindReaderSwipe\(node\("flipBook"\)\)/);
  assert.match(source,/copy\.querySelectorAll\("\[id\]"\)/);
  assert.match(source,/prefers-reduced-motion: reduce/);
  assert.match(readFileSync("scripts/prepare-cloudflare.mjs","utf8"),/page-flip-2\.0\.7/);
@@ -143,7 +145,7 @@ test("StPageFlip adapter delegates real page turns and preserves canonical repor
  const node=id=>{if(!nodes.has(id))nodes.set(id,make());return nodes.get(id)};
  const text=(id,value)=>{node(id).textContent=value};
  class PageFlip{
-  constructor(host,settings){instances++;assert.equal(settings.flippingTime,850);assert.equal(settings.showCover,true);assert.equal(settings.mobileScrollSupport,true);assert.equal(settings.useMouseEvents,false)}
+  constructor(host,settings){instances++;assert.equal(settings.flippingTime,850);assert.equal(settings.showCover,true);assert.equal(settings.mobileScrollSupport,true);assert.equal(settings.useMouseEvents,true);assert.equal(settings.showPageCorners,true)}
   on(name,fn){events.set(name,fn)}
   loadFromHTML(items){calls.push(["load",items]);events.get("init")()}
   updateFromHtml(items){calls.push(["update",items]);events.get("update")()}
@@ -153,7 +155,7 @@ test("StPageFlip adapter delegates real page turns and preserves canonical repor
   getOrientation(){return orientation}
   getState(){return state}
   flipNext(){calls.push(["next"]);index+=orientation==="portrait"?1:index===0?1:2;events.get("flip")()}
-  flipPrev(){throw Error("Reverse curl must never be called")}
+  flipPrev(){calls.push(["prev"]);index-=orientation==="portrait"?1:index===1?1:2;events.get("flip")()}
  }
  const window={St:{PageFlip},matchMedia:()=>({matches:false})};
  const document={createElement:()=>make()};
@@ -169,13 +171,17 @@ test("StPageFlip adapter delegates real page turns and preserves canonical repor
  assert.notEqual(calls[0][1][0].children[0],originals[0]);
  assert.equal(node("pageCounter").textContent,"1 / 10");
  adapter.readerStep(1);assert.equal(node("pageCounter").textContent,"2 / 10");
- state="flipping";adapter.readerStep(1);assert.equal(index,1);
- state="read";adapter.readerStep(-1);assert.equal(node("pageCounter").textContent,"1 / 10");assert.equal(calls.at(-1)[0],"jump");
+ state="flipping";adapter.readerStep(1);adapter.readerStep(-1);assert.equal(index,1);
+ state="user_fold";adapter.readerStep(-1);assert.equal(index,1);
+ state="read";adapter.readerStep(-1);assert.equal(node("pageCounter").textContent,"1 / 10");assert.equal(calls.at(-1)[0],"prev");
  orientation="landscape";adapter.readerStep(1);assert.equal(node("pageCounter").textContent,"2–3 / 10");
  adapter.readerStep(1);assert.equal(node("pageCounter").textContent,"4–5 / 10");
  adapter.readerStep(-1);assert.equal(node("pageCounter").textContent,"2–3 / 10");
  adapter.readerStep(-1);assert.equal(node("pageCounter").textContent,"1 / 10");
+ const callCount=calls.length;adapter.readerStep(-1);assert.equal(calls.length,callCount);
  index=9;adapter.syncFlip();assert.equal(node("nextPage").disabled,true);
+ adapter.readerStep(1);assert.equal(index,9);
+ adapter.readerStep(-1);assert.equal(node("pageCounter").textContent,"8–9 / 10");
  assert.equal(adapter.openFlip(),true);assert.equal(instances,1);assert.equal(node("pageCounter").textContent,"1 / 10");
  assert.equal(calls.filter(x=>x[0]==="update").length,1);
  window.matchMedia=()=>({matches:true});flags.clear();
