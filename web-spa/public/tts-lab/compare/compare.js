@@ -44,7 +44,7 @@ const locales={en:"en-US",zh:"zh-TW",ja:"ja-JP",ko:"ko-KR",es:"es-ES"};
 const languageNames={en:"英文",zh:"中文",ja:"日文",ko:"韓文",es:"西班牙文"};
 const engineLanguages={
  system:["en","zh","ja","ko","es"],
- nano2:["es"],pico2:["en","es"]
+ nano2:["es"],pico2:["en","es"],sano:["zh","es"],eeh:["ja"],korean:["ko"]
 };
 let activePreset="word";
 const drafts={};
@@ -52,7 +52,7 @@ for(const b of document.querySelectorAll("[data-preset]"))b.addEventListener("cl
 function supports(id,lang){return engineLanguages[id]?.includes(lang)===true;}
 function updateLanguageButtons(reset=false){
  for(const el of document.querySelectorAll("[data-extra-langs]"))el.hidden=!el.dataset.extraLangs.split(",").includes(language.value);
- $("#external-candidates").hidden=language.value==="en";
+ $("#external-candidates").hidden=![...document.querySelectorAll("[data-extra-langs]")].some(el=>!el.hidden);
  for(const b of document.querySelectorAll("[data-engine]")){
   const id=b.dataset.engine,available=supports(id,language.value);
   b.closest(".model").hidden=!available;
@@ -215,9 +215,60 @@ async function tinyTts(kind){
  setStatus(kind,result+" · "+key+" · 實驗 port");
 }
 
-const handlers={system:systemTts,nano2:()=>tinyTts("nano2"),pico2:()=>tinyTts("pico2")};
+
+// Research engines have their own workers, with language-keyed sessions. Nothing
+// loads on first visit; no engine silently substitutes system speech on failure.
+const researchWorkers=new Map();
+let requestCounter=0;
+function workerRequest(worker,id,message){
+ const req=++requestCounter;
+ return new Promise((resolve,reject)=>{
+  let timer;
+  const cleanup=()=>{clearTimeout(timer);worker.removeEventListener("message",onMessage);worker.removeEventListener("error",onError);worker.removeEventListener("messageerror",onError);};
+  const fail=err=>{cleanup();reject(err);};
+  const onError=event=>fail(Error(event.message||"本機推論環境載入失敗"));
+  const onMessage=({data})=>{
+   if(data.type==="status"){
+    setStatus(id,data.text);if(Number.isFinite(data.progress))setProgress(id,data.progress*100);
+    return;
+   }
+   if(data.id!==req)return;
+   if(data.type==="error")fail(Error(data.message));
+   else if(data.type==="ready"||data.type==="done"){cleanup();resolve(data);}
+  };
+  worker.addEventListener("message",onMessage);worker.addEventListener("error",onError);worker.addEventListener("messageerror",onError);
+  timer=setTimeout(()=>fail(Error("本機模型操作逾時，請重試")),message.type==="load"?240000:60000);
+  try{worker.postMessage({...message,id:req});}catch(e){fail(e);}
+ });
+}
+async function researchTts(id){
+ const lang=language.value,v=sample(),rate=Number(speed.value),selected=voice.value,key=id+":"+lang;
+ if(id==="korean"&&!researchWorkers.has(key)&&!window.confirm("韓文 KSS 模型僅供個人非商業研究；首次下載約 40 MB 或更多。確定繼續？"))return;
+ stopAll();
+ const started=performance.now(),warm=researchWorkers.has(key);
+ let worker=researchWorkers.get(key);
+ try{
+  if(!worker){
+   worker=new Worker("./lightweight-worker.js");
+   setStatus(id,"準備本機模型…");setProgress(id,0);
+   await workerRequest(worker,id,{type:"load",engine:id,lang});
+   researchWorkers.set(key,worker);
+  }
+  const ready=performance.now();
+  setProgress(id,100);setStatus(id,"生成語音…");
+  const result=await workerRequest(worker,id,{type:"speak",text:v,voice:selected,speed:rate});
+  if(!(result.audio instanceof Float32Array)||!result.audio.length||!Number.isFinite(result.sampleRate)||result.sampleRate<=0)throw Error("未回傳有效音訊");
+  const elapsed=timing(ready-started,performance.now()-ready,warm),name={sano:"sanoTTS",eeh:"eeh-1",korean:"Tiny Voca 韓文"}[id];
+  await playBlob(wavBlob(result.audio,result.sampleRate),name+" · "+result.voice,elapsed);
+  setStatus(id,elapsed+" · "+result.voice+" · "+(result.audio.length/result.sampleRate).toFixed(1)+" 秒音訊");
+ }catch(e){
+  worker?.terminate();researchWorkers.delete(key);throw e;
+ }
+}
+
+const handlers={system:systemTts,nano2:()=>tinyTts("nano2"),pico2:()=>tinyTts("pico2"),sano:()=>researchTts("sano"),eeh:()=>researchTts("eeh"),korean:()=>researchTts("korean")};
 for(const b of document.querySelectorAll("[data-engine]"))b.addEventListener("click",async()=>{const id=b.dataset.engine;if(busy||!supports(id,language.value))return;busy=true;language.disabled=true;updateLanguageButtons();try{await handlers[id]()}catch(e){console.error(e);setStatus(id,"失敗："+(e instanceof Error?e.message:String(e)),true)}finally{busy=false;language.disabled=false;updateLanguageButtons()}});
 $("#language-info").textContent="英文 · 2 個本站試聽選項";
 updateLanguageButtons();
-window.addEventListener("pagehide",()=>{stopAll();if(currentUrl)URL.revokeObjectURL(currentUrl);try{engines.tinyRuntime?.phon?.dispose?.()}catch{}});
+window.addEventListener("pagehide",()=>{for(const worker of researchWorkers.values())worker.terminate();researchWorkers.clear();stopAll();if(currentUrl)URL.revokeObjectURL(currentUrl);try{engines.tinyRuntime?.phon?.dispose?.()}catch{}});
 })();
