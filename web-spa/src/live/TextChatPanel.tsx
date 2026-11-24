@@ -347,7 +347,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {guestPhase==="unavailable"&&<small role="status">{t("textChat.ui.unavailable")}</small>}
    {guestPhase==="unavailable"&&configRetryable&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("checking");setConfigRetry(n=>n+1)}}>{t("guestText.restart")}</button>}
    {guestPhase==="exhausted"&&<small role="status">{t("textChat.ui.exhausted")}</small>}
-   {guestPhase==="exhausted"&&memberQuotaEnabled&&!memberQuota&&<Link className="btn" to="/account">{t("common:guestTrial.signInAction")}</Link>}
+   {guestPhase==="exhausted"&&memberQuotaEnabled&&!memberQuota&&<Link className="btn" to="/account">{t("guestText.memberUpgrade")}</Link>}
    {(guestPhase==="unavailable"||guestPhase==="exhausted")&&<GuestKeyRecovery exhausted={guestPhase==="exhausted"} hasKey={hasKey}/>}
   </div>}
   <div ref={history} className="crew-text-chat-history" role="log" aria-label={t("textChat.ui.conversation")} aria-live="polite" aria-relevant="additions">
