@@ -23,9 +23,10 @@ function setup({userId="u1",missing=false,allowed="u1",enabled="1"}={}){
   const stmt={bind(...v){args=v;return stmt},
    async first(){
     if(sql.includes("FROM crew_auth_sessions"))return userId?{user_id:userId}:null;
-    if(sql.includes("FROM koolo_fortune_stage_orders")){
+    if(sql.includes("FROM koolo_fortune_stage_orders")||sql.includes("FROM koolo_fortune_stage_book_orders")){
      if(sql.includes("COUNT(1)"))return {n:orders.size};
-     if(sql.includes("WHERE merchant_trade_no=?"))return [...orders.values()].find(x=>x.merchant_trade_no===args[0])||null;
+     if(sql.includes("WHERE trade_no_hash=?"))return [...orders.values()].find(x=>x.trade_no_hash===args[0]&&x.amount_twd===(sql.includes("FROM koolo_fortune_stage_book_orders")?99:79))||null;
+     if(sql.includes("WHERE merchant_trade_no=?"))return [...orders.values()].find(x=>x.merchant_trade_no===args[0]&&x.amount_twd===args[1])||null;
      if(sql.includes("WHERE id=? AND user_id=?"))return [...orders.values()].find(x=>x.id===args[0]&&x.user_id===args[1])||null;
      if(sql.includes("WHERE id=?"))return orders.get(args[0])||null;
      return [...orders.values()][0]||null;
@@ -39,13 +40,13 @@ function setup({userId="u1",missing=false,allowed="u1",enabled="1"}={}){
     throw Error("Unknown all: "+sql);
    },
    async run(){
-    if(sql.startsWith("INSERT INTO koolo_fortune_stage_orders")){
-     const[id,user_id,merchant_trade_no,facts_json,created_at]=args;
+    if(sql.startsWith("INSERT INTO koolo_fortune_stage_book_orders")){
+     const[id,user_id,merchant_trade_no,amount_twd,facts_json,created_at]=args;
      orders.set(id,{id,user_id,merchant_trade_no,facts_json,created_at,state:"pending",
-       report_json:null,trade_no_hash:null,paid_at:null,amount_twd:79});
+       report_json:null,trade_no_hash:null,paid_at:null,amount_twd});
      return {success:true,meta:{changes:1}};
     }
-    if(sql.startsWith("UPDATE koolo_fortune_stage_orders")){
+    if(sql.startsWith("UPDATE koolo_fortune_stage_orders")||sql.startsWith("UPDATE koolo_fortune_stage_book_orders")){
      const[paid_at,trade_no_hash,report_json,id]=args;
      const row=orders.get(id);if(!row||row.state!=="pending")return {meta:{changes:0}};
      Object.assign(row,{paid_at,trade_no_hash,report_json,state:"paid"});
@@ -71,7 +72,7 @@ test("strict opt-in, session and per-user allowlist before any stage operation",
  assert.equal((await stageConfig({request:request("/api/fortune/ecpay/test-config"),env:{...s.env,KOOLO_ECPAY_STAGE_ENABLED:"0"}})).status,503);
  assert.equal((await stageConfig({request:request("/api/fortune/ecpay/test-config"),env:{...s.env,KOOLO_ECPAY_TEST_USER_IDS:"u2"}})).status,403);
  assert.equal((await stageConfig({request:request("/api/fortune/ecpay/test-config"),env:setup({missing:true}).env})).status,503);
- assert.equal((await stageConfig({request:request("/api/fortune/ecpay/test-config"),env:s.env})).status,200);
+ const cfg=await stageConfig({request:request("/api/fortune/ecpay/test-config"),env:s.env});assert.equal(cfg.status,200);assert.equal((await cfg.json()).amountTwd,99);
 });
 test("order creation validates CSRF, input, sandbox destination and account ownership",async()=>{
  const s=setup(),path="/api/fortune/ecpay/test-order";
@@ -82,7 +83,8 @@ test("order creation validates CSRF, input, sandbox destination and account owne
  const data=await ok.json();
  assert.equal(data.sandbox,true);
  assert.equal(data.checkout.action,"https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5");
- assert.equal(data.checkout.fields.TotalAmount,"79");
+ assert.equal(data.checkout.fields.TotalAmount,"99");
+ assert.equal([...s.orders.values()][0].amount_twd,99);
  assert.equal(data.checkout.fields.MerchantID,"3002607");
  assert.equal(data.checkout.fields.ChoosePayment,"Credit");
  assert.equal(data.checkout.fields.ReturnURL,"https://koolo.app/api/fortune/ecpay/test-notify");
@@ -97,7 +99,7 @@ test("ECPay forged callbacks, wrong amount, unapproved simulation and failure ca
  const s=setup();const order=await stageOrder({request:request("/api/fortune/ecpay/test-order",{method:"POST",body:JSON.stringify({facts:FACTS})}),env:s.env});
  const created=await order.json(),id=created.orderId,merchantNo=created.checkout.fields.MerchantTradeNo;
  const payload={MerchantID:"3002607",MerchantTradeNo:merchantNo,RtnCode:"1",RtnMsg:"交易成功",TradeNo:"2511220000123456",
-  TradeAmt:"79",PaymentType:"Credit_CreditCard",SimulatePaid:"0"};
+  TradeAmt:"99",PaymentType:"Credit_CreditCard",SimulatePaid:"0"};
  const send=async(extra={},breakMac=false)=>{
   const data={...payload,...extra},CheckMacValue=await ecpayCheckMac(data);
   const body=new URLSearchParams({...data,CheckMacValue:breakMac?"0".repeat(64):CheckMacValue}).toString();
@@ -105,6 +107,7 @@ test("ECPay forged callbacks, wrong amount, unapproved simulation and failure ca
  };
  assert.equal((await send({},true)).status,403);
  assert.equal((await send({TradeAmt:"80"})).status,422);
+ assert.equal((await send({TradeAmt:"79"})).status,404,"79 cannot settle a 99 order");
  assert.equal((await send({RtnCode:"0"})).status,200);
  assert.equal((await send({SimulatePaid:"1"})).status,200);
  assert.equal(s.orders.get(id).state,"pending");
@@ -149,4 +152,23 @@ test("no live payment routes or live purchase entitlements introduced",()=>{
  assert.match(stage,/KOOLO_ECPAY_TEST_USER_IDS/);
  assert.match(read("web-spa/src/fortune/FortunePriceInterest.tsx"),/\/fortune\/ecpay\/test\?history=/);
  assert.match(read("web-spa/src/App.tsx"),/path="ecpay\/test"/);
+});
+
+test("legacy 79 callback remains isolated and order history preserves both prices",async()=>{
+ const s=setup(),id=crypto.randomUUID(),merchantNo="LEGACY79";
+ s.orders.set(id,{id,user_id:"u1",merchant_trade_no:merchantNo,amount_twd:79,state:"pending",facts_json:JSON.stringify(FACTS),created_at:1});
+ const pay=async(amount)=>{
+  const data={MerchantID:"3002607",MerchantTradeNo:merchantNo,RtnCode:"1",TradeNo:"LEGACYTRADE79",TradeAmt:String(amount),PaymentType:"Credit_CreditCard",SimulatePaid:"0"};
+  const body=new URLSearchParams({...data,CheckMacValue:await ecpayCheckMac(data)}).toString();
+  return stageNotify({request:request("/api/fortune/ecpay/test-notify",{method:"POST",body,isNotify:true,noCookie:true}),env:s.env});
+ };
+ assert.equal((await pay(99)).status,404);assert.equal(s.orders.get(id).state,"pending");
+ assert.equal((await pay(79)).status,200);assert.equal(s.orders.get(id).state,"paid");
+ const created=await stageOrder({request:request("/api/fortune/ecpay/test-order",{method:"POST",body:JSON.stringify({facts:FACTS})}),env:s.env});assert.equal(created.status,201);
+ const newOrder=await created.json();const duplicate={MerchantID:"3002607",MerchantTradeNo:newOrder.checkout.fields.MerchantTradeNo,RtnCode:"1",TradeNo:"LEGACYTRADE79",TradeAmt:"99",PaymentType:"Credit_CreditCard",SimulatePaid:"0"};
+ const body=new URLSearchParams({...duplicate,CheckMacValue:await ecpayCheckMac(duplicate)}).toString();
+ assert.equal((await stageNotify({request:request("/api/fortune/ecpay/test-notify",{method:"POST",body,isNotify:true,noCookie:true}),env:s.env})).status,409);
+ const list=await stageOrders({request:request("/api/fortune/ecpay/test-orders"),env:s.env});
+ assert.deepEqual((await list.json()).orders.map(x=>x.amountTwd).sort(),[79,99]);
+ const migration=read("migrations/crew-auth/0013_ecpay_stage_book_99.sql");assert.match(migration,/CHECK\(amount_twd=99\)/);assert.doesNotMatch(migration,/DROP TABLE|UPDATE koolo_fortune_stage_orders/);
 });

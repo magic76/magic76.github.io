@@ -48,10 +48,10 @@ export function FortunePriceInterest({readingId}:{readingId:string}){
     <p>{copy("規劃包含完整網站解析，再加一本專為你撰寫的個人命書。","Planned: full website insights plus a personalized book.")}</p>
     <ul><li>{copy("完整性格、事業、財富與感情篇章","In-depth personality, career, wealth and relationship chapters")}</li><li>{copy("人生各階段與未來五年解析","Life stages and five-year themes")}</li><li>{copy("精緻電子翻書與 PDF 收藏","Digital page-turn book and PDF to keep")}</li></ul>
     <small>{copy("已付費解鎖同一命盤，規劃只需補 NT$30 升級。","Planned NT$30 upgrade for the same previously paid chart.")}</small>
+  {stageReady&&<Link className="btn secondary small" to={"/fortune/ecpay/test?history="+encodeURIComponent(readingId)}>{copy("管理員：測試命書付款 NT$99（不扣款）","Admin: test NT$99 book payment (no charge)")}</Link>}
    </article>
   </div>
   <small>{copy("網站版已開放免費體驗；正式付費商品尚未開放購買。","Website reading is free to try; paid products are not yet available.")}</small>
-  {stageReady&&<Link className="btn secondary small" to={"/fortune/ecpay/test?history="+encodeURIComponent(readingId)}>{copy("管理員：前往綠界付款測試（不會扣款）","Admin: test ECPay payment (no charge)")}</Link>}
   <Link className="text-button" to="/purchase-info">{copy("查看商品與付款說明","Products and payment information")}</Link>
   <Link className="text-button" to="/fortune/purchases">{copy("已買過報告？到我的報告書架","Already purchased? Open your report library")}</Link>
  </section>;
