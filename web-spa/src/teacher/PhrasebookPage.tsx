@@ -3,6 +3,7 @@ import{useTranslation}from"react-i18next";
 import{addDeckItem,dueDeckItems,learningDeck,removeDeckItem,reviewDeckItem,type DeckItem}from"./learningDeck";
 import{dailyPhrases}from"./dailyPhrases";
 import{normalizeLearningLanguage,speakLearningText}from"./learningSpeech";
+import{LearningSpeechOptIn}from"./learningSpeechOptIn";
 import{useTeacherStore}from"../store/teacherStore";
 import"./learningFlow.css";
 
@@ -50,6 +51,7 @@ export function PhrasebookPage(){
  },[current,pool,quizIndex]);
  return <div className="crew-learning-focus crew-phrase-learning">
   <section className="hero crew-learning-page-heading"><span className="kicker">{t("phrasebook.kicker")}</span><h1>{t("phrasebook.title")}</h1><p>{t("phrasebook.intro")}</p></section>
+  <LearningSpeechOptIn language={code}/>
   {speechStatus&&<p className="crew-learning-secondary-meta crew-phrase-speech-status" role="status">{speechStatus}</p>}
   {shadowing&&<p className="crew-shadowing-cue" role="status">{shadowing}</p>}
 
