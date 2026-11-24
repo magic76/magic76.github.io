@@ -233,9 +233,7 @@
       "save": "＋ Enregistrer",
       "originalPrefix": "Original : ",
       "savedNote": "Enregistré depuis un chat avec Zoe",
-      "modelDownloading": "Préparation de Kokoro pour l’anglais ({{runtime}}, environ {{size}} Mo ; téléchargement unique). La voix du système sera utilisée cette fois.",
-      "modelDownloadingPico": "Préparation du modèle Kitten Pico, plus léger (téléchargement unique). La voix du système sera utilisée cette fois.",
-      "modelReady": "Le modèle vocal est prêt. La prochaine lecture utilisera la voix haute qualité."
+      "modelDownloading": "Téléchargement du modèle"
     },
     "typing": "{{name}} écrit",
     "nextHeading": "Tu peux dire",
