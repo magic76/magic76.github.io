@@ -303,3 +303,22 @@ test("Koolo production analytics and Magic diagnostic contract",()=>{
  assert.match(dashboard,/unique\("magic_enter"\)/);
  assert.match(dashboard,/magicDiagnostics\.entrySessions/);
 });
+
+test("home chat analytics accept only fixed opener and stage codes",async()=>{
+ const {onRequestPost}=compile("functions/api/usage/event.ts");
+ const points=[];
+ const env={ANALYTICS_ENGINE:{writeDataPoint:point=>points.push(point)}};
+ for(const opener of ["funny","casual","resume","fresh"]){
+  for(const stage of ["pick","verify","reply","second"]){
+   const detail=opener+"_"+stage;
+   const response=await onRequestPost({request:request({...payload,event:"home_friend_chat",detail}),env});
+   assert.equal(response.status,204);
+   assert.equal(points.at(-1).blobs[2],detail);
+  }
+ }
+ for(const detail of ["", "friend", "personal message"]){
+  const response=await onRequestPost({request:request({...payload,event:"home_friend_chat",detail}),env});
+  assert.equal(response.status,400);
+ }
+ assert.equal(points.length,16);
+});

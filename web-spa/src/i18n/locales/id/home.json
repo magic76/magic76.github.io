@@ -658,5 +658,14 @@
       "all": "Lihat semua",
       "learnBadge": "BELAJAR BAHASA"
     }
+  },
+  "chatChoices": {
+    "prompt": "Apa yang ingin kamu ceritakan hari ini?",
+    "returnPrompt": "Mau lanjut ngobrol atau bahas hal baru?",
+    "funny": "Ada kejadian lucu",
+    "casual": "Yuk, ngobrol",
+    "resume": "Lanjut ngobrol",
+    "fresh": "Bahas hal baru",
+    "about": "Yuk, lanjut ngobrol soal {{topic}}."
   }
 }

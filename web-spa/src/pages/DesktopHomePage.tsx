@@ -7,7 +7,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {readLatestFriendActivity,type FriendActivity} from "../live/sessionTranscript";
-import {formatResumePreview} from "./formatResumePreview";
+import {HomeChatChoices} from "./HomeChatChoices";
 import {DailyTopicCards} from "./DailyTopicCards";
 import {CreatureLabResume} from "./CreatureLabResume";
 import type {CreatureLabProgress} from "./creatureLabProgress";
@@ -18,7 +18,6 @@ import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
 import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./desktopHome.css";
 
-const PREVIEW_HIDDEN_KEY="crew_home_hide_message_preview_v1";
 const ZOE_VOICE="/friend/live?id=zoe&from=home&entry=bubble";
 type Recent={key:string;kind:"teacher"|"story"|"fortune"|"play"|"friend";title:string;description:string;to:string;cover?:string};
 type Shortcut={id:string;zh:string;en:string;icon:IconName;to:string;event:"friend"|"learn"|"play"|"story"|"fortune"|"shorts"|"timeline"};
@@ -45,20 +44,12 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
  const zh=i18n.language.startsWith("zh");
  const copy=(z:string,e:string)=>zh?z:e;
  const [activity,setActivity]=useState<FriendActivity|null>(null);
- const [previewHidden,setPreviewHidden]=useState(false);
  useEffect(()=>{
   setActivity(readLatestFriendActivity());
-  try{setPreviewHidden(localStorage.getItem(PREVIEW_HIDDEN_KEY)==="1")}catch{/* optional local preference */}
  },[]);
  const friend=activity?CREW_FRIENDS.find(person=>person.id===activity.friendId):null;
- const validResume=friend?activity?.resume:null;
  const id=friend?.id;
  const voiceTo=id?"/friend/live?id="+encodeURIComponent(id)+"&from=home&entry=bubble":ZOE_VOICE;
- const togglePreview=()=>{
-  const next=!previewHidden;
-  setPreviewHidden(next);
-  try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0");window.dispatchEvent(new Event("crew-home-preview-visibility-changed"))}catch{/* optional local preference */}
- };
  const track=(detail:Shortcut["event"])=>trackUsageEvent("home_entry_click",detail);
  return <div className="koolo-desktop-home">
   <section className="kdh-stage" aria-label={t("showcase29.desktop.stage")}>
@@ -66,16 +57,11 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
     <div className="kdh-zoe-content">
      <span className="kdh-eyebrow"><span className="kdh-status-dot"/> {friend?friend.name.toUpperCase():"ZOE"} · {t("showcase29.badgeFriend")}</span>
      <h1>{friend?t("layout2.resumeTitle",{name:friend.name}):t("mobileHero.title")}</h1>
-     <p>{friend?t("showcase29.desktop.resumeDesc"):t("mobileHero.subtitle")}</p>
+     <p>{t(friend?"chatChoices.returnPrompt":"chatChoices.prompt")}</p>
+     <HomeChatChoices friendId={id||"zoe"} returning={!!friend}/>
      <div className="kdh-zoe-actions">
       <Link className="kdh-primary" to={voiceTo} onClick={()=>track("friend")}><Icon name="chat"/>{t("showcase29.desktop.voice")}</Link>
      </div>
-     {validResume&&<div className="kdh-resume-line">
-      <span>{previewHidden?t("layout2.previewHidden"):formatResumePreview(validResume.preview,58)}</span>
-      <button type="button" onClick={togglePreview} aria-pressed={previewHidden} aria-label={t(previewHidden?"layout2.showPreview":"layout2.hidePreview")}>
-       <Icon name={previewHidden?"eye":"eye-off"}/>
-      </button>
-     </div>}
     </div>
     <div className="kdh-zoe-visual" aria-hidden="true">
      <div className="kdh-orbit kdh-orbit-a"/><div className="kdh-orbit kdh-orbit-b"/>

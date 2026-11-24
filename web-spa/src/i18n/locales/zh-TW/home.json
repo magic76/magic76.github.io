@@ -658,5 +658,14 @@
       "all": "全部功能",
       "learnBadge": "LANGUAGE LEARNING"
     }
+  },
+  "chatChoices": {
+    "prompt": "今天有什麼想跟我說的？",
+    "returnPrompt": "今天想接著聊，還是有新鮮事？",
+    "funny": "有件好笑的事",
+    "casual": "我想隨便聊聊",
+    "resume": "接著聊",
+    "fresh": "聊點新的",
+    "about": "我們接著聊上次的「{{topic}}」吧。"
   }
 }

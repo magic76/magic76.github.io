@@ -22,7 +22,7 @@ export type UsageEvent=
   |"gemini_key_missing"|"gemini_key_verified"
   |"guest_trial_entry_view"|"guest_trial_unavailable"|"guest_trial_start_click"|"guest_trial_mic_denied"|"guest_trial_setup_failed"
   |"guest_trial_token_issued"|"guest_trial_token_failed"|"guest_trial_connected"|"guest_trial_connect_failed"|"guest_trial_ended"
-  |"home_entry_click"|"explore_entry_click"|"menu_open"|"menu_item_click"|"route_load_error"
+  |"home_friend_chat"|"home_entry_click"|"explore_entry_click"|"menu_open"|"menu_item_click"|"route_load_error"
   |"pwa_install_view"|"pwa_install_click"|"pwa_install_dismiss"|"pwa_install_success"
   |"home_live_bubble_view"|"home_live_bubble_click"|"home_live_bubble_connected"|"home_live_bubble_conversation"
   |"home_gift_view"|"home_gift_open"|"home_gift_result"|"home_gift_go"|"home_gift_minimize"
@@ -32,7 +32,8 @@ export type UsageEvent=
   |"mate_open"|"mate_briefing_ready"|"mate_handoff_started"|"mate_handoff_completed"|"mate_handoff_failed"
   |"research_article_open"|"research_article_saved"|"research_article_completed"|"research_source_open"
   |"circle_thread_open"|"circle_post_published"|"circle_comment_posted";
-type Detail=""|"bazi"|"tarot"|"vedic"|"bazi_yes"|"bazi_partly"|"bazi_no"|"tarot_yes"|"tarot_partly"|"tarot_no"|"vedic_yes"|"vedic_partly"|"vedic_no"|"shorts_home"|"shorts_feed"
+type HomeFriendStage = `${"funny"|"casual"|"resume"|"fresh"}_${"pick"|"verify"|"reply"|"second"}`;
+type Detail=HomeFriendStage|""|"bazi"|"tarot"|"vedic"|"bazi_yes"|"bazi_partly"|"bazi_no"|"tarot_yes"|"tarot_partly"|"tarot_no"|"vedic_yes"|"vedic_partly"|"vedic_no"|"shorts_home"|"shorts_feed"
   |"under_1m"|"from_1_to_3m"|"from_3_to_10m"|"over_10m"
   |"under_1s"|"from_1_to_3s"|"from_3_to_8s"|"over_8s"
   |"teacher"|"friend"|"under_15s"|"from_15_to_45s"|"from_45_to_60s"|"from_60_to_120s"|"from_120_to_180s"|"from_180_to_300s"

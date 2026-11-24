@@ -49,10 +49,12 @@ test("no floating shortcut on phones or cramped 768–1099 frame; desktop stays 
 test("eleven localized hero/title/quick-entry strings; keep returning-friend path",()=>{
  assert.doesNotMatch(mobile,/copy\("一起聊聊吧！","Let's chat!"\)/);
  assert.match(mobile,/friendResume\?t\("layout2.resumeTitle",\{name:resumeFriend!\.name\}\):t\("mobileHero.title"\)/);
- assert.match(mobile,/t\("mobileHero.subtitle"\)/);
+ assert.match(mobile,/t\(friendResume\?"chatChoices.returnPrompt":"chatChoices.prompt"\)/);
  assert.match(desktop,/t\("layout2.title",\{name:friendName\}\)/);
  for(const locale of locales){
   const home=JSON.parse(read(`web-spa/src/i18n/locales/${locale}/home.json`));
+  for(const key of ["prompt","returnPrompt","funny","casual","resume","fresh","about"])assert.ok(home.chatChoices[key]?.trim(),locale+key);
+  assert.match(home.chatChoices.about,/\{\{topic\}\}/,locale);
   for(const key of ["title","subtitle"])assert.ok(typeof home.mobileHero[key]==="string"&&home.mobileHero[key].trim(),locale+key);
   for(const key of ["heading","fortune","shorts"])assert.ok(typeof home.quickEntry[key]==="string"&&home.quickEntry[key].trim(),locale+key);
   assert.match(home.layout2.title,/\{\{name\}\}/,locale);

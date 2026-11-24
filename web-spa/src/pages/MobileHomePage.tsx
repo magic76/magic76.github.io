@@ -11,6 +11,7 @@ import {GuideHub} from "../guides/GuideHub";
 import {useClientReady} from "../lib/useClientReady";
 import {useHomeAmbientMotion} from "../lib/useHomeAmbientMotion";
 import {DailyTopicCards} from "./DailyTopicCards";
+import {HomeChatChoices} from "./HomeChatChoices";
 import {HomeGeminiVerify} from "./HomeGeminiVerify";
 import {CreatureLabResume} from "./CreatureLabResume";
 import type {CreatureLabProgress} from "./creatureLabProgress";
@@ -123,7 +124,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
       <div className={"cmh-zoe-copy cmh-slide-copy"+(friendResume?" cmh-zoe-copy-return":"")}>
        <span className="cmh-zoe-eyebrow"><i aria-hidden="true"/> {friendResume?resumeFriend!.name.toUpperCase():"ZOE"} · {t("showcase29.badgeFriend")}</span>
        <h1>{friendResume?t("layout2.resumeTitle",{name:resumeFriend!.name}):t("mobileHero.title")}</h1>
-       {!friendResume&&<p>{t("mobileHero.subtitle")}</p>}
+       <p>{t(friendResume?"chatChoices.returnPrompt":"chatChoices.prompt")}</p>
       </div>
       <div className="cmh-scene cmh-zoe-scene" aria-hidden="true">
        <div className="cmh-scene-ring cmh-scene-ring-outer"/><div className="cmh-scene-ring cmh-scene-ring-inner"/>
@@ -133,6 +134,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
       <div className="cmh-zoe-actions">
+       <HomeChatChoices friendId={resumeId||"zoe"} returning={!!friendResume} active={activeSlide===0}/>
        <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.voice")}</Link>
       </div>
      </section>

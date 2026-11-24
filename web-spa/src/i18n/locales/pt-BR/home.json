@@ -658,5 +658,14 @@
       "all": "Ver tudo",
       "learnBadge": "APRENDER IDIOMAS"
     }
+  },
+  "chatChoices": {
+    "prompt": "O que você quer me contar hoje?",
+    "returnPrompt": "Vamos continuar a conversa ou falar de outra coisa?",
+    "funny": "Aconteceu uma coisa engraçada",
+    "casual": "Vamos bater papo",
+    "resume": "Continuar a conversa",
+    "fresh": "Falar de algo novo",
+    "about": "Vamos continuar falando de {{topic}}."
   }
 }

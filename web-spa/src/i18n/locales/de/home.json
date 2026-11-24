@@ -658,5 +658,14 @@
       "all": "Alles entdecken",
       "learnBadge": "SPRACHEN LERNEN"
     }
+  },
+  "chatChoices": {
+    "prompt": "Was beschäftigt dich heute?",
+    "returnPrompt": "Weiterreden oder etwas Neues erzählen?",
+    "funny": "Mir ist etwas Lustiges passiert",
+    "casual": "Lass uns plaudern",
+    "resume": "Weiterreden",
+    "fresh": "Über etwas Neues reden",
+    "about": "Lass uns weiter über {{topic}} reden."
   }
 }

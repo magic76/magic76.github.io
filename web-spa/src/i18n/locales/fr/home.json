@@ -658,5 +658,14 @@
       "all": "Tout découvrir",
       "learnBadge": "APPRENDRE LES LANGUES"
     }
+  },
+  "chatChoices": {
+    "prompt": "Qu’as-tu en tête aujourd’hui ?",
+    "returnPrompt": "On reprend la conversation ou on parle d’autre chose ?",
+    "funny": "Il m’est arrivé un truc drôle",
+    "casual": "On papote ?",
+    "resume": "Reprenons le fil",
+    "fresh": "Parlons d’autre chose",
+    "about": "Reprenons notre conversation sur {{topic}}."
   }
 }
