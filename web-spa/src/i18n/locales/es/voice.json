@@ -233,9 +233,7 @@
       "save": "＋ Guardar",
       "originalPrefix": "Original: ",
       "savedNote": "Guardado desde un chat con Zoe",
-      "modelDownloading": "Preparando Kokoro para inglés ({{runtime}}, aprox. {{size}} MB; descarga única). Esta vez se usará la voz del sistema.",
-      "modelDownloadingPico": "Preparando el modelo más pequeño Kitten Pico (descarga única). Esta vez se usará la voz del sistema.",
-      "modelReady": "El modelo de voz está listo. La próxima reproducción usará la voz de alta calidad."
+      "modelDownloading": "Descargando modelo"
     },
     "typing": "{{name}} está escribiendo",
     "nextHeading": "Puedes decir",
