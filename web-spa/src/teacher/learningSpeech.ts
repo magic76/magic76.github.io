@@ -11,7 +11,8 @@ const KOKORO_MODEL="onnx-community/Kokoro-82M-v1.0-ONNX";
 const ORT_JS="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/ort.min.js";
 const ORT_BASE="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/";
 const PAKO_URL="https://esm.sh/pako@2.1.0";
-const UCCHARAN_URL="https://esm.sh/uccharan@1.0.0";
+const UCCHARAN_BASE="https://cdn.jsdelivr.net/npm/uccharan@1.0.0/";
+const UCCHARAN_URL=UCCHARAN_BASE+"index.js";
 const PICO_BASE="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";
 const PICO_LANGUAGES=new Set(["de","es","fr","it","pt"]);
 const LANG_TAG:Record<string,string>={en:"en-US",es:"es-ES",fr:"fr-FR",de:"de-DE",it:"it-IT",pt:"pt-BR",ja:"ja-JP",ko:"ko-KR",vi:"vi-VN",th:"th-TH",zh:"zh-TW",id:"id-ID",ru:"ru-RU",hi:"hi-IN"};
@@ -23,6 +24,7 @@ const scripts=new Map<string,Promise<void>>();
 const tinyEngines=new Map<string,Promise<TinyEngine>>();
 let kokoroPromise:Promise<any>|null=null;
 let kokoroReady=false;
+let persistenceRequested=false;
 let currentAudio:HTMLAudioElement|null=null;
 let currentUrl="";
 
@@ -76,13 +78,37 @@ async function playBlob(blob:Blob):Promise<void>{
  });
 }
 
+async function hasCachedModel(cacheName:string,match:(url:string)=>boolean):Promise<boolean>{
+ if(!("caches" in window))return false;
+ try{return(await(await caches.open(cacheName)).keys()).some(request=>match(request.url))}
+ catch{return false}
+}
+function hasCachedKokoroModel(){
+ return hasCachedModel("transformers-cache",url=>url.includes("Kokoro-82M-v1.0-ONNX")&&url.includes("/onnx/model_quantized.onnx"));
+}
+function hasCachedPicoModel(language:string){
+ return hasCachedModel("koolo-learning-speech-v1",url=>url===PICO_BASE+"kitten_tts_2_pico_"+language+"_int4.onnx");
+}
+function requestPersistentStorage(){
+ if(persistenceRequested)return;
+ try{
+  const storage=navigator.storage;
+  if(typeof storage?.persist!=="function")return;
+  persistenceRequested=true;
+  void Promise.resolve(storage.persist()).catch(()=>{});
+ }catch{}
+}
 async function loadKokoro(){
  if(!kokoroPromise)kokoroPromise=(async()=>{
   const {KokoroTTS}=await importExternal(KOKORO_URL);
   // Learning calls are short; q8/WASM keeps the first download around 92 MB
   // instead of the ~326 MB fp32 WebGPU model used by the quality lab.
   return KokoroTTS.from_pretrained(KOKORO_MODEL,{device:"wasm",dtype:"q8"});
- })().then(tts=>{kokoroReady=true;return tts}).catch(error=>{kokoroPromise=null;kokoroReady=false;throw error});
+ })().then(tts=>{
+  kokoroReady=true;
+  void hasCachedKokoroModel().then(hit=>{if(hit)requestPersistentStorage()});
+  return tts;
+ }).catch(error=>{kokoroPromise=null;kokoroReady=false;throw error});
  return kokoroPromise;
 }
 async function kokoroBlob(text:string,speed:LearningSpeechSpeed){
@@ -145,15 +171,21 @@ async function loadTiny(language:string):Promise<TinyEngine>{
   await loadScript(ORT_JS);
   const ort=(window as any).ort;if(!ort)throw new Error("ORT_UNAVAILABLE");
   ort.env.wasm.numThreads=1;ort.env.wasm.wasmPaths=ORT_BASE;
-  const [{phonemize},model,voiceData,vocabData]=await Promise.all([
+  const [{init,loadLanguage,phonemizeSync},model,voiceData,vocabData,wasm,pack]=await Promise.all([
    importExternal(UCCHARAN_URL),
    fetchCached(PICO_BASE+"kitten_tts_2_pico_"+language+"_int4.onnx"),
    fetchCached(PICO_BASE+"voices_"+language+".npz"),
-   fetchCached(PICO_BASE+"vocab.json")
+   fetchCached(PICO_BASE+"vocab.json"),
+   fetchCached(UCCHARAN_BASE+"dist/uccharan_wasm_bg.wasm"),
+   fetchCached(UCCHARAN_BASE+"data/"+language+".ucd")
   ]);
+  // Pass cached bytes directly: uccharan's async phonemize would fetch .ucd again.
+  await init({wasm});
+  await loadLanguage(language,pack);
   const voices=await parseNPZ(voiceData);
   const session=await ort.InferenceSession.create(model,{executionProviders:["wasm"],graphOptimizationLevel:"all",intraOpNumThreads:1});
-  return{session,ort,phonemize,vocab:JSON.parse(new TextDecoder().decode(vocabData)),voices};
+  void hasCachedPicoModel(language).then(hit=>{if(hit)requestPersistentStorage()});
+  return{session,ort,phonemize:phonemizeSync,vocab:JSON.parse(new TextDecoder().decode(vocabData)),voices};
  })().catch(error=>{tinyEngines.delete(language);throw error});
  tinyEngines.set(language,promise);return promise;
 }
@@ -181,7 +213,7 @@ function wavBlob(samples:Float32Array,rate=24000){
 }
 async function picoBlob(text:string,language:string,speed:LearningSpeechSpeed){
  const engine=await loadTiny(language);
- const phonemes=String(await engine.phonemize(text,{lang:language}));
+ const phonemes=String(await engine.phonemize(text,{lang:language,profile:"kitten"}));
  const tokens=encodeTiny(phonemes,engine.vocab);if(tokens.length<4||tokens.length>353)throw new Error("PICO_INPUT_UNSUPPORTED");
  const voice=engine.voices[Object.keys(engine.voices)[0]];if(!voice)throw new Error("PICO_VOICE_UNAVAILABLE");
  const row=Math.min(tokens.length-1,voice.rows-1),style=voice.data.slice(row*voice.cols,(row+1)*voice.cols);
@@ -215,10 +247,20 @@ export async function speakLearningText(text:string,languageValue:string,options
  const language=normalizeLearningLanguage(languageValue),speed=options.speed||"normal",preferred=preferredLearningEngine(language);
  const key=cacheKey(value,language,speed,preferred),cached=generated.get(key);
  if(preferred==="kokoro"&&!kokoroReady){
-  options.onModelStatus?.("loading");
-  void loadKokoro().then(()=>options.onModelStatus?.("ready")).catch(()=>{});
-  await systemSpeak(value,language,speed);
-  return{engine:"system",language,cached:false};
+  if(await hasCachedKokoroModel()){
+   // A warm Cache Storage hit needs WASM initialisation, not another 88 MB download.
+   try{await loadKokoro();options.onModelStatus?.("ready")}
+   catch(error){
+    console.warn("[learning-speech] cached Kokoro could not initialise",error);
+    await systemSpeak(value,language,speed);
+    return{engine:"system",language,cached:false};
+   }
+  }else{
+   options.onModelStatus?.("loading");
+   void loadKokoro().then(()=>options.onModelStatus?.("ready")).catch(()=>{});
+   await systemSpeak(value,language,speed);
+   return{engine:"system",language,cached:false};
+  }
  }
  try{
   if(cached){await playBlob(cached);return{engine:preferred,language,cached:true}}
