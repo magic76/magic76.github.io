@@ -13,7 +13,7 @@ test("guest text allowance agrees with the Worker DAILY_TURNS",()=>{
  assert.equal(Number(frontend[1]),Number(backend[1]));
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
  // The translated UI must still take its quota from the Worker-aligned shared constant.
- assert.match(panel,/t\(["']textChat\.ui\.freeDaily["']\s*,\s*\{\s*count\s*:\s*GUEST_TEXT_DAILY_TURNS\s*\}\s*\)/);
+ assert.match(panel,/t\(["']textChat\.ui\.freeDaily["']\s*,\s*\{\s*count\s*:\s*dailyLimit\s*\}\s*\)/);
  for(const lang of locales){
   const freeDaily=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/voice.json`)).textChat?.ui?.freeDaily;
   assert.equal(typeof freeDaily,"string",lang+":textChat.ui.freeDaily");

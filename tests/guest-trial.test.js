@@ -6,23 +6,9 @@ const {webcrypto}=require("node:crypto");
 globalThis.crypto ||= webcrypto;
 const root=path.resolve(__dirname,"..");
 const source=fs.readFileSync(path.join(root,"functions/api/guest/token.js"),"utf8");
-const backend=import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
+const backend=import("../functions/api/guest/token.js");
 const transport=require("../crew-live.js");
-async function loadStandaloneWorker(){
- const backendUrl="data:text/javascript;base64,"+Buffer.from(source).toString("base64");
- const videoSource=fs.readFileSync(path.join(root,"workers/guest-trial/video-tts.mjs"),"utf8");
- const videoUrl="data:text/javascript;base64,"+Buffer.from(videoSource).toString("base64");
- const workerRaw=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
- const textSource=fs.readFileSync(path.join(root,"workers/guest-trial/text-chat.mjs"),"utf8");
- const textUrl="data:text/javascript;base64,"+Buffer.from(textSource).toString("base64");
- const workerSource=workerRaw
-  .replace('import {onRequestGet,onRequestPost,selectGuestGeminiKey,verifyCaptcha} from "../../functions/api/guest/token.js";', 'const {onRequestGet,onRequestPost,selectGuestGeminiKey,verifyCaptcha}=await import("'+backendUrl+'");')
-  .replace('import {onTextRequest} from "./text-chat.mjs";', 'const {onTextRequest}=await import("'+textUrl+'");')
-  .replace('import {pollVideoTtsQueue,videoTtsResult} from "./video-tts.mjs";', 'const {pollVideoTtsQueue,videoTtsResult}=await import("'+videoUrl+'");');
- assert.notEqual(workerRaw,workerSource);
- assert.ok(!workerSource.includes('from "../../functions/api/guest/'));
- return (await import("data:text/javascript;base64,"+Buffer.from(workerSource).toString("base64"))).default;
-}
+async function loadStandaloneWorker(){return (await import("../workers/guest-trial/worker.mjs")).default;}
 
 function fakeDb(){
  const claims=new Map(),quotas=new Map();

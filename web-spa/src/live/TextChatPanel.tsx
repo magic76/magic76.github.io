@@ -21,7 +21,7 @@ import type {GroundingSource} from "./grounding";
 import {useEffect,useRef,useState,type ReactNode} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
-import {GUEST_TEXT_DAILY_TURNS} from "./guestAllowance";
+import {useGuestTextQuota} from "./guestTextQuota";
 import {geminiKey,geminiVerified} from "../lib/runtime";
 import {PinyinHint} from "../teacher/PinyinHint";
 import {FriendAvatar} from "../friends/FriendAvatar";
@@ -76,7 +76,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const [siteKey,setSiteKey]=useState("");
  const [guestStatus,setGuestStatus]=useState("");
  const [micFallbackNotice]=useState(takeMicFallbackNotice);
- const [remaining,setRemaining]=useState<number|null>(null);
+ const {remaining,setRemaining,dailyLimit,setDailyLimit,memberQuota,memberQuotaEnabled,applyConfig,textAuthTicket}=useGuestTextQuota();
  const mounted=useRef(true);
  const chatRoot=useRef<HTMLElement>(null);
  useTextChatKeyboard(chatRoot);
@@ -147,10 +147,12 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   void fetch(GUEST_TEXT_ENDPOINT,{cache:"no-store",signal:controller.signal})
    .then(async response=>{
     if(!response.ok)throw Error("Unavailable");
-    const config=await response.json() as {enabled?:boolean;siteKey?:string;dailyLimit?:number};
+    const config=await response.json() as {enabled?:boolean;siteKey?:string;dailyLimit?:number;memberDailyLimit?:number;remaining?:number};
     if(!mounted.current||controller.signal.aborted)return;
     if(config.enabled!==true||typeof config.siteKey!=="string"||!config.siteKey){setGuestPhase("unavailable");return}
     setSiteKey(config.siteKey);
+    if(await applyConfig(config,controller.signal)){if(!controller.signal.aborted)setGuestPhase("exhausted");return}
+    if(controller.signal.aborted)return;
     setGuestPhase(current=>current==="checking"?(getSavedGuestSession()?"active":"ready"):current);
    }).catch(()=>{if(mounted.current&&!controller.signal.aborted){setConfigRetryable(true);setGuestPhase("unavailable")}});
   return()=>controller.abort();
@@ -167,10 +169,11 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    handedOff=takeUsedGuestHandoff();
    setGuestPhase("starting");
    setGuestStatus(t("guestText.connecting"));
+   const authTicket=await textAuthTicket();
    const response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
     headers:{"content-type":"application/json"},
-    body:JSON.stringify({action:"start",challengeToken})});
-   const data=await response.json() as {sessionToken?:string;expiresAt?:number;remaining?:number;code?:string};
+    body:JSON.stringify({action:"start",challengeToken,...(authTicket?{authTicket}:{})})});
+   const data=await response.json() as {sessionToken?:string;expiresAt?:number;remaining?:number;dailyLimit?:number;code?:string};
    if(data.code==="DAILY_LIMIT"){
     setRemaining(0);setGuestPhase("exhausted");throw guestTextWorkerError(data.code,response.status);
    }
@@ -178,6 +181,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    try{sessionStorage.setItem(SESSION_STORAGE_KEY,JSON.stringify({sessionToken:data.sessionToken,expiresAt:data.expiresAt}))}catch{}
    if(mounted.current){
     setGuestToken(data.sessionToken);setRemaining(typeof data.remaining==="number"?data.remaining:null);
+    if(typeof data.dailyLimit==="number")setDailyLimit(data.dailyLimit);
     setGuestPhase("active");backendFailureCount.current=0;
    }
    return data.sessionToken;
@@ -244,13 +248,14 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
       setGuestStatus(t("textChat.ui.sessionChanged"));
      },
      send:async token=>{
+      const authTicket=await textAuthTicket();
       markDispatched();setRequestSent(true);
       setGuestStatus(t("guestText.sending"));
       const response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
        headers:{"content-type":"application/json"},
-       body:JSON.stringify({action:"send",sessionToken:token,system:guestSystem,
+       body:JSON.stringify({action:"send",sessionToken:token,system:guestSystem,...(authTicket?{authTicket}:{}),
         messages:next.slice(-10).map(m=>({role:m.role,text:m.text}))})});
-      const data=await response.json() as {reply?:string;remaining?:number;code?:string};
+      const data=await response.json() as {reply?:string;remaining?:number;dailyLimit?:number;code?:string};
       if(data.code==="DAILY_LIMIT"){
        setRemaining(0);setGuestPhase("exhausted");throw guestTextWorkerError(data.code,response.status);
       }
@@ -263,6 +268,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     if(typeof data.reply!=="string")throw guestTextWorkerError(data.code,0);
     reply=data.reply.trim();
     if(typeof data.remaining==="number")setRemaining(data.remaining);
+    if(typeof data.dailyLimit==="number")setDailyLimit(data.dailyLimit);
    }
    if(!reply)throw Error("Empty reply");
    const parsed=isFriend?parseFriendReply(reply):null;
@@ -329,18 +335,19 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   </div>}
   {!guestMode&&<small role="status" className="crew-text-chat-live-status">{liveStatus||t("textChat.ui.liveKeyboard")}</small>}
   {guestMode&&<div ref={guestBox} className="crew-text-guest" role="region" aria-label={t("textChat.ui.freePractice")}>
-   <strong>{t("textChat.ui.freeDaily",{count:GUEST_TEXT_DAILY_TURNS})}</strong>
+   <strong>{t("textChat.ui.freeDaily",{count:dailyLimit})}</strong>
    {micFallbackNotice&&<small role="status">{t("guestText.micFallbackNotice",{name:speaker})}</small>}
    {guestPhase==="checking"&&<small role="status">{t("textChat.ui.checking")}</small>}
    {challengeRequested&&guestPhase==="ready"&&<><div ref={host} className="crew-text-challenge-host" aria-label={t("textChat.ui.verification")}/>
     <small role="status">{t("guestText.interactionHint")}</small></>}
    {guestPhase==="starting"&&<small role="status">{t("guestText.connecting")}</small>}
-   {guestPhase==="active"&&remaining!==null&&<small role="status">{t("textChat.ui.remaining",{count:remaining})}</small>}
+   {(guestPhase==="active"||guestPhase==="ready")&&remaining!==null&&<small role="status">{t("textChat.ui.remaining",{count:remaining})}</small>}
    {guestPhase==="error"&&guestFailure?.kind==="verification"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.verifyAgain")}</button>}
    {guestPhase==="paused"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.restart")}</button>}
    {guestPhase==="unavailable"&&<small role="status">{t("textChat.ui.unavailable")}</small>}
    {guestPhase==="unavailable"&&configRetryable&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("checking");setConfigRetry(n=>n+1)}}>{t("guestText.restart")}</button>}
    {guestPhase==="exhausted"&&<small role="status">{t("textChat.ui.exhausted")}</small>}
+   {guestPhase==="exhausted"&&memberQuotaEnabled&&!memberQuota&&<Link className="btn" to="/account">{t("common:guestTrial.signInAction")}</Link>}
    {(guestPhase==="unavailable"||guestPhase==="exhausted")&&<GuestKeyRecovery exhausted={guestPhase==="exhausted"} hasKey={hasKey}/>}
   </div>}
   <div ref={history} className="crew-text-chat-history" role="log" aria-label={t("textChat.ui.conversation")} aria-live="polite" aria-relevant="additions">

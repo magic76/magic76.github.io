@@ -151,8 +151,17 @@ export async function onTextRequest(request,env,deps){
   }catch{return request.method==="GET"?json({enabled:false}):json({code:"TEMP_UNAVAILABLE"},503)}
   if(!policy.enabled)return request.method==="GET"?json({enabled:false}):json({code:"TEMP_UNAVAILABLE"},503);
  }
- if(request.method==="GET")return json(configured(env)
-  ?{enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,dailyLimit:DAILY_TURNS,...(v2?{memberDailyLimit:MEMBER_TEXT_LIMIT}:{})}:{enabled:false});
+ if(request.method==="GET"){
+  if(!configured(env))return json({enabled:false});
+  const config={enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,dailyLimit:DAILY_TURNS};
+  if(!v2)return json(config);
+  try{
+   const visitor=await visitorHash(request,env);
+   await ensureTables(env.CREW_AUTH_DB);
+   const usage=visitor?await env.CREW_AUTH_DB.prepare("SELECT used FROM crew_guest_text_usage WHERE visitor_hash=? AND day=?").bind(visitor,taipeiDay(Date.now())).first():null;
+   return json({...config,memberDailyLimit:MEMBER_TEXT_LIMIT,...(visitor?{remaining:Math.max(0,DAILY_TURNS-Number(usage?.used||0))}:{})});
+  }catch{return json({enabled:false})}
+ }
  if(request.method!=="POST")return json({code:"METHOD_NOT_ALLOWED"},405);
  if(!configured(env))return json({code:"TEMP_UNAVAILABLE"},503);
  const visitor=await visitorHash(request,env);
