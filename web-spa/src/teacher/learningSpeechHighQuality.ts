@@ -175,8 +175,9 @@ export function importHighQuality(language:string):Promise<void>{
    await(await caches.open(ASSET_CACHE)).put(markerUrl(language,gpu),new Response("ready"));
    markerStored=true;
   }catch{}
-  if(markerStored)saveConsent(language,true);
-  else sessionConsent.add(key); // No persistent cache: remain usable in this tab, never auto-download on reload.
+  // Enable the current session even if the browser refused persistent caching.
+  // On reload, cachedImport rejects absent markers before any model request.
+  saveConsent(language,true);
  })().catch(error=>{
   console.warn("[learning-speech] Optional Kokoro import failed",error);
   throw error;
