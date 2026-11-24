@@ -233,9 +233,7 @@
       "save": "＋ 保存",
       "originalPrefix": "元の文：",
       "savedNote": "Zoeとのチャットから保存",
-      "modelDownloading": "英語用 Kokoro 音声を準備中（{{runtime}}、約 {{size}} MB、初回のみダウンロード）。今回はシステム音声で再生します。",
-      "modelDownloadingPico": "Kitten Pico 音声モデルを準備中（容量は小さめ、初回のみダウンロード）。今回はシステム音声で再生します。",
-      "modelReady": "音声モデルの準備ができました。次回から高品質音声を使います。"
+      "modelDownloading": "モデルをダウンロード中"
     },
     "typing": "{{name}} が入力中",
     "nextHeading": "次はこう言ってみよう",
