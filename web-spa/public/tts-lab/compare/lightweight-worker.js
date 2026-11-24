@@ -1,15 +1,11 @@
 /* Koolo experimental, browser-only synthesis adapters. No synthesis HTTP requests.
  * Interfaces: Ampixa/sanoTTS (GPL-3.0 runtime, upstream-hosted), ctrltokyo/eeh-1 (Apache-2.0),
- * ooodev/korean-tts (KSS research-only; upstream-hosted assets). See model cards in index.html.
+ * See model cards in index.html.
  */
 "use strict";
 const SANO="https://ampixa.github.io/sanoTTS/";
 const EEH="https://huggingface.co/ctrltokyo/eeh-1/resolve/a42c72e45bc814946e645a69acb15a184325a9a2/demo/";
-const KO="https://ooodev.github.io/korean-tts/assets/";
-const KO_MIRROR="https://raw.githubusercontent.com/ooodev/korean-tts/HEAD/tiny-voca/web/public/assets/";
 const SANO_VOICES=["https://huggingface.co/ampixa/sanoTTS/resolve/main/web/voices/","https://raw.githubusercontent.com/Ampixa/sanoTTS/master/web/voices/",SANO+"voices/"];
-const PY="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
-const ORT="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
 let adapter;
 const status=(text,progress)=>postMessage({type:"status",text,progress});
 async function bytes(url, label){
@@ -23,13 +19,11 @@ async function bytes(url, label){
  return data;
 }
 const decodeJson=data=>JSON.parse(new TextDecoder().decode(data));
-const json=async(url,label)=>decodeJson(await bytes(url,label));
 async function mirrorBytes(urls,label){
  let last;
  for(const url of urls){try{return await bytes(url,label);}catch(e){last=e;}}
  throw last;
 }
-const koreanBytes=(name,label)=>mirrorBytes([KO+name,KO_MIRROR+name],label);
 const sanoBytes=(key,name,label)=>mirrorBytes(SANO_VOICES.map(root=>root+key+"/"+name),label);
 async function gunzip(data){
  if(data[0]!==31||data[1]!==139)return data;
@@ -60,21 +54,38 @@ function chunks(text, max){
 }
 // Independent wrapper around the published eeh WASM API. Explicit compressed asset
 // paths are from the author's demo/model tree; initialization never requests text remotely.
+// HF serves downloadable JS with a MIME type that may not be executable by
+// dynamic import. Fetch the pinned, standalone generated glue as bytes and
+// explicitly mark it JavaScript. Pass WASM bytes to init; no relative imports.
+async function loadEehModule(){
+ const path="pkg/eeh_wasm.js";
+ const raw=EEH.replace("/resolve/","/raw/")+path;
+ let source;
+ try{
+  source=await mirrorBytes([EEH+path+"?download=true",raw,EEH+path],"下載日文 JavaScript 模組");
+ }catch(e){throw Error("日文 JS 下載失敗（網路或跨域限制）："+e.message);}
+ const code=new TextDecoder().decode(source);
+ if(!code.includes("export class Synthesizer")||!code.includes("module_or_path"))throw Error("日文 JS 下載內容不是預期的 WASM 模組");
+ const url=URL.createObjectURL(new Blob([source],{type:"text/javascript"}));
+ try{return await import(url);}
+ catch(e){throw Error("日文 JS 初始化失敗："+e.message);}
+ finally{URL.revokeObjectURL(url);}
+}
 async function loadEeh(){
- const [module,weight,dict,wasm]=await Promise.all([
-  import(EEH+"pkg/eeh_wasm.js"),
+ const module=await loadEehModule();
+ const [weight,dict,wasm]=await Promise.all([
   bytes(EEH+"model/eeh.safetensors.gz","下載日文模型").then(gunzip),
   bytes(EEH+"model/eeh-dict.bin.gz","下載日文詞典").then(gunzip),
   bytes(EEH+"pkg/eeh_wasm_bg.wasm","下載日文執行環境")
  ]);
  status("初始化日文模型");
- await module.default({module_or_path:wasm});
+ try{await module.default({module_or_path:wasm});}catch(e){throw Error("日文 WASM 初始化失敗："+e.message);}
  const synth=new module.Synthesizer(weight,dict);
  return {speak(text,voice,speed){
   const name=voice==="male"?"M1":"F1";
   if(!synth.voices().includes(name))throw Error("找不到音色 "+name);
-  const parts=[];synth.speakEach(text,name,{speed},(_sentence,audio)=>{parts.push(new Float32Array(audio));return true;});
-  return {audio:joined(parts),sampleRate:synth.sampleRate(),voice:name};
+  const audio=synth.speak(text,name,{speed});
+  return {audio:joined([audio]),sampleRate:synth.sampleRate(),voice:name};
  }};
 }
 // sanoTTS publishes half-precision voice blobs with a fixed metadata prefix.
@@ -140,54 +151,10 @@ async function loadSano(lang){
   return {audio:joined(parts),sampleRate:meta.sample_rate,voice:lang==="zh"?"Xiaoya":"Spanish（固定音色）"};
  }};
 }
-// Korean adapter: use the published v2 phonemizer assets and the matching ONNX
-// tensor contract, not a homemade Hangul mapping. Research only: KSS NC terms.
-async function loadKorean(){
- status("載入韓文發音環境（首次約 40 MB，可能更大）");
- importScripts(PY+"pyodide.js",ORT+"ort.wasm.min.js");
- const py=await loadPyodide({indexURL:PY});
- await py.loadPackage(["numpy","nltk"]);
- const files=["pyfront.zip","dizione.zip","mecab-dict.json","phonemizer/cmudict.zip",...["lexicon.tsv","align.json","g2p.json","g2p.npz","homographs.json"].map(x=>"phonemizer/"+x)];
- const [config,model,...assets]=await Promise.all([koreanBytes("config.json","下載韓文設定").then(decodeJson),koreanBytes("model.onnx","下載韓文模型"),...files.map(x=>koreanBytes(x,"下載韓文發音資源"))]);
- if(!config.voices.includes("KSS")||config.sample_rate!==24000)throw Error("韓文模型設定不符");
- py.FS.mkdirTree("/dizione-data");py.FS.mkdirTree("/nltk_data/corpora");
- py.unpackArchive(assets[0].buffer,"zip",{extractDir:"/pyfront"});
- py.unpackArchive(assets[1].buffer,"zip",{extractDir:"/pyfront"});
- py.FS.writeFile("/pyfront/mecab-dict.json",assets[2]);
- py.FS.writeFile("/nltk_data/corpora/cmudict.zip",assets[3]);
- for(let i=4;i<files.length;i++)py.FS.writeFile("/dizione-data/"+files[i].split("/").pop(),assets[i]);
- py.runPython([
-  "import json, os, sys, nltk",
-  "os.environ['DIZIONE_DATA'] = '/dizione-data'",
-  "os.environ['MECAB_DICT'] = '/pyfront/mecab-dict.json'",
-  "sys.path.insert(0, '/pyfront')",
-  "nltk.data.path.insert(0, '/nltk_data')",
-  "from kofront import text as ktext",
-  "ktext.set_frontend('ko-loan')",
-  "def lab_phones(text):",
-  "    r = ktext.phonemize(text)",
-  "    return json.dumps({'ids': list(r.ids), 'stress': list(r.stress)})"
- ].join("\n"));
- const phonemize=py.globals.get("lab_phones");
- ort.env.wasm.wasmPaths=ORT;ort.env.wasm.numThreads=1;
- const session=await ort.InferenceSession.create(model,{executionProviders:["wasm"]});
- const scalar=x=>new ort.Tensor("float32",Float32Array.of(x),[1]);
- const longs=(x,shape)=>new ort.Tensor("int64",BigInt64Array.from(x,BigInt),shape);
- return {async speak(text,_voice,speed){
-  const parts=[];
-  for(const sentence of chunks(text,60)){
-   const p=JSON.parse(phonemize(sentence)),n=p.ids.length;
-   if(!n||p.stress.length!==n||n>config.max_tokens-12)throw Error("韓文音素數量不符，請縮短句子");
-   const r=await session.run({tokens:longs(p.ids,[1,n]),stress:longs(p.stress,[1,n]),voice:longs([config.voices.indexOf("KSS")],[1]),speed:scalar(speed),pitch_shift:scalar(0),pitch_range:scalar(1)});
-   parts.push(new Float32Array(r.audio.data));
-  }
-  return {audio:joined(parts),sampleRate:config.sample_rate,voice:"KSS（固定女聲）"};
- }};
-}
 self.onmessage=async({data})=>{
  try{
   if(data.type==="load"){
-   adapter=data.engine==="eeh"?await loadEeh():data.engine==="korean"?await loadKorean():data.engine==="sano"?await loadSano(data.lang):null;
+   adapter=data.engine==="eeh"?await loadEeh():data.engine==="sano"?await loadSano(data.lang):null;
    if(!adapter)throw Error("不支援的模型");
    postMessage({type:"ready",id:data.id});
   }else if(data.type==="speak"){
