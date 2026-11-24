@@ -99,7 +99,7 @@
   "layout2": {"title": "{{name}}と楽しく語学","action": "{{name}} に話しかける","description": "話題を考えなくても大丈夫。まずは挨拶から。","voice": "音声チャットに切り替える","more": "ほかのことも試す？","resumeTitle": "{{name}} との会話を再開",
     "previewLabel": "前回の会話：","resumeAction": "テキスト会話を続ける","chatTitle": "まずは挨拶から","chatDescription": "AI の友達に話しかけて、会話を楽しもう。","previewHidden": "前のメッセージは非表示です","showPreview": "前のメッセージを表示","hidePreview": "前のメッセージを隠す"},
   "world": {
-    "freeAllowance": {"full": "登録不要・文字は毎日{{count}}通、音声{{minutes}}分。明日また無料で", "textOnly": "登録不要・文字は毎日{{count}}通。明日また無料で", "voiceUsed": "今日の音声分は終了・文字は毎日{{count}}通。明日また"},
+    "freeAllowance": {"full": "登録不要・文字は毎日{{count}}通、音声{{minutes}}分。明日また無料で", "memberDaily": "会員：毎日{{count}}メッセージ・音声残り{{minutes}}分", "memberTextOnly": "会員：毎日{{count}}メッセージ", "textOnly": "登録不要・文字は毎日{{count}}通。明日また無料で", "voiceUsed": "今日の音声分は終了・文字は毎日{{count}}通。明日また"},
     "practiceLang": {"label": "練習する言語：", "aria": "チャットと音声会話の練習言語を選択"},
     "modes": {
       "chat": {

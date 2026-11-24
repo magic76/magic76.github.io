@@ -99,7 +99,7 @@
   "layout2": {"title": "Aprende idiomas con {{name}}","action": "Saluda a {{name}}","description": "No necesitas un tema. Empieza con un hola.","voice": "Usar chat de voz","more": "¿Quieres probar otra cosa?","resumeTitle": "Seguir hablando con {{name}}",
     "previewLabel": "Último chat:","resumeAction": "Continuar chat de texto","chatTitle": "Empieza con un hola","chatDescription": "Habla con un amigo de IA y descubre adónde llegan.","previewHidden": "Último mensaje oculto","showPreview": "Mostrar último mensaje","hidePreview": "Ocultar último mensaje"},
   "world": {
-    "freeAllowance": {"full": "Sin registro · {{count}} mensajes y {{minutes}} min de voz al día. Más mañana", "textOnly": "Sin registro · {{count}} mensajes gratis al día. Más mañana", "voiceUsed": "Voz agotada hoy · {{count}} mensajes al día. Vuelve mañana"},
+    "freeAllowance": {"full": "Sin registro · {{count}} mensajes y {{minutes}} min de voz al día. Más mañana", "memberDaily": "Miembros: {{count}} mensajes al día · {{minutes}} minutos de voz restantes", "memberTextOnly": "Miembros: {{count}} mensajes al día", "textOnly": "Sin registro · {{count}} mensajes gratis al día. Más mañana", "voiceUsed": "Voz agotada hoy · {{count}} mensajes al día. Vuelve mañana"},
     "practiceLang": {"label": "Idioma de práctica:", "aria": "Elegir idioma para chat y conversación de voz"},
     "modes": {
       "chat": {

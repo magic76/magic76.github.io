@@ -99,7 +99,7 @@
   "layout2": {"title": "Belajar bahasa dengan {{name}}","action": "Sapa {{name}}","description": "Tak perlu topik. Mulai saja dengan halo.","voice": "Pakai obrolan suara","more": "Mau mencoba yang lain?","resumeTitle": "Lanjut mengobrol dengan {{name}}",
     "previewLabel": "Chat terakhir:","resumeAction": "Lanjutkan chat teks","chatTitle": "Mulai dengan halo","chatDescription": "Mengobrol dengan teman AI dan lihat ke mana arahnya.","previewHidden": "Pesan terakhir disembunyikan","showPreview": "Tampilkan pesan terakhir","hidePreview": "Sembunyikan pesan terakhir"},
   "world": {
-    "freeAllowance": {"full": "Tanpa daftar · {{count}} pesan + {{minutes}} menit suara per hari. Ada lagi besok", "textOnly": "Tanpa daftar · {{count}} pesan gratis per hari. Ada lagi besok", "voiceUsed": "Jatah suara hari ini habis · {{count}} pesan per hari. Besok ada lagi"},
+    "freeAllowance": {"full": "Tanpa daftar · {{count}} pesan + {{minutes}} menit suara per hari. Ada lagi besok", "memberDaily": "Anggota: {{count}} pesan per hari · {{minutes}} menit suara tersisa", "memberTextOnly": "Anggota: {{count}} pesan per hari", "textOnly": "Tanpa daftar · {{count}} pesan gratis per hari. Ada lagi besok", "voiceUsed": "Jatah suara hari ini habis · {{count}} pesan per hari. Besok ada lagi"},
     "practiceLang": {"label": "Bahasa latihan:", "aria": "Pilih bahasa latihan untuk chat dan percakapan suara"},
     "modes": {
       "chat": {

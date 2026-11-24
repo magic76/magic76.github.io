@@ -224,10 +224,10 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
   <HomeGeminiVerify variant="mobile"/>
   {!hasKey&&<div className="cmh-allowance-slot">
    {ready&&!hasKey&&<p className="cmh-free-allowance" role="status">{trial.resolved&&trial.enabled&&trial.remaining===0
-    ?t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})
+    ?trial.memberTextLimit?t("world.freeAllowance.memberDaily",{count:trial.memberTextLimit,minutes:0}):t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})
     :trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null
-     ?t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})
-     :t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
+     ?trial.memberTextLimit?t("world.freeAllowance.memberDaily",{count:trial.memberTextLimit,minutes:(trial.remaining??0)*trial.seconds/60}):t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})
+     :trial.memberTextLimit?t("world.freeAllowance.memberTextOnly",{count:trial.memberTextLimit}):t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
   </div>}
   <div className="cmh-shorts"><HomeShortsPreview maxPosts={6} sharedFeed={shortsFeed} sharedStatus={shortsStatus} motionEnabled={homeMotion}/></div>
   {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
