@@ -48,19 +48,19 @@ test("voice preferences persist locally and unsupported values degrade safely",(
  assert.equal(helper.readSpeechPreferences().speed,"normal");
 });
 
-test("vocabulary page lazily uses Kitten Nano English with system voice fallback",()=>{
+test("vocabulary page lazily uses Paradee INT8 English with system voice fallback",()=>{
  const page=fs.readFileSync("web-spa/src/teacher/VocabularyPage.tsx","utf8");
  const speech=fs.readFileSync("web-spa/src/teacher/learningSpeech.ts","utf8");
- const worker=fs.readFileSync("web-spa/src/teacher/learningSpeech.worker.ts","utf8");
+ const worker=fs.readFileSync("web-spa/src/teacher/learningSpeech.selected.worker.js","utf8");
  assert.match(page,/speakLearningText\(text,"en",\{speed:slow\?"slow":"normal",mode:"word",onModelStatus:/);
  assert.match(page,/onClick=\{\(\)=>pronounce\(word\[0\],true\)\}/);
- assert.match(speech,/if\(code==="en"\|\|code==="en-US"\|\|code==="en-GB"\)return"nano"/);
+ assert.match(speech,/if\(code==="en"\|\|code==="en-US"\|\|code==="en-GB"\)return"paradee"/);
  assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de","es","fr","it","pt"\]\)/);
  assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.worker\.ts",import\.meta\.url\)/);
- assert.match(worker,/kitten_tts_2_nano_en_int4\.onnx/);
+ assert.match(worker,/paradee_int8\.onnx/);
  assert.match(worker,/uccharan@1\.0\.0/);
- assert.match(worker,/language==="en"\?"en-us":language/);
- assert.match(worker,/language==="en"\?"eleanor":/);
+ assert.match(worker,/voice.startsWith\("b"\)\?"en-gb":"en-us"/);
+ assert.match(worker,/language==="en-GB"\?"bf_isabella":"af_heart"/);
  assert.match(speech,/await speakText\(text,\{speed\}\)/);
  assert.doesNotMatch(speech,/learningSpeechKokoro|kokoro-js@|onnx-community\/Kokoro/);
  assert.doesNotMatch(page,/geminiKey\(|CrewAI\.call|useLiveSession|fetch\(/);
