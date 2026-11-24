@@ -36,7 +36,7 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 <main>
 <nav class="nav"><a class="logo" href="/tts-lab/">← TTS Lab</a><span class="pill">MODEL SHOOTOUT</span></nav>
 <h1>同一句話，直接比聲音。</h1>
-<p class="intro">只比較適合手機即時發音的輕量候選。先選語言，再試單字與短句；大型模型已移出本頁。</p>
+<p class="intro">先選語言，再直接試單字與短句。新候選在瀏覽器本機生成，按下播放才下載；較大的研究模型會標明下載量。</p>
 
 <section class="card">
 <label for="language">測試語言</label>
@@ -79,17 +79,35 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 <button class="primary" data-engine="pico2">播放 Pico 4MB</button>
 <div class="status" id="status-pico2">同樣是非官方 browser port，只拿來聽品質。</div><div class="progress"><span id="progress-pico2"></span></div>
 </article>
+<article class="model" hidden>
+<div><h2>sanoTTS</h2><div class="meta"><span class="tag">約 3.1 MB 權重</span><span class="tag warn">實驗</span></div></div>
+<p>中文 Xiaoya／西班牙文固定音色，另需發音資源。GPL-3.0，先做實驗試聽。</p>
+<button class="primary" data-engine="sano">播放 sanoTTS</button>
+<div class="status" id="status-sano">首次按下才下載。</div><div class="progress"><span id="progress-sano"></span></div>
+<a class="note" href="https://github.com/Ampixa/sanoTTS" target="_blank" rel="noopener noreferrer">模型來源與授權</a>
+</article>
+<article class="model" hidden>
+<div><h2>eeh-1</h2><div class="meta"><span class="tag">約 26 MB 壓縮下載</span><span class="tag warn">實驗</span></div></div>
+<p>日文 F1 女聲／M1 男聲，含漢字讀音及東京音高重音。模型 18.2 MB，另有詞典。</p>
+<button class="primary" data-engine="eeh">播放 eeh-1</button>
+<div class="status" id="status-eeh">首次按下才下載。</div><div class="progress"><span id="progress-eeh"></span></div>
+<a class="note" href="https://huggingface.co/ctrltokyo/eeh-1" target="_blank" rel="noopener noreferrer">模型來源與授權</a>
+</article>
+<article class="model" hidden>
+<div><h2>Tiny Voca 韓文</h2><div class="meta"><span class="tag">約 40 MB 或更多</span><span class="tag warn">實驗</span></div></div>
+<p>KSS 固定女聲；包含 Pyodide 發音資源，超出輕量目標。資料有非商業限制，僅供個人非商業研究。</p>
+<button class="primary" data-engine="korean">播放 Tiny Voca 韓文</button>
+<div class="status" id="status-korean">首次按下才下載。</div><div class="progress"><span id="progress-korean"></span></div>
+<a class="note" href="https://github.com/ooodev/korean-tts" target="_blank" rel="noopener noreferrer">模型來源與授權</a>
+</article>
 </section>
 
 <section class="card" id="external-candidates" hidden>
-<h2 style="font-size:18px;margin:0 0 8px">輕量研究候選</h2>
-<p class="note">這些尚未接入本站推論，先到作者展示頁試聽或查看模型資料；不計入本站速度測試，也不自動下載。</p>
+<h2 style="font-size:18px;margin:0 0 8px">尚待公開瀏覽器資源的候選</h2>
+<p class="note">下列 Tiny Voca 版本尚未確認可直接下載的完整瀏覽器模型與對應發音資源，不提供無法執行的播放按鈕。</p>
 <button id="copy-sample" type="button">複製目前測試文字</button><p id="copy-status" class="note" role="status"></p>
-<div data-extra-langs="zh,es" class="candidate" hidden><strong>sanoTTS</strong><p class="note">超小型 WASM 語音；需確認發音準確度、完整下載量及 GPL 授權。</p><a href="https://ampixa.github.io/sanoTTS/" target="_blank" rel="noopener noreferrer">開啟作者試聽頁 ↗</a></div>
 <div data-extra-langs="zh" class="candidate" hidden><strong>Tiny Voca 中文</strong><p class="note">約 18 MB 權重；另需 Pyodide 發音處理。作者測試集 CER 23.5%，暫不適合教學正式版。</p><a href="https://github.com/xiaoliukuailiu/tiny-voca-zh" target="_blank" rel="noopener noreferrer">模型與原始碼 ↗</a></div>
-<div data-extra-langs="ja" class="candidate" hidden><strong>eeh-1</strong><p class="note">日文一男一女；18.2 MB 權重，另有詞典。作者報告瀏覽器首次壓縮傳輸約 26 MB，待驗證手機速度。</p><a href="https://huggingface.co/ctrltokyo/eeh-1" target="_blank" rel="noopener noreferrer">聽作者音訊樣本 ↗</a></div>
 <div data-extra-langs="ja" class="candidate" hidden><strong>Tiny Voca 日文</strong><p class="note">約 450 萬參數的研究方向；尚未確認輕量瀏覽器發音管線及完整下載量。</p><a href="https://github.com/gachimoto-code/tiny-voca-ja" target="_blank" rel="noopener noreferrer">模型與原始碼 ↗</a></div>
-<div data-extra-langs="ko" class="candidate" hidden><strong>Tiny Voca 韓文</strong><p class="note">實驗模型，瀏覽器完整下載量及訓練資料商用授權待審；暫不接入正式產品。</p><a href="https://github.com/ooodev/korean-tts" target="_blank" rel="noopener noreferrer">模型與原始碼 ↗</a></div>
 </section>
 <section class="result">
 <strong id="now">尚未播放</strong>
