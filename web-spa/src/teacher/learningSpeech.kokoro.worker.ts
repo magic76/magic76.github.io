@@ -1,3 +1,4 @@
+export {}; // Isolate this module worker's scope from the classic Pico worker.
 // English Kokoro matches public/tts-lab/kokoro/index.html; module loaded on demand only.
 type KokoroSpeed="normal"|"slow";
 type KokoroRequest={id:number;type:"prepare"|"generate";language:string;text?:string;speed?:KokoroSpeed;webgpu?:boolean};
