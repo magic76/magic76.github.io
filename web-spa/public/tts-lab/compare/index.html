@@ -94,11 +94,18 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 <a class="note" href="https://huggingface.co/ctrltokyo/eeh-1" target="_blank" rel="noopener noreferrer">模型來源與授權</a>
 </article>
 <article class="model" hidden>
-<div><h2>Tiny Voca 韓文</h2><div class="meta"><span class="tag">約 40 MB 或更多</span><span class="tag warn">實驗</span></div></div>
-<p>KSS 固定女聲；包含 Pyodide 發音資源，超出輕量目標。資料有非商業限制，僅供個人非商業研究。</p>
-<button class="primary" data-engine="korean">播放 Tiny Voca 韓文</button>
-<div class="status" id="status-korean">首次按下才下載。</div><div class="progress"><span id="progress-korean"></span></div>
-<a class="note" href="https://github.com/ooodev/korean-tts" target="_blank" rel="noopener noreferrer">模型來源與授權</a>
+<div><h2>Piper WASM · Huayan x_low</h2><div class="meta"><span class="tag">20.6 MB 權重</span><span class="tag warn">授權待確認</span></div></div>
+<p>中文國語固定音色；僅用於本頁比較。上游模型卡未確認訓練資料授權，正式商用前需審查。</p>
+<button data-engine="piperLow">播放 Piper x_low</button>
+<div class="status" id="status-piperLow">首次按下才下載模型及 WASM。</div><div class="progress"><span id="progress-piperLow"></span></div>
+<a class="note" href="https://huggingface.co/rhasspy/piper-voices/blob/main/zh/zh_CN/huayan/x_low/MODEL_CARD" target="_blank" rel="noopener noreferrer">音色授權資訊</a>
+</article>
+<article class="model" hidden>
+<div><h2>Piper WASM · Huayan medium</h2><div class="meta"><span class="tag">63.2 MB 權重</span><span class="tag warn">授權待確認</span></div></div>
+<p>中文國語固定音色；僅用於本頁比較。上游模型卡未確認訓練資料授權，正式商用前需審查。</p>
+<button data-engine="piperMedium">播放 Piper medium</button>
+<div class="status" id="status-piperMedium">首次按下才下載模型及 WASM。</div><div class="progress"><span id="progress-piperMedium"></span></div>
+<a class="note" href="https://huggingface.co/rhasspy/piper-voices/blob/main/zh/zh_CN/huayan/medium/MODEL_CARD" target="_blank" rel="noopener noreferrer">音色授權資訊</a>
 </article>
 </section>
 
@@ -117,6 +124,6 @@ audio{width:100%;margin-top:10px}.note{font-size:12px;color:#98aaa0;line-height:
 
 <p class="note">Kitten 為實驗瀏覽器移植；模型、音色包與發音處理分開下載。不修改正式學習頁。</p>
 </main>
-<script src="./compare.js"></script>
+<script src="./compare.js?v=903"></script>
 </body>
 </html>
