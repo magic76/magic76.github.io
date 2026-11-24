@@ -17,7 +17,7 @@ test("page-turn reader has 10 print-safe pages, controls, and a no-AI preview en
  assert.match(html,/\.sheet\.is-active,#report\.reader-open \.sheet\.is-leaving\{display:flex!important;position:relative!important/);
  assert.equal((html.match(/<article class="sheet(?: dark)?"/g)||[]).length,10);
  assert.doesNotMatch(html,/留給自己的一題|建議：每週做一件/);
- assert.match(html,/v=20261124-reader3/);
+ assert.match(html,/v=20261124-pageflip1/);
  assert.match(html,/touch-action:pan-y pinch-zoom/);
  assert.match(html,/overscroll-behavior-x:none/);
  assert.match(html,/overflow-x:clip/);
@@ -30,6 +30,19 @@ test("page-turn reader has 10 print-safe pages, controls, and a no-AI preview en
  assert.doesNotMatch(html,/transform-origin:right center|paper-turn-backward|paper-turn-forward|rotateY\(155deg\)/);
  assert.doesNotMatch(html,/data-direction="prev"[^}]*\.sheet\.is-leaving/);
  assert.match(html,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(html,/id="flipBook" hidden/);
+ assert.match(html,/\/assets\/vendor\/page-flip-2\.0\.7\/page-flip\.browser\.js/);
+ assert.match(html,/#report\.reader-open\.flip-enhanced #bookPages\{display:none\}/);
+ assert.match(source,/new window\.St\.PageFlip\(host/);
+ assert.match(source,/readerFlip\.loadFromHTML\(leaves\)/);
+ assert.match(source,/showCover:true,drawShadow:true/);
+ assert.match(source,/flippingTime:850/);
+ assert.match(source,/readerFlip\.flipNext\("bottom"\)/);
+ assert.match(source,/readerFlip\.flipPrev\("bottom"\)/);
+ assert.match(source,/copy\.querySelectorAll\("\[id\]"\)/);
+ assert.match(source,/prefers-reduced-motion: reduce/);
+ assert.match(readFileSync("scripts/prepare-cloudflare.mjs","utf8"),/page-flip-2\.0\.7/);
+ assert.equal(JSON.parse(readFileSync("package.json","utf8")).dependencies["page-flip"],"2.0.7");
  assert.doesNotMatch(html,/page-turn-in|rotateY\(-3deg\)/);
 });
 
