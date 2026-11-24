@@ -58,6 +58,41 @@ test("import routes the original #908 languages but keeps Nano and Pico as unimp
  assert.match(speech,/await systemSpeak\(value,language,speed\)/);
 });
 
+test("consented en/fr use Kokoro and generation errors fall back to Nano/Pico",async()=>{
+ const code=stripTypeScriptTypes(
+  speech.slice(speech.indexOf("export async function speakLearningText("))
+   .replace(/^export /,"")
+   .replace('await import("./learningSpeechHighQuality")','await getHighQuality()'),
+  {mode:"strip"}
+ );
+ for(const language of ["en","fr"])for(const highFails of [false,true]){
+  const played=[],warnings=[];
+  const fallback=language==="en"?"nano":"pico";
+  const context={
+   stopLearningSpeech(){},playbackId:0,
+   normalizeLearningLanguage:x=>x,preferredLearningEngine:()=>fallback,
+   generated:new Map(),ready:new Set(["en","fr"]),
+   cacheKey:(text,lang,speed,engine)=>[engine,lang,speed,text].join("|"),
+   localStorage:{getItem:()=> "en,fr"},
+   getHighQuality:async()=>({
+    highQualityReadyOrWarm:async()=>true,
+    generateHighQuality:async()=>{if(highFails)throw Error("model failed");return {voice:"kokoro"}}
+   }),
+   segmentLearningSpeech:value=>[value],
+   generateTiny:async()=>({voice:fallback}),
+   playBlob:async blob=>played.push(blob.voice),
+   remember(){},
+   systemSpeak:async()=>{throw Error("must use the original neural engine on failure")},
+   console:{warn:(...args)=>warnings.push(args)}
+  };
+  const speak=vm.runInNewContext(code+";speakLearningText",context);
+  const result=await speak("It depends on the situation.",language);
+  assert.equal(result.engine,highFails?fallback:"kokoro",language);
+  assert.deepEqual(played,[highFails?fallback:"kokoro"],language);
+  assert.equal(warnings.length,highFails?1:0);
+ }
+});
+
 test("only the requested fp32 or q8 weight counts as an imported model",async()=>{
  const code=slice(high,"function modelId(","function markerUrl(");
  const fp32="https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/onnx/model.onnx";
