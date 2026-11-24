@@ -233,9 +233,7 @@
       "save": "＋ Save",
       "originalPrefix": "Original: ",
       "savedNote": "Saved from Zoe chat",
-      "modelDownloading": "Preparing Kokoro English speech ({{runtime}}, about {{size}} MB), a one-time download. System speech will play this time.",
-      "modelDownloadingPico": "Preparing the smaller Kitten Pico speech model, a one-time download. System speech will play this time.",
-      "modelReady": "The speech model is ready. High-quality speech will be used next time."
+      "modelDownloading": "Downloading model"
     },
     "typing": "{{name}} is typing",
     "nextHeading": "You could say",
