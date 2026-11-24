@@ -241,7 +241,10 @@ function openFlip(){
    readerFlip=new window.St.PageFlip(host,{width:450,height:740,size:"stretch",
     minWidth:320,maxWidth:520,minHeight:1,maxHeight:900,autoSize:true,usePortrait:true,
     showCover:true,drawShadow:true,maxShadowOpacity:.48,flippingTime:850,
-    mobileScrollSupport:true,useMouseEvents:true,swipeDistance:45,disableFlipByClick:true,showPageCorners:true});
+    // In portrait, flipPrev() uses a point on the visible left edge, not
+    // the virtual book corner. The upstream click guard also blocks buttons
+    // and native right swipes, so leave it disabled (native taps are allowed).
+    mobileScrollSupport:true,useMouseEvents:true,swipeDistance:45,disableFlipByClick:false,showPageCorners:true});
    ["init","flip","changeOrientation","update"].forEach(function(event){readerFlip.on(event,syncFlip)});
    readerFlip.on("changeState",function(e){if(e.data==="read")syncFlip()});
    readerFlip.loadFromHTML(leaves);
