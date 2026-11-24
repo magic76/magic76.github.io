@@ -45,6 +45,7 @@ audio{width:100%;margin-top:12px}audio[hidden]{display:none}
 <option value="0.85">慢速 0.85×</option>
 </select></div>
 </div>
+<div style="margin-top:14px"><label for="mode">運算模式 / 模型大小</label><select id="mode"></select><p id="mode-note" class="note"></p></div>
 <div class="actions">
 <button id="system" type="button">🔊 系統 TTS</button>
 <button id="kokoro" class="primary" type="button">✨ Kokoro</button>
@@ -82,13 +83,65 @@ const LANGUAGES={
  "pt-BR":{route:"base",locale:"pt-BR",g2p:"pt-br",sample:["olá","obrigado","confortável","viagem","Hoje está um dia lindo.","Quer praticar português comigo?"],voices:["pf_dora","pm_alex","pm_santa"]}
 };
 const $=s=>document.querySelector(s);
-const lang=$("#lang"),text=$("#text"),voice=$("#voice"),speed=$("#speed"),system=$("#system"),kokoro=$("#kokoro"),player=$("#player"),status=$("#status"),runtime=$("#runtime"),progress=$("#progress");
+const lang=$("#lang"),text=$("#text"),voice=$("#voice"),speed=$("#speed"),system=$("#system"),kokoro=$("#kokoro"),player=$("#player"),status=$("#status"),runtime=$("#runtime"),progress=$("#progress"),mode=$("#mode");
 let active=null,objectUrl="",busy=false,previousLang=lang.value,g2pPromise=null;
 const drafts=new Map(),selectedVoices=new Map();
 const hasWebGpu=typeof navigator!=="undefined"&&"gpu" in navigator;
-const device=hasWebGpu?"webgpu":"wasm";
-const dtype=hasWebGpu?"fp32":"q8";
-const notes={base:"v1.0 · Kokoro JS 1.2.1；英文和西、法、印地、義、葡文共用權重（WASM q8 約 90 MB）。其他五語使用 uccharan Kokoro 音素處理（實驗）。",zh:"v1.1 中文專用模型 · @uzen/kokoro-js 1.2.4。fp32 約 330 MB 權重，首次下載較大；100 個音色按需載入。",ja:"v1.0 · kokoro-js-jp 0.2.0，首次日文另外下載約 24 MB 壓縮詞典。"};
+// Sizes from the upstream ONNX file listings, decimal MB, not total transfer.
+const MODEL_SIZES={base:{fp32:326,fp16:163,q8:92.4,q4:305,q4f16:155},zh:{fp32:339,fp16:164,q8:127,q4:341,q4f16:166}};
+const MODES=[
+ {id:"auto",label:"自動（原本預設）"},
+ {id:"wasm-q8",device:"wasm",dtype:"q8",label:"WASM Q8"},
+ {id:"wasm-fp32",device:"wasm",dtype:"fp32",label:"WASM FP32"},
+ {id:"wasm-q4",device:"wasm",dtype:"q4",label:"WASM Q4"},
+ {id:"webgpu-fp32",device:"webgpu",dtype:"fp32",label:"WebGPU FP32"},
+ {id:"webgpu-fp16",device:"webgpu",dtype:"fp16",label:"WebGPU FP16"},
+ {id:"webgpu-q4f16",device:"webgpu",dtype:"q4f16",label:"WebGPU Q4F16"}
+];
+let gpuPromise=null, gpuInfo=null;
+function probeGpu(){
+ if(!gpuPromise)gpuPromise=(async()=>{
+  try{const adapter=hasWebGpu?await navigator.gpu.requestAdapter():null;
+   return {available:!!adapter,f16:!!adapter?.features?.has("shader-f16")};
+  }catch{return {available:false,f16:false};}
+ })().then(info=>{gpuInfo=info;return info;});
+ return gpuPromise;
+}
+function resolveMode(route,id,gpu){
+ const chosen=MODES.find(m=>m.id===id);
+ if(!chosen)throw Error("未知運算模式");
+ if(id==="auto")return {device:gpu.available?"webgpu":"wasm",dtype:gpu.available||route==="zh"?"fp32":"q8"};
+ if(chosen.device==="webgpu"&&!gpu.available)throw Error("此裝置沒有可用 WebGPU adapter，請選 WASM");
+ if(chosen.device==="webgpu"&&(chosen.dtype==="fp16"||chosen.dtype==="q4f16")&&!gpu.f16)throw Error("此 GPU 不支援 shader-f16，請選 FP32 或 WASM");
+ return {device:chosen.device,dtype:chosen.dtype};
+}
+function modelSize(route,dtype){return MODEL_SIZES[route==="zh"?"zh":"base"][dtype];}
+function sessionKey(route,config){return route+":"+config.device+":"+config.dtype;}
+function modeLabel(config){return (config.device==="webgpu"?"WebGPU":"WASM")+" "+config.dtype.toUpperCase();}
+function renderModeOptions(){
+ const route=LANGUAGES[lang.value].route,previous=mode.value||"auto";
+ mode.replaceChildren(...MODES.map(m=>{
+  const o=document.createElement("option");o.value=m.id;
+  const cfg=m.id==="auto"?resolveMode(route,m.id,gpuInfo||{available:hasWebGpu}):m;
+  o.textContent=m.label+" · "+modelSize(route,cfg.dtype)+" MB"+(route==="zh"&&(cfg.dtype==="q8"||cfg.dtype==="q4")?"（音質實驗）":"");
+  o.disabled=!!gpuInfo&&m.device==="webgpu"&&(!gpuInfo.available||((m.dtype==="fp16"||m.dtype==="q4f16")&&!gpuInfo.f16));
+  return o;
+ }));
+ mode.value=previous;
+ if(mode.options[mode.selectedIndex]?.disabled)mode.value="auto";
+ renderModeStatus();
+}
+function renderModeStatus(){
+ const route=LANGUAGES[lang.value].route,gpu=gpuInfo||{available:hasWebGpu,f16:true};
+ let cfg;
+ try{cfg=resolveMode(route,mode.value||"auto",gpu);}
+ catch(e){runtime.textContent="模式不可用";$("#mode-note").textContent=e.message;progress.style.width="0";return;}
+ const key=sessionKey(route,cfg);
+ runtime.textContent=modeLabel(cfg)+(active?.key===key?" · 已就緒":gpuInfo?" · 待載入":" · 偵測中");
+ progress.style.width=active?.key===key?"100%":"0";
+ $("#mode-note").textContent="權重約 "+modelSize(route,cfg.dtype)+" MB；不含音色、發音詞典與執行環境。"+(route==="zh"&&(cfg.dtype==="q8"||cfg.dtype==="q4")?" 中文作者不推薦此量化，僅供音質測試。":"")+(gpuInfo&&!gpuInfo.f16?" 此裝置未確認 shader-f16 支援。":"");
+}
+const notes={base:"v1.0 · Kokoro JS 1.2.1；英文和西、法、印地、義、葡文共用權重（WASM q8 約 90 MB）。其他五語使用 uccharan Kokoro 音素處理（實驗）。",zh:"v1.1 中文專用模型 · @uzen/kokoro-js 1.2.4。100 個音色按需載入；建議 FP32、FP16、Q4F16，Q8/Q4 只供實驗。",ja:"v1.0 · kokoro-js-jp 0.2.0，首次日文另外下載約 24 MB 壓縮詞典。"};
 function clearAudio(){try{speechSynthesis?.cancel();}catch{}player.pause();player.removeAttribute("src");player.hidden=true;player.load();if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl="";}
 function renderLanguage(){
  const info=LANGUAGES[lang.value];
@@ -97,25 +150,27 @@ function renderLanguage(){
  text.value=drafts.get(lang.value)??info.sample[0];text.lang=info.locale;
  $("#presets").replaceChildren(...info.sample.map((value,i)=>{const b=document.createElement("button");b.type="button";b.textContent=i===info.sample.length-1?"短句":value;b.addEventListener("click",()=>{text.value=value;clearAudio();});return b;}));
  $("#model-note").textContent=notes[info.route];
- runtime.textContent=(hasWebGpu?"WebGPU":"WASM")+" · "+(info.route==="zh"?"fp32":dtype);
- progress.style.width=active?.route===info.route?"100%":"0";
+ renderModeOptions();
  status.textContent="選擇音色後按 Kokoro 播放。";
 }
 lang.addEventListener("change",()=>{drafts.set(previousLang,text.value);selectedVoices.set(previousLang,voice.value);previousLang=lang.value;clearAudio();renderLanguage();});
 voice.addEventListener("change",()=>{clearAudio();status.textContent="已切換音色。";});
+mode.addEventListener("change",()=>{clearAudio();renderModeStatus();status.textContent="已切換運算模式，按 Kokoro 才載入。";});
 function value(){const v=text.value.trim();if(!v)throw Error("先輸入要念的文字。");return v;}
 function fail(e){console.error(e);status.textContent="失敗："+(e instanceof Error?e.message:String(e));}
 system.addEventListener("click",()=>{try{const v=value(),info=LANGUAGES[lang.value];if(!("speechSynthesis" in window))throw Error("此瀏覽器沒有系統 TTS");clearAudio();const u=new SpeechSynthesisUtterance(v);u.lang=info.locale;u.rate=Number(speed.value);speechSynthesis.speak(u);status.textContent="正在播放系統 TTS。";}catch(e){fail(e);}});
 function onProgress(i){if(i?.status==="progress"&&Number.isFinite(i.progress)){progress.style.width=Math.max(0,Math.min(100,i.progress))+"%";status.textContent="下載模型："+i.file+" · "+Math.round(i.progress)+"%";}}
-async function load(route){
- if(active?.route===route)return active.tts;
+async function load(route,config){
+ const {device,dtype}=config,key=sessionKey(route,config);
+ if(active?.key===key)return active.tts;
  const previous=active;active=null;
- if(previous?.tts?.model?.dispose)await previous.tts.model.dispose();
+ const previousModel=previous?.tts?.model??previous?.tts?.tts?.model;
+ if(previousModel?.dispose)await previousModel.dispose();
  progress.style.width="0";status.textContent="載入 Kokoro runtime…";
  let tts;
  if(route==="zh"){
   const {KokoroTTS}=await import(ZH_URL);
-  tts=await KokoroTTS.from_pretrained(ZH_MODEL,{device,dtype:"fp32",voicePath:"https://huggingface.co/"+ZH_MODEL+"/resolve/main/voices",progress_callback:onProgress});
+  tts=await KokoroTTS.from_pretrained(ZH_MODEL,{device,dtype,voicePath:"https://huggingface.co/"+ZH_MODEL+"/resolve/main/voices",progress_callback:onProgress});
  }else if(route==="ja"){
   const {KokoroJP}=await import(JA_URL);
   tts=await KokoroJP.load({modelId:MODEL_ID,device,dtype});
@@ -123,7 +178,7 @@ async function load(route){
   const {KokoroTTS}=await import(KOKORO_URL);
   tts=await KokoroTTS.from_pretrained(MODEL_ID,{device,dtype,progress_callback:onProgress});
  }
- active={route,tts};progress.style.width="100%";return tts;
+ active={route,key,tts};runtime.textContent=modeLabel(config)+" · 已就緒";progress.style.width="100%";return tts;
 }
 // The stock phonemizer package ships English data only. Use the explicitly
 // multilingual uccharan Kokoro profile, with pinned language packs.
@@ -153,26 +208,28 @@ async function espeakGenerate(tts,info,v,selected,rate){
  if(input_ids.dims.at(-1)>511||input_ids.dims.at(-1)<3)throw Error("音素數量不符，請縮短文字");
  return tts.generate_from_ids(input_ids,{voice:selected,speed:rate});
 }
-function setBusy(b){busy=b;lang.disabled=b;voice.disabled=b;speed.disabled=b;text.readOnly=b;system.disabled=b;kokoro.disabled=b;for(const el of $("#presets").querySelectorAll("button"))el.disabled=b;}
+function setBusy(b){busy=b;lang.disabled=b;voice.disabled=b;speed.disabled=b;mode.disabled=b;text.readOnly=b;system.disabled=b;kokoro.disabled=b;for(const el of $("#presets").querySelectorAll("button"))el.disabled=b;}
 kokoro.addEventListener("click",async()=>{
  if(busy)return;
  try{
   const v=value(),info=LANGUAGES[lang.value],selected=voice.value,rate=Number(speed.value);
   if(!info.voices.includes(selected))throw Error("語言與音色不符");
   clearAudio();setBusy(true);
-  const started=performance.now(),warm=active?.route===info.route,tts=await load(info.route),ready=performance.now();
+  const started=performance.now(),config=resolveMode(info.route,mode.value,await probeGpu());
+  const warm=active?.key===sessionKey(info.route,config),tts=await load(info.route,config),ready=performance.now();
   status.textContent="生成語音…"+(info.route==="ja"?"（初次含日文詞典準備）":"");
   const audio=info.route==="ja"?await tts.speak(v,selected,rate):info.g2p?await espeakGenerate(tts,info,v,selected,rate):await tts.generate(v,{voice:selected,speed:rate});
   const generated=performance.now();
   if(!audio?.audio?.length||!audio.audio.some(x=>Number.isFinite(x)&&x!==0)||!audio.audio.every(Number.isFinite))throw Error("模型未回傳有效聲音");
   const blob=audio.toBlob();if(!blob||blob.size<=44)throw Error("音訊檔案為空");
   objectUrl=URL.createObjectURL(blob);player.src=objectUrl;player.hidden=false;
-  const timing=(warm?"已載入":"模型準備")+" "+((ready-started)/1000).toFixed(2)+" 秒 · 生成 "+((generated-ready)/1000).toFixed(2)+" 秒";
+  const timing=modeLabel(config)+" · "+(warm?"已載入":"模型準備")+" "+((ready-started)/1000).toFixed(2)+" 秒 · 生成 "+((generated-ready)/1000).toFixed(2)+" 秒";
   try{await player.play();status.textContent="播放中 · "+timing;}catch{status.textContent="生成完成，請按播放器播放 · "+timing;}
  }catch(e){fail(e);}finally{setBusy(false);}
 });
 window.addEventListener("pagehide",()=>clearAudio());
 renderLanguage();
+probeGpu().then(()=>{if(!busy)renderModeOptions();});
 </script>
 </body>
 </html>
