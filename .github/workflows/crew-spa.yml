@@ -138,6 +138,8 @@ jobs:
       - name: Validate ECPay sandbox order and callback security (ECPay PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'ecpay-stage')
         run: node --test tests/koolo-ecpay-stage.test.mjs tests/fortune-paid-reports.test.mjs
+      - name: Validate private ECPay live verification (offline)
+        run: node --test tests/koolo-ecpay-live-test.test.mjs
       # TTS failure diagnostics are part of production publishing reliability.
       # This test is offline and makes no paid Gemini calls.
       - name: Validate Video TTS failure handling
