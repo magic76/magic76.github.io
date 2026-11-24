@@ -3,6 +3,8 @@
 const $=s=>document.querySelector(s);
 const text=$("#text"),speed=$("#speed"),voice=$("#voice"),player=$("#player"),now=$("#now");
 const presets={
+ word:"Comfortable.",
+ short:"Would you like to practice English with me?",
  natural:"At first, I thought learning English meant memorizing every word perfectly, but after I started speaking a little every day, I realized that rhythm, confidence, and the courage to keep going mattered much more than sounding perfect.",
  pronunciation:"Three thoughtful travelers quietly crossed the crowded railway station, checking their schedules, sharing a comfortable conversation, and wondering whether the weather would change before their early flight tomorrow morning.",
  story:"On Saturday evening, Zoe walked into a small coffee shop near the river, ordered a warm drink, and told her friend about an unexpected idea that had completely changed the way she wanted to spend the next year."
@@ -10,6 +12,9 @@ const presets={
 for(const b of document.querySelectorAll("[data-preset]"))b.addEventListener("click",()=>{text.value=presets[b.dataset.preset]||presets.natural;});
 
 const KOKORO_URL="https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js";
+const PIPER_URL="https://cdn.jsdelivr.net/npm/@realtimex/piper-tts-web@1.1.1/+esm";
+const TRANSFORMERS_URL="https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+const SUPERTONIC_MODEL="open-world-group/Supertonic-3-ONNX";
 const KITTEN_WEB="https://cdn.jsdelivr.net/gh/KittenML/KittenTTS-web@c846fe92858f3447f4912226471f5a63983b3f94/examples/html/assets/kittentts-web.js";
 const ORT_JS="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/ort.min.js";
 const ORT_BASE="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/";
@@ -22,6 +27,8 @@ const TINY_MODELS={
 const engines={};
 const scripts=new Map();
 let currentUrl="",busy=false;
+const gpuAdapter=Promise.resolve().then(()=>navigator.gpu?.requestAdapter()).catch(()=>null);
+gpuAdapter.then(adapter=>{$("#device-info").textContent="WebGPU Adapter："+(adapter?"可用":"不可用")+" · crossOriginIsolated："+(window.crossOriginIsolated?"是":"否")+" · WASM 多執行緒條件："+(window.crossOriginIsolated&&typeof SharedArrayBuffer!=="undefined"?"具備（仍依 runtime 設定）":"不具備")+" · 邏輯核心："+(navigator.hardwareConcurrency||"未知");});
 
 function sample(){const v=text.value.trim();if(!v)throw Error("請先輸入測試句子。");return v;}
 function setStatus(id,msg,error=false){const el=$("#status-"+id);if(!el)return;el.textContent=msg;el.classList.toggle("error",error);}
@@ -37,7 +44,7 @@ function stopAll(){
 }
 function playBlob(blob,label,elapsed){
  if(currentUrl)URL.revokeObjectURL(currentUrl);
- currentUrl=URL.createObjectURL(blob);player.src=currentUrl;player.hidden=false;
+ currentUrl=URL.createObjectURL(blob);player.src=currentUrl;player.playbackRate=1;player.hidden=false;
  now.textContent=label+(elapsed?" · "+elapsed:"");
  return player.play().catch(()=>{});
 }
@@ -67,15 +74,71 @@ async function systemTts(){
  speechSynthesis.speak(u);
 }
 
-async function kokoroTts(){
- const v=sample();stopAll();const started=performance.now();setStatus("kokoro","載入 Kokoro…");
- if(!engines.kokoro){const {KokoroTTS}=await import(KOKORO_URL);const hasGpu="gpu"in navigator;
-  engines.kokoro=await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX",{device:hasGpu?"webgpu":"wasm",dtype:hasGpu?"fp32":"q8",progress_callback:i=>{if(i?.status==="progress"&&typeof i.progress==="number")setProgress("kokoro",i.progress)}});
-  setProgress("kokoro",100);
+function timing(prep,gen,warm){
+ return (warm?"已載入":"首次準備")+" "+(prep/1000).toFixed(2)+" 秒 · 生成 "+(gen/1000).toFixed(2)+" 秒";
+}
+async function requireGpu(){if(!await gpuAdapter)throw Error("此裝置沒有可用 WebGPU Adapter；請改試 WASM 卡片。");}
+async function kokoroTts(id="kokoro",device="wasm",dtype="q8"){
+ const v=sample(),selectedVoice=voice.value==="female"?"af_heart":"am_michael",rate=Number(speed.value);stopAll();
+ const started=performance.now(),warm=!!engines[id];if(device==="webgpu")await requireGpu();
+ setStatus(id,"載入 Kokoro "+device+" "+dtype+"…");
+ if(!engines[id]){
+  const {KokoroTTS}=await import(KOKORO_URL);
+  engines[id]=await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX",{device,dtype,progress_callback:i=>{if(i?.status==="progress"&&typeof i.progress==="number")setProgress(id,i.progress)}});
+  setProgress(id,100);
  }
- setStatus("kokoro","生成長句…");const a=await engines.kokoro.generate(v,{voice:voice.value==="female"?"af_heart":"am_michael",speed:Number(speed.value)});
- await playBlob(a.toBlob(),"Kokoro",((performance.now()-started)/1000).toFixed(1)+" 秒");
- setStatus("kokoro","完成。");
+ const ready=performance.now();setStatus(id,"生成語音…");
+ const a=await engines[id].generate(v,{voice:selectedVoice,speed:rate});
+ const result=timing(ready-started,performance.now()-ready,warm);
+ await playBlob(a.toBlob(),"Kokoro "+device+" "+dtype,result);setStatus(id,result);
+}
+async function piperTts(){
+ const v=sample(),rate=Number(speed.value),voiceId=voice.value==="female"?"en_US-hfc_female-medium":"en_US-hfc_male-medium";stopAll();
+ const id="piper",started=performance.now();setStatus(id,"載入 Piper runtime…");
+ const sdk=engines.piperSDK||(engines.piperSDK=await import(PIPER_URL));
+ const key="piper:"+voiceId,warm=!!engines[key];
+ if(!warm){
+  const progress=p=>{if(p.total>0)setProgress(id,p.loaded/p.total*100);};
+  const stored=await sdk.stored().catch(()=>[]);
+  if(!stored.includes(voiceId)){setStatus(id,"下載 "+voiceId+"…");await sdk.download(voiceId,progress);}
+  engines[key]=true;
+ }
+ const ready=performance.now();setStatus(id,"生成語音（首次生成可能含 session 初始化）…");
+ let blob;try{blob=await sdk.predict({text:v,voiceId});}catch(e){delete engines[key];throw e;}
+ const result=timing(ready-started,performance.now()-ready,warm);
+ await playBlob(blob,"Piper WASM",result);player.playbackRate=rate;setProgress(id,100);setStatus(id,result+" · "+voiceId);
+}
+function splitSupertonic(value){
+ const chunks=[];let current="";
+ for(const word of value.split(/\s+/)){
+  if(current&&(current+" "+word).length>280){chunks.push(current);current="";}
+  if(word.length>280){if(current){chunks.push(current);current="";}for(let i=0;i<word.length;i+=280)chunks.push(word.slice(i,i+280));}
+  else current=current?current+" "+word:word;
+ }
+ if(current)chunks.push(current);return chunks;
+}
+async function supertonicTts(id,device){
+ const v=sample(),rate=Number(speed.value),style=voice.value==="female"?"F1":"M1";stopAll();
+ const started=performance.now(),warm=!!engines[id];if(device==="webgpu")await requireGpu();
+ if(!warm){
+  setStatus(id,"載入 Supertonic 3（大型模型）…");
+  const {pipeline}=await import(TRANSFORMERS_URL);
+  const dtype=device==="webgpu"?"fp16":{text_encoder:"fp32",latent_denoiser:"q8",voice_decoder:"fp32"};
+  engines[id]=await pipeline("text-to-speech",SUPERTONIC_MODEL,{device,dtype,progress_callback:i=>{if(i?.status==="progress"&&typeof i.progress==="number")setProgress(id,i.progress);}});
+  setProgress(id,100);
+ }
+ const ready=performance.now(),chunks=splitSupertonic(v),parts=[];
+ let sampleRate=0;for(let i=0;i<chunks.length;i++){
+  setStatus(id,"生成 "+(i+1)+"/"+chunks.length+"…");
+  const a=await engines[id]("<en>"+chunks[i]+"</en>",{speaker_embeddings:"https://huggingface.co/"+SUPERTONIC_MODEL+"/resolve/main/voices/"+style+".bin",num_inference_steps:5,speed:rate});
+  if(!a.audio?.length||!a.sampling_rate)throw Error("Supertonic 未回傳有效 PCM");
+  if(sampleRate&&sampleRate!==a.sampling_rate)throw Error("音訊取樣率不一致");
+  sampleRate=a.sampling_rate;parts.push(a.audio);
+ }
+ const gap=Math.round(sampleRate*0.12),pcm=new Float32Array(parts.reduce((n,a)=>n+a.length,0)+gap*(parts.length-1));let offset=0;
+ for(const a of parts){pcm.set(a,offset);offset+=a.length+gap;}
+ const result=timing(ready-started,performance.now()-ready,warm);
+ await playBlob(wavBlob(pcm,sampleRate),"Supertonic 3 "+device,result);setStatus(id,result+" · "+(pcm.length/sampleRate).toFixed(1)+" 秒音訊");
 }
 
 async function kitten08Tts(){
@@ -150,7 +213,7 @@ async function tinyTts(kind){
  setStatus(kind,"完成 · 實驗 port（非官方 Web frontend）。");
 }
 
-const handlers={system:systemTts,kokoro:kokoroTts,kitten08:kitten08Tts,nano2:()=>tinyTts("nano2"),pico2:()=>tinyTts("pico2")};
-for(const b of document.querySelectorAll("[data-engine]"))b.addEventListener("click",async()=>{if(busy)return;busy=true;const id=b.dataset.engine;b.disabled=true;try{await handlers[id]()}catch(e){console.error(e);setStatus(id,"失敗："+(e instanceof Error?e.message:String(e)),true)}finally{b.disabled=false;busy=false}});
+const handlers={system:systemTts,kokoro:()=>kokoroTts(),kokoroGpuQ8:()=>kokoroTts("kokoroGpuQ8","webgpu","q8"),kokoroGpuFp32:()=>kokoroTts("kokoroGpuFp32","webgpu","fp32"),piper:piperTts,supertonicWasm:()=>supertonicTts("supertonicWasm","wasm"),supertonicGpu:()=>supertonicTts("supertonicGpu","webgpu"),kitten08:kitten08Tts,nano2:()=>tinyTts("nano2"),pico2:()=>tinyTts("pico2")};
+for(const b of document.querySelectorAll("[data-engine]"))b.addEventListener("click",async()=>{if(busy)return;busy=true;const id=b.dataset.engine;for(const button of document.querySelectorAll("[data-engine]"))button.disabled=true;try{await handlers[id]()}catch(e){console.error(e);setStatus(id,"失敗："+(e instanceof Error?e.message:String(e)),true)}finally{for(const button of document.querySelectorAll("[data-engine]"))button.disabled=false;busy=false}});
 window.addEventListener("pagehide",()=>{stopAll();if(currentUrl)URL.revokeObjectURL(currentUrl);try{engines.kitten08?.dispose?.()}catch{}try{engines.tinyRuntime?.phon?.dispose?.()}catch{}});
 })();
