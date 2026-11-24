@@ -54,10 +54,10 @@ test("vocabulary page uses lazy Kokoro English without Gemini",()=>{
  const worker=fs.readFileSync("web-spa/src/teacher/learningSpeech.worker.ts","utf8");
  assert.match(page,/speakLearningText\(text,"en",\{speed:slow\?"slow":"normal",mode:"word",onModelStatus:/);
  assert.match(page,/onClick=\{\(\)=>pronounce\(word\[0\],true\)\}/);
- assert.match(speech,/if\(code==="en"\)return"kokoro"/);
- assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de","es","fr","it","pt"\]\)/);
+ assert.match(speech,/return learningSpeechRoute\(code\).engine/);
+ assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de"\]\)/);
  assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.worker\.ts",import\.meta\.url\)/);
- assert.match(fs.readFileSync("web-spa/src/teacher/learningSpeech.kokoro.worker.ts","utf8"),/KokoroTTS\.from_pretrained/);
+ assert.match(fs.readFileSync("web-spa/src/teacher/learningSpeechKokoro.ts","utf8"),/KokoroTTS\.from_pretrained/);
  assert.match(worker,/uccharan@1\.0\.0/);
  assert.match(speech,/await speakText\(text,\{speed\}\)/);
  assert.match(speech,/kokoro-js@1\.2\.1|Kokoro-82M/);
