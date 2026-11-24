@@ -4,70 +4,73 @@ const fs=require("node:fs");
 const vm=require("node:vm");
 const {stripTypeScriptTypes}=require("node:module");
 const read=p=>fs.readFileSync(p,"utf8");
-const routeCode=stripTypeScriptTypes(read("web-spa/src/teacher/learningSpeechRoutes.ts").replace(/\bexport\s+/g,""),{mode:"strip"});
-const route=vm.runInNewContext(routeCode+";learningSpeechRoute");
-test("multilingual routes use the Lab models and language-specific voices",()=>{
- for(const [language,engine,model,voice,g2p] of [
-  ["en","kokoro","base","af_heart"],["en-US","kokoro","base","af_heart"],["en-GB","kokoro","base","bf_emma"],
-  ["fr","kokoro","base","ff_siwis","fr"],["es","kokoro","base","ef_dora","es"],["it","kokoro","base","if_sara","it"],
-  ["pt-BR","kokoro","base","pf_dora","pt-br"],["hi","kokoro","base","hf_alpha","hi"],
-  ["ja","kokoro","ja","jf_alpha"],["zh-TW","kokoro","zh","zf_001"],["de","pico","pico"],["ko","system"]
- ]){
-  const info=route(language);assert.equal(info.engine,engine,language);assert.equal(info.model,model,language);assert.equal(info.voice,voice,language);assert.equal(info.g2p,g2p,language);
- }
-});
-test("runtime shares base weights and uses Lab generation APIs",()=>{
- const runtime=read("web-spa/src/teacher/learningSpeechKokoro.ts");
- assert.match(runtime,/key=model\+"\|"\+device/);
- assert.match(runtime,/KokoroJP\.load\(/);
- assert.match(runtime,/tts\.speak\(text,route.voice,rate\)/);
- assert.match(runtime,/Kokoro-82M-v1\.1-zh-ONNX/);
- assert.match(runtime,/phonemizeSync\(text,\{lang:route.g2p,profile:"kokoro"\}\)/);
- assert.match(runtime,/generate_from_ids\(/);
- assert.match(runtime,/cache\.put\(url,res.clone\(\)\)/);
-});
-test("cold, cached and failed preparation never wait for local inference before system speech",async()=>{
- const source=read("web-spa/src/teacher/learningSpeech.ts");
- const fn=stripTypeScriptTypes(source.slice(source.indexOf("export async function speakLearningText")).replace("export ",""),{mode:"strip"});
- for(const hit of [false,true]){
-  const statuses=[],played=[];
-  let fail;
-  const preparation=new Promise((_,reject)=>{fail=reject});
-  const context={playbackId:1,stopLearningSpeech(){},normalizeLearningLanguage:x=>x,preferredLearningEngine:()=> "kokoro",cacheKey:()=>"",generated:new Map(),ready:new Set(),hasCachedTinyModel:async()=>hit,ensureTiny:()=>preparation,systemSpeak:async text=>played.push(text),console:{warn(){}}};
-  const speak=vm.runInNewContext(fn+";speakLearningText",context);
-  const result=await speak("bonjour","fr",{onModelStatus:s=>statuses.push(s)});
-  assert.equal(result.engine,"system");assert.deepEqual(played,["bonjour"]);assert.deepEqual(statuses,hit?[]:["loading"]);
-  fail(Error("offline"));await new Promise(resolve=>setImmediate(resolve));
-  assert.deepEqual(statuses,hit?[]:["loading","ready"]);
- }
+const speech=read("web-spa/src/teacher/learningSpeech.ts");
+const worker=read("web-spa/src/teacher/learningSpeech.worker.ts");
+
+function extract(start,end){
+ const a=speech.indexOf(start),b=speech.indexOf(end,a);
+ assert.ok(a>=0&&b>a,start+" remains available");
+ return stripTypeScriptTypes(speech.slice(a,b).replace(/\bexport\s+/g,""),{mode:"strip"});
+}
+
+test("en/US/GB use Nano; de/es/fr/it/pt use Pico; other learning languages use device TTS",()=>{
+ const code=extract("export function normalizeLearningLanguage(","export function picoLearningLanguages(");
+ const {normalizeLearningLanguage,preferredLearningEngine}=vm.runInNewContext(
+  code+";({normalizeLearningLanguage,preferredLearningEngine})",
+  {TARGET_LANGUAGES:[],PICO_LANGUAGES:new Set(["de","es","fr","it","pt"])});
+ for(const language of ["en","en-US","en-GB","EN-us","EN-gb"])assert.equal(preferredLearningEngine(language),"nano",language);
+ for(const language of ["de","es","fr","it","pt","pt-BR"])assert.equal(preferredLearningEngine(language),"pico",language);
+ for(const language of ["ja","ko","zh-TW","hi","vi","th","id","ru"])assert.equal(preferredLearningEngine(language),"system",language);
+ assert.equal(normalizeLearningLanguage("en-GB"),"en-GB");
+ assert.match(speech,/modelLanguage\(message.language\)/,"worker receives canonical Nano en");
+ assert.match(worker,/language==="en"\?"en-us":language/,"Nano G2P uses real en-us data pack");
+ assert.match(worker,/language==="en"\?"eleanor":/,"Nano selects Eleanor voice");
 });
 
-test("GPU initialization failure retries WASM before marking model ready",async()=>{
- const source=read("web-spa/src/teacher/learningSpeech.ts");
- const start=source.indexOf("function ensureTiny("),end=source.indexOf("async function generateTiny(",start);
- // Replace only the lazy main import with an injected runtime for the VM.
- const code=stripTypeScriptTypes(source.slice(start,end).replaceAll('import("./learningSpeechKokoro")','loadRuntime()'),{mode:"strip"});
- for(const failWasmWorker of [false,true]){
-  const calls=[],ready=new Set(),warming=new Map();
-  const ctx={ready,warming,learningSpeechRoute:route,useKokoroMain:false,probeWebGpu:async()=>true,
-   disableWebGpu:()=>calls.push("disable"),requestWorker:async req=>{
-    calls.push(req.webgpu?"worker-gpu":"worker-wasm");
-    if(req.webgpu||failWasmWorker)throw Error("backend unavailable");
-   },loadRuntime:async()=>({prepareKokoro:async(_,gpu)=>{calls.push(gpu?"main-gpu":"main-wasm");assert.equal(gpu,false)}}),
-   requestPersistentStorage(){calls.push("persist")},console:{warn(){}}};
-  const ensure=vm.runInNewContext(code+";ensureTiny",ctx);
-  const pending=ensure("en");assert.equal(ready.has("en"),false);
-  await pending;
-  assert.equal(ready.has("en"),true);
-  assert.deepEqual(calls,failWasmWorker?["worker-gpu","disable","worker-wasm","main-wasm","persist"]:["worker-gpu","disable","worker-wasm","persist"]);
+test("no learning path imports Kokoro runtimes or WebGPU models",()=>{
+ assert.doesNotMatch(speech+worker,/kokoro-js@|kokoro-js-jp|@uzen|learningSpeechKokoro|learningSpeech\.kokoro\.worker|KokoroTTS|probeWebGpu|model_quantized\.onnx/);
+ for(const file of ["learningSpeechKokoro.ts","learningSpeech.kokoro.worker.ts","learningSpeechRoutes.ts"]){
+  assert.equal(fs.existsSync("web-spa/src/teacher/"+file),false,file+" removed from learning runtime");
  }
- const ready=new Set(),warming=new Map(),attempts=[];
- const ctx={ready,warming,learningSpeechRoute:route,useKokoroMain:false,probeWebGpu:async()=>true,
-  disableWebGpu(){},requestWorker:async req=>{attempts.push(req.webgpu);throw Error("backend unavailable")},
-  loadRuntime:async()=>({prepareKokoro:async(_,gpu)=>{attempts.push(gpu);throw Error("WASM unavailable")}}),
-  requestPersistentStorage(){throw Error("must not persist failed model")},console:{warn(){}}};
+ assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.worker\.ts",import\.meta\.url\),\{type:"classic"\}\)/);
+ assert.match(speech,/cleanupLegacyKokoroCache\(\)/);
+});
+
+test("cold, cached-weight and failed preparation all speak immediately without obsolete UI hints",async()=>{
+ const fn=extract("export async function speakLearningText(","\n}",).replace(/\s*$/,"")+"\n}"; // replaced below with exact function source
+ // The final speech function reaches EOF, so extract its full text directly.
+ const code=stripTypeScriptTypes(speech.slice(speech.indexOf("export async function speakLearningText(")).replace("export ",""),{mode:"strip"});
+ for(const hit of [false,true]){
+  const statuses=[],played=[];let rejectPreparation;
+  const preparation=new Promise((_,reject)=>{rejectPreparation=reject});
+  const context={
+   playbackId:1,stopLearningSpeech(){},cleanupLegacyKokoroCache(){},
+   normalizeLearningLanguage:x=>x,preferredLearningEngine:()=> "nano",
+   cacheKey:()=>"",generated:new Map(),ready:new Set(),hasCachedTinyModel:async()=>hit,
+   ensureTiny:()=>preparation,systemSpeak:async text=>played.push(text),console:{warn(){}}
+  };
+  const speak=vm.runInNewContext(code+";speakLearningText",context);
+  const result=await speak("Nice to meet you, Zoe.","en",{onModelStatus:(status,lang)=>statuses.push([status,lang])});
+  assert.equal(result.engine,"system");
+  assert.deepEqual(played,["Nice to meet you, Zoe."]);
+  assert.deepEqual(statuses,hit?[]:[["loading","en"]]);
+  rejectPreparation(Error("offline"));
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.deepEqual(statuses,hit?[]:[["loading","en"],["ready","en"]]);
+ }
+ assert.doesNotMatch(speech,/約\s*\d+\s*MB|這次先用系統語音|語音模型已準備好|只需一次/);
+});
+
+test("successful preparation requests storage persistence once and avoids duplicate workers",async()=>{
+ const code=extract("function ensureTiny(","async function generateTiny(");
+ let attempts=0,persisted=0;
+ const ctx={ready:new Set(),warming:new Map(),requestWorker:async()=>{attempts++},
+  requestPersistentStorage(){persisted++}};
  const ensure=vm.runInNewContext(code+";ensureTiny",ctx);
- await assert.rejects(ensure("en"),/WASM unavailable/);
- assert.equal(ready.has("en"),false);assert.equal(warming.has("en"),false);
- assert.deepEqual(attempts,[true,false,false]);
+ await Promise.all([ensure("en"),ensure("en")]);
+ await ensure("en");
+ assert.equal(attempts,1);
+ assert.equal(persisted,1);
+ assert.equal(ctx.ready.has("en"),true);
+ assert.equal(ctx.warming.size,0);
 });
