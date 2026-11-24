@@ -221,5 +221,9 @@
     "unavailable": "Cyber Orb no está disponible en esta versión.",
     "unknown": "La operación falló. Inténtalo de nuevo.",
     "web_key_unavailable": "Aún no has configurado la clave Gemini. Ve a Ajustes antes de empezar a conversar."
+  },
+  "about": {
+    "title": "Acerca de Koolo",
+    "licenses": "Licencias de terceros"
   }
 }

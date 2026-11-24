@@ -6,7 +6,7 @@ import {usageDisabled,developerUsageMode,setUsageDisabled,setDeveloperUsageMode}
 
 /** User-controlled analytics privacy preferences, separate from everyday app settings. */
 export function PrivacyPage(){
- const {i18n}=useTranslation();
+ const {i18n,t}=useTranslation("settings");
  const english=i18n.language.startsWith("en");
  const[analyticsOff,setAnalyticsOff]=useState(usageDisabled);
  const[devMode,setDevMode]=useState(developerUsageMode);
@@ -29,6 +29,7 @@ export function PrivacyPage(){
     <span>{english?"Developer test mode (exclude my usage)":"開發測試模式（排除自己的操作）"}</span>
    </label>}
   </section>
+  <p className="meta"><Link to="/licenses">{t("about.licenses")} <Arrow/></Link></p>
   <p className="meta"><Link to="/settings"><Arrow direction="left"/> {english?"Back to settings":"返回設定"}</Link></p>
  </>;
 }

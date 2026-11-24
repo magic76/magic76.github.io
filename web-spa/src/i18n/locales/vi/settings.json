@@ -221,5 +221,9 @@
     "unavailable": "Cyber Orb không khả dụng trong phiên bản này.",
     "unknown": "Thao tác thất bại. Hãy thử lại.",
     "web_key_unavailable": "Bạn chưa thiết lập Gemini Key. Vào Cài đặt để hoàn tất trước khi trò chuyện."
+  },
+  "about": {
+    "title": "Giới thiệu Koolo",
+    "licenses": "Giấy phép bên thứ ba"
   }
 }

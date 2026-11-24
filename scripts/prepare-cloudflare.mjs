@@ -213,7 +213,7 @@ const privatePaths=[
  ...["shelf","me","create","physical","live"].map(s=>"/story/"+s),
  ...["history","reading","live"].map(s=>"/fortune/"+s),
  ...["gomoku"].map(s=>"/games/"+s),
- "/timeline","/timeline/compare","/timeline/live"
+ "/timeline","/timeline/compare","/timeline/live","/licenses"
 ];
 const privatePatterns=["/story/edit/*","/story/read/*","/story/physical/*","/briefing/*"];
 const privateShell=viteHtml.replace("<title>Crew</title>","<title>Koolo · Interactive App</title>");

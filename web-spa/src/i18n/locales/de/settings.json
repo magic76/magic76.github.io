@@ -221,5 +221,9 @@
     "unavailable": "Cyber Orb ist in dieser App-Version nicht verfügbar.",
     "unknown": "Aktion fehlgeschlagen. Bitte erneut versuchen.",
     "web_key_unavailable": "Gemini-Schlüssel noch nicht eingerichtet. Richte ihn unter Einstellungen ein und starte dann den Chat."
+  },
+  "about": {
+    "title": "Über Koolo",
+    "licenses": "Drittanbieterlizenzen"
   }
 }

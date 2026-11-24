@@ -221,5 +221,9 @@
     "unavailable": "此版本尚不支援 Cyber Orb。",
     "unknown": "操作失敗，請重試。",
     "web_key_unavailable": "尚未設定 Gemini Key。請先到設定完成後再開始聊天。"
+  },
+  "about": {
+    "title": "關於 Koolo",
+    "licenses": "第三方授權"
   }
 }

@@ -177,6 +177,6 @@ export function SettingsPage(){
   </div>
  </details>
  </div>
- {showOverview&&<BuildVersion/>}
+ {showOverview&&<section className="section panel" id="settings-about"><div className="section-head"><h2>{t("about.title")}</h2></div><Link className="crew-settings-quick-link" to="/licenses">{t("about.licenses")} <Arrow/></Link><BuildVersion/></section>}
 </div>;
 }

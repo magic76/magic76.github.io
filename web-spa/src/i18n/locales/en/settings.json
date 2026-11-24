@@ -221,5 +221,9 @@
     "unavailable": "Cyber Orb is unavailable in this App version.",
     "unknown": "The operation failed. Try again.",
     "web_key_unavailable": "Your Gemini Key is not set up yet. Open Settings to finish setup before chatting."
+  },
+  "about": {
+    "title": "About Koolo",
+    "licenses": "Third-party licenses"
   }
 }

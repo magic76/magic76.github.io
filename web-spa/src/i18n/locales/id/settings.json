@@ -221,5 +221,9 @@
     "unavailable": "Cyber Orb tidak tersedia pada versi ini.",
     "unknown": "Tindakan gagal. Coba lagi.",
     "web_key_unavailable": "Gemini Key belum diatur. Buka Pengaturan terlebih dahulu, lalu mulai mengobrol."
+  },
+  "about": {
+    "title": "Tentang Koolo",
+    "licenses": "Lisensi pihak ketiga"
   }
 }
