@@ -9,6 +9,7 @@ const html=reportLabHtml("nonce-for-test");
 
 test("page-turn reader has 10 print-safe pages, controls, and a no-AI preview entry",()=>{
  assert.match(html,/id="preview"[^>]*>預覽新版命書（免 AI）/);
+ assert.match(html,/id="previewExtended"[^>]*>預覽 28 頁一生命書（免 AI）/);
  assert.match(html,/id="readerNav"/);
  assert.match(html,/id="prevPage"/);
  assert.match(html,/id="nextPage"/);
@@ -17,7 +18,7 @@ test("page-turn reader has 10 print-safe pages, controls, and a no-AI preview en
  assert.match(html,/\.sheet\.is-active\{display:flex!important;position:relative!important/);
  assert.equal((html.match(/<article class="sheet(?: dark)?"/g)||[]).length,10);
  assert.doesNotMatch(html,/留給自己的一題|建議：每週做一件/);
- assert.match(html,/v=20261124-pageflip4/);
+ assert.match(html,/v=20261124-book28/);
  assert.match(html,/touch-action:pan-y pinch-zoom/);
  assert.match(html,/overscroll-behavior-x:none/);
  assert.match(html,/overflow-x:clip/);
@@ -269,4 +270,27 @@ test("new Gemini prompt asks for character analysis, fewer terms, and no questio
   assert.match(p,/不虛構|不要虛構/);
   assert.ok(p.length<1450);
  }
+});
+
+test("28-page editorial preview has distinct topics, five successive years and safe legacy restoration",()=>{
+ const section=source.slice(source.indexOf("var legacyBookPages=null"),source.indexOf("function showBook(x)"));
+ const make=()=>({className:"",textContent:"",children:[],hidden:true,style:{setProperty(){}},setAttribute(){},appendChild(e){this.children.push(e)},append(...e){this.children.push(...e)},replaceChildren(...e){this.children=e}});
+ const nodes=new Map(),node=id=>{if(!nodes.has(id))nodes.set(id,make());return nodes.get(id)};
+ const old=Array.from({length:10},make);node("bookPages").replaceChildren(...old);
+ const reportEl=make(),chooser=make(),window={scrollTo(){}};
+ const adapter=new Function("readerTitles","readerPages","node","document","ELS","COLORS","text","reportEl","chooser","window","readerGo","openFlip","readerFlip",
+ "var readerIndex=0;"+section+";return {extendedPreviewData,showExtendedPreview,restoreLegacyBook}")(
+ Array(10).fill("舊"),()=>node("bookPages").children,node,{createElement:make},["木","火","土","金","水"],Array(5).fill("#aaa"),(id,v)=>{node(id).textContent=v},reportEl,chooser,window,()=>{},()=>false,null);
+ const data=adapter.extendedPreviewData();
+ assert.equal(data.length,28);assert.equal(new Set(data.map(x=>x[1])).size,28);
+ assert.equal(data.filter(x=>x[0]==="流年").length,5);
+ const years=data.filter(x=>x[0]==="流年").map(x=>Number(x[1].slice(0,4)));
+ assert.equal(years[4]-years[0],4);
+ adapter.showExtendedPreview();assert.equal(node("bookPages").children.length,28);
+ assert.equal(node("previewPageJump").children.length,28);assert.equal(node("previewPageJump").hidden,false);
+ assert.match(node("meta").textContent,/虛構命盤/);assert.match(node("print").textContent,/28 頁/);
+ adapter.restoreLegacyBook();assert.equal(node("bookPages").children.length,10);
+ assert.equal(node("bookPages").children[0],old[0]);assert.equal(node("previewPageJump").hidden,true);
+ adapter.showExtendedPreview();adapter.showExtendedPreview();assert.equal(node("bookPages").children.length,28);
+ adapter.restoreLegacyBook();assert.equal(node("bookPages").children[0],old[0]);
 });
