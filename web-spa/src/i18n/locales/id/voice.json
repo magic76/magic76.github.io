@@ -233,7 +233,7 @@
       "save": "＋ Simpan",
       "originalPrefix": "Kalimat awal: ",
       "savedNote": "Disimpan dari chat Zoe",
-      "modelDownloading": "Mengunduh model suara (sekitar 88 MB, hanya sekali). Kali ini suara sistem akan diputar lebih dulu.",
+      "modelDownloading": "Menyiapkan suara Kitten: sekitar 13 MB untuk Nano bahasa Inggris (bahasa lain lebih kecil), hanya sekali. Kali ini suara sistem digunakan.",
       "modelReady": "Model suara sudah siap. Pemutaran berikutnya akan memakai suara berkualitas tinggi."
     },
     "typing": "{{name}} sedang mengetik",

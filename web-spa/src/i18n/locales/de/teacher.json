@@ -248,8 +248,8 @@
       "social": "Soziales"
     },
     "kicker": "Vokabeln",
-    "neuralVoiceHint": "Die englische Aussprache nutzt die lokale Kokoro-KI-Stimme. Wenn das Modell noch nicht bereit ist oder nicht unterstützt wird, wird automatisch die Systemstimme verwendet.",
-    "modelDownloading": "Sprachmodell wird heruntergeladen (ca. 88 MB, nur einmal). Diesmal wird zuerst die Systemstimme verwendet.",
+    "neuralVoiceHint": "Englische Aussprache nutzt Kitten Nano auf dem Gerät, andere unterstützte Sprachen Kitten Pico. Bis das Modell bereit ist, wird die Systemstimme verwendet.",
+    "modelDownloading": "Kitten-Sprachmodell wird geladen: ca. 13 MB für Englisch-Nano (andere Sprachen sind kleiner), nur einmal. Diesmal wird die Systemstimme verwendet.",
     "modelReady": "Das Sprachmodell ist bereit. Beim nächsten Mal wird die hochwertige Stimme verwendet.",
     "listenExample": "Beispiel anhören",
     "saved": "✓ Gespeichert",
@@ -459,7 +459,7 @@
     "emptyTitle": "Dein Lernstapel ist noch leer",
     "emptyDesc": "Speichere oben einen der fünf heutigen Sätze oder einen Satz aus einem Zoe-Chat, den du wirklich lernen möchtest.",
     "dailyNote": "5 Sätze von heute",
-    "modelDownloading": "Sprachmodell wird heruntergeladen (ca. 88 MB, nur einmal). Diesmal wird zuerst die Systemstimme verwendet.",
+    "modelDownloading": "Kitten-Sprachmodell wird geladen: ca. 13 MB für Englisch-Nano (andere Sprachen sind kleiner), nur einmal. Diesmal wird die Systemstimme verwendet.",
     "modelReady": "Das Sprachmodell ist bereit. Beim nächsten Mal wird die hochwertige Stimme verwendet.",
     "tags": {
       "correction": "Natürliche Korrektur",

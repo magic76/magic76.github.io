@@ -248,8 +248,8 @@
       "social": "Sosial"
     },
     "kicker": "Kosakata",
-    "neuralVoiceHint": "Pelafalan bahasa Inggris memakai suara AI Kokoro di perangkat. Jika model belum siap atau tidak didukung, suara sistem akan digunakan otomatis.",
-    "modelDownloading": "Mengunduh model suara (sekitar 88 MB, hanya sekali). Kali ini suara sistem akan diputar lebih dulu.",
+    "neuralVoiceHint": "Pelafalan bahasa Inggris menggunakan Kitten Nano di perangkat; bahasa lain yang didukung memakai Kitten Pico. Suara sistem digunakan sampai model siap.",
+    "modelDownloading": "Menyiapkan suara Kitten: sekitar 13 MB untuk Nano bahasa Inggris (bahasa lain lebih kecil), hanya sekali. Kali ini suara sistem digunakan.",
     "modelReady": "Model suara sudah siap. Pemutaran berikutnya akan memakai suara berkualitas tinggi.",
     "listenExample": "Dengarkan contoh",
     "saved": "✓ Tersimpan",
@@ -459,7 +459,7 @@
     "emptyTitle": "Deck belajarmu masih kosong",
     "emptyDesc": "Simpan salah satu dari lima frasa hari ini atau kalimat dari chat Zoe yang benar-benar ingin kamu pelajari.",
     "dailyNote": "5 frasa hari ini",
-    "modelDownloading": "Mengunduh model suara (sekitar 88 MB, hanya sekali). Kali ini suara sistem akan diputar lebih dulu.",
+    "modelDownloading": "Menyiapkan suara Kitten: sekitar 13 MB untuk Nano bahasa Inggris (bahasa lain lebih kecil), hanya sekali. Kali ini suara sistem digunakan.",
     "modelReady": "Model suara sudah siap. Pemutaran berikutnya akan memakai suara berkualitas tinggi.",
     "tags": {
       "correction": "Koreksi alami",

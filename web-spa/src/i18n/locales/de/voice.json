@@ -233,7 +233,7 @@
       "save": "＋ Speichern",
       "originalPrefix": "Original: ",
       "savedNote": "Aus Zoe-Chat gespeichert",
-      "modelDownloading": "Sprachmodell wird heruntergeladen (ca. 88 MB, nur einmal). Diesmal wird zuerst die Systemstimme verwendet.",
+      "modelDownloading": "Kitten-Sprachmodell wird geladen: ca. 13 MB für Englisch-Nano (andere Sprachen sind kleiner), nur einmal. Diesmal wird die Systemstimme verwendet.",
       "modelReady": "Das Sprachmodell ist bereit. Beim nächsten Mal wird die hochwertige Stimme verwendet."
     },
     "typing": "{{name}} schreibt",

@@ -32,7 +32,7 @@ test("vocabulary uses neural speech first while English fallback preserves the d
  const adapter=read("web-spa/src/lib/deviceCapabilities.ts");
  assert.match(page,/speakLearningText\(text,"en"/);
  assert.match(speech,/preferredLearningEngine\(value:string\):LearningSpeechEngine/);
- assert.match(speech,/if\(code==="en"\)return"kokoro"/);
+ assert.match(speech,/if\(code==="en"\)return"nano"/);
  assert.match(speech,/if\(language==="en"\)\{await speakText\(text,\{speed\}\);return\}/);
  assert.match(adapter,/webMessagePort\(\)\?"native-message"/);
  assert.match(adapter,/hasCrewNativeVocabularyTts\(\)\?"native-legacy"/);

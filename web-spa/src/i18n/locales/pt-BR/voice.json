@@ -233,7 +233,7 @@
       "save": "＋ Salvar",
       "originalPrefix": "Original: ",
       "savedNote": "Salvo de uma conversa com Zoe",
-      "modelDownloading": "Baixando o modelo de voz (cerca de 88 MB, apenas uma vez). Desta vez, a voz do sistema será reproduzida primeiro.",
+      "modelDownloading": "Preparando a voz Kitten: cerca de 13 MB para inglês Nano (menos para outros idiomas), apenas uma vez. Desta vez será usada a voz do sistema.",
       "modelReady": "O modelo de voz está pronto. A próxima reprodução usará a voz de alta qualidade."
     },
     "typing": "{{name}} está digitando",
