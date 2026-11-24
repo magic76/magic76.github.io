@@ -80,8 +80,25 @@ async function playBlob(blob:Blob,id:number):Promise<void>{
   void audio.play().catch(error=>finish(error instanceof Error?error:new Error(String(error))));
  });
 }
-function hasWebGpu(){
- return typeof navigator!=="undefined"&&"gpu" in navigator;
+let webGpuAvailable=false;
+let webGpuProbe:Promise<boolean>|null=null;
+let webGpuDisabled=false;
+function hasWebGpu(){return webGpuAvailable&&!webGpuDisabled}
+function probeWebGpu():Promise<boolean>{
+ if(webGpuDisabled)return Promise.resolve(false);
+ if(!webGpuProbe)webGpuProbe=(async()=>{
+  try{
+   const gpu=(typeof navigator!=="undefined"?navigator:undefined) as (Navigator&{gpu?:{requestAdapter:()=>Promise<unknown>}})|undefined;
+   webGpuAvailable=Boolean(await gpu?.gpu?.requestAdapter());
+  }catch{webGpuAvailable=false}
+  return hasWebGpu();
+ })();
+ return webGpuProbe;
+}
+function disableWebGpu(){
+ webGpuDisabled=true;webGpuAvailable=false;
+ // Previously prepared GPU sessions must not be treated as ready on WASM.
+ for(const code of ready)if(learningSpeechRoute(code).engine==="kokoro"){ready.delete(code);warming.delete(code)}
 }
 export function learningSpeechDownloadSettings(){
  return{runtime:hasWebGpu()?"WebGPU fp32":"WASM q8",size:hasWebGpu()?310:88};
@@ -94,6 +111,7 @@ async function hasCachedTinyModel(language:string){
  try{
   const route=learningSpeechRoute(language);
   if(route.engine==="kokoro"){
+   await probeWebGpu();
    const model=route.model==="zh"?"onnx-community/Kokoro-82M-v1.1-zh-ONNX":KOKORO_MODEL_ID;
    const file=route.model==="zh"||hasWebGpu()?"model.onnx":"model_quantized.onnx";
    const cache=await caches.open(KOKORO_CACHE);
@@ -160,15 +178,33 @@ function ensureTiny(language:string):Promise<void>{
  const existing=warming.get(language);if(existing)return existing;
  const task=(async()=>{
   if(learningSpeechRoute(language).engine==="kokoro"){
-   try{if(useKokoroMain)await (await import("./learningSpeechKokoro")).prepareKokoro(language,hasWebGpu());else await requestWorker({type:"prepare",language,webgpu:hasWebGpu()})}
+   const webgpu=await probeWebGpu();
+   const prepare=async(gpu:boolean)=>{
+    if(useKokoroMain)await (await import("./learningSpeechKokoro")).prepareKokoro(language,gpu);
+    else await requestWorker({type:"prepare",language,webgpu:gpu});
+   };
+   try{await prepare(webgpu)}
    catch(error){
-    // Fall back to the identical lazy TTS Lab main-thread loader if module workers fail.
-    console.warn("[learning-speech] Kokoro module worker unavailable; using Lab runtime",error);
-    useKokoroMain=true;await (await import("./learningSpeechKokoro")).prepareKokoro(language,hasWebGpu());
+    if(webgpu){
+     console.warn("[learning-speech] WebGPU unavailable; retrying WASM",error);
+     disableWebGpu();
+     try{await prepare(false)}
+     catch(wasmError){
+      if(useKokoroMain)throw wasmError;
+      console.warn("[learning-speech] WASM worker unavailable; using Lab runtime",wasmError);
+      useKokoroMain=true;
+      await prepare(false);
+     }
+    }else{
+     if(useKokoroMain)throw error;
+     console.warn("[learning-speech] WASM worker unavailable; using Lab runtime",error);
+     useKokoroMain=true;
+     await prepare(false);
+    }
    }
   }else await requestWorker({type:"prepare",language});
   if(learningSpeechRoute(language).model==="ja"&&typeof caches!=="undefined")await (await caches.open(MODEL_CACHE)).put(japaneseCacheMarker(),new Response("ready")).catch(()=>{});
-  ready.add(language);requestPersistentStorage();
+  ready.add(language);warming.delete(language);requestPersistentStorage();
  })().catch(error=>{warming.delete(language);throw error});
  warming.set(language,task);
  return task;
