@@ -53,14 +53,14 @@ test("comparison exposes explicit GPU and WASM paths and never silently falls ba
 test("comparison language routing and Japanese/Korean chunk lengths",()=>{
  const page=read("web-spa/public/tts-lab/compare/index.html");
  const js=read("web-spa/public/tts-lab/compare/compare.js");
- for(const lang of ["en","zh","ja","ko"])assert.ok(page.includes('value="'+lang+'"'));
+ for(const lang of ["en","zh","ja","ko","es"])assert.ok(page.includes('value="'+lang+'"'));
  assert.match(js,/u\.lang=locale/);
  assert.match(js,/zh_CN-huayan-medium/);
- assert.match(js,/piperPlus:\["en","zh","ja"\]/);
- assert.match(js,/supertonicWasm:\["en","ja","ko"\]/);
- assert.match(js,/supertonicGpu:\["en","ja","ko"\]/);
+ assert.match(js,/piperPlus:\["en","zh","ja","es"\]/);
+ assert.match(js,/supertonicWasm:\["en","ja","ko","es"\]/);
+ assert.match(js,/supertonicGpu:\["en","ja","ko","es"\]/);
  assert.match(js,/kokoro:\["en"\]/);
- assert.match(js,/kitten08:\["en"\],nano2:\["en"\],pico2:\["en"\]/);
+ assert.match(js,/kitten08:\["en"\],nano2:\["en","es"\],pico2:\["en","es"\]/);
  assert.match(js,/!supports\(id,language\.value\)/);
  assert.match(js,/engines\[id\]\("<"\+lang\+">"\+chunks\[i\]\+"<\/"\+lang\+">"/);
  const source=js.slice(js.indexOf("function splitSupertonic("),js.indexOf("async function supertonicTts("));
@@ -71,5 +71,22 @@ test("comparison language routing and Japanese/Korean chunk lengths",()=>{
   assert.ok(chunks.every(chunk=>Array.from(chunk).length<=120));
   assert.equal(chunks.join("").replace(/\s/g,""),value.replace(/\s/g,""));
  }
+ assert.doesNotThrow(()=>new (require("node:vm").Script)(js));
+});
+
+test("Spanish uses language-specific tiny model, phonemizer, voice and session; extra demos are explicitly external",()=>{
+ const page=read("web-spa/public/tts-lab/compare/index.html");
+ const js=read("web-spa/public/tts-lab/compare/compare.js");
+ assert.match(js,/kitten_tts_2_nano_es_int4\.onnx/);
+ assert.match(js,/kitten_tts_2_pico_es_int4\.onnx/);
+ assert.ok(js.includes('"voices_"+lang+".npz"'));
+ assert.ok(js.includes('kind+":"+lang'));
+ assert.ok(js.includes('phonemize(value,{lang:"es"})'));
+ assert.ok(js.includes('"sofia":"pablo"'));
+ assert.match(js,/es_ES-carlfm-x_low/);
+ assert.match(js,/piperJapanese:\["ja"\]/);
+ assert.match(page,/Piper Plus:つくよみちゃん/);
+ assert.match(page,/外部試聽/);
+ assert.match(page,/melo-tts-zh-en/);
  assert.doesNotThrow(()=>new (require("node:vm").Script)(js));
 });
