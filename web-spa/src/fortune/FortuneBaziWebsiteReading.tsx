@@ -9,7 +9,7 @@ const themes=[
  {id:"personality",desc:["認識自己的性格、天賦與盲點","Personality, strengths and blind spots"],tone:"#e4eee3",ink:"#38634d",path:"M12 21a9 9 0 1 0-9-9M6 12a6 6 0 0 1 12 0c0 5-3 9-4 10M9 12a3 3 0 0 1 6 0c0 4-2 7-3 8M12 12c0 3-1 5-2 7"},
  {id:"career",desc:["工作方向與長期發展","Work and long-term direction"],tone:"#e5eaf4",ink:"#45618a",path:"M4 8h16v12H4zM9 8V5h6v3M4 13h16M10 12v3h4v-3"},
  {id:"wealth",desc:["資源累積與機會取捨","Resources and opportunities"],tone:"#f2e8d4",ink:"#8b692d",path:"M4 7h14a2 2 0 0 1 2 2v10H4zM4 7l12-3v3M20 12h-5v4h5M17 14h.1"},
- {id:"love",desc:["感情需求與相處模式","Relationship needs and patterns"],tone:"#f5e5e9",ink:"#a05c70",path:"M12 20 4.8 13a5 5 0 0 1 7.2-7l.0.1a5 5 0 0 1 7.2 6.9z"},
+ {id:"love",desc:["感情需求與相處模式","Relationship needs and patterns"],tone:"#f5e5e9",ink:"#a05c70",path:"M12 20 4.8 13a5 5 0 0 1 7.2-7 5 5 0 0 1 7.2 7z"},
  {id:"people",desc:["人際互動與家庭角色","People and family roles"],tone:"#ece6f1",ink:"#775e91",path:"M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 20v-2a6 6 0 0 1 12 0v2M4 6a3 3 0 0 0 0 6M20 6a3 3 0 0 1 0 6M2 20v-2a4 4 0 0 1 3-4M22 20v-2a4 4 0 0 0-3-4"},
  {id:"life",desc:["大運與人生階段的變化","Life phases and cycles"],tone:"#e2eeeb",ink:"#3c7773",path:"M5 19c2-4 4-4 7-7s4-6 7-7M5 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM12 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM19 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"},
  {id:"years",desc:["未來五年的逐年主題","Five individual annual themes"],tone:"#f3e9dc",ink:"#946a36",path:"M4 6h16v14H4zM8 3v6M16 3v6M4 11h16M8 15h2M14 15h2"},

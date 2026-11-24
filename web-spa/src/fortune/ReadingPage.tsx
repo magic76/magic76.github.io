@@ -18,6 +18,7 @@ export function FortuneReadingPage(){
  const[showAiSetup,setShowAiSetup]=useState(false);
  const[oneLine,setOneLine]=useState("");
  const readingRef=useRef<FortuneReading|null>(null);
+ const newlyCalculated=useRef<string|null>(null);
  const[revealId,setRevealId]=useState<string|null>(null),[aiRevealId,setAiRevealId]=useState<string|null>(null);
  useEffect(()=>{if(!revealId)return;const timer=window.setTimeout(()=>setRevealId(null),480);return()=>window.clearTimeout(timer)},[revealId]);
  useEffect(()=>{if(!aiRevealId)return;const timer=window.setTimeout(()=>setAiRevealId(null),380);return()=>window.clearTimeout(timer)},[aiRevealId]);
@@ -83,7 +84,7 @@ export function FortuneReadingPage(){
   try{
    const result=calculate(resolved);if(!result||typeof result!=="object")throw new Error("Invalid fortune calculation");
    const item:FortuneReading={id:"reading_"+Date.now(),mode,createdAt:new Date().toISOString(),profile:resolved,result,summary:t("home."+mode)+" · "+(result.fourPillars||result.birthCardDisplay||("Lagna "+result.lagnaSign))};
-   activeRequest.current.id=item.id;activeRequest.current.seq++;trackUsageEvent("fortune_calculated",mode);setRevealId(item.id);readingRef.current=item;setReading(item);setShareOpen(false);setAiStatus(mode==="bazi"?"idle":geminiKey()?"loading":"idle");setShowInput(false);window.CrewFortuneProfile.addHistory(item);addHistory("fortune",{id:"fortune-reading:"+item.id,historyId:item.id,surface:"reading",title:t("home."+mode),summary:item.summary,preview:"固定計算結果已完成。"});localStorage.setItem("crew_fortune_live_context",JSON.stringify(item));if(mode!=="bazi")void interpret(item);
+   activeRequest.current.id=item.id;activeRequest.current.seq++;trackUsageEvent("fortune_calculated",mode);setRevealId(item.id);readingRef.current=item;setReading(item);setShareOpen(false);setAiStatus(mode==="bazi"?"idle":geminiKey()?"loading":"idle");setShowInput(false);window.CrewFortuneProfile.addHistory(item);addHistory("fortune",{id:"fortune-reading:"+item.id,historyId:item.id,surface:"reading",title:t("home."+mode),summary:item.summary,preview:"固定計算結果已完成。"});localStorage.setItem("crew_fortune_live_context",JSON.stringify(item));if(mode==="bazi"){newlyCalculated.current=item.id;setParams(fromDaily?{mode,history:item.id,from:"daily"}:{mode,history:item.id},{replace:true})}if(mode!=="bazi")void interpret(item);
   }catch{setLoadError(t("reading.calcFailed"))}finally{setBusy(false)}
  }
  function ask(topic?:string){if(!reading)return;if(!geminiKey()){setShowAiSetup(true);window.requestAnimationFrame(()=>document.getElementById("fortune-ai-setup")?.scrollIntoView({behavior:"smooth",block:"center"}));return}if(topic){const topics:Record<string,string>={overview:"整體底盤",personality:"性格與天賦",career:"事業與職涯",wealth:"財富與資源",relationships:"感情與人際",family:"家庭與生活",currentCycle:"人生階段",longTerm:"長期節奏",keyYears:"重要年份",advice:"如何使用解讀"};localStorage.setItem("crew_fortune_live_prompt","請先針對這份已計算命盤的「"+(topics[topic]||topic)+"」主題做白話講解，說明實際命盤依據及傳統上的意義，不編造事件或機率。")}localStorage.setItem("crew_fortune_live_context",JSON.stringify(reading));nav("/fortune/live?from=reading")}
@@ -93,7 +94,7 @@ export function FortuneReadingPage(){
  const locale=i18n.resolvedLanguage||i18n.language;
  const labels=fortuneCopy(locale);
  const cardView=reading?buildFortuneCardModel(reading.mode,reading.result,locale,oneLine):null;
- const dailyNextHref=reading&&(!params.get("history")||fromDaily)?
+ const dailyNextHref=reading&&(!params.get("history")||fromDaily||newlyCalculated.current===reading.id)?
   "/fortune?daily=1&chart="+dailyProfileHash(reading.profile)+"&kind="+
   resolveDailyKind(reading.mode,reading.profile.birthTime,readDailyKindChoice()):null;
  function goDeep(){

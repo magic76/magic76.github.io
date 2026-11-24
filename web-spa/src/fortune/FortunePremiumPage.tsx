@@ -10,16 +10,15 @@ export function FortunePremiumPage(){
  const [params]=useSearchParams(),location=useLocation(),navigate=useNavigate();
  const id=params.get("history")||"",chapter=params.get("chapter"),reading=id?readPremiumChart(id):null,allowed=!!reading&&hasPremiumTrial(id);
  const justUnlocked=allowed&&location.state?.justUnlocked===true;
- const first=useRef(true);
+ const vibrated=useRef(false);
  useLayoutEffect(()=>{
   window.scrollTo({top:0,behavior:"instant"});
   document.querySelector<HTMLElement>("[data-premium-focus]")?.focus({preventScroll:true});
  },[id,chapter]);
  useEffect(()=>{
-  if(!justUnlocked||!first.current)return;
-  first.current=false;
+  if(!justUnlocked)return;
   // Visual reveal is non-blocking; no artificial loading or payment claim.
-  if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){try{navigator.vibrate?.(18)}catch{}}
+  if(!vibrated.current&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches){vibrated.current=true;try{navigator.vibrate?.(18)}catch{}}
   const timer=window.setTimeout(()=>navigate(location.pathname+location.search,{replace:true,state:null,preventScrollReset:true}),850);
   return()=>window.clearTimeout(timer);
  },[justUnlocked,location.pathname,location.search,navigate]);
