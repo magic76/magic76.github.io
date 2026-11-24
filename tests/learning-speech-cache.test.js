@@ -23,9 +23,9 @@ test("Kokoro cache matches the actual WebGPU fp32 or WASM q8 ONNX file",async()=
  assert.ok(start>=0&&end>start);
  const code=stripTypeScriptTypes(speech.slice(start,end).replace("export function","function"),{mode:"strip"});
  const model="https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/onnx/";
- const pico="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/kitten_tts_2_pico_fr_int4.onnx";
+ const pico="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/kitten_tts_2_pico_de_int4.onnx";
  const stored=new Set([model+"model.onnx",pico]),navigator={gpu:{}};
- const ctx={window:{caches:true},navigator,URL,caches:{open:async()=>({
+ const ctx={window:{caches:true},navigator,URL,learningSpeechRoute:language=>language==="en"?{engine:"kokoro",model:"base"}:{engine:"pico"},caches:{open:async()=>({
   match:async url=>stored.has(url)?{ok:true}:undefined,keys:async()=>[...stored].map(url=>({url}))
  })}};
  const mod=vm.runInNewContext(
@@ -36,7 +36,7 @@ test("Kokoro cache matches the actual WebGPU fp32 or WASM q8 ONNX file",async()=
   'const MODEL_CACHE="koolo-learning-speech-v1";'+code+
   ';({hasCachedTinyModel,learningSpeechDownloadSettings})',ctx);
  assert.equal(await mod.hasCachedTinyModel("en"),true);
- assert.equal(await mod.hasCachedTinyModel("fr"),true);
+ assert.equal(await mod.hasCachedTinyModel("de"),true);
  assert.equal(mod.learningSpeechDownloadSettings().size,310);
  delete navigator.gpu;
  assert.equal(await mod.hasCachedTinyModel("en"),false,"q8 must not inherit an fp32 cache hit");
@@ -45,7 +45,7 @@ test("Kokoro cache matches the actual WebGPU fp32 or WASM q8 ONNX file",async()=
  assert.equal(mod.learningSpeechDownloadSettings().size,88);
  assert.match(speech,/storage\.persist\(\)/);
  assert.match(speech,/if\(!hit\)options\.onModelStatus\?\.\("loading",language\)/);
- assert.match(speech,/void ensureTiny\(language\)\.then/);
+ assert.match(speech,/void ensureTiny\(language\)\.catch/);
  assert.match(speech,/await systemSpeak\(value,language,speed\)/);
 });
 
@@ -116,7 +116,7 @@ test("Kitten postprocessing preserves the first start token, trims subsequent st
 test("Pico keeps the first start token; Kokoro bypasses Kitten trimming",()=>{
  assert.match(speech,/generateTiny\(chunks\[0\],language,speed,true\)/);
  assert.match(speech,/generateTiny\(chunks\[index\+1\],language,speed,false\)/);
- assert.match(speech,/requestWorker\(\{type:"generate",language,text,speed,keepStart\}\)/);
+ assert.match(speech,/requestWorker\(\{type:"generate",language,text,speed,keepStart,webgpu:hasWebGpu\(\)\}\)/);
  assert.match(worker,/request\.keepStart!==false/);
  assert.match(worker,/trimTiny\(new Float32Array\(waveform\.data\),durations,keepStart\)/);
  assert.doesNotMatch(fs.readFileSync("web-spa/src/teacher/learningSpeech.kokoro.worker.ts","utf8"),/trimTiny\(/);
