@@ -170,10 +170,8 @@ export function importHighQuality(language:string):Promise<void>{
   await prepare(language);
   const gpu=await webGpuAvailable();
   const stored=await hasCachedWeights(language,gpu);
-  let markerStored=false;
   if(stored&&typeof caches!=="undefined")try{
    await(await caches.open(ASSET_CACHE)).put(markerUrl(language,gpu),new Response("ready"));
-   markerStored=true;
   }catch{}
   // Enable the current session even if the browser refused persistent caching.
   // On reload, cachedImport rejects absent markers before any model request.
