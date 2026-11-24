@@ -248,8 +248,8 @@
       "social": "Vida social"
     },
     "kicker": "Vocabulario",
-    "neuralVoiceHint": "La pronunciación en inglés usa la voz local de IA Kokoro. Si el modelo aún no está listo o no es compatible, se usa automáticamente la voz del sistema.",
-    "modelDownloading": "Descargando el modelo de voz (unos 88 MB, solo una vez). Esta vez se reproducirá primero la voz del sistema.",
+    "neuralVoiceHint": "La pronunciación en inglés utiliza Kitten Nano en el dispositivo; los otros idiomas compatibles usan Kitten Pico. Se usa la voz del sistema hasta que el modelo esté listo.",
+    "modelDownloading": "Preparando la voz Kitten: unos 13 MB para inglés Nano (menos para otros idiomas), solo una vez. Esta vez se usa la voz del sistema.",
     "modelReady": "El modelo de voz está listo. La próxima reproducción usará la voz de alta calidad.",
     "listenExample": "Escuchar ejemplo",
     "saved": "✓ Guardado",
@@ -459,7 +459,7 @@
     "emptyTitle": "Tu mazo de aprendizaje está vacío",
     "emptyDesc": "Guarda una de las cinco frases de hoy o una frase de un chat con Zoe que de verdad quieras aprender.",
     "dailyNote": "5 frases de hoy",
-    "modelDownloading": "Descargando el modelo de voz (unos 88 MB, solo una vez). Esta vez se reproducirá primero la voz del sistema.",
+    "modelDownloading": "Preparando la voz Kitten: unos 13 MB para inglés Nano (menos para otros idiomas), solo una vez. Esta vez se usa la voz del sistema.",
     "modelReady": "El modelo de voz está listo. La próxima reproducción usará la voz de alta calidad.",
     "tags": {
       "correction": "Corrección natural",

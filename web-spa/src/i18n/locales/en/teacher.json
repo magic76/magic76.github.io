@@ -248,8 +248,8 @@
       "social": "Social"
     },
     "kicker": "Vocabulary",
-    "neuralVoiceHint": "English pronunciation uses the on-device Kokoro AI voice. If the model is not ready or unsupported, system speech is used automatically.",
-    "modelDownloading": "Downloading the speech model (about 88 MB, one time only). System speech will play this time.",
+    "neuralVoiceHint": "English pronunciation uses the on-device Kitten Nano AI voice; other supported languages use Kitten Pico. System speech plays until the model is ready.",
+    "modelDownloading": "Preparing Kitten speech: about 13 MB for English Nano (smaller for other languages), one time only. System speech will play this time.",
     "modelReady": "The speech model is ready. High-quality speech will be used next time.",
     "listenExample": "Listen to example",
     "saved": "✓ Saved",
@@ -459,7 +459,7 @@
     "emptyTitle": "Your learning deck is empty",
     "emptyDesc": "Save one of today's five phrases above, or save a sentence from a Zoe chat that you really want to learn.",
     "dailyNote": "Today's 5 phrases",
-    "modelDownloading": "Downloading the speech model (about 88 MB, one time only). System speech will play this time.",
+    "modelDownloading": "Preparing Kitten speech: about 13 MB for English Nano (smaller for other languages), one time only. System speech will play this time.",
     "modelReady": "The speech model is ready. High-quality speech will be used next time.",
     "tags": {
       "correction": "Natural correction",

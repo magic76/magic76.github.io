@@ -248,8 +248,8 @@
       "social": "Vie sociale"
     },
     "kicker": "Vocabulaire",
-    "neuralVoiceHint": "La prononciation anglaise utilise la voix IA locale Kokoro. Si le modèle n’est pas prêt ou n’est pas pris en charge, la voix système est utilisée automatiquement.",
-    "modelDownloading": "Téléchargement du modèle vocal (environ 88 Mo, une seule fois). Cette fois, la voix système sera utilisée d’abord.",
+    "neuralVoiceHint": "La prononciation anglaise utilise Kitten Nano sur l’appareil et les autres langues compatibles utilisent Kitten Pico. La voix du système prend le relais jusqu’à ce que le modèle soit prêt.",
+    "modelDownloading": "Préparation de la voix Kitten : environ 13 Mo pour l’anglais Nano (moins pour les autres langues), une seule fois. Cette fois, la voix du système est utilisée.",
     "modelReady": "Le modèle vocal est prêt. La prochaine lecture utilisera la voix haute qualité.",
     "listenExample": "Écouter l’exemple",
     "saved": "✓ Enregistré",
@@ -459,7 +459,7 @@
     "emptyTitle": "Ton jeu d’apprentissage est vide",
     "emptyDesc": "Enregistre l’une des cinq phrases du jour ou une phrase d’un chat avec Zoe que tu veux vraiment apprendre.",
     "dailyNote": "5 phrases du jour",
-    "modelDownloading": "Téléchargement du modèle vocal (environ 88 Mo, une seule fois). Cette fois, la voix système sera utilisée d’abord.",
+    "modelDownloading": "Préparation de la voix Kitten : environ 13 Mo pour l’anglais Nano (moins pour les autres langues), une seule fois. Cette fois, la voix du système est utilisée.",
     "modelReady": "Le modèle vocal est prêt. La prochaine lecture utilisera la voix haute qualité.",
     "tags": {
       "correction": "Correction naturelle",
