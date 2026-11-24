@@ -110,7 +110,7 @@ test('summary only after 3 user turns or 2 corrections, deduplicated and bounded
 test('eleven locales have only string leaves, no guestText or followUps alterations; UI interaction sizes',()=>{
  for(const locale of ['zh-TW','en','ja','ko','es','fr','de','pt-BR','id','vi','th']){
   const data=JSON.parse(read(`web-spa/src/i18n/locales/${locale}/voice.json`));
-  assert.deepEqual(Object.keys(data.textChat.learning).sort(),['better','checkButton','checkQuestion','dismiss','listen','modelDownloading','modelReady','originalPrefix','save','savePhrase','saved','savedNote','savedShort','summaryTitle']);
+  assert.deepEqual(Object.keys(data.textChat.learning).sort(),['better','checkButton','checkQuestion','dismiss','listen','modelDownloading','originalPrefix','save','savePhrase','saved','savedNote','savedShort','summaryTitle']);
   assert.ok(Object.values(data.textChat.learning).every(v=>typeof v==='string'&&v.trim()),locale);
   assert.equal(Object.keys(data.textChat.followUps).length,3);
   assert.equal(Object.keys(data.guestText).length,25);
