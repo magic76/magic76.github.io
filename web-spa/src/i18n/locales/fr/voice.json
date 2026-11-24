@@ -233,8 +233,7 @@
       "save": "＋ Enregistrer",
       "originalPrefix": "Original : ",
       "savedNote": "Enregistré depuis un chat avec Zoe",
-      "modelDownloading": "Préparation de la voix Kitten : environ 13 Mo pour l’anglais Nano (moins pour les autres langues), une seule fois. Cette fois, la voix du système est utilisée.",
-      "modelReady": "Le modèle vocal est prêt. La prochaine lecture utilisera la voix haute qualité."
+      "modelDownloading": "Téléchargement du modèle"
     },
     "typing": "{{name}} écrit",
     "nextHeading": "Tu peux dire",

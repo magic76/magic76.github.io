@@ -248,9 +248,8 @@
       "social": "人付き合い"
     },
     "kicker": "単語練習",
-    "neuralVoiceHint": "英語の発音には端末内の Kitten Nano、その他の対応言語には Kitten Pico を使います。モデルの準備ができるまではシステム音声を使います。",
-    "modelDownloading": "Kitten 音声を準備中：英語 Nano は約 13 MB（他言語はさらに小容量）。初回のみダウンロードし、今回はシステム音声を使います。",
-    "modelReady": "音声モデルの準備ができました。次回から高品質音声を使います。",
+    "neuralVoiceHint": "英語の発音には端末内の Kokoro、その他の対応言語には Kitten Pico を使います。モデルの準備ができるまではシステム音声で再生します。",
+    "modelDownloading": "モデルをダウンロード中",
     "listenExample": "例文を聞く",
     "saved": "✓ 保存済み",
     "saveExample": "☆ 例文を保存",
@@ -459,8 +458,7 @@
     "emptyTitle": "学習デッキはまだ空です",
     "emptyDesc": "上の「今日の5フレーズ」から保存するか、Zoeとのチャットで本当に覚えたい文を保存しましょう。",
     "dailyNote": "今日の5フレーズ",
-    "modelDownloading": "Kitten 音声を準備中：英語 Nano は約 13 MB（他言語はさらに小容量）。初回のみダウンロードし、今回はシステム音声を使います。",
-    "modelReady": "音声モデルの準備ができました。次回から高品質音声を使います。",
+    "modelDownloading": "モデルをダウンロード中",
     "tags": {
       "correction": "自然な言い換え",
       "hint": "回答ヒント",

@@ -51,8 +51,8 @@ export function VocabularyPage(){
  function pronounce(text:string,slow=false){
   setSpeechError("");
   setSpeechNotice("");
-  void speakLearningText(text,"en",{speed:slow?"slow":"normal",mode:"word",onModelStatus:status=>setSpeechNotice(t(status==="loading"?"vocabulary.modelDownloading":"vocabulary.modelReady"))})
-   .catch(()=>setSpeechError(t("vocabulary.speechFailed")));
+  void speakLearningText(text,"en",{speed:slow?"slow":"normal",mode:"word",onModelStatus:status=>setSpeechNotice(status==="loading"?t("vocabulary.modelDownloading"):"")})
+   .catch(error=>{console.warn("[learning-speech]",error);setSpeechNotice("")});
  }
 
  useEffect(()=>{
@@ -145,7 +145,6 @@ export function VocabularyPage(){
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0])}>🔊 {t("vocabulary.listen")}</button>
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0],true)}>{t("vocabulary.listenSlow")}</button>
     </div>
-    <p className="crew-vocab-voice-hint">{t("vocabulary.neuralVoiceHint")}</p>
     {speechNotice&&<p className="crew-vocab-voice-hint" role="status">{speechNotice}</p>}
     {speechError&&<p className="crew-vocab-voice-error" role="alert">{speechError}</p>}
     {needsContent&&<p className="crew-learning-translation-note" role="status">{usingFallback?t("vocabulary.fallbackNotice"):t("vocabulary.partialNotice")}

@@ -248,9 +248,8 @@
       "social": "社交"
     },
     "kicker": "單字練習",
-    "neuralVoiceHint": "英文發音使用 Kitten Nano 本機 AI 語音；其他支援語言使用 Kitten Pico。模型準備好之前會先用系統語音。",
-    "modelDownloading": "正在準備 Kitten 語音模型（英文 Nano 約 13 MB，其他語言更小），只需下載一次。這次先用系統語音播放。",
-    "modelReady": "語音模型已準備好，下次播放會使用高品質語音。",
+    "neuralVoiceHint": "英文發音使用本機 Kokoro，其他支援語言使用 Kitten Pico。模型尚未就緒前先用系統語音。",
+    "modelDownloading": "模型下載中",
     "listenExample": "聽例句",
     "saved": "✓ 已收藏",
     "saveExample": "☆ 收藏例句",
@@ -459,8 +458,7 @@
     "emptyTitle": "你的學習卡還是空的",
     "emptyDesc": "先把上面的「今天 5 句」加入收藏，或從 Zoe 對話裡收藏你想真的學會的句子。",
     "dailyNote": "今日 5 句",
-    "modelDownloading": "正在準備 Kitten 語音模型（英文 Nano 約 13 MB，其他語言更小），只需下載一次。這次先用系統語音播放。",
-    "modelReady": "語音模型已準備好，下次播放會使用高品質語音。",
+    "modelDownloading": "模型下載中",
     "tags": {
       "correction": "道地糾錯",
       "hint": "回答小抄",

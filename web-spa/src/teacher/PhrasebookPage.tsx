@@ -15,14 +15,13 @@ export function PhrasebookPage(){
  const shadowTimer=useRef<number|null>(null),due=dueDeckItems().length,daily=useMemo(()=>dailyPhrases(code),[code]);
  const tag=(x:DeckItem)=>t("phrasebook.tags."+x.category,{defaultValue:t("phrasebook.tags.saved")});
  const stage=(x:DeckItem)=>t("phrasebook.stages."+(x.reviewCount>=5?"familiar":x.reviewCount>=2?"review":x.reviewCount>=1?"learning":"new"));
- const modelStatus=(status:"loading"|"ready")=>setSpeechStatus(t(status==="loading"?"phrasebook.modelDownloading":"phrasebook.modelReady"));
+ const modelStatus=(status:"loading"|"ready")=>setSpeechStatus(status==="loading"?t("phrasebook.modelDownloading"):"");
  function refresh(){setItems(learningDeck())}
  async function listen(text:string,language=code,slow=false){
-  setSpeechStatus(t("phrasebook.preparing"));
+  setSpeechStatus("");
   try{
-   const result=await speakLearningText(text,language,{speed:slow?"slow":"normal",mode:"phrase",onModelStatus:modelStatus});
-   if(result.engine!=="system"||code!=="en")setSpeechStatus(t(result.cached?"phrasebook.cached":"phrasebook.played"));
-  }catch{setSpeechStatus(t("phrasebook.failed"))}
+   await speakLearningText(text,language,{speed:slow?"slow":"normal",mode:"phrase",onModelStatus:modelStatus});
+  }catch(error){console.warn("[learning-speech]",error);setSpeechStatus("")}
  }
  async function shadow(text:string,language=code){
   if(shadowTimer.current)window.clearTimeout(shadowTimer.current);

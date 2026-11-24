@@ -56,7 +56,7 @@ export function FriendLearningActions({text}:{text:string}){
  if(!value)return null;
  const save=()=>{saveLearningPhrase(value,target,t("textChat.learning.originalPrefix"),t("textChat.learning.savedNote"));setSaved(true)};
  return <div className="crew-text-learning-actions">
-  <button type="button" disabled={busy} onClick={()=>{setBusy(true);setNotice("");void speakLearningText(value,target,{mode:value.split(/\s+/).length<=5?"phrase":"sentence",onModelStatus:status=>setNotice(t(status==="loading"?"textChat.learning.modelDownloading":"textChat.learning.modelReady"))}).finally(()=>setBusy(false))}}>🔊 {t("textChat.learning.listen")}</button>
+  <button type="button" disabled={busy} onClick={()=>{setBusy(true);setNotice("");void speakLearningText(value,target,{mode:value.split(/\s+/).length<=5?"phrase":"sentence",onModelStatus:status=>setNotice(status==="loading"?t("textChat.learning.modelDownloading"):"")}).catch(error=>{console.warn("[learning-speech]",error);setNotice("")}).finally(()=>setBusy(false))}}>🔊 {t("textChat.learning.listen")}</button>
   {canSave&&<button type="button" disabled={saved} onClick={save}>{saved?t("textChat.learning.saved"):t("textChat.learning.savePhrase")}</button>}
   {notice&&<small className="crew-text-learning-model-status" role="status">{notice}</small>}
  </div>;

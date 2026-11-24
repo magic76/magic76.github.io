@@ -233,8 +233,7 @@
       "save": "＋ Lưu",
       "originalPrefix": "Câu gốc: ",
       "savedNote": "Lưu từ cuộc trò chuyện với Zoe",
-      "modelDownloading": "Đang chuẩn bị giọng Kitten: khoảng 13 MB cho tiếng Anh Nano (các ngôn ngữ khác nhỏ hơn), chỉ tải một lần. Lần này dùng giọng hệ thống.",
-      "modelReady": "Mô hình giọng nói đã sẵn sàng. Lần phát tiếp theo sẽ dùng giọng chất lượng cao."
+      "modelDownloading": "Đang tải mô hình"
     },
     "typing": "{{name}} đang nhập",
     "nextHeading": "Bạn có thể nói",

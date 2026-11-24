@@ -1,23 +1,28 @@
+import {learningSpeechRoute} from "./learningSpeechRoutes";
 import {TARGET_LANGUAGES} from "./targetLanguages";
 import {speakText} from "../lib/deviceCapabilities";
 
 export type LearningSpeechSpeed="normal"|"slow";
 export type LearningSpeechMode="word"|"phrase"|"sentence";
-export type LearningSpeechEngine="nano"|"pico"|"system";
+export type LearningSpeechEngine="kokoro"|"pico"|"system";
 export type LearningSpeechResult={engine:LearningSpeechEngine;language:string;cached:boolean};
 
-const NANO_BASE="https://huggingface.co/KittenML/kitten-tts-2-nano/resolve/main/";
+const KOKORO_MODEL_ID="onnx-community/Kokoro-82M-v1.0-ONNX";
+const KOKORO_CACHE="transformers-cache";
 const PICO_BASE="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";
 const MODEL_CACHE="koolo-learning-speech-v1";
-const PICO_LANGUAGES=new Set(["de","es","fr","it","pt"]);
+const PICO_LANGUAGES=new Set(["de"]);
 const LANG_TAG:Record<string,string>={en:"en-US",es:"es-ES",fr:"fr-FR",de:"de-DE",it:"it-IT",pt:"pt-BR",ja:"ja-JP",ko:"ko-KR",vi:"vi-VN",th:"th-TH",zh:"zh-TW",id:"id-ID",ru:"ru-RU",hi:"hi-IN"};
-type WorkerRequest={id:number;type:"prepare"|"generate";language:string;text?:string;speed?:LearningSpeechSpeed};
+type WorkerRequest={id:number;type:"prepare"|"generate";language:string;text?:string;speed?:LearningSpeechSpeed;keepStart?:boolean;webgpu?:boolean};
 type WorkerReply={id:number;ok:boolean;buffer?:ArrayBuffer;error?:string};
 const generated=new Map<string,Blob[]>();
 const ready=new Set<string>();
 const warming=new Map<string,Promise<void>>();
-const pending=new Map<number,{resolve:(value:WorkerReply)=>void;reject:(reason:Error)=>void}>();
-let worker:Worker|null=null;
+const pending=new Map<number,{resolve:(value:WorkerReply)=>void;reject:(reason:Error)=>void;worker:Worker}>();
+let picoWorker:Worker|null=null;
+let kokoroWorker:Worker|null=null;
+
+let useKokoroMain=false;
 let requestId=0;
 let playbackId=0;
 let persistenceRequested=false;
@@ -27,13 +32,13 @@ let cancelAudio:(()=>void)|null=null;
 
 export function normalizeLearningLanguage(value:string):string{
  const normalized=String(value||"").trim();
+ if(/^en-gb$/i.test(normalized))return "en-GB";
+ if(/^en-us$/i.test(normalized))return "en-US";
  return TARGET_LANGUAGES.find(item=>item.code===normalized||item.value===normalized||item.spoken===normalized)?.code||(/^[a-z]{2}(?:-[A-Z]{2})?$/.test(normalized)?normalized.split("-")[0]:"en");
 }
 export function preferredLearningEngine(value:string):LearningSpeechEngine{
  const code=normalizeLearningLanguage(value);
- if(code==="en")return"nano";
- if(PICO_LANGUAGES.has(code))return"pico";
- return"system";
+ return learningSpeechRoute(code).engine;
 }
 export function picoLearningLanguages(){return [...PICO_LANGUAGES]}
 
@@ -75,14 +80,55 @@ async function playBlob(blob:Blob,id:number):Promise<void>{
   void audio.play().catch(error=>finish(error instanceof Error?error:new Error(String(error))));
  });
 }
+let webGpuAvailable=false;
+let webGpuProbe:Promise<boolean>|null=null;
+let webGpuDisabled=false;
+function hasWebGpu(){return webGpuAvailable&&!webGpuDisabled}
+function probeWebGpu():Promise<boolean>{
+ if(webGpuDisabled)return Promise.resolve(false);
+ if(!webGpuProbe)webGpuProbe=(async()=>{
+  try{
+   const gpu=(typeof navigator!=="undefined"?navigator:undefined) as (Navigator&{gpu?:{requestAdapter:()=>Promise<unknown>}})|undefined;
+   webGpuAvailable=Boolean(await gpu?.gpu?.requestAdapter());
+  }catch{webGpuAvailable=false}
+  return hasWebGpu();
+ })();
+ return webGpuProbe;
+}
+function disableWebGpu(){
+ webGpuDisabled=true;webGpuAvailable=false;
+ // Previously prepared GPU sessions must not be treated as ready on WASM.
+ for(const code of ready)if(learningSpeechRoute(code).engine==="kokoro"){ready.delete(code);warming.delete(code)}
+}
+export function learningSpeechDownloadSettings(){
+ return{runtime:hasWebGpu()?"WebGPU fp32":"WASM q8",size:hasWebGpu()?310:88};
+}
 function modelUrl(language:string){
- return language==="en"?NANO_BASE+"kitten_tts_2_nano_en_int4.onnx":PICO_BASE+"kitten_tts_2_pico_"+language+"_int4.onnx";
+ return PICO_BASE+"kitten_tts_2_pico_"+language+"_int4.onnx";
 }
 async function hasCachedTinyModel(language:string){
  if(!("caches" in window))return false;
- try{return Boolean(await(await caches.open(MODEL_CACHE)).match(modelUrl(language)))}
- catch{return false}
+ try{
+  const route=learningSpeechRoute(language);
+  if(route.engine==="kokoro"){
+   await probeWebGpu();
+   const model=route.model==="zh"?"onnx-community/Kokoro-82M-v1.1-zh-ONNX":KOKORO_MODEL_ID;
+   const file=route.model==="zh"||hasWebGpu()?"model.onnx":"model_quantized.onnx";
+   const cache=await caches.open(KOKORO_CACHE);
+   const weight=await cache.match("https://huggingface.co/"+model+"/resolve/main/onnx/"+file) || (await cache.keys()).some(request=>{
+    const url=new URL(request.url);
+    return url.pathname.includes("/"+model+"/")&&url.pathname.endsWith("/onnx/"+file);
+   });
+   if(!weight)return false;
+   const assets=await caches.open(MODEL_CACHE);
+   if(route.g2p&&(!await assets.match("https://cdn.jsdelivr.net/npm/uccharan@1.0.0/data/"+route.g2p+".ucd")||!await assets.match("https://cdn.jsdelivr.net/npm/uccharan@1.0.0/dist/uccharan_wasm_bg.wasm")))return false;
+   if(route.model==="ja"&&!await assets.match(japaneseCacheMarker()))return false;
+   return true;
+  }
+  return Boolean(await(await caches.open(MODEL_CACHE)).match(modelUrl(language)));
+ }catch{return false}
 }
+function japaneseCacheMarker(){return new URL("/__learning-speech-cache/ja-"+(hasWebGpu()?"fp32":"q8"),location.origin).href}
 function requestPersistentStorage(){
  if(persistenceRequested)return;
  try{
@@ -92,29 +138,37 @@ function requestPersistentStorage(){
   void Promise.resolve(storage.persist()).catch(()=>{});
  }catch{}
 }
-function getWorker():Worker{
- if(worker)return worker;
+function getWorker(language:string):Worker{
+ const english=learningSpeechRoute(language).engine==="kokoro",existing=english?kokoroWorker:picoWorker;
+ if(existing)return existing;
  if(typeof Worker==="undefined")throw Error("WORKER_UNAVAILABLE");
- // Bundled as a separate, lazily loaded asset; inference never runs on the UI thread.
- const created=new Worker(new URL("./learningSpeech.worker.ts",import.meta.url),{type:"classic"});
+ // Kokoro's ESM needs a module worker; Pico continues using classic importScripts.
+ const created=english
+  ?new Worker(new URL("./learningSpeech.kokoro.worker.ts",import.meta.url),{type:"module"})
+  :new Worker(new URL("./learningSpeech.worker.ts",import.meta.url),{type:"classic"});
  created.onmessage=(event:MessageEvent<WorkerReply>)=>{
-  const reply=event.data,task=pending.get(reply.id);if(!task)return;
+  const reply=event.data,task=pending.get(reply.id);if(!task||task.worker!==created)return;
   pending.delete(reply.id);
-  if(reply.ok)task.resolve(reply);else task.reject(new Error(reply.error||"TINY_WORKER_FAILED"));
+  if(reply.ok)task.resolve(reply);else task.reject(new Error(reply.error||"LEARNING_WORKER_FAILED"));
  };
  created.onerror=()=>{
-  if(worker!==created)return;
-  worker=null;ready.clear();warming.clear();
-  for(const task of pending.values())task.reject(new Error("TINY_WORKER_FAILED"));
-  pending.clear();created.terminate();
+  if((english?kokoroWorker:picoWorker)!==created)return;
+  if(english)kokoroWorker=null;else picoWorker=null;
+  for(const code of ready)if((learningSpeechRoute(code).engine==="kokoro")===english)ready.delete(code);
+  for(const code of warming.keys())if((learningSpeechRoute(code).engine==="kokoro")===english)warming.delete(code);
+  for(const [id,task]of pending)if(task.worker===created){
+   task.reject(new Error("LEARNING_WORKER_FAILED"));pending.delete(id);
+  }
+  created.terminate();
  };
- worker=created;return created;
+ if(english)kokoroWorker=created;else picoWorker=created;
+ return created;
 }
 function requestWorker(message:Omit<WorkerRequest,"id">):Promise<WorkerReply>{
  return new Promise<WorkerReply>((resolve,reject)=>{
   try{
-   const instance=getWorker(),id=++requestId;
-   pending.set(id,{resolve,reject});
+   const instance=getWorker(message.language),id=++requestId;
+   pending.set(id,{resolve,reject,worker:instance});
    instance.postMessage({...message,id});
   }catch(error){reject(error instanceof Error?error:new Error(String(error)))}
  });
@@ -122,15 +176,49 @@ function requestWorker(message:Omit<WorkerRequest,"id">):Promise<WorkerReply>{
 function ensureTiny(language:string):Promise<void>{
  if(ready.has(language))return Promise.resolve();
  const existing=warming.get(language);if(existing)return existing;
- const task=requestWorker({type:"prepare",language}).then(()=>{
-  ready.add(language);requestPersistentStorage();
- }).catch(error=>{warming.delete(language);throw error});
+ const task=(async()=>{
+  if(learningSpeechRoute(language).engine==="kokoro"){
+   const webgpu=await probeWebGpu();
+   const prepare=async(gpu:boolean)=>{
+    if(useKokoroMain)await (await import("./learningSpeechKokoro")).prepareKokoro(language,gpu);
+    else await requestWorker({type:"prepare",language,webgpu:gpu});
+   };
+   try{await prepare(webgpu)}
+   catch(error){
+    if(webgpu){
+     console.warn("[learning-speech] WebGPU unavailable; retrying WASM",error);
+     disableWebGpu();
+     try{await prepare(false)}
+     catch(wasmError){
+      if(useKokoroMain)throw wasmError;
+      console.warn("[learning-speech] WASM worker unavailable; using Lab runtime",wasmError);
+      useKokoroMain=true;
+      await prepare(false);
+     }
+    }else{
+     if(useKokoroMain)throw error;
+     console.warn("[learning-speech] WASM worker unavailable; using Lab runtime",error);
+     useKokoroMain=true;
+     await prepare(false);
+    }
+   }
+  }else await requestWorker({type:"prepare",language});
+  if(learningSpeechRoute(language).model==="ja"&&typeof caches!=="undefined")await (await caches.open(MODEL_CACHE)).put(japaneseCacheMarker(),new Response("ready")).catch(()=>{});
+  ready.add(language);warming.delete(language);requestPersistentStorage();
+ })().catch(error=>{warming.delete(language);throw error});
  warming.set(language,task);
  return task;
 }
-async function generateTiny(text:string,language:string,speed:LearningSpeechSpeed){
- const reply=await requestWorker({type:"generate",language,text,speed});
- if(!reply.buffer)throw Error("TINY_EMPTY_AUDIO");
+async function generateTiny(text:string,language:string,speed:LearningSpeechSpeed,keepStart:boolean){
+ if(learningSpeechRoute(language).engine==="kokoro"&&useKokoroMain)return (await import("./learningSpeechKokoro")).generateKokoro(text,language,speed,hasWebGpu());
+ let reply:WorkerReply;
+ try{reply=await requestWorker({type:"generate",language,text,speed,keepStart,webgpu:hasWebGpu()})}
+ catch(error){
+  if(learningSpeechRoute(language).engine!=="kokoro")throw error;
+  useKokoroMain=true;
+  return (await import("./learningSpeechKokoro")).generateKokoro(text,language,speed,hasWebGpu());
+ }
+ if(!reply.buffer)throw Error("LEARNING_EMPTY_AUDIO");
  return new Blob([reply.buffer],{type:"audio/wav"});
 }
 
@@ -162,9 +250,9 @@ async function systemSpeak(text:string,language:string,speed:LearningSpeechSpeed
  // Preserve Koolo Android native TTS as the English fallback.
  if(language==="en"){await speakText(text,{speed});return}
  if("speechSynthesis" in window){
-  const utterance=new SpeechSynthesisUtterance(text);utterance.lang=LANG_TAG[language]||language;utterance.rate=speed==="slow"?0.78:1;
-  const voices=window.speechSynthesis.getVoices(),prefix=(LANG_TAG[language]||language).toLowerCase().split("-")[0];
-  utterance.voice=voices.find(item=>item.lang.toLowerCase().startsWith(prefix))||null;
+  const utterance=new SpeechSynthesisUtterance(text);utterance.lang=LANG_TAG[language]||learningSpeechRoute(language).locale;utterance.rate=speed==="slow"?0.78:1;
+  const voices=window.speechSynthesis.getVoices(),prefix=utterance.lang.toLowerCase().split("-")[0];
+  utterance.voice=voices.find(item=>item.lang.toLowerCase()===utterance.lang.toLowerCase())||voices.find(item=>item.lang.toLowerCase().startsWith(prefix))||null;
   await new Promise<void>((resolve,reject)=>{
    utterance.onend=()=>resolve();
    utterance.onerror=event=>event.error==="canceled"||event.error==="interrupted"?resolve():reject(new Error(event.error));
@@ -175,7 +263,7 @@ async function systemSpeak(text:string,language:string,speed:LearningSpeechSpeed
  await speakText(text,{speed});
 }
 
-export async function speakLearningText(text:string,languageValue:string,options:{speed?:LearningSpeechSpeed;mode?:LearningSpeechMode;onModelStatus?:(status:"loading"|"ready")=>void}={}):Promise<LearningSpeechResult>{
+export async function speakLearningText(text:string,languageValue:string,options:{speed?:LearningSpeechSpeed;mode?:LearningSpeechMode;onModelStatus?:(status:"loading"|"ready",language:string)=>void}={}):Promise<LearningSpeechResult>{
  const value=text.trim();if(!value)throw Error("EMPTY_SPEECH_TEXT");
  stopLearningSpeech();
  const id=playbackId,language=normalizeLearningLanguage(languageValue),speed=options.speed||"normal",preferred=preferredLearningEngine(language);
@@ -184,10 +272,10 @@ export async function speakLearningText(text:string,languageValue:string,options
   const hit=await hasCachedTinyModel(language);
   if(id!==playbackId)return{engine:"system",language,cached:false};
   // Cache hits still require ONNX/WASM initialisation; never block the first tap.
-  if(!hit)options.onModelStatus?.("loading");
-  void ensureTiny(language).then(()=>{if(id===playbackId)options.onModelStatus?.("ready")}).catch(error=>{
-   console.warn("[learning-speech] Kitten model could not initialise",error);
-  });
+  if(!hit)options.onModelStatus?.("loading",language);
+  void ensureTiny(language).catch(error=>{
+   console.warn("[learning-speech] local speech model could not initialise",error);
+  }).finally(()=>{if(id===playbackId&&!hit)options.onModelStatus?.("ready",language)});
   await systemSpeak(value,language,speed);
   return{engine:"system",language,cached:false};
  }
@@ -198,12 +286,12 @@ export async function speakLearningText(text:string,languageValue:string,options
   }
   if(preferred!=="system"){
    const chunks=segmentLearningSpeech(value),blobs:Blob[]=[];
-   let next=generateTiny(chunks[0],language,speed);
+   let next=generateTiny(chunks[0],language,speed,true);
    for(let index=0;index<chunks.length;index++){
     const blob=await next;if(id!==playbackId)return{engine:preferred,language,cached:false};
     blobs.push(blob);
     // Start producing the following clause before playing this one.
-    if(index+1<chunks.length)next=generateTiny(chunks[index+1],language,speed);
+    if(index+1<chunks.length)next=generateTiny(chunks[index+1],language,speed,false);
     await playBlob(blob,id);
    }
    if(id===playbackId)remember(key,blobs);

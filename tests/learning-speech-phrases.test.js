@@ -3,25 +3,32 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const read=file=>fs.readFileSync(file,"utf8");
 
-test("learning speech uses Nano int4 English and worker-backed Pico for European targets",()=>{
+test("English uses lazy Kokoro Lab and European languages retain Pico",()=>{
  const speech=read("web-spa/src/teacher/learningSpeech.ts");
- const worker=read("web-spa/src/teacher/learningSpeech.worker.ts");
- assert.match(speech,/if\(code==="en"\)return"nano"/);
- assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de","es","fr","it","pt"\]\)/);
- assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.worker\.ts",import\.meta\.url\)/);
+ const pico=read("web-spa/src/teacher/learningSpeech.worker.ts");
+ const kokoro=read("web-spa/src/teacher/learningSpeechKokoro.ts");
+ const routes=read("web-spa/src/teacher/learningSpeechRoutes.ts");
+ const lab=read("web-spa/public/tts-lab/kokoro/index.html");
+ assert.match(speech,/return learningSpeechRoute\(code\).engine/);
+ assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de"\]\)/);
+ assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.worker\.ts",import\.meta\.url\),\{type:"classic"\}\)/);
+ assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.kokoro\.worker\.ts",import\.meta\.url\),\{type:"module"\}\)/);
  assert.match(speech,/koolo-learning-speech-v1/);
- assert.match(worker,/kitten_tts_2_nano_en_int4\.onnx/);
- assert.match(worker,/kitten_tts_2_pico_"\+language\+"_int4\.onnx/);
- assert.match(worker,/voices_"\+language\+"\.npz"/);
- assert.match(worker,/vocab\.json/);
- assert.match(worker,/uccharan@1\.0\.0/);
- assert.match(worker,/lang:g2pLanguage\(language\),profile:"kitten"/);
- assert.match(worker,/const voice=voices\[language==="en"\?"eleanor"/);
- assert.doesNotMatch(speech,/Kokoro|kokoro-js|transformers-cache|kokoro-voices/i);
- assert.doesNotMatch(worker,/Kokoro|kokoro-js|transformers-cache|kokoro-voices/i);
- assert.match(speech,/if\(!hit\)options\.onModelStatus\?\.\("loading"\)/);
+ for(const token of ["kokoro-js@1.2.1/dist/kokoro.web.js","onnx-community/Kokoro-82M-v1.0-ONNX","af_heart","webgpu","fp32","wasm","q8"]){
+  assert.ok(lab.includes(token),"Lab "+token);
+  assert.ok(kokoro.includes(token)||speech.includes(token)||routes.includes(token),"learning "+token);
+ }
+ assert.match(kokoro,/KokoroTTS\.from_pretrained\(MODEL_ID/);
+ assert.match(kokoro,/tts\.generate\(text,\{voice:route.voice,speed:rate\}\)/);
+ assert.doesNotMatch(speech+pico+kokoro,/kitten_tts_2_nano_en_int4|en-us\.ucd/);
+ assert.match(pico,/kitten_tts_2_pico_"\+language\+"_int4\.onnx/);
+ assert.match(pico,/voices_"\+language\+"\.npz"/);
+ assert.match(pico,/vocab\.json/);
+ assert.match(pico,/uccharan@1\.0\.0/);
+ assert.match(pico,/lang:g2pLanguage\(language\),profile:"kitten"/);
+ assert.doesNotMatch(kokoro,/trimTiny\(/);
  assert.match(speech,/await systemSpeak\(value,language,speed\)/);
- assert.match(speech,/next=generateTiny\(chunks\[index\+1\],language,speed\)/);
+ assert.match(speech,/next=generateTiny\(chunks\[index\+1\],language,speed,false\)/);
  assert.match(speech,/await playBlob\(blob,id\)/);
 });
 
@@ -30,14 +37,17 @@ test("all supported locales include phrase, vocabulary neural-voice and chat lea
   const teacher=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/teacher.json"));
   const voice=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/voice.json"));
   for(const key of ["phrases","phrasesDesc"])assert.ok(teacher.learn[key],locale+" learn."+key);
-  for(const key of ["neuralVoiceHint","modelDownloading","modelReady","listenExample","saved","saveExample","fromWord"])assert.ok(teacher.vocabulary[key],locale+" vocabulary."+key);
-  for(const key of ["title","todayTitle","listeningTitle","listen","save","modelDownloading","modelReady","delete","shadow","reviewed"])assert.ok(teacher.phrasebook[key],locale+" phrasebook."+key);
-  for(const key of ["listen","saved","savePhrase","save","originalPrefix","savedNote","modelDownloading","modelReady"])assert.ok(voice.textChat.learning[key],locale+" textChat.learning."+key);
-  for(const hint of [teacher.phrasebook.modelDownloading,teacher.vocabulary.modelDownloading,voice.textChat.learning.modelDownloading]){
-   assert.match(hint,/13/,locale+" should describe Nano download size");
-   assert.doesNotMatch(hint,/88|Kokoro/,locale+" must not promise old Kokoro download");
+  for(const key of ["neuralVoiceHint","modelDownloading","listenExample","saved","saveExample","fromWord"])assert.ok(teacher.vocabulary[key],locale+" vocabulary."+key);
+  for(const key of ["title","todayTitle","listeningTitle","listen","save","modelDownloading","delete","shadow","reviewed"])assert.ok(teacher.phrasebook[key],locale+" phrasebook."+key);
+  for(const key of ["listen","saved","savePhrase","save","originalPrefix","savedNote","modelDownloading"])assert.ok(voice.textChat.learning[key],locale+" textChat.learning."+key);
+  assert.equal(teacher.phrasebook.modelDownloading,teacher.vocabulary.modelDownloading);
+  assert.equal(voice.textChat.learning.modelDownloading,teacher.vocabulary.modelDownloading);
+  for(const group of [teacher.phrasebook,teacher.vocabulary,voice.textChat.learning]){
+   assert.equal(group.modelReady,undefined);
+   assert.equal(group.modelDownloadingPico,undefined);
+   assert.doesNotMatch(group.modelDownloading,/Kokoro|Pico|MB|\{\{/);
   }
-  assert.match(teacher.vocabulary.neuralVoiceHint,/Kitten Nano/);
+  if(locale==="zh-TW")assert.equal(teacher.vocabulary.modelDownloading,"模型下載中");
 
  }
 });

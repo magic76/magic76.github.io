@@ -233,8 +233,7 @@
       "save": "＋ 保存",
       "originalPrefix": "元の文：",
       "savedNote": "Zoeとのチャットから保存",
-      "modelDownloading": "Kitten 音声を準備中：英語 Nano は約 13 MB（他言語はさらに小容量）。初回のみダウンロードし、今回はシステム音声を使います。",
-      "modelReady": "音声モデルの準備ができました。次回から高品質音声を使います。"
+      "modelDownloading": "モデルをダウンロード中"
     },
     "typing": "{{name}} が入力中",
     "nextHeading": "次はこう言ってみよう",

@@ -48,19 +48,19 @@ test("voice preferences persist locally and unsupported values degrade safely",(
  assert.equal(helper.readSpeechPreferences().speed,"normal");
 });
 
-test("vocabulary page uses worker-backed Nano English without Gemini",()=>{
+test("vocabulary page uses lazy Kokoro English without Gemini",()=>{
  const page=fs.readFileSync("web-spa/src/teacher/VocabularyPage.tsx","utf8");
  const speech=fs.readFileSync("web-spa/src/teacher/learningSpeech.ts","utf8");
  const worker=fs.readFileSync("web-spa/src/teacher/learningSpeech.worker.ts","utf8");
  assert.match(page,/speakLearningText\(text,"en",\{speed:slow\?"slow":"normal",mode:"word",onModelStatus:/);
  assert.match(page,/onClick=\{\(\)=>pronounce\(word\[0\],true\)\}/);
- assert.match(speech,/if\(code==="en"\)return"nano"/);
- assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de","es","fr","it","pt"\]\)/);
+ assert.match(speech,/return learningSpeechRoute\(code\).engine/);
+ assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de"\]\)/);
  assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.worker\.ts",import\.meta\.url\)/);
- assert.match(worker,/kitten_tts_2_nano_en_int4\.onnx/);
+ assert.match(fs.readFileSync("web-spa/src/teacher/learningSpeechKokoro.ts","utf8"),/KokoroTTS\.from_pretrained/);
  assert.match(worker,/uccharan@1\.0\.0/);
  assert.match(speech,/await speakText\(text,\{speed\}\)/);
- assert.doesNotMatch(speech,/kokoro-js|Kokoro-82M/);
+ assert.match(speech,/kokoro-js@1\.2\.1|Kokoro-82M/);
  assert.doesNotMatch(page,/geminiKey\(|CrewAI\.call|useLiveSession|fetch\(/);
  assert.doesNotMatch(page,/synth\.getVoices\(\)|selectLocalEnglishVoice|changeSpeechPreferences/);
  assert.match(page,/recordVocab\(word\[0\],correct\)/);

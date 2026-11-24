@@ -248,9 +248,8 @@
       "social": "Soziales"
     },
     "kicker": "Vokabeln",
-    "neuralVoiceHint": "Englische Aussprache nutzt Kitten Nano auf dem Gerät, andere unterstützte Sprachen Kitten Pico. Bis das Modell bereit ist, wird die Systemstimme verwendet.",
-    "modelDownloading": "Kitten-Sprachmodell wird geladen: ca. 13 MB für Englisch-Nano (andere Sprachen sind kleiner), nur einmal. Diesmal wird die Systemstimme verwendet.",
-    "modelReady": "Das Sprachmodell ist bereit. Beim nächsten Mal wird die hochwertige Stimme verwendet.",
+    "neuralVoiceHint": "Englische Aussprache nutzt Kokoro auf dem Gerät; weitere unterstützte Sprachen nutzen Kitten Pico. Bis das Modell bereit ist, wird die Systemstimme verwendet.",
+    "modelDownloading": "Modell wird heruntergeladen",
     "listenExample": "Beispiel anhören",
     "saved": "✓ Gespeichert",
     "saveExample": "☆ Beispiel speichern",
@@ -459,8 +458,7 @@
     "emptyTitle": "Dein Lernstapel ist noch leer",
     "emptyDesc": "Speichere oben einen der fünf heutigen Sätze oder einen Satz aus einem Zoe-Chat, den du wirklich lernen möchtest.",
     "dailyNote": "5 Sätze von heute",
-    "modelDownloading": "Kitten-Sprachmodell wird geladen: ca. 13 MB für Englisch-Nano (andere Sprachen sind kleiner), nur einmal. Diesmal wird die Systemstimme verwendet.",
-    "modelReady": "Das Sprachmodell ist bereit. Beim nächsten Mal wird die hochwertige Stimme verwendet.",
+    "modelDownloading": "Modell wird heruntergeladen",
     "tags": {
       "correction": "Natürliche Korrektur",
       "hint": "Antwort-Hilfe",
