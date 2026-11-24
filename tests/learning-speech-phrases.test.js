@@ -3,14 +3,14 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const read=file=>fs.readFileSync(file,"utf8");
 
-test("Kitten Nano English and five Pico languages share a lazy classic WASM worker",()=>{
+test("Selected engines and five Pico languages use lazy classic WASM workers",()=>{
  const speech=read("web-spa/src/teacher/learningSpeech.ts");
  const worker=read("web-spa/src/teacher/learningSpeech.worker.ts");
  assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de","es","fr","it","pt"\]\)/);
- assert.match(speech,/if\(code==="en"\|\|code==="en-US"\|\|code==="en-GB"\)return"nano"/);
+ assert.match(speech,/if\(code==="en"\|\|code==="en-US"\|\|code==="en-GB"\)return"paradee"/);
  assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.worker\.ts",import\.meta\.url\),\{type:"classic"\}\)/);
  assert.match(speech,/koolo-learning-speech-v1/);
- assert.match(worker,/kitten_tts_2_nano_en_int4\.onnx/);
+ assert.match(read("web-spa/src/teacher/learningSpeech.selected.worker.js"),/paradee_int8\.onnx/);
  assert.match(worker,/kitten_tts_2_pico_"\+language\+"_int4\.onnx/);
  assert.match(worker,/voices_"\+language\+"\.npz"/);
  assert.match(worker,/vocab\.json/);
