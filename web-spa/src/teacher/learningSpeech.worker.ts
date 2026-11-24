@@ -1,8 +1,8 @@
-// Runs the existing Kitten ONNX path off the UI thread; English alone uses Nano int4.
+// Kitten Pico de/es/fr/it/pt; retain #905 keep-start trimming and 100 ms WAV padding.
 type LearningSpeechSpeed="normal"|"slow";
 type RawVoice={rows:number;cols:number;data:Float32Array};
 type TinyEngine={session:any;ort:any;phonemize:(text:string,options?:any)=>Promise<string>|string;vocab:Record<string,number>;voices:Record<string,RawVoice>};
-type TinyWorkerRequest={id:number;type:"prepare"|"generate";language:string;text?:string;speed?:LearningSpeechSpeed};
+type TinyWorkerRequest={id:number;type:"prepare"|"generate";language:string;text?:string;speed?:LearningSpeechSpeed;keepStart?:boolean};
 type WorkerScope={caches:CacheStorage;ort?:any;importScripts:(...urls:string[])=>void;postMessage:(message:unknown,transfer?:Transferable[])=>void;onmessage:((event:MessageEvent<TinyWorkerRequest>)=>void)|null};
 const scope=self as unknown as WorkerScope;
 const ORT_JS="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/ort.min.js";
@@ -11,7 +11,6 @@ const PAKO_URL="https://esm.sh/pako@2.1.0";
 const UCCHARAN_BASE="https://cdn.jsdelivr.net/npm/uccharan@1.0.0/";
 const UCCHARAN_URL=UCCHARAN_BASE+"index.js";
 const PICO_BASE="https://huggingface.co/KittenML/kitten-tts-2-pico/resolve/main/";
-const NANO_BASE="https://huggingface.co/KittenML/kitten-tts-2-nano/resolve/main/";
 const tinyEngines=new Map<string,Promise<TinyEngine>>();
 const importExternal=(url:string)=>import(/* @vite-ignore */ url) as Promise<any>;
 let ortPromise:Promise<any>|null=null;
@@ -72,14 +71,15 @@ async function parseNPZ(data:Uint8Array):Promise<Record<string,RawVoice>>{
  }
  return out;
 }
-function g2pLanguage(language:string){return language==="en"?"en-us":language}
+function g2pLanguage(language:string){return language}
 async function loadTiny(language:string):Promise<TinyEngine>{
+ if(language==="en")throw Error("PICO_ONLY");
  const prior=tinyEngines.get(language);if(prior)return prior;
  const promise=(async()=>{
   const ort=await getRuntime();
-  const isEnglish=language==="en",base=isEnglish?NANO_BASE:PICO_BASE;
+  const base=PICO_BASE;
   const g2pLang=g2pLanguage(language);
-  const modelName=isEnglish?"kitten_tts_2_nano_en_int4.onnx":"kitten_tts_2_pico_"+language+"_int4.onnx";
+  const modelName="kitten_tts_2_pico_"+language+"_int4.onnx";
   const [{init,loadLanguage,phonemizeSync},model,voiceData,vocabData,wasm,pack]=await Promise.all([
    importExternal(UCCHARAN_URL),
    fetchCached(base+modelName),
@@ -100,16 +100,22 @@ function encodeTiny(phonemes:string,vocab:Record<string,number>){
  const ids:number[]=[];for(const ch of phonemes){if(Object.prototype.hasOwnProperty.call(vocab,ch))ids.push(vocab[ch]);else if((ch==="("||ch===")")&&vocab[","]!==undefined)ids.push(vocab[","])}
  return[0,...ids,10,0];
 }
-function trimTiny(samples:Float32Array,durations:number[]){
+function trimTiny(samples:Float32Array,durations:number[],keepStart=true){
  let output=samples;
  if(durations.length){
   const total=durations.reduce((sum,value)=>sum+value,0),spf=Math.max(1,Math.round(output.length/Math.max(total,1)));
-  const lead=Math.max(0,(durations[0]-1)*spf),trail=Math.max(0,(durations[durations.length-1]-1)*spf);
+  // KittenTTS _chunk: retain the first chunk's start token; only later chunks trim its pause.
+  const lead=keepStart?0:Math.max(0,(durations[0]-1)*spf);
+  const trail=Math.max(0,(durations[durations.length-1]-1)*spf);
   if(lead+trail+spf<output.length)output=output.slice(lead,trail?output.length-trail:undefined);
  }
  const copy=new Float32Array(output),fade=Math.min(120,Math.floor(copy.length/8));
  for(let i=0;i<fade;i++){const gain=i/Math.max(1,fade-1);copy[i]*=gain;copy[copy.length-1-i]*=gain}
- return copy;
+ // HTMLAudio can swallow an edge of each separately played WAV. Pad after fading.
+ const padSamples=2400; // 100 ms at the model's fixed 24 kHz output rate.
+ const padded=new Float32Array(copy.length+padSamples*2);
+ padded.set(copy,padSamples);
+ return padded;
 }
 function wavBlob(samples:Float32Array,rate=24000){
  const buffer=new ArrayBuffer(44+samples.length*2),view=new DataView(buffer);
@@ -118,11 +124,11 @@ function wavBlob(samples:Float32Array,rate=24000){
  for(let i=0;i<samples.length;i++){const value=Math.max(-1,Math.min(1,samples[i]));view.setInt16(44+i*2,value<0?value*32768:value*32767,true)}
  return new Blob([buffer],{type:"audio/wav"});
 }
-async function tinyBlob(text:string,language:string,speed:LearningSpeechSpeed){
+async function tinyBlob(text:string,language:string,speed:LearningSpeechSpeed,keepStart=true){
  const engine=await loadTiny(language);
  const phonemes=String(await engine.phonemize(text,{lang:g2pLanguage(language),profile:"kitten"}));
  const tokens=encodeTiny(phonemes,engine.vocab);if(tokens.length<4||tokens.length>353)throw new Error("TINY_INPUT_UNSUPPORTED");
- const voices=engine.voices;const voice=voices[language==="en"?"eleanor":Object.keys(voices)[0]]||voices[Object.keys(voices)[0]];if(!voice)throw new Error("TINY_VOICE_UNAVAILABLE");
+ const voices=engine.voices;const voice=voices[Object.keys(voices)[0]];if(!voice)throw new Error("TINY_VOICE_UNAVAILABLE");
  const row=Math.min(tokens.length-1,voice.rows-1),style=voice.data.slice(row*voice.cols,(row+1)*voice.cols);
  const feeds={
   input_ids:new engine.ort.Tensor("int64",BigInt64Array.from(tokens.map(value=>BigInt(value))),[1,tokens.length]),
@@ -133,7 +139,7 @@ async function tinyBlob(text:string,language:string,speed:LearningSpeechSpeed){
  const waveform=values.find(value=>value?.data instanceof Float32Array),duration=values.find(value=>value?.data instanceof BigInt64Array||value?.data instanceof Int32Array||value?.data instanceof Uint32Array);
  if(!waveform)throw new Error("TINY_EMPTY_AUDIO");
  const durations=duration?Array.from(duration.data as ArrayLike<number|bigint>,value=>typeof value==="bigint"?Number(value):Number(value)):[];
- return wavBlob(trimTiny(new Float32Array(waveform.data),durations));
+ return wavBlob(trimTiny(new Float32Array(waveform.data),durations,keepStart));
 }
 
 let queue=Promise.resolve();
@@ -147,7 +153,7 @@ scope.onmessage=event=>{
     return;
    }
    if(request.type==="generate"&&typeof request.text==="string"){
-    const audio=await tinyBlob(request.text,request.language,request.speed||"normal");
+    const audio=await tinyBlob(request.text,request.language,request.speed||"normal",request.keepStart!==false);
     const buffer=await audio.arrayBuffer();
     scope.postMessage({id:request.id,ok:true,buffer},[buffer]);
     return;
