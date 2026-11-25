@@ -3,72 +3,52 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const vm=require("node:vm");
 const {stripTypeScriptTypes}=require("node:module");
-const read=p=>fs.readFileSync(p,"utf8");
-const speech=read("web-spa/src/teacher/learningSpeech.ts");
-const worker=read("web-spa/src/teacher/learningSpeech.worker.ts");
-
-function extract(start,end){
- const a=speech.indexOf(start),b=speech.indexOf(end,a);
- assert.ok(a>=0&&b>a,start+" remains available");
- return stripTypeScriptTypes(speech.slice(a,b).replace(/\bexport\s+/g,""),{mode:"strip"});
+const source=fs.readFileSync("web-spa/src/teacher/learningSpeech.ts","utf8");
+const code=stripTypeScriptTypes(source.replace(/^import .*;$/gm,"").replace(/\bexport\s+/g,""),{mode:"strip"});
+const voice=(lang,localService=true,isDefault=false)=>({lang,localService,default:isDefault});
+function load({mode="browser",voices=[],autoEnd=true}={}){
+ const said=[],native=[];
+ const synth={getVoices:()=>voices,cancel(){},speak(u){said.push(u);if(autoEnd)u.onend()}};
+ class Utterance{constructor(text){this.text=text}}
+ const context={TARGET_LANGUAGES:[{code:"ja",value:"日文",spoken:"Japanese"}],window:{speechSynthesis:synth},SpeechSynthesisUtterance:Utterance,
+  getDeviceCapabilities:()=>({tts:mode}),speakText:async(text,options)=>native.push([text,options.speed])};
+ const api=vm.runInNewContext(code+";({normalizeLearningLanguage,selectLearningVoice,speakLearningText,stopLearningSpeech})",context);
+ return {...api,said,native};
 }
-
-test("en/US/GB use Nano; de/es/fr/it/pt use Pico; other learning languages use device TTS",()=>{
- const code=extract("export function normalizeLearningLanguage(","export function picoLearningLanguages(");
- const {normalizeLearningLanguage,preferredLearningEngine}=vm.runInNewContext(
-  code+";({normalizeLearningLanguage,preferredLearningEngine})",
-  {TARGET_LANGUAGES:[],PICO_LANGUAGES:new Set(["de","es","fr","it","pt"])});
- for(const language of ["en","en-US","en-GB","EN-us","EN-gb"])assert.equal(preferredLearningEngine(language),"nano",language);
- for(const language of ["de","es","fr","it","pt","pt-BR"])assert.equal(preferredLearningEngine(language),"pico",language);
- for(const language of ["ja","ko","zh-TW","hi","vi","th","id","ru"])assert.equal(preferredLearningEngine(language),"system",language);
- assert.equal(normalizeLearningLanguage("en-GB"),"en-GB");
- assert.match(speech,/modelLanguage\(message.language\)/,"worker receives canonical Nano en");
- assert.match(worker,/language==="en"\?"en-us":language/,"Nano G2P uses real en-us data pack");
- assert.match(worker,/language==="en"\?"eleanor":/,"Nano selects Eleanor voice");
-});
-
-test("no learning path imports Kokoro runtimes or WebGPU models",()=>{
- assert.doesNotMatch(speech+worker,/kokoro-js@|kokoro-js-jp|@uzen|learningSpeechKokoro|learningSpeech\.kokoro\.worker|KokoroTTS|probeWebGpu|model_quantized\.onnx/);
- for(const file of ["learningSpeechKokoro.ts","learningSpeech.kokoro.worker.ts","learningSpeechRoutes.ts"]){
-  assert.equal(fs.existsSync("web-spa/src/teacher/"+file),false,file+" removed from learning runtime");
+test("all learning languages use explicit locale and matching device voice, never an unrelated voice",async()=>{
+ const us=voice("en-US"),gb=voice("en-GB"),ja=voice("ja-JP"),de=voice("de-DE"),zh=voice("zh-TW");
+ const api=load({voices:[us,gb,ja,de,zh]});
+ for(const [lang,locale,expected] of [["en","en-US",us],["en-GB","en-GB",gb],["日文","ja-JP",ja],["de","de-DE",de],["zh","zh-TW",zh],["fr","fr-FR",undefined]]){
+  await api.speakLearningText("test",lang);
+  const u=api.said.at(-1);assert.equal(u.lang,locale);assert.equal(u.voice,expected);assert.equal(u.rate,1);
  }
- assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.worker\.ts",import\.meta\.url\),\{type:"classic"\}\)/);
- assert.match(speech,/cleanupLegacyKokoroCache\(\)/);
+ assert.equal(api.native.length,0);
 });
-
-test("cold, cached-weight and failed preparation all speak immediately without obsolete UI hints",async()=>{
- const code=stripTypeScriptTypes(speech.slice(speech.indexOf("export async function speakLearningText(")).replace("export ",""),{mode:"strip"});
- for(const hit of [false,true]){
-  const statuses=[],played=[];let rejectPreparation;
-  const preparation=new Promise((_,reject)=>{rejectPreparation=reject});
-  const context={
-   playbackId:1,stopLearningSpeech(){},cleanupLegacyKokoroCache(){},
-   normalizeLearningLanguage:x=>x,preferredLearningEngine:()=> "nano",
-   cacheKey:()=>"",generated:new Map(),ready:new Set(),hasCachedTinyModel:async()=>hit,
-   ensureTiny:()=>preparation,systemSpeak:async text=>played.push(text),console:{warn(){}}
-  };
-  const speak=vm.runInNewContext(code+";speakLearningText",context);
-  const result=await speak("Nice to meet you, Zoe.","en",{onModelStatus:(status,lang)=>statuses.push([status,lang])});
-  assert.equal(result.engine,"system");
-  assert.deepEqual(played,["Nice to meet you, Zoe."]);
-  assert.deepEqual(statuses,hit?[]:[["loading","en"]]);
-  rejectPreparation(Error("offline"));
-  await new Promise(resolve=>setImmediate(resolve));
-  assert.deepEqual(statuses,hit?[]:[["loading","en"],["ready","en"]]);
+test("exact locale wins over another accent; default then local within exact matches",()=>{
+ const gb=voice("en-GB",true,true),remote=voice("en-US",false),local=voice("en-US"),def=voice("en-US",false,true);
+ const api=load();
+ assert.equal(api.selectLearningVoice([gb,remote,local],"en-US"),local);
+ assert.equal(api.selectLearningVoice([gb,remote,local,def],"en-US"),def);
+ assert.equal(api.selectLearningVoice([gb],"en-US"),gb);
+});
+test("native Android English preserves rate; other languages keep browser locale",async()=>{
+ for(const mode of ["native-message","native-legacy"]){
+  const api=load({mode});
+  await api.speakLearningText("negotiate","en",{speed:"slow"});
+  assert.deepEqual(api.native,[["negotiate","slow"]]);
+  await api.speakLearningText("bonjour","fr",{speed:"slow"});
+  assert.equal(api.said[0].lang,"fr-FR");assert.equal(api.said[0].rate,0.8);
  }
- assert.doesNotMatch(speech,/約\s*\d+\s*MB|這次先用系統語音|語音模型已準備好|只需一次/);
 });
-
-test("successful preparation requests storage persistence once and avoids duplicate workers",async()=>{
- const code=extract("function ensureTiny(","async function generateTiny(");
- let attempts=0,persisted=0;
- const ctx={ready:new Set(),warming:new Map(),requestWorker:async()=>{attempts++},
-  requestPersistentStorage(){persisted++}};
- const ensure=vm.runInNewContext(code+";ensureTiny",ctx);
- await Promise.all([ensure("en"),ensure("en")]);
- await ensure("en");
- assert.equal(attempts,1);
- assert.equal(persisted,1);
- assert.equal(ctx.ready.has("en"),true);
- assert.equal(ctx.warming.size,0);
+test("browser waits for playback end, settles interrupted speech and reports synthesis failures",async()=>{
+ const api=load({autoEnd:false});
+ let ended=false;const first=api.speakLearningText("first","en").then(()=>{ended=true});
+ await Promise.resolve();assert.equal(ended,false);
+ const second=api.speakLearningText("second","en");
+ await first;assert.equal(ended,true);
+ api.said[1].onend();await second;
+ const failed=api.speakLearningText("third","en");
+ api.said[2].onerror({error:"synthesis-failed"});
+ await assert.rejects(failed,/synthesis-failed/);
+ await assert.rejects(api.speakLearningText(" ","en"),/EMPTY_SPEECH_TEXT/);
 });

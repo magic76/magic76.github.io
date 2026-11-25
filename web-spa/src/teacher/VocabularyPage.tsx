@@ -24,7 +24,7 @@ export function VocabularyPage(){
  const {t:tToday}=useTranslation("lesson");
  const stringsReady=useRouteNamespace("lesson");
  const native=useTeacherStore(s=>s.nativeLanguage);
- const[speechError,setSpeechError]=useState(""),[speechNotice,setSpeechNotice]=useState(""),[savedExample,setSavedExample]=useState("");
+ const[speechError,setSpeechError]=useState(""),[savedExample,setSavedExample]=useState("");
  const answerLockRef=useRef(false); // Synchronous guard against rapid double taps before React re-renders.
  const autoNextTimeoutRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const[refresh,setRefresh]=useState(0);
@@ -50,9 +50,8 @@ export function VocabularyPage(){
 
  function pronounce(text:string,slow=false){
   setSpeechError("");
-  setSpeechNotice("");
-  void speakLearningText(text,"en",{speed:slow?"slow":"normal",mode:"word",onModelStatus:status=>setSpeechNotice(status==="loading"?t("vocabulary.modelDownloading"):"")})
-   .catch(error=>{console.warn("[learning-speech]",error);setSpeechNotice("")});
+  void speakLearningText(text,"en",{speed:slow?"slow":"normal"})
+   .catch(error=>{console.warn("[learning-speech]",error);setSpeechError(t("vocabulary.speechFailed"))});
  }
 
  useEffect(()=>{
@@ -145,7 +144,6 @@ export function VocabularyPage(){
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0])}>🔊 {t("vocabulary.listen")}</button>
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0],true)}>{t("vocabulary.listenSlow")}</button>
     </div>
-    {speechNotice&&<p className="crew-vocab-voice-hint" role="status">{speechNotice}</p>}
     {speechError&&<p className="crew-vocab-voice-error" role="alert">{speechError}</p>}
     {needsContent&&<p className="crew-learning-translation-note" role="status">{usingFallback?t("vocabulary.fallbackNotice"):t("vocabulary.partialNotice")}
      {contentError&&<button className="btn secondary small" onClick={()=>{setContentError("");void ensureVocabularyContent(native,score).then(()=>setRefresh(v=>v+1)).catch(e=>setContentError(String(e)))}}>{t("vocabulary.retry")}</button>}

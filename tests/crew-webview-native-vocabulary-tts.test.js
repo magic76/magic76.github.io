@@ -26,14 +26,13 @@ test("native TTS navigation encodes vocabulary without modifying its rate",()=>{
   "crew-tts://speak?text=a%26b&rate=normal");
 });
 
-test("vocabulary uses neural speech first while English fallback preserves the device adapter",()=>{
+test("vocabulary uses native English speech on the Android shell",()=>{
  const page=read("web-spa/src/teacher/VocabularyPage.tsx");
  const speech=read("web-spa/src/teacher/learningSpeech.ts");
  const adapter=read("web-spa/src/lib/deviceCapabilities.ts");
  assert.match(page,/speakLearningText\(text,"en"/);
- assert.match(speech,/preferredLearningEngine\(value:string\):LearningSpeechEngine/);
- assert.match(speech,/if\(code==="en"\|\|code==="en-US"\|\|code==="en-GB"\)return"nano"/);
- assert.match(speech,/if\(language==="en"\|\|language==="en-US"\)\{await speakText\(text,\{speed\}\);return\}/);
+ assert.match(speech,/mode==="native-message"\|\|mode==="native-legacy"/);
+ assert.match(speech,/await speakText\(value,\{speed\}\);return/);
  assert.match(adapter,/webMessagePort\(\)\?"native-message"/);
  assert.match(adapter,/hasCrewNativeVocabularyTts\(\)\?"native-legacy"/);
  assert.match(adapter,/window\.location\.assign\(nativeVocabularyTtsUrl\(text,options\.speed\)\)/);
