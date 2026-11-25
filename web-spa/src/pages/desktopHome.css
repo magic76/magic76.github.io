@@ -103,3 +103,5 @@
 }
 @media(hover:none) and (min-width:768px){.kdh-feature:hover,.kdh-resume-card:hover,.kdh-shortcut:hover{transform:none}}
 @media(prefers-reduced-motion:reduce){.koolo-desktop-home :is(a,button){transition:none!important}}
+
+.kdh-zoe .kdh-return-topic{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
