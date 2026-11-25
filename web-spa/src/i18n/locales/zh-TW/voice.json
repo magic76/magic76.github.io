@@ -308,5 +308,13 @@
     "nextCall": "下次通話生效",
     "instructions": "可以直接照著說，也可以自由回答",
     "unavailable": "此模型不支援回答提示"
+  },
+  "learningFeedback": {
+    "grammar": "文法修正",
+    "wording": "用字修正",
+    "natural": "更道地的說法",
+    "save": "收藏到片語本",
+    "saved": "已收藏",
+    "failed": "無法收藏，請重試。"
   }
 }

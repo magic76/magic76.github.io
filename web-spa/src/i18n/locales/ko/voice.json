@@ -308,5 +308,13 @@
     "nextCall": "다음 통화부터 적용",
     "instructions": "그대로 말하거나 자신의 말로 답해도 됩니다",
     "unavailable": "이 모델은 답변 힌트를 지원하지 않습니다"
+  },
+  "learningFeedback": {
+    "grammar": "문법 수정",
+    "wording": "단어 선택",
+    "natural": "더 자연스러운 표현",
+    "save": "표현집에 저장",
+    "saved": "저장됨",
+    "failed": "저장하지 못했습니다. 다시 시도하세요."
   }
 }
