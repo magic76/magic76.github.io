@@ -285,6 +285,12 @@
     }
   },
   "callCaptions": {
+    "browserRecognitionLanguage": "認識言語",
+    "browserRecognitionAuto": "自動（会話に合わせて切替）",
+    "browserRecognition": "ブラウザー音声認識",
+    "browserRecognitionNotice": "実験機能：ブラウザーのクラウド音声サービスを使用し、通話音声に影響する場合があります。",
+    "browserRecognitionFailed": "音声認識を利用できません。元の字幕は表示されます。",
+    "browserRecognitionLabel": "ブラウザー認識",
     "aria": "通話字幕と翻訳",
     "more": "その他の操作",
     "closeMenu": "オプションを閉じる",

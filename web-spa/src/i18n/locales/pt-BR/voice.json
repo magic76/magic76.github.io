@@ -285,6 +285,12 @@
     }
   },
   "callCaptions": {
+    "browserRecognitionLanguage": "Idioma de reconhecimento",
+    "browserRecognitionAuto": "Automático (conforme a conversa)",
+    "browserRecognition": "Reconhecimento de voz do navegador",
+    "browserRecognitionNotice": "Experimental: pode usar o serviço de voz na nuvem do navegador e afetar o áudio da chamada.",
+    "browserRecognitionFailed": "Reconhecimento indisponível. As legendas originais permanecem disponíveis.",
+    "browserRecognitionLabel": "Reconhecimento do navegador",
     "aria": "Legendas bilíngues da chamada",
     "more": "Mais opções",
     "closeMenu": "Fechar opções",

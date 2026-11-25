@@ -285,6 +285,12 @@
     }
   },
   "callCaptions": {
+    "browserRecognitionLanguage": "Ngôn ngữ nhận dạng",
+    "browserRecognitionAuto": "Tự động (theo cuộc trò chuyện)",
+    "browserRecognition": "Nhận dạng giọng nói của trình duyệt",
+    "browserRecognitionNotice": "Tính năng thử nghiệm: có thể dùng dịch vụ giọng nói đám mây của trình duyệt và ảnh hưởng âm thanh cuộc gọi.",
+    "browserRecognitionFailed": "Không thể nhận dạng. Phụ đề gốc vẫn được giữ.",
+    "browserRecognitionLabel": "Nhận dạng trình duyệt",
     "aria": "Phụ đề cuộc gọi song ngữ",
     "more": "Tùy chọn khác",
     "closeMenu": "Đóng tùy chọn",
