@@ -658,5 +658,14 @@
       "all": "Xem tất cả",
       "learnBadge": "HỌC NGÔN NGỮ"
     }
+  },
+  "chatChoices": {
+    "prompt": "Hôm nay bạn muốn kể mình nghe chuyện gì?",
+    "returnPrompt": "Mình nói tiếp chuyện cũ hay bắt đầu chuyện mới?",
+    "funny": "Có chuyện vui muốn kể",
+    "casual": "Mình trò chuyện nhé",
+    "resume": "Nói tiếp chuyện cũ",
+    "fresh": "Nói chuyện mới",
+    "about": "Mình nói tiếp chuyện {{topic}} lần trước nhé."
   }
 }

@@ -149,3 +149,13 @@
 .crew-portal-practice-lang,.crew-portal-practice-preview{width:100%;min-width:0;justify-content:flex-start}
 .crew-portal-practice-control{flex:1;min-width:0}
 .crew-portal-practice-control select{width:100%;max-width:100%}
+
+.home-chat-choices{display:flex;align-items:stretch;gap:6px}
+.home-chat-choices button{
+ flex:1 1 0;min-width:0;min-height:44px;padding:5px 9px;border-radius:12px;
+ border:1px solid #fff8;background:#38253dc9;color:white;cursor:pointer;
+ font-size:12px;font-weight:680;line-height:1.2;overflow-wrap:anywhere
+}
+.home-chat-choices button:hover{background:#422e4d}
+.home-chat-choices button:focus-visible{outline:2px solid #fff7df;outline-offset:2px}
+.kdh-zoe-content .home-chat-choices{width:min(310px,100%);margin-bottom:8px}

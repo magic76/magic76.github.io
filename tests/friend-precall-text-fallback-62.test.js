@@ -8,7 +8,7 @@ const friend=read(root+"friends/FriendLiveConversation.tsx");
 const styles=read(root+"friends/friendCall.css");
 
 test("#62: unverified pre-call keeps the gated voice action and exposes same-friend text",()=>{
- assert.match(friend,/focusOnMount=\{params\.get\("chat"\)==="text"\}/);
+ assert.match(friend,/focusOnMount=\{params\.get\("chat"\)==="text"&&!homeChat\.active\}/);
  assert.match(friend,/onTextGrant=\{async grant=>/);
  assert.match(starter,/disabled=\{!challenge\}/);
  assert.match(starter,/role==="friend"&&onTextGrant&&!textEntry&&<button/);

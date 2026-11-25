@@ -31,6 +31,7 @@ import {useCallTranslationPreference} from "./useCallTranslationPreference";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
 import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";
 import {geminiKey} from "../lib/runtime";
+import {useHomeChatEntry} from "./useHomeChatEntry";
 import {FriendUnifiedComposer} from "./FriendUnifiedComposer";
 import {gameRoundStarter,gameRoundContext} from "../live/gameRoundHandoff";
 import{useTranslation}from"react-i18next";
@@ -109,6 +110,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const fortuneSystem=dailyHandoff?(dailyLookup?.handoff||"[ZOE DAILY FORTUNE HANDOFF — FIRST REPLY]\nContinue discussing TODAY fortune with the user; do not greet or switch topics. Ask fortune follow-ups only.\n[/ZOE DAILY FORTUNE HANDOFF]"):"";
  const shortsReturnTo=shortsPost?"/teacher/shorts?post="+encodeURIComponent(shortsPost.id):null;
  const language=useTeacherStore(s=>s.targetLanguage);
+ const homeChat=useHomeChatEntry(friend.id,language,textFirst&&params.get("from")==="home"&&!shortsPost);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const friendNativeLanguage=dailyEntry?detectNativeLanguage(locale.language):nativeLanguage;
  const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>{const saved=useTeacherStore.getState().friendChatMode;return dailyEntry?"natural":(intent==="speak"&&saved==="natural"?"bilingual":saved)});
@@ -118,7 +120,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const [lifeOpening]=useState(()=>!shortsPost&&!intent?nextFriendLifeOpening(friend.id):"");
  // Snapshot relationship evidence before this session; greetings alone never count.
  const openingRecall=useMemo(()=>friendVoiceOpeningRecall(friend.id,language),[friend.id,language]);
- const system=useMemo(()=>buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost),[friend,language,friendNativeLanguage,friendChatMode,region,accentStrength,customAccent,shortsPost]);
+ const system=useMemo(()=>buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode,!homeChat.active)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost),[friend,language,friendNativeLanguage,friendChatMode,homeChat.active,region,accentStrength,customAccent,shortsPost]);
  const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
  const scopedSystem=gameRoundContext(system,"friend:"+friend.id);
  const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
@@ -131,11 +133,12 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
    system:scopedSystem+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
   openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
    shortsHook,selectedQuestion,lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
-   conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
+   conversationStyle:"one easy conversational observation",creatureContext,...openingRecall,verifiedTopic:openingRecall.verifiedTopic&&!homeChat.active}),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
-  onInputSpeech:replyHints.onInputSpeech,
+  onInputSpeech:()=>{replyHints.onInputSpeech();homeChat.input()},
   onObservedExchange:turn=>{
+   homeChat.replied();
    // Only this confirmed two-sided turn represents a successful conversation.
    // Unlike onSessionFinished, this callback also fires for guest Live and unified text chat.
    // Keep the pointer content-free: do not persist a voice transcript or an AI-only greeting.
@@ -208,8 +211,8 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  if(creatureEmbed)return <CreatureVoicePanel live={live} ready={!!creatureBridge.creature} status={friendVoiceStatus} guestStarted={guestStarted} setGuestStarted={setGuestStarted}/>;
  const voiceStart=<>
   {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
-  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" precall textEntry={textFirst} autoTextOnVerified={textFirst&&(pendingTextStart||Boolean(dailyHandoff&&fortuneContinue))}
-    onVerificationChange={setGuestVerified} focusStartOnVerified={homeFirstAction} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}} onTextGrant={async grant=>{setGuestStarted(true);setPendingTextStart(false);await live.start(grant,true)}}/>
+  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" precall textEntry={textFirst} autoTextOnVerified={textFirst&&(pendingTextStart||homeChat.active||Boolean(dailyHandoff&&fortuneContinue))}
+    onVerificationChange={setGuestVerified} focusStartOnVerified={homeFirstAction} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}} onTextGrant={async grant=>{homeChat.verified();setGuestStarted(true);setPendingTextStart(false);await live.start(grant,true)}}/>
    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
    :textFirst&&!active?null:<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}>{active?(live.micEnabled?<FriendCallControls live={live} onEnd={endAndReturn}/>:<button type="button" className="friend-unified-end" onClick={()=>void endAndReturn()}>{t("callCaptions.hangUp")}</button>):<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}</div>}
  </>;
@@ -274,7 +277,8 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
      learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled}
      speaking={live.state==="speaking"} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled}/>:null}
     {/* Keep the sticky keyboard out of voice pre-call; its two gate buttons need the full width and height. */}
-    {(textFirst||active)&&<FriendUnifiedComposer live={live} hasKey={!!geminiKey()} focusOnMount={params.get("chat")==="text"}
+    {(textFirst||active)&&<FriendUnifiedComposer live={live} hasKey={!!geminiKey()} focusOnMount={params.get("chat")==="text"&&!homeChat.active}
+     homeStarter={homeChat.active?homeChat.resolve:undefined} onTextSent={homeChat.input}
      verificationReady={guestVerified} onVerificationNeeded={textFirst?()=>setPendingTextStart(true):undefined}
      blocked={dailyLookupPending} autoStarter={dailyHandoff&&textFirst?fortuneContinue:undefined}
      starters={[gameRoundStarter(language,friend.name,window.location.search),shortsStarter,fortuneContinue,dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter,...(fortuneReplies||[])].filter((v):v is string=>Boolean(v))}/>}

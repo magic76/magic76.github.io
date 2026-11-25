@@ -405,3 +405,11 @@
   animation:none!important;
  }
 }
+
+/* Quick replies share the action row so both shortcut rows fit on small phones. */
+@media(max-width:767px){
+ .cmh-zoe .cmh-zoe-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.1fr)}
+ .cmh-zoe .home-chat-choices{display:contents}
+ .cmh-zoe .home-chat-choices button{padding-inline:5px}
+ .cmh-zoe .cmh-zoe-primary{white-space:normal;text-align:center;gap:4px}
+}

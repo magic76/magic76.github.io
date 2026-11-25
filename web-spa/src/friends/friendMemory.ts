@@ -229,7 +229,7 @@ export function friendTopicContext(id:string,language:string){
    "- "+t.title+": "+t.summary).join("\n")+
   "\nBring up at most one relevant topic naturally; never pretend exact quotes or revisit repeatedly.\n";
 }
-export function buildFriendSystem(friend:FriendProfile,language:string,nativeLanguage="en",mode:"natural"|"bilingual"|"immersion"="bilingual"){
+export function buildFriendSystem(friend:FriendProfile,language:string,nativeLanguage="en",mode:"natural"|"bilingual"|"immersion"="bilingual",includeTopicContext=true){
  return "You are "+friend.name+", a Crew Friend, a fictional conversational partner. You are NOT a language tutor or coach.\n"+
   friendLanguageRule(language,nativeLanguage,mode)+
   "Personality: "+friend.personality+"\nConversation style: "+friend.interaction+"\n"+friendLifeBookPrompt(friend.id)+"\n"+
@@ -237,7 +237,7 @@ export function buildFriendSystem(friend:FriendProfile,language:string,nativeLan
   "Be curious, socially natural, concise and age-appropriate. No grading, lesson plan, corrections, CEFR labels or teacher feedback unless explicitly requested. "+
   "Use your assigned voice and name consistently. Do not impersonate any teacher or other Crew Friend. "+
   "Be open about being fictional when asked; do not imply real-world meetings or online presence.\n"+
-  freeChatRhythmPrompt()+"\n"+voiceIdentityPrompt("friend",friend.id,language)+friendTopicContext(friend.id,language)+"\n"+friendLanguageRule(language,nativeLanguage,mode);
+  freeChatRhythmPrompt()+"\n"+voiceIdentityPrompt("friend",friend.id,language)+(includeTopicContext?friendTopicContext(friend.id,language):"")+"\n"+friendLanguageRule(language,nativeLanguage,mode);
 }
 /** Extract after one meaningful student turn; saving is independent of recent-chat duration. */
 async function captureFriendConversation(id:string,language:string,turns:LiveTurn[],_durationMs:number){
@@ -338,4 +338,12 @@ export async function rememberFriendConversation(id:string,language:string,turns
  }finally{
   if(pendingCaptures.get(scopeId)===task)pendingCaptures.delete(scopeId);
  }
+}
+
+/** Homepage follow-ups require consent and evidence from this friend and language. */
+export function getHomeChatTopic(friendId:string,language:string,topicId?:string){
+ try{
+  if(!hasFriendMemoryDecision()||!friendMemoryEnabled())return undefined;
+  return getFriendTopics(friendId,language).find(note=>!note.manual&&(!topicId||note.id===topicId));
+ }catch{return undefined}
 }

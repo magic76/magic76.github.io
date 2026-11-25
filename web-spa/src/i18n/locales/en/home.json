@@ -658,5 +658,14 @@
       "all": "Explore all",
       "learnBadge": "LANGUAGE LEARNING"
     }
+  },
+  "chatChoices": {
+    "prompt": "What’s on your mind today?",
+    "returnPrompt": "Want to pick up where we left off, or talk about something new?",
+    "funny": "Something funny happened",
+    "casual": "Let’s chat",
+    "resume": "Pick up where we left off",
+    "fresh": "Talk about something new",
+    "about": "Let’s pick up where we left off about {{topic}}."
   }
 }
