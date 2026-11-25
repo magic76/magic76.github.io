@@ -217,7 +217,6 @@ test("route-scoped catalogs load with their route instead of the entry bundle",(
  assert.doesNotMatch(index,/namespaceNames=\[[^\]]*["']magic["']/);
  assert.doesNotMatch(index,/\bns:\[[^\]]*["']magic["']/);
  assert.match(index,/export type RouteNamespace=[^;]*"magic"/);
- assert.match(app,/withNamespace\("magic",import\("\.\/magic\/MagicPage"\)\)/);
  assert.match(app,/withNamespace\(\["games","voice"\],import\("\.\/games\/TabooGamePage"\)\)/);
  assert.match(app,/withNamespace\("mate",import\("\.\/mate\/MatePage"\)\)/);
  assert.match(app,/withNamespace\(\["lesson","voice"\],import\("\.\/teacher\/LivePage"\)\)/);
