@@ -35,7 +35,7 @@ test("shared plain arrows keep a 20px centered glyph and stable card slots",()=>
 
 test("internal destination cards use a right arrow while external links may point up-right",()=>{
  const cards=read("web-spa/src/pages/CrewSectionPage.tsx");
- assert.equal((cards.match(/<Arrow direction="right" className="crew-explore-arrow"\/>/g)||[]).length,7);
+ assert.equal((cards.match(/<Arrow direction="right" className="crew-explore-arrow"\/>/g)||[]).length,5);
  for(const file of [
   "web-spa/src/games/CrewPlayHubPage.tsx",
   "web-spa/src/pages/DesktopHomePage.tsx",
