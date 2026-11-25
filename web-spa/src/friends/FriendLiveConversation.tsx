@@ -43,7 +43,7 @@ import {loadQuoteText} from "../pages/quoteCatalog";
 import {useFriendDailyFortuneContext} from "./useFriendDailyFortuneContext";
 import {nextFriendLifeOpening} from "../characters/lifeBook";
 import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageMode} from "./friendLanguage";
-import {buildFriendSystem,recordFriendChat,recordFriendVoiceExchange,friendVoiceOpeningRecall,getHomeChatTopic,rememberFriendConversation,friendMemoryEnabled,FRIEND_MEMORY_TOOLS,createFriendLiveMemory} from "./friendMemory";
+import {buildFriendSystem,recordFriendChat,recordFriendVoiceExchange,friendVoiceOpeningRecall,getHomeChatTopic,rememberFriendConversation,friendMemoryEnabled,friendLiveMemoryConfig,createFriendLiveMemory} from "./friendMemory";
 import {recordFriendActivity,clearLegacyFriendChats} from "../live/sessionTranscript";
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
@@ -136,13 +136,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
    conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
-  tools:!creatureEmbed&&friendMemoryEnabled()&&geminiKey()?FRIEND_MEMORY_TOOLS:undefined,
-  guestFriendMemory:!creatureEmbed,
-  guestMemoryTools:!creatureEmbed?FRIEND_MEMORY_TOOLS:undefined,
-  onMemorySessionStart:()=>liveMemory.reset(),
-  onGuestMemoryTurn:turns=>liveMemory.complete(turns),
-  onToolCall:call=>liveMemory.onCall(call),
-  onToolsUnavailable:()=>liveMemory.toolsUnavailable(),
+  ...friendLiveMemoryConfig(liveMemory,!creatureEmbed),
   onInputSpeech:replyHints.onInputSpeech,
   onObservedExchange:turn=>{
    // Only this confirmed two-sided turn represents a successful conversation.
