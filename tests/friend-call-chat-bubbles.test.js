@@ -44,3 +44,16 @@ test("new and modified TSX remain below 26000 bytes",()=>{
  assert.match(list,/scrollHeight-pane.clientHeight-pane.scrollTop<=48/);
  assert.match(style,/scroll-behavior:auto/);
  });
+
+ test("identical rerenders leave manual scroll intact; changed content follows only near bottom",()=>{
+ const fragment=list.slice(list.indexOf(" const contentKey=JSON.stringify"),list.indexOf(" return <div ref={scrollRef}"));
+ const render=Function("completed","showCurrentInput","currentInput","showBrowser","browserText","showCurrentOutput","currentOutput","translationEnabled","needTranslation","translationRows","suggestionsEnabled","suggestions","scrollRef","followRef","useEffect",fragment);
+ let writes=0,prior;const pane={scrollHeight:900,clientHeight:300,get scrollTop(){return 100},set scrollTop(value){assert.equal(value,900);writes++}};
+ const follow={current:true};
+ const run=(output,rows=[])=>render([{input:"Hi",output:"Hello"}],false,"",false,"",true,output,true,true,rows,true,[],{current:pane},follow,(effect,[key])=>{if(key!==prior){prior=key;effect()}});
+ run("First");assert.equal(writes,1);
+ follow.current=false;run("First",[]);run("First",[{kind:"pending",value:"translating"}]);assert.equal(writes,1);
+ run("Second");assert.equal(writes,1,"do not interrupt a user reading old messages");
+ follow.current=true;run("Third");assert.equal(writes,2,"following resumes after the user scrolls back down");
+ run("Third",[]);assert.equal(writes,2);
+ });
