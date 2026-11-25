@@ -43,7 +43,7 @@ test("Zoe and every Crew Friend have language anchoring in system, opening, quic
  const shared=read("web-spa/src/live/useLiveSession.ts");
  assert.match(profile,/id":"zoe"/);
  assert.match(memory,/friendLanguageRule\(language,nativeLanguage,mode\)/);
- assert.match(memory,/\(includeTopicContext\?friendTopicContext\(friend\.id,language\):""\)\+"\\n"\+friendLanguageRule\(language,nativeLanguage,mode\)/);
+ assert.match(memory,/friendTopicContext\(friend\.id,language\)\+"\\n"\+friendLanguageRule\(language,nativeLanguage,mode\)/);
  assert.match(live,/openingPrompt:languageDirective/);
  assert.match(live,/system:scopedSystem\+/);
  assert.match(live,/languageDirective,/);
