@@ -69,7 +69,10 @@
     "baziStem": "Tagessäule {{day}} → {{god}} für Tagesmeister {{master}}",
     "baziBranch": "Tageszweig {{daily}} und Geburts-Tageszweig {{natal}}: {{relation}}",
     "baziYearBranch": "Tageszweig {{daily}} und Geburts-Jahreszweig {{natal}}: {{relation}}",
-    "keyword": "Schlüsselwort des Tages: {{keyword}}"
+    "keyword": "Schlüsselwort des Tages: {{keyword}}",
+    "baziMonth": "Solarer Monat {{pillar}} · {{god}} (12 Uhr UTC+8)",
+    "baziAnnual": "Solares Jahr {{pillar}} · {{god}}",
+    "baziLuck": "Glückszyklus {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Persönlicher Tag {{day}} · {{card}}",
   "cards": {

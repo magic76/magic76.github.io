@@ -9,7 +9,7 @@ function loadTs(file,exports,imports={}){
  return Function(...Object.keys(imports),code+"\nreturn {"+exports.join(",")+"};")(...Object.values(imports));
 }
 const pure=loadTs("web-spa/src/fortune/dailyCard.ts",
- ["buildDailyCard","localDateKey","dailyProfileHash","fnv1a","personalCycle","dayStemRelation","dayBranchRelation","traditionalAlmanacText"]);
+ ["buildDailyCard","localDateKey","dailyProfileHash","fnv1a","personalCycle","dayStemRelation","dayBranchRelation","traditionalAlmanacText","dailySolarPeriod"]);
 const memory=new Map();
 global.localStorage={getItem:key=>memory.get(key)??null,setItem:(key,value)=>memory.set(key,String(value)),
  removeItem:key=>memory.delete(key)};
@@ -90,7 +90,7 @@ test("D1 bazi equivalence with original ten god and branch relations",()=>{
  for(const a of "子丑寅卯辰巳午未申酉戌亥")for(const b of "子丑寅卯辰巳午未申酉戌亥")
   assert.equal(pure.dayBranchRelation(a,b),W.CrewFortuneBaZi.branchRelation(a,b),a+b);
  const c=getCard(onDate("bazi","2026-10-27",profile,{bazi,lunar:fakeSolar,lang:"zh-TW"}));
- assert.equal(c.kind,"bazi");assert.equal(c.basis.length,3);
+ assert.equal(c.kind,"bazi");assert.equal(c.basis.length,5);
  assert.equal(c.almanac.yi.length,3);
 });
 
@@ -404,4 +404,19 @@ test("ten-god titles are distinct and all supported locales provide each title",
   seen.add(getCard(onDate("bazi","2026-11-13",profile,{bazi,lunar})).headline);
  }
  assert.equal(seen.size,10);
+});
+
+test("solar term month and year change at the documented noon boundary",()=>{
+ assert.deepEqual(pure.dailySolarPeriod("2026-02-03"),{year:2025,yearGanZhi:"乙巳",monthGanZhi:"己丑"});
+ assert.deepEqual(pure.dailySolarPeriod("2026-02-04"),{year:2026,yearGanZhi:"丙午",monthGanZhi:"庚寅"});
+ assert.equal(pure.dailySolarPeriod("2026-11-07").monthGanZhi,"戊戌");
+ assert.equal(pure.dailySolarPeriod("2026-11-08").monthGanZhi,"己亥");
+ assert.equal(pure.dailySolarPeriod("1999-12-31"),null);
+ assert.equal(pure.dailySolarPeriod("2101-01-01"),null);
+ assert.equal(pure.dailySolarPeriod("2026-02-30"),null);
+ const card=getCard(onDate("bazi","2026-11-13",profile,{bazi:{...bazi,luckPillars:[{startYear:2020,endYear:2029,ganZhi:"戊寅"}]},lunar:fakeSolar}));
+ assert.equal(card.basis.length,6);
+ assert.ok(card.basis.some(x=>x.startsWith("basis.baziMonth")));
+ assert.ok(card.basis.some(x=>x.startsWith("basis.baziAnnual")));
+ assert.ok(card.basis.some(x=>x.startsWith("basis.baziLuck")));
 });

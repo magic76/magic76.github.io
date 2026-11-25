@@ -69,7 +69,10 @@
     "baziStem": "เสาวัน {{day}} → {{god}} เทียบกับ {{master}}",
     "baziBranch": "กิ่งวัน {{daily}} เทียบวันเกิด {{natal}}: {{relation}}",
     "baziYearBranch": "กิ่งวัน {{daily}} เทียบปีเกิด {{natal}}: {{relation}}",
-    "keyword": "คำสำคัญวันนี้: {{keyword}}"
+    "keyword": "คำสำคัญวันนี้: {{keyword}}",
+    "baziMonth": "เดือนตามฤดูกาลสุริยะ {{pillar}} · {{god}} (เที่ยง UTC+8)",
+    "baziAnnual": "ปีสุริยะ {{pillar}} · {{god}}",
+    "baziLuck": "รอบโชค {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "วันส่วนตัว {{day}} · {{card}}",
   "cards": {

@@ -69,7 +69,10 @@
     "baziStem": "日運{{day}}・日主{{master}}との関係：{{god}}",
     "baziBranch": "日運の支{{daily}}と日支{{natal}}：{{relation}}",
     "baziYearBranch": "日運の支{{daily}}と年支{{natal}}：{{relation}}",
-    "keyword": "今日のキーワード：{{keyword}}"
+    "keyword": "今日のキーワード：{{keyword}}",
+    "baziMonth": "節気月 {{pillar}} · {{god}}（UTC+8 正午基準）",
+    "baziAnnual": "流年 {{pillar}} · {{god}}",
+    "baziLuck": "大運 {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "個人日{{day}}・{{card}}",
   "cards": {

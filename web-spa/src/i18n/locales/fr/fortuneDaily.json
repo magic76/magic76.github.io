@@ -69,7 +69,10 @@
     "baziStem": "Pilier du jour {{day}} → {{god}} pour le maître {{master}}",
     "baziBranch": "Branche du jour {{daily}} et branche natale du jour {{natal}} : {{relation}}",
     "baziYearBranch": "Branche du jour {{daily}} et branche natale de l'année {{natal}} : {{relation}}",
-    "keyword": "Mot-clé du jour : {{keyword}}"
+    "keyword": "Mot-clé du jour : {{keyword}}",
+    "baziMonth": "Mois solaire {{pillar}} · {{god}} (midi UTC+8)",
+    "baziAnnual": "Année solaire {{pillar}} · {{god}}",
+    "baziLuck": "Cycle de chance {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Jour personnel {{day}} · {{card}}",
   "cards": {

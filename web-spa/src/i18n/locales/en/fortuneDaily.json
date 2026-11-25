@@ -69,7 +69,10 @@
     "baziStem": "Daily pillar {{day}} → {{god}} relative to day master {{master}}",
     "baziBranch": "Daily branch {{daily}} vs natal day branch {{natal}}: {{relation}}",
     "baziYearBranch": "Daily branch {{daily}} vs natal year branch {{natal}}: {{relation}}",
-    "keyword": "Today's keyword: {{keyword}}"
+    "keyword": "Today's keyword: {{keyword}}",
+    "baziMonth": "Solar-term month {{pillar}} · {{god}} (UTC+8 noon)",
+    "baziAnnual": "Solar year {{pillar}} · {{god}}",
+    "baziLuck": "Luck cycle {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Personal day {{day}} · {{card}}",
   "cards": {

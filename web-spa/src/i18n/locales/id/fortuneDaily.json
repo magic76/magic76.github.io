@@ -69,7 +69,10 @@
     "baziStem": "Pilar harian {{day}} → {{god}} untuk master {{master}}",
     "baziBranch": "Cabang harian {{daily}} dan hari lahir {{natal}}: {{relation}}",
     "baziYearBranch": "Cabang harian {{daily}} dan tahun lahir {{natal}}: {{relation}}",
-    "keyword": "Kata kunci hari ini: {{keyword}}"
+    "keyword": "Kata kunci hari ini: {{keyword}}",
+    "baziMonth": "Bulan matahari {{pillar}} · {{god}} (siang UTC+8)",
+    "baziAnnual": "Tahun matahari {{pillar}} · {{god}}",
+    "baziLuck": "Siklus keberuntungan {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Hari pribadi {{day}} · {{card}}",
   "cards": {

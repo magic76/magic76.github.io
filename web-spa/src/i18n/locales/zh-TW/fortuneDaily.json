@@ -69,7 +69,10 @@
     "baziStem": "流日 {{day}} → 對日主 {{master}} 為{{god}}",
     "baziBranch": "流日支 {{daily}} 與本命日支 {{natal}}：{{relation}}",
     "baziYearBranch": "流日支 {{daily}} 與本命年支 {{natal}}：{{relation}}",
-    "keyword": "今日關鍵字：{{keyword}}"
+    "keyword": "今日關鍵字：{{keyword}}",
+    "baziMonth": "流月 {{pillar}} · {{god}}（節氣以 UTC+8 中午判定）",
+    "baziAnnual": "流年 {{pillar}} · {{god}}",
+    "baziLuck": "大運 {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "個人日 {{day}} · {{card}}",
   "cards": {

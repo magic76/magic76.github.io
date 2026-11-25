@@ -69,7 +69,10 @@
     "baziStem": "Trụ ngày {{day}} → {{god}} với nhật chủ {{master}}",
     "baziBranch": "Chi ngày {{daily}} và chi ngày sinh {{natal}}: {{relation}}",
     "baziYearBranch": "Chi ngày {{daily}} và chi năm sinh {{natal}}: {{relation}}",
-    "keyword": "Từ khóa hôm nay: {{keyword}}"
+    "keyword": "Từ khóa hôm nay: {{keyword}}",
+    "baziMonth": "Tháng tiết khí {{pillar}} · {{god}} (12 giờ UTC+8)",
+    "baziAnnual": "Năm tiết khí {{pillar}} · {{god}}",
+    "baziLuck": "Đại vận {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Ngày cá nhân {{day}} · {{card}}",
   "cards": {

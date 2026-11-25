@@ -69,7 +69,10 @@
     "baziStem": "Pilar diário {{day}} → {{god}} para mestre {{master}}",
     "baziBranch": "Ramo diário {{daily}} e ramo natal do dia {{natal}}: {{relation}}",
     "baziYearBranch": "Ramo diário {{daily}} e ramo natal do ano {{natal}}: {{relation}}",
-    "keyword": "Palavra-chave de hoje: {{keyword}}"
+    "keyword": "Palavra-chave de hoje: {{keyword}}",
+    "baziMonth": "Mês solar {{pillar}} · {{god}} (meio-dia UTC+8)",
+    "baziAnnual": "Ano solar {{pillar}} · {{god}}",
+    "baziLuck": "Ciclo de sorte {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Dia pessoal {{day}} · {{card}}",
   "cards": {

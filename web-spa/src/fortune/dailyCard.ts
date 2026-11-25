@@ -157,6 +157,22 @@ function chooseCopy(input:DailyInput,category:string,seed:number){
   do:[translated(input,path+"do0"),translated(input,path+"do1")] as [string,string],
   avoid:translated(input,path+"avoid")};
 }
+// First civil day at whose UTC+8 noon the Sun has passed the monthly Jie term.
+// 2000–2100, Jan through Dec; apparent tropical solar longitude from Moshier
+// ephemeris (285°, 315°, ... 255°). Data only, no production ephemeris dependency.
+// Date-level convention intentionally ignores the intra-day transition hour.
+const JIE_NOON_DAYS="656566788877646566788987646566888988656666888988656566788877646566788987646566888988656666888988656556778877646566788887646566888988656566888988656556778877646566788887646566888988646566888988655556778877546566788887646566788988646566888988655556778877546566788887646566788987646566888988655556777877546566788887646566788987646566888988655555777877546566788877646566788987646566888988655555777877546566788877646566788987646566888988655555777877546556778877646566788987646566888988655555777877546556778877646566788887646566888988655455777877546556778877646566788887646566788988655455777877545556778877646566788887646566788988645455777877545556777877546566788887646566788987645455777877545555777877546566788887646566788987645455777877545555777877546566788877646566788987645455777877545555777877546556778877646566788987645455777877545555777877546556778877646566788987645455777877545455777877546556778877646566788887645455777877545455777877546556778877646566788887645455677877545455777877545556777877646566788887645455677877535455777877545555777877546566788887645455677876535455777877545555777877546566788887645455677876535455777877545555777877546566788877645455677876535455777877545555777877546556778877646566788987";
+export function dailySolarPeriod(date:string):{year:number;yearGanZhi:string;monthGanZhi:string}|null{
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return null;
+ const [y,m,d]=date.split("-").map(Number);
+ if(y<2000||y>2100||m<1||m>12||d<1||d>new Date(Date.UTC(y,m,0)).getUTCDate())return null;
+ const boundary=Number(JIE_NOON_DAYS[(y-2000)*12+m-1]);
+ const year=m===1||(m===2&&d<boundary)?y-1:y;
+ const index=((m+10-(d<boundary?1:0))%12+12)%12;
+ const stems="甲乙丙丁戊己庚辛壬癸",branches="子丑寅卯辰巳午未申酉戌亥";
+ const ys=((year-4)%10+10)%10,yb=((year-4)%12+12)%12;
+ return {year,yearGanZhi:stems[ys]+branches[yb],monthGanZhi:stems[(ys%5*2+2+index)%10]+branches[(index+2)%12]};
+}
 export function buildDailyCard(input:DailyInput):DailyResult{
  const {profile,kind,localDate,lang}=input;
  if(!/^\d{4}-\d{2}-\d{2}$/.test(localDate)||!profile.birthDate)return {status:"unavailable",reason:"birthDate"};
@@ -207,7 +223,8 @@ export function buildDailyCard(input:DailyInput):DailyResult{
   ];
   // Main theme is the exact day's ten god; natal interactions determine the caution.
   // Annual and luck pillars are selected by target year, never the stale currentLuckPillar.
-  const year=Number(localDate.slice(0,4));
+  const period=dailySolarPeriod(localDate);
+  const year=period?.year??Number(localDate.slice(0,4));
   const annual=Array.isArray(result?.annualTimeline)?result.annualTimeline.find((x:any)=>x.year===year):undefined;
   const luck=Array.isArray(result?.luckPillars)?result.luckPillars.find((x:any)=>year>=x.startYear&&year<=x.endYear):undefined;
   const dailyElement=Object.keys(ELEMENT_COLOR).find((e)=>({木:"甲乙",火:"丙丁",土:"戊己",金:"庚辛",水:"壬癸"} as Record<string,string>)[e].includes(ganZhi.charAt(0)));
@@ -216,12 +233,18 @@ export function buildDailyCard(input:DailyInput):DailyResult{
   const caution=interactions.some(r=>r==="六沖"||r==="六害");
   const supportive=interactions.includes("六合");
   const primary=chooseCopy(input,category,seed>>>5);
-  const annualCategory=TEN_GOD_CATEGORY[dayStemRelation(dayMaster,annual?.ganZhi?.charAt(0)||"")];
-  const luckCategory=TEN_GOD_CATEGORY[dayStemRelation(dayMaster,luck?.ganZhi?.charAt(0)||"")];
-  const contextualCategories=[annualCategory,luckCategory].filter(Boolean);
-  const secondaryCategory=caution?"responsibility":supportive?"peers":contextualCategories.length?contextualCategories[(seed>>>11)%contextualCategories.length]:(dailyElement&&favorable.includes(dailyElement)?"expression":category);
+  const annualPillar=period?.yearGanZhi||annual?.ganZhi||"";
+  const monthPillar=period?.monthGanZhi||"";
+  const luckPillar=typeof luck?.ganZhi==="string"?luck.ganZhi:"";
+  const contextGod=(pillar:string)=>dayStemRelation(dayMaster,pillar.charAt(0));
+  const contextualCategories=[monthPillar,annualPillar,luckPillar].map(p=>TEN_GOD_CATEGORY[contextGod(p)]).filter(Boolean);
+  for(const [pillar,key] of [[monthPillar,"basis.baziMonth"],[annualPillar,"basis.baziAnnual"],[luckPillar,"basis.baziLuck"]]){
+   const g=contextGod(pillar);if(g)basis.push(translated(input,key,{pillar:readableBranch(pillar,lang),god:translated(input,"gods."+g)}));
+  }
+  const secondaryCategory=contextualCategories.length?contextualCategories[(seed>>>11)%contextualCategories.length]:(dailyElement&&favorable.includes(dailyElement)?"expression":category);
   const secondary=chooseCopy(input,secondaryCategory,(seed>>>9)+Number(localDate.slice(5,7)));
-  headline=god?translated(input,"godHeadlines."+god):primary.headline;theme=primary.theme;suggestions=[primary.do[0],secondary.do[1]];avoid=secondary.avoid;
+  const cautionCopy=chooseCopy(input,caution?"responsibility":supportive?"peers":secondaryCategory,(seed>>>9)+Number(localDate.slice(5,7)));
+  headline=god?translated(input,"godHeadlines."+god):primary.headline;theme=primary.theme;suggestions=[primary.do[0],secondary.do[1]];avoid=cautionCopy.avoid;
   colorElement=(dailyElement&&favorable.includes(dailyElement)?dailyElement:favorable[(seed>>>8)%Math.max(1,favorable.length)])||result?.dayMasterElement||"木";
   if(/^zh/i.test(lang)){
    try{almanac=localAlmanac(solarDay,lang);}catch{/* optional calendar metadata */}

@@ -69,7 +69,10 @@
     "baziStem": "일진 {{day}} → 일간 {{master}}의 {{god}}",
     "baziBranch": "일지 {{daily}}와 본명 일지 {{natal}}: {{relation}}",
     "baziYearBranch": "일지 {{daily}}와 본명 연지 {{natal}}: {{relation}}",
-    "keyword": "오늘의 키워드: {{keyword}}"
+    "keyword": "오늘의 키워드: {{keyword}}",
+    "baziMonth": "절기월 {{pillar}} · {{god}} (UTC+8 정오 기준)",
+    "baziAnnual": "세운 {{pillar}} · {{god}}",
+    "baziLuck": "대운 {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "개인 일 {{day}} · {{card}}",
   "cards": {
