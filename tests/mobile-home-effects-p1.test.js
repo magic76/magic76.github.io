@@ -28,7 +28,7 @@ test("no duplicate homepage chat bubble; single unified CTA remains the only Zoe
  assert.doesNotMatch(art,/cmh-friend-invite|cmh-friend-pop|cmh-chat-pop-last/);
  assert.doesNotMatch(hero,/cmh-chat-pop-last/);
  assert.match(home,/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
- assert.match(home,/<Link to=\{friendResume\?\.mode==="voice"\?voiceDestination:[^}]+\} tabIndex=\{activeSlide===0\?0:-1\} className="cmh-zoe-primary"/);
+ assert.match(home,/<Link to=\{voiceDestination\} tabIndex=\{activeSlide===0\?0:-1\} className="cmh-zoe-primary"/);
  assert.match(home,/cmh-chat-pop-first/,"retain the distinct non-interactive Hey! decoration");
  assert.match(hero,/\.cmh-chat-pop-first/);
 });
