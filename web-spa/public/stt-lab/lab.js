@@ -1,16 +1,18 @@
 const $=id=>document.getElementById(id);
 const languages={zh:"chinese",en:"english",ja:"japanese",ko:"korean",pt:"portuguese",es:"spanish",fr:"french",de:"german",vi:"vietnamese"};
-const nativeLanguages={zh:"zh-TW",en:"en-US",ja:"ja-JP",ko:"ko-KR",pt:"pt-BR",es:"es-ES",fr:"fr-FR",de:"de-DE",vi:"vi-VN"};
+const recognitionCtor=()=>window.SpeechRecognition||window.webkitSpeechRecognition;
 let pcm=null,url=null,stream=null,recorder=null,timer=null,recognition=null,worker=null,settle=null,busy=false,cancelled=false,capturing=false,decoding=false;
+let nativeTimer=null,nativeShared=false,leaving=false,nativeAttempt=0;
 const maxSeconds=20,rate=16000;
 const buttons=[...document.querySelectorAll("[data-model]")];
 function sync(){
  const locked=busy||capturing||decoding||!!recognition;
  $("record").disabled=locked;$("file").disabled=locked;$("language").disabled=locked;
  $("stop").disabled=!recorder||recorder.state!=="recording";
- $("native").disabled=locked||!(window.SpeechRecognition||window.webkitSpeechRecognition);
- $("native-stop").disabled=!recognition;
- $("clear").disabled=locked||!pcm;
+ for(const id of ["native","native-basic","native-shared"])$(id).disabled=locked||!recognitionCtor();
+ for(const id of ["native-language","native-hints","native-boost"])$(id).disabled=locked;
+ $("native-stop").disabled=!recognition&&!nativeShared;
+ $("clear").disabled=locked||(!pcm&&["basic","native"].every(id=>$(id+"-text").textContent==="待測試"));
  $("both").disabled=locked||!pcm;buttons.forEach(b=>b.disabled=locked||!pcm);
  $("cancel").disabled=!busy;
 }
@@ -42,21 +44,25 @@ async function decode(blob){
  finally{if(ctx)try{await ctx.close()}catch{}decoding=false;sync()}
 }
 function release(){clearTimeout(timer);timer=null;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;recorder=null;capturing=false}
-$("record").onclick=async()=>{
- capturing=true;clearClip();sync();$("capture").textContent="請允許使用麥克風";
+async function recordClip(shared=false){
+ capturing=true;nativeShared=shared;clearClip();sync();$("capture").textContent="請允許使用麥克風";
  try{
   stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true},video:false});
+  if(leaving){release();nativeShared=false;return}
   recorder=new MediaRecorder(stream);const chunks=[];
   recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
-  recorder.onerror=()=>{release();$("capture").textContent="錄音失敗";sync()};
-  recorder.onstop=()=>{const mime=recorder?.mimeType||chunks[0]?.type;release();void decode(new Blob(chunks,{type:mime}))};
+  recorder.onerror=()=>{if(shared)stopNative(true);nativeShared=false;release();$("capture").textContent="錄音失敗";sync()};
+  recorder.onstop=()=>{const mime=recorder?.mimeType||chunks[0]?.type;if(shared)stopNative(false);nativeShared=false;release();if(!leaving)void decode(new Blob(chunks,{type:mime}))};
   recorder.start();timer=setTimeout(()=>{if(recorder?.state==="recording")recorder.stop()},maxSeconds*1000);
-  $("capture").textContent="錄音中…最多 20 秒";sync();
- }catch(e){release();$("capture").textContent="無法錄音："+(e.message||e);sync()}
-};
+  $("capture").textContent="錄音中…最多 20 秒";
+  if(shared)startNative("shared",stream.getAudioTracks()[0]);
+  sync();
+ }catch(e){nativeShared=false;release();$("capture").textContent="無法錄音："+(e.message||e);sync()}
+}
+$("record").onclick=()=>void recordClip();
 $("stop").onclick=()=>{if(recorder?.state==="recording")recorder.stop()};
 $("file").onchange=()=>{const file=$("file").files[0];$("file").value="";if(file)void decode(file)};
-$("clear").onclick=()=>{clearClip();$("reference").value="";$("gemini").value="";$("native-text").textContent="待測試";$("native-time").textContent="";$("capture").textContent="錄音與結果已清除";sync()};
+$("clear").onclick=()=>{clearClip();$("reference").value="";$("gemini").value="";for(const id of ["basic","native"]){$(id+"-text").textContent="待測試";$(id+"-time").textContent=""} $("native-candidates").textContent="待測試";$("native-mode").textContent="";nativeResults={basic:"",native:""};refreshComparison();$("capture").textContent="錄音與結果已清除";sync()};
 const seconds=ms=>(ms/1000).toFixed(2)+" 秒";
 function run(model,language){
  return new Promise(resolve=>{
@@ -88,31 +94,92 @@ buttons.forEach(b=>b.onclick=()=>void compare([b.dataset.model]));
 $("both").onclick=()=>void compare(["tiny","base"]);
 $("cancel").onclick=()=>{cancelled=true;settle?.()};
 $("language").onchange=()=>{for(const id of ["tiny","base"]){$(id+"-text").textContent="待測試";$(id+"-time").textContent=""}};
-$("native").onclick=()=>{
- const C=window.SpeechRecognition||window.webkitSpeechRecognition;
- const lang=$("language").value;
- if(lang==="auto"){$("native-text").textContent="瀏覽器辨識請先指定語言；不提供自動語言偵測對照。";return}
+// Browser STT A/B: no user transcript is modified by heuristics.
+let nativeResults={basic:"",native:""};
+function splitHints(value){return [...new Set(value.split(/[,，\n]/).map(x=>x.trim()).filter(x=>x&&x.length<=80))].slice(0,20)}
+function normalize(value){return Array.from(value.normalize("NFKC").toLowerCase().replace(/[\p{P}\p{Z}\s]/gu,""))}
+function charDistance(a,b){
+ a=normalize(a);b=normalize(b);let prev=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){const row=[i];for(let j=1;j<=b.length;j++)row[j]=Math.min(row[j-1]+1,prev[j]+1,prev[j-1]+Number(a[i-1]!==b[j-1]));prev=row}
+ return {distance:prev[b.length],length:a.length};
+}
+function refreshComparison(){
+ const ref=$("reference").value.trim().slice(0,500),gemini=$("gemini").value.trim().slice(0,500);
+ const values=[["基本",nativeResults.basic],["加強",nativeResults.native],["Gemini",gemini]].filter(([,v])=>v);
+ const lines=[];
+ if(ref)for(const [name,text] of values){const d=charDistance(ref,text.slice(0,500));if(d.length)lines.push(name+"：字元差異率 "+(100*d.distance/d.length).toFixed(1)+"%")}
+ if(gemini&&nativeResults.native){const d=charDistance(gemini,nativeResults.native.slice(0,500));lines.push("Gemini vs 加強：相差 "+d.distance+" 個字元（不代表誰正確）")}
+ $("native-compare").textContent=lines.join("\n")||"填入原句或 Gemini 字幕後可比較。";
+}
+function formatAlternatives(results){
+ const lines=[];let best="",final="";
+ for(let i=0;i<results.length;i++){const item=results[i];if(!item.length)continue;best+=item[0].transcript;if(item.isFinal)final+=item[0].transcript;
+  for(let k=0;k<Math.min(5,item.length);k++){const alt=item[k],score=Number.isFinite(alt.confidence)?(alt.confidence*100).toFixed(1)+"%":"未提供";
+   lines.push("段 "+(i+1)+" · "+(item.isFinal?"完成":"暫定")+" · 候選 "+(k+1)+"："+alt.transcript+"（"+score+"）")}
+ }
+ return {best:best.trim(),final:final.trim(),lines:lines.join("\n")};
+}
+function stopNative(abort=false){
+ const r=recognition;if(!r)return;
+ try{if(abort)r.abort();else r.stop()}catch{}
+ clearTimeout(nativeTimer);
+ // Some implementations never dispatch end after an error/stop.
+ nativeTimer=setTimeout(()=>{if(recognition===r){try{r.abort()}catch{}recognition=null;sync()}},2000);
+}
+function startNative(mode,track){
+ const C=recognitionCtor(),id=mode==="basic"?"basic":"native";
+ const out=$(id+"-text"),time=$(id+"-time");
  if(!C)return;
- const r=new C();recognition=r;r.lang=nativeLanguages[lang];r.interimResults=true;r.continuous=false;
- let start=performance.now(),failed=false,finalText="";
- $("native-text").textContent="請說話…（可能使用雲端）";$("native-time").textContent="";sync();
- r.onresult=e=>{let text="";for(let i=0;i<e.results.length;i++)text+=e.results[i][0].transcript;finalText=text;$("native-text").textContent=text};
- r.onerror=e=>{failed=true;$("native-text").textContent="辨識失敗："+e.error};
- r.onend=()=>{if(!failed&&!finalText)$("native-text").textContent="未取得文字";$("native-time").textContent="含說話時間 "+seconds(performance.now()-start);recognition=null;sync()};
- try{r.start()}catch(e){recognition=null;$("native-text").textContent="啟動失敗："+e.message;sync()}
-};
-$("native-stop").onclick=()=>recognition?.stop();
+ if(mode==="shared"&&(!track||track.kind!=="audio"||track.readyState!=="live")){out.textContent="沒有可用的 AudioTrack";return}
+ const attempt=++nativeAttempt;let r;
+ try{r=new C()}catch(e){out.textContent="無法建立辨識："+e.message;return}
+ recognition=r;r.lang=$("native-language").value;r.interimResults=true;r.continuous=false;
+ const enhanced=mode!=="basic";r.maxAlternatives=enhanced?5:1;
+ let hintState="基本模式，不使用提示";
+ if(enhanced){
+  hintState="瀏覽器未支援詞彙加權";
+  const hints=splitHints($("native-hints").value),Phrase=window.SpeechRecognitionPhrase;
+  if(!hints.length)hintState="未設定提示詞";
+  else if("phrases" in r&&typeof Phrase==="function"){
+   try{r.phrases=hints.map(text=>new Phrase(text,Number($("native-boost").value)));hintState="已設定 "+hints.length+" 個提示詞（不保證服務採用）"}catch(e){hintState="詞彙提示設定失敗："+e.message}
+  }
+ }
+ const route=mode==="shared"?"AudioTrack 參數實驗（尚未確認瀏覽器採用）":"瀏覽器麥克風";
+ if(enhanced){$("native-mode").textContent=route+" · "+r.lang+" · "+hintState;$("native-candidates").textContent="待辨識"}
+ nativeResults[id]="";refreshComparison();
+ let started=performance.now(),failed=false,last="",lastFinal="";
+ out.textContent="啟動中…";time.textContent="";sync();
+ const current=()=>recognition===r&&attempt===nativeAttempt;
+ r.onstart=()=>{if(current())out.textContent="請說話…（可能使用雲端）"};
+ r.onresult=e=>{if(!current()||failed)return;const result=formatAlternatives(e.results);last=result.best;lastFinal=result.final;out.textContent=last||"（無文字）";if(enhanced)$("native-candidates").textContent=result.lines||"沒有候選";};
+ r.onerror=e=>{if(!current())return;failed=true;out.textContent="辨識失敗："+e.error+(mode==="shared"?"（不另開麥克風）":"");stopNative(true)};
+ r.onend=()=>{if(!current())return;clearTimeout(nativeTimer);recognition=null;
+  if(!failed){nativeResults[id]=lastFinal;out.textContent=lastFinal||(last?"未取得最終文字（暫定："+last+"）":"未取得文字")}
+  time.textContent=r.lang+" · 含說話時間 "+seconds(performance.now()-started);refreshComparison();sync();
+ };
+ try{if(mode==="shared")r.start(track);else r.start();
+  nativeTimer=setTimeout(()=>{if(current())stopNative(false)},maxSeconds*1000+1000);
+ }catch(e){recognition=null;out.textContent="啟動失敗："+e.message+(mode==="shared"?"（不另開麥克風）":"");sync()}
+}
+$("native-basic").onclick=()=>startNative("basic");
+$("native").onclick=()=>startNative("enhanced");
+$("native-shared").onclick=()=>void recordClip(true);
+$("native-stop").onclick=()=>{if(nativeShared&&recorder?.state==="recording")recorder.stop();else stopNative(false)};
+for(const id of ["reference","gemini"])$(id).addEventListener("input",refreshComparison);
 $("copy").onclick=async()=>{
- const report=["語言："+$("language").value,"原句："+$("reference").value,"錄音："+(pcm?(pcm.length/rate).toFixed(2)+" 秒":"無"),...["tiny","base","native"].map(id=>id+"："+$(id+"-text").textContent+" | "+$(id+"-time").textContent),"Gemini Live（人工貼入）："+$("gemini").value].join("\n");
+ const report=["Whisper 語言："+$("language").value,"瀏覽器語言："+$("native-language").value,"加強設定："+$("native-mode").textContent,"候選："+$("native-candidates").textContent,"比較："+$("native-compare").textContent,"原句："+$("reference").value,"錄音："+(pcm?(pcm.length/rate).toFixed(2)+" 秒":"無"),...["tiny","base","basic","native"].map(id=>id+"："+$(id+"-text").textContent+" | "+$(id+"-time").textContent),"Gemini Live（人工貼入）："+$("gemini").value].join("\n");
  try{await navigator.clipboard.writeText(report);$("copy-status").textContent="已複製"}catch{$("copy-status").textContent=report}
 };
-window.addEventListener("pagehide",()=>{release();recognition?.abort();worker?.terminate();if(url)URL.revokeObjectURL(url)});
+window.addEventListener("pagehide",()=>{leaving=true;clearTimeout(nativeTimer);nativeAttempt++;const r=recognition;recognition=null;try{r?.abort()}catch{}release();worker?.terminate();if(url)URL.revokeObjectURL(url)});
 async function init(){
  try{
   const r=await fetch("/api/usage/report?days=7",{credentials:"same-origin",cache:"no-store"});
   if(!r.ok)throw Error("HTTP "+r.status);
   const data=await r.json();if(!Array.isArray(data.rows)||!Array.isArray(data.eventUsers))throw Error("管理員驗證回應無效");
-  $("gate").hidden=true;$("lab").hidden=false;sync();
+  $("gate").hidden=true;$("lab").hidden=false;
+  const C=recognitionCtor();let support="此瀏覽器不支援 Web Speech API";
+  if(C)try{const r=new C();support="Web Speech API 可用 · 詞彙提示："+(("phrases" in r&&typeof window.SpeechRecognitionPhrase==="function")?"API 可用（服務待驗證）":"未支援")+" · AudioTrack 需實測"}catch{}
+  $("native-support").textContent=support;sync();
  }catch(e){$("gate").textContent="無法確認管理員權限，請先登入並從 Usage 進入。"}
 }
 void init();
