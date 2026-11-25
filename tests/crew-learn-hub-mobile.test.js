@@ -41,15 +41,16 @@ test("Existing Learn center deep link redirects to the canonical dashboard",()=>
 });
 
 
-test("Three-minute speaking is a compact secondary link with all five destinations and bounded icons",()=>{
+test("Three-minute speaking is a compact secondary link with four secondary destinations and bounded icons",()=>{
  const source=read("web-spa/src/pages/LearnHubExtras.tsx");
  const css=read("web-spa/src/pages/crewSections.css");
  const nav=source.match(/<nav className="crew-learn-secondary-links"[\s\S]*?<\/nav>/);
  assert.ok(nav);
- for(const [destination,icon] of [['to={speakingPath}','mic'],['to="/teacher/reading-library"','book'],['to="/teacher/reports"','history'],['to="/settings#settings-learning"','settings'],['to="/teacher/course"','scene']]){
+ for(const [destination,icon] of [['to={speakingPath}','mic'],['to="/teacher/reading-library"','book'],['to="/teacher/reports"','history'],['to="/settings#settings-learning"','settings']]){
   assert.ok(nav[0].includes(destination+'><Icon name="'+icon+'"/><span>'));
  }
- assert.equal((nav[0].match(/<Link /g)||[]).length,5);
+ assert.equal((nav[0].match(/<Link /g)||[]).length,4);
+ assert.doesNotMatch(nav[0],/\/teacher\/course/);
  assert.doesNotMatch(source,/className="crew-learn-three-minute"/);
  assert.match(css,/\.crew-learn-secondary-links a\{display:inline-flex;align-items:center;gap:6px;min-height:44px/);
  assert.match(css,/\.crew-learn-secondary-links a svg\{display:block;width:18px;height:18px;flex:0 0 18px;stroke:currentColor;fill:none/);
@@ -118,4 +119,13 @@ test("Vertical Learn tool cards override horizontal tracks and omit decorative a
  assert.match(card[0],/crew-section-card-icon[\s\S]*crew-section-card-copy/);
  assert.doesNotMatch(source,/<Arrow\b|crew-learn-tool-arrow/);
  assert.doesNotMatch(source.slice(0,source.indexOf("export function")),/<Arrow\b/);
+});
+
+test("Scenario lessons have one independent full-width entry before the practice grid",()=>{
+ const source=read("web-spa/src/pages/LearnHubExtras.tsx");
+ const css=read("web-spa/src/pages/crewSections.css");
+ assert.match(source,/<Link className="crew-section-card crew-learn-scenario" to="\/teacher\/course">[\s\S]*?learn\.courseDesc[\s\S]*?<\/Link>/);
+ assert.equal((source.match(/to="\/teacher\/course"/g)||[]).length,1);
+ assert.ok(source.indexOf("crew-learn-scenario")<source.indexOf("crew-learn-tool-grid"));
+ assert.match(css,/\.crew-section-learn \.crew-learn-scenario\{grid-template-columns:40px minmax\(0,1fr\)/);
 });
