@@ -601,7 +601,7 @@
     "withZoe": "Zoe와 대화",
     "setup": "Key 설정"
   },
-  "dailyQuote": {"title": "오늘의 한마디", "fortune": "오늘의 운세 알아보기", "chat": "Zoe와 이 말 나누기", "fortuneFull": "운세 자세히 보기", "personalTitle": "오늘의 운세", "chooseChart": "사주 선택", "me": "내 사주", "markSelf": "내 사주로 표시", "kind": {"bazi": "사주", "tarot": "수비학", "vedic": "베다 점성술"}, "chatRead": "Zoe에게 오늘의 운세 풀이 부탁하기", "setupChart": "내 명식을 설정하고 매일 맞춤 운세 보기", "setupHint": "생년월일과 태어난 시간을 입력하고 매일 맞춤 운세를 확인하세요.",
+  "dailyQuote": {"unnamedChart": "사주 {{number}}", "title": "오늘의 한마디", "fortune": "오늘의 운세 알아보기", "chat": "Zoe와 이 말 나누기", "fortuneFull": "운세 자세히 보기", "personalTitle": "오늘의 운세", "chooseChart": "사주 선택", "me": "내 사주", "markSelf": "내 사주로 표시", "kind": {"bazi": "사주", "tarot": "수비학", "vedic": "베다 점성술"}, "chatRead": "Zoe에게 오늘의 운세 풀이 부탁하기", "setupChart": "내 명식을 설정하고 매일 맞춤 운세 보기", "setupHint": "생년월일과 태어난 시간을 입력하고 매일 맞춤 운세를 확인하세요.",
     "basisBazi": "사주 명식 기준",
     "basisNumerology": "생일(수비학) 기준", "updated": "오늘의 운세가 업데이트됐어요"},
   "showcase29": {
