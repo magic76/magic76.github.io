@@ -284,3 +284,15 @@ test("daily profiles: nickname, remove, restore, explicit self and no wrong-pers
   assert.equal(h.chooseDailyProfile(h.readDailyProfiles()).hash,ah);
  }finally{global.localStorage=before;}
 });
+
+test("daily fortune selector floats independently of heading and text uses 4px vertical rhythm",()=>{
+ const home=read(root+"DailyTopicCards.tsx"),css=read(root+"dailyTopicCards.css");
+ const body=home.slice(home.indexOf('<div className="daily-quote-body">'),home.indexOf('<div className="daily-quote-actions">'));
+ assert.ok(body.indexOf('<select className="daily-quote-chart"')<body.indexOf('<div className="daily-quote-heading">'));
+ assert.match(css,/\.daily-quote-body\{[^}]*display:flow-root/);
+ assert.match(css,/\.daily-quote-chart\{[^}]*float:right;[^}]*min-height:44px/);
+ assert.match(css,/\.daily-quote-body > :not\(\.daily-quote-chart\) \+ :not\(\.daily-quote-chart\)\{margin-block-start:4px\}/);
+ assert.match(css,/\.daily-quote--mobile \.daily-quote-card\{[^}]*gap:4px/);
+ assert.doesNotMatch(css,/\.daily-quote-heading\{[^}]*min-height/);
+ assert.match(css,/\.daily-quote-headline\{display:block/);
+});

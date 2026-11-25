@@ -3,14 +3,15 @@
 .daily-quote-card{display:flex;flex-direction:column;gap:4px;min-width:0;padding:8px 12px;border:1px solid var(--crew-frost-border);border-radius:20px;
  background:var(--crew-frost-bg);-webkit-backdrop-filter:var(--crew-frost-blur);backdrop-filter:var(--crew-frost-blur);
  box-shadow:var(--cmh-card-shadow,0 5px 16px rgba(30,36,58,.08),inset 0 1px 0 rgba(255,255,255,.85));color:#303244}
-.daily-quote-body{min-width:0;display:flex;flex-direction:column;gap:2px}
+.daily-quote-body{min-width:0;display:flow-root}
+
 .daily-quote-body h2{margin:0;font-size:14px;line-height:1.35;font-weight:800;letter-spacing:-.015em}
 .daily-quote-body h2 span{color:#785ba8}
-.daily-quote-text{margin:0;font-size:13px;line-height:1.35;color:#37394b;overflow-wrap:anywhere}
-.daily-quote-basis{margin:1px 0 0;color:#62536f;font-size:12px;line-height:1.3;overflow-wrap:anywhere}
-.daily-quote-benefit{margin:1px 0 0;color:#62536f;font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+.daily-quote-text{margin:0;font-size:13px;line-height:calc(1em + 4px);color:#37394b;overflow-wrap:anywhere}
+.daily-quote-basis{margin:0;color:#62536f;font-size:12px;line-height:calc(1em + 4px);overflow-wrap:anywhere}
+.daily-quote-benefit{margin:0;color:#62536f;font-size:12px;line-height:calc(1em + 4px);overflow-wrap:anywhere}
 .daily-quote--desktop .daily-quote-benefit,.daily-quote--desktop .daily-quote-basis{color:#e8dce9}
-.daily-quote-placeholder{width:70%;height:15px;margin:3px 0 2px;border-radius:8px;background:rgba(106,88,141,.12)}
+.daily-quote-placeholder{display:block;width:70%;height:15px;margin:0;border-radius:8px;background:rgba(106,88,141,.12)}
 .daily-quote-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-width:0}
 .daily-quote-action{display:flex;align-items:center;justify-content:center;min-height:44px;min-width:0;padding:6px 8px;border:1px solid rgba(103,83,134,.27);border-radius:12px;
  color:#46365c;background:rgba(255,255,255,.73);text-decoration:none;text-align:center;font-weight:750;font-size:13px;line-height:1.35;overflow-wrap:anywhere;
@@ -33,15 +34,15 @@
 .daily-quote--desktop .daily-quote-placeholder{background:rgba(255,255,255,.15)}
 @media(prefers-reduced-motion:reduce){.daily-quote-action{transition:none}.daily-quote-action:active{transform:none}}
 @media(max-width:380px){.daily-quote-card{padding:8px 11px}.daily-quote-actions{gap:6px}.daily-quote-action{font-size:12px;padding:6px}}
-/* Keep profile selection in the title row, not an additional tall card section. */
-.daily-quote-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+/* The selector floats independently beside the text; its 44px tap target never sizes the heading row. */
+.daily-quote-heading{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
 .daily-quote-heading h2{flex:0 1 auto;min-width:0}
-.daily-quote-chart{min-width:0;max-width:57%;height:44px;min-height:44px;flex:0 1 auto;padding:0 24px 0 8px;border:1px solid rgba(103,83,134,.27);border-radius:11px;
+.daily-quote-chart{float:right;box-sizing:border-box;min-width:0;max-width:42%;height:44px;min-height:44px;margin-inline-start:8px;padding:0 24px 0 8px;border:1px solid rgba(103,83,134,.27);border-radius:11px;
  color:#46365c;background:rgba(255,255,255,.85);font-family:inherit;font-size:12px;font-weight:700;line-height:1.3;text-overflow:ellipsis;cursor:pointer}
 .daily-quote-chart:focus-visible{outline:3px solid #6d58b2;outline-offset:2px}
 .daily-quote--desktop .daily-quote-chart{background:#383244;color:#fff;border-color:rgba(255,255,255,.4)}
 @supports not (backdrop-filter:blur(1px)){.daily-quote-chart{background:#fff}}
-@media(max-width:380px){.daily-quote-heading{gap:4px}.daily-quote-chart{max-width:53%;padding-left:5px;padding-right:17px}}
+@media(max-width:380px){.daily-quote-chart{padding-left:5px;padding-right:17px}}
 
 /* A same-device, next-day update cue; no extra banner or layout shift animation. */
 .daily-quote-updated{display:inline-flex;align-items:center;justify-self:start;align-self:flex-start;width:max-content;max-width:100%;min-height:27px;flex:none;padding:3px 9px;border-radius:999px;background:#ece1ff;color:#523772;font-size:12px;font-weight:800;line-height:1.3}
@@ -52,8 +53,7 @@
 /* Mobile: daily fortune precedes shortcuts, with tight but readable spacing. */
 @media(max-width:767px){
  .daily-quote--mobile{margin-top:10px}
- .daily-quote--mobile .daily-quote-card{padding:7px 10px;gap:2px}
- .daily-quote--mobile .daily-quote-body{gap:1px}
+ .daily-quote--mobile .daily-quote-card{padding:7px 10px;gap:4px}
 }
 
 /* The 44px pager controls have 18.5px transparent space below their 7px dots.
@@ -68,14 +68,17 @@
  .daily-quote--mobile .daily-quote-text{line-height:18px;white-space:nowrap;text-overflow:ellipsis}
 }
 
-/* Keep the update cue in the top-right of the title row, without a separate line. */
-.daily-quote-heading .daily-quote-updated{margin-left:auto;align-self:center;white-space:nowrap}
-.daily-quote-heading:has(.daily-quote-chart) .daily-quote-updated{max-width:38%;white-space:normal;text-align:center}
+/* Update cue stays in the natural-height heading, and may wrap on narrow screens. */
+.daily-quote-heading .daily-quote-updated{max-width:100%;align-self:center;white-space:normal;overflow-wrap:anywhere}
 @media(max-width:380px){.daily-quote-heading .daily-quote-updated{font-size:12px;padding:3px 6px}}
 
 .daily-quote-swatch{display:inline-block;width:11px;height:11px;border-radius:50%;margin-inline-end:5px;border:1px solid currentColor;vertical-align:middle}
-.daily-quote-headline{font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.daily-quote-headline{display:block;font-size:14px;line-height:calc(1em + 4px);overflow-wrap:anywhere}
 .daily-quote-action-hint{overflow-wrap:anywhere}
 @media(max-width:767px){.daily-quote--mobile .daily-quote-body:has(.daily-quote-headline) .daily-quote-text{height:auto;min-height:18px;max-height:none;white-space:normal;overflow:visible}.daily-quote--mobile .daily-quote-action-hint{display:none}}
-@media(max-width:380px){.daily-quote-heading .daily-quote-updated{font-size:12px}.daily-quote-heading{flex-wrap:wrap}.daily-quote-chart{max-width:53%;flex:0 1 auto}}
 
+
+
+/* Explicit margins replace flex gaps so the floated control cannot stretch the text stack. */
+.daily-quote-body > :not(.daily-quote-chart) + :not(.daily-quote-chart){margin-block-start:4px}
+.daily-quote--mobile .daily-quote-body:has(.daily-quote-headline) .daily-quote-text{line-height:calc(1em + 4px)}

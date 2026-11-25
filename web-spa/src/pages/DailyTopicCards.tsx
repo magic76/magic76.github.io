@@ -76,13 +76,13 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  return <section className={"daily-quote daily-quote--"+variant} aria-labelledby={"daily-quote-title-"+variant}>
   <div className="daily-quote-card">
    <div className="daily-quote-body">
-    <div className="daily-quote-heading">
-     <h2 id={"daily-quote-title-"+variant}><span aria-hidden="true">✦</span> {title}</h2>
-     {isPersonal&&dailyUpdated&&<span className="daily-quote-updated">{t("dailyQuote.updated")}</span>}
      {isPersonal&&charts.length>0?<select className="daily-quote-chart" aria-label={t("dailyQuote.chooseChart")}
       value={personal!.hash} onChange={event=>selectChart(event.target.value)}>
       {charts.map(chart=><option key={chart.hash} value={chart.hash}>{chart.label}</option>)}
      </select>:null}
+    <div className="daily-quote-heading">
+     <h2 id={"daily-quote-title-"+variant}><span aria-hidden="true">✦</span> {title}</h2>
+     {isPersonal&&dailyUpdated&&<span className="daily-quote-updated">{t("dailyQuote.updated")}</span>}
     </div>
     {isPersonal&&<p className="daily-quote-basis">{t(personal!.kind==="bazi"?"dailyQuote.basisBazi":"dailyQuote.basisNumerology")} · {t("luckyColor",{ns:"fortuneDaily"})} <span className="daily-quote-swatch" style={{backgroundColor:personal!.color.hex}} aria-hidden="true"/>{personal!.color.name}</p>}
     {isPersonal&&<strong className="daily-quote-headline">{personal!.headline}</strong>}
