@@ -322,3 +322,13 @@ test("home chat analytics accept only fixed opener and stage codes",async()=>{
  }
  assert.equal(points.length,16);
 });
+
+test("route asset error context accepts only bounded page categories",async()=>{
+ const env={ANALYTICS_ENGINE:{writeDataPoint(){}}};
+ for(const detail of ["home","friend","teacher","learn","play","fortune","explore","other"]){
+  assert.equal((await onRequestPost({request:request({...payload,event:"route_asset_error_context",detail}),env})).status,204,detail);
+ }
+ for(const detail of ["/friend/live?id=zoe","private message","asset","runtime",""]){
+  assert.equal((await onRequestPost({request:request({...payload,event:"route_asset_error_context",detail}),env})).status,400,detail);
+ }
+});
