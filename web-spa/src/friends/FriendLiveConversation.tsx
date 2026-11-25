@@ -186,7 +186,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
  const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active,live.micEnabled,live.muted));
  const voiceMuteProps=live.micEnabled&&(live.state==="listening"||live.state==="speaking")
-  ?{muted:live.volume===0,onToggle:()=>live.setVolume(live.volume===0?100:0)}:null;
+  ?{volume:live.volume,onVolume:live.setVolume}:null;
  useFriendTextViewport(true,textStage);
  const changeFriendChatMode=(chosen:FriendChatLanguageMode)=>{
   if(chosen===friendChatMode)return;
