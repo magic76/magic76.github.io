@@ -279,7 +279,7 @@ check("search-intent guides serve real localized SSG HTML and enter the sitemap"
 check("English Gemini key guide preserves the exact escaped heading in rendered HTML",async()=>{
  const {decodeHtmlText}=await import("../scripts/research-seo.mjs");
  const html=read("en/guides/gemini-key-for-ai-practice/index.html");
- const heading=html.match(/<h1\\b[^>]*>([\\s\\S]*?)<\\/h1\\s*>/i);
+ const heading=html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1\s*>/i);
  assert.ok(heading);
  assert.equal(decodeHtmlText(heading[1]),"Use Koolo's free allowance or optionally set up your own Gemini API key");
 });
