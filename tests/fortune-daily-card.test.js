@@ -357,7 +357,7 @@ test("D12 daily fortune offers one safe, profile-bound Zoe interpretation route 
  assert.match(full,/\{\/\^\[a-f0-9\]\{64\}\$\/\.test\(profileHash\)&&searchParams\.get\("zoe"\)!=="1"&&<Link className="fortune-daily-zoe"/,
   "the action needs a valid hash and must disappear while Zoe reading is open");
  assert.match(zoe,/to=\{"\/fortune\?daily=1&chart="\+profileHash\+"&kind="\+kind\+"&zoe=1"\}/);
- assert.match(home,/chatHref=isPersonal&&\/\^\[a-f0-9\]\{64\}\$\/\.test\(personal!\.hash\)\?fortuneHref\+"&zoe=1":""/);
+ assert.doesNotMatch(home,/chatHref|dailyQuote\.chatRead|&zoe=1/);
  assert.match(home,/fortuneHref=isPersonal\?"\/fortune\?daily=1&chart="\+personal!\.hash\+"&kind="\+personal!\.kind/);
  assert.match(zoe,/\{t\("dailyQuote\.chatRead",\{ns:"home"\}\)\}/,"reuse the home locale key");
  const sceneEnd=full.indexOf('</div>\n   {',full.indexOf('className="fortune-daily-scene"'));

@@ -43,7 +43,7 @@ test("legacy daily entry keeps its behavior; explicit fortune handoff never resu
  assert.match(friend,/fortuneContinue/);
  assert.match(friend,/fortuneReplies\|\|\[\]/);
  assert.match(read("web-spa/src/friends/useFriendDailyFortuneContext.ts"),/\.catch\(\(\)=>null\)/);
- assert.match(home,/chatHref=isPersonal&&\/\^\[a-f0-9\]\{64\}\$\/\.test\(personal!\.hash\)\?fortuneHref\+"&zoe=1"/);
+ assert.doesNotMatch(home,/chatHref|dailyQuote\.chatRead|&zoe=1/);
  assert.doesNotMatch(home,/quote="\+quote!/,"no-chart home CTA now directs to fortune setup");
  assert.match(home,/t\("dailyQuote.setupChart"\)/);
  assert.doesNotMatch(friend,/setDraft\(dailyFortuneStarter\)|sendMessage\(dailyFortuneStarter\)/);
@@ -67,6 +67,6 @@ test("compact personal card retains 44px controls, 12px type and reduced-motion"
  assert.match(css,/font-size:13px/);
  assert.match(css,/@media\(max-width:380px\)[^\n]*font-size:12px/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
- assert.match(css,/\.daily-quote-actions--setup\{grid-template-columns:minmax\(0,1fr\)/);
+ assert.match(css,/\.daily-quote-actions\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
  assert.match(css,/\.daily-quote-benefit\{[^}]*font-size:12px/);
 });

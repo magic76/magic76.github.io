@@ -46,10 +46,10 @@ test("11 localized quote catalogs contain all 30 nonblank short thoughts; UI lab
    assert.ok(quotes[id].length<=125,lang+" "+id+" should be short");
    assert.doesNotMatch(quotes[id],/\{\{|\}\}/,lang+" "+id);
   }
-  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["basisBazi","basisNumerology","chat","chatRead","chooseChart","fortune","fortuneFull","kind","markSelf","me","personalTitle","setupChart","setupHint","title","updated"]);
+  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["basisBazi","basisNumerology","chat","chatRead","chooseChart","fortune","fortuneFull","kind","markSelf","me","personalTitle","setupChart","setupHint","title","unnamedChart","updated"]);
   assert.deepEqual(Object.keys(home.dailyQuote.kind).sort(),["bazi","tarot","vedic"]);
   for(const text of Object.values(home.dailyQuote.kind))assert.ok(typeof text==="string"&&text.trim());
-  for(const key of ["title","fortune","chat","chatRead","fortuneFull","personalTitle","chooseChart","me","markSelf","setupChart","setupHint","basisBazi","basisNumerology"])assert.ok(home.dailyQuote[key]?.trim(),lang+" "+key);
+  for(const key of ["title","fortune","chat","chatRead","fortuneFull","personalTitle","chooseChart","me","markSelf","setupChart","setupHint","basisBazi","basisNumerology","unnamedChart"])assert.ok(home.dailyQuote[key]?.trim(),lang+" "+key);
   assert.ok(friends.dailyQuoteStarter?.trim(),lang);
   assert.ok(friends.dailyFortuneStarter?.trim(),lang);
   assert.doesNotMatch(friends.dailyFortuneStarter,/\{\{|\}\}/,lang);
@@ -82,22 +82,19 @@ test("SSG placeholder, local midnight + visibility refresh; personalized Zoe CTA
  assert.match(cards,/fortuneHref=isPersonal\?"\/fortune\?daily=1&chart="/);
  assert.match(cards,/kind="\+personal!/);
  assert.match(cards,/:"\/fortune\/reading\?mode=bazi&from=daily"/);
- assert.match(cards,/chatHref=isPersonal&&\/\^\[a-f0-9\]\{64\}\$\/\.test\(personal!\.hash\)\?fortuneHref\+"&zoe=1"/);
  assert.doesNotMatch(cards,/chat=text&quote=daily&chart=/);
- assert.match(cards,/isPersonal\?<\>/);
- assert.match(cards,/chatHref&&<Link[^>]+to=\{chatHref\}/);
- assert.match(cards,/t\("dailyQuote.chatRead"\)/);
  assert.match(cards,/to="\/fortune\/reading\?mode=bazi&from=daily" onClick=\{\(\)=>trackUsageEvent\("home_entry_click","fortune"\)\}/);
  assert.match(cards,/t\("dailyQuote.setupChart"\)/);
- assert.match(cards,/:<p className="daily-quote-benefit">\{t\("dailyQuote.setupHint"\)\}/);
- assert.match(cards,/daily-quote-actions--setup/);
+ assert.match(cards,/!isPersonal&&!needsChartSelection&&<p className="daily-quote-benefit">\{t\("dailyQuote.setupHint"\)\}/);
+ assert.match(cards,/className="daily-quote-actions"/);
+ assert.doesNotMatch(cards,/chatHref|dailyQuote\.chatRead|&zoe=1|daily-quote-date|<time\b|__self__|dailyProfileLabel/);
+ assert.match(cards,/label:dailyProfileName\(chart.hash,/);
+ assert.match(cards,/<option key=\{chart.hash\} value=\{chart.hash\}>\{chart.label\}<\/option>/);
  assert.match(cards,/dailyQuote\.basisBazi/);
  assert.match(cards,/dailyQuote\.basisNumerology/);
  assert.doesNotMatch(cards,/t\("dailyQuote.chat"\)/,"no-chart branch must not advertise Zoe");
- assert.doesNotMatch(cards,/birthDate.*chatHref/);
  assert.doesNotMatch(cards,/chat=text&quote="\+quote!/,"generic daily quote must not link to Zoe on homepage");
  assert.match(cards,/trackUsageEvent\("home_entry_click","fortune"\)/);
- assert.match(cards,/trackUsageEvent\("home_entry_click","friend"\)/);
  assert.equal((cards.match(/className="daily-quote-card"/g)||[]).length,1);
  assert.match(loader,/import\.meta\.glob\("\.\.\/i18n\/locales\/\*\/dailyQuote\.json"/);
  assert.match(loader,/getDailyQuote\(id\)/);
@@ -142,7 +139,7 @@ test("quote starter is allowlisted, same-language, opt-in and Shorts retains pri
 
 test("frosted responsive styling, 44px taps, focus and reduced motion",()=>{
  const css=read(root+"dailyTopicCards.css");
- for(const required of ["--crew-frost-bg","--crew-frost-border","--crew-frost-blur","--crew-frost-bg-fallback","-webkit-backdrop-filter:","backdrop-filter:","@supports not (backdrop-filter:",":focus-visible",":active","prefers-reduced-motion:reduce","min-height:44px","daily-quote--desktop","daily-quote--mobile","grid-template-columns:repeat(2,minmax(0,1fr))"])
+ for(const required of ["--crew-frost-bg","--crew-frost-border","--crew-frost-blur","--crew-frost-bg-fallback","-webkit-backdrop-filter:","backdrop-filter:","@supports not (backdrop-filter:",":focus-visible",":active","prefers-reduced-motion:reduce","min-height:44px","daily-quote--desktop","daily-quote--mobile","grid-template-columns:minmax(0,1fr)"])
   assert.ok(css.includes(required),required);
  assert.doesNotMatch(css,/grid-template-columns:repeat\(3/);
  for(const [,size] of css.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g))assert.ok(Number(size)>=12,"under 12px font "+size);
@@ -257,7 +254,7 @@ test("personal chart selection remains compact and the exact /en and /ja desktop
 
 test("daily profiles: nickname, remove, restore, explicit self and no wrong-person fallback",()=>{
  const {dailyProfileHash}=loadPureTs("web-spa/src/fortune/dailyCard.ts",["dailyProfileHash"]);
- const h=loadPureTs("web-spa/src/fortune/dailyProfileSelection.ts",["readDailyProfiles","chooseDailyProfile","readDailyPreference","saveDailyProfileChoice","dailyProfileLabel","readDailyChartMeta","saveDailyChartMeta"],{dailyProfileHash});
+ const h=loadPureTs("web-spa/src/fortune/dailyProfileSelection.ts",["readDailyProfiles","chooseDailyProfile","readDailyPreference","saveDailyProfileChoice","dailyProfileLabel","readDailyChartMeta","saveDailyChartMeta","dailyProfileName"],{dailyProfileHash});
  const memory=new Map(),before=global.localStorage;
  global.localStorage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v))};
  try{
@@ -268,6 +265,8 @@ test("daily profiles: nickname, remove, restore, explicit self and no wrong-pers
   h.saveDailyProfileChoice(ah,true);
   assert.equal(h.saveDailyChartMeta(ah,{nickname:"  Me  "}),true);
   assert.equal(h.readDailyChartMeta(ah).nickname,"Me");
+  assert.equal(h.dailyProfileName(ah,"Myself"),"Me");
+  assert.equal(h.dailyProfileName(bh,"Chart 2"),"Chart 2");
   assert.match(h.dailyProfileLabel(h.readDailyProfiles()[0],"en","BaZi"),/^Me ·/);
   assert.equal(h.saveDailyChartMeta("a".repeat(64),{nickname:"bad"}),false);
   memory.set("crew_fortune_profile_v2",JSON.stringify(b));
