@@ -54,3 +54,11 @@ test("call controls use device volume and give AI playback a separate mute toggl
  assert.doesNotMatch(preview,/crew_live_volume/);
  assert.match(preview,/gain\.gain\.value=1/);
 });
+
+test("mobile call hides the avatar and post only when the composer textarea is focused",()=>{
+ const css=read("web-spa/src/friends/friendUnifiedComposer.css");
+ assert.doesNotMatch(css,/\.friend-phone-stage:focus-within\s*>/);
+ for(const target of ["live-identity","friend-live-post"]){
+  assert.ok(css.includes(".friend-phone-stage:has(>.friend-unified-composer .friend-unified-input-row textarea:focus)>."+target+"{display:none}"),target);
+ }
+});
