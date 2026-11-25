@@ -333,3 +333,17 @@ test("route asset error context accepts only bounded page categories",async()=>{
   assert.equal((await onRequestPost({request:request({...payload,event:"route_asset_error_context",detail}),env})).status,400,detail);
  }
 });
+
+test("home friend journey accepts only the six fixed stages",async()=>{
+ const {onRequestPost}=compile("functions/api/usage/event.ts");
+ const points=[],env={ANALYTICS_ENGINE:{writeDataPoint:p=>points.push(p)}};
+ for(const kind of ["fresh","resume"])for(const stage of ["pick","verify","reply"]){
+  const detail=kind+"_"+stage;
+  assert.equal((await onRequestPost({request:request({...payload,event:"home_friend_journey",detail}),env})).status,204);
+  assert.equal(points.at(-1).blobs[2],detail);
+ }
+ for(const detail of ["","fresh_second","zoe","private topic","funny_pick"]){
+  assert.equal((await onRequestPost({request:request({...payload,event:"home_friend_journey",detail}),env})).status,400);
+ }
+ assert.equal(points.length,6);
+});

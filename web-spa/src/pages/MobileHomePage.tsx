@@ -3,6 +3,8 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
 import {trackUsageEvent} from "../analytics/usage";
+import {beginHomeFriendJourney} from "../analytics/homeFriendJourney";
+import {useHomeFriendTopic} from "./useHomeFriendTopic";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import type {ShortFeed} from "../teacher/shortsFeed";
 import {readLatestFriendActivity,type FriendActivity} from "../live/sessionTranscript";
@@ -54,7 +56,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  // Rotate only while the mobile hero is visible. User interaction permanently pauses
  // autoplay for this page view, and reduced-motion users never auto-advance.
  useEffect(()=>{
-  if(carouselPaused)return;
+  if(carouselPaused||activity)return;
   if(!homeMotion)return;
   const mobile=window.matchMedia("(max-width:767px)");
   const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -72,7 +74,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
    }
   },CAROUSEL_INTERVAL_MS);
   return()=>{observer.disconnect();window.clearInterval(timer)};
- },[carouselPaused,homeMotion]);
+ },[carouselPaused,homeMotion,activity]);
  const manualSlide=(index:number)=>{setCarouselPaused(true);setActiveSlide((index+SLIDES.length)%SLIDES.length)};
  const touchBegin=(event:TouchEvent<HTMLDivElement>)=>{
   const touch=event.touches[0];if(!touch)return;
@@ -91,6 +93,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
  const resumeFriend=activity?CREW_FRIENDS.find(friend=>friend.id===activity.friendId):null;
  const friendResume=resumeFriend?activity:null;
  const resumeId=friendResume?.friendId;
+ const resumeTopic=useHomeFriendTopic(resumeId);
  const voiceDestination=resumeId?"/friend/live?id="+encodeURIComponent(resumeId)+"&from=home&entry=bubble":ZOE_VOICE;
  const track=(detail:App["event"])=>trackUsageEvent("home_entry_click",detail);
  const todayLink="/games/"+featured;
@@ -114,7 +117,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
       <div className={"cmh-zoe-copy cmh-slide-copy"+(friendResume?" cmh-zoe-copy-return":"")}>
        <span className="cmh-zoe-eyebrow"><i aria-hidden="true"/> {friendResume?resumeFriend!.name.toUpperCase():"ZOE"} · {t("showcase29.badgeFriend")}</span>
        <h1>{friendResume?t("layout2.resumeTitle",{name:resumeFriend!.name}):t("mobileHero.title")}</h1>
-       <p>{t(friendResume?"chatChoices.returnPrompt":"chatChoices.prompt")}</p>
+       <p className={resumeTopic?"cmh-return-topic":undefined}>{resumeTopic?t("chatChoices.resume")+": "+resumeTopic:t(friendResume?"chatChoices.returnPrompt":"chatChoices.prompt")}</p>
       </div>
       <div className="cmh-scene cmh-zoe-scene" aria-hidden="true">
        <div className="cmh-scene-ring cmh-scene-ring-outer"/><div className="cmh-scene-ring cmh-scene-ring-inner"/>
@@ -124,7 +127,7 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
       <div className="cmh-zoe-actions">
-       <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.voice")}</Link>
+       <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>{trackUsageEvent("home_entry_click","friend");beginHomeFriendJourney(resumeId||"zoe",Boolean(friendResume))}}><Icon name="chat"/>{t(friendResume?"chatChoices.resume":"showcase29.voice")}</Link>
       </div>
      </section>
      <section className="cmh-slide cmh-slide-friends" data-active={activeSlide===1} aria-hidden={activeSlide!==1}

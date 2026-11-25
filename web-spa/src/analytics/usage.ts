@@ -22,7 +22,7 @@ export type UsageEvent=
   |"gemini_key_missing"|"gemini_key_verified"
   |"guest_trial_entry_view"|"guest_trial_unavailable"|"guest_trial_start_click"|"guest_trial_mic_denied"|"guest_trial_setup_failed"
   |"guest_trial_token_issued"|"guest_trial_token_failed"|"guest_trial_connected"|"guest_trial_connect_failed"|"guest_trial_ended"
-  |"home_friend_chat"|"home_entry_click"|"explore_entry_click"|"menu_open"|"menu_item_click"|"route_load_error"|"route_asset_error_context"
+  |"home_friend_chat"|"home_friend_journey"|"home_entry_click"|"explore_entry_click"|"menu_open"|"menu_item_click"|"route_load_error"|"route_asset_error_context"
   |"pwa_install_view"|"pwa_install_click"|"pwa_install_dismiss"|"pwa_install_success"
   |"home_live_bubble_view"|"home_live_bubble_click"|"home_live_bubble_connected"|"home_live_bubble_conversation"
   |"home_gift_view"|"home_gift_open"|"home_gift_result"|"home_gift_go"|"home_gift_minimize"

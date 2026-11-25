@@ -15,7 +15,7 @@ function memoryHarness(){
   .replace(/\bexport\s+(?=(?:function|const|async\s+function))/g,"");
  const exports={};
  vm.runInNewContext(content+
-  "\nObject.assign(exports,{friendTopicContext,friendPersonalContext,saveFriendTopic,getFriendTopics,setFriendMemoryEnabled,recordFriendVoiceExchange,friendVoiceOpeningRecall,getFriendLastChat});",
+  "\nObject.assign(exports,{friendTopicContext,friendPersonalContext,saveFriendTopic,getFriendTopics,setFriendMemoryEnabled,recordFriendVoiceExchange,friendVoiceOpeningRecall,getFriendLastChat,getHomeChatTopic});",
   {exports,localStorage,Date,Math,JSON,Map,Promise,Error,
    normalizeLearningLanguage:l=>l,CREW_FRIENDS:[{id:"zoe"},{id:"yuna"}],
    personalMemoryEnabled:()=>true,studentMemories:()=>[
@@ -107,3 +107,19 @@ test("canonical cross-platform contract asserts provenance boundaries",()=>{
  assert.match(live,/system:sessionContext.system/);
  assert.match(live,/openingPrompt:sessionContext.openingPrompt/);
  });
+
+test("homepage uses newest verified same-friend and language title only with explicit memory consent",()=>{
+ const {api,localStorage}=memoryHarness();
+ localStorage.setItem("crew_friend_topics_v1_zoe_English",JSON.stringify([
+  {id:"old",key:"old",title:"Old pinned",summary:"Old",manual:false,pinned:true,updatedAt:1},
+  {id:"new",key:"new",title:"New verified",summary:"Recent",manual:false,pinned:false,updatedAt:2},
+  {id:"edited",key:"edited",title:"Edited",summary:"Not verified",manual:true,pinned:false,updatedAt:3}
+ ]));
+ assert.equal(api.getHomeChatTopic("zoe","English"),undefined);
+ api.setFriendMemoryEnabled(true);
+ assert.equal(api.getHomeChatTopic("zoe","English").title,"New verified");
+ assert.equal(api.getHomeChatTopic("yuna","English"),undefined);
+ assert.equal(api.getHomeChatTopic("zoe","French"),undefined);
+ api.setFriendMemoryEnabled(false);
+ assert.equal(api.getHomeChatTopic("zoe","English"),undefined);
+});

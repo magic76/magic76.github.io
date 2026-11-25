@@ -134,5 +134,5 @@ test("autoplay waits 11 seconds and only advances when visible, mobile and motio
   "onTouchStart={touchBegin}","onClick={()=>manualSlide(index)}","onKeyDown={event=>"]){
   assert.ok(page.includes(stopper),"user gesture stops autoplay: "+stopper);
  }
- assert.match(page,/if\(carouselPaused\)return/);
+ assert.match(page,/if\(carouselPaused\|\|activity\)return/);
 });

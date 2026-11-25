@@ -414,6 +414,6 @@ export async function rememberFriendConversation(id:string,language:string,turns
 export function getHomeChatTopic(friendId:string,language:string){
  try{
   if(!hasFriendMemoryDecision()||!friendMemoryEnabled())return undefined;
-  return getFriendTopics(friendId,language).find(note=>!note.manual);
+  return getFriendTopics(friendId,language).filter(note=>!note.manual).sort((a,b)=>b.updatedAt-a.updatedAt)[0];
  }catch{return undefined}
 }

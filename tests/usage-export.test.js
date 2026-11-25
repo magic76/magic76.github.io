@@ -155,3 +155,14 @@ test("route asset diagnostics export bounded categories but reject raw paths and
  assert.match(csv,/"route_asset_error_context","friend"/);
  assert.doesNotMatch(csv,/private|"route_asset_error_context","runtime"/);
 });
+
+test("homepage journey export accepts only ordered stage enums, never a conversation topic",()=>{
+ const {data}=fixture();
+ const details=["fresh_pick","fresh_verify","fresh_reply","resume_pick","resume_verify","resume_reply"];
+ for(const detail of [...details,"resume_second","private topic","zoe",""]){
+  data.rows.push({day:"2026-11-12",event:"home_friend_journey",detail,count:1,users:1});
+ }
+ const payload=buildUsageExport(data,7,{id:"all",label:"所有有效互動"},[],0);
+ assert.deepEqual(payload.rows.filter(row=>row.event==="home_friend_journey").map(row=>row.detail),details);
+ assert.doesNotMatch(usageExportCsv(payload),/private topic|resume_second/);
+});

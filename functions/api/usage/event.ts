@@ -22,7 +22,7 @@ const events=new Set([
   "gemini_key_missing","gemini_key_verified",
   "guest_trial_entry_view","guest_trial_unavailable","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed",
   "guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended",
-  "home_friend_chat","home_entry_click","explore_entry_click","menu_open","menu_item_click","route_load_error","route_asset_error_context",
+  "home_friend_chat","home_friend_journey","home_entry_click","explore_entry_click","menu_open","menu_item_click","route_load_error","route_asset_error_context",
   "pwa_install_view","pwa_install_click","pwa_install_dismiss","pwa_install_success",
   "home_live_bubble_view","home_live_bubble_click","home_live_bubble_connected","home_live_bubble_conversation",
   "home_gift_view","home_gift_open","home_gift_result","home_gift_go","home_gift_minimize",
@@ -44,6 +44,7 @@ const details=new Set(["","bazi","tarot","vedic","bazi_yes","bazi_partly","bazi_
   "voice","demo","live","person","object","place","manual","render_error","unsupported",
   "nonsense","crazy-court","taboo","1a2b","number-bomb","memory","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
 const routeAssetContexts=new Set(["home","friend","teacher","learn","play","fortune","explore","other"]);
+const homeFriendJourney=/^(fresh|resume)_(pick|verify|reply)$/;
 const homeFriendStage=/^(funny|casual|resume|fresh)_(pick|verify|reply|second)$/;
 const platforms=new Set(["web","pwa","android_shell"]);
 const identifier=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -74,7 +75,7 @@ export async function onRequestPost({request,env}:Context):Promise<Response>{
   if(typeof value.event!=="string"||!events.has(value.event)||
      typeof value.visitorId!=="string"||!identifier.test(value.visitorId)||
      typeof value.sessionId!=="string"||!identifier.test(value.sessionId)||
-     typeof value.detail!=="string"||!(value.event==="home_friend_chat"?homeFriendStage.test(value.detail):value.event==="route_asset_error_context"?routeAssetContexts.has(value.detail):details.has(value.detail))||
+     typeof value.detail!=="string"||!(value.event==="home_friend_chat"?homeFriendStage.test(value.detail):value.event==="home_friend_journey"?homeFriendJourney.test(value.detail):value.event==="route_asset_error_context"?routeAssetContexts.has(value.detail):details.has(value.detail))||
      (value.platform!==undefined&&(typeof value.platform!=="string"||!platforms.has(value.platform)))){
     return json({error:"Invalid event"},400);
   }

@@ -67,7 +67,7 @@ test("Mobile home omits quota, preserves carousel/fortune/apps order and one pri
  assert.doesNotMatch(mobile.split('className="cmh-zoe-actions"')[1].split("</div>")[0],/cmh-zoe-secondary/);
  assert.match(mobile,/className="cmh-zoe-primary"/);
   assert.match(mobile,/className="cmh-zoe-primary"[^\n]*showcase29\.voice/);
- assert.match(mobile,/t\("showcase29\.voice"\)/);
+ assert.match(mobile,/t\(friendResume\?"chatChoices\.resume":"showcase29\.voice"\)/);
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json")).showcase29;
  assert.equal(zh.textZoe,"文字聊天");
  assert.equal(zh.voice,"開始聊天");
