@@ -95,6 +95,7 @@
   "chatModeHintBilingual": "Empfohlen: Nutze vor allem die Lernsprache. Wenn du feststeckst, frag in deiner Muttersprache. Pro Antwort nur eine Sprache.",
   "chatModeHintImmersion": "Sprich immer in der Lernsprache. Dein Freund spricht verständlicher, wechselt aber nicht in deine Muttersprache.",
   "liveStatus": {
+    "micMuted": "Mikrofon stumm",
     "speaking": "Dein Freund spricht",
     "idle": "Du kannst jederzeit sprechen",
     "hearing": "Hört dir zu",

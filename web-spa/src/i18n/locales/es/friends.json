@@ -95,6 +95,7 @@
   "chatModeHintBilingual": "Recomendado: habla sobre todo en el idioma que aprendes. Puedes preguntar en el tuyo si te atascas. Una lengua por respuesta.",
   "chatModeHintImmersion": "Habla siempre en el idioma que aprendes. Tu amigo hablará con claridad, pero no cambiará a tu lengua materna.",
   "liveStatus": {
+    "micMuted": "Micrófono silenciado",
     "speaking": "Tu amigo está hablando",
     "idle": "Puedes hablar cuando quieras",
     "hearing": "Te estoy escuchando",

@@ -1,5 +1,9 @@
 {
   "controls": {
+    "myTurn": "私の番",
+    "friendVoice": "相手の音声",
+    "muteFriend": "相手の音声をミュート",
+    "unmuteFriend": "相手の音声をオン",
     "start": "開始",
     "restart": "もう一度開始",
     "retryMic": "マイクを再度許可",

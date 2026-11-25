@@ -195,7 +195,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  useFriendVoiceTheme(!creatureEmbed&&!active);
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
- const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active));
+ const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active,live.micEnabled,live.muted));
  const voiceMuteProps=live.micEnabled&&(live.state==="listening"||live.state==="speaking")
   ?{muted:live.volume===0,onToggle:()=>live.setVolume(live.volume===0?100:0)}:null;
  useFriendTextViewport(true,textStage);
@@ -232,7 +232,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
      </div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
-    {textFirst?<div className="friend-text-first-intro"><h1>{t("friendLive.textChat")}</h1><Link to={"/friend/live?"+voiceParams.toString()}>{t("friendLive.useVoice")}</Link></div>:null}
+    {textFirst&&!active?<div className="friend-text-first-intro"><h1>{t("friendLive.textChat")}</h1><Link to={"/friend/live?"+voiceParams.toString()}>{t("friendLive.useVoice")}</Link></div>:null}
     {homeFirstAction?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
     {shortsPost?<section className="friend-live-post" aria-label="Koolo Shorts">
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>

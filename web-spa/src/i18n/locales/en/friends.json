@@ -95,6 +95,7 @@
   "chatModeHintBilingual": "Recommended: chat mainly in the language you're learning. Ask in your own language if you're stuck. One language per reply; your friend adapts naturally.",
   "chatModeHintImmersion": "Always chat in the language you're learning. Your friend adjusts clarity but won't switch to your native language.",
   "liveStatus": {
+    "micMuted": "Microphone muted",
     "speaking": "Your friend is speaking",
     "idle": "Go ahead and talk",
     "hearing": "Listening to you",

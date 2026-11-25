@@ -1,5 +1,9 @@
 {
   "controls": {
+    "myTurn": "Giliranku",
+    "friendVoice": "Suara teman",
+    "muteFriend": "Bisukan suara teman",
+    "unmuteFriend": "Aktifkan suara teman",
     "start": "Mulai",
     "restart": "Mulai lagi",
     "retryMic": "Izinkan mikrofon lagi",

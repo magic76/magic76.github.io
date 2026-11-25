@@ -1,5 +1,9 @@
 {
   "controls": {
+    "myTurn": "換我說",
+    "friendVoice": "朋友聲音",
+    "muteFriend": "關閉朋友的聲音",
+    "unmuteFriend": "開啟朋友的聲音",
     "start": "開始",
     "restart": "再開始",
     "retryMic": "重新允許麥克風",

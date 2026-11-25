@@ -1,5 +1,9 @@
 {
   "controls": {
+    "myTurn": "Ich bin dran",
+    "friendVoice": "Stimme",
+    "muteFriend": "Stimme des Freundes stummschalten",
+    "unmuteFriend": "Stimme des Freundes einschalten",
     "start": "Starten",
     "restart": "Neu starten",
     "retryMic": "Mikrofon erneut erlauben",

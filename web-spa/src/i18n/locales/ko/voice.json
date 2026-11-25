@@ -1,5 +1,9 @@
 {
   "controls": {
+    "myTurn": "내가 말할게",
+    "friendVoice": "친구 음성",
+    "muteFriend": "친구 음성 끄기",
+    "unmuteFriend": "친구 음성 켜기",
     "start": "시작",
     "restart": "다시 시작",
     "retryMic": "마이크 다시 허용",

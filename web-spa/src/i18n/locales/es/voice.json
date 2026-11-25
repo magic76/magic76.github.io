@@ -1,5 +1,9 @@
 {
   "controls": {
+    "myTurn": "Mi turno",
+    "friendVoice": "Voz del amigo",
+    "muteFriend": "Silenciar la voz de tu amigo",
+    "unmuteFriend": "Activar la voz de tu amigo",
     "start": "Empezar",
     "restart": "Empezar de nuevo",
     "retryMic": "Permitir micrófono otra vez",
