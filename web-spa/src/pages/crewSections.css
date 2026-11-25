@@ -166,7 +166,12 @@
 .crew-learn-focus-secondary a:focus-visible,.crew-learn-secondary-links a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .crew-learn-focus-progress{grid-column:1/-1;min-width:0}
 .crew-learn-focus-progress .crew-today-learning.compact{background:rgba(255,255,255,.55);padding:12px 14px}
-.crew-section-learn .crew-learn-tools{margin-top:15px}
+.crew-section-learn .crew-learn-tools{margin-top:0}
+.crew-section-learn .crew-learn-scenario{grid-template-columns:40px minmax(0,1fr);min-height:80px;box-sizing:border-box;min-width:0;padding:14px;background:var(--surface);border:1px solid var(--line);text-decoration:none}
+.crew-learn-scenario:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.crew-learn-scenario .crew-section-card-copy{overflow-wrap:anywhere}
+.crew-learn-scenario .crew-section-card-copy strong{font-size:16px;line-height:1.4}
+.crew-learn-scenario .crew-section-card-copy small{font-size:13px;line-height:1.5}
 .crew-section-learn .crew-learn-tool{background:var(--surface);box-shadow:none;opacity:.94}
 .crew-learn-secondary-links{display:flex;gap:4px 16px;flex-wrap:wrap;margin-top:11px;padding:4px 0}
 .crew-learn-secondary-links a{display:inline-flex;align-items:center;gap:6px;min-height:44px;box-sizing:border-box;max-width:100%}
