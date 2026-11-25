@@ -173,7 +173,8 @@ export function buildDailyCard(input:DailyInput):DailyResult{
   const copy=chooseCopy(input,category,seed>>>5);
   headline=translated(input,"numerologyHeadline",{day:c.personalDay,card:translated(input,"cards."+cardIndex+".name")});
   theme=copy.theme;
-  suggestions=copy.do;avoid=copy.avoid;
+  const secondary=chooseCopy(input,numericCategories[c.personalMonth],(seed>>>9)+c.personalYear);
+  suggestions=[copy.do[0],secondary.do[1]];avoid=secondary.avoid;
   basis=[translated(input,"basis.numeric",{year:c.personalYear,month:c.personalMonth,day:c.personalDay}),
    translated(input,"basis.tarot",{card:translated(input,"cards."+cardIndex+".name")}),
    translated(input,"basis.keyword",{keyword:translated(input,"cards."+cardIndex+".keywords")})];
@@ -196,8 +197,6 @@ export function buildDailyCard(input:DailyInput):DailyResult{
   if(!ganZhi||ganZhi.length<2)return {status:"loading",reason:"lunar"};
   const god=dayStemRelation(dayMaster,ganZhi.charAt(0));
   category=TEN_GOD_CATEGORY[god]||"peers";
-  const copy=chooseCopy(input,category,seed>>>5);
-  headline=copy.headline;theme=copy.theme;suggestions=copy.do;avoid=copy.avoid;
   const branches=[result?.dayPillar?.charAt(1),result?.yearPillar?.charAt(1)];
   const relationDay=dayBranchRelation(ganZhi.charAt(1),branches[0]||"");
   const relationYear=dayBranchRelation(ganZhi.charAt(1),branches[1]||"");
@@ -206,7 +205,24 @@ export function buildDailyCard(input:DailyInput):DailyResult{
    translated(input,"basis.baziBranch",{daily:readableBranch(ganZhi.charAt(1),lang),natal:readableBranch(branches[0]||"",lang),relation:readableRelation(relationDay,input)}),
    translated(input,"basis.baziYearBranch",{daily:readableBranch(ganZhi.charAt(1),lang),natal:readableBranch(branches[1]||"",lang),relation:readableRelation(relationYear,input)})
   ];
-  colorElement=(result?.balancingElements||[])[0]||result?.dayMasterElement||"木";
+  // Main theme is the exact day's ten god; natal interactions determine the caution.
+  // Annual and luck pillars are selected by target year, never the stale currentLuckPillar.
+  const year=Number(localDate.slice(0,4));
+  const annual=Array.isArray(result?.annualTimeline)?result.annualTimeline.find((x:any)=>x.year===year):undefined;
+  const luck=Array.isArray(result?.luckPillars)?result.luckPillars.find((x:any)=>year>=x.startYear&&year<=x.endYear):undefined;
+  const dailyElement=Object.keys(ELEMENT_COLOR).find((e)=>({木:"甲乙",火:"丙丁",土:"戊己",金:"庚辛",水:"壬癸"} as Record<string,string>)[e].includes(ganZhi.charAt(0)));
+  const favorable=Array.isArray(result?.balancingElements)?result.balancingElements.filter((e:string)=>Object.hasOwn(ELEMENT_COLOR,e)):[];
+  const interactions=[result?.yearPillar,result?.monthPillar,result?.dayPillar,result?.timePillar].map(p=>dayBranchRelation(ganZhi.charAt(1),typeof p==="string"?p.charAt(1):""));
+  const caution=interactions.some(r=>r==="六沖"||r==="六害");
+  const supportive=interactions.includes("六合");
+  const exactGodIndex=Object.keys(TEN_GOD_CATEGORY).indexOf(god);
+  const primary=chooseCopy(input,category,(seed>>>5)+Math.max(0,exactGodIndex));
+  const annualCategory=TEN_GOD_CATEGORY[dayStemRelation(dayMaster,annual?.ganZhi?.charAt(0)||"")];
+  const luckCategory=TEN_GOD_CATEGORY[dayStemRelation(dayMaster,luck?.ganZhi?.charAt(0)||"")];
+  const secondaryCategory=caution?"responsibility":supportive?"peers":annualCategory||luckCategory||(dailyElement&&favorable.includes(dailyElement)?"expression":category);
+  const secondary=chooseCopy(input,secondaryCategory,(seed>>>9)+Number(localDate.slice(5,7)));
+  headline=primary.headline;theme=primary.theme;suggestions=[primary.do[0],secondary.do[1]];avoid=secondary.avoid;
+  colorElement=(dailyElement&&favorable.includes(dailyElement)?dailyElement:favorable[(seed>>>8)%Math.max(1,favorable.length)])||result?.dayMasterElement||"木";
   if(/^zh/i.test(lang)){
    try{almanac=localAlmanac(solarDay,lang);}catch{/* optional calendar metadata */}
   }

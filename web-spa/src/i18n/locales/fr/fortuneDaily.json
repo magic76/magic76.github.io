@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "À demain ✦ Une nouvelle carte à minuit", "share": "Partager la fortune du jour", "installed": "Ouvrez Koolo demain pour une nouvelle fortune", "copied": "Lien copié", "failed": "Partage impossible. Réessayez."},
+  "returnTomorrow": {
+    "title": "À demain ✦ Une nouvelle carte à minuit",
+    "share": "Partager la fortune du jour",
+    "installed": "Ouvrez Koolo demain pour une nouvelle fortune",
+    "copied": "Lien copié",
+    "failed": "Partage impossible. Réessayez."
+  },
   "today": "Aujourd'hui",
   "emptyTitle": "Votre carte du jour commence par votre date de naissance",
   "emptyDescription": "Une courte réflexion fondée sur des règles traditionnelles.",
@@ -301,5 +307,21 @@
     "error": "La lecture IA a échoué. Voici la version basée sur la carte.",
     "key": "La clé Gemini ne fonctionne pas. Vérifiez les paramètres.",
     "retry": "Réessayer"
+  },
+  "profiles": {
+    "title": "Profils de fortune du jour",
+    "nickname": "Surnom",
+    "self": "Définir comme mon thème",
+    "useHome": "Afficher à l’accueil",
+    "active": "Affiché à l’accueil",
+    "remove": "Retirer de la fortune du jour",
+    "restore": "Restaurer",
+    "note": "Seule la fortune du jour est concernée, pas l’historique ni les rapports achetés.",
+    "save": "Enregistrer",
+    "hidden": "Masqué",
+    "add": "Ajouter un thème",
+    "empty": "Aucun thème enregistré",
+    "device": "Réglages de cet appareil",
+    "view": "Voir le thème"
   }
 }

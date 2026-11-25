@@ -9,7 +9,8 @@ import "./unifiedHome.css";
 import {FortuneDailyCard} from "./FortuneDailyCard";
 import {useSearchParams} from "react-router-dom";
 import {parseFortuneInvite} from "./fortuneInvite";
-import {readDailyProfiles} from "./dailyProfileSelection";
+import {readDailyProfiles,DAILY_PROFILE_EVENT} from "./dailyProfileSelection";
+import {DailyProfileManager} from "./DailyProfileManager";
 import {FortuneInviteLanding} from "./FortuneInviteLanding";
 
 const MODES=["bazi","tarot","vedic"] as const;
@@ -33,7 +34,7 @@ export function FortuneHomePage(){
  const [openingId,setOpeningId]=useState<string|null>(null);
  const [error,setError]=useState("");
  const [needsKey,setNeedsKey]=useState(false);
- useEffect(()=>{setList(readFortuneHistoryPreviews(30));setHasDaily(readDailyProfiles().length>0)},[]);
+ useEffect(()=>{const refresh=()=>setHasDaily(readDailyProfiles().length>0);setList(readFortuneHistoryPreviews(30));refresh();window.addEventListener(DAILY_PROFILE_EVENT,refresh);window.addEventListener("storage",refresh);return()=>{window.removeEventListener(DAILY_PROFILE_EVENT,refresh);window.removeEventListener("storage",refresh);};},[]);
  const dailySection=hasDaily?<section id="fortune-today" className="section fortune-journey-today">
   <FortuneDailyCard chartHash={chartHash}/>
  </section>:null;
@@ -66,6 +67,7 @@ export function FortuneHomePage(){
    <p>{t("landing.intro")}</p>
   </section>
   {!dailyIntent?dailySection:null}
+  <DailyProfileManager/>
   <section className="section fortune-journey-create" id="fortune-new-reading">
    <div className="section-head">
     <h2>{t("landing.createTitle")}</h2>

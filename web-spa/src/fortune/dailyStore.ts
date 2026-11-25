@@ -2,7 +2,7 @@ import type {DailyCard,DailyKind} from "./dailyCard";
 import {localDateKey} from "./dailyCard";
 
 export const DAILY_CACHE_KEY="crew_fortune_daily_v1";
-export const DAILY_COPY_REVISION=3;
+export const DAILY_COPY_REVISION=4;
 export const DAILY_KIND_KEY="crew_fortune_daily_kind_v1";
 export const DAILY_STREAK_KEY="crew_fortune_daily_streak_v1";
 export type DailyRecord={card:DailyCard;ai?:string;seenAt:string;locale?:string;copyRevision?:number};

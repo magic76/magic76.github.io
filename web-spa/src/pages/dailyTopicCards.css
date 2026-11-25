@@ -74,3 +74,9 @@
 .daily-quote-heading .daily-quote-updated{margin-left:auto;align-self:center;white-space:nowrap}
 .daily-quote-heading:has(.daily-quote-chart) .daily-quote-updated{max-width:38%;white-space:normal;text-align:center}
 @media(max-width:380px){.daily-quote-heading .daily-quote-updated{font-size:11px;padding:3px 6px}}
+
+.daily-quote-swatch{display:inline-block;width:11px;height:11px;border-radius:50%;margin-inline-end:5px;border:1px solid currentColor;vertical-align:middle}
+.daily-quote-headline{font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.daily-quote-action-hint{overflow-wrap:anywhere}
+@media(max-width:767px){.daily-quote--mobile .daily-quote-body:has(.daily-quote-headline) .daily-quote-text{height:auto;min-height:18px;max-height:none;white-space:normal;overflow:visible}.daily-quote--mobile .daily-quote-action-hint{display:none}}
+@media(max-width:380px){.daily-quote-heading .daily-quote-updated{font-size:12px}.daily-quote-heading{flex-wrap:wrap}.daily-quote-chart{max-width:100%;flex:1 1 100px}}

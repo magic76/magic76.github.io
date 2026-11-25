@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "Hẹn gặp ngày mai ✦ Thẻ mới lúc nửa đêm", "share": "Chia sẻ vận may hôm nay", "installed": "Mở Koolo ngày mai để xem vận may mới", "copied": "Đã sao chép liên kết", "failed": "Không thể chia sẻ. Hãy thử lại."},
+  "returnTomorrow": {
+    "title": "Hẹn gặp ngày mai ✦ Thẻ mới lúc nửa đêm",
+    "share": "Chia sẻ vận may hôm nay",
+    "installed": "Mở Koolo ngày mai để xem vận may mới",
+    "copied": "Đã sao chép liên kết",
+    "failed": "Không thể chia sẻ. Hãy thử lại."
+  },
   "today": "Hôm nay",
   "emptyTitle": "Nhập ngày sinh để xem thẻ hôm nay",
   "emptyDescription": "Gợi ý suy ngẫm ngắn theo quy tắc truyền thống.",
@@ -301,5 +307,21 @@
     "error": "Không thể tạo lời giải AI. Đây là bản từ thẻ hôm nay.",
     "key": "Gemini Key không sử dụng được. Hãy kiểm tra cài đặt.",
     "retry": "Thử lại"
+  },
+  "profiles": {
+    "title": "Hồ sơ vận may hằng ngày",
+    "nickname": "Biệt danh",
+    "self": "Đánh dấu là của tôi",
+    "useHome": "Dùng ở trang chủ",
+    "active": "Đang dùng ở trang chủ",
+    "remove": "Bỏ khỏi vận may hằng ngày",
+    "restore": "Khôi phục",
+    "note": "Chỉ ảnh hưởng vận may hằng ngày, không xóa lịch sử hoặc báo cáo đã mua.",
+    "save": "Lưu",
+    "hidden": "Đã ẩn",
+    "add": "Thêm lá số",
+    "empty": "Chưa có lá số",
+    "device": "Cài đặt trên thiết bị này",
+    "view": "Xem lá số"
   }
 }

@@ -29,6 +29,6 @@ export async function personalDailyLine(language:string,date=localDateKey(),requ
  if("status" in result)return null;
  return {text:result.theme,hash:chart.hash,kind,date,language,card:{
   date:result.date,kind:result.kind,headline:result.headline,theme:result.theme,
-  do:result.do,avoid:result.avoid,luckyColor:{name:result.luckyColor.name},basis:result.basis
+  do:result.do,avoid:result.avoid,luckyColor:{name:result.luckyColor.name,hex:result.luckyColor.hex},basis:result.basis
  }};
 }

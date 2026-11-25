@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "Kembali besok ✦ Kartu baru setiap tengah malam", "share": "Bagikan ramalan hari ini", "installed": "Buka Koolo besok untuk ramalan baru", "copied": "Tautan disalin", "failed": "Gagal membagikan. Coba lagi."},
+  "returnTomorrow": {
+    "title": "Kembali besok ✦ Kartu baru setiap tengah malam",
+    "share": "Bagikan ramalan hari ini",
+    "installed": "Buka Koolo besok untuk ramalan baru",
+    "copied": "Tautan disalin",
+    "failed": "Gagal membagikan. Coba lagi."
+  },
   "today": "Hari ini",
   "emptyTitle": "Kartu harian dimulai dari tanggal lahir",
   "emptyDescription": "Refleksi singkat berdasarkan aturan tradisional.",
@@ -301,5 +307,21 @@
     "error": "Tafsiran AI gagal dibuat. Ini versi dari kartu harian.",
     "key": "Gemini Key tidak dapat digunakan. Periksa pengaturan.",
     "retry": "Coba lagi"
+  },
+  "profiles": {
+    "title": "Profil ramalan harian",
+    "nickname": "Nama panggilan",
+    "self": "Tandai sebagai milikku",
+    "useHome": "Gunakan di beranda",
+    "active": "Dipakai di beranda",
+    "remove": "Hapus dari ramalan harian",
+    "restore": "Pulihkan",
+    "note": "Hanya memengaruhi ramalan harian, bukan riwayat atau laporan yang dibeli.",
+    "save": "Simpan",
+    "hidden": "Disembunyikan",
+    "add": "Tambah bagan",
+    "empty": "Belum ada bagan",
+    "device": "Pengaturan perangkat ini",
+    "view": "Lihat bagan"
   }
 }

@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "Vuelve mañana ✦ Nueva carta a medianoche", "share": "Compartir la fortuna de hoy", "installed": "Abre Koolo mañana para ver una nueva fortuna", "copied": "Enlace copiado", "failed": "No se pudo compartir. Inténtalo de nuevo."},
+  "returnTomorrow": {
+    "title": "Vuelve mañana ✦ Nueva carta a medianoche",
+    "share": "Compartir la fortuna de hoy",
+    "installed": "Abre Koolo mañana para ver una nueva fortuna",
+    "copied": "Enlace copiado",
+    "failed": "No se pudo compartir. Inténtalo de nuevo."
+  },
   "today": "Hoy",
   "emptyTitle": "Tu tarjeta diaria comienza con tu fecha de nacimiento",
   "emptyDescription": "Una breve reflexión basada en reglas tradicionales.",
@@ -301,5 +307,21 @@
     "error": "No se pudo generar la lectura con IA. Aquí tienes la versión de la carta.",
     "key": "La clave Gemini no funciona. Revisa la configuración.",
     "retry": "Reintentar"
+  },
+  "profiles": {
+    "title": "Perfiles de fortuna diaria",
+    "nickname": "Apodo",
+    "self": "Marcar como mi carta",
+    "useHome": "Usar en inicio",
+    "active": "En inicio",
+    "remove": "Quitar de fortuna diaria",
+    "restore": "Restaurar",
+    "note": "Solo se elimina de la fortuna diaria, no del historial ni de los informes comprados.",
+    "save": "Guardar",
+    "hidden": "Oculto",
+    "add": "Añadir carta",
+    "empty": "No hay cartas guardadas",
+    "device": "Ajustes de este dispositivo",
+    "view": "Ver carta"
   }
 }

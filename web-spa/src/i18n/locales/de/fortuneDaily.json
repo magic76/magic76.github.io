@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "Bis morgen ✦ Täglich ab Mitternacht eine neue Karte", "share": "Heutiges Horoskop teilen", "installed": "Öffne Koolo morgen für ein neues Horoskop", "copied": "Link kopiert", "failed": "Teilen fehlgeschlagen. Bitte erneut versuchen."},
+  "returnTomorrow": {
+    "title": "Bis morgen ✦ Täglich ab Mitternacht eine neue Karte",
+    "share": "Heutiges Horoskop teilen",
+    "installed": "Öffne Koolo morgen für ein neues Horoskop",
+    "copied": "Link kopiert",
+    "failed": "Teilen fehlgeschlagen. Bitte erneut versuchen."
+  },
   "today": "Heute",
   "emptyTitle": "Deine Tageskarte beginnt mit deinem Geburtsdatum",
   "emptyDescription": "Eine kurze Reflexion nach traditionellen Regeln.",
@@ -301,5 +307,21 @@
     "error": "Die KI-Deutung war nicht möglich. Hier ist die Kartenversion.",
     "key": "Gemini Key funktioniert nicht. Bitte prüfe die Einstellungen.",
     "retry": "Erneut versuchen"
+  },
+  "profiles": {
+    "title": "Profile für die Tagesdeutung",
+    "nickname": "Spitzname",
+    "self": "Als mein Profil markieren",
+    "useHome": "Auf Startseite anzeigen",
+    "active": "Auf Startseite aktiv",
+    "remove": "Aus Tagesdeutung entfernen",
+    "restore": "Wiederherstellen",
+    "note": "Betrifft nur die Tagesdeutung, nicht den Verlauf oder gekaufte Berichte.",
+    "save": "Speichern",
+    "hidden": "Ausgeblendet",
+    "add": "Profil hinzufügen",
+    "empty": "Keine gespeicherten Profile",
+    "device": "Einstellungen dieses Geräts",
+    "view": "Profil ansehen"
   }
 }

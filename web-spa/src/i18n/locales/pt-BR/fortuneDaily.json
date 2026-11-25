@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "Volte amanhã ✦ Nova carta à meia-noite", "share": "Compartilhar a sorte de hoje", "installed": "Abra o Koolo amanhã para uma nova previsão", "copied": "Link copiado", "failed": "Não foi possível compartilhar. Tente novamente."},
+  "returnTomorrow": {
+    "title": "Volte amanhã ✦ Nova carta à meia-noite",
+    "share": "Compartilhar a sorte de hoje",
+    "installed": "Abra o Koolo amanhã para uma nova previsão",
+    "copied": "Link copiado",
+    "failed": "Não foi possível compartilhar. Tente novamente."
+  },
   "today": "Hoje",
   "emptyTitle": "Seu cartão diário começa com sua data de nascimento",
   "emptyDescription": "Uma breve reflexão baseada em regras tradicionais.",
@@ -301,5 +307,21 @@
     "error": "Não foi possível gerar a leitura por IA. Veja a versão do cartão.",
     "key": "A chave Gemini não funcionou. Confira as configurações.",
     "retry": "Tentar novamente"
+  },
+  "profiles": {
+    "title": "Perfis da sorte diária",
+    "nickname": "Apelido",
+    "self": "Marcar como meu mapa",
+    "useHome": "Usar no início",
+    "active": "Em uso no início",
+    "remove": "Remover da sorte diária",
+    "restore": "Restaurar",
+    "note": "Afeta apenas a sorte diária, sem apagar históricos ou relatórios comprados.",
+    "save": "Salvar",
+    "hidden": "Oculto",
+    "add": "Adicionar mapa",
+    "empty": "Nenhum mapa salvo",
+    "device": "Configurações deste dispositivo",
+    "view": "Ver mapa"
   }
 }

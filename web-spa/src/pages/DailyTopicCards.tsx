@@ -9,7 +9,7 @@ import {hasNewDailyFortune} from "./dailyReturn";
 import "./dailyTopicCards.css";
 
 type TodayQuote={id:string;text:string;language:string};
-type TodayPersonal={hash:string;text:string;language:string;kind:"bazi"|"numerology"};
+type TodayPersonal={hash:string;text:string;language:string;kind:"bazi"|"numerology";headline:string;action:string;color:{name:string;hex:string}};
 type ChartOption={hash:string;label:string;self:boolean};
 
 /** One SSG-safe frosted card. The chart engine only enters a lazy chunk after mount. */
@@ -49,7 +49,7 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
      const line=await personalDailyLine(language,undefined,chosen.hash);
      if(!active||token!==version)return;
      if(!line){updateQuote();return;}
-     setCharts(options);setPersonal({hash:line.hash,text:line.text,language,kind:line.kind});
+     setCharts(options);setPersonal({hash:line.hash,text:line.text,language,kind:line.kind,headline:line.card.headline,action:line.card.do[0],color:line.card.luckyColor});
     }).catch(()=>{if(active&&token===version)updateQuote()});
    }
    const nextMidnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1).getTime();
@@ -60,7 +60,8 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
   refresh();
   document.addEventListener("visibilitychange",onVisibility);
   window.addEventListener("storage",refresh);
-  return()=>{active=false;version++;clearTimeout(timer);document.removeEventListener("visibilitychange",onVisibility);window.removeEventListener("storage",refresh)};
+  window.addEventListener("crew-daily-profile-change",refresh);
+  return()=>{active=false;version++;clearTimeout(timer);document.removeEventListener("visibilitychange",onVisibility);window.removeEventListener("storage",refresh);window.removeEventListener("crew-daily-profile-change",refresh)};
  },[language,chartHash,revision,t]);
  const isPersonal=personal?.language===language&&Boolean(personal.text);
  const readyQuote=quote?.language===language;
@@ -82,13 +83,16 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
     <div className="daily-quote-heading">
      <h2 id={"daily-quote-title-"+variant}><span aria-hidden="true">✦</span> {title}</h2>
      {isPersonal&&dailyUpdated&&<span className="daily-quote-updated">{t("dailyQuote.updated")}</span>}
-     {isPersonal&&charts.length>1?<select className="daily-quote-chart" aria-label={t("dailyQuote.chooseChart")}
+     {isPersonal&&charts.length>0?<select className="daily-quote-chart" aria-label={t("dailyQuote.chooseChart")}
       value={personal!.hash} onChange={event=>selectChart(event.target.value)}>
       {charts.map(chart=><option key={chart.hash} value={chart.hash}>{chart.self?t("dailyQuote.me")+" · ":""}{chart.label}</option>)}
       {!selectedOption?.self&&<option value="__self__">{t("dailyQuote.markSelf")}</option>}
      </select>:null}
     </div>
+    {isPersonal&&<p className="daily-quote-basis">{t(personal!.kind==="bazi"?"dailyQuote.basisBazi":"dailyQuote.basisNumerology")} · <span className="daily-quote-swatch" style={{backgroundColor:personal!.color.hex}} aria-hidden="true"/>{personal!.color.name}</p>}
+    {isPersonal&&<strong className="daily-quote-headline">{personal!.headline}</strong>}
     {text?<p className="daily-quote-text">{text}</p>:<span className="daily-quote-placeholder" aria-hidden="true"/>}
+    {isPersonal&&<p className="daily-quote-basis daily-quote-action-hint">{personal!.action}</p>}
     {!isPersonal&&<p className="daily-quote-benefit">{t("dailyQuote.setupHint")}</p>}
    </div>
    <div className={"daily-quote-actions"+(isPersonal?"":" daily-quote-actions--setup")}>
