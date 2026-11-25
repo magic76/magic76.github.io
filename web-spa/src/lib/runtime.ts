@@ -4,6 +4,7 @@ export type LiveTurn={id?:string;input?:string;output?:string};
 export type LiveSessionOptions={
  createPlaybackRoute?:(context:AudioContext,onLost:()=>void)=>PlaybackRoute;
  separateCaptureContext?:boolean;
+ inputLanguageCodes?:string[]; // Optional hints for input transcription only
  guestAccessToken?:string; // one-use, memory-only v1beta credential
  textOnly?:boolean; // Gemini Live text input with transcribed output, no microphone or playback
  allowMicUpgrade?:boolean; // Friend text-first Live: capture mic later on the same socket

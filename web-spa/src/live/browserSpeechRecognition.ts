@@ -1,12 +1,7 @@
-import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
+import {speechLocaleFor} from "../teacher/targetLanguages";
 
-const LOCALES:Record<string,string>={zh:"zh-TW",en:"en-US",ja:"ja-JP",ko:"ko-KR",es:"es-ES",fr:"fr-FR",de:"de-DE",it:"it-IT",vi:"vi-VN",th:"th-TH",pt:"pt-BR",id:"id-ID"};
 export function browserSpeechLocale(target:string,native:string,mode:string){
- const selected=mode==="natural"?native:target;
- if(selected==="zh-TW"||selected==="zh-CN")return selected;
- const code=TARGET_LANGUAGES.find(x=>x.value===selected||x.code===selected)?.code;
- if(code==="zh"&&native==="zh-CN")return "zh-CN";
- return code?LOCALES[code]:undefined;
+ return speechLocaleFor(mode==="natural"?native:target,native);
 }
 
 // The two allowed input languages are independent of the AI's reply mode.

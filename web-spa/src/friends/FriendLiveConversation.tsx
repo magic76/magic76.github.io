@@ -14,6 +14,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {detectNativeLanguage} from "../teacher/teacherLocale";
 import {useLiveSession} from "../live/useLiveSession";
 import {useFriendRecognition} from "./useFriendRecognition";
+import {inputTranscriptionLanguages} from "../teacher/targetLanguages";
 import {createElementPlayback} from "../live/createElementPlayback";
 import {useCreatureStageSync,useCreatureVoiceBridge} from "./useCreatureVoiceBridge";
 import {creatureVoiceInstruction} from "./creatureVoiceBridge.mjs";
@@ -139,6 +140,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   pageKey:"friend-"+sessionId,title:"Koolo 朋友 · "+friend.name,
   ...resolveSessionContext(),resolveSessionContext,languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
+  inputLanguageCodes:inputTranscriptionLanguages(language,friendNativeLanguage),
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
   ...friendLiveMemoryConfig(liveMemory,!creatureEmbed),
   onInputSpeech:replyHints.onInputSpeech,

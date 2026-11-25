@@ -1334,3 +1334,45 @@ test("protected opening timeout unlocks microphone",async()=>{
   assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
   await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+test("Gemini 3.8 sends input language hints over the existing BYOK and guest sockets",async()=>{
+ const cases=[
+  {model:"gemini-3.8-live",extra:{},expected:{languageCodes:["zh-TW","en-US"]},path:/v1alpha/},
+  {model:"gemini-3.8-live",extra:{guestAccessToken:"ephemeral-test"},expected:{languageCodes:["zh-TW","en-US"]},path:/v1beta.*BidiGenerateContentConstrained/},
+  {model:"gemini-3.1-flash-live-preview",extra:{},expected:{},path:/v1alpha/},
+  {model:"gemini-3.8-live",extra:{textOnly:true,allowMicUpgrade:true},expected:{languageCodes:["zh-TW","en-US"]},path:/v1beta/},
+  {model:"gemini-3.8-live",extra:{textOnly:true},expected:undefined,path:/v1beta/}
+ ];
+ for(const {model,extra,expected,path} of cases){
+  resetSockets();const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:[model],maxLiveAttempts:1,connectTimeoutMs:100,
+    inputLanguageCodes:["zh-TW","zh-TW","invalid","en-US","ja-JP"],deps,...extra});
+  const starting=session.start(),socket=await waitForSocket(0);socket.open();
+  const setup=socket.sent[0].setup;
+  assert.match(socket.url,path);
+  assert.deepEqual(setup.inputAudioTranscription,expected);
+  assert.deepEqual(setup.outputAudioTranscription,{});
+  assert.equal("languageCode" in setup.generationConfig.speechConfig,false);
+  socket.message({setupComplete:{}});await starting;
+  assert.equal(MockWebSocket.instances.length,1);
+  await session.stop({silentStatus:true,emitTerminal:false});
+ }
+});
+test("explicit input language field rejection retries same BYOK model without hints, not a guest token",async()=>{
+ for(const guest of [false,true]){
+  resetSockets();const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["gemini-3.8-live"],maxLiveAttempts:1,connectTimeoutMs:100,
+    inputLanguageCodes:["zh-TW","en-US"],deps,...(guest?{guestAccessToken:"ephemeral-test"}:{})});
+  const starting=session.start();
+  const rejected=guest?assert.rejects(starting,/languageCodes/):null;
+  const first=await waitForSocket(0);first.open();
+  first.message({error:{code:400,status:"INVALID_ARGUMENT",message:"Unknown field languageCodes"}});
+  if(guest){await rejected;assert.equal(MockWebSocket.instances.length,1);continue}
+  const retry=await waitForSocket(1);retry.open();
+  assert.equal(retry.sent[0].setup.model,"models/gemini-3.8-live");
+  assert.deepEqual(retry.sent[0].setup.inputAudioTranscription,{});
+  retry.message({setupComplete:{}});await starting;
+  assert.equal(session.attemptsUsed,1);
+  await session.stop({silentStatus:true,emitTerminal:false});
+ }
+});

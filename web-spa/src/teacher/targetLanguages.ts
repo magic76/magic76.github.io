@@ -25,3 +25,17 @@ export type TargetLanguageValue=typeof TARGET_LANGUAGES[number]["value"];
 export function targetSpokenLanguage(value:string){
  return TARGET_LANGUAGES.find(lang=>lang.value===value||lang.code===value)?.spoken||"English";
 }
+
+// Shared BCP-47 mapping for browser recognition and Gemini input language hints.
+// UI language is not a substitute for the user's explicit mother tongue.
+const SPEECH_LOCALES:Record<string,string>={zh:"zh-TW",en:"en-US",ja:"ja-JP",ko:"ko-KR",es:"es-ES",fr:"fr-FR",de:"de-DE",it:"it-IT",vi:"vi-VN",th:"th-TH",pt:"pt-BR",id:"id-ID"};
+export function speechLocaleFor(value:string|undefined,native:string|undefined){
+ if(value==="zh-TW"||value==="zh-CN")return value;
+ const code=TARGET_LANGUAGES.find(x=>x.value===value||x.code===value)?.code;
+ if(code==="zh"&&native==="zh-CN")return "zh-CN";
+ return code?SPEECH_LOCALES[code]:undefined;
+}
+/** Same pair in all reply modes; unknown values do not invent a language. */
+export function inputTranscriptionLanguages(target?:string,native?:string):string[]{
+ return [...new Set([speechLocaleFor(native,native),speechLocaleFor(target,native)].filter((v):v is string=>Boolean(v)))];
+}

@@ -3,6 +3,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMemoryEnabled}from"../teacher/studentMemory";
 import{recordSpeakingLevel,effectiveSpeakingLevel}from"../teacher/speakingLevelMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import{turnTimingForLevel}from"./turnTiming";
+import{inputTranscriptionLanguages}from"../teacher/targetLanguages";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveSessionOptions,type LiveTurn} from "../lib/runtime";
 import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
@@ -21,6 +22,7 @@ type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  resolveSessionContext?:()=>{system:string;openingPrompt:string};
  protectOpening?:boolean;
+ inputLanguageCodes?:string[];
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
  onInputSpeech?:()=>void;
@@ -262,6 +264,8 @@ export function useLiveSession(config:Config){
     createPlaybackRoute:configRef.current.createPlaybackRoute,
     separateCaptureContext:configRef.current.separateCaptureContext,
     guestAccessToken:grant?.token,
+    // Ordinary Friend and Teacher sessions only; do not infer from interface locale.
+    inputLanguageCodes:configRef.current.inputLanguageCodes??((configRef.current.pageKey==="teacher"||configRef.current.pageKey==="teacher-board")?inputTranscriptionLanguages(configRef.current.language,configRef.current.nativeLanguage):undefined),
     textOnly:textOnly&&configRef.current.sessionKind==="friend",
     allowMicUpgrade:configRef.current.sessionKind==="friend",
     trackTextTurns:configRef.current.sessionKind==="friend",

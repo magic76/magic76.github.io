@@ -101,6 +101,7 @@
     // Keyboard-only Live sessions still request audio + output transcription,
     // but never open microphone capture or a browser audio output device.
     this.textOnly=this.options.textOnly===true;
+    this.inputLanguageHintsDisabled=false;
     this.models=(this.options.models||DEFAULT_MODELS).slice();
     this.maxLiveAttempts=this.guestMode?1:Math.max(1,Math.min(
       Number(this.options.maxLiveAttempts)||this.models.length,
@@ -1203,6 +1204,10 @@
         if(!self._isActiveAttempt(attempt))return;
         attempt.openedAt=self._deps.now();
         try{
+          // Only the current 3.8 model opts in. Keep the legacy model and
+          // pure keyboard sessions on their existing wire configuration.
+          var inputLanguageCodes=model==="gemini-3.8-live"&&!self.inputLanguageHintsDisabled&&Array.isArray(self.options.inputLanguageCodes)
+            ?Array.from(new Set(self.options.inputLanguageCodes.filter(function(code){return typeof code==="string"&&/^[a-z]{2}-[A-Z]{2}$/.test(code);}))).slice(0,2):[];
           socket.send(JSON.stringify({
             setup:{
               model:"models/"+model,
@@ -1226,7 +1231,7 @@
                   silenceDurationMs:self.options.turnTiming.silenceDurationMs
                 }}
               } : {}),
-              ...(self.textOnly&&!self.options.allowMicUpgrade?{}:{inputAudioTranscription:{}}),
+              ...(self.textOnly&&!self.options.allowMicUpgrade?{}:{inputAudioTranscription:inputLanguageCodes.length?{languageCodes:inputLanguageCodes}:{}}),
               outputAudioTranscription:{},
               systemInstruction:{
                 parts:[{text:self.options.system||"你是 Crew 的 Live 助手。自然、簡短地對話。"}]
@@ -1460,6 +1465,12 @@
             // Optional board tools may be rejected by a preview model/version.
             // Retry the SAME selected model once without tools, never switch models.
             var message=String(setupError&&setupError.message||setupError);
+            if(!self.guestMode&&!self.inputLanguageHintsDisabled&&self.models[i]==="gemini-3.8-live"&&Array.isArray(self.options.inputLanguageCodes)&&self.options.inputLanguageCodes.length&&/language.?codes|input.?audio.?transcription/i.test(message)&&/invalid|unknown|unsupported|not supported|unrecognized|cannot|not allowed/i.test(message)&&self.running&&!self.stopping&&!self._startCanceled){
+              self.inputLanguageHintsDisabled=true;
+              attempt=await self._connectCandidate(self.models[i],i,{countAttempt:false});
+              self._activateAttempt(attempt);
+              return attempt;
+            }
             if(self.guestMode||!self.options.tools||!/invalid.argument|unsupported|tool|function|\\b400\\b/i.test(message))throw setupError;
             var hadSearch=self.options.tools.some(function(t){return t.googleSearch||t.google_search;});
             var onlyCustom=self.options.tools.filter(function(t){return !(t.googleSearch||t.google_search);});
