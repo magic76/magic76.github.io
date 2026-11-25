@@ -13,6 +13,7 @@ export const names:Record<string,string>={
  timeline_view:"Timeline 人生探索",
  shorts_view:"Shorts 瀏覽",shorts_chat_click:"Shorts 點擊聊天",shorts_conversation:"Shorts 有效聊天",
  game_open:"遊戲頁面開啟",game_started:"開始遊戲",game_completed:"完成遊戲",
+ route_asset_error_context:"資源載入失敗（頁面分類）",
  game_route_loaded:"遊戲頁面載入完成",game_route_stalled:"遊戲載入超過 8 秒",game_route_asset_error:"遊戲資源載入失敗",
  vocabulary_practice:"單字作答",textbook_study:"教材語音開始",textbook_open:"教材陪讀開啟",
  story_reading:"故事閱讀",story_narration:"語音說故事",story_created:"故事創作",
