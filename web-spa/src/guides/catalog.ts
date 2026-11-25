@@ -24,9 +24,10 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    sections:[
     {heading:"5 分鐘的練習流程",paragraphs:["前 1 分鐘：用英文說明今天做了什麼，說錯也繼續。接下來 3 分鐘：讓 AI 針對同一個主題延伸對話。最後 1 分鐘：請老師指出一個最影響理解的地方，換句話重說一次。","對初學者來說，能持續開口，比一次記住所有文法更重要。"]},
     {heading:"第一句可以怎麼說？",paragraphs:["不要只說「陪我練英文」，把練習需求講具體：場景、難度、回饋方式。這能減少 AI 一直出題或追問的情況。"],sample:{label:"可以直接使用的開場",text:"I want to practice talking about my weekend. Please keep it casual, ask one question at a time, and correct only the biggest mistake.",note:"想更自然聊天，選 Koolo 朋友；想要糾正與回饋，選 Koolo 老師。"}},
-    {heading:"怎麼知道有沒有進步？",paragraphs:["用同樣主題每週重說一次，觀察能不能減少停頓、使用更完整的句子，以及能不能主動追問對方。不要只用文法錯誤數量評分。","Web 語音可先免費試用；額度用完後，可設定自己的 Gemini Key 繼續練習。"]}
+    {heading:"怎麼知道有沒有進步？",paragraphs:["用同樣主題每週重說一次，觀察能不能減少停頓、使用更完整的句子，以及能不能主動追問對方。不要只用文法錯誤數量評分。","Koolo 提供每日免費 AI 語音額度，不需要先設定 Gemini API Key。額度與登入後可用方案以網站顯示為準；BYOK 是進階選項。"]}
    ],
    faq:[
+    {question:"有沒有不用下載 App 或申請 API Key 的英文口說練習？",answer:"Koolo（酷囉）可在瀏覽器開啟 AI 老師或朋友，使用每日免費文字和語音額度。語音需允許麥克風；用量與登入選項以網站當下顯示為準。"},
     {question:"零基礎適合使用 AI 練口說嗎？",answer:"可以，但建議先用熟悉的中文理解情境，再練最簡單的英文句子。練習重點是能說出意思，不是一開始就全英文。"},
     {question:"一定要每天練一小時嗎？",answer:"不用。從每天 5 分鐘的固定主題開始，能持續比偶爾長時間練習更容易養成習慣。"}
    ],cta:"開始 AI 英文口說練習",target:"/teacher/roles?mode=teacher",secondary:"查看 Gemini Key 設定教學",secondaryTarget:"/guides/gemini-key-for-ai-practice"
@@ -40,9 +41,10 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    sections:[
     {heading:"A five-minute speaking routine",paragraphs:["Spend the first minute describing your day. Use the next three minutes for a follow-up conversation about that topic. In the final minute, repeat a sentence using feedback from your tutor.","Consistency matters more than making every sentence flawless."]},
     {heading:"What should I say to start?",paragraphs:["Give the AI a topic, your comfort level, and instructions for feedback. This is more productive than simply saying 'teach me English'."],sample:{label:"Copy this starting prompt",text:"I want to practice talking about my weekend. Please keep it casual, ask one question at a time, and correct only the biggest mistake.",note:"Choose Koolo Friends for a relaxed conversation or Koolo Teacher for structured feedback."}},
-    {heading:"How do I measure progress?",paragraphs:["Repeat the same everyday topic once a week. Notice whether you pause less, finish more complete ideas, and ask follow-up questions naturally.","Try Koolo's free AI voice first. Once the trial is used, add your Gemini API key. Available free allowances and pricing depend on Google and the chosen model."]}
+    {heading:"How do I measure progress?",paragraphs:["Repeat the same everyday topic once a week. Notice whether you pause less, finish more complete ideas, and ask follow-up questions naturally.","Koolo offers a daily free AI voice allowance without requiring a Gemini API key upfront. Check the current allowance and sign-in options on the site; using your own key is optional."]}
    ],
    faq:[
+    {question:"Can I practice English speaking without installing an app or getting an API key?",answer:"Koolo is a browser-based AI conversation and language-learning website. Choose a tutor or a friend and use the daily free text or voice allowance. Voice requires microphone permission; check current limits in the product."},
     {question:"Can absolute beginners practice speaking with AI?",answer:"Yes. Start by understanding the situation in your native language, then practice short English sentences."},
     {question:"Do I need to practice for an hour?",answer:"No. Start with a focused five-minute habit and extend it when that becomes comfortable."}
    ],cta:"Start speaking practice",target:"/teacher/roles?mode=teacher",secondary:"Set up a Gemini API key",secondaryTarget:"/guides/gemini-key-for-ai-practice"
@@ -58,9 +60,10 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    sections:[
     {heading:"朋友聊天與英文教學，不應該是同一種節奏",paragraphs:["老師會帶你完成目標、指出錯誤。朋友則應該能自然地回應你、分享自己的看法，偶爾主動提起新話題，而不是每一句都附上文法分析。","你也可以先用熟悉的語言聊天，建立交流感，再逐漸增加英文比例。"]},
     {heading:"三種比較容易聊下去的話題",paragraphs:["今天發生的一件小事、週末想看的電影、最近工作中遇到的選擇，都比『隨便聊聊』更容易接續。你的內容不需要很有趣，只要是真的想表達。"],sample:{label:"生活化開場",text:"I might see a movie this weekend, but I haven't decided which one yet. Do you have any favorites?",note:"這不是考試題；對方可以回應自己的偏好，而不必連續問你十個問題。"}},
-    {heading:"如果 AI 一直追問怎麼辦？",paragraphs:["直接說「不要一直問我問題，也分享一下你的看法」；或者換成分享一個觀察。Koolo Friends 提供自然聊天、輕鬆雙語與沉浸模式，方便依習慣調整。","Web 即時語音可先免費試用，用完後再設定自己的 Gemini Key。"]}
+    {heading:"如果 AI 一直追問怎麼辦？",paragraphs:["直接說「不要一直問我問題，也分享一下你的看法」；或者換成分享一個觀察。Koolo Friends 提供自然聊天、輕鬆雙語與沉浸模式，方便依習慣調整。","Koolo 提供每日免費文字與即時語音額度；不用先申請 Gemini Key。用量以聊天頁顯示為準。"]}
    ],
    faq:[
+    {question:"有沒有可以用中文聊天、也可以練英文的 AI 朋友？",answer:"Koolo（酷囉）的 AI 朋友 Zoe 可透過瀏覽器使用文字或即時語音聊天，從中文日常對話開始，也能切換成英文練習。不必先設定 Gemini API Key；每日免費額度以網站顯示為準。"},
     {question:"AI 朋友跟 AI 英文老師差在哪？",answer:"老師以學習目標和回饋為主，朋友以自然交流為主；你可以根據當下想做的事切換。"},
     {question:"跟 AI 朋友聊天也能練英文嗎？",answer:"可以。自然對話能訓練組織想法、接話與表達，但如果你需要系統性的糾錯，仍建議搭配老師。"}
    ],cta:"認識 Koolo 朋友",target:"/teacher/roles?mode=friends",secondary:"試試 AI 英文口說練習",secondaryTarget:"/guides/ai-english-speaking"
@@ -74,9 +77,10 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    sections:[
     {heading:"A friend is not the same as a tutor",paragraphs:["Tutors help with specific learning goals and corrections. Conversation partners should respond naturally, talk about their preferences, and let subjects develop.","You can begin in a familiar language and gradually increase the amount of English you speak."]},
     {heading:"Three easy topics that lead somewhere",paragraphs:["Talk about one detail from today, a movie you might see, or a choice at work. A concrete moment is easier to build on than 'let's chat'."],sample:{label:"An everyday opening",text:"I might see a movie this weekend, but I haven't decided which one yet. Do you have any favorites?",note:"Your partner can share an opinion instead of turning the exchange into a quiz."}},
-    {heading:"What if the AI asks too many questions?",paragraphs:["Try saying 'Don't interview me. Share your opinion too.' Or switch to a different topic. Koolo Friends supports natural conversation, light bilingual chat, and immersion modes.","You can try Koolo AI voice for free; after the trial, add your own Gemini API key."]}
+    {heading:"What if the AI asks too many questions?",paragraphs:["Try saying 'Don't interview me. Share your opinion too.' Or switch to a different topic. Koolo Friends supports natural conversation, light bilingual chat, and immersion modes.","Koolo offers daily free text and live voice allowances without requiring a Gemini API key upfront. Current limits are shown in the product."]}
    ],
    faq:[
+    {question:"Can I chat with an AI friend in Chinese and practice English?",answer:"Koolo (koolo.app) offers Zoe, an AI conversation partner in the browser. Start with everyday text or live voice chat in Chinese, or practice English. No API key is required upfront for the daily free allowance."},
     {question:"How is an AI friend different from an AI tutor?",answer:"Tutors focus on instruction and feedback. Friends focus on conversational exchange and continuity."},
     {question:"Can chatting with an AI friend improve English?",answer:"It can give you repeated practice forming ideas and responding. Use a tutor when you want more structured correction."}
    ],cta:"Meet Koolo Friends",target:"/teacher/roles?mode=friends",secondary:"Try guided English practice",secondaryTarget:"/guides/ai-english-speaking"
@@ -92,7 +96,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    sections:[
     {heading:"機場與遺失行李",paragraphs:["先練習說出問題，再補充辨識資訊，例如顏色、尺寸、行李件數。不要一開始就試圖解釋很長的故事。"],sample:{label:"行李找不到",text:"My suitcase didn't arrive. It's a medium-sized gray suitcase. Could you help me check where it is?",note:"讓 AI 扮演行李櫃檯人員，再追問顏色、航班與行李牌。"}},
     {heading:"飯店入住與交通問路",paragraphs:["飯店：練習確認訂房、早餐與退房時間。交通：練習問月台、方向與這班車是不是正確。"],sample:{label:"問路與搭車",text:"Is this the right train for Paddington? Which platform should I go to?",note:"加入『Could you say that again, please?』，讓自己能處理沒聽清楚的情況。"}},
-    {heading:"怎麼模擬一段完整對話？",paragraphs:["請 AI 扮演工作人員，一次只說一句，不要先給你完整答案；你回答後再往下一步。最後請老師整理真正需要修正的一個表達。","Koolo Teacher 語音可先免費試用；額度用完後可設定自己的 Gemini Key 繼續練習。"]}
+    {heading:"怎麼模擬一段完整對話？",paragraphs:["請 AI 扮演工作人員，一次只說一句，不要先給你完整答案；你回答後再往下一步。最後請老師整理真正需要修正的一個表達。","Koolo Teacher 提供每日免費語音額度；登入後可用額度以網站顯示為準，也可選擇 BYOK。"]}
    ],
    faq:[
     {question:"出國英文不好，需要先背很多單字嗎？",answer:"不需要。優先掌握你可能遇到的情境與求助句子，再逐步補充詞彙。"},
@@ -108,7 +112,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    sections:[
     {heading:"At the airport: missing luggage",paragraphs:["Describe the problem first, then add details like size, color and quantity. Let the AI play the airport desk attendant."],sample:{label:"Missing bag example",text:"My suitcase didn't arrive. It's a medium-sized gray suitcase. Could you help me check where it is?",note:"Practice the follow-up questions about your flight and baggage receipt."}},
     {heading:"Hotel check-in and getting around",paragraphs:["At a hotel, confirm your booking and ask about breakfast or checkout. On a train, confirm your destination and platform."],sample:{label:"Finding the right train",text:"Is this the right train for Paddington? Which platform should I go to?",note:"Add 'Could you say that again, please?' to practice recovering when you miss a detail."}},
-    {heading:"Build a full role-play",paragraphs:["Ask the AI to play a staff member, give one line at a time, and wait for your response. At the end, ask for your most important correction.","Koolo Teacher includes guided scenarios. Try voice for free first; afterward, your own Gemini API key and is subject to Google's limits."]}
+    {heading:"Build a full role-play",paragraphs:["Ask the AI to play a staff member, give one line at a time, and wait for your response. At the end, ask for your most important correction.","Koolo Teacher includes guided scenarios. Start with the daily free voice allowance; check current limits and sign-in options. BYOK remains optional and subject to Google's terms."]}
    ],
    faq:[
     {question:"Do I need to memorize many words before traveling?",answer:"No. Start with the situations you expect and a few ways to ask for help."},
@@ -126,7 +130,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    sections:[
     {heading:"三步驟跟讀法",paragraphs:["先聽一遍自然語速的示範；再用比示範慢一點的速度跟讀；最後不用文字提示，試著自己說出同一句。","不要一開始就追求口音完全相同，先確認關鍵字是否清楚。"]},
     {heading:"從句子重音開始",paragraphs:["比較下面這句話的不同重音：強調「今天」和強調「需要」時，聽起來的意思和語氣會不同。"],sample:{label:"跟讀例句",text:"I need to change my reservation for tomorrow.",note:"先強調 need，再強調 tomorrow；練習說清楚哪一部分才是你最想表達的。"}},
-    {heading:"如何請 AI 給有效的發音回饋",paragraphs:["不要只問「我發音對不對」，請對方指出最難理解的一個字、示範一次，再讓你重說。這樣比較不會被大量糾錯打亂節奏。","Koolo Teacher 可先免費體驗語音，瀏覽器需允許麥克風；試用額度用完後再設定自己的 Gemini Key。"]}
+    {heading:"如何請 AI 給有效的發音回饋",paragraphs:["不要只問「我發音對不對」，請對方指出最難理解的一個字、示範一次，再讓你重說。這樣比較不會被大量糾錯打亂節奏。","Koolo Teacher 提供每日免費語音額度，瀏覽器需允許麥克風；自備 Gemini Key 是進階選項。"]}
    ],
    faq:[
     {question:"一定要練成美式或英式口音嗎？",answer:"不一定。先達到清楚、穩定且能被理解的表達；有需要再練習偏好的口音。"},
@@ -142,7 +146,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    sections:[
     {heading:"A three-step shadowing routine",paragraphs:["Listen to one natural-speed example. Repeat it slowly while keeping the same word emphasis. Then say it again without looking at the text.","You do not have to match every aspect of the speaker's accent. Start by making your key words easy to understand."]},
     {heading:"Try changing the sentence stress",paragraphs:["The same sentence conveys a different focus when you emphasize 'need' instead of 'tomorrow'."],sample:{label:"Practice phrase",text:"I need to change my reservation for tomorrow.",note:"Emphasize need first, then tomorrow, and notice what each version communicates."}},
-    {heading:"Ask AI for feedback that helps",paragraphs:["Instead of 'Was my pronunciation good?', ask which single word was hardest to understand, request a model pronunciation, and say it again.","Koolo Teacher includes pronunciation practice. Allow microphone access; your own Gemini API key is needed after the free trial for web voice features."]}
+    {heading:"Ask AI for feedback that helps",paragraphs:["Instead of 'Was my pronunciation good?', ask which single word was hardest to understand, request a model pronunciation, and say it again.","Koolo Teacher includes pronunciation practice. Allow microphone access; daily free voice usage is subject to the current allowance; BYOK is optional."]}
    ],
    faq:[
     {question:"Do I need a native English accent?",answer:"No. Prioritize clarity and reliable communication before working on a preferred accent."},
@@ -154,34 +158,34 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
   zh:{
    title:"Gemini API Key 免費申請教學：Koolo Teacher 語音練習設定｜Koolo",
    description:"第一次使用 Koolo Teacher？了解如何透過 Google AI Studio 建立 Gemini API Key、在網站驗證與允許麥克風，以及免費額度的重要限制。",
-   label:"GEMINI API KEY 設定",headline:"免費試用 Koolo 語音後，如何設定自己的 Gemini API Key",
-   intro:"Koolo Web 可先免費試用 5 分鐘 AI 語音，用完後再設定自己的 Gemini API Key。申請 API Key 通常不需要付 Koolo 費用，但 Google 是否提供免費額度、模型是否支援，以及是否需要開通計費，都以你的 Google 專案設定為準。",
+   label:"GEMINI API KEY 設定",headline:"如何選擇 Koolo 免費額度或自備 Gemini API Key",
+   intro:"Koolo 提供每日免費文字與語音額度，不需先申請 Gemini API Key。自備 Key 是進階選項，不是使用網站的必要條件。申請 API Key 通常不需要付 Koolo 費用，但 Google 是否提供免費額度、模型是否支援，以及是否需要開通計費，都以你的 Google 專案設定為準。",
    bullets:["從 Google AI Studio 建立 API Key，不要向陌生網站購買 Key。","在 Koolo 的共用設定頁貼上並驗證，避免每個功能重複設定。","不要把 Key 公開貼在論壇、截圖或聊天室。"],
    sections:[
     {heading:"Step 1：在 Google AI Studio 建立 API Key",paragraphs:["前往 Google AI Studio，使用自己的 Google 帳號建立或選取專案，依畫面指引產生 Gemini API Key。部分模型和功能的免費／付費條件不同，請先確認 Google 顯示的配額。","如果介面要求啟用計費，先評估你選用的 Live 模型是否在免費額度內，無需為了進入 Koolo 而盲目開通付費。"]},
     {heading:"Step 2：回到 Koolo 設定並驗證",paragraphs:["開啟 Koolo 共用設定頁，貼上 API Key、確認驗證結果。請在瀏覽器允許麥克風權限；若第一次沒有聲音，先檢查網站權限、輸出裝置和瀏覽器是否封鎖自動播放。"]},
-    {heading:"Step 3：開始練習並保護 Key",paragraphs:["前往 Koolo 老師或朋友頁面免費試用語音；用完額度後可設定自己的 Key。不要把 Key 填入別人提供的表單，也不要傳給朋友共用。","Koolo 網站的 Key 會用於連接 Google Gemini；使用量與費用應至 Google AI Studio／Cloud Console 查詢。"],sample:{label:"Google AI Studio",text:"https://aistudio.google.com/apikey",note:"只在 Google 官方網站建立 Key；進入 Koolo 後在設定頁完成驗證。"}}
+    {heading:"Step 3：開始練習並保護 Key",paragraphs:["前往 Koolo 老師或朋友頁面使用每日免費額度；用完可查看登入後額度或等待隔日重置，也可選擇自備 Key。不要把 Key 填入別人提供的表單，也不要傳給朋友共用。","Koolo 網站的 Key 會用於連接 Google Gemini；使用量與費用應至 Google AI Studio／Cloud Console 查詢。"],sample:{label:"Google AI Studio",text:"https://aistudio.google.com/apikey",note:"只在 Google 官方網站建立 Key；進入 Koolo 後在設定頁完成驗證。"}}
    ],
    faq:[
-    {question:"Koolo Teacher 是完全免費的嗎？",answer:"Koolo 本身沒有額外收取 Web 語音訂閱費，但 Gemini API 的免費額度與收費由 Google 決定；不同模型可能不同。"},
-    {question:"網站可以不用 Gemini Key 嗎？",answer:"閱讀文章與部分內容不需要 Key；語音可先免費試用，用完額度後再設定自己的 Key。"},
+    {question:"Koolo Teacher 是完全免費的嗎？",answer:"Koolo 提供每日免費額度，但不是無限使用；以網站當下顯示為準。若自備 Key，Gemini API 的配額與費用由 Google 決定。"},
+    {question:"網站可以不用 Gemini Key 嗎？",answer:"可以。閱讀指南、部分遊戲與免費文字及語音額度不需要自備 Key；登入後額度及進階選項以網站顯示為準。"},
     {question:"API Key 需要分享給 Koolo 管理員嗎？",answer:"不需要。不要透過郵件、聊天或截圖傳送 Key。"}
    ],cta:"前往 Koolo 的 Gemini 設定",target:"/settings",secondary:"先了解 AI 英文口說練習",secondaryTarget:"/guides/ai-english-speaking"
   },
   en:{
    title:"How to Get a Gemini API Key for Koolo Teacher Voice Practice | Koolo",
    description:"Set up a Gemini API key with Google AI Studio, verify it in Koolo Teacher, enable microphone permissions, and understand free tier and billing limits.",
-   label:"GEMINI API KEY SETUP",headline:"Try Koolo voice for free, then set up your Gemini API key",
-   intro:"Koolo Web does not require a separate Koolo account for voice practice. You can first try five minutes of free AI voice, then connect with your own Gemini API key after the trial. Free allowances, supported models and billing requirements depend on your Google project and chosen model.",
+   label:"GEMINI API KEY SETUP",headline:"Use Koolo's free allowance or optionally set up your own Gemini API key",
+   intro:"Koolo offers daily free text and AI voice allowances without requiring an API key upfront. Sign in for additional allowance where available, or wait for the daily reset. Bringing your own Gemini API key is optional. Free allowances, supported models and billing requirements depend on your Google project and chosen model.",
    bullets:["Create the key through Google AI Studio, not an unofficial seller.","Verify it once in Koolo's shared settings page.","Never post the key in screenshots, chats or public code."],
    sections:[
     {heading:"Step 1: Create a key in Google AI Studio",paragraphs:["Sign in to Google AI Studio with your Google account. Select or create a project and generate a Gemini API key using the official setup flow.","Check the displayed quota and pricing before enabling billing, particularly for Gemini Live models. A free-tier option for one model does not guarantee free Live voice usage for every model."]},
     {heading:"Step 2: Verify the key in Koolo",paragraphs:["Open Koolo's shared Settings, paste your Gemini API key, and complete verification. Allow microphone access when prompted. If you hear no audio, inspect site permissions and your output device."]},
-    {heading:"Step 3: Start talking safely",paragraphs:["Go to Koolo Teacher or Koolo Friends for live conversation. Each visitor uses their own key; don't share yours with other users. Monitor usage and costs in Google's tools."],sample:{label:"Official Google AI Studio",text:"https://aistudio.google.com/apikey",note:"Create keys through Google; verify them only in the Koolo settings page."}}
+    {heading:"Step 3: Start talking safely",paragraphs:["Go to Koolo Teacher or Koolo Friends for live conversation. If you choose BYOK, use your own key and don't share it with other users. Monitor usage and costs in Google's tools."],sample:{label:"Official Google AI Studio",text:"https://aistudio.google.com/apikey",note:"Create keys through Google; verify them only in the Koolo settings page."}}
    ],
    faq:[
-    {question:"Is Koolo Teacher free to use?",answer:"Koolo does not charge an additional web voice subscription. Gemini API pricing, free allowances and availability are controlled by Google and can vary by model."},
-    {question:"Can I use the website without a Gemini key?",answer:"You can read guides and try AI voice for free; add your own Gemini key after the trial."},
+    {question:"Is Koolo Teacher free to use?",answer:"Koolo offers a daily free allowance, not unlimited usage. Check the site for current options. If you use your own key, Gemini API pricing and availability are controlled by Google."},
+    {question:"Can I use the website without a Gemini key?",answer:"Yes. Read guides and use daily free text and voice allowances without bringing your own key. Check the site for current limits and sign-in options."},
     {question:"Should I send my API key to the Koolo team?",answer:"No. Never send your key by email, chat or screenshot."}
    ],cta:"Open Koolo Gemini Settings",target:"/settings",secondary:"Explore AI speaking practice",secondaryTarget:"/guides/ai-english-speaking"
   }
