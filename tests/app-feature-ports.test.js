@@ -606,7 +606,7 @@ test("mobile chrome keeps key actions reachable and Fortune header actions group
  const chrome=fs.readFileSync(path.join(root,"web-spa/src/components/AppChrome.tsx"),"utf8");
  const styles=fs.readFileSync(path.join(root,"web-spa/src/styles.css"),"utf8");
  assert.ok(chrome.includes("app-header-actions"));
- assert.ok(styles.includes("padding-bottom:calc(var(--nav-h) + 34px + env(safe-area-inset-bottom))"));
+ assert.ok(styles.includes("padding-bottom:calc(var(--nav-h,68px) + 34px + env(safe-area-inset-bottom))"));
  assert.ok(styles.includes(".fortune-header-history"));
  assert.ok(styles.includes("min-height:44px"));
  assert.ok(styles.includes(".fortune-result-tabs button"));
