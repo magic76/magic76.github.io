@@ -43,7 +43,7 @@ import {loadQuoteText} from "../pages/quoteCatalog";
 import {useFriendDailyFortuneContext} from "./useFriendDailyFortuneContext";
 import {nextFriendLifeOpening} from "../characters/lifeBook";
 import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageMode} from "./friendLanguage";
-import {buildFriendSystem,recordFriendChat,recordFriendVoiceExchange,friendVoiceOpeningRecall,getHomeChatTopic,rememberFriendConversation} from "./friendMemory";
+import {buildFriendSystem,recordFriendChat,recordFriendVoiceExchange,friendVoiceOpeningRecall,getHomeChatTopic,rememberFriendConversation,friendMemoryEnabled,friendLiveMemoryConfig,createFriendLiveMemory} from "./friendMemory";
 import {recordFriendActivity,clearLegacyFriendChats} from "../live/sessionTranscript";
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
@@ -116,6 +116,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const [modeNote,setModeNote]=useState("");
  const region=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
  const sessionId=friend.id;
+ const liveMemory=useMemo(()=>createFriendLiveMemory(sessionId,language),[sessionId,language]);
  const [lifeOpening]=useState(()=>!shortsPost&&!intent?nextFriendLifeOpening(friend.id):"");
  // Snapshot relationship evidence before this session; greetings alone never count.
  const openingRecall=useMemo(()=>friendVoiceOpeningRecall(friend.id,language),[friend.id,language]);
@@ -135,6 +136,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
    conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
+  ...friendLiveMemoryConfig(liveMemory,!creatureEmbed),
   onInputSpeech:replyHints.onInputSpeech,
   onObservedExchange:turn=>{
    // Only this confirmed two-sided turn represents a successful conversation.
@@ -147,6 +149,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   },
   onRecovered:creatureEmbed?creatureBridge.onRecovered:undefined,
   onTurnComplete:(_turn,completedTurns)=>{
+   if(!creatureEmbed&&_turn.hasValidOutput)liveMemory.complete(completedTurns);
    if(_turn.hasValidOutput)replyHints.generate(completedTurns);
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("friend_conversation");
@@ -160,14 +163,15 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
       (lastCheckpointTurnRef.current>0&&learnerTurns-lastCheckpointTurnRef.current<3))return;
    lastCheckpointTurnRef.current=learnerTurns;
    checkpointCountRef.current++;
-   void rememberFriendConversation(sessionId,language,completedTurns,0);
+   if(!creatureEmbed&&liveMemory.shouldCheckpointFallback())void rememberFriendConversation(sessionId,language,completedTurns,0);
   },
   onSessionFinished:item=>{
    replyHints.clear();
-   if(!item)return;
+   if(!item){liveMemory.reset();return;}
    if(item.durationMs>0)trackUsageEvent("friend_session_end",sessionDurationDetail(item.durationMs));
    recordFriendChat(sessionId,language,item.turns,item.durationMs);
-   void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
+   if(!creatureEmbed&&!liveMemory.hasSaved())void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
+   liveMemory.reset();
   }
  });
  useEffect(()=>{if(live.output.trim())replyHints.clear()},[live.output]);
@@ -214,7 +218,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  if(creatureEmbed)return <CreatureVoicePanel live={live} ready={!!creatureBridge.creature} status={friendVoiceStatus} guestStarted={guestStarted} setGuestStarted={setGuestStarted}/>;
  const voiceStart=<>
   {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
-  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" precall textEntry={textFirst} autoTextOnVerified={textFirst&&(pendingTextStart||Boolean(dailyHandoff&&fortuneContinue))}
+  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" precall friendMemory={!creatureEmbed&&friendMemoryEnabled()} textEntry={textFirst} autoTextOnVerified={textFirst&&(pendingTextStart||Boolean(dailyHandoff&&fortuneContinue))}
     onVerificationChange={setGuestVerified} focusStartOnVerified={homeFirstAction} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}} onTextGrant={async grant=>{setGuestStarted(true);setPendingTextStart(false);await live.start(grant,true)}}/>
    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
    :textFirst&&!active?null:<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}>{active?(live.micEnabled?<FriendCallControls live={live} onEnd={endAndReturn}/>:<button type="button" className="friend-unified-end" onClick={()=>void endAndReturn()}>{t("callCaptions.hangUp")}</button>):<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}</div>}

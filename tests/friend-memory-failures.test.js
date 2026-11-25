@@ -35,7 +35,7 @@ function setup(fetcher,key="test-key"){
    "ingestStudentPersonalUpdates","hasMeaningfulLearnerSpeech","verifiedLearnerEvidence"],
   {localStorage,fetch:fetcher});
  const friends=extract("web-spa/src/friends/friendMemory.ts",
-  ["rememberFriendConversation","getFriendTopics","getFriendCaptureStatus","classifyFriendMemoryHttpError","pinFriendTopic","saveFriendTopic","allowFriendTopicAutoUpdate"],
+  ["createFriendLiveMemory","getFriendCaptureSource","setFriendMemoryEnabled","clearFriendTopics","rememberFriendConversation","getFriendTopics","getFriendCaptureStatus","classifyFriendMemoryHttpError","pinFriendTopic","saveFriendTopic","allowFriendTopicAutoUpdate"],
   {localStorage,fetch:fetcher,geminiKey:()=>key,CREW_FRIENDS:[{id:"zoe"},{id:"yuna"}],
    normalizeLearningLanguage:learner.normalizeLearningLanguage,
    personalMemoryEnabled:learner.personalMemoryEnabled,
@@ -188,3 +188,40 @@ test("memory prompt accepts temporary conversation plans but preserves evidence 
  assert.match(source,/if\(existing\?\.manual\)continue/);
 });
 
+
+
+test("Live memory is queued until a verified completed turn, without text model",()=>{
+ let requests=0;
+ const {friends}=setup(async()=>{requests++;throw Error("unexpected text call")});
+ const live=friends.createFriendLiveMemory("zoe","英文");
+ assert.equal(live.onCall({id:"a",name:"save_friend_memory",args:valid}).ok,true);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,0);
+ live.complete(turns);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,1);
+ assert.equal(friends.getFriendCaptureSource("zoe","英文"),"Live");
+ assert.equal(live.hasSaved(),true);
+ assert.equal(requests,0);
+ assert.equal(friends.getFriendTopics("yuna","英文").length,0);
+ assert.equal(friends.getFriendTopics("zoe","日文").length,0);
+ live.onCall({id:"a",name:"save_friend_memory",args:valid});
+ live.complete(turns);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,1);
+});
+test("Live memory rejects assistant-only evidence and revoked consent",()=>{
+ const {friends}=setup(async()=>{throw Error("unexpected text call")});
+ const live=friends.createFriendLiveMemory("zoe","英文");
+ live.onCall({name:"save_friend_memory",args:valid});
+ live.complete([{input:"Hello",output:turns[0].input}]);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,0);
+ live.onCall({name:"save_friend_memory",args:valid});
+ friends.setFriendMemoryEnabled(false);
+ friends.setFriendMemoryEnabled(true);
+ live.complete(turns);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,0);
+ live.onCall({name:"save_friend_memory",args:valid});
+ friends.clearFriendTopics("zoe","英文");
+ live.complete(turns);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,0);
+ live.toolsUnavailable();
+ assert.equal(live.shouldCheckpointFallback(),true);
+});

@@ -1460,7 +1460,7 @@
             // Optional board tools may be rejected by a preview model/version.
             // Retry the SAME selected model once without tools, never switch models.
             var message=String(setupError&&setupError.message||setupError);
-            if(!self.options.tools||!/invalid.argument|unsupported|tool|function|\\b400\\b/i.test(message))throw setupError;
+            if(self.guestMode||!self.options.tools||!/invalid.argument|unsupported|tool|function|\\b400\\b/i.test(message))throw setupError;
             var hadSearch=self.options.tools.some(function(t){return t.googleSearch||t.google_search;});
             var onlyCustom=self.options.tools.filter(function(t){return !(t.googleSearch||t.google_search);});
             // Search failure must not disable whiteboard, game or other custom functions.

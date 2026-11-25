@@ -28,7 +28,7 @@ function trial(errorName,withFallback=true,afterToken=false){
  const ctx={
   DOMException,Error,Event,window:{dispatchEvent(){}},
   navigator:{mediaDevices:microphone?{getUserMedia:microphone}:undefined},
-  busy:{current:false},phase:'ready',challenge:'unused-challenge',micUnavailable:false,role:'friend',active:{current:true},
+  busy:{current:false},phase:'ready',challenge:'unused-challenge',micUnavailable:false,role:'friend',friendMemory:false,active:{current:true},
   ...retryApi.rules,
   signinRequired:false,memberSignedIn:false,textFallback:fallback,
   ensureLive:async()=>{},trackUsageEvent:(name)=>events.push(name),
@@ -130,6 +130,7 @@ test('a rejected transferred token automatically requests a fresh challenge once
  const ctx={
   t:key=>key,hasGuestChallengeHandoff:()=>calls===0,waitForChallenge:async()=>{calls++;return calls===1?'handoff':'new-human-token'},
   takeUsedGuestHandoff:()=>calls===1,setGuestStatus:()=>{},setGuestPhase:p=>phases.push(p),
+  textAuthTicket:async()=>undefined,setDailyLimit:()=>{},
   fetch:async(_url,options)=>{const body=JSON.parse(options.body);requests.push(body);return {ok:body.challengeToken==='new-human-token',status:body.challengeToken==='new-human-token'?200:403,json:async()=>body.challengeToken==='new-human-token'?{sessionToken:'s',expiresAt:Date.now()+60000,remaining:10}:{code:'VERIFY_FAILED'}}},
   GUEST_TEXT_ENDPOINT:'/api/guest/text',sessionStorage:{setItem(){}} ,mounted:{current:true},setGuestToken:()=>{},setRemaining:()=>{},backendFailureCount:{current:0},phaseRef:{current:'ready'},
   classifyGuestTextFailure:err=>({reverify:err.message==='VERIFY_FAILED',kind:err.message==='VERIFY_FAILED'?'verification':'backend'}),
@@ -141,7 +142,8 @@ test('a rejected transferred token automatically requests a fresh challenge once
  assert.ok(requests.every(x=>x.action==='start'));
  assert.ok(phases.includes('ready'));
  assert.match(panel,/const challengeToken=await waitForChallenge\(\)/);
- assert.match(panel,/body:JSON\.stringify\(\{action:"start",challengeToken\}\)/);
+ assert.match(panel,/body:JSON\.stringify\(\{action:"start",challengeToken,\.\.\.\(authTicket\?\{authTicket\}:\{\}\)\}\)/);
+ assert.ok(requests.every(x=>!Object.hasOwn(x,"authTicket")));
  assert.match(panel,/acquire:startGuestText/);
  assert.match(panel,/handedOff&&failure\.reverify&&mounted\.current/);
 });

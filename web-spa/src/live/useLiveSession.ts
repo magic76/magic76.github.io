@@ -26,6 +26,11 @@ type Config={
  onConfirmedTranscript?:(turn:LiveTurn)=>void; // optional board observer, read-only; no transport changes
  // Opt-in observer for a completed two-sided exchange, including guest trials.
  onObservedExchange?:(turn:LiveTurn)=>void;
+ // Explicit, local-only Friend memory observer; not the general guest page callbacks.
+ guestFriendMemory?:boolean;
+ guestMemoryTools?:Array<{functionDeclarations:Array<Record<string,unknown>>}>;
+ onMemorySessionStart?:()=>void;
+ onGuestMemoryTurn?:(turns:LiveTurn[])=>void;
  tools?:Array<{functionDeclarations:Array<Record<string,unknown>>}|{googleSearch:Record<string,never>}>;
  onToolCall?:(call:{id?:string;name:string;args?:unknown})=>Record<string,unknown>;
  onToolsUnavailable?:()=>void;
@@ -158,6 +163,11 @@ export function useLiveSession(config:Config){
   const attempt={active:true};
   attemptRef.current=attempt;
   const isActive=()=>attempt.active&&attemptRef.current===attempt;
+  const memoryConfig=configRef.current;
+  const guestMemory=Boolean(grant?.friendMemory===true&&memoryConfig.sessionKind==="friend"&&memoryConfig.guestFriendMemory);
+  const guestMemoryTools=memoryConfig.guestMemoryTools?.flatMap(group=>"functionDeclarations" in group?group.functionDeclarations.filter(tool=>tool.name==="save_friend_memory"):[]);
+  const guestMemoryAllowed=guestMemory&&guestMemoryTools?.length===1;
+  memoryConfig.onMemorySessionStart?.();
   try{
    await ensureLive();
    if(!isActive())return;
@@ -261,10 +271,10 @@ export function useLiveSession(config:Config){
     onOpeningProtectionChange:value=>{if(isActive())setOpeningProtected(value)},
     // Native Live Google Search is disabled: a server-side 1011 can close the audio session.
     // Grounding is fetched separately on explicit user actions, never in WebSocket setup.
-    tools:grant?undefined:configRef.current.tools,
+    tools:grant?(guestMemoryAllowed?[{functionDeclarations:guestMemoryTools!}]:undefined):configRef.current.tools,
       onGrounding:metadata=>{if(!isActive())return;setSearchSources(previous=>mergeGroundingSources(previous,extractGroundingSources(metadata)));const html=extractSearchSuggestions(metadata);if(html)setSearchSuggestions(html)},
       onSearchUnavailable:()=>{if(isActive())setSearchUnavailable(true)},
-      onToolCall:call=>isActive()&&!grant?configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"}:{ok:false,error:grant?"guest-tools-disabled":"session-ended"},
+      onToolCall:call=>!isActive()?{ok:false,error:"session-ended"}:!grant?configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"}:guestMemoryAllowed&&call.name==="save_friend_memory"?memoryConfig.onToolCall?.(call)||{ok:false,error:"not-handled"}:{ok:false,error:"guest-tools-disabled"},
      onToolsUnavailable:()=>{if(isActive())configRef.current.onToolsUnavailable?.()},
     // Crew Teacher/Friends only; other Crew products retain their current VAD.
     turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
@@ -405,7 +415,10 @@ export function useLiveSession(config:Config){
        if(turn.hasValidOutput&&turn.input?.trim()&&turn.output?.trim()&&observed){
         try{configRef.current.onObservedExchange?.(observed)}catch{/* An observer must not interrupt the Live session. */}
        }
-      if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
+      if(guestMemoryAllowed&&turn.hasValidOutput&&turn.input?.trim()&&turn.output?.trim()){
+        try{memoryConfig.onGuestMemoryTurn?.(turnsRef.current.slice())}catch{/* Keep guest conversation alive on local storage failure. */}
+       }
+       if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
      },
      onError:e=>{if(!isActive())return;recordGuestFailure();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
      onTerminal:info=>{

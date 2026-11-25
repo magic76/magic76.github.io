@@ -12,7 +12,7 @@ export function guestTrialDiscoveryEnabled():boolean{
 }
 export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number;signinRequired?:boolean;memberMetering?:boolean;dailyQuota?:boolean;trial?:{used:number;limit:number}};
 export function invalidateGuestTrialConfig(){cachedConfig=null;cachedAt=0}
-export type GuestTrialGrant={token:string;model:string;seconds:number;issuedAt:string;expiresAt:string};
+export type GuestTrialGrant={token:string;model:string;seconds:number;issuedAt:string;expiresAt:string;friendMemory?:boolean};
 // Share one in-flight GET across the home guide and Live entry. No token, proof,
  // account data or POST response is cached. Short TTL keeps operator disable responsive.
 let pendingConfig:Promise<GuestTrialConfig>|null=null;

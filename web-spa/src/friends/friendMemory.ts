@@ -15,6 +15,11 @@ const TOPICS="crew_friend_topics_v1_";
 const DATES="crew_friend_recent_dates_v1_";
 const KNOWN_FRIENDS="crew_friend_known_by_exchange_v1"; // Only friend IDs and timestamps, never messages.
 const CAPTURE_STATUS="crew_friend_capture_status_v1_";
+const CAPTURE_SOURCE="crew_friend_capture_source_v1_";
+export function getFriendCaptureSource(id:string,language:string){
+ if(!friendMemoryEnabled()||!validFriend(id))return "";
+ return localStorage.getItem(CAPTURE_SOURCE+captureKey(id,language))||"";
+}
 const CAPTURE_REQUEST="crew_friend_capture_request_v1_";
 const LIMIT=20;
 const clean=(value:unknown,max=180)=>String(value??"").replace(/[\r\n\t]+/g," ").replace(/\s+/g," ").trim().slice(0,max);
@@ -142,6 +147,7 @@ export function clearFriendTopics(id:string,language:string){
  const k=captureKey(id,language);
  recentSaved.delete(k);
  localStorage.removeItem(CAPTURE_STATUS+k);
+ localStorage.removeItem(CAPTURE_SOURCE+k);
  localStorage.setItem(CAPTURE_REQUEST+k,String(Number(localStorage.getItem(CAPTURE_REQUEST+k)||0)+1));
 }
 function recentDates(language:string):Record<string,number>{
@@ -239,6 +245,84 @@ export function buildFriendSystem(friend:FriendProfile,language:string,nativeLan
   "Be open about being fictional when asked; do not imply real-world meetings or online presence.\n"+
   freeChatRhythmPrompt()+"\n"+voiceIdentityPrompt("friend",friend.id,language)+friendTopicContext(friend.id,language)+"\n"+friendLanguageRule(language,nativeLanguage,mode);
 }
+/** Common evidence gate for both extraction paths. */
+function applyVerifiedFriendTopics(id:string,language:string,speech:string,candidates:unknown){
+   const notes=getFriendTopics(id,language),rows=Array.isArray(candidates)?candidates:[];
+   let added=0,updated=0;
+   for(const item of rows.slice(0,3)){
+    const quote=clean(item?.evidence,240),title=clean(item?.title,65),summary=clean(item?.summary,180);
+    const topicKey=clean(item?.key,80).toLowerCase();
+    if(!verifiedLearnerEvidence(speech,quote)||!title||!summary||!topicKey)continue;
+    if(/address|passport|password|credit.?card|phone number|email address|diagnos|religion|politic|sexual|medical|my name is|醫療|疾病|住址|護照|宗教|政黨|身分證|身份證|我的名字是/i.test(topicKey+" "+title+" "+summary))continue;
+    const existing=notes.find(t=>t.key===topicKey);
+    if(existing?.manual)continue;
+    if(existing){existing.title=title;existing.summary=summary;existing.followUp=clean(item.followUp,100);existing.updatedAt=Date.now();updated++}
+    else{notes.unshift({id:"ft_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+     key:topicKey,title,summary,followUp:clean(item.followUp,100),updatedAt:Date.now(),pinned:false,manual:false});added++}
+   }
+   if(added||updated)saveTopics(id,language,notes);
+ return {added,updated};
+}
+export const FRIEND_MEMORY_TOOL="save_friend_memory";
+export const FRIEND_MEMORY_TOOLS=[{functionDeclarations:[{
+ name:FRIEND_MEMORY_TOOL,
+ description:"Quietly propose useful, non-sensitive conversation topics explicitly stated by the real user. Copy exact user evidence, never assistant speech or roleplay. Reuse stable topic keys. Skip greetings, identifiers, contact details, precise location, health, religion, politics, sexuality and secrets. Continue the normal spoken reply; never announce this tool.",
+ parameters:{type:"OBJECT",properties:{topics:{type:"ARRAY",items:{type:"OBJECT",properties:{
+  key:{type:"STRING"},title:{type:"STRING"},summary:{type:"STRING"},followUp:{type:"STRING"},evidence:{type:"STRING"}
+ },required:["key","title","summary","evidence"]}}},required:["topics"]}
+}]}];
+/** Tool calls may precede the final transcript. Keep proposals in RAM until a verified completed exchange. */
+export function createFriendLiveMemory(id:string,language:string){
+ let pending:{epoch:number;topics:unknown[]}[]=[];
+ let saved=false,unavailable=false;
+ const seen=new Set<string>();
+ return {
+  onCall(call:{id?:string;name:string;args?:unknown}):Record<string,unknown>{
+   if(call.name!==FRIEND_MEMORY_TOOL||!validFriend(id)||!friendMemoryEnabled())return {ok:false,error:"memory-disabled"};
+   if(call.id&&seen.has(call.id))return {ok:true,queued:true};
+   const rows=(call.args as {topics?:unknown}|null)?.topics;
+   if(!Array.isArray(rows)||!rows.length||rows.length>3||pending.length>=3)return {ok:false,error:"invalid-topics"};
+   const topics=rows.filter(row=>row&&typeof row==="object"&&["key","title","summary","evidence"].every(k=>typeof row[k]==="string"&&row[k].length<=450))
+    .map(row=>({key:clean(row.key,80),title:clean(row.title,65),summary:clean(row.summary,180),followUp:clean(row.followUp,100),evidence:clean(row.evidence,240)}));
+   if(!topics.length)return {ok:false,error:"invalid-topics"};
+   if(call.id&&seen.size<100)seen.add(call.id);
+   pending.push({epoch:epoch(),topics});
+   return {ok:true,queued:true};
+  },
+  complete(turns:LiveTurn[]){
+   const queued=pending;pending=[];
+   if(!friendMemoryEnabled()||!validFriend(id)||!queued.length)return;
+   const speech=turns.filter(t=>Boolean(t.input?.trim()&&t.output?.trim())).map(t=>clean(t.input,450)).join("\n").slice(-3500);
+   if(!hasMeaningfulLearnerSpeech(speech))return;
+   const topics=queued.filter(q=>q.epoch===epoch()).flatMap(q=>q.topics);
+   if(!topics.length)return;
+   const token=captureStarted(id,language);
+   try{
+    const {added,updated}=applyVerifiedFriendTopics(id,language,speech,topics);
+    if(added||updated){saved=true;localStorage.setItem(CAPTURE_SOURCE+captureKey(id,language),"Live");}
+    captureFinished(id,language,token,added?"saved":updated?"updated":"empty");
+   }catch{captureFinished(id,language,token,"error")}
+  },
+  toolsUnavailable(){unavailable=true},
+  shouldCheckpointFallback(){return unavailable&&!saved},
+  hasSaved(){return saved},
+  reset(){pending=[];seen.clear();saved=false;unavailable=false}
+ };
+}
+
+/** Keep memory setup out of the size-constrained call page. */
+export function friendLiveMemoryConfig(memory:ReturnType<typeof createFriendLiveMemory>,enabled:boolean){
+ return {
+  tools:enabled&&friendMemoryEnabled()&&geminiKey()?FRIEND_MEMORY_TOOLS:undefined,
+  guestFriendMemory:enabled,
+  guestMemoryTools:enabled?FRIEND_MEMORY_TOOLS:undefined,
+  onMemorySessionStart:()=>memory.reset(),
+  onGuestMemoryTurn:(turns:LiveTurn[])=>memory.complete(turns),
+  onToolCall:(call:{id?:string;name:string;args?:unknown})=>memory.onCall(call),
+  onToolsUnavailable:()=>memory.toolsUnavailable()
+ };
+}
+
 /** Extract after one meaningful student turn; saving is independent of recent-chat duration. */
 async function captureFriendConversation(id:string,language:string,turns:LiveTurn[],_durationMs:number){
  if(!validFriend(id))return;
@@ -282,20 +366,8 @@ async function captureFriendConversation(id:string,language:string,turns:LiveTur
    throw new MemoryCaptureError("error-response");
   // These are two independent consents. A revoked setting must never be undone by a late AI response.
   if(saveTopicsEnabled&&friendMemoryEnabled()&&epoch()===consentEpoch){
-   const notes=getFriendTopics(id,language),rows=Array.isArray(extracted.topics)?extracted.topics:[];
-   let added=0,updated=0;
-   for(const item of rows.slice(0,3)){
-    const quote=clean(item?.evidence,240),title=clean(item?.title,65),summary=clean(item?.summary,180);
-    const topicKey=clean(item?.key,80).toLowerCase();
-    if(!verifiedLearnerEvidence(speech,quote)||!title||!summary||!topicKey)continue;
-    if(/address|passport|password|credit.?card|phone number|email address|diagnos|religion|politic|sexual|medical|my name is|醫療|疾病|住址|護照|宗教|政黨|身分證|身份證|我的名字是/i.test(topicKey+" "+title+" "+summary))continue;
-    const existing=notes.find(t=>t.key===topicKey);
-    if(existing?.manual)continue;
-    if(existing){existing.title=title;existing.summary=summary;existing.followUp=clean(item.followUp,100);existing.updatedAt=Date.now();updated++}
-    else{notes.unshift({id:"ft_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
-     key:topicKey,title,summary,followUp:clean(item.followUp,100),updatedAt:Date.now(),pinned:false,manual:false});added++}
-   }
-   if(added||updated)saveTopics(id,language,notes);
+   const {added,updated}=applyVerifiedFriendTopics(id,language,speech,extracted.topics);
+   if(added||updated)localStorage.setItem(CAPTURE_SOURCE+captureKey(id,language),"Text fallback");
    captureFinished(id,language,token,added?"saved":updated?"updated":"empty");
   }
   if(savePersonal&&personalMemoryEnabled()&&getPersonalMemoryEpoch()===personalEpoch)

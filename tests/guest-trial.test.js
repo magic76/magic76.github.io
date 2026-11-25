@@ -73,7 +73,7 @@ function mockedServices(options={}){
    assert.equal(body.uses,1);
    assert.equal(body.bidiGenerateContentSetup.model,"models/gemini-3.8-live");
    assert.deepEqual(body.bidiGenerateContentSetup.generationConfig.responseModalities,["AUDIO"]);
-   assert.deepEqual(body.bidiGenerateContentSetup.tools,[]);
+   assert.deepEqual(body.bidiGenerateContentSetup.tools,options.friendMemory?(await backend).GUEST_FRIEND_MEMORY_TOOLS:[]);
    assert.equal(body.fieldMask,"model,generationConfig.responseModalities,tools");
    assert.equal(body.liveConnectConstraints,undefined);
    const expiry=Date.parse(body.expireTime)-Date.now();
@@ -748,3 +748,33 @@ test("five-minute free-trial offer is localized without changing lesson practice
  assert.match(lesson.learn.threeMinute,/3 分鐘/);
 });
 
+
+
+test("guest Friend memory is a fixed opt-in tool; client declarations cannot expand the locked set",async()=>{
+ const {onRequestPost,GUEST_FRIEND_MEMORY_TOOLS}=await backend;
+ assert.deepEqual(GUEST_FRIEND_MEMORY_TOOLS.map(group=>group.functionDeclarations.map(d=>d.name)),[["save_friend_memory"]]);
+ const memorySource=fs.readFileSync(path.join(root,"web-spa/src/friends/friendMemory.ts"),"utf8");
+ const declaration=memorySource.match(/export const FRIEND_MEMORY_TOOLS=(\[\{functionDeclarations:[\s\S]*?\}\]\}\]);/);
+ assert.ok(declaration);
+ assert.deepEqual(new Function("FRIEND_MEMORY_TOOL","return "+declaration[1])("save_friend_memory"),GUEST_FRIEND_MEMORY_TOOLS);
+ const make=(role,friendMemory)=>new Request("https://www.3sssi.com/api/guest/token",{
+  method:"POST",headers:{"origin":"https://www.3sssi.com","content-type":"application/json","user-agent":"Crew-Test/1.0","cf-connecting-ip":"203.0.113.9"},
+  body:JSON.stringify({challengeToken:"turnstile-valid-test-token",role,friendMemory,tools:[{googleSearch:{}}]})
+ });
+ for(const [role,memory,enabled,expected] of [["friend",true,true,true],["teacher",true,true,false],["friend",false,true,false],["friend",true,false,false]]){
+  const services=mockedServices({friendMemory:expected});
+  try{
+   const result=await onRequestPost({request:make(role,memory),env:env(fakeDb(),enabled?{}:{GUEST_FRIEND_MEMORY_ENABLED:"0"})});
+   assert.equal(result.status,200);
+   assert.equal((await result.json()).friendMemory===true,expected);
+   assert.equal(services.counts().minted,1);
+  }finally{services.restore()}
+ }
+});
+test("guest Live routes only the fixed memory call and never enables general page completion callbacks",()=>{
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ assert.match(hook,/grant\?\.friendMemory===true&&memoryConfig\.sessionKind==="friend"&&memoryConfig\.guestFriendMemory/);
+ assert.match(hook,/guestMemoryAllowed&&call\.name==="save_friend_memory"/);
+ assert.match(hook,/if\(!guestModeRef\.current\)configRef\.current\.onTurnComplete/);
+ assert.match(hook,/memoryConfig\.onGuestMemoryTurn\?\.\(turnsRef\.current\.slice\(\)\)/);
+});

@@ -11,7 +11,7 @@ import {FriendAvatar} from "./FriendAvatar";
 import {Icon} from "../components/Icon";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {clearFriendRecent,clearFriendTopics,deleteFriendTopic,editFriendTopic,friendMemoryEnabled,getFriendLastChat,
- getFriendTopics,getFriendCaptureStatus,pinFriendTopic,allowFriendTopicAutoUpdate,recentFriends,saveFriendTopic} from "./friendMemory";
+ getFriendTopics,getFriendCaptureStatus,getFriendCaptureSource,pinFriendTopic,allowFriendTopicAutoUpdate,recentFriends,saveFriendTopic} from "./friendMemory";
 import "./friends.css";
 
 function relativeDate(timestamp:number) {
@@ -65,6 +65,7 @@ export function FriendsPage(){
  }
  const memories=selected?getFriendTopics(selected.id,language):[];
  const captureStatus=selected?getFriendCaptureStatus(selected.id,language):"";
+ const captureSource=selected?getFriendCaptureSource(selected.id,language):"";
  return <div className="crew-friends-page" data-revision={revision}>
   <header className="hero friends-intro">
    <h1>{t("title")}</h1>
@@ -105,7 +106,7 @@ export function FriendsPage(){
     {getFriendLastChat(selected.id,language)>0?<small className="friends-detail-time">{relativeDate(getFriendLastChat(selected.id,language))}</small>:null}
     {memoryPanel?<div className="friends-memories">
      <h3>{t("topicsWith",{name:selected.name})}</h3>
-     {captureStatus?<p className="meta" role="status">{t("capture."+captureStatus)}</p>:null}
+     {captureStatus?<p className="meta" role="status">{t("capture."+captureStatus)}{captureSource?` · ${captureSource}`:""}</p>:null}
      {!friendMemoryEnabled()?<p>{t("disabled")}</p>:<>
        {memories.length?memories.map(item=><div className="friends-memory-row" key={item.id}>
         <div><strong>{item.title}</strong><small>{item.summary}</small></div>
