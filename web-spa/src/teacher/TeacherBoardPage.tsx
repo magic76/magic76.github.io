@@ -200,7 +200,7 @@ export function TeacherBoardPage(){
   pageKey:"teacher-board",title:"AI 即時教學板 · "+profile.name,
   system,openingPrompt:opening,languageDirective:localeHelp,
   languageDriftGuard:(text)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,s.teachingMode),
-  voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,nativeLanguage:s.nativeLanguage,
+  voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,nativeLanguage:s.nativeLanguage,inputLanguageMode:s.teachingMode==="immersion"?"target-only":"target-first",
   teacherReport:false,trackSpeakingLevel:false,persistHistory:false,sessionKind:"teacher",
   tools:[{functionDeclarations:[...BOARD_TOOLS[0].functionDeclarations,...DIRECTOR_TOOL.functionDeclarations]}],
   onToolsUnavailable:()=>setToolsUnavailable(true),

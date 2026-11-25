@@ -3,6 +3,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMemoryEnabled}from"../teacher/studentMemory";
 import{recordSpeakingLevel,effectiveSpeakingLevel}from"../teacher/speakingLevelMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import{turnTimingForLevel}from"./turnTiming";
+import{inputTranscriptionLanguages,type InputLanguageMode}from"./inputTranscriptionLanguages";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveSessionOptions,type LiveTurn} from "../lib/runtime";
 import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
@@ -20,6 +21,7 @@ type Config={
  separateCaptureContext?:boolean;
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  protectOpening?:boolean;
+ inputLanguageMode?:InputLanguageMode;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
  onInputSpeech?:()=>void;
@@ -260,6 +262,7 @@ export function useLiveSession(config:Config){
     createPlaybackRoute:configRef.current.createPlaybackRoute,
     separateCaptureContext:configRef.current.separateCaptureContext,
     guestAccessToken:grant?.token,
+    inputLanguageCodes:inputTranscriptionLanguages(configRef.current.language,configRef.current.nativeLanguage,configRef.current.inputLanguageMode),
     textOnly:textOnly&&configRef.current.sessionKind==="friend",
     allowMicUpgrade:configRef.current.sessionKind==="friend",
     trackTextTurns:configRef.current.sessionKind==="friend",

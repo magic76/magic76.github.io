@@ -133,7 +133,9 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
    shortsHook,selectedQuestion,lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
    conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
-  voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
+  voice:normalizeLiveVoice(friend.voice),language,nativeLanguage:friendNativeLanguage,teacherReport:false,
+  // Both input languages remain valid because Friend mode can change on the same socket.
+  inputLanguageMode:friendChatMode==="natural"?"native-first":"target-first",
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
   ...friendLiveMemoryConfig(liveMemory,!creatureEmbed),
   onInputSpeech:replyHints.onInputSpeech,

@@ -1334,3 +1334,20 @@ test("protected opening timeout unlocks microphone",async()=>{
   assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
   await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+test("Gemini 3.8 Live forwards input-only language hints; legacy models keep automatic detection",async()=>{
+ for(const [model,extra,expected] of [
+  ["gemini-3.8-live",{}, {languageCodes:["zh-TW","en-US"]}],
+  ["gemini-3.8-live",{guestAccessToken:"ephemeral-test"}, {languageCodes:["zh-TW","en-US"]}],
+  ["gemini-3.1-flash-live-preview",{}, {}]
+ ]){
+  resetSockets();const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:[model],maxLiveAttempts:1,connectTimeoutMs:100,
+   inputLanguageCodes:["zh-TW","zh-TW","invalid","en-US","ja-JP"],deps,...extra});
+  const starting=session.start(),socket=await waitForSocket(0);socket.open();
+  assert.deepEqual(socket.sent[0].setup.inputAudioTranscription,expected);
+  assert.deepEqual(socket.sent[0].setup.outputAudioTranscription,{});
+  socket.message({setupComplete:{}});await starting;
+  await session.stop({silentStatus:true,emitTerminal:false});
+ }
+});
