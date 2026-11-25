@@ -308,5 +308,13 @@
     "nextCall": "次回の通話から有効",
     "instructions": "そのまま声に出しても、自分の言葉で答えても大丈夫です",
     "unavailable": "このモデルは回答のヒントに対応していません"
+  },
+  "learningFeedback": {
+    "grammar": "文法の修正",
+    "wording": "語句の修正",
+    "natural": "より自然な表現",
+    "save": "フレーズ帳に保存",
+    "saved": "保存済み",
+    "failed": "保存できませんでした。再試行してください。"
   }
 }

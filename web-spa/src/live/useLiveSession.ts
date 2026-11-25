@@ -1,3 +1,4 @@
+import {appendLearningFeedbackTool,createLearningFeedbackQueue,LEARNING_FEEDBACK_FUNCTION,LEARNING_FEEDBACK_POLICY,type LearningFeedbackByTurn} from "./learningFeedback.mjs";
 import {useTeacherStore} from "../store/teacherStore";
 import {trackUsageEvent} from "../analytics/usage";
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMemoryEnabled}from"../teacher/studentMemory";
@@ -29,6 +30,7 @@ type Config={
  // Opt-in observer for a completed two-sided exchange, including guest trials.
  onObservedExchange?:(turn:LiveTurn)=>void;
  // Explicit, local-only Friend memory observer; not the general guest page callbacks.
+ learningFeedback?:boolean;
  guestFriendMemory?:boolean;
  guestMemoryTools?:Array<{functionDeclarations:Array<Record<string,unknown>>}>;
  onMemorySessionStart?:()=>void;
@@ -91,6 +93,8 @@ export function useLiveSession(config:Config){
  const [voicePhase,setVoicePhase]=useState<FriendVoicePhase>("idle");
  const voicePhaseRef=useRef<FriendVoicePhase>("idle");
  const setFriendPhase=(phase:FriendVoicePhase)=>{voicePhaseRef.current=phase;setVoicePhase(phase)};
+ const feedbackQueue=useRef(createLearningFeedbackQueue());
+ const [learningFeedback,setLearningFeedback]=useState<LearningFeedbackByTurn>({});
  const [turns,setTurns]=useState<LiveTurn[]>([]),[input,setInput]=useState(""),[output,setOutput]=useState("");
  const [searchSources,setSearchSources]=useState<GroundingSource[]>([]),[searchUnavailable,setSearchUnavailable]=useState(false),[searchSuggestions,setSearchSuggestions]=useState("");
  const [micEnabled,setMicEnabled]=useState(false);
@@ -169,7 +173,10 @@ export function useLiveSession(config:Config){
   const guestMemory=Boolean(grant?.friendMemory===true&&memoryConfig.sessionKind==="friend"&&memoryConfig.guestFriendMemory);
   const guestMemoryTools=memoryConfig.guestMemoryTools?.flatMap(group=>"functionDeclarations" in group?group.functionDeclarations.filter(tool=>tool.name==="save_friend_memory"):[]);
   const guestMemoryAllowed=guestMemory&&guestMemoryTools?.length===1;
-  memoryConfig.onMemorySessionStart?.();
+  const feedbackAllowed=Boolean(memoryConfig.learningFeedback&&(!grant||grant.learningFeedback===true));
+   const baseTools=grant?(guestMemoryAllowed?[{functionDeclarations:guestMemoryTools!}]:undefined):memoryConfig.tools;
+   feedbackQueue.current=createLearningFeedbackQueue();setLearningFeedback({});
+   memoryConfig.onMemorySessionStart?.();
   try{
    await ensureLive();
    if(!isActive())return;
@@ -267,7 +274,7 @@ export function useLiveSession(config:Config){
     textOnly:textOnly&&configRef.current.sessionKind==="friend",
     allowMicUpgrade:configRef.current.sessionKind==="friend",
     trackTextTurns:configRef.current.sessionKind==="friend",
-    system:sessionContext.system+(tabooSession?(tabooDirectGuess
+    system:sessionContext.system+(feedbackAllowed?LEARNING_FEEDBACK_POLICY+" Learning language: "+(memoryConfig.language||"")+"; explanation language: "+(memoryConfig.nativeLanguage||"en")+".":"")+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
     openingPrompt:sessionContext.openingPrompt,voice:configRef.current.voice,volume:volumeRef.current,
@@ -275,10 +282,10 @@ export function useLiveSession(config:Config){
     onOpeningProtectionChange:value=>{if(isActive())setOpeningProtected(value)},
     // Native Live Google Search is disabled: a server-side 1011 can close the audio session.
     // Grounding is fetched separately on explicit user actions, never in WebSocket setup.
-    tools:grant?(guestMemoryAllowed?[{functionDeclarations:guestMemoryTools!}]:undefined):configRef.current.tools,
+    tools:feedbackAllowed?appendLearningFeedbackTool(baseTools):baseTools,
       onGrounding:metadata=>{if(!isActive())return;setSearchSources(previous=>mergeGroundingSources(previous,extractGroundingSources(metadata)));const html=extractSearchSuggestions(metadata);if(html)setSearchSuggestions(html)},
       onSearchUnavailable:()=>{if(isActive())setSearchUnavailable(true)},
-      onToolCall:call=>!isActive()?{ok:false,error:"session-ended"}:!grant?configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"}:guestMemoryAllowed&&call.name==="save_friend_memory"?memoryConfig.onToolCall?.(call)||{ok:false,error:"not-handled"}:{ok:false,error:"guest-tools-disabled"},
+      onToolCall:call=>!isActive()?{ok:false,error:"session-ended"}:call.name===LEARNING_FEEDBACK_FUNCTION?(feedbackAllowed?feedbackQueue.current.propose(call):{ok:false,error:"feedback-disabled"}):!grant?configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"}:guestMemoryAllowed&&call.name==="save_friend_memory"?memoryConfig.onToolCall?.(call)||{ok:false,error:"not-handled"}:{ok:false,error:"guest-tools-disabled"},
      onToolsUnavailable:()=>{if(isActive())configRef.current.onToolsUnavailable?.()},
     // Crew Teacher/Friends only; other Crew products retain their current VAD.
     turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
@@ -364,7 +371,7 @@ export function useLiveSession(config:Config){
     },
     onRecovered:()=>{
        if(!isActive())return;
-      configRef.current.onRecovered?.();
+      feedbackQueue.current.clear();configRef.current.onRecovered?.();
       cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();
       setFriendPhase(awaitingTutorRef.current?"processing":"idle");
       // Reconnected transports can reuse an older system instruction: reassert
@@ -392,9 +399,10 @@ export function useLiveSession(config:Config){
        if(configRef.current.sessionKind==="friend")scheduleFriendReplyCheck();
       }else recoveryRequestRef.current=false;
     },
-     onTranscriptTurn:(turn,all)=>{if(!isActive())return;cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());if(!guestModeRef.current)configRef.current.onConfirmedTranscript?.(turn)},
+     onTranscriptTurn:(turn,all)=>{if(!isActive())return;cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());if(feedbackAllowed){const correction=feedbackQueue.current.complete(turn.input);if(correction)setLearningFeedback(previous=>({...previous,[all.length-1]:correction}))}if(!guestModeRef.current)configRef.current.onConfirmedTranscript?.(turn)},
     onTurnComplete:turn=>{
        if(!isActive())return;
+       feedbackQueue.current.clear();
       if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}
       else if(configRef.current.sessionKind==="friend"&&awaitingTutorRef.current)scheduleFriendReplyCheck(3000);
       const drift=(configRef.current.languageDriftGuard?.(turn.output||"")||false)
@@ -487,7 +495,7 @@ export function useLiveSession(config:Config){
   if(!deferReport)await completion;
   return {turns:(item?.turns||[]) as LiveTurn[],durationMs:Number(item?.durationMs||0),completion};
  },[closeSession,finish,snapshot]);
- const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");return sessionRef.current?.interrupt()??false},[]);
+ const interrupt=useCallback(()=>{feedbackQueue.current.clear();awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");return sessionRef.current?.interrupt()??false},[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
  const enableMicrophone=useCallback(async()=>{const session=sessionRef.current;if(!session?.ready||!session.enableMicrophone)throw new Error("Live 尚未連線");await session.enableMicrophone();if(sessionRef.current===session)setMicEnabled(true)},[]);
  const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
@@ -537,7 +545,7 @@ export function useLiveSession(config:Config){
    void closeSession(session,"page-leave");
   };
  },[closeSession,snapshot]);
- return{state,status,micEnabled,openingProtected,enableMicrophone,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
+ return{state,status,micEnabled,openingProtected,enableMicrophone,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,learningFeedback,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
 
 

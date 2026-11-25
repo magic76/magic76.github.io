@@ -1,0 +1,9 @@
+.live-learning-feedback{align-self:flex-end;max-width:90%;width:fit-content;min-width:0;margin:4px 0 8px;padding:0 12px;border:1px solid rgba(100,180,150,.4);border-radius:12px;background:rgba(100,180,150,.08);color:inherit;font-size:13px;overflow-wrap:anywhere}
+.live-learning-feedback summary{cursor:pointer;min-height:44px;padding:8px 0;line-height:1.4}
+.live-learning-feedback summary span{font-size:12px;font-weight:600;opacity:.85;margin-inline-end:6px}
+.live-learning-feedback summary strong{display:block;font-size:14px;line-height:1.45;margin-top:2px}
+.live-learning-feedback-body{padding-bottom:8px}
+.live-learning-feedback-body p{margin:4px 0;font-size:13px;white-space:pre-wrap}
+.live-learning-feedback-body button{min-height:44px;max-width:100%;margin-top:4px;padding:6px 10px;border:1px solid currentColor;border-radius:8px;background:transparent;color:inherit;cursor:pointer}
+.live-learning-feedback-body button:disabled{opacity:.7;cursor:default}
+.teaching-board-tutor .live-learning-feedback{max-width:100%}

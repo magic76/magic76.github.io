@@ -135,7 +135,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   // URL-scoped comparison: the existing voice WS, never a second ASR request.
   // All reply modes receive the same mother-tongue + target-language hints.
   inputLanguageCodes:params.get("asrHints")==="1"?inputTranscriptionLanguageCodes(language,friendNativeLanguage):undefined,
-  persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
+  learningFeedback:true,persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
   ...friendLiveMemoryConfig(liveMemory,true),
   onInputSpeech:replyHints.onInputSpeech,
   onObservedExchange:()=>{
@@ -204,7 +204,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   :[t("home:chatChoices.funny"),t("home:chatChoices.casual")]):[];
  const voiceStart=<>
   {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
-  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" precall friendMemory={undefined} textEntry={textFirst} autoTextOnVerified={textFirst&&(pendingTextStart||Boolean(dailyHandoff&&fortuneContinue))}
+  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" learningFeedback precall friendMemory={undefined} textEntry={textFirst} autoTextOnVerified={textFirst&&(pendingTextStart||Boolean(dailyHandoff&&fortuneContinue))}
     onVerificationChange={setGuestVerified} focusStartOnVerified={homeFirstAction} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}} onTextGrant={async grant=>{setGuestStarted(true);setPendingTextStart(false);await live.start(grant,true)}}/>
    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
    :textFirst&&!active?null:<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}>{active?(live.micEnabled?<FriendCallControls live={live} onEnd={endAndReturn}/>:<button type="button" className="friend-unified-end" onClick={()=>void endAndReturn()}>{t("callCaptions.hangUp")}</button>):<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}</div>}
@@ -266,7 +266,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
       {live.voicePhase==="no-reply"&&!guestStarted?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
     <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
-    {active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output}
+    {active?<FriendCallCaptions name={friend.name} turns={live.turns} learningFeedback={live.learningFeedback} input={live.input} output={live.output}
      learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled}
      speaking={live.state==="speaking"} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled}/>:null}
     {/* Keep the sticky keyboard out of voice pre-call; its two gate buttons need the full width and height. */}

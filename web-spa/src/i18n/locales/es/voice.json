@@ -308,5 +308,13 @@
     "nextCall": "Se aplicará en la próxima llamada",
     "instructions": "Puedes decirlo en voz alta o responder con tus propias palabras",
     "unavailable": "Este modelo no admite sugerencias de respuesta"
+  },
+  "learningFeedback": {
+    "grammar": "Gramática",
+    "wording": "Elección de palabras",
+    "natural": "Más natural",
+    "save": "Guardar frase",
+    "saved": "Guardado",
+    "failed": "No se pudo guardar. Inténtalo de nuevo."
   }
 }

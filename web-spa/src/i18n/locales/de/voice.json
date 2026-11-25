@@ -308,5 +308,13 @@
     "nextCall": "Gilt ab dem nächsten Anruf",
     "instructions": "Du kannst sie laut sagen oder mit eigenen Worten antworten",
     "unavailable": "Dieses Modell unterstützt keine Antwortvorschläge"
+  },
+  "learningFeedback": {
+    "grammar": "Grammatik",
+    "wording": "Wortwahl",
+    "natural": "Natürlicher",
+    "save": "Satz speichern",
+    "saved": "Gespeichert",
+    "failed": "Speichern fehlgeschlagen. Erneut versuchen."
   }
 }

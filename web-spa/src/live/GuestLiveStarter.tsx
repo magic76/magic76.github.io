@@ -13,7 +13,7 @@ type WidgetApi={
 };
 const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
-export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusStartOnVerified=false,textEntry=false,autoTextOnVerified=false,onVerificationChange,textFallback,linksInNewTab=false,friendMemory=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;onTextGrant?:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";precall?:boolean;focusStartOnVerified?:boolean;textEntry?:boolean;autoTextOnVerified?:boolean;onVerificationChange?:(verified:boolean)=>void;textFallback?:{href:string;name:string};linksInNewTab?:boolean;friendMemory?:boolean}){
+export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusStartOnVerified=false,textEntry=false,autoTextOnVerified=false,onVerificationChange,textFallback,linksInNewTab=false,friendMemory=false,learningFeedback=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;onTextGrant?:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";precall?:boolean;focusStartOnVerified?:boolean;textEntry?:boolean;autoTextOnVerified?:boolean;onVerificationChange?:(verified:boolean)=>void;textFallback?:{href:string;name:string};linksInNewTab?:boolean;friendMemory?:boolean;learningFeedback?:boolean}){
  const {t}=useTranslation(["common","voice"]);
  const linkTarget=linksInNewTab?{target:"_blank",rel:"noopener noreferrer"}:{};
  const [micUnavailable,setMicUnavailable]=useState(false);
@@ -151,7 +151,7 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
    }
    tokenRequested=true;
    const res=await fetch(GUEST_TOKEN_ENDPOINT,{method:"POST",cache:"no-store",
-    headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge,...(role==="friend"&&friendMemory?{role:"friend",friendMemory:true}:{}),...(authTicket?{authTicket}:{})})});
+    headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge,...(role==="friend"&&friendMemory?{role:"friend",friendMemory:true}:{}),...(learningFeedback?{role,learningFeedback:true}:{}),...(authTicket?{authTicket}:{})})});
    if(!res.headers.get("content-type")?.includes("application/json"))throw Error("invalid response");
    const data=await res.json() as GuestTrialGrant&{code?:string;error?:string};
    if(!res.ok||!data.token||!data.model||data.seconds!==300){

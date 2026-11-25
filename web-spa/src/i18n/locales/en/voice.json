@@ -308,5 +308,13 @@
     "nextCall": "Takes effect next call",
     "instructions": "Say one aloud, or answer in your own words",
     "unavailable": "This model does not support reply hints"
+  },
+  "learningFeedback": {
+    "grammar": "Grammar",
+    "wording": "Word choice",
+    "natural": "More natural",
+    "save": "Save to phrases",
+    "saved": "Saved",
+    "failed": "Could not save. Try again."
   }
 }
