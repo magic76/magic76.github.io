@@ -37,7 +37,13 @@ export async function prepareChunkRecoveryWorker():Promise<void>{
   const sw=navigator.serviceWorker;
   const timeout=()=>new Promise<null>(resolve=>setTimeout(()=>resolve(null),2500));
   const registration=await Promise.race([sw.register("/sw.js",{scope:"/",updateViaCache:"none"}),timeout()]);
-  if(!registration||sw.controller)return;
+  if(!registration)return;
+  // Existing PWA tabs can still be controlled by a worker from the previous
+  // deploy. Give its update check a bounded chance to finish before reload.
+  if(sw.controller){
+   await Promise.race([registration.update().catch(()=>null),timeout()]);
+   return;
+  }
   await new Promise<void>(resolve=>{
    const finish=()=>{clearTimeout(timer);sw.removeEventListener("controllerchange",finish);resolve();};
    const timer=setTimeout(finish,2500);
