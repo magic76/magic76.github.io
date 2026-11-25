@@ -145,7 +145,6 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 .crew-listening-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
 .crew-listening-choices .quiz-choice{min-height:86px;border:1px solid var(--line,#e7e5ee);border-radius:14px;background:var(--surface,#fff);padding:10px;color:var(--text,#1d2532);font:inherit;font-size:13px;font-weight:700;line-height:1.45;cursor:pointer}
 .crew-listening-choices .quiz-choice.correct{background:#edfaf2;border-color:#4aaf79;color:#186440}.crew-listening-choices .quiz-choice.wrong{background:#fff1f0;border-color:#d96d67;color:#ab2925}
-.crew-shadowing-cue{position:sticky;bottom:72px;z-index:4;margin:0;padding:12px 14px;border:1px solid #9fddba;border-radius:14px;background:#eefaf2;color:#1b603d;font-size:13px;font-weight:750;box-shadow:0 10px 30px rgba(28,80,54,.12)}
 .learning-deck-card .crew-phrase-card-actions{margin:10px 0}
 @media(max-width:620px){.crew-phrase-row{grid-template-columns:30px minmax(0,1fr)}.crew-phrase-inline-actions{grid-column:2}.crew-listening-choices{grid-template-columns:1fr}}
 
@@ -153,3 +152,5 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 .crew-vocab-example-actions .btn{min-height:44px}
 
 .learning-deck-card .text-button{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+
+.crew-phrase-recording{grid-column:1/-1;display:grid;gap:8px;padding:10px 0 0;border-top:1px solid var(--line,#e7e5ee);min-width:0}.crew-phrase-recording .btn{min-height:44px}.crew-phrase-recording audio{display:block;width:100%;max-width:400px}.crew-phrase-recording .crew-phrase-card-actions{margin:0}.crew-phrase-recording .inline-link{justify-self:start;min-height:44px;display:inline-flex;align-items:center}

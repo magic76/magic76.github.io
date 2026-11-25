@@ -11,12 +11,20 @@ test("course scoring matches complete word sequences instead of substrings",()=>
  assert.match(source,/phrase\.every\(\(part,j\)=>words\[i\+j\]===part\)/);
  assert.doesNotMatch(source,/student\.includes\(k\.toLowerCase\(\)\)/);
 });
-test("shadowing releases audio and microphone when leaving or switching sentences",()=>{
- const source=read("ShadowingPractice.tsx");
+test("phrase recording releases audio and microphone when leaving or switching phrases",()=>{
+ const source=read("PhraseRecording.tsx");
  assert.match(source,/getTracks\(\)\.forEach\(track=>track\.stop\(\)\)/);
  assert.match(source,/URL\.revokeObjectURL/);
  assert.match(source,/generation\.current\+=1/);
- assert.match(source,/window\.speechSynthesis\?\.cancel\(\)/);
+ assert.match(source,/stopLearningSpeech\(\)/);
+ assert.match(source,/session!==generation\.current/);
+ assert.match(source,/new MediaRecorder\(media\)/);
+ assert.doesNotMatch(source,/fetch\(|upload\(/);
+ const page=read("PhrasebookPage.tsx");
+ assert.match(page,/practicePanel\("daily:"\+phrase\.text/);
+ assert.match(page,/practicePanel\("saved:"\+x\.id/);
+ assert.doesNotMatch(read("PronunciationPage.tsx"),/ShadowingPractice/);
+ assert.equal(fs.existsSync(path.join(root,"web-spa/src/teacher/ShadowingPractice.tsx")),false);
 });
 test("learning progress and review link reuse existing data and routes",()=>{
  const snapshot=read("LearningSnapshot.tsx");

@@ -20,7 +20,7 @@ test("all supported locales retain phrase, vocabulary and chat learning copy",()
   const voice=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/voice.json"));
   for(const key of ["phrases","phrasesDesc"])assert.ok(teacher.learn[key],locale+" learn."+key);
   for(const key of ["neuralVoiceHint","modelDownloading","listenExample","saved","saveExample","fromWord"])assert.ok(teacher.vocabulary[key],locale+" vocabulary."+key);
-  for(const key of ["title","todayTitle","listeningTitle","listen","save","modelDownloading","delete","shadow","reviewed"])assert.ok(teacher.phrasebook[key],locale+" phrasebook."+key);
+  for(const key of ["title","todayTitle","listeningTitle","listen","save","modelDownloading","delete","shadow","reviewed","recordStart","recordStop","recordPlayback","recordPrivacy","recordError","recordTeacher","recordClose","recordIntro"])assert.ok(teacher.phrasebook[key],locale+" phrasebook."+key);
   for(const key of ["listen","saved","savePhrase","save","originalPrefix","savedNote","modelDownloading"])assert.ok(voice.textChat.learning[key],locale+" textChat.learning."+key);
   assert.equal(teacher.phrasebook.modelDownloading,teacher.vocabulary.modelDownloading);
   assert.equal(voice.textChat.learning.modelDownloading,teacher.vocabulary.modelDownloading);
