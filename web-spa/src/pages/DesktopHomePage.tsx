@@ -56,7 +56,7 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
      <h1>{friend?t("layout2.resumeTitle",{name:friend.name}):t("mobileHero.title")}</h1>
      <p>{t(friend?"chatChoices.returnPrompt":"chatChoices.prompt")}</p>
      <div className="kdh-zoe-actions">
-      <Link className="kdh-primary" to={voiceTo+"&chat=text"} onClick={()=>track("friend")}><Icon name="chat"/>{t("showcase29.desktop.voice")}</Link>
+      <Link className="kdh-primary" to={activity?.mode==="voice"?voiceTo:"/friend/live?id="+encodeURIComponent(id||"zoe")+"&from=home&chat=text"} onClick={()=>track("friend")}><Icon name="chat"/>{t("showcase29.desktop.voice")}</Link>
      </div>
     </div>
     <div className="kdh-zoe-visual" aria-hidden="true">
