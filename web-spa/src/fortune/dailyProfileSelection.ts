@@ -94,3 +94,8 @@ export function dailyProfileLabel(chart:DailyChart,locale:string,kindLabel:strin
  const nickname=readDailyChartMeta(chart.hash).nickname;
  return (nickname?nickname+" · ":"")+date+time+" · "+kindLabel;
 }
+
+/** Homepage labels never include birth dates, times or chart types. */
+export function dailyProfileName(hash:string,fallback:string):string{
+ return readDailyChartMeta(hash).nickname?.trim()||fallback;
+}
