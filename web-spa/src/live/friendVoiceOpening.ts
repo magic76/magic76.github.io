@@ -29,3 +29,6 @@ export function buildFriendVoiceOpening({name,languageDirective,shortsPost,short
    (lifeOpening||"")+"\n"+conversationHint;
  return opening+creatureContext+"\n"+languageDirective;
 }
+
+export const CURRENT_FACTS="\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.";
+export const FORTUNE_HANDOFF="[ZOE DAILY FORTUNE HANDOFF — FIRST REPLY]\nContinue discussing TODAY fortune with the user; do not greet or switch topics. Ask fortune follow-ups only.\n[/ZOE DAILY FORTUNE HANDOFF]";
