@@ -13,7 +13,7 @@ import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {detectNativeLanguage} from "../teacher/teacherLocale";
 import {useLiveSession} from "../live/useLiveSession";
-import {browserSpeechLocale} from "../live/browserSpeechRecognition";
+import {browserSpeechLanguagePair,resolveBrowserSpeechLanguage} from "../live/browserSpeechRecognition";
 import {useBrowserSpeechCaptions} from "../live/useBrowserSpeechCaptions";
 import {createElementPlayback} from "../live/createElementPlayback";
 import {useCreatureStageSync,useCreatureVoiceBridge} from "./useCreatureVoiceBridge";
@@ -187,7 +187,12 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  useEffect(()=>{if(textFirst||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textFirst,shortsPost,creatureEmbed]);
  useFriendBodyTheme(creatureEmbed);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
- const recognitionLanguage=browserSpeechLocale(language,friendNativeLanguage,friendChatMode);
+ const recognitionLanguages=useMemo(()=>browserSpeechLanguagePair(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
+ const [recognitionOverride,setRecognitionOverride]=useState("");
+ useEffect(()=>{setRecognitionOverride("")},[language,friendNativeLanguage]);
+ useEffect(()=>{if(!active)setRecognitionOverride("")},[active]);
+ const automaticRecognitionLanguage=useMemo(()=>resolveBrowserSpeechLanguage(recognitionLanguages,live.turns),[recognitionLanguages,live.turns]);
+ const recognitionLanguage=recognitionLanguages.includes(recognitionOverride)?recognitionOverride:automaticRecognitionLanguage;
  // Explicit opt-in: Android may open an additional browser microphone session.
  // Stop while AI is speaking, muted, reconnecting or leaving. Never replace Gemini's authoritative transcript.
  const browserSpeech=useBrowserSpeechCaptions({
@@ -265,6 +270,13 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
     </div>
     {browserSpeech.supported&&recognitionLanguage&&<div className="friend-call-menu-preferences">
      <button type="button" aria-pressed={browserSpeech.enabled} onClick={browserSpeech.toggle}>{t("voice:callCaptions.browserRecognition")} · {recognitionLanguage} · {t(browserSpeech.enabled?"voice:suggestReplies.on":"voice:suggestReplies.off")}</button>
+     {recognitionLanguages.length>1&&browserSpeech.enabled&&<label>
+      <small>{t("voice:callCaptions.browserRecognitionLanguage")}</small>
+      <select className="field" value={recognitionLanguages.includes(recognitionOverride)?recognitionOverride:""} onChange={e=>setRecognitionOverride(e.target.value)}>
+       <option value="">{t("voice:callCaptions.browserRecognitionAuto")} · {automaticRecognitionLanguage}</option>
+       {recognitionLanguages.map(code=><option key={code} value={code}>{code}</option>)}
+      </select>
+     </label>}
      <small>{t("voice:callCaptions.browserRecognitionNotice")}</small>
      {browserSpeech.failed&&<small role="status">{t("voice:callCaptions.browserRecognitionFailed")}</small>}
     </div>}

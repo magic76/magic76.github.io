@@ -285,6 +285,8 @@
     }
   },
   "callCaptions": {
+    "browserRecognitionLanguage": "Recognition language",
+    "browserRecognitionAuto": "Automatic (follows conversation)",
     "browserRecognition": "Browser speech recognition",
     "browserRecognitionNotice": "Experimental: may use your browser’s cloud speech service and affect call audio.",
     "browserRecognitionFailed": "Recognition unavailable. Original captions remain available.",

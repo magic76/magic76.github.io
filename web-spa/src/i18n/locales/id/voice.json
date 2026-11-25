@@ -285,6 +285,8 @@
     }
   },
   "callCaptions": {
+    "browserRecognitionLanguage": "Bahasa pengenalan",
+    "browserRecognitionAuto": "Otomatis (mengikuti percakapan)",
     "browserRecognition": "Pengenalan suara browser",
     "browserRecognitionNotice": "Eksperimental: dapat menggunakan layanan suara cloud browser dan memengaruhi audio panggilan.",
     "browserRecognitionFailed": "Pengenalan tidak tersedia. Teks asli tetap tersedia.",

@@ -285,6 +285,8 @@
     }
   },
   "callCaptions": {
+    "browserRecognitionLanguage": "Langue de reconnaissance",
+    "browserRecognitionAuto": "Automatique (selon la conversation)",
     "browserRecognition": "Reconnaissance vocale du navigateur",
     "browserRecognitionNotice": "Fonction expérimentale : peut utiliser le service vocal cloud du navigateur et affecter l’audio de l’appel.",
     "browserRecognitionFailed": "Reconnaissance indisponible. Les sous-titres d’origine restent disponibles.",

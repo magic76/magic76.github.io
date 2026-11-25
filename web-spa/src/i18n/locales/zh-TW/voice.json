@@ -285,6 +285,8 @@
     }
   },
   "callCaptions": {
+    "browserRecognitionLanguage": "辨識語言",
+    "browserRecognitionAuto": "自動（依對話切換）",
     "browserRecognition": "瀏覽器語音辨識",
     "browserRecognitionNotice": "實驗功能：可能使用瀏覽器雲端語音服務，並影響通話音訊。",
     "browserRecognitionFailed": "辨識不可用，已保留原字幕。",
