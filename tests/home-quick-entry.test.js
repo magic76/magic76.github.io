@@ -62,3 +62,18 @@ test("eleven localized hero/title/quick-entry strings; keep returning-friend pat
   assert.ok(home.mobileHero.title.length<27,locale+" mobile title too long");
  }
 });
+
+test("homepage has one chat action and suggestions are optional inside text chat",()=>{
+ const desktopHome=read(base+"DesktopHomePage.tsx");
+ const mobileHero=mobile.slice(mobile.indexOf('cmh-slide cmh-zoe'),mobile.indexOf('cmh-slide cmh-slide-friends'));
+ const desktopHero=desktopHome.slice(desktopHome.indexOf('className="kdh-zoe-content"'),desktopHome.indexOf('className="kdh-zoe-visual"'));
+ for(const hero of [mobileHero,desktopHero]) {
+  assert.equal((hero.match(/<Link /g)||[]).length,1);
+  assert.doesNotMatch(hero,/HomeChatChoices|home-chat-choices/);
+ }
+ const conversation=read("web-spa/src/friends/FriendLiveConversation.tsx");
+ const composer=read("web-spa/src/friends/FriendUnifiedComposer.tsx");
+ assert.match(conversation,/showHomeStarters=fromHome&&!live\.micEnabled&&\(textFirst\|\|active\)&&live\.turns\.length===0/);
+ assert.match(conversation,/\.\.\.homeStarters\]\.filter/);
+ assert.match(composer,/quick\.map\(value=>.*onClick=\{\(\)=>void send\(value\)\}/);
+});

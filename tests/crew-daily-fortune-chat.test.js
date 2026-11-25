@@ -32,7 +32,7 @@ test("daily default never persists; manual tab changes still use existing store 
  const initial=friend.match(/useState<FriendChatLanguageMode>\(\(\)=>\{[^}]*\}\)/)?.[0]||"";
  assert.doesNotMatch(initial,/setFriendChatMode|setItem|localStorage/);
  assert.match(friend,/const friendNativeLanguage=dailyEntry\?detectNativeLanguage\(locale\.language\):nativeLanguage/);
- assert.match(friend,/buildFriendSystem\(friend,language,friendNativeLanguage,friendChatMode,!homeChat\.active\)/);
+ assert.match(friend,/buildFriendSystem\(friend,language,friendNativeLanguage,friendChatMode\)/);
  assert.match(friend,/friendLanguageReminder\(language,friendNativeLanguage,friendChatMode\)/);
  assert.match(friend,/friendLanguageTransition\(language,friendNativeLanguage,chosen\)/);
  const manual=friend.slice(friend.indexOf("const changeFriendChatMode="),friend.indexOf("const voiceStart="));

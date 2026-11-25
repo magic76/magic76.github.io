@@ -11,7 +11,6 @@ import {GuideHub} from "../guides/GuideHub";
 import {useClientReady} from "../lib/useClientReady";
 import {useHomeAmbientMotion} from "../lib/useHomeAmbientMotion";
 import {DailyTopicCards} from "./DailyTopicCards";
-import {HomeChatChoices} from "./HomeChatChoices";
 import {HomeGeminiVerify} from "./HomeGeminiVerify";
 import {CreatureLabResume} from "./CreatureLabResume";
 import type {CreatureLabProgress} from "./creatureLabProgress";
@@ -134,7 +133,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
       <div className="cmh-zoe-actions">
-       <HomeChatChoices friendId={resumeId||"zoe"} returning={!!friendResume} active={activeSlide===0}/>
        <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.voice")}</Link>
       </div>
      </section>

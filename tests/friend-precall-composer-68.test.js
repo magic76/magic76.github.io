@@ -24,7 +24,7 @@ test("#68: voice pre-call never mounts the sticky composer over its gate buttons
 test("#68: text-first and active-call paths keep their existing unified input",()=>{
  assert.match(page,/textEntry=\{textFirst\}/);
  assert.match(page,/onVerificationNeeded=\{textFirst\?\(\)=>setPendingTextStart\(true\):undefined\}/);
- assert.match(page,/onTextGrant=\{async grant=>\{homeChat\.verified\(\);setGuestStarted\(true\);setPendingTextStart\(false\);await live\.start\(grant,true\)\}\}/);
+ assert.match(page,/onTextGrant=\{async grant=>\{setGuestStarted\(true\);setPendingTextStart\(false\);await live\.start\(grant,true\)\}\}/);
  assert.match(page,/\{active\?<FriendCallCaptions\b/);
  // Connected sessions still switch from the pre-call to phone-stage class.
  assert.match(page,/active\?" friend-phone-stage":" friend-precall-stage"/);

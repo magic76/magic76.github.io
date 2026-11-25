@@ -29,7 +29,7 @@ test("rejects invalid arguments",()=>{
 test("friend voice generates text hints only after valid completed output",()=>{
  const page=readFileSync("web-spa/src/friends/FriendLiveConversation.tsx","utf8");
  assert.match(page,/if\(_turn\.hasValidOutput\)replyHints\.generate\(completedTurns\)/);
- assert.match(page,/onInputSpeech:\(\)=>\{replyHints\.onInputSpeech\(\);homeChat\.input\(\)\}/);
+ assert.match(page,/onInputSpeech:replyHints\.onInputSpeech/);
  assert.doesNotMatch(page,/tools:replyHints\.tools|onToolCall:replyHints\.onToolCall|replyHints\.prompt|onMissingReplyHints/);
  assert.ok(Buffer.byteLength(page)<26000);
  const teacher=readFileSync("web-spa/src/teacher/LivePage.tsx","utf8");

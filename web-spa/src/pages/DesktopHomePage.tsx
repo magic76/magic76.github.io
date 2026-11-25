@@ -7,7 +7,6 @@ import {trackUsageEvent} from "../analytics/usage";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {readLatestFriendActivity,type FriendActivity} from "../live/sessionTranscript";
-import {HomeChatChoices} from "./HomeChatChoices";
 import {DailyTopicCards} from "./DailyTopicCards";
 import {CreatureLabResume} from "./CreatureLabResume";
 import type {CreatureLabProgress} from "./creatureLabProgress";
@@ -58,7 +57,6 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
      <span className="kdh-eyebrow"><span className="kdh-status-dot"/> {friend?friend.name.toUpperCase():"ZOE"} · {t("showcase29.badgeFriend")}</span>
      <h1>{friend?t("layout2.resumeTitle",{name:friend.name}):t("mobileHero.title")}</h1>
      <p>{t(friend?"chatChoices.returnPrompt":"chatChoices.prompt")}</p>
-     <HomeChatChoices friendId={id||"zoe"} returning={!!friend}/>
      <div className="kdh-zoe-actions">
       <Link className="kdh-primary" to={voiceTo} onClick={()=>track("friend")}><Icon name="chat"/>{t("showcase29.desktop.voice")}</Link>
      </div>

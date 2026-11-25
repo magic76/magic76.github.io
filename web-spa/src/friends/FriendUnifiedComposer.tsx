@@ -11,14 +11,12 @@ type Props={
  blocked?:boolean;
  starters?:string[];
  autoStarter?:string;
- homeStarter?:()=>string;
- onTextSent?:()=>void;
  verificationReady?:boolean;
  onVerificationNeeded?:()=>void;
 };
 
 /** One keyboard for the voice and text-first paths. Both call live.sendText. */
-export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,starters=[],autoStarter,homeStarter,onTextSent,verificationReady=false,onVerificationNeeded}:Props){
+export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,starters=[],autoStarter,verificationReady=false,onVerificationNeeded}:Props){
  const {t}=useTranslation("voice");
  const inputRef=useRef<HTMLTextAreaElement>(null);
  const autoSent=useRef(false);
@@ -30,7 +28,7 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
  const connected=live.state==="listening"||live.state==="speaking";
  const connecting=live.state==="requesting-mic"||live.state==="connecting"||live.state==="ending"||live.state==="reporting";
  useEffect(()=>{if(focusOnMount)inputRef.current?.focus({preventScroll:true})},[focusOnMount]);
- const send=async(value:string,focus=true)=>{
+ const send=async(value:string)=>{
   const text=value.trim();
   if(!text||busy)return;
   if(blocked){setNotice(t("friendLive.preparingPost"));return}
@@ -47,9 +45,8 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
   try{
    if(!connected)await live.start(undefined,true);
    if(!live.sendText(text))throw Error("Live unavailable");
-   onTextSent?.();
    setDraft(current=>current.trim()===text?"":current);
-   if(focus)inputRef.current?.focus({preventScroll:true});
+   inputRef.current?.focus({preventScroll:true});
   }catch{
    setDraft(current=>current||text);
    setNotice(t("guestTrial.serviceUnavailable",{ns:"common"}));
@@ -76,11 +73,6 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
   catch{setNotice(t("controls.micBlocked"))}
   finally{setMicBusy(false)}
  };
- useEffect(()=>{
-  if(autoSent.current||!homeStarter||blocked||busy||connecting||(!connected&&!hasKey))return;
-  autoSent.current=true;
-  void send(homeStarter(),false);
- },[homeStarter,blocked,busy,connecting,connected,hasKey]);
  // The explicit fortune handoff auto-sends once. Ordinary visitors still decide when to start.
  useEffect(()=>{
   if(autoSent.current||!autoStarter?.trim()||blocked||busy||live.turns.length)return;
