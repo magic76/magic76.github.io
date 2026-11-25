@@ -13,8 +13,7 @@ import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {detectNativeLanguage} from "../teacher/teacherLocale";
 import {useLiveSession} from "../live/useLiveSession";
-import {browserSpeechLanguagePair,resolveBrowserSpeechLanguage} from "../live/browserSpeechRecognition";
-import {useBrowserSpeechCaptions} from "../live/useBrowserSpeechCaptions";
+import {useFriendRecognition} from "./useFriendRecognition";
 import {createElementPlayback} from "../live/createElementPlayback";
 import {useCreatureStageSync,useCreatureVoiceBridge} from "./useCreatureVoiceBridge";
 import {creatureVoiceInstruction} from "./creatureVoiceBridge.mjs";
@@ -48,7 +47,7 @@ import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageM
 import {buildFriendSystem,recordFriendChat,recordFriendVoiceExchange,friendVoiceOpeningRecall,getHomeChatTopic,friendMemoryEnabled,friendLiveMemoryConfig,createFriendLiveMemory} from "./friendMemory";
 import {recordFriendActivity,clearLegacyFriendChats} from "../live/sessionTranscript";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
-import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
+import {buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
 import {isShortsHook,shortsSelectedQuestion,rememberShortsConversation} from "../teacher/shortsSocial";
 import "./friends.css";
 import "./friendCall.css";
@@ -191,19 +190,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  useEffect(()=>{if(textFirst||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textFirst,shortsPost,creatureEmbed]);
  useFriendBodyTheme(creatureEmbed);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
- const recognitionLanguages=useMemo(()=>browserSpeechLanguagePair(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
- const [recognitionOverride,setRecognitionOverride]=useState("");
- useEffect(()=>{setRecognitionOverride("")},[language,friendNativeLanguage]);
- useEffect(()=>{if(!active)setRecognitionOverride("")},[active]);
- const automaticRecognitionLanguage=useMemo(()=>resolveBrowserSpeechLanguage(recognitionLanguages,live.turns),[recognitionLanguages,live.turns]);
- const recognitionLanguage=recognitionLanguages.includes(recognitionOverride)?recognitionOverride:automaticRecognitionLanguage;
- // Explicit opt-in: Android may open an additional browser microphone session.
- // Stop while AI is speaking, muted, reconnecting or leaving. Never replace Gemini's authoritative transcript.
- const browserSpeech=useBrowserSpeechCaptions({
-  eligible:!creatureEmbed&&live.state==="listening"&&live.micEnabled&&!live.muted&&!live.openingProtected,
-  language:recognitionLanguage,turnCount:live.turns.length,
-  clear:!active||!live.micEnabled||live.muted||live.openingProtected||live.state==="connecting"
- });
+ const {recognitionLanguages,recognitionOverride,setRecognitionOverride,recognitionLanguage,browserSpeech}=useFriendRecognition({language,friendNativeLanguage,friendChatMode,live,active,creatureEmbed});
  useAuxiliaryLiveSession(active,false);
  useFriendVoiceTheme(!creatureEmbed&&!active);
  const needsKey=live.state==="error"&&live.errorKind==="key";
