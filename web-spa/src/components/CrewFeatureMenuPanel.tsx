@@ -39,7 +39,6 @@ export const FEATURE_MENU_GROUPS:readonly MenuGroup[]=[
  {id:"explore",icon:"✨",items:[
   {id:"souls",to:"/souls",icon:"✨",detail:"souls"},
   {id:"fortune",to:"/fortune",icon:"🔮",detail:"fortune"},
-  {id:"magic",to:"/magic",icon:"🪄",detail:"magic"},
   {id:"discover",to:"/discover",icon:"🌍",detail:"discover"},
   {id:"research",to:"/research",icon:"📚",detail:"briefing"}
  ]},
