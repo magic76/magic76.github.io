@@ -20,7 +20,6 @@ const APPS:AppEntry[]=[
  {id:"timeline",icon:"history",zh:"人生時間線",en:"Timeline",descriptionZh:"穿梭不同人生階段，發現新視角。",descriptionEn:"Explore different stages of life.",to:"/timeline"},
  {id:"souls",icon:"sparkles",zh:"物品會說話",en:"Souls",descriptionZh:"讓你身邊的物品活起來。",descriptionEn:"Bring everyday things to life.",to:"/souls"},
  {id:"town",icon:"home",zh:"Crew 小鎮",en:"Crew Town",descriptionZh:"到朋友們的小鎮走走。",descriptionEn:"Visit your friends' little town.",to:"/town"},
- {id:"discover",icon:"cards",zh:"探索世界",en:"Discover",descriptionZh:"從真實生活發現有趣的新知。",descriptionEn:"Discover something new in the real world.",to:"/discover"},
  {id:"research",icon:"book",zh:"研究精選",en:"Research",descriptionZh:"看看 AI 與科技的最新研究。",descriptionEn:"Read selected AI and technology research.",to:"/research"},
  {id:"mate",icon:"mic",zh:"AI 溝通",en:"Crew Mate",descriptionZh:"讓 AI 幫你跨語言溝通。",descriptionEn:"Get AI help talking across languages.",to:"/mate"}
 ];

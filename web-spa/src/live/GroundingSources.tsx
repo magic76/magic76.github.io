@@ -1,5 +1,5 @@
 import {Arrow} from "../components/Arrow";
-import "../pages/discover.css";
+import "./grounding-sources.css";
 import type {GroundingSource} from "./grounding";
 export function GroundingSources({sources,english=false,searchSuggestions=""}:{sources:GroundingSource[];english?:boolean;searchSuggestions?:string}){
  if(!sources.length&&!searchSuggestions)return null;

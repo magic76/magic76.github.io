@@ -15,7 +15,6 @@ import{AppChrome}from"./components/AppChrome";
 
 const CrewUpdateNotice=lazy(()=>import("./components/CrewUpdateNotice").then(m=>({default:m.CrewUpdateNotice})));
 const CrewInstallNudge=lazy(()=>import("./components/CrewInstallEntry").then(m=>({default:m.CrewInstallNudge})));
-const DiscoverPage=lazy(()=>import("./pages/DiscoverPage").then(m=>({default:m.DiscoverPage})));
 const PhoneLabPage=lazy(()=>import("./pages/PhoneLabPage").then(m=>({default:m.PhoneLabPage})));
 const TruthNewsPage=lazy(()=>import("./games/TruthNewsPage").then(m=>({default:m.TruthNewsPage})));
 const CyberOrbPage=lazy(()=>import("./pages/CyberOrbPage").then(m=>({default:m.CyberOrbPage})));
@@ -79,7 +78,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/phone" element={<PhoneLabPage/>}/>
 <Route path="/chat" element={<AppChrome product="home"><CrewSectionPage section="chat"/></AppChrome>}/>
 <Route path="/explore" element={<AppChrome product="home"><CrewSectionPage section="explore"/></AppChrome>}/>
-<Route path="/discover" element={<AppChrome product="home"><DiscoverPage/></AppChrome>}/>
+<Route path="/discover" element={<Navigate to="/explore" replace/>}/>
  <Route path="/mate" element={<AppChrome product="home"><MatePage/></AppChrome>}/>
 <Route path="/town" element={<AppChrome product="home"><CrewTownPage/></AppChrome>}/>
 <Route path="/magic" element={<Navigate to="/explore" replace/>}/>

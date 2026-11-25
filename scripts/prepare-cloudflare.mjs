@@ -263,6 +263,10 @@ for(const prefix of ["","/en"]){
 // Use two exact-depth placeholder rules; /en/research/ hub remains untouched.
 // Cloudflare Pages _redirects supports these dynamic placeholder 301 rules.
 const rules=[
+ "/discover /explore 301",
+ "/discover/ /explore 301",
+ "/en/discover /en/explore 301",
+ "/en/discover/ /en/explore 301",
  "/crew-creature-lab /explore 301",
  "/crew-creature-lab/* /explore 301",
  "/crew-app/crew-creature-lab /explore 301",

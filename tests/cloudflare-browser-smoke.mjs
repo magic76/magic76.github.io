@@ -1034,12 +1034,13 @@ async function run(){
   await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/explore");
   await home.locator('a[href="/fortune"]').first().waitFor({state:"visible",timeout:15000});
   assert.ok(await home.locator('a[href="/fortune"]').count(),"Fortune must remain accessible in Explore");
-  // Five original destinations plus Mate, Town, Magic and Discover remain visible; Circle is hidden.
+  // Only active Explore destinations are visible.
   const exploreCards=home.locator(".crew-explore-grid .crew-explore-tile");
   await exploreCards.first().waitFor({state:"visible",timeout:15000});
-  assert.equal(await exploreCards.count(),9,"Explore must expose nine visible destinations");
+  assert.equal(await exploreCards.count(),4,"Explore must expose four visible destinations");
   assert.equal(await home.locator('.crew-explore-grid a[href="/circle"]').count(),0,"Circle must stay hidden in Explore");
-  for(const destination of ["/fortune","/timeline","/games","/story","/research","/mate","/town","/magic","/discover"])
+  assert.equal(await home.locator('.crew-explore-grid a[href="/discover"]').count(),0,"Discover must stay retired");
+  for(const destination of ["/fortune","/games","/research","/souls"])
    assert.equal(await home.locator('.crew-explore-grid a[href="'+destination+'"]').count(),1,"Explore missing "+destination);
   assert.equal(await home.locator(".crew-section-explore .crew-section-hero").count(),0,"Explore should not promote one giant hero");
   assert.equal(await home.locator(".crew-section-explore .crew-section-discover").count(),0,"No second 'more destinations' list");

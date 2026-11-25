@@ -5,7 +5,7 @@ import {useTranslation} from "react-i18next";
 import {searchGroundedText} from "../live/searchGroundedText";
 import {GroundingSources} from "../live/GroundingSources";
 import type {GroundingSource} from "../live/grounding";
-import "../pages/discover.css";
+import "./truth-news.css";
 type Question={options:string[];correct:number;explanation:string;sources:GroundingSource[];searchSuggestions?:string};
 function parseQuestion(text:string,sources:GroundingSource[],searchSuggestions?:string):Question{
  if(!sources.length)throw Error("No verifiable sources");

@@ -239,10 +239,6 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      </span>
      <Arrow direction="right" className="crew-explore-arrow"/>
     </Link>
-    <Link className="crew-explore-tile crew-explore-discover" data-kind="discover" to="/discover" onClick={()=>trackUsageEvent("explore_entry_click","briefing")}>
-      <div className="crew-explore-art" aria-hidden="true" style={{display:"grid",placeItems:"center",fontSize:"clamp(48px,7vw,90px)",background:"linear-gradient(135deg,#e8d6f4,#b9d9de)"}}>✦</div>
-      <span className="crew-explore-text"><strong>{en?"Koolo Discover · Explore real life":"Koolo Discover · 探索真實世界"}</strong><small>{en?"Search real news by text or voice.":"搜尋真實新聞、文化與新知，和 AI 用文字或語音一起探索。"}</small></span><Arrow direction="right" className="crew-explore-arrow"/>
-    </Link>
    </section>:
    <>
     {section==="chat"?
