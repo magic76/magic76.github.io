@@ -164,7 +164,11 @@ jobs:
           MERGE_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin "$BASE_SHA" "$MERGE_SHA"
+          git fetch --no-tags --depth=1 origin "$MERGE_SHA"
+          BASE_SHA="$(git cat-file -p "$MERGE_SHA" | sed -n 's/^parent //p' | head -1)"
+          test -n "$BASE_SHA"
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          echo "Actual merge parent: $BASE_SHA"
           for snapshot in base merge; do
             sha="$BASE_SHA"
             if [ "$snapshot" = merge ]; then sha="$MERGE_SHA"; fi
