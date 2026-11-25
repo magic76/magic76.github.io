@@ -1,6 +1,6 @@
 
-/* Four learning-method cards use the same right-edge arrow slot. */
-.crew-section-learn .crew-learn-tool{position:relative;padding-right:42px}
+/* Learning-method cards reserve a bottom-right arrow slot. */
+.crew-section-learn .crew-learn-tool{position:relative}
 .crew-section-learn .crew-learn-tool .crew-learn-tool-arrow{position:absolute;right:10px;bottom:10px;width:20px;height:20px;color:inherit}
 /* Intent-first Crew hub destinations. Original products remain directly reachable. */
 .crew-section-hub{display:grid;gap:22px;max-width:1000px;margin:0 auto;padding:8px 0 40px}
@@ -146,13 +146,6 @@
 .crew-learn-tool .crew-section-card-copy strong{font-size:14px;line-height:1.4}
 .crew-learn-tool .crew-section-card-copy small{font-size:12px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
 /* Keep the speaking entry's SVG intrinsic size out of the mobile grid layout. */
-.crew-learn-three-minute{display:grid;grid-template-columns:40px minmax(0,1fr) 20px;gap:12px;align-items:center;box-sizing:border-box;width:100%;min-width:0;padding:11px 13px;border:1px solid var(--line);border-radius:15px;text-decoration:none;color:var(--text);background:var(--surface);min-height:64px}
-.crew-learn-three-minute-icon{width:40px;height:40px;min-width:0}
-.crew-learn-three-minute-icon svg{display:block;width:22px;height:22px;stroke:currentColor;stroke-width:1.65;fill:none;stroke-linejoin:round;stroke-linecap:round}
-.crew-learn-three-minute-copy{display:grid;gap:3px;min-width:0;overflow-wrap:break-word}
-.crew-learn-three-minute-copy strong{font-size:13px;line-height:1.4}
-.crew-learn-three-minute-copy small{display:block;color:var(--muted);font-size:12px;line-height:1.4}
-.crew-learn-three-minute-arrow{justify-self:end;color:inherit;font-size:20px;line-height:1}
 .crew-learn-more{border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
 .crew-learn-more>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:51px;padding:12px 16px;font-size:14px;font-weight:700}
 .crew-learn-more>summary::-webkit-details-marker{display:none}
@@ -178,7 +171,10 @@
 .crew-learn-focus-progress .crew-today-learning.compact{background:rgba(255,255,255,.55);padding:12px 14px}
 .crew-section-learn .crew-learn-tools{margin-top:15px}
 .crew-section-learn .crew-learn-tool{background:var(--surface);box-shadow:none;opacity:.94}
-.crew-learn-secondary-links{display:flex;gap:9px 18px;flex-wrap:wrap;margin-top:11px;padding:4px 0}
+.crew-learn-secondary-links{display:flex;gap:4px 16px;flex-wrap:wrap;margin-top:11px;padding:4px 0}
+.crew-learn-secondary-links a{display:inline-flex;align-items:center;gap:6px;min-height:44px;box-sizing:border-box;max-width:100%}
+.crew-learn-secondary-links a svg{display:block;width:18px;height:18px;flex:0 0 18px;stroke:currentColor;fill:none}
+.crew-learn-secondary-links a span{min-width:0;overflow-wrap:anywhere}
 .crew-section-chat .crew-daily-intents{margin-top:20px}
 .crew-learn-back-small{display:inline-flex;min-height:40px;align-items:center;color:var(--accent);font-size:13px;text-decoration:none;margin-bottom:10px}
 .crew-course-track-card{gap:10px;justify-content:space-between}
@@ -260,3 +256,7 @@
 
 /* Fixed tracks: a missing icon must never push copy into the 40px icon column. */
 .crew-section-card>.crew-section-card-icon{grid-column:1;grid-row:1}.crew-section-card>.crew-section-card-copy{grid-column:2;grid-row:1}.crew-section-card>.crew-section-arrow{grid-column:3;grid-row:1;justify-self:end}
+/* Vertical learning cards must not inherit the horizontal copy track. */
+.crew-section-learn .crew-learn-tool>.crew-section-card-icon{grid-column:1;grid-row:1}
+.crew-section-learn .crew-learn-tool>.crew-section-card-copy{grid-column:1;grid-row:2}
+.crew-section-learn .crew-learn-tool{padding-bottom:34px}

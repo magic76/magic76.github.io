@@ -235,24 +235,29 @@ async function verifyLearningResponsiveLayout(browser){
     if(path==="/learn/"){
      const textWidth=await page.locator(".crew-section-focus-card-content").evaluate(el=>el.getBoundingClientRect().width);
      assert.ok(textWidth>(width<500?160:280),"Learn heading must remain readable at "+width);
-     // Regression: bare SVG on the speaking shortcut once occupied ~300px and squeezed Chinese into one character per line.
-     const speaking=page.locator(".crew-learn-three-minute");
-     await speaking.waitFor({state:"visible"});
-     const shortcut=await speaking.evaluate(el=>{
-      const svg=el.querySelector(".crew-learn-three-minute-icon svg");
-      const copy=el.querySelector(".crew-learn-three-minute-copy");
-      const arrow=el.querySelector(".crew-learn-three-minute-arrow");
-      const bounds=el.getBoundingClientRect(),icon=svg.getBoundingClientRect(),text=copy.getBoundingClientRect();
-      const style=getComputedStyle(svg);
-      return {width:bounds.width,iconWidth:icon.width,iconHeight:icon.height,textWidth:text.width,
-       textRight:text.right,arrowLeft:arrow.getBoundingClientRect().left,stroke:style.stroke,fill:style.fill};
-     });
-     assert.ok(shortcut.iconWidth>=18&&shortcut.iconWidth<=26&&shortcut.iconHeight>=18&&shortcut.iconHeight<=26,
-      "Speaking icon must stay ~22px at "+width+": "+JSON.stringify(shortcut));
-     assert.ok(shortcut.textWidth>=(width<500?110:200)&&shortcut.textRight<=shortcut.arrowLeft+1,
-      "Speaking text must fit before arrow at "+width+": "+JSON.stringify(shortcut));
-     assert.equal(shortcut.fill,"none","Speaking icon must not render as a solid black bubble");
-     assert.notEqual(shortcut.stroke,"none","Speaking icon must keep its outline");
+     // Learn secondary links must remain compact and readable, with bounded SVGs.
+     const secondary=page.locator(".crew-learn-secondary-links a");
+     assert.equal(await secondary.count(),5);
+     assert.equal(await page.locator(".crew-learn-three-minute").count(),0);
+     for(const link of await secondary.all()){
+      const item=await link.evaluate(el=>{
+       const svg=el.querySelector("svg"),copy=el.querySelector("span");
+       const bounds=el.getBoundingClientRect(),icon=svg.getBoundingClientRect(),label=copy.getBoundingClientRect(),style=getComputedStyle(svg);
+       return {height:bounds.height,iconWidth:icon.width,iconHeight:icon.height,iconRight:icon.right,textLeft:label.left,textRight:label.right,right:bounds.right,stroke:style.stroke,fill:style.fill};
+      });
+      assert.ok(item.iconWidth>=16&&item.iconWidth<=20&&item.iconHeight>=16&&item.iconHeight<=20,"Secondary icon size at "+width);
+      assert.ok(item.height>=44&&item.iconRight<=item.textLeft+1&&item.textRight<=item.right+1,"Secondary link readable at "+width);
+      assert.equal(item.fill,"none");
+      assert.notEqual(item.stroke,"none");
+     }
+     const cards=await page.locator(".crew-learn-tool").evaluateAll(elements=>elements.map(el=>{
+      const icon=el.querySelector(".crew-section-card-icon"),copy=el.querySelector(".crew-section-card-copy"),arrow=el.querySelector(".crew-learn-tool-arrow");
+      const a=icon.getBoundingClientRect(),b=copy.getBoundingClientRect(),c=arrow.getBoundingClientRect();
+      return {iconBottom:a.bottom,copyTop:b.top,copyBottom:b.bottom,arrowTop:c.top,shape:icon.querySelector("svg").innerHTML};
+     }));
+     assert.equal(cards.length,5);
+     assert.equal(new Set(cards.map(card=>card.shape)).size,5);
+     assert.ok(cards.every(card=>card.iconBottom<=card.copyTop+1&&card.copyBottom<=card.arrowTop+1),"Vertical cards must not overlap at "+width);
     }
     if(path==="/teacher/vocabulary/"){
      const positions=await page.locator(".crew-learning-question .quiz-choice").evaluateAll(elements=>elements.map(el=>el.getBoundingClientRect().top));

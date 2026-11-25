@@ -19,7 +19,6 @@ import {useClientReady} from "../lib/useClientReady";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {localizedNativeName} from "../teacher/teacherLocale";
-import {teacherLanguageHomeHint} from "../teacher/teacherLanguageUx";
 import {friendSpokenLanguage} from "../friends/friendLanguage";
 import "./crewExplore.css";
 import "./crewSections.css";
@@ -172,7 +171,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
  const uiLanguage=i18n.resolvedLanguage||i18n.language;
  const shownTargetName=t("friends:languages."+shownTarget,{defaultValue:friendSpokenLanguage(shownTarget)});
  const shownNativeName=localizedNativeName(shownNative,uiLanguage);
- const shownHint=section==="learn"?teacherLanguageHomeHint(teachingMode,learnerSpeakingLevel,shownNativeName,shownTargetName,uiLanguage==="en",uiLanguage,key=>t("teacher:languageHint."+key,{native:shownNativeName,target:shownTargetName})):"";
+ const shownHint=section==="learn"?t("teacher:languageHint."+(teachingMode==="immersion"?"immersion":teachingMode==="beginner"||learnerSpeakingLevel==="A1"||learnerSpeakingLevel==="A2"?"beginner":learnerSpeakingLevel==="B1"||learnerSpeakingLevel==="B2"?"advanced":"adaptive"),{native:shownNativeName,target:shownTargetName}):"";
  const en=i18n.language!=="zh-TW";
  const source=en?englishCopy[section]:copy[section];
  // The hero is Fortune; the remaining five cards start at Timeline.
@@ -202,10 +201,10 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
 
  const learnTools=[
   {to:"/teacher/vocabulary",icon:"cards" as IconName,title:tTeacher("learn.vocab"),desc:tTeacher("learn.vocabDesc")},
-  {to:"/teacher/phrasebook",icon:"cards" as IconName,title:tTeacher("learn.phrases"),desc:tTeacher("learn.phrasesDesc")},
+  {to:"/teacher/phrasebook",icon:"chat" as IconName,title:tTeacher("learn.phrases"),desc:tTeacher("learn.phrasesDesc")},
   {to:"/teacher/pronunciation",icon:"mic" as IconName,title:tTeacher("learn.pronunciation"),desc:tTeacher("learn.pronunciationDesc")},
   {to:"/teacher/textbook",icon:"book" as IconName,title:tTeacher("learn.textbook"),desc:tTeacher("learn.textbookDesc")},
-  {to:"/teacher/board",icon:"teacher" as IconName,title:tTeacher("board.entryTitle"),desc:tTeacher("board.entryDesc")}
+  {to:"/teacher/board",icon:"scene" as IconName,title:tTeacher("board.entryTitle"),desc:tTeacher("board.entryDesc")}
  ];
  const meStats=section==="me"&&clientReady?{sessions:history("teacher").length,lessons:completedLessons(),saved:learningDeck().length}:null;
  const speakingPath=clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak";
@@ -221,7 +220,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       </select>
      </label>
     </div>
-     <p className="meta crew-learn-native-help" role="note">{tSettings("group.nativeLanguage")}：{shownNativeName} · {tSettings("group.targetLanguage")}：{shownTargetName}。{shownHint}</p>
+     <p className="meta crew-learn-native-help" role="note">{shownHint}</p>
     </>
     :section==="chat"?<h1>{x.title}</h1>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>
