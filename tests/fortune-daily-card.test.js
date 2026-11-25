@@ -232,7 +232,7 @@ test("D10 daily flip and illustrated share respect assets and accessibility",()=
  assert.match(portrait,/box-shadow:/,"the outer circular container owns the shadow");
  assert.match(css,/@keyframes fortune-daily-float\{0%,100%\{transform:translateY\(0\) scale\(1\.15\)\}50%\{transform:translateY\(-7px\) scale\(1\.15\)\}\}/,
   "the animation must retain zoom at both rest and float positions");
- assert.match(css,/@media\(max-width:430px\)[^\n]*\.fortune-daily-portrait\{[^}]*width:136px;height:136px/,
+ assert.match(css,/@media\(max-width:600px\)[^\n]*\.fortune-daily-portrait\{[^}]*width:108px;height:108px/,
   "mobile artwork must be circular, not 136x126 oval");
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)[^\n]*\.fortune-daily-portrait img[^}]*animation:none!important/);
  const artPattern=/^\/fortune\/daily\/art\/daily-(peers|resources|expression|responsibility|learning)-([123])\.webp$/;
@@ -434,4 +434,13 @@ test("local fortune copy composition produces at least 150 distinct full-card co
   }
  }
  assert.ok(variants.size>=150,"Expected at least 150 distinct complete copy combinations, got "+variants.size);
+});
+
+test("daily collectible grows with its content rather than a fixed-height mobile card",()=>{
+ const css=read("web-spa/src/fortune/dailyCard.css");
+ assert.match(css,/\.fortune-daily-flipper\{[^}]*display:grid/);
+ assert.doesNotMatch(css,/\.fortune-daily-flipper\{[^}]*\bheight:\d/);
+ assert.match(css,/\.fortune-daily-face\{[^}]*grid-area:1\/1/);
+ assert.match(css,/\.fortune-daily-face\[aria-hidden="true"\]\{pointer-events:none/);
+ assert.match(css,/\.fortune-daily-back-button\{[^}]*min-height:44px/);
 });

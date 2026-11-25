@@ -43,3 +43,13 @@ test("PR integration retains the approved AI-first reading instead of resurrecti
   assert.ok(src.includes(expression),expression);
  }
 });
+
+test("ordinary Fortune hub keeps creation prominent, daily deep links start with the daily card, and profile editing is secondary",()=>{
+ const home=read("web-spa/src/fortune/HomePage.tsx");
+ const profiles=read("web-spa/src/fortune/DailyProfileManager.tsx");
+ assert.ok(home.indexOf("{dailyIntent?dailySection:null}")<home.indexOf('className="section fortune-journey-create"'));
+ assert.ok(home.indexOf('className="section fortune-journey-create"')<home.indexOf("{!dailyIntent?dailySection:null}"));
+ assert.ok(home.indexOf('className="section fortune-journey-history"')<home.indexOf("<DailyProfileManager/>"));
+ assert.match(profiles,/<details ref=\{detailsRef\} className="section daily-profile-manager" id="daily-profiles">/);
+ assert.match(profiles,/location.hash==="#daily-profiles"/);
+});

@@ -1,10 +1,13 @@
-.fortune-daily{border:1px solid var(--line,#dcd6c8);border-radius:22px;padding:clamp(16px,4vw,28px);background:linear-gradient(135deg,#fbf8f1,#f5f0ff);margin:16px 0 24px;min-width:0;overflow-wrap:anywhere}
+.fortune-daily{border:1px solid var(--line,#dcd6c8);border-radius:22px;padding:clamp(12px,3vw,20px);background:linear-gradient(135deg,#fbf8f1,#f5f0ff);margin:0;min-width:0;overflow-wrap:anywhere}
 .fortune-daily h2{font-size:clamp(20px,5vw,30px);line-height:1.3;margin:16px 0 8px}
 .fortune-daily p{line-height:1.6}
-.fortune-daily-top{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
-.fortune-daily-top small{display:block;margin-top:6px;color:var(--muted,#68636a)}
+.fortune-daily-top{display:flex;gap:8px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+.fortune-daily-identity{flex:1 1 160px;min-width:0}
+.fortune-daily-top small{display:block;margin-top:4px;font-size:12px;line-height:1.4;color:var(--muted,#68636a);overflow-wrap:anywhere}
+.fortune-daily-manage{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:0 4px;font-size:12px;text-align:end;white-space:normal}
+.fortune-daily-manage:focus-visible{outline:3px solid #6d58b2;outline-offset:2px}
 .fortune-daily-streak{font-size:13px;background:#fff;border:1px solid #e4ddee;padding:7px 11px;border-radius:999px}
-.fortune-daily-kind{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.fortune-daily-kind{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .fortune-daily-kind button{border:1px solid #dcd5eb;border-radius:999px;padding:8px 20px;min-height:44px;background:white;color:#484053;cursor:pointer}
 .fortune-daily-kind button.active{background:#514269;color:white;border-color:#514269}
 .fortune-daily-kind button:disabled{opacity:.45;cursor:not-allowed}
@@ -27,17 +30,17 @@
 .fortune-daily-actions .btn{min-height:44px;max-width:100%;white-space:normal;text-align:center;display:inline-flex;align-items:center;justify-content:center}
 .fortune-daily-strip{margin:14px 0;padding:15px;border-radius:16px;border:1px solid #e5dfea;background:#f8f5ff;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .fortune-daily-strip strong{font-size:15px;display:block}.fortune-daily-strip span{font-size:13px}.fortune-daily-strip a{font-weight:700}
-@media(max-width:430px){.fortune-daily{padding:16px;border-radius:17px}.fortune-daily-advice{grid-template-columns:minmax(0,1fr)}.fortune-daily-actions{flex-direction:column}.fortune-daily-actions .btn{width:100%}.fortune-daily-strip{align-items:flex-start}}
+@media(max-width:430px){.fortune-daily{padding:12px;border-radius:17px}.fortune-daily-advice{grid-template-columns:minmax(0,1fr)}.fortune-daily-actions{flex-direction:column}.fortune-daily-actions .btn{width:100%}.fortune-daily-strip{align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){.fortune-daily *{transition:none!important;animation:none!important}}
 
 /* Interactive daily collectible: float, flip, stars and tactile completion. */
 .fortune-daily{position:relative;isolation:isolate;color:#28213e;background:linear-gradient(135deg,#fff8ed,#efe7ff 70%,#e3edff);box-shadow:0 16px 35px #2f204917}
-.fortune-daily-scene{perspective:1200px;margin-top:16px}
-.fortune-daily-flipper{position:relative;height:340px;transform-style:preserve-3d;transition:transform 680ms cubic-bezier(.18,.72,.2,1)}
+.fortune-daily-scene{perspective:1200px;margin-top:10px;min-width:0}
+.fortune-daily-flipper{position:relative;display:grid;grid-template-columns:minmax(0,1fr);transform-style:preserve-3d;transition:transform 680ms cubic-bezier(.18,.72,.2,1)}
 .fortune-daily-flipper.flipped{transform:rotateY(180deg)}
-.fortune-daily-face{position:absolute;inset:0;overflow:hidden;border-radius:22px;border:1px solid #d9c6e8;background:linear-gradient(135deg,#fff2dc,#eee2ff 60%,#e1efff);box-shadow:0 16px 32px #3020491a;backface-visibility:hidden;-webkit-backface-visibility:hidden;padding:20px 24px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px}
-.fortune-daily-front-main{width:100%;display:flex;flex:1;align-items:center;gap:20px;position:relative;z-index:1}
-.fortune-daily-portrait{flex:0 0 35%;position:relative;max-width:250px;aspect-ratio:1;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle,#fffdfa 12%,#d8c9f3 65%,transparent 73%);box-shadow:0 9px 18px #42295229}
+.fortune-daily-face{position:relative;grid-area:1/1;min-width:0;overflow:hidden;border-radius:22px;border:1px solid #d9c6e8;background:linear-gradient(135deg,#fff2dc,#eee2ff 60%,#e1efff);box-shadow:0 16px 32px #3020491a;backface-visibility:hidden;-webkit-backface-visibility:hidden;padding:16px 20px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px}
+.fortune-daily-front-main{width:100%;display:flex;align-items:center;gap:16px;position:relative;z-index:1}
+.fortune-daily-portrait{flex:0 0 35%;position:relative;max-width:160px;aspect-ratio:1;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle,#fffdfa 12%,#d8c9f3 65%,transparent 73%);box-shadow:0 9px 18px #42295229}
 .fortune-daily-portrait>span{font-size:88px;color:#a789cf}
 .fortune-daily-portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.15);animation:fortune-daily-float 5s ease-in-out infinite}
 .fortune-daily-intro{min-width:0;flex:1}
@@ -48,7 +51,7 @@
 .fortune-daily-reveal:focus-visible,.fortune-daily-back-button:focus-visible{outline:3px solid #a07bd9;outline-offset:3px}
 .fortune-daily-face-back{transform:rotateY(180deg);text-align:center;background:radial-gradient(circle at top,#fff7ce,#f4e9ff 67%,#e9e8ff)}
 .fortune-daily-face-back h2{font-size:clamp(21px,3vw,28px);max-width:620px;line-height:1.35;margin:4px 0}.fortune-daily-face-back p{font-size:14px;color:#635870;margin:0;max-width:520px}
-.fortune-daily-back-button{border:0;background:none;cursor:pointer;text-decoration:underline;color:#645083;font:inherit;font-size:13px;min-height:34px}
+.fortune-daily-back-button{border:0;background:none;cursor:pointer;text-decoration:underline;color:#645083;font:inherit;font-size:13px;min-height:44px}
 .fortune-daily-stars,.fortune-daily-confetti{position:absolute;inset:0;pointer-events:none;z-index:2}
 .fortune-daily-stars span,.fortune-daily-confetti span{position:absolute;color:#b58ecb;animation:fortune-daily-twinkle 3s ease-in-out infinite}
 .fortune-daily-stars span:nth-child(1),.fortune-daily-confetti span:nth-child(1){top:12%;left:8%;font-size:25px}
@@ -64,7 +67,10 @@
 .fortune-daily-details{border-top:1px solid #e1d5e8;padding-top:10px}.fortune-daily-details>summary{cursor:pointer;font-weight:700;min-height:44px}
 .fortune-daily-details .fortune-daily-advice{margin-top:11px}
 @keyframes fortune-daily-float{0%,100%{transform:translateY(0) scale(1.15)}50%{transform:translateY(-7px) scale(1.15)}}@keyframes fortune-daily-twinkle{50%{opacity:.4;transform:scale(.8)}}@keyframes fortune-daily-burst{0%{opacity:0;transform:scale(.2) translateY(25px)}60%{opacity:1;transform:scale(2) translateY(-15px)}100%{opacity:1;transform:scale(1)}}@keyframes fortune-daily-rise{from{opacity:0;transform:translateY(8px)}}
-@media(max-width:430px){.fortune-daily-flipper{height:360px}.fortune-daily-face{padding:15px;border-radius:16px}.fortune-daily-front-main{flex-direction:column;justify-content:center;text-align:center;gap:2px}.fortune-daily-portrait{flex:none;width:136px;height:136px}.fortune-daily-portrait>span{font-size:58px}.fortune-daily-intro{flex:none}.fortune-daily-intro h2{font-size:22px;margin:4px 0}.fortune-daily-intro p{font-size:14px}.fortune-daily-face-back h2{font-size:22px}}
+@media(max-width:600px){.fortune-daily-face{padding:12px;border-radius:16px;gap:10px}.fortune-daily-front-main{flex-direction:column;justify-content:center;text-align:center;gap:8px}.fortune-daily-portrait{flex:none;width:108px;height:108px}.fortune-daily-portrait>span{font-size:48px}.fortune-daily-intro{flex:none}.fortune-daily-intro h2{font-size:22px;margin:4px 0}.fortune-daily-intro p{font-size:14px;line-height:1.5}.fortune-daily-face-back h2{font-size:22px}}
+.fortune-daily-face[aria-hidden="true"]{pointer-events:none}
+.fortune-daily-reveal{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.fortune-daily-face-back .fortune-daily-reveal{flex-shrink:0}
 @media(prefers-reduced-motion:reduce){.fortune-daily-flipper{transition:none!important}.fortune-daily-stars span,.fortune-daily-confetti span,.fortune-daily-portrait img,.fortune-daily-extras{animation:none!important}}
 
 /* A quiet, accessible continuation next to the just-created chart. */
@@ -99,7 +105,7 @@
 @media(prefers-reduced-motion:reduce){.fortune-zoe-reading,.fortune-zoe-reading *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 /* Secondary, unobtrusive return invitation under the daily card / Zoe chat. */
-.fortune-daily-return{display:grid;gap:9px;margin:16px 0 8px;padding:14px;border:1px solid #d7c7e7;border-radius:15px;background:#fffdfcf0;color:#423253}
+.fortune-daily-return{display:grid;gap:8px;margin:12px 0 4px;padding:12px;border:1px solid #d7c7e7;border-radius:15px;background:#fffdfcf0;color:#423253}
 .fortune-daily-return>strong{font-size:15px;line-height:1.45}
 .fortune-daily-return-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:stretch}
 .fortune-daily-return-actions>button,.fortune-daily-return-actions .crew-install-action{min-height:44px;min-width:0;padding:9px 14px;border:1px solid #9076ad;border-radius:11px;background:#f4ecff;color:#4d3468;font-family:inherit;font-size:13px;font-weight:750;line-height:1.4;cursor:pointer}
