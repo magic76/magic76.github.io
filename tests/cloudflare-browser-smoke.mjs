@@ -251,13 +251,13 @@ async function verifyLearningResponsiveLayout(browser){
       assert.notEqual(item.stroke,"none");
      }
      const cards=await page.locator(".crew-learn-tool").evaluateAll(elements=>elements.map(el=>{
-      const icon=el.querySelector(".crew-section-card-icon"),copy=el.querySelector(".crew-section-card-copy"),arrow=el.querySelector(".crew-learn-tool-arrow");
-      const a=icon.getBoundingClientRect(),b=copy.getBoundingClientRect(),c=arrow.getBoundingClientRect();
-      return {iconBottom:a.bottom,copyTop:b.top,copyBottom:b.bottom,arrowTop:c.top,shape:icon.querySelector("svg").innerHTML};
+      const icon=el.querySelector(".crew-section-card-icon"),copy=el.querySelector(".crew-section-card-copy");
+      const a=icon.getBoundingClientRect(),b=copy.getBoundingClientRect(),c=el.getBoundingClientRect();
+      return {iconBottom:a.bottom,copyTop:b.top,copyBottom:b.bottom,cardBottom:c.bottom,svgCount:el.querySelectorAll("svg").length,shape:icon.querySelector("svg").innerHTML};
      }));
      assert.equal(cards.length,5);
      assert.equal(new Set(cards.map(card=>card.shape)).size,5);
-     assert.ok(cards.every(card=>card.iconBottom<=card.copyTop+1&&card.copyBottom<=card.arrowTop+1),"Vertical cards must not overlap at "+width);
+     assert.ok(cards.every(card=>card.iconBottom<=card.copyTop+1&&card.copyBottom<=card.cardBottom+1&&card.svgCount===1),"Vertical cards must not overlap at "+width);
     }
     if(path==="/teacher/vocabulary/"){
      const positions=await page.locator(".crew-learning-question .quiz-choice").evaluateAll(elements=>elements.map(el=>el.getBoundingClientRect().top));
