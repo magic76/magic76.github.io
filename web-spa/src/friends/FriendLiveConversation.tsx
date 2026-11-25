@@ -43,9 +43,8 @@ import {loadQuoteText} from "../pages/quoteCatalog";
 import {useFriendDailyFortuneContext} from "./useFriendDailyFortuneContext";
 import {nextFriendLifeOpening} from "../characters/lifeBook";
 import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageMode} from "./friendLanguage";
-import {buildFriendSystem,recordFriendChat,recordFriendVoiceExchange,friendVoiceOpeningRecall,getHomeChatTopic,rememberFriendConversation,friendMemoryEnabled,friendLiveMemoryConfig,createFriendLiveMemory} from "./friendMemory";
+import {buildFriendSystem,recordFriendChat,recordFriendVoiceExchange,friendVoiceOpeningRecall,getHomeChatTopic,friendMemoryEnabled,friendLiveMemoryConfig,createFriendLiveMemory} from "./friendMemory";
 import {recordFriendActivity,clearLegacyFriendChats} from "../live/sessionTranscript";
-import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
 import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
 import {isShortsHook,shortsSelectedQuestion,rememberShortsConversation} from "../teacher/shortsSocial";
@@ -70,7 +69,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const creatureBridge=useCreatureVoiceBridge(creatureEmbed);
  const creatureContext=creatureBridge.creature?"\n"+creatureVoiceInstruction(creatureBridge.creature):"";
  const textStage=useRef<HTMLElement|null>(null);
- const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
+ const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false);
  const friend=getCrewFriend(params.get("id"));
  const bubbleEntry=params.get("entry")==="bubble"&&params.get("from")==="home";
  const homeFirstAction=params.get("from")==="home"&&HOME_FRIEND_IDS.includes(params.get("id")||"")&&!shortsPost&&!textFirst&&!geminiKey();
@@ -158,19 +157,12 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
       rememberShortsConversation(shortsPost); // Only after a real two-sided exchange.
      }
    }
-   const learnerTurns=completedTurns.filter(t=>hasMeaningfulLearnerSpeech(t.input||"")).length;
-   if(!learnerTurns||checkpointCountRef.current>=3||learnerTurns<=lastCheckpointTurnRef.current||
-      (lastCheckpointTurnRef.current>0&&learnerTurns-lastCheckpointTurnRef.current<3))return;
-   lastCheckpointTurnRef.current=learnerTurns;
-   checkpointCountRef.current++;
-   if(!creatureEmbed&&liveMemory.shouldCheckpointFallback())void rememberFriendConversation(sessionId,language,completedTurns,0);
   },
   onSessionFinished:item=>{
    replyHints.clear();
    if(!item){liveMemory.reset();return;}
    if(item.durationMs>0)trackUsageEvent("friend_session_end",sessionDurationDetail(item.durationMs));
    recordFriendChat(sessionId,language,item.turns,item.durationMs);
-   if(!creatureEmbed&&!liveMemory.hasSaved())void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
    liveMemory.reset();
   }
  });
