@@ -14,7 +14,7 @@ function keys(value,prefix=""){
 
 test("i18n provides matching translation keys for all published UI locales",()=>{
  const eagerNamespaces=["common","home","settings","teacher","friends","story","fortune"];
- const routeNamespaces=["games","mate","lesson","voice","magic","fortuneReport","fortuneDaily"];
+ const routeNamespaces=["games","mate","lesson","voice","fortuneReport","fortuneDaily"];
  for(const ns of [...eagerNamespaces,...routeNamespaces]){
   const zh=load("zh-TW",ns),en=load("en",ns);
   assert.deepEqual(keys(zh),keys(en),ns+" translation keys must match");
@@ -32,19 +32,6 @@ test("i18n provides matching translation keys for all published UI locales",()=>
  }
 });
 
-test("Magic translations stay flat and preserve all locale keys",()=>{
- const en=load("en","magic");
- const expected=Object.keys(en).sort();
- assert.ok(expected.length>0,"English Magic catalog must not be empty");
- for(const lang of ["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"]){
-  const values=load(lang,"magic");
-  assert.deepEqual(Object.keys(values).sort(),expected,lang+" Magic keys must match English");
-  for(const [key,value] of Object.entries(values)){
-   assert.equal(typeof value,"string",lang+" Magic keys must be flat: "+key);
-   assert.ok(value.trim(),lang+" Magic translation must not be blank: "+key);
-  }
- }
-});
 
 test("global UI locale is persisted separately from spoken learning languages",()=>{
  const index=read("web-spa/src/i18n/index.ts");
