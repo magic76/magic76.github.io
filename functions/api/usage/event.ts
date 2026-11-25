@@ -39,7 +39,7 @@ const details=new Set(["","bazi","tarot","vedic","bazi_yes","bazi_partly","bazi_
   "under_1s","from_1_to_3s","from_3_to_8s","over_8s",
   "teacher","friend","under_15s","from_15_to_45s","from_45_to_60s","from_60_to_120s","from_120_to_180s","from_180_to_300s",
   "mira","ethan","hana","settings","learn","story","fortune","timeline","play","briefing","town","magic","mate","souls","shorts","circle",
-  "discover","me","footer","menu","nudge","native","asset","runtime",
+  "home","explore","other","discover","me","footer","menu","nudge","native","asset","runtime",
   "android_app_google_play",
   "voice","demo","live","person","object","place","manual","render_error","unsupported",
   "nonsense","crazy-court","taboo","1a2b","number-bomb","memory","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
