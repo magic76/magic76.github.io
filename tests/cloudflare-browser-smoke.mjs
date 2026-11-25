@@ -218,7 +218,7 @@ async function verifyLearningResponsiveLayout(browser){
   const page=await context.newPage();
   try{
    for(const [path,root,surface] of [
-    ["/learn/",".crew-section-learn",".crew-section-focus-card"],
+    ["/learn/",".crew-section-learn",".crew-learn-teacher-card"],
     ["/teacher/vocabulary/",".crew-learning-focus",".crew-learning-quiz"],
     ["/teacher/course/",".crew-learning-focus",".crew-course-resume"]
    ]){
@@ -233,11 +233,21 @@ async function verifyLearningResponsiveLayout(browser){
     assert.ok(geometry.shell>=250&&geometry.card>=geometry.shell*.9,path+" must not become a narrow column at "+width+": "+JSON.stringify(geometry));
     assert.ok(geometry.scroll<=geometry.viewport+2,path+" must not overflow at "+width+": "+JSON.stringify(geometry));
     if(path==="/learn/"){
+     const progress=page.locator(".crew-learn-progress-details");
+     assert.equal(await progress.evaluate(el=>el.open),false);
+     await progress.locator("summary").click();
      const textWidth=await page.locator(".crew-section-focus-card-content").evaluate(el=>el.getBoundingClientRect().width);
+     await progress.locator("summary").click();
      assert.ok(textWidth>(width<500?160:280),"Learn heading must remain readable at "+width);
      // Learn secondary links must remain compact and readable, with bounded SVGs.
      const secondary=page.locator(".crew-learn-secondary-links a");
-     assert.equal(await secondary.count(),5);
+     assert.equal(await secondary.count(),4);
+     const scenario=page.locator(".crew-learn-scenario");
+     assert.equal(await scenario.count(),1);
+     assert.equal(await scenario.getAttribute("href"),"/teacher/course");
+     assert.equal(await secondary.locator('[href="/teacher/course"]').count(),0);
+     const scenarioWidth=await scenario.evaluate(el=>el.getBoundingClientRect().width);
+     assert.ok(scenarioWidth>=geometry.shell*.9,"Scenario card must use the full width at "+width);
      assert.equal(await page.locator(".crew-learn-three-minute").count(),0);
      for(const link of await secondary.all()){
       const item=await link.evaluate(el=>{
