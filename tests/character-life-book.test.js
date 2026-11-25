@@ -32,10 +32,10 @@ test("Web Friend canon and first-line selector are separate from learner memory"
  assert.match(live,/buildShortsFriendContext/);
  assert.match(live,/persistHistory:false/);
 });
-test("teacher biography only enters live free conversation",()=>{
+test("teacher biography remains authored but never drives a teaching session opening",()=>{
  const live=read("web-spa/src/teacher/LivePage.tsx");
- assert.match(live,/freeTalk=!isRoleplay/);
- assert.match(live,/freeTalk\?teacherLifeBookPrompt/);
- assert.match(live,/lifeOpening/);
+ assert.doesNotMatch(live,/teacherLifeBookPrompt|nextTeacherLifeOpening|lifeOpening/);
+ assert.match(live,/level-appropriate speaking opportunity/);
+ assert.match(read("web-spa/src/characters/lifeBook.ts"),/export function teacherLifeBookPrompt/);
  assert.match(live,/teacherReport:true/);
 });
