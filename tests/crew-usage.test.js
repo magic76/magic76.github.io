@@ -324,6 +324,7 @@ test("home chat analytics accept only fixed opener and stage codes",async()=>{
 });
 
 test("route asset error context accepts only bounded page categories",async()=>{
+ const {onRequestPost}=compile("functions/api/usage/event.ts");
  const env={ANALYTICS_ENGINE:{writeDataPoint(){}}};
  for(const detail of ["home","friend","teacher","learn","play","fortune","explore","other"]){
   assert.equal((await onRequestPost({request:request({...payload,event:"route_asset_error_context",detail}),env})).status,204,detail);
