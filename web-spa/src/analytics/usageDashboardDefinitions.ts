@@ -22,7 +22,7 @@ export const names:Record<string,string>={
  gemini_key_missing:"缺少 Gemini Key",gemini_key_verified:"Gemini Key 驗證成功",
  guest_trial_entry_view:"免費試用入口曝光",guest_trial_unavailable:"免費試用入口不可用",guest_trial_start_click:"點擊開始免費試用",guest_trial_mic_denied:"免費試用麥克風拒絕",guest_trial_setup_failed:"免費試用準備失敗",
  guest_trial_token_issued:"免費試用取得憑證",guest_trial_token_failed:"免費試用憑證失敗",guest_trial_connected:"免費試用連線成功",guest_trial_connect_failed:"免費試用連線失敗",guest_trial_ended:"免費試用結束",
- home_friend_chat:"首頁開聊進度",home_entry_click:"首頁入口點擊",explore_entry_click:"探索入口點擊",menu_open:"全部功能選單開啟",menu_item_click:"全部功能選單點擊",
+ home_friend_chat:"首頁開聊進度（舊版）",home_friend_journey:"首頁聊天入口進度",home_entry_click:"首頁入口點擊",explore_entry_click:"探索入口點擊",menu_open:"全部功能選單開啟",menu_item_click:"全部功能選單點擊",
  home_live_bubble_view:"Zoe 聊天泡泡曝光",home_live_bubble_click:"Zoe 聊天泡泡點擊",home_live_bubble_connected:"Zoe 泡泡成功連線",home_live_bubble_conversation:"Zoe 泡泡有效對話",
  home_gift_view:"盲盒曝光",home_gift_open:"盲盒開啟",home_gift_result:"盲盒抽中類別",home_gift_go:"盲盒進入體驗",home_gift_minimize:"盲盒縮小",
  ...SOULS_USAGE_NAMES,
