@@ -10,6 +10,10 @@ export function LearnHubExtras({tools,speakingPath}:{tools:Tool[];speakingPath:s
  const ready=useRouteNamespace("lesson");
  if(!ready)return null;
  return <section className="crew-learn-tools" aria-label={tTeacher("learn.method")}>
+  <Link className="crew-section-card crew-learn-scenario" to="/teacher/course">
+   <span className="crew-section-card-icon"><Icon name="scene"/></span>
+   <span className="crew-section-card-copy"><strong>{tTeacher("learn.course")}</strong><small>{tTeacher("learn.courseDesc")}</small></span>
+  </Link>
   <div className="crew-section-grid crew-learn-tool-grid">
    {tools.map(tool=><Link className="crew-section-card crew-learn-tool" key={tool.to} to={tool.to}>
     <span className="crew-section-card-icon"><Icon name={tool.icon}/></span>
@@ -21,7 +25,6 @@ export function LearnHubExtras({tools,speakingPath}:{tools:Tool[];speakingPath:s
    <Link to="/teacher/reading-library"><Icon name="book"/><span>{tTeacher("learn.library")}</span></Link>
    <Link to="/teacher/reports"><Icon name="history"/><span>{t("learnToday.records")}</span></Link>
    <Link to="/settings#settings-learning"><Icon name="settings"/><span>{t("learnToday.settings")}</span></Link>
-   <Link to="/teacher/course"><Icon name="scene"/><span>{tTeacher("learn.course")}</span></Link>
   </nav>
  </section>;
 }
