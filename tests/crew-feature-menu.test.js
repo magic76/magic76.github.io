@@ -67,7 +67,7 @@ test("all 11 supported interface locales provide complete menu labels and descri
   for(const key of ["title","subtitle","close"])assert.ok(dict[key]?.trim(),locale+":"+key);
   for(const key of ["chat","learn","games","explore","me"])assert.ok(dict.groups[key]?.trim(),locale+" group:"+key);
   assert.ok(dict.featureCount?.trim(),locale+": missing feature count label");
-  assert.deepEqual(Object.keys(dict.items).sort(),featureIds.slice().sort(),locale+": feature parity");
+  assert.deepEqual(Object.keys(dict.items).filter(id=>!["story","timeline","town","mate"].includes(id)).sort(),featureIds.slice().sort(),locale+": visible feature parity; retain hidden translations");
   for(const id of featureIds)for(const field of ["title","desc"]){
    assert.ok(dict.items[id]?.[field]?.trim(),locale+":"+id+"."+field);
   }
