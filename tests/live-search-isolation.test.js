@@ -7,7 +7,9 @@ const read=path=>readFileSync(join(__dirname,"..",path),"utf8");
 
 test("Live session does not attach Google Search to audio WebSocket setup",()=>{
  const live=read("web-spa/src/live/useLiveSession.ts");
- assert.match(live,/tools:grant\?undefined:configRef\.current\.tools,/);
+ assert.match(live,/tools:grant\?\(guestMemoryAllowed\?\[\{functionDeclarations:guestMemoryTools!\}\]:undefined\):configRef\.current\.tools,/);
+ assert.match(live,/filter\(tool=>tool\.name==="save_friend_memory"\)/);
+ assert.match(live,/guestMemoryAllowed&&call\.name==="save_friend_memory"/);
  assert.doesNotMatch(live,/webSearch\s*\?/);
  assert.doesNotMatch(live,/tools:configRef\.current\.webSearch/);
 });
