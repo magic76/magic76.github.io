@@ -51,7 +51,10 @@ export function aiReferralSource(referrer:string,campaign:string){
   "perplexity.ai":"perplexity","gemini.google.com":"gemini",
   "copilot.microsoft.com":"copilot","claude.ai":"claude","grok.com":"grok"
  };
- const resolve=(host:string)=>providers[host.toLowerCase().replace(/^www\./,"")]||"";
+ const resolve=(host:string)=>{
+  const key=host.toLowerCase().replace(/^www\./,"");
+  return Object.hasOwn(providers,key)?providers[key]:"";
+ };
  try{
   const host=new URL(referrer).hostname;
   const source=resolve(host);
