@@ -119,11 +119,18 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const sessionId=friend.id;
  const liveMemory=useMemo(()=>createFriendLiveMemory(sessionId,language),[sessionId,language]);
  const [lifeOpening]=useState(()=>!shortsPost&&!intent?nextFriendLifeOpening(friend.id):"");
- // Snapshot relationship evidence before this session; greetings alone never count.
- const openingRecall=useMemo(()=>friendVoiceOpeningRecall(friend.id,language),[friend.id,language]);
- const system=useMemo(()=>buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost),[friend,language,friendNativeLanguage,friendChatMode,region,accentStrength,customAccent,shortsPost]);
  const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
- const scopedSystem=gameRoundContext(system,"friend:"+friend.id);
+ const resolveSessionContext=()=>{
+  const openingRecall=friendVoiceOpeningRecall(friend.id,language);
+  const system=buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost);
+  const scopedSystem=gameRoundContext(system,"friend:"+friend.id);
+  return {
+   system:scopedSystem+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,
+  openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
+   shortsHook,selectedQuestion,lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
+   conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
+  };
+ };
  const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
  // Direct Web Audio avoids Bluetooth distortion; keep mic capture.
  const separatePlayback=false;
@@ -131,10 +138,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   createPlaybackRoute:separatePlayback?createElementPlayback:undefined,
   separateCaptureContext:separatePlayback,
   pageKey:"friend-"+sessionId,title:"Koolo 朋友 · "+friend.name,
-   system:scopedSystem+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
-  openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
-   shortsHook,selectedQuestion,lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
-   conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
+  ...resolveSessionContext(),resolveSessionContext,languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
   ...friendLiveMemoryConfig(liveMemory,!creatureEmbed),
