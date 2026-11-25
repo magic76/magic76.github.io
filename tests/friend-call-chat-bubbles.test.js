@@ -35,3 +35,12 @@ test("new and modified TSX remain below 26000 bytes",()=>{
   assert.ok(Buffer.byteLength(read(p))<=26000,p+" exceeds 26KB");
  }
 });
+
+ test("same visible content does not retrigger scrolling and manual reading pauses follow",()=>{
+ assert.match(list,/const contentKey=JSON.stringify/);
+ assert.match(list,/\},\[contentKey\]\)/);
+ assert.doesNotMatch(list,/\[turns,input,output,browserInput,translationRows,suggestions\]/);
+ assert.match(list,/!followRef.current\)return/);
+ assert.match(list,/scrollHeight-pane.clientHeight-pane.scrollTop<=48/);
+ assert.match(style,/scroll-behavior:auto/);
+ });
