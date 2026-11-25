@@ -405,3 +405,6 @@
   animation:none!important;
  }
 }
+
+/* Bound private topic copy without changing the hero/card height. */
+.crew-mobile-home .cmh-slide .cmh-slide-copy p.cmh-return-topic{display:-webkit-box; -webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;overflow-wrap:anywhere;white-space:normal}
