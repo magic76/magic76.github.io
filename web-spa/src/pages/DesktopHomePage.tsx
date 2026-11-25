@@ -24,10 +24,8 @@ const SHORTCUTS:readonly Shortcut[]=[
  {id:"friends",zh:"AI 朋友",en:"AI Friends",icon:"chat",to:"/teacher/roles?mode=friends",event:"friend"},
  {id:"teacher",zh:"學語言",en:"Learn",icon:"teacher",to:"/learn",event:"learn"},
  {id:"games",zh:"玩遊戲",en:"Games",icon:"play",to:"/games",event:"play"},
- {id:"story",zh:"故事",en:"Stories",icon:"story",to:"/story",event:"story"},
  {id:"fortune",zh:"命理",en:"Fortune",icon:"fortune",to:"/fortune",event:"fortune"},
  {id:"shorts",zh:"朋友動態",en:"Moments",icon:"image",to:"/teacher/shorts",event:"shorts"},
- {id:"timeline",zh:"時光機",en:"Timeline",icon:"history",to:"/timeline",event:"timeline"},
  {id:"scenarios",zh:"情境課程",en:"Scenarios",icon:"scene",to:"/teacher/course",event:"learn"}
 ];
 const FEATURE_FRIENDS=["noah","iris","bella"] as const;

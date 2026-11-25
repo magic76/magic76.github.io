@@ -24,8 +24,8 @@ test("Souls is a visible Explore tile, with a working existing route and entry c
  assert.doesNotMatch(artwork,/crew-explore-souls-art/);
  assert.match(css,/\.crew-explore-tile\[data-kind="souls"\]/);
  assert.match(nav,/,"souls"\]\.includes\(root\)/);
- assert.ok(hub.indexOf('data-kind="mate"')<hub.indexOf('data-kind="souls"'));
- assert.ok(hub.indexOf('data-kind="souls"')<hub.indexOf('data-kind="town"'));
+ assert.ok(hub.indexOf('data-kind="creature"')<hub.indexOf('data-kind="souls"'));
+ assert.ok(hub.indexOf('data-kind="souls"')<hub.indexOf('data-kind="magic"'));
 });
 
 test("Souls lifecycle events are emitted only for meaningful browser actions",()=>{

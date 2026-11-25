@@ -88,17 +88,17 @@ test("Last friend resumes in the first mobile slide and desktop without removing
  assert.match(home,/className="crew-home-continue"/);
 });
 
-test("Daily thought replaces topics, unchanged eight cards, Shorts and SEO remain",()=>{
+test("Daily thought replaces topics, six focused cards, Shorts and SEO remain",()=>{
  assert.match(mobile,/<DailyTopicCards variant="mobile"\/>/);
  assert.match(home,/<DailyTopicCards variant="desktop"\/>/);
- assert.equal((mobile.match(/\{id:"/g)||[]).length,8);
+ assert.equal((mobile.match(/\{id:"/g)||[]).length,6);
  assert.match(mobile,/className="cmh-app-grid">\{APPS.map/);
  assert.match(mobile,/HomeShortsPreview maxPosts=\{6\} sharedFeed=\{shortsFeed\}/);
  assert.match(home,/<HomeShortsPreview sharedFeed=\{shortsFeed\} sharedStatus=\{shortsStatus\}\/>/);
  assert.match(mobile,/className="cmh-seo"/);assert.match(mobile,/<GuideHub\/>/);
  assert.match(home,/className="crew-home-search-summary"/);
  assert.match(home,/<HomeLiveBubble\/>/);
- assert.match(read("web-spa/src/pages/mobileHome.css"),/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(read("web-spa/src/pages/mobileHome.css"),/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
 });
 
 test("Desktop heading and CTA have a fixed layout across every rail mode",()=>{

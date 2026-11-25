@@ -15,7 +15,7 @@ test("Koolo desktop home mirrors the mobile product entry points without changin
  assert.match(css,/@media\(min-width:768px\)/);
  assert.match(css,/\.crew-home-legacy\{display:none!important\}/);
  assert.match(mobile,/const SLIDES=\["zoe","friends","game","learn"\]/);
- for(const route of ["/chat","/learn","/teacher/roles?mode=friends","/games","/story","/fortune","/teacher/shorts","/timeline","/teacher/course"]){
+ for(const route of ["/chat","/learn","/teacher/roles?mode=friends","/games","/fortune","/teacher/shorts","/teacher/course"]){
   assert.ok(desktop.includes(route),"missing existing destination "+route);
  }
  assert.match(desktop,/className="kdh-stage"/);
@@ -33,8 +33,8 @@ test("Koolo desktop home mirrors the mobile product entry points without changin
  assert.match(desktop,/className="kdh-primary"/);
  assert.match(desktop,/to=\{voiceTo\}/);
  const apps=desktop.slice(desktop.indexOf("const SHORTCUTS:"),desktop.indexOf("const FEATURE_FRIENDS="));
- assert.equal((apps.match(/\{id:"/g)||[]).length,8);
- assert.match(css,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.equal((apps.match(/\{id:"/g)||[]).length,6);
+ assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
 });
 
 test("Desktop top navigation reuses the five existing routes and leaves phone dock rules intact",()=>{

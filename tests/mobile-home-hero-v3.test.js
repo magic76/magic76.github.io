@@ -99,7 +99,7 @@ test("compact phone hero keeps all four scenes and fits a 16:11 first-screen car
  assert.match(art,/@keyframes cmh-v4-scene/);
  assert.match(art,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(jsx,/teacher-olivia\.jpg/);
- assert.match(jsx,/\{id:"timeline",zh:"時光機"/);
+ assert.doesNotMatch(jsx,/\{id:"timeline",zh:"時光機"/);
  assert.match(jsx,/\{id:"scenarios",zh:"情境課程"/);
 });
 

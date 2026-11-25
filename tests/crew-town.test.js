@@ -18,9 +18,9 @@ test("Crew Town only mounts 3D while all 16 friends remain canonical",()=>{
  assert.doesNotMatch(town,/TownPage|2\.5D/);
  assert.doesNotMatch(overlay,/new WebSocket|startLiveSession|generateContent/);
 });
-test("town stays opt-in in Explore and supports reduced motion",()=>{
+test("town stays available by direct route, hidden in Explore, and supports reduced motion",()=>{
  assert.match(app,/<Route path="\/town"/);
- assert.match(explore,/to="\/town"/);
+ assert.doesNotMatch(explore,/to="\/town"/);
  assert.match(nav,/"town"/);
  assert.match(town,/prefers-reduced-motion: reduce/);
  assert.match(town,/aria-label/);

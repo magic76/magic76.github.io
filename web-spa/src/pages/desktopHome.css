@@ -67,7 +67,7 @@
  .kdh-resume-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
  .kdh-resume-copy strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  .kdh-resume-copy small{font-size:12px;color:#777080;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- .kdh-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+ .kdh-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
  .kdh-shortcut{display:flex;align-items:center;gap:13px;min-height:76px;padding:13px 17px;background:#fff;border:1px solid #eae6ed;border-radius:18px;color:#515164;box-shadow:0 3px 14px #40304d08;transition:transform 180ms ease,box-shadow 180ms ease}
  .kdh-shortcut-icon{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:14px;background:#e9e9fa;color:#70639f}
  .kdh-shortcut-icon svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.7}
@@ -96,7 +96,7 @@
  .kdh-feature-copy{max-width:95%}
  .kdh-feature-copy>span{display:none}
  .kdh-feature-faces,.kdh-game-art,.kdh-teacher-image{opacity:.22}
- .kdh-shortcuts{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .kdh-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr))}
  .kdh-shortcut{padding:12px;flex-direction:column;justify-content:center;gap:6px;text-align:center}
  .kdh-shortcut strong{font-size:12px}
  .kdh-moments .crew-home-shorts{padding:18px}

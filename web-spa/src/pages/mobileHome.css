@@ -90,7 +90,7 @@
  .cmh-section-heading{display:flex;align-items:center;justify-content:space-between;margin:21px 0 12px}
  .cmh-section-heading h2{font-size:17px;line-height:1.3;letter-spacing:-.03em;margin:0;color:#393b4f}
  /* App shortcuts share the dock's frost tokens; each icon carries its own reusable tint. */
- .cmh-app-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 8px;position:relative;isolation:isolate;
+ .cmh-app-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px;position:relative;isolation:isolate;
   --cmh-card-radius:19px;
   --cmh-card-shadow:0 5px 16px rgba(30,36,58,.075),0 1px 3px rgba(30,36,58,.035),inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(30,36,58,.07)}
  .cmh-app-grid::before{content:"";position:absolute;inset:4px -8px;z-index:-1;pointer-events:none;

@@ -7,10 +7,11 @@ const artwork=fs.readFileSync(path.join(root,"web-spa/src/pages/ExploreArtwork.t
 const section=fs.readFileSync(path.join(root,"web-spa/src/pages/CrewSectionPage.tsx"),"utf8");
 const css=fs.readFileSync(path.join(root,"web-spa/src/pages/crewExplore.css"),"utf8");
 
-test("Crew Mate keeps its original Explore entry and uses a local photo",()=>{
+test("Crew Mate hides its Explore entry but keeps local photo assets and direct route",()=>{
  assert.match(artwork,/export type ExploreKind=.*"mate"/);
- assert.match(section,/<Link className="crew-explore-tile crew-explore-mate"[^\n]*data-kind="mate"[^\n]*to="\/mate"/);
- assert.match(section,/<ExploreArtwork kind="mate"\/>/);
+ assert.doesNotMatch(section,/<Link className="crew-explore-tile crew-explore-mate"/);
+ assert.match(fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8"),/path="\/mate"/);
+ assert.doesNotMatch(section,/<ExploreArtwork kind="mate"\/>/);
  assert.match(artwork,/"\/assets\/explore\/"\+kind\+"\.webp"/);
  assert.match(artwork,/crew-explore-illustration crew-explore-photo/);
  assert.doesNotMatch(artwork,/<svg|<foreignObject|https?:\/\//);

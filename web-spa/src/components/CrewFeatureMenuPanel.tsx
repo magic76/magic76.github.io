@@ -38,11 +38,7 @@ export const FEATURE_MENU_GROUPS:readonly MenuGroup[]=[
  ]},
  {id:"explore",icon:"✨",items:[
   {id:"souls",to:"/souls",icon:"✨",detail:"souls"},
-  {id:"mate",to:"/mate",icon:"🤝",detail:"mate"},
-  {id:"story",to:"/story",icon:"📖",detail:"story"},
   {id:"fortune",to:"/fortune",icon:"🔮",detail:"fortune"},
-  {id:"timeline",to:"/timeline",icon:"🕰️",detail:"timeline"},
-  {id:"town",to:"/town",icon:"🏘️",detail:"town"},
   {id:"magic",to:"/magic",icon:"🪄",detail:"magic"},
   {id:"discover",to:"/discover",icon:"🌍",detail:"discover"},
   {id:"research",to:"/research",icon:"📚",detail:"briefing"}

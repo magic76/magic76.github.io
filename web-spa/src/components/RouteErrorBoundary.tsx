@@ -1,5 +1,5 @@
 import {Component,type ReactNode} from "react";
-import {recordGameRouteAssetError} from "../analytics/gameRouteDiagnostics";
+import {recordGameRouteAssetError,recordRouteAssetError} from "../analytics/gameRouteDiagnostics";
 import {trackUsageEvent} from "../analytics/usage";
 import {currentBuild} from "../runtime/buildUpdates";
 import {prepareChunkRecoveryWorker,retryFailedChunkOnce} from "../runtime/chunkRecovery";
@@ -86,7 +86,7 @@ export class RouteErrorBoundary extends Component<Props,State>{
   // The automatic reload of the same failed route does not count twice.
   if(!alreadyRetried){
    try{trackUsageEvent("route_load_error",isAssetLoadError(error)?"asset":"runtime");}catch{/* Best effort. */}
-   if(asset)recordGameRouteAssetError(window.location.pathname);
+   if(asset){recordGameRouteAssetError(window.location.pathname);recordRouteAssetError(window.location.pathname);}
   }
   if(!asset)return;
   if(alreadyRetried){this.setState({recovering:false});return;}

@@ -8,7 +8,7 @@ test("mobile home effects preserve slides, carousel timing, shortcuts and existi
  const home=read("web-spa/src/pages/MobileHomePage.tsx");
  assert.ok(home.includes('const SLIDES=["zoe","friends","game","learn"]'));
  assert.ok(home.includes("CAROUSEL_INTERVAL_MS=11000"));
- assert.equal((home.slice(home.indexOf("const APPS:"),home.indexOf("/** Mobile-only")).match(/\{id:"/g)||[]).length,8);
+ assert.equal((home.slice(home.indexOf("const APPS:"),home.indexOf("/** Mobile-only")).match(/\{id:"/g)||[]).length,6);
  for(const href of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher","/teacher/shorts"]){
   assert.ok(home.includes(href),"missing existing destination: "+href);
  }
@@ -48,7 +48,7 @@ test("removing the bubble restores the untouched carousel-to-daily layout at 360
  assert.match(hero,/@media\(max-width:380px\)\{\s*\.cmh-slide\{height:176px;min-height:176px/);
  assert.match(hero,/\.cmh-carousel\{margin-bottom:0\}/);
  assert.match(hero,/\.cmh-carousel-dots\{margin-top:-10\.5px/);
- assert.match(css,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(art,/@media\(prefers-reduced-motion:reduce\)/);
  assert.doesNotMatch(art,/cmh-friend-pop/);
  // Keep the original two-row shortcut and five-tab geometry at 360 and 390 widths.

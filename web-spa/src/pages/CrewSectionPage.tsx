@@ -228,8 +228,8 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   </header>
   {section==="explore"?
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
-    {[x.hero,...x.items].map((item,i)=><Link className="crew-explore-tile" key={item.to} to={item.to} onClick={()=>recordExploreEntry(item.to)} data-kind={exploreKinds[i]}>
-     <div className="crew-explore-art"><ExploreArtwork kind={exploreKinds[i]}/></div>
+    {[x.hero,...x.items].map((item,i)=>({item,kind:exploreKinds[i]})).filter(({kind})=>kind!=="timeline"&&kind!=="story").map(({item,kind})=><Link className="crew-explore-tile" key={item.to} to={item.to} onClick={()=>recordExploreEntry(item.to)} data-kind={kind}>
+     <div className="crew-explore-art"><ExploreArtwork kind={kind}/></div>
      <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
      <Arrow direction="right" className="crew-explore-arrow"/>
     </Link>)}
@@ -238,27 +238,11 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-explore-text"><strong>{t("creatureLab.discover")}</strong><small>{t("creatureLab.intro")}</small></span>
      <Arrow direction="right" className="crew-explore-arrow"/>
     </a>
-    <Link className="crew-explore-tile crew-explore-mate" data-kind="mate" onClick={()=>trackUsageEvent("explore_entry_click","mate")} to="/mate">
-     <div className="crew-explore-art"><ExploreArtwork kind="mate"/></div>
-     <span className="crew-explore-text">
-      <strong>{en?"Koolo Mate · Speak for me":"Koolo Mate · AI 幫你溝通"}</strong>
-      <small>{en?"Brief privately, then let Mate talk to someone in another language.":"私下交代任務，再交給 Mate 用對方的語言溝通。"}</small>
-     </span>
-     <Arrow direction="right" className="crew-explore-arrow"/>
-    </Link>
     <Link className="crew-explore-tile crew-explore-souls" data-kind="souls" to="/souls" onClick={()=>trackUsageEvent("explore_entry_click","souls")}>
      <div className="crew-explore-art"><ExploreArtwork kind="souls"/></div>
      <span className="crew-explore-text">
       <strong>{en?"Koolo Souls · Bring photos to life":"Koolo Souls · 讓照片活過來"}</strong>
       <small>{en?"Give an object or portrait a personality, then talk to it with AI.":"拍下物品或人物，打造有個性的角色，直接用 AI 語音聊天。"}</small>
-     </span>
-     <Arrow direction="right" className="crew-explore-arrow"/>
-    </Link>
-    <Link className="crew-explore-tile crew-explore-town" data-kind="town" onClick={()=>trackUsageEvent("explore_entry_click","town")} to="/town">
-     <div className="crew-explore-art"><ExploreArtwork kind="town"/></div>
-     <span className="crew-explore-text">
-      <strong>{en?"Koolo Town · A living little world":"Koolo Town · 朋友生活小鎮"}</strong>
-      <small>{en?"Explore a 3D town with 16 AI friends.":"走進 3D 小鎮，探索街區並與 16 位 AI 朋友互動。"}</small>
      </span>
      <Arrow direction="right" className="crew-explore-arrow"/>
     </Link>
