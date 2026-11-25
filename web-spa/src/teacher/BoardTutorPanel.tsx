@@ -1,3 +1,4 @@
+import {LearningFeedbackCard} from "../live/LearningFeedbackCard";
 import {useTranslation} from "react-i18next";
 import {TeacherAvatar} from "./TeacherAvatar";
 import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
@@ -20,6 +21,7 @@ export function BoardTutorPanel({live,profile,targetLanguage,english,hint,onAsk}
    {live.input&&<p><b>{t("board.you")}：</b>{live.input}</p>}
    {live.output&&<p><b>{profile.name}：</b>{live.output}<PinyinHint text={live.output} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/></p>}
   </div></details>
+  {live.learningFeedback[live.turns.length-1]&&<LearningFeedbackCard key={live.turns.length} feedback={live.learningFeedback[live.turns.length-1]} language={targetLanguage}/>}
   <div className="teaching-board-suggestions">
    <span>{t("board.try")}</span>
    <button type="button" onClick={()=>onAsk(t("board.examplePrompt"))}>{t("board.examplePrompt")}</button>

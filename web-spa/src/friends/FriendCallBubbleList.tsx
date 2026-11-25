@@ -1,11 +1,13 @@
+import {LearningFeedbackCard} from "../live/LearningFeedbackCard";
+import type {LearningFeedbackByTurn} from "../live/learningFeedback.mjs";
 import {useEffect,useRef,type ReactNode} from "react";
 import type {SuggestedReply} from "../live/suggestReplies";
 import "./friendCallBubbles.css";
 
 type Turn={input?:string;output?:string};
 type TranslationRow={kind:string;value:string};
-type Props={name:string;turns:ReadonlyArray<Turn>;input:string;output:string;source:string;nativeLanguage:string;translationRows:TranslationRow[];historicalTranslations:ReadonlyMap<string,string[]>;suggestions:SuggestedReply[];suggestionsEnabled:boolean;translationEnabled:boolean;needTranslation:boolean;speaking:boolean;speakerAvatar?:ReactNode;waitingText:string;youLabel:string;recognizingLabel:string;recognizedLabel:string;translateStatus:(value:string)=>string;headerAccessory?:ReactNode;replyExtra?:ReactNode};
-export function FriendCallBubbleList({name,turns,input,output,source,nativeLanguage,translationRows,historicalTranslations,suggestions,suggestionsEnabled,translationEnabled,needTranslation,speaking,speakerAvatar,waitingText,youLabel,recognizingLabel,recognizedLabel,translateStatus,headerAccessory,replyExtra}:Props){
+type Props={learningFeedback?:LearningFeedbackByTurn;learningLanguage?:string;name:string;turns:ReadonlyArray<Turn>;input:string;output:string;source:string;nativeLanguage:string;translationRows:TranslationRow[];historicalTranslations:ReadonlyMap<string,string[]>;suggestions:SuggestedReply[];suggestionsEnabled:boolean;translationEnabled:boolean;needTranslation:boolean;speaking:boolean;speakerAvatar?:ReactNode;waitingText:string;youLabel:string;recognizingLabel:string;recognizedLabel:string;translateStatus:(value:string)=>string;headerAccessory?:ReactNode;replyExtra?:ReactNode};
+export function FriendCallBubbleList({name,turns,learningFeedback={},learningLanguage,input,output,source,nativeLanguage,translationRows,historicalTranslations,suggestions,suggestionsEnabled,translationEnabled,needTranslation,speaking,speakerAvatar,waitingText,youLabel,recognizingLabel,recognizedLabel,translateStatus,headerAccessory,replyExtra}:Props){
  const scrollRef=useRef<HTMLDivElement>(null),followRef=useRef(true);
  const lastInput=[...turns].reverse().find(turn=>turn.input?.trim())?.input?.trim()||"";
  const lastOutput=[...turns].reverse().find(turn=>turn.output?.trim())?.output?.trim()||"";
@@ -24,7 +26,7 @@ export function FriendCallBubbleList({name,turns,input,output,source,nativeLangu
  // Compare visible content, not newly allocated arrays or unrelated Live state.
  const contentKey=JSON.stringify([
   completed.map(turn=>[turn.input?.trim()||"",turn.output?.trim()||""]),
-  showCurrentInput?currentInput:"",showCurrentOutput?currentOutput:"",
+  showCurrentInput?currentInput:"",showCurrentOutput?currentOutput:"",learningFeedback,
   translationEnabled&&needTranslation?translationRows.filter(row=>row.kind==="text").map(row=>row.value):[],
   suggestionsEnabled?suggestions.slice(0,3).map(item=>[item.text,item.translation]):[]
  ]);
@@ -33,6 +35,7 @@ export function FriendCallBubbleList({name,turns,input,output,source,nativeLangu
   {headerAccessory}
   {completed.map(turn=><div className="friend-bubble-turn" key={turn.index}>
    {turn.input?.trim()?<section className="friend-bubble friend-bubble-user" aria-label={youLabel}><small>{youLabel}</small><p lang={source}>{turn.input.trim()}</p></section>:null}
+   {learningFeedback[turn.index]&&<LearningFeedbackCard feedback={learningFeedback[turn.index]} language={learningLanguage||source}/>}
    {turn.output?.trim()?<section className="friend-bubble friend-bubble-ai" aria-label={name}>
     <small>{name}</small><p lang={source}>{turn.output.trim()}</p>
     {renderTranslation(turn.output.trim(),!showCurrentOutput&&latestAiKey===turn.index)}

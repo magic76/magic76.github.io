@@ -212,7 +212,7 @@ export function TeacherBoardPage(){
   if(active&&!live.sendText(lessonPrompt(lesson,index)+"\n"+localeHelp))setLessonTransitioning(false);
  }
  const live=useLiveSession({
-  pageKey:"teacher-board",title:"AI 即時教學板 · "+profile.name,
+  pageKey:"teacher-board",learningFeedback:true,title:"AI 即時教學板 · "+profile.name,
   system,openingPrompt:opening,languageDirective:localeHelp,
   languageDriftGuard:(text)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,s.teachingMode),
   voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,nativeLanguage:s.nativeLanguage,
