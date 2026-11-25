@@ -58,7 +58,7 @@ body.teacher-theme.session-page .friend-call-menu-panel .live-more .live-config 
  flex:0 0 auto;overflow:visible
 }
 .teacher-call-page .teacher-live-stage.friend-phone-stage>.friend-phone-captions{
- flex:1 1 0;min-height:0;overflow:hidden;gap:6px
+ flex:1 1 0;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:auto;gap:6px
 }
 .teacher-call-page .teacher-live-stage.friend-phone-stage .friend-caption-ai{
  flex:1 1 0;min-height:0;min-width:0;overflow:hidden;padding:12px 14px;gap:6px
