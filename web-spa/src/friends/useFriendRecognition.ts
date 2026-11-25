@@ -18,5 +18,5 @@ export function useFriendRecognition({language,friendNativeLanguage,friendChatMo
   language:recognitionLanguage,turnCount:live.turns.length,
   clear:!active||!live.micEnabled||live.muted||live.openingProtected||live.state==="connecting"
  });
- return {recognitionLanguages,recognitionOverride,setRecognitionOverride,recognitionLanguage,browserSpeech};
+ return {recognitionLanguages,recognitionOverride,setRecognitionOverride,recognitionLanguage,automaticRecognitionLanguage,browserSpeech};
 }
