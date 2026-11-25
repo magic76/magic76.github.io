@@ -1,9 +1,11 @@
 import {Arrow} from "../components/Arrow";
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState,type ReactNode} from "react";
 import {LESSONS,type LessonId} from "./boardLessons";
 
-type Props={english:boolean;guided:boolean;hasCards:boolean;step:number;steps:number;onNext:()=>void;onEnd:()=>void;onLesson:(id:LessonId)=>void;onTopic:(topic:string)=>void};
-export function BoardQuickControls({english,guided,hasCards,step,steps,onNext,onEnd,onLesson,onTopic}:Props){
+type Props={english:boolean;guided:boolean;hasCards:boolean;step:number;steps:number;onNext:()=>void;onEnd:()=>void;onLesson:(id:LessonId)=>void;onTopic:(topic:string)=>void;voiceControls:ReactNode};
+export function BoardQuickControls({english,guided,hasCards,step,steps,onNext,onEnd,onLesson,onTopic,voiceControls}:Props){
+ const dockRef=useRef<HTMLElement>(null);
+ useEffect(()=>{const dock=dockRef.current;if(!dock)return;const sync=()=>document.documentElement.style.setProperty("--board-dock-height",Math.ceil(dock.getBoundingClientRect().height)+"px");sync();const observer=typeof ResizeObserver==="undefined"?null:new ResizeObserver(sync);observer?.observe(dock);window.addEventListener("resize",sync);return ()=>{observer?.disconnect();window.removeEventListener("resize",sync);document.documentElement.style.removeProperty("--board-dock-height")};},[]);
  const [choosing,setChoosing]=useState(false);
  const [topic,setTopic]=useState("");
  useEffect(()=>{
@@ -17,7 +19,8 @@ export function BoardQuickControls({english,guided,hasCards,step,steps,onNext,on
   sync();viewport.addEventListener("resize",sync);viewport.addEventListener("scroll",sync);
   return ()=>{viewport.removeEventListener("resize",sync);viewport.removeEventListener("scroll",sync);document.documentElement.style.removeProperty("--board-keyboard-inset");document.documentElement.style.removeProperty("--board-visible-height")};
  },[]);
- return <section className="teaching-board-quick" aria-label={english?"Lesson controls":"白板操作"}>
+ return <section ref={dockRef} className="teaching-board-quick" aria-label={english?"Lesson and call controls":"教學與通話操作"}>
+  <div className="teaching-board-voice">{voiceControls}</div>
   <div className="teaching-board-quick-row">
    <button type="button" className="is-primary" disabled={!hasCards} onClick={guided&&step<steps-1?onNext:onEnd}>
     {guided&&step<steps-1?<>{english?"Got it · Next step":"學會了 · 下一節"} <Arrow/></>:(english?"Finish this topic":"結束這個話題")}
