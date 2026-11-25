@@ -1,6 +1,6 @@
 import {COURSE_SEO} from "./course-seo.mjs";
 import {prerenderPublicRoutes} from "./ssg-renderer.mjs";
-import {articleHead,articlePath,escapeHtml,safeJson,indexableArticle} from "./research-seo.mjs";
+import {articleHead,articlePath,escapeHtml,safeJson,indexableArticle,decodeHtmlText} from "./research-seo.mjs";
 import {GAME_SEO_PAGES,GAME_SEO_SLUGS} from "./game-seo.mjs";
 import {writeBaziSeoPages,baziSitemapEntries} from "./bazi-seo.mjs";
 import {writeNumerologySeoPages,numerologySitemapEntries} from "./numerology-seo.mjs";
@@ -407,7 +407,8 @@ for(const [id,{slug,locale,content:guide}] of guides){
  head=head.replace('<link rel="stylesheet" href="/seo.css">',linkedAppStylesheet+newline+"  "+appTags);
  head=head.replace("</head>",dynamicGuard+newline+"</head>");
  let body=prerendered.get(id);
- if(!body||!body.includes(guide.headline)||!body.includes("crew-guide-section"))throw Error("Guide SSG failed: "+id);
+ const heading=body?.match(/<h1\b[^>]*>([\s\S]*?)<\/h1\s*>/i);
+ if(!heading||decodeHtmlText(heading[1].replace(/<[^>]*>/g,""))!==guide.headline||!body.includes("crew-guide-section"))throw Error("Guide SSG failed: "+id);
  body=body.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
  const html=template.replace(/<head>[\s\S]*?<\/head>/,head)
   .replace(/<body>[\s\S]*?<\/body>/,

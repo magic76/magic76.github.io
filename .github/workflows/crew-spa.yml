@@ -53,7 +53,7 @@ jobs:
       # This blocking fix needs case-by-case full-suite parity with the exact
       # PR base, before either worktree generates build-version timestamps.
       - name: Compare npm test failures against master (scoped fixes)
-        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets') || (contains(github.event.pull_request.head.ref, 'fortune-lab-resumable') || (contains(github.event.pull_request.head.ref, 'fortune-lab-plain') || (contains(github.event.pull_request.head.ref, 'fortune-lab-fast') || (contains(github.event.pull_request.head.ref, 'fortune-report-reader') || contains(github.event.pull_request.head.ref, 'fortune-reader-3d')))))) || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'chatgpt/kokoro-lab-en') || (github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'chatgpt/live-first-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/live-only-friend-memory'))
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets') || (contains(github.event.pull_request.head.ref, 'fortune-lab-resumable') || (contains(github.event.pull_request.head.ref, 'fortune-lab-plain') || (contains(github.event.pull_request.head.ref, 'fortune-lab-fast') || (contains(github.event.pull_request.head.ref, 'fortune-report-reader') || contains(github.event.pull_request.head.ref, 'fortune-reader-3d')))))) || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'chatgpt/kokoro-lab-en') || (github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'chatgpt/live-first-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/live-only-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/friend-memory-recall-scroll'))
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -91,8 +91,8 @@ jobs:
           fi
           echo "PASS: 0 new failing cases vs master; full npm test runs finished before the builds"
       - name: Validate Live-first Friend memory and guest token security
-        if: github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'chatgpt/live-first-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/live-only-friend-memory')
-        run: node --test tests/friend-memory-failures.test.js tests/friend-memory-provenance.test.js tests/short-chat-memory.test.js tests/guest-trial.test.js tests/live-search-isolation.test.js tests/mic-denied-text-handoff.test.js tests/crew-live.lifecycle.test.js tests/free-daily-quotas.test.mjs
+        if: github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'chatgpt/live-first-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/live-only-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/friend-memory-recall-scroll')
+        run: node --test tests/friend-memory-failures.test.js tests/friend-memory-provenance.test.js tests/friend-voice-opening.test.js tests/friend-call-chat-bubbles.test.js tests/friend-unified-live.test.js tests/browser-speech-recognition.test.js tests/short-chat-memory.test.js tests/guest-trial.test.js tests/live-search-isolation.test.js tests/mic-denied-text-handoff.test.js tests/crew-live.lifecycle.test.js tests/free-daily-quotas.test.mjs
       - name: Validate Kokoro learning speech regression tests
         if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'chatgpt/kokoro-lab-en'
         run: node --test tests/chat-recall.test.js tests/text-chat-learning.test.js tests/learning-speech-phrases.test.js tests/learning-speech-multilingual.test.js tests/learning-speech-cache.test.js
@@ -191,7 +191,7 @@ jobs:
       # Deployment-adapter fixes require the real Cloudflare build, not only
       # build:web. Keep the heavier gate scoped to this blocking-fix PR.
       - name: Validate Cloudflare Pages deployment adapter (blocking fix)
-        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets') || (github.event.pull_request.head.ref == 'chatgpt/live-first-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/live-only-friend-memory'))
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets') || (github.event.pull_request.head.ref == 'chatgpt/live-first-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/live-only-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/friend-memory-recall-scroll'))
         run: |
           npm run build:cloudflare
           npm run test:cloudflare

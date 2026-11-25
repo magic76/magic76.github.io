@@ -85,3 +85,25 @@ test("canonical cross-platform contract asserts provenance boundaries",()=>{
  assert.equal(contract.rules.memory.sharedLearnerProfileNotProofOfPriorConversation,true);
  assert.equal(contract.rules.memory.fictionalLifeBookNotSharedLearnerHistory,true);
 });
+
+ test("fresh recall includes every locally saved topic and never another friend or language",()=>{
+ const {api,localStorage}=memoryHarness();
+ const initial=api.friendTopicContext("zoe","English");assert.equal(initial,"");
+ for(const [id,language,count] of [["zoe","English",8],["zoe","French",1],["yuna","English",1]]){
+  localStorage.setItem("crew_friend_topics_v1_"+id+"_"+language,JSON.stringify(Array.from({length:count},(_,i)=>({id:String(i),key:String(i),title:id+" "+language+" "+i,summary:"topic detail "+i,manual:false,pinned:i<3,updatedAt:i+1}))));
+ }
+ const fresh=api.friendTopicContext("zoe","English");
+ for(let i=0;i<8;i++)assert.ok(fresh.includes("zoe English "+i));
+ assert.doesNotMatch(fresh,/zoe French|yuna English/);
+ assert.match(fresh,/answer questions about previous conversations/);
+ api.setFriendMemoryEnabled(false);assert.equal(api.friendTopicContext("zoe","English"),"");
+ });
+ test("both voice and keyboard resolve current memory immediately before the Live socket is constructed",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLiveConversation.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ assert.match(page,/const resolveSessionContext=\(\)=>\{\s*const openingRecall=friendVoiceOpeningRecall\(friend.id,language\);\s*const system=buildFriendSystem/);
+ assert.match(page,/\.\.\.resolveSessionContext\(\),resolveSessionContext,languageDirective/);
+ assert.match(live,/const sessionContext=configRef.current.resolveSessionContext\?\.\(\)\|\|configRef.current;\s*const session=new window.CrewLive.Session/);
+ assert.match(live,/system:sessionContext.system/);
+ assert.match(live,/openingPrompt:sessionContext.openingPrompt/);
+ });

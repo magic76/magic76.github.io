@@ -19,6 +19,7 @@ type Config={
  createPlaybackRoute?:LiveSessionOptions["createPlaybackRoute"];
  separateCaptureContext?:boolean;
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
+ resolveSessionContext?:()=>{system:string;openingPrompt:string};
  protectOpening?:boolean;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
@@ -256,6 +257,7 @@ export function useLiveSession(config:Config){
     :configRef.current.pageKey.startsWith("friend-")&&!configRef.current.pageKey.startsWith("friend-game-")?"friend"
     :configRef.current.pageKey.startsWith("timeline-")?"timeline":null;
    let learnerSpoke=false,aiReplied=false;
+   const sessionContext=configRef.current.resolveSessionContext?.()||configRef.current;
    const session=new window.CrewLive.Session({
     createPlaybackRoute:configRef.current.createPlaybackRoute,
     separateCaptureContext:configRef.current.separateCaptureContext,
@@ -263,10 +265,10 @@ export function useLiveSession(config:Config){
     textOnly:textOnly&&configRef.current.sessionKind==="friend",
     allowMicUpgrade:configRef.current.sessionKind==="friend",
     trackTextTurns:configRef.current.sessionKind==="friend",
-    system:configRef.current.system+(tabooSession?(tabooDirectGuess
+    system:sessionContext.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
-    openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume:volumeRef.current,
+    openingPrompt:sessionContext.openingPrompt,voice:configRef.current.voice,volume:volumeRef.current,
     protectOpening:configRef.current.protectOpening,
     onOpeningProtectionChange:value=>{if(isActive())setOpeningProtected(value)},
     // Native Live Google Search is disabled: a server-side 1011 can close the audio session.

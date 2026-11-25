@@ -13,8 +13,7 @@ import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {detectNativeLanguage} from "../teacher/teacherLocale";
 import {useLiveSession} from "../live/useLiveSession";
-import {browserSpeechLanguagePair,resolveBrowserSpeechLanguage} from "../live/browserSpeechRecognition";
-import {useBrowserSpeechCaptions} from "../live/useBrowserSpeechCaptions";
+import {useFriendRecognition} from "./useFriendRecognition";
 import {createElementPlayback} from "../live/createElementPlayback";
 import {useCreatureStageSync,useCreatureVoiceBridge} from "./useCreatureVoiceBridge";
 import {creatureVoiceInstruction} from "./creatureVoiceBridge.mjs";
@@ -23,7 +22,7 @@ import {LiveControls} from "../live/LiveControls";
 import {FriendCallControls} from "./FriendCallControls";
 import {FriendVoiceMute} from "./FriendVoiceMute";
 import {FriendCallCaptions} from "./FriendCallCaptions";
-import {buildFriendVoiceOpening} from "../live/friendVoiceOpening";
+import {buildFriendVoiceOpening,CURRENT_FACTS,FORTUNE_HANDOFF} from "../live/friendVoiceOpening";
 import {useFriendTextViewport,useFriendBodyTheme,useFriendVoiceTheme} from "./useFriendTextViewport";
 import {friendVoiceStatusKey} from "./friendVoiceStatusKey";
 import {FriendChatHistory} from "./FriendChatHistory";
@@ -48,7 +47,7 @@ import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageM
 import {buildFriendSystem,recordFriendChat,recordFriendVoiceExchange,friendVoiceOpeningRecall,getHomeChatTopic,friendMemoryEnabled,friendLiveMemoryConfig,createFriendLiveMemory} from "./friendMemory";
 import {recordFriendActivity,clearLegacyFriendChats} from "../live/sessionTranscript";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
-import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
+import {buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
 import {isShortsHook,shortsSelectedQuestion,rememberShortsConversation} from "../teacher/shortsSocial";
 import "./friends.css";
 import "./friendCall.css";
@@ -107,7 +106,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const dailyFortuneStarter=dailyFortune?t("dailyFortuneStarter"):undefined;
  const fortuneContinue=dailyHandoff?t("dailyFortuneContinue"):undefined;
  const fortuneReplies=dailyHandoff?[t("dailyFortuneStarters.goodFor"),t("dailyFortuneStarters.watchOut")]:undefined;
- const fortuneSystem=dailyHandoff?(dailyLookup?.handoff||"[ZOE DAILY FORTUNE HANDOFF — FIRST REPLY]\nContinue discussing TODAY fortune with the user; do not greet or switch topics. Ask fortune follow-ups only.\n[/ZOE DAILY FORTUNE HANDOFF]"):"";
+ const fortuneSystem=dailyHandoff?(dailyLookup?.handoff||FORTUNE_HANDOFF):"";
  const shortsReturnTo=shortsPost?"/teacher/shorts?post="+encodeURIComponent(shortsPost.id):null;
  const language=useTeacherStore(s=>s.targetLanguage);
  const fromHome=params.get("from")==="home"&&!shortsPost;
@@ -119,11 +118,18 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const sessionId=friend.id;
  const liveMemory=useMemo(()=>createFriendLiveMemory(sessionId,language),[sessionId,language]);
  const [lifeOpening]=useState(()=>!shortsPost&&!intent?nextFriendLifeOpening(friend.id):"");
- // Snapshot relationship evidence before this session; greetings alone never count.
- const openingRecall=useMemo(()=>friendVoiceOpeningRecall(friend.id,language),[friend.id,language]);
- const system=useMemo(()=>buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost),[friend,language,friendNativeLanguage,friendChatMode,region,accentStrength,customAccent,shortsPost]);
  const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
- const scopedSystem=gameRoundContext(system,"friend:"+friend.id);
+ const resolveSessionContext=()=>{
+  const openingRecall=friendVoiceOpeningRecall(friend.id,language);
+  const system=buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost);
+  const scopedSystem=gameRoundContext(system,"friend:"+friend.id);
+  return {
+   system:scopedSystem+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+(!shortsPost?CURRENT_FACTS:"")+creatureContext,
+  openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
+   shortsHook,selectedQuestion,lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
+   conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
+  };
+ };
  const replyHints=useSuggestedReplies({allowed:true,language,nativeLanguage});
  // Direct Web Audio avoids Bluetooth distortion; keep mic capture.
  const separatePlayback=false;
@@ -131,18 +137,13 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   createPlaybackRoute:separatePlayback?createElementPlayback:undefined,
   separateCaptureContext:separatePlayback,
   pageKey:"friend-"+sessionId,title:"Koolo 朋友 · "+friend.name,
-   system:scopedSystem+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,languageDirective,
-  openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
-   shortsHook,selectedQuestion,lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
-   conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
+  ...resolveSessionContext(),resolveSessionContext,languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
   ...friendLiveMemoryConfig(liveMemory,!creatureEmbed),
   onInputSpeech:replyHints.onInputSpeech,
   onObservedExchange:turn=>{
-   // Only this confirmed two-sided turn represents a successful conversation.
-   // Unlike onSessionFinished, this callback also fires for guest Live and unified text chat.
-   // Keep the pointer content-free: do not persist a voice transcript or an AI-only greeting.
+   // Confirmed two-sided exchange only, including guest Live and keyboard; store no transcript.
    recordFriendActivity(sessionId,"voice");
    recordFriendVoiceExchange(sessionId,language);
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
@@ -187,19 +188,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  useEffect(()=>{if(textFirst||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textFirst,shortsPost,creatureEmbed]);
  useFriendBodyTheme(creatureEmbed);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
- const recognitionLanguages=useMemo(()=>browserSpeechLanguagePair(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
- const [recognitionOverride,setRecognitionOverride]=useState("");
- useEffect(()=>{setRecognitionOverride("")},[language,friendNativeLanguage]);
- useEffect(()=>{if(!active)setRecognitionOverride("")},[active]);
- const automaticRecognitionLanguage=useMemo(()=>resolveBrowserSpeechLanguage(recognitionLanguages,live.turns),[recognitionLanguages,live.turns]);
- const recognitionLanguage=recognitionLanguages.includes(recognitionOverride)?recognitionOverride:automaticRecognitionLanguage;
- // Explicit opt-in: Android may open an additional browser microphone session.
- // Stop while AI is speaking, muted, reconnecting or leaving. Never replace Gemini's authoritative transcript.
- const browserSpeech=useBrowserSpeechCaptions({
-  eligible:!creatureEmbed&&live.state==="listening"&&live.micEnabled&&!live.muted&&!live.openingProtected,
-  language:recognitionLanguage,turnCount:live.turns.length,
-  clear:!active||!live.micEnabled||live.muted||live.openingProtected||live.state==="connecting"
- });
+ const {recognitionLanguages,recognitionOverride,setRecognitionOverride,recognitionLanguage,automaticRecognitionLanguage,browserSpeech}=useFriendRecognition({language,friendNativeLanguage,friendChatMode,live,active,creatureEmbed});
  useAuxiliaryLiveSession(active,false);
  useFriendVoiceTheme(!creatureEmbed&&!active);
  const needsKey=live.state==="error"&&live.errorKind==="key";
