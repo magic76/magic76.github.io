@@ -98,7 +98,7 @@ test("Daily thought replaces topics, six focused cards, Shorts and SEO remain",(
  assert.match(mobile,/className="cmh-seo"/);assert.match(mobile,/<GuideHub\/>/);
  assert.match(home,/className="crew-home-search-summary"/);
  assert.match(home,/<HomeLiveBubble\/>/);
- assert.match(read("web-spa/src/pages/mobileHome.css"),/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(read("web-spa/src/pages/mobileHome.css"),/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
 });
 
 test("Desktop heading and CTA have a fixed layout across every rail mode",()=>{
