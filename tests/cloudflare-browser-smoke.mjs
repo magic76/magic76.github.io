@@ -245,7 +245,7 @@ async function verifyLearningResponsiveLayout(browser){
      const scenario=page.locator(".crew-learn-scenario");
      assert.equal(await scenario.count(),1);
      assert.equal(await scenario.getAttribute("href"),"/teacher/course");
-     assert.equal(await secondary.locator('[href="/teacher/course"]').count(),0);
+     assert.equal(await page.locator('.crew-learn-secondary-links a[href="/teacher/course"]').count(),0);
      const scenarioWidth=await scenario.evaluate(el=>el.getBoundingClientRect().width);
      assert.ok(scenarioWidth>=geometry.shell*.9,"Scenario card must use the full width at "+width);
      assert.equal(await page.locator(".crew-learn-three-minute").count(),0);
