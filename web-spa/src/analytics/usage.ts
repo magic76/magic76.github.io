@@ -74,7 +74,25 @@ export function setDeveloperUsageMode(value:boolean){
  else{try{localStorage.removeItem(DEV)}catch{/* blocked */}}
  updateGa4State();
 }
-const allowed=()=>production()&&!globalPrivacy()&&!usageDisabled()&&!developerUsageMode();
+// The page gallery marks previews explicitly; sessionStorage keeps suppression
+// across navigation and reloads in this tab without changing normal visitors.
+const PREVIEW_SESSION="koolo_workbench_preview_v1";
+let previewInMemory=false;
+function workbenchPreview(){
+ if(typeof window==="undefined")return false;
+ const mode=new URLSearchParams(window.location.search).get("kooloPreview");
+ if(mode==="1"){
+  previewInMemory=true;
+  try{sessionStorage.setItem(PREVIEW_SESSION,"1")}catch{/* storage blocked */}
+ }else if(mode==="0"){
+  previewInMemory=false;
+  try{sessionStorage.removeItem(PREVIEW_SESSION)}catch{/* storage blocked */}
+ }else if(!previewInMemory){
+  try{previewInMemory=sessionStorage.getItem(PREVIEW_SESSION)==="1"}catch{/* storage blocked */}
+ }
+ return previewInMemory;
+}
+const allowed=()=>production()&&!workbenchPreview()&&!globalPrivacy()&&!usageDisabled()&&!developerUsageMode();
 // Third-party analytics is optional: load its code only when collection is allowed.
 // Capture the original landing URL before the async chunk can finish loading.
 type Ga4Module=typeof import("./ga4");
