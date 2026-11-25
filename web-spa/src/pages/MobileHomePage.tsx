@@ -13,8 +13,6 @@ import {GuideHub} from "../guides/GuideHub";
 import {useHomeAmbientMotion} from "../lib/useHomeAmbientMotion";
 import {DailyTopicCards} from "./DailyTopicCards";
 import {HomeGeminiVerify} from "./HomeGeminiVerify";
-import {CreatureLabResume} from "./CreatureLabResume";
-import type {CreatureLabProgress} from "./creatureLabProgress";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
 import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./mobileHome.css";
@@ -36,7 +34,7 @@ const APPS:readonly App[]=[
 ];
 
 /** Mobile-only, first-party home. Client state loads after hydration; SSG has a stable first-visit card. */
-export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{shortsFeed:ShortFeed|null;shortsStatus:"loading"|"ready"|"error";creatureProgress:CreatureLabProgress|null}){
+export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|null;shortsStatus:"loading"|"ready"|"error"}){
  const {i18n,t}=useTranslation("home");
  const homeMotion=useHomeAmbientMotion(true);
  const zh=i18n.language.startsWith("zh");
@@ -214,7 +212,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
   </section>
   <HomeGeminiVerify variant="mobile"/>
   <div className="cmh-shorts"><HomeShortsPreview maxPosts={6} sharedFeed={shortsFeed} sharedStatus={shortsStatus} motionEnabled={homeMotion}/></div>
-  {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
   <section className="cmh-seo" aria-labelledby="cmh-seo-heading">
    <h2 id="cmh-seo-heading">{copy("Koolo：AI 朋友聊天、語言學習、互動遊戲與故事創作","Koolo: AI Friends, Language Practice, Games and Stories")}</h2>
    <p>{copy("在 Koolo，你可以和不同個性的 AI 朋友自然聊天、用 Koolo Teacher 練習外語口說、一起玩猜數字或棋盤遊戲，也能探索命理、創作及閱讀故事。","Talk to AI friends, practice languages, play interactive games, explore fortune readings and create stories together.")}</p>
