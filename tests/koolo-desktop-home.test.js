@@ -14,7 +14,7 @@ test("Koolo desktop home mirrors the mobile product entry points without changin
  assert.match(css,/\.koolo-desktop-home\{display:none\}/);
  assert.match(css,/@media\(min-width:768px\)/);
  assert.match(css,/\.crew-home-legacy\{display:none!important\}/);
- assert.match(mobile,/const SLIDES=\["zoe","friends","game","learn"\]/);
+ assert.match(mobile,/const SLIDES=\["learn","zoe","friends","game"\]/);
  for(const route of ["/chat","/learn","/teacher/roles?mode=friends","/games","/fortune","/teacher/shorts","/teacher/course"]){
   assert.ok(desktop.includes(route),"missing existing destination "+route);
  }
