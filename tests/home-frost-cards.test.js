@@ -63,9 +63,9 @@ test("eight pale gradient icon palettes use dark strokes with at least 4.5:1 end
  }
 });
 
-test("four columns, readable wrapping labels and accessible motion and press feedback",()=>{
+test("three columns, readable wrapping labels and accessible motion and press feedback",()=>{
  const grid=cssRule(".cmh-app-grid");
- assert.match(grid,/display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(grid,/display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(grid,/gap:10px 8px/);
  assert.match(cssRule(".cmh-app"),/padding:10px 4px 9px/);
  const label=cssRule(".cmh-app-name");
@@ -81,17 +81,15 @@ test("four columns, readable wrapping labels and accessible motion and press fee
  assert.match(css,/@media\(max-width:360px\)\{[\s\S]*?\.cmh-app-icon\{width:44px;height:44px\}/);
 });
 
-test("the source APPS entries, routes, order, icons, tracking and markup are unchanged",()=>{
+test("the six visible APPS preserve routes, order, icons, tracking and markup",()=>{
  const source=page.slice(page.indexOf("const APPS:"),page.indexOf("/** Mobile-only"));
  const actual=[...source.matchAll(/\{id:"([^"]+)",zh:"([^"]+)",en:"([^"]+)",icon:"([^"]+)",to:"([^"]+)",event:"([^"]+)"\}/g)];
  const expected=[
   ["friends","AI 朋友","AI Friends","chat","/teacher/roles?mode=friends","friend"],
   ["teacher","學語言","Learn","teacher","/learn","learn"],
   ["games","玩遊戲","Games","play","/games","play"],
-  ["story","故事","Stories","story","/story","story"],
   ["fortune","命理","Fortune","fortune","/fortune","fortune"],
   ["shorts","朋友動態","Moments","image","/teacher/shorts","shorts"],
-  ["timeline","時光機","Timeline","history","/timeline","timeline"],
   ["scenarios","情境課程","Scenarios","scene","/teacher/course","learn"]
  ];
  assert.deepEqual(actual.map(item=>item.slice(1)),expected);
