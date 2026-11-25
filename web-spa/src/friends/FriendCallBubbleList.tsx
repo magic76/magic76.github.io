@@ -6,7 +6,7 @@ type Turn={input?:string;output?:string};
 type TranslationRow={kind:string;value:string};
 type Props={browserInput?:string;browserLanguage?:string;browserLabel?:string;name:string;turns:ReadonlyArray<Turn>;input:string;output:string;source:string;nativeLanguage:string;translationRows:TranslationRow[];historicalTranslations:ReadonlyMap<string,string[]>;suggestions:SuggestedReply[];suggestionsEnabled:boolean;translationEnabled:boolean;needTranslation:boolean;speaking:boolean;speakerAvatar?:ReactNode;waitingText:string;youLabel:string;recognizingLabel:string;recognizedLabel:string;translateStatus:(value:string)=>string;headerAccessory?:ReactNode;replyExtra?:ReactNode};
 export function FriendCallBubbleList({browserInput,browserLanguage,browserLabel,name,turns,input,output,source,nativeLanguage,translationRows,historicalTranslations,suggestions,suggestionsEnabled,translationEnabled,needTranslation,speaking,speakerAvatar,waitingText,youLabel,recognizingLabel,recognizedLabel,translateStatus,headerAccessory,replyExtra}:Props){
- const scrollRef=useRef<HTMLDivElement>(null);
+ const scrollRef=useRef<HTMLDivElement>(null),followRef=useRef(true);
  const lastInput=[...turns].reverse().find(turn=>turn.input?.trim())?.input?.trim()||"";
  const lastOutput=[...turns].reverse().find(turn=>turn.output?.trim())?.output?.trim()||"";
  const completed=turns.map((turn,index)=>({...turn,index})).filter(turn=>turn.input?.trim()||turn.output?.trim());
@@ -23,8 +23,15 @@ export function FriendCallBubbleList({browserInput,browserLanguage,browserLabel,
  const renderTranslation=(key:string,latest:boolean)=>!translationEnabled||!needTranslation?null:latest&&translationRows.length?
   <div className="friend-bubble-translation" lang={nativeLanguage}>{translationRows.map((row,index)=><span key={index}>{row.kind==="text"?row.value:translateStatus(row.value)}</span>)}</div>:
   historicalTranslations.has(key)?<div className="friend-bubble-translation" lang={nativeLanguage}>{historicalTranslations.get(key)?.map((text,index)=><span key={index}>{text}</span>)}</div>:null;
- useEffect(()=>{const pane=scrollRef.current;if(!pane)return;pane.scrollTop=pane.scrollHeight},[turns,input,output,browserInput,translationRows,suggestions]);
- return <div ref={scrollRef} className="friend-phone-captions friend-chat-bubbles" aria-label={name}>
+ // Compare visible content, not newly allocated arrays or unrelated Live state.
+ const contentKey=JSON.stringify([
+  completed.map(turn=>[turn.input?.trim()||"",turn.output?.trim()||""]),
+  showCurrentInput?currentInput:"",showBrowser?browserText:"",showCurrentOutput?currentOutput:"",
+  translationEnabled&&needTranslation?translationRows.filter(row=>row.kind==="text").map(row=>row.value):[],
+  suggestionsEnabled?suggestions.slice(0,3).map(item=>[item.text,item.translation]):[]
+ ]);
+ useEffect(()=>{const pane=scrollRef.current;if(!pane||!followRef.current)return;pane.scrollTop=pane.scrollHeight},[contentKey]);
+ return <div ref={scrollRef} onScroll={event=>{const pane=event.currentTarget;followRef.current=pane.scrollHeight-pane.clientHeight-pane.scrollTop<=48}} className="friend-phone-captions friend-chat-bubbles" aria-label={name}>
   {headerAccessory}
   {completed.map(turn=><div className="friend-bubble-turn" key={turn.index}>
    {turn.input?.trim()?<section className="friend-bubble friend-bubble-user" aria-label={youLabel}><small>{youLabel}</small><p lang={source}>{turn.input.trim()}</p></section>:null}
