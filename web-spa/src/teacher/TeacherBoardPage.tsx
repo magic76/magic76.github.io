@@ -1,6 +1,8 @@
 import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useRef,useState} from "react";
-import {Link} from "react-router-dom";
+import {Link,useNavigate} from "react-router-dom";
+import {LiveControls} from "../live/LiveControls";
+import {createBoardDiagnostics,boardViewport} from "./boardDiagnostics.mjs";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
 import {useLiveSession} from "../live/useLiveSession";
@@ -32,6 +34,12 @@ import "./boardReview.css";
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
 export function TeacherBoardPage(){
  const {t,i18n}=useTranslation("teacher");
+ const navigate=useNavigate();
+ const journal=useRef<ReturnType<typeof createBoardDiagnostics>|null>(null);
+ if(!journal.current)journal.current=createBoardDiagnostics();
+ const [includeDiagnosticText,setIncludeDiagnosticText]=useState(false);
+ const [diagnosticStatus,setDiagnosticStatus]=useState("");
+ const record=(kind:string,data:Record<string,unknown>={},detail?:unknown)=>journal.current?.record(kind,data,detail);
  const s=useTeacherStore();
  const profile=getTeacherProfile(s.teacherProfile);
  const memoryEnabled=personalMemoryEnabled();
@@ -59,7 +67,9 @@ export function TeacherBoardPage(){
  const [toolsUnavailable,setToolsUnavailable]=useState(false);
  const [latestId,setLatestId]=useState<string|null>(null);
  const [focusedId,setFocusedId]=useState<string|null>(null);
- const [following,setFollowing]=useState(true);
+ const [following,setFollowingState]=useState(true);
+ const followingRef=useRef(true);
+ function setFollowing(value:boolean){followingRef.current=value;setFollowingState(value)}
  const [revision,setRevision]=useState(0);
  const deckRef=useRef<HTMLDivElement>(null);
  const cardRef=useRef<BoardCard[]>([]);
@@ -83,13 +93,13 @@ export function TeacherBoardPage(){
   (lessonRef.current?lessonPrompt(findLesson(lessonRef.current)!,0):"")+"\n"+localeHelp;
  function changeDirector(next:DirectorState){
   directorRef.current=next;setDirector(next);
+  record("director-state",{phase:next.phase,cardId:next.cardId,quizIndex:next.quizIndex,focusIndex:next.focusIndex,result:next.result});
  }
- function commitPatch(patch:BoardPatch):boolean{
+ function commitPatch(patch:BoardPatch,source:"live"|"fallback"|"local"="local"):boolean{
   const waiting=directorRef.current.phase==="awaiting";
   const guided=!!lessonRef.current;
-  if(guided)return false; // Guided curriculum cannot be rewritten by live tools.
-  if(waiting&&(patch.action!=="upsert"||patch.cards.some(c=>c.id===directorRef.current.cardId||c.type==="quiz"||c.type==="speaking")))return false;
-  const visibleId=following?(latestId||cardRef.current[cardRef.current.length-1]?.id):focusedId;
+  if(guided){record("patch-rejected",{source,reason:"guided"},patch);return false;}
+  if(waiting&&(patch.action!=="upsert"||patch.cards.some(c=>c.id===directorRef.current.cardId||c.type==="quiz"||c.type==="speaking"))){record("patch-rejected",{source,reason:"awaiting-answer"},patch);return false;}
   const next=applyBoardPatch(cardRef.current,patch);
   cardRef.current=next;setCards(next);setShowingDemo(false);
   if(patch.cards.length)formatRequestRef.current=null;
@@ -97,8 +107,9 @@ export function TeacherBoardPage(){
   changeDirector(stage);
   const changedId=stage.cardId;
   setLatestId(changedId);setRevision(v=>v+1);
-  // Keep the learner on the previous card when an asynchronous patch arrives.
-  if(visibleId&&next.some(card=>card.id===visibleId)&&!guided){setFollowing(false);setFocusedId(visibleId)}
+  // Follow new material by default; manual browsing is the only pause.
+  if(changedId&&followingRef.current){setFocusedId(null)}
+  record("patch-applied",{source,action:patch.action,cards:patch.cards.map(c=>({id:c.id,type:c.type})),ids:patch.ids,latestId:changedId,following:followingRef.current,total:next.length},patch);
   if(patch.action==="replace"){pendingQuizRef.current=null;answersRef.current={};setAnswers({});setSpeakingAssessment(null);speechAssessmentRef.current=null;}
   return true;
  }
@@ -107,6 +118,7 @@ export function TeacherBoardPage(){
   if(answersRef.current[key]!==undefined)return false;
   const next=directorAfterAnswer(directorRef.current,card,index,selected,cardRef.current);
   if(!next)return false;
+  record("quiz-answer",{cardId:card.id,index,selected,fromVoice,result:next.result});
   answersRef.current={...answersRef.current,[key]:selected};
   setAnswers(answersRef.current);
   changeDirector(next);
@@ -127,6 +139,7 @@ export function TeacherBoardPage(){
   if(!card||card.type!=="speaking"||!text.trim())return false;
   const assessment=evaluateSpeakingTask(card,text);
   if(!assessment)return false;
+  record("speaking-answer",{cardId:card.id,met:assessment.met},text);
   speechAssessmentRef.current=assessment;setSpeakingAssessment(assessment);
   changeDirector({...d,phase:"feedback",result:assessment.met?"correct":"incorrect"});
   if(sendToTeacher&&active)live.sendText("[LEARNER SPEAKING PRACTICE] "+text.slice(0,640)+
@@ -152,12 +165,14 @@ export function TeacherBoardPage(){
   setLatestId(cardId);setFollowing(true);setFocusedId(null);setRevision(v=>v+1);
  }
  function endTopic(){
+  record("topic-end");
   topicEndedRef.current=true;
   if(active)live.interrupt();
   setTopicEnded(true);setLessonTransitioning(false);
   changeDirector(EMPTY_DIRECTOR);
  }
  function startFreeTopic(topic:string){
+  record("topic-start",{mode:"free"},topic);
   topicEndedRef.current=false;
   if(active)live.interrupt();
   lessonRef.current=null;setLessonId(null);setLessonStep(0);
@@ -203,35 +218,40 @@ export function TeacherBoardPage(){
   voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,nativeLanguage:s.nativeLanguage,
   teacherReport:false,trackSpeakingLevel:false,persistHistory:false,sessionKind:"teacher",
   tools:[{functionDeclarations:[...BOARD_TOOLS[0].functionDeclarations,...DIRECTOR_TOOL.functionDeclarations]}],
-  onToolsUnavailable:()=>setToolsUnavailable(true),
-  onConfirmedTranscript:turn=>processConfirmedSpeech(turn.input||""),
+  onToolsUnavailable:()=>{record("tools-unavailable");setToolsUnavailable(true)},
+  onConfirmedTranscript:turn=>{record("confirmed-input",{},turn.input||"");processConfirmedSpeech(turn.input||"")},
   onToolCall:(call)=>{
-   if(topicEndedRef.current)return {ok:false,error:"topic-finished"};
+   record("tool-call",{name:call.name===BOARD_FUNCTION||call.name===DIRECTOR_FUNCTION?call.name:"unknown"});
+   const reply=(result:{ok:boolean;error?:string;updated?:number;action?:string;phase?:string;cardId?:string|null})=>{record("tool-result",result);return result};
+   if(topicEndedRef.current)return reply({ok:false,error:"topic-finished"});
    if(call.name===BOARD_FUNCTION){
     const patch=validateBoardPatch(call.args);
-    if(!patch)return {ok:false,error:"invalid-board-patch"};
-    if(!commitPatch(patch))return {ok:false,error:"learner-answer-pending"};
+    if(!patch)return reply({ok:false,error:"invalid-board-patch"});
+    if(!commitPatch(patch,"live"))return reply({ok:false,error:"learner-answer-pending"});
     patchCountRef.current++;setHasLivePatch(true);
-    return {ok:true,updated:patch.cards.length,action:patch.action};
+    return reply({ok:true,updated:patch.cards.length,action:patch.action});
    }
    if(call.name===DIRECTOR_FUNCTION){
     const command=validateDirectorCommand(call.args,cardRef.current);
-    if(!command)return {ok:false,error:"invalid-stage-command"};
-    if(lessonRef.current)return {ok:false,error:"learner-controls-curriculum"};
+    if(!command)return reply({ok:false,error:"invalid-stage-command"});
+    record("stage-command",{action:command.action,cardId:command.cardId},command);
+    if(lessonRef.current)return reply({ok:false,error:"learner-controls-curriculum"});
     const next=applyDirectorCommand(directorRef.current,command,cardRef.current,answersRef.current);
-    if(!next)return {ok:false,error:"stage-locked-or-no-answer"};
+    if(!next)return reply({ok:false,error:"stage-locked-or-no-answer"});
     changeDirector(next);
-    setLatestId(next.cardId);setFollowing(true);setFocusedId(null);
+    setLatestId(next.cardId);if(followingRef.current)setFocusedId(null);
     setRevision(v=>v+1);setHasLivePatch(true);
-    return {ok:true,phase:next.phase,cardId:next.cardId};
+    return reply({ok:true,phase:next.phase,cardId:next.cardId});
    }
-   return {ok:false,error:"unknown-tool"};
+   return reply({ok:false,error:"unknown-tool"});
   },
   onRecovered:()=>{
+   record("reconnected");
    const summary=boardNotes(cardRef.current).slice(0,1300);
    live.sendControl("[BOARD CONTINUITY] Reconnected. Preserve lesson and stage. Current phase="+directorRef.current.phase+", focused card="+directorRef.current.cardId+", quiz question="+(directorRef.current.quizIndex+1)+". If awaiting, wait for learner and do not change cards. "+summary+"\n"+localeHelp);
   },
   onTurnComplete:(turn)=>{
+   record("turn-complete",{validOutput:turn.hasValidOutput!==false,livePatch:patchCountRef.current!==lastTurnPatchRef.current},{input:turn.input||"",output:turn.output||""});
    if(topicEndedRef.current)return;
    if(lessonRef.current){
     setLessonTransitioning(false);
@@ -245,7 +265,7 @@ export function TeacherBoardPage(){
    if(!updatedByLive&&!lessonRef.current&&directorRef.current.phase==="explaining"){
     const requested=format?{...turn,input:PRESENTATION_CUES[format]+" "+(turn.input||"")}:turn;
     const patch=fallbackBoard(requested,cardRef.current);
-    if(patch)commitPatch(patch);
+    if(patch)commitPatch(patch,"fallback");
    }
    const pending=pendingQuizRef.current,d=directorRef.current;
    if(pending&&!lessonRef.current&&turn.output?.trim()&&d.phase==="feedback"&&d.cardId===pending.cardId&&d.quizIndex===pending.index){
@@ -283,7 +303,15 @@ export function TeacherBoardPage(){
  },[focusedCard?.id,following,revision]);
  useEffect(()=>{document.body.classList.add("teacher-theme","session-page");return()=>{document.body.classList.remove("teacher-theme","session-page")}},[]);
  useEffect(()=>{if(live.state==="error")setHint(t("board.disconnect"));},[live.state,t]);
+ useEffect(()=>{record("connection",{state:live.state});},[live.state]);
+ useEffect(()=>{record("view",{cardId:focusedCard?.id||null,following,latestId,lessonId,lessonStep});},[focusedCard?.id,following,latestId,lessonId,lessonStep]);
+ async function copyDiagnostics(){
+  try{const report=journal.current!.exportReport(includeDiagnosticText,{language:s.targetLanguage,teacher:profile.id,state:live.state,following,visibleCard:focusedCard?.id||null,latestId,viewport:boardViewport(),cards:cards.map(c=>({id:c.id,type:c.type}))});
+   await navigator.clipboard.writeText(JSON.stringify(report,null,2));setDiagnosticStatus(english?"Report copied":"診斷報告已複製");
+  }catch{setDiagnosticStatus(english?"Copy failed":"複製失敗");}
+ }
  function ask(text:string){
+  record("learner-action",{action:"ask"},text);
   if(!active||!live.sendText(text+"\n"+localeHelp)){setHint(t("board.startFirst"));return}
   setHint("");
  }
@@ -378,6 +406,7 @@ export function TeacherBoardPage(){
   <header className="teaching-board-top"><Link to="/learn" className="teaching-board-back" aria-label={t("board.back")}><Arrow direction="left"/></Link>
    <div><strong>{t("board.title")}</strong><small>{s.targetLanguage} · {s.learnerSpeakingLevel} · {profile.name}</small></div>
    <span className="teaching-board-connection" data-state={live.state}>{phase}</span>
+   <details className="teaching-board-diagnostics"><summary aria-label={english?"Report lesson problem":"回報教學問題"}>{english?"Report":"回報"}</summary><div className="teaching-board-diagnostics-panel"><strong>{english?"Lesson diagnostics":"教學診斷報告"}</strong><p>{english?"Session only. Nothing is uploaded. Optionally include transcript and card content. No audio or credential configuration is collected.":"僅保留本頁工作階段，不會上傳。勾選後才會在報告加入對話與教材內容；不收集原始錄音或金鑰設定。"}</p><label><input type="checkbox" checked={includeDiagnosticText} onChange={e=>{setIncludeDiagnosticText(e.target.checked);setDiagnosticStatus("")}}/>{english?"Include transcript and card content":"包含對話及教材內容"}</label><button type="button" onClick={()=>void copyDiagnostics()}>{english?"Copy diagnostics":"複製診斷報告"}</button><small role="status">{diagnosticStatus}</small></div></details>
   </header>
   <main className="teaching-board-layout">
    <GuidedLessonPanel lesson={lesson} lessonId={lessonId} lessonStep={lessonStep} progress={progress} english={english}
@@ -385,25 +414,26 @@ export function TeacherBoardPage(){
    <section className="teaching-board-workspace">
    <BoardTutorPanel live={live} profile={profile} targetLanguage={s.targetLanguage} english={english} hint={hint} onAsk={ask}/>
    <section className="teaching-board-canvas" aria-label={t("board.canvas")}>
-    <BoardQuickControls english={english} guided={!!lesson} hasCards={cards.length>0&&!topicEnded} step={lessonStep} steps={lesson?.cards.length||0} onNext={()=>goLessonStep(lessonStep+1)} onEnd={endTopic} onLesson={startLesson} onTopic={startFreeTopic}/>
+    <BoardQuickControls english={english} guided={!!lesson} hasCards={cards.length>0&&!topicEnded} step={lessonStep} steps={lesson?.cards.length||0} onNext={()=>goLessonStep(lessonStep+1)} onEnd={endTopic} onLesson={startLesson} onTopic={startFreeTopic} voiceControls={<LiveControls live={live} compact prominentInterrupt english={english} onEnd={async()=>{record("call-end");await live.stop(true);navigate("/learn")}}/>}/>
     {topicEnded&&<p className="teaching-board-topic-ended" role="status">{english?"Topic finished. Your notes remain below for review. Choose a new topic above when ready.":"這個話題已結束。下方教材保留供回顧，想繼續時可從上方選新話題。"}</p>}
     <div className="teaching-board-canvas-head"><div><span className="kicker">{lesson?(english?"CURRENT LESSON":"目前教材"):"CREW · LIVE BOARD"}</span><h1>{lesson?lesson.title:t("board.canvas")}</h1>
      <p>{lesson?(english?"The teacher explains this material. You choose when to change steps.":"老師依照這份教材講解，只有你切換步驟時才換頁。"):t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
-    </div><div className="teaching-board-canvas-actions">{!lesson&&<button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>}
-     <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div></div>
+    </div></div>
+    <details className="teaching-board-more"><summary>{english?"Board tools & review":"白板工具與複習"}{reviews.due.length>0?" · "+reviews.due.length:""}</summary><div className="teaching-board-canvas-actions">{!lesson&&<button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>}
+     <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div>
     <BoardReviewBanner due={reviews.due.length} total={reviews.total} enabled={memoryEnabled}
      blocked={director.phase==="awaiting"} onStart={startDueReview} onClear={reviews.clear}/>
-    {!lessonId&&<BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"}/>}
+    {!lessonId&&<BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"}/>}</details>
     {cards.length>0&&<div className="teaching-board-navigator">
      <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
       <small>{following?t("board.following"):t("board.paused")}</small>
-      {!following&&<button className="teaching-board-follow" type="button" onClick={()=>{setFollowing(true);setFocusedId(null)}}>{t("board.followLatest")} <Arrow direction="right"/></button>}
+      {!following&&<button className="teaching-board-follow" type="button" onClick={()=>{record("follow-latest");setFollowing(true);setFocusedId(null)}}>{t("board.followLatest")} <Arrow direction="right"/></button>}
      </div>
      <div className="teaching-board-deck" ref={deckRef} role="tablist" aria-label={t("board.lessonCards",{count:cards.length})}>
       {cards.map((card,index)=><button key={card.id} type="button" role="tab" id={"teaching-board-tab-"+card.id}
        aria-controls="teaching-board-active-panel" aria-selected={focusedCard?.id===card.id}
        className={"teaching-board-deck-tab"+(focusedCard?.id===card.id?" is-active":"")}
-       onClick={()=>{if(lessonId)goLessonStep(index);else{setFollowing(false);setFocusedId(card.id)}}}>
+       onClick={()=>{if(lessonId)goLessonStep(index);else{record("card-selected",{cardId:card.id});setFollowing(false);setFocusedId(card.id)}}}>
        <small>{index+1} · {cardKindName(card.type,english)}{latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
       </button>)}
      </div>

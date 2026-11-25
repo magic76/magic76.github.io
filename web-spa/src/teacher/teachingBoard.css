@@ -392,3 +392,35 @@ details.teaching-board-lesson-picker .teaching-board-lesson-options{padding:2px 
  .teaching-board-voice{bottom:calc(64px + env(safe-area-inset-bottom) + var(--board-keyboard-inset,0px))}
  .teaching-board-topic-chooser{max-height:calc(min(70dvh,calc(var(--board-visible-height,100dvh) * .7),520px) - 74px)}
 }
+
+/* One measured dock for both call and topic controls. */
+.teaching-board-quick .teaching-board-voice{position:static;inset:auto;z-index:auto;visibility:visible;pointer-events:auto;min-width:0}
+.teaching-board-quick .crew-game-voice-row{display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;gap:6px}
+.teaching-board-quick .crew-game-voice-state{flex:1 1 90px;min-width:0;white-space:normal;min-height:24px}
+.teaching-board-quick .crew-game-voice-actions{display:flex;flex:1 1 auto;width:auto;justify-content:flex-end;min-width:0;gap:5px}
+.teaching-board-quick .crew-game-voice-btn{width:auto;min-width:44px;min-height:44px;padding:7px 9px;font-size:12px;white-space:nowrap}
+.teaching-board-quick .crew-game-voice-btn.is-end{background:#fff0ef;color:#a24343;border-color:#edc6c3}
+.teaching-board-quick .crew-game-voice-btn.is-interrupt{background:#ebe8ff;color:#5544a8;border-color:#ada4e6}
+.teaching-board-quick .crew-game-voice-btn.is-muted{background:#f9eee8;color:#8c5342}
+.teaching-board-more{margin:0 0 10px;border-bottom:1px solid #e0e5da;color:#496c56;font-size:13px}
+.teaching-board-more summary{cursor:pointer;min-height:44px;display:list-item;padding:12px 2px;box-sizing:border-box}
+.teaching-board-more[open]{padding-bottom:8px}
+.teaching-board-diagnostics{position:relative;flex:none;color:#285a48}
+.teaching-board-diagnostics summary{cursor:pointer;list-style:none;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;border:1px solid #d7e7dc;border-radius:10px;padding:4px 7px;font-size:12px}
+.teaching-board-diagnostics summary::-webkit-details-marker{display:none}
+.teaching-board-diagnostics-panel{position:absolute;right:0;top:calc(100% + 6px);width:min(300px,calc(100vw - 24px));box-sizing:border-box;display:grid;gap:10px;padding:14px;background:#fff;border:1px solid #c9ddce;border-radius:14px;box-shadow:0 8px 24px #233b3024;font-size:13px;line-height:1.5}
+.teaching-board-diagnostics-panel p{margin:0}
+.teaching-board-diagnostics-panel label{display:flex;align-items:center;gap:7px;min-height:44px}
+.teaching-board-diagnostics-panel button{min-height:44px;border:1px solid #337951;background:#337951;color:white;border-radius:10px;cursor:pointer}
+@media(max-width:800px){
+ .teaching-board-top{gap:6px}
+ .teaching-board-top>div{flex:1 1 auto}
+ .teaching-board-top>div strong,.teaching-board-top small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .teaching-board-connection{margin-left:0;padding:6px;font-size:11px}
+ .teaching-board-quick{display:flex;flex-direction:column;gap:7px;overflow-y:auto;overscroll-behavior:contain}
+ .teaching-board-quick .teaching-board-quick-row button{min-height:44px}
+ .teaching-board-quick .teaching-board-topic-chooser{max-height:none;overflow:visible}
+ body:has(.teaching-board-topic-chooser) .teaching-board-quick .teaching-board-voice{visibility:visible;pointer-events:auto}
+ .teaching-board-layout{padding-bottom:calc(var(--board-dock-height,194px) + var(--board-keyboard-inset,0px) + 16px)}
+ .teaching-board-stage{min-height:160px}
+}

@@ -163,7 +163,7 @@ export function fallbackBoard(turn:{input?:string;output?:string},current:BoardC
   .map(line=>line.trim()).filter(line=>line.length>=14).slice(0,6);
  const numbered=sentences.length>=2;
  return {action:"upsert",ids:[],cards:[{id,type:numbered?"steps":"explanation",
-  title:simplified?"簡化重點":topic.slice(0,80),
+  title:simplified?"簡化重點":current.length?"補充講解":"今日教學",
   body:numbered?"":answer,pairs:[],
   points:numbered?sentences.map((line,i)=>({label:String(i+1).padStart(2,"0"),note:line})):[],questions:[]}]};
 }
