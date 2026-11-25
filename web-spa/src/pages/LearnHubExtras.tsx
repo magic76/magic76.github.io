@@ -18,16 +18,12 @@ export function LearnHubExtras({tools,speakingPath}:{tools:Tool[];speakingPath:s
     <Arrow className="crew-learn-tool-arrow"/>
    </Link>)}
   </div>
-  <Link className="crew-learn-three-minute" to={speakingPath}>
-   <span className="crew-section-card-icon crew-learn-three-minute-icon"><Icon name="chat"/></span>
-   <span className="crew-learn-three-minute-copy"><strong>{t("learnToday.threeMinute")}</strong><small>{t("learnToday.threeMinuteDesc")}</small></span>
-   <Arrow className="crew-learn-three-minute-arrow"/>
-  </Link>
   <nav className="crew-learn-secondary-links" aria-label={t("learnToday.more")}>
-   <Link to="/teacher/reading-library">{tTeacher("learn.library")}</Link>
-   <Link to="/teacher/reports">{t("learnToday.records")}</Link>
-   <Link to="/settings#settings-learning">{t("learnToday.settings")}</Link>
-   <Link to="/teacher/course">{tTeacher("learn.course")}</Link>
+   <Link to={speakingPath}><Icon name="mic"/><span>{t("learnToday.threeMinute")}</span></Link>
+   <Link to="/teacher/reading-library"><Icon name="book"/><span>{tTeacher("learn.library")}</span></Link>
+   <Link to="/teacher/reports"><Icon name="history"/><span>{t("learnToday.records")}</span></Link>
+   <Link to="/settings#settings-learning"><Icon name="settings"/><span>{t("learnToday.settings")}</span></Link>
+   <Link to="/teacher/course"><Icon name="scene"/><span>{tTeacher("learn.course")}</span></Link>
   </nav>
  </section>;
 }
