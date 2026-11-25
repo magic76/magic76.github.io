@@ -35,7 +35,7 @@ test("call captions exist in all 11 voice locales",()=>{
  }
 });
 
-test("call controls use device volume and give AI playback a separate mute toggle",()=>{
+test("call controls use device volume and give AI playback a separate fine-grained slider",()=>{
  const friend=read("web-spa/src/friends/FriendCallControls.tsx");
  const friendPage=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const teacher=read("web-spa/src/live/LiveControls.tsx");
@@ -45,8 +45,14 @@ test("call controls use device volume and give AI playback a separate mute toggl
  assert.doesNotMatch(friendPage,/showPlaybackVolume|playbackVolumeStorageKey/);
  const voiceMute=read("web-spa/src/friends/FriendVoiceMute.tsx");
  assert.match(friendPage,/friend-voice-avatar-anchor[\s\S]*?<FriendAvatar[\s\S]*?<FriendVoiceMute/);
- assert.match(friendPage,/live\.setVolume\(live\.volume===0\?100:0\)/);
- assert.match(voiceMute,/aria-pressed=\{muted\}/);
+ assert.match(friendPage,/volume:live\.volume,onVolume:live\.setVolume/);
+ assert.match(voiceMute,/aria-expanded=\{open\}/);
+ assert.match(voiceMute,/type="range" min="0" max="100" step="1"/);
+ assert.match(voiceMute,/onVolume\(Number\(e\.target\.value\)\)/);
+ assert.match(voiceMute,/onVolume\(0\)/);
+ assert.match(voiceMute,/data-muted=\{muted\}/);
+ const teacherPage=read("web-spa/src/teacher/LivePage.tsx");
+ assert.match(teacherPage,/<FriendVoiceMute volume=\{live\.volume\} onVolume=\{live\.setVolume\}/);
  assert.doesNotMatch(voiceMute,/toggleMute\(/);
  assert.doesNotMatch(teacher,/type="range"|setVolume\(|volume-quick|volume-stepper|friend-phone-volume/);
  assert.doesNotMatch(settings,/crew-live-volume|crew_live_volume|type="range"/);
