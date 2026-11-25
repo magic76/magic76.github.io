@@ -18,6 +18,7 @@ type LiveAttempt={active:boolean};
 type Config={
  createPlaybackRoute?:LiveSessionOptions["createPlaybackRoute"];
  separateCaptureContext?:boolean;
+ inputLanguageCodes?:LiveSessionOptions["inputLanguageCodes"];
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  resolveSessionContext?:()=>{system:string;openingPrompt:string};
  protectOpening?:boolean;
@@ -262,6 +263,7 @@ export function useLiveSession(config:Config){
     createPlaybackRoute:configRef.current.createPlaybackRoute,
     separateCaptureContext:configRef.current.separateCaptureContext,
     guestAccessToken:grant?.token,
+    inputLanguageCodes:configRef.current.inputLanguageCodes,
     textOnly:textOnly&&configRef.current.sessionKind==="friend",
     allowMicUpgrade:configRef.current.sessionKind==="friend",
     trackTextTurns:configRef.current.sessionKind==="friend",

@@ -39,7 +39,7 @@ test("new and modified TSX remain below 26000 bytes",()=>{
  test("same visible content does not retrigger scrolling and manual reading pauses follow",()=>{
  assert.match(list,/const contentKey=JSON.stringify/);
  assert.match(list,/\},\[contentKey\]\)/);
- assert.doesNotMatch(list,/\[turns,input,output,browserInput,translationRows,suggestions\]/);
+ assert.doesNotMatch(list,/\[turns,input,output,translationRows,suggestions\]/);
  assert.match(list,/!followRef.current\)return/);
  assert.match(list,/scrollHeight-pane.clientHeight-pane.scrollTop<=48/);
  assert.match(style,/scroll-behavior:auto/);
@@ -47,10 +47,10 @@ test("new and modified TSX remain below 26000 bytes",()=>{
 
  test("identical rerenders leave manual scroll intact; changed content follows only near bottom",()=>{
  const fragment=list.slice(list.indexOf(" const contentKey=JSON.stringify"),list.indexOf(" return <div ref={scrollRef}"));
- const render=Function("completed","showCurrentInput","currentInput","showBrowser","browserText","showCurrentOutput","currentOutput","translationEnabled","needTranslation","translationRows","suggestionsEnabled","suggestions","scrollRef","followRef","useEffect",fragment);
+ const render=Function("completed","showCurrentInput","currentInput","showCurrentOutput","currentOutput","translationEnabled","needTranslation","translationRows","suggestionsEnabled","suggestions","scrollRef","followRef","useEffect",fragment);
  let writes=0,prior;const pane={scrollHeight:900,clientHeight:300,get scrollTop(){return 100},set scrollTop(value){assert.equal(value,900);writes++}};
  const follow={current:true};
- const run=(output,rows=[])=>render([{input:"Hi",output:"Hello"}],false,"",false,"",true,output,true,true,rows,true,[],{current:pane},follow,(effect,[key])=>{if(key!==prior){prior=key;effect()}});
+ const run=(output,rows=[])=>render([{input:"Hi",output:"Hello"}],false,"",true,output,true,true,rows,true,[],{current:pane},follow,(effect,[key])=>{if(key!==prior){prior=key;effect()}});
  run("First");assert.equal(writes,1);
  follow.current=false;run("First",[]);run("First",[{kind:"pending",value:"translating"}]);assert.equal(writes,1);
  run("Second");assert.equal(writes,1,"do not interrupt a user reading old messages");

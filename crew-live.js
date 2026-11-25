@@ -1203,6 +1203,10 @@
         if(!self._isActiveAttempt(attempt))return;
         attempt.openedAt=self._deps.now();
         try{
+          // Only explicitly opted-in Gemini 3.8 sessions receive language hints.
+          // Older models and ordinary sessions preserve the exact original handshake.
+          var inputLanguageCodes=model==="gemini-3.8-live"&&Array.isArray(self.options.inputLanguageCodes)
+            ?Array.from(new Set(self.options.inputLanguageCodes.filter(function(code){return typeof code==="string"&&/^[a-z]{2}-[A-Z]{2}$/.test(code);}))).slice(0,2):[];
           socket.send(JSON.stringify({
             setup:{
               model:"models/"+model,
@@ -1226,7 +1230,7 @@
                   silenceDurationMs:self.options.turnTiming.silenceDurationMs
                 }}
               } : {}),
-              ...(self.textOnly&&!self.options.allowMicUpgrade?{}:{inputAudioTranscription:{}}),
+              ...(self.textOnly&&!self.options.allowMicUpgrade?{}:{inputAudioTranscription:inputLanguageCodes.length?{languageCodes:inputLanguageCodes}:{}}),
               outputAudioTranscription:{},
               systemInstruction:{
                 parts:[{text:self.options.system||"你是 Crew 的 Live 助手。自然、簡短地對話。"}]

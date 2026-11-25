@@ -7,7 +7,7 @@ import {translateWithProvider} from "../live/secondLiveProvider";
 import {FriendCallBubbleList} from "./FriendCallBubbleList";
 import type {SuggestedReply} from "../live/suggestReplies";
 type Turn={input?:string;output?:string};
-type Props={browserInput?:string;browserLanguage?:string;name:string;turns:ReadonlyArray<Turn>;input:string;output:string;learningLanguage:string;nativeLanguage:NativeLanguage;speaking:boolean;speakerAvatar?:ReactNode;waitingText?:string;replyExtra?:ReactNode;headerAccessory?:ReactNode;translationEnabled?:boolean;suggestions?:SuggestedReply[];suggestionsEnabled?:boolean};
+type Props={name:string;turns:ReadonlyArray<Turn>;input:string;output:string;learningLanguage:string;nativeLanguage:NativeLanguage;speaking:boolean;speakerAvatar?:ReactNode;waitingText?:string;replyExtra?:ReactNode;headerAccessory?:ReactNode;translationEnabled?:boolean;suggestions?:SuggestedReply[];suggestionsEnabled?:boolean};
 type Translator={translate(text:string):Promise<string>;destroy?():void};
 type Factory={availability(v:{sourceLanguage:string;targetLanguage:string}):Promise<"available"|"downloadable"|"downloading"|"unavailable">;create(v:{sourceLanguage:string;targetLanguage:string}):Promise<Translator>};
 type Browser={factory:Factory|null;status:"checking"|"available"|"downloadable"|"downloading"|"unavailable";instance:Translator|null;promise:Promise<void>|null;closed:boolean};
@@ -16,7 +16,7 @@ const PREF="crew_friend_call_translation_v1";
 const LANG:Record<string,string>={"英文":"en","日文":"ja","韓文":"ko","中文":"zh","華語":"zh","繁體中文":"zh","簡體中文":"zh","西班牙文":"es","法文":"fr","德文":"de","義大利文":"it","越南文":"vi","泰文":"th","印尼文":"id","葡萄牙文":"pt"};
 function initial(){try{return localStorage.getItem(PREF)!=="off"}catch{return true}}
 function browserCode(language:string){return language==="zh-TW"?"zh-Hant":language==="zh-CN"?"zh":language.split("-")[0]}
-export function FriendCallCaptions({browserInput,browserLanguage,name,turns,input,output,learningLanguage,nativeLanguage,speaking,speakerAvatar,waitingText,replyExtra,headerAccessory,translationEnabled,suggestions=[],suggestionsEnabled=false}:Props){
+export function FriendCallCaptions({name,turns,input,output,learningLanguage,nativeLanguage,speaking,speakerAvatar,waitingText,replyExtra,headerAccessory,translationEnabled,suggestions=[],suggestionsEnabled=false}:Props){
  const {t}=useTranslation("voice");
  const captionsRef=useRef<HTMLDivElement>(null),replyRef=useRef<HTMLParagraphElement>(null),translationRef=useRef<HTMLDivElement>(null);
  const [localEnabled]=useState(initial);
@@ -113,5 +113,5 @@ export function FriendCallCaptions({browserInput,browserLanguage,name,turns,inpu
  useEffect(()=>{const el=replyRef.current;if(el)el.scrollTop=el.scrollHeight;const pane=captionsRef.current;if(pane)pane.scrollTop=0},[latestReply,currentReply]);
  useEffect(()=>{const el=translationRef.current;if(el)el.scrollTop=el.scrollHeight},[parts]);
  useEffect(()=>{if(enabled){const session=browserRef.current;if(session&&(session.status==="downloadable"||session.status==="downloading"))startBrowser(session)}},[enabled]);
- return <FriendCallBubbleList browserInput={browserInput} browserLanguage={browserLanguage} browserLabel={t("callCaptions.browserRecognitionLabel")} name={name} turns={turns} input={input} output={output} source={source} nativeLanguage={nativeLanguage} translationRows={visibleTranslation} historicalTranslations={historicalTranslationsRef.current} suggestions={suggestions} suggestionsEnabled={suggestionsEnabled} translationEnabled={enabled} needTranslation={needTranslation} speaking={speaking} speakerAvatar={speakerAvatar} waitingText={waitingText||t("callCaptions.waitingForFriend")} youLabel={t("friendLive.youSaid")} recognizingLabel={t("callCaptions.recognizing")} recognizedLabel={t("callCaptions.recognized")} translateStatus={value=>t(value==="needsKey"?"callCaptions.needsKey":value==="translateFailed"?"callCaptions.translateFailed":"callCaptions.translating")} headerAccessory={headerAccessory} replyExtra={replyExtra}/>;
+ return <FriendCallBubbleList name={name} turns={turns} input={input} output={output} source={source} nativeLanguage={nativeLanguage} translationRows={visibleTranslation} historicalTranslations={historicalTranslationsRef.current} suggestions={suggestions} suggestionsEnabled={suggestionsEnabled} translationEnabled={enabled} needTranslation={needTranslation} speaking={speaking} speakerAvatar={speakerAvatar} waitingText={waitingText||t("callCaptions.waitingForFriend")} youLabel={t("friendLive.youSaid")} recognizingLabel={t("callCaptions.recognizing")} recognizedLabel={t("callCaptions.recognized")} translateStatus={value=>t(value==="needsKey"?"callCaptions.needsKey":value==="translateFailed"?"callCaptions.translateFailed":"callCaptions.translating")} headerAccessory={headerAccessory} replyExtra={replyExtra}/>;
 }
