@@ -390,3 +390,18 @@ test("branch interactions affect actual advice and local rules remain determinis
  assert.match(base.avoid,/templates\.peers/);
  assert.deepEqual(clash,getCard(onDate("bazi","2026-11-13",profile,{bazi:{...bazi,dayPillar:"庚子",yearPillar:"乙未"},lunar:fakeSolar})));
 });
+
+test("ten-god titles are distinct and all supported locales provide each title",()=>{
+ const gods=["比肩","劫財","食神","傷官","偏財","正財","七殺","正官","偏印","正印"];
+ for(const lang of ["zh-TW","en","ja","es","pt-BR","id","fr","de","ko","vi","th"]){
+  const catalog=JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/fortuneDaily.json"));
+  assert.equal(new Set(gods.map(g=>catalog.godHeadlines[g])).size,10);
+  assert.ok(gods.every(g=>typeof catalog.godHeadlines[g]==="string"&&catalog.godHeadlines[g].trim()));
+ }
+ const seen=new Set();
+ for(const stem of "甲乙丙丁戊己庚辛壬癸"){
+  const lunar={fromYmd:()=>({getLunar:()=>({getDayInGanZhi:()=>stem+"午"})})};
+  seen.add(getCard(onDate("bazi","2026-11-13",profile,{bazi,lunar})).headline);
+ }
+ assert.equal(seen.size,10);
+});

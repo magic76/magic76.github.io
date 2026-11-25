@@ -323,5 +323,17 @@
     "empty": "No saved charts",
     "device": "Settings on this device",
     "view": "View chart"
+  },
+  "godHeadlines": {
+    "比肩": "Keep your own pace",
+    "劫財": "Clarify boundaries in teamwork",
+    "食神": "Make room for creativity",
+    "傷官": "Express ideas from a new angle",
+    "偏財": "Notice new options",
+    "正財": "Manage your resources steadily",
+    "七殺": "Break pressure into small steps",
+    "正官": "Honor commitments with a plan",
+    "偏印": "Try a different approach",
+    "正印": "Gather what you have learned"
   }
 }

@@ -221,7 +221,7 @@ export function buildDailyCard(input:DailyInput):DailyResult{
   const contextualCategories=[annualCategory,luckCategory].filter(Boolean);
   const secondaryCategory=caution?"responsibility":supportive?"peers":contextualCategories.length?contextualCategories[(seed>>>11)%contextualCategories.length]:(dailyElement&&favorable.includes(dailyElement)?"expression":category);
   const secondary=chooseCopy(input,secondaryCategory,(seed>>>9)+Number(localDate.slice(5,7)));
-  headline=primary.headline;theme=primary.theme;suggestions=[primary.do[0],secondary.do[1]];avoid=secondary.avoid;
+  headline=god?translated(input,"godHeadlines."+god):primary.headline;theme=primary.theme;suggestions=[primary.do[0],secondary.do[1]];avoid=secondary.avoid;
   colorElement=(dailyElement&&favorable.includes(dailyElement)?dailyElement:favorable[(seed>>>8)%Math.max(1,favorable.length)])||result?.dayMasterElement||"木";
   if(/^zh/i.test(lang)){
    try{almanac=localAlmanac(solarDay,lang);}catch{/* optional calendar metadata */}

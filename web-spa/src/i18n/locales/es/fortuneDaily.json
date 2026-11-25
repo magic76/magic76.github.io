@@ -323,5 +323,17 @@
     "empty": "No hay cartas guardadas",
     "device": "Ajustes de este dispositivo",
     "view": "Ver carta"
+  },
+  "godHeadlines": {
+    "比肩": "Mantén tu propio ritmo",
+    "劫財": "Aclara los límites al colaborar",
+    "食神": "Deja espacio para la creatividad",
+    "傷官": "Expresa tus ideas desde otro ángulo",
+    "偏財": "Observa nuevas opciones",
+    "正財": "Organiza tus recursos con calma",
+    "七殺": "Divide la presión en pasos pequeños",
+    "正官": "Cumple tus compromisos con un plan",
+    "偏印": "Prueba un enfoque distinto",
+    "正印": "Ordena lo que has aprendido"
   }
 }
