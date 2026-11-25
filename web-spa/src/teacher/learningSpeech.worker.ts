@@ -139,7 +139,7 @@ async function tinyBlob(text:string,language:string,speed:LearningSpeechSpeed,ke
  const engine=await loadTiny(language);
  const phonemes=String(await engine.phonemize(text,{lang:g2pLanguage(language),profile:"kitten"}));
  const tokens=encodeTiny(phonemes,engine.vocab);if(tokens.length<4||tokens.length>353)throw new Error("TINY_INPUT_UNSUPPORTED");
- const voices=engine.voices;const voice=voices[language==="en"?"eleanor":Object.keys(voices)[0]]||voices[Object.keys(voices)[0]];if(!voice)throw new Error("TINY_VOICE_UNAVAILABLE");
+ const voices=engine.voices;const voice=voices[language==="en"?"martha":Object.keys(voices)[0]]||voices[Object.keys(voices)[0]];if(!voice)throw new Error("TINY_VOICE_UNAVAILABLE");
  const row=Math.min(tokens.length-1,voice.rows-1),style=voice.data.slice(row*voice.cols,(row+1)*voice.cols);
  const feeds={
   input_ids:new engine.ort.Tensor("int64",BigInt64Array.from(tokens.map(value=>BigInt(value))),[1,tokens.length]),
