@@ -5,9 +5,19 @@ import{nativeLanguageName,type NativeLanguage}from"./teacherLocale";
 import type{AccentStrength,ConversationMode,SpeakingPace,TeachingMode,LearnerSpeakingLevel}from"../store/teacherStore";
 import{teacherLanguageGuidance}from"./teacherLanguageGuidance";
 import{buildAccentPrompt,buildPacePrompt}from"./teacherAccent";
-import {freeChatRhythmPrompt} from "../live/conversationFlow";
 import {teacherLanguageRule} from "./teacherLanguage";
 export type TeacherSessionMode="tutor"|"roleplay";
+
+/** A conversational lesson, not the Friend persona or a continuous correction drill. */
+export function teacherNaturalRhythmPrompt(){
+ return "[TEACHER CONVERSATION RHYTHM — understand · model · practice · adapt]\n"+
+  "Use the learner\'s real topic as the material for a small speaking lesson. Respond to their meaning first; then use a useful target-language phrase, brief recast, or an easy invitation to express their own idea. "+
+  "Proactively identify one useful learning opportunity when it arises, even if no correction was requested. Do not invent mistakes or teach every turn. "+
+  "When the learner uses their native language because they cannot express an idea, acknowledge it according to the selected teaching mode, model one natural target-language equivalent, then invite an easy attempt or related answer. "+
+  "If they already express the idea well, respond naturally and offer richer vocabulary or a slightly more challenging prompt when useful. "+
+  "If they struggle, simplify, give a short example or two choices, and allow time to answer. If a practice opportunity fails, change the approach rather than repeating the same question. "+
+  "Do not turn personal anecdotes into the center of the conversation; keep the learner speaking. Respect explicit requests to chat without corrections and the selected language mode. No forced quiz, repeated praise or compulsory repetition.";
+}
 
 export function roleplayInstruction(input:{language:string;scene:string;goals:string[];rolePrompt?:string;memory?:string;profile?:TeacherProfile}){
  return [
@@ -56,12 +66,12 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   "Keep the learner speaking, and answer their actual question rather than becoming a correction-only loop."
  ]:[
   "[CONVERSATION STYLE: NATURAL CHAT — priority for spoken behavior]",
-  "You are a natural, interesting conversation partner, NOT a sentence-by-sentence proofreader or examiner.",
+  "You are a warm, active language teacher using natural conversation to improve the learner\'s ability, NOT a casual friend or a sentence-by-sentence proofreader.",
   "FIRST respond to the learner's meaning and react naturally. A follow-up question is optional, not compulsory.",
   "Do NOT automatically correct, rewrite, grade, or ask for repetition after each reply. Do not open turns with feedback about phrasing.",
-  "Only when a mistake seriously obscures the meaning or is a repeated high-value issue, optionally slip in ONE gentle natural recast without stopping the conversation.",
-  "If the learner explicitly asks for corrections, you may correct that turn. Otherwise prioritize conversational flow and speaking time.",
-  freeChatRhythmPrompt()
+  "When a useful wording, vocabulary gap or clear grammar issue arises, offer ONE brief natural recast or model; do not wait for a serious misunderstanding.",
+  "If the learner explicitly asks for corrections, give them; otherwise use selective teaching moments with plenty of speaking time.",
+  teacherNaturalRhythmPrompt()
  ];
  return [
   teacherLanguageRule(input.language,input.nativeLanguage,input.teachingMode,input.learnerSpeakingLevel),
@@ -72,8 +82,8 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   ...teaching,
   ...conversation,
   "[PROACTIVE SPEAKING LOOP]",
-  "In focused practice, lead with short questions or choices. In natural chat, respond, share and pivot without forcing a question every turn; avoid repetitive praise.",
-  "If the learner hesitates, simplify your next question rather than correcting silence. Keep spoken replies to about 1-2 sentences.",
+  "In focused practice, lead with short questions or choices and a chance to reuse the corrected language. In natural chat, respond, model and adapt to the learner without forcing a question every turn; avoid repetitive praise.",
+  "If the learner hesitates, simplify your next question or give a short target-language starter rather than correcting silence. Keep spoken replies concise. Do not claim learning progress without evidence.",
   "Do not infer pronunciation quality from a transcript; only discuss pronunciation when actual audible evidence is available.",
   buildTutorMemoryContext(input.language),
   verifiedTutorHistoryContext(input.profile.id,input.language),

@@ -17,7 +17,6 @@ function buildPolicy(){
   nativeLanguageName:()=>"Traditional Chinese",
   buildAccentPrompt:()=>"",
   buildPacePrompt:()=>"",
-  freeChatRhythmPrompt:()=>"[NATURAL CONVERSATION RHYTHM] Questions are optional.",
   teacherLanguageRule:()=>"[CREW TEACHER SPOKEN LANGUAGE] Speak English unless support is needed.",
   teacherLanguageGuidance:()=>"[CREW TEACHER LANGUAGE SCAFFOLDING] Use native language for explanation."
  };
@@ -33,7 +32,13 @@ test("natural chat reacts first and does not turn every utterance into a correct
  assert.match(prompt,/NATURAL CHAT/);
  assert.match(prompt,/FIRST respond to the learner's meaning/);
  assert.match(prompt,/Do NOT automatically correct, rewrite, grade/);
- assert.match(prompt,/Only when a mistake seriously obscures the meaning or is a repeated high-value issue/);
+ assert.match(prompt,/offer ONE brief natural recast or model/);
+ assert.match(prompt,/TEACHER CONVERSATION RHYTHM/);
+ assert.match(prompt,/NOT a casual friend/);
+ assert.match(prompt,/do not wait for a serious misunderstanding/);
+ assert.match(prompt,/model one natural target-language equivalent/);
+ assert.match(prompt,/Do not invent mistakes or teach every turn/);
+ assert.doesNotMatch(prompt,/CONVERSATION MOMENTUM/);
  assert.doesNotMatch(prompt,/ACTIVE SPEAKING COACH/);
 });
 test("practice chat enables focused recasts without fabricating mistakes",()=>{
@@ -51,7 +56,7 @@ test("teaching mode changes language scaffold, not correction cadence",()=>{
 test("roleplay cannot fall back into tutoring or grammar corrections",()=>{
  const prompt=buildPolicy()({...input,mode:"roleplay",conversationMode:"practice"});
  assert.match(prompt,/Never provide unsolicited corrections/);
- assert.doesNotMatch(prompt,/ACTIVE SPEAKING COACH/);
+ assert.doesNotMatch(prompt,/ACTIVE SPEAKING COACH|TEACHER CONVERSATION RHYTHM/);
 });
 test("web selectors mirror Android teaching modes, and bilingual is the default",()=>{
  const store=read("web-spa/src/store/teacherStore.ts");
@@ -67,4 +72,24 @@ test("web selectors mirror Android teaching modes, and bilingual is the default"
   assert.doesNotMatch(view,/練習方式/);
  }
  assert.match(live,/teachingMode:s\.teachingMode/);
+});
+
+test("teacher natural coaching respects all language modes and does not inject casual life scenes",()=>{
+ const build=buildPolicy();
+ for(const teachingMode of ["beginner","bilingual","immersion"]){
+  const prompt=build({...input,teachingMode});
+  assert.match(prompt,/selected teaching mode/);
+  assert.match(prompt,/Respect explicit requests to chat without corrections/);
+  assert.match(prompt,/Do not turn personal anecdotes into the center/);
+ }
+ const live=read("web-spa/src/teacher/LivePage.tsx");
+ assert.match(live,/simple, level-appropriate speaking opportunity/);
+ assert.match(live,/not a fictional personal-life anecdote/);
+ assert.doesNotMatch(live,/nextTeacherLifeOpening|teacherLifeBookPrompt/);
+ assert.match(live,/fortuneSpeakingOpening\(fortuneKind,fortuneContext\)/);
+ assert.match(live,/conversationOpening\(intent,"teacher"\)/);
+ assert.match(live,/Enter the.*role-play NOW/);
+ assert.match(live,/Continue the existing practice NOW/);
+ assert.match(live,/COACH CONTROL — review mode/);
+ assert.match(live,/TeacherTextCourseChat.*system=\{system\+/);
 });

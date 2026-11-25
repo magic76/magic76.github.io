@@ -54,7 +54,8 @@ test("only free chat gets automatic silence rescue",()=>{
  assert.match(hook,/rescueCountRef\.current>=\(kind==="friend"\?1:2\)/);
  assert.match(hook,/onInputTranscript:v=>\{[\s\S]*?cancelRescue\(\);cancelUnrecognizedSpeechTimer\(\);[\s\S]*?rescueCountRef\.current=0/);
  assert.match(transport,/realtimeInput:\{text:instruction\}/);
- assert.match(policy,/freeChatRhythmPrompt\(\)/);
+ assert.match(policy,/teacherNaturalRhythmPrompt\(\)/);
+ assert.doesNotMatch(policy,/freeChatRhythmPrompt/);
  assert.match(policy,/\[CONVERSATION STYLE: ACTIVE SPEAKING COACH\]/);
 });
 
@@ -79,6 +80,8 @@ test("engagement adapts the first pause; second nudge is delayed and bounded",()
  assert.equal(state.silenceDelayMs(0,"teacher"),8000);
  assert.match(state.rescue("friend",0),/WITHOUT requiring an answer/);
  assert.match(state.rescue("teacher",0),/no drills or compulsory repetition/);
+ assert.match(state.rescue("teacher",0),/short useful target-language model/);
+ assert.doesNotMatch(state.rescue("teacher",0),/witty angle|fresh topic/);
  assert.equal(state.silenceDelayMs(1,"teacher"),16000);
 });
 
@@ -107,4 +110,15 @@ test("short meaningful replies stay on topic, unlike repeated empty acknowledgem
  state.observe({input:"I love it",output:"It sounds like your style."});
  assert.equal(state.needsPivot(),false);
  assert.equal(state.silenceDelayMs(0,"friend"),20000);
+});
+
+test("teacher and friend silence use separate behavior without changing cadence",()=>{
+ const {ConversationFlowState,freeChatRhythmPrompt}=conversationFlow();
+ const state=new ConversationFlowState();
+ assert.match(state.rescue("teacher",0),/short hint, example or sentence starter/);
+ assert.match(state.rescue("teacher",1),/final gentle nudge/);
+ assert.match(state.rescue("teacher",1),/use native support only when allowed/);
+ assert.match(state.rescue("friend",0),/NEVER switch to teaching/);
+ assert.doesNotMatch(state.rescue("friend",0),/TEACHER PRACTICE CONTINUATION/);
+ assert.doesNotMatch(freeChatRhythmPrompt(),/As a Crew Teacher/);
 });
