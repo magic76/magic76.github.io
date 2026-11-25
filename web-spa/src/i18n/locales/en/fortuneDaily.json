@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "Come back tomorrow ✦ A new card at midnight", "share": "Share today’s fortune", "installed": "Open Koolo tomorrow for a new fortune", "copied": "Link copied", "failed": "Could not share. Please try again."},
+  "returnTomorrow": {
+    "title": "Come back tomorrow ✦ A new card at midnight",
+    "share": "Share today’s fortune",
+    "installed": "Open Koolo tomorrow for a new fortune",
+    "copied": "Link copied",
+    "failed": "Could not share. Please try again."
+  },
   "today": "Today",
   "emptyTitle": "Your daily card starts with a birthday",
   "emptyDescription": "A brief reflection using traditional rules, no AI required.",
@@ -63,7 +69,10 @@
     "baziStem": "Daily pillar {{day}} → {{god}} relative to day master {{master}}",
     "baziBranch": "Daily branch {{daily}} vs natal day branch {{natal}}: {{relation}}",
     "baziYearBranch": "Daily branch {{daily}} vs natal year branch {{natal}}: {{relation}}",
-    "keyword": "Today's keyword: {{keyword}}"
+    "keyword": "Today's keyword: {{keyword}}",
+    "baziMonth": "Solar-term month {{pillar}} · {{god}} (UTC+8 noon)",
+    "baziAnnual": "Solar year {{pillar}} · {{god}}",
+    "baziLuck": "Luck cycle {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Personal day {{day}} · {{card}}",
   "cards": {
@@ -301,5 +310,33 @@
     "error": "Zoe couldn't generate a new interpretation. Here's the card-based version.",
     "key": "The Gemini Key couldn't be used. You can update it below.",
     "retry": "Try again"
+  },
+  "profiles": {
+    "title": "Daily fortune profiles",
+    "nickname": "Nickname",
+    "self": "Mark as my chart",
+    "useHome": "Use on home",
+    "active": "Used on home",
+    "remove": "Remove from daily fortune",
+    "restore": "Restore",
+    "note": "Removing only affects daily fortune, not history or purchased reports.",
+    "save": "Save",
+    "hidden": "Removed",
+    "add": "Add chart",
+    "empty": "No saved charts",
+    "device": "Settings on this device",
+    "view": "View chart"
+  },
+  "godHeadlines": {
+    "比肩": "Keep your own pace",
+    "劫財": "Clarify boundaries in teamwork",
+    "食神": "Make room for creativity",
+    "傷官": "Express ideas from a new angle",
+    "偏財": "Notice new options",
+    "正財": "Manage your resources steadily",
+    "七殺": "Break pressure into small steps",
+    "正官": "Honor commitments with a plan",
+    "偏印": "Try a different approach",
+    "正印": "Gather what you have learned"
   }
 }

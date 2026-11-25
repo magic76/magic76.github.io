@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "また明日 ✦ 毎日0時に新しいカード", "share": "今日の運勢を共有", "installed": "明日 Koolo を開くと新しい運勢が見られます", "copied": "リンクをコピーしました", "failed": "共有できません。もう一度お試しください"},
+  "returnTomorrow": {
+    "title": "また明日 ✦ 毎日0時に新しいカード",
+    "share": "今日の運勢を共有",
+    "installed": "明日 Koolo を開くと新しい運勢が見られます",
+    "copied": "リンクをコピーしました",
+    "failed": "共有できません。もう一度お試しください"
+  },
   "today": "今日",
   "emptyTitle": "生年月日を入力して今日のカードを見る",
   "emptyDescription": "伝統的な規則を使った短い振り返りです。",
@@ -63,7 +69,10 @@
     "baziStem": "日運{{day}}・日主{{master}}との関係：{{god}}",
     "baziBranch": "日運の支{{daily}}と日支{{natal}}：{{relation}}",
     "baziYearBranch": "日運の支{{daily}}と年支{{natal}}：{{relation}}",
-    "keyword": "今日のキーワード：{{keyword}}"
+    "keyword": "今日のキーワード：{{keyword}}",
+    "baziMonth": "節気月 {{pillar}} · {{god}}（UTC+8 正午基準）",
+    "baziAnnual": "流年 {{pillar}} · {{god}}",
+    "baziLuck": "大運 {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "個人日{{day}}・{{card}}",
   "cards": {
@@ -301,5 +310,33 @@
     "error": "AI解釈を作れませんでした。カード版を表示しています。",
     "key": "Gemini Keyを使えません。設定を確認してください。",
     "retry": "再試行"
+  },
+  "profiles": {
+    "title": "毎日の運勢の命式",
+    "nickname": "ニックネーム",
+    "self": "自分の命式にする",
+    "useHome": "ホームに表示",
+    "active": "ホームに表示中",
+    "remove": "毎日の運勢から外す",
+    "restore": "戻す",
+    "note": "毎日の運勢のみから外します。履歴や購入済みレポートは削除されません。",
+    "save": "保存",
+    "hidden": "非表示",
+    "add": "命式を追加",
+    "empty": "保存された命式はありません",
+    "device": "この端末の設定",
+    "view": "命式を見る"
+  },
+  "godHeadlines": {
+    "比肩": "自分のペースを大切に",
+    "劫財": "協力する前に境界を確認",
+    "食神": "創造力を生かす",
+    "傷官": "違う角度から考えを伝える",
+    "偏財": "新しい選択肢に目を向ける",
+    "正財": "手元の資源を着実に管理",
+    "七殺": "負担を小さな一歩に分ける",
+    "正官": "計画的に約束を守る",
+    "偏印": "別の方法を試す",
+    "正印": "経験を整理して進む"
   }
 }

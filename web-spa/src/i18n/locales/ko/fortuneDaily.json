@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "내일 또 만나요 ✦ 자정마다 새 카드", "share": "오늘의 운세 공유", "installed": "내일 Koolo를 열면 새로운 운세를 볼 수 있어요", "copied": "링크 복사됨", "failed": "공유할 수 없습니다. 다시 시도해 주세요"},
+  "returnTomorrow": {
+    "title": "내일 또 만나요 ✦ 자정마다 새 카드",
+    "share": "오늘의 운세 공유",
+    "installed": "내일 Koolo를 열면 새로운 운세를 볼 수 있어요",
+    "copied": "링크 복사됨",
+    "failed": "공유할 수 없습니다. 다시 시도해 주세요"
+  },
   "today": "오늘",
   "emptyTitle": "생일을 입력하고 오늘의 카드를 확인하세요",
   "emptyDescription": "전통 규칙을 바탕으로 짧게 돌아봅니다.",
@@ -63,7 +69,10 @@
     "baziStem": "일진 {{day}} → 일간 {{master}}의 {{god}}",
     "baziBranch": "일지 {{daily}}와 본명 일지 {{natal}}: {{relation}}",
     "baziYearBranch": "일지 {{daily}}와 본명 연지 {{natal}}: {{relation}}",
-    "keyword": "오늘의 키워드: {{keyword}}"
+    "keyword": "오늘의 키워드: {{keyword}}",
+    "baziMonth": "절기월 {{pillar}} · {{god}} (UTC+8 정오 기준)",
+    "baziAnnual": "세운 {{pillar}} · {{god}}",
+    "baziLuck": "대운 {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "개인 일 {{day}} · {{card}}",
   "cards": {
@@ -301,5 +310,33 @@
     "error": "AI 풀이에 실패했어요. 카드 기반 풀이를 보여드릴게요.",
     "key": "Gemini Key를 사용할 수 없어요. 설정을 확인해 주세요.",
     "retry": "다시 시도"
+  },
+  "profiles": {
+    "title": "오늘의 운세 프로필",
+    "nickname": "별명",
+    "self": "내 사주로 표시",
+    "useHome": "홈에 표시",
+    "active": "홈에 표시 중",
+    "remove": "오늘의 운세에서 제거",
+    "restore": "복원",
+    "note": "오늘의 운세에만 적용되며 기록이나 구매한 보고서는 삭제되지 않습니다.",
+    "save": "저장",
+    "hidden": "숨김",
+    "add": "사주 추가",
+    "empty": "저장된 사주 없음",
+    "device": "이 기기의 설정",
+    "view": "사주 보기"
+  },
+  "godHeadlines": {
+    "比肩": "나만의 속도를 지키기",
+    "劫財": "협력할 때 경계 정하기",
+    "食神": "창의성을 발휘할 여유",
+    "傷官": "다른 시각으로 생각 표현하기",
+    "偏財": "새로운 선택지 살펴보기",
+    "正財": "자원을 차근차근 관리하기",
+    "七殺": "부담을 작은 단계로 나누기",
+    "正官": "계획적으로 약속 지키기",
+    "偏印": "다른 방법 시도하기",
+    "正印": "배운 것을 정리하기"
   }
 }

@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "Hẹn gặp ngày mai ✦ Thẻ mới lúc nửa đêm", "share": "Chia sẻ vận may hôm nay", "installed": "Mở Koolo ngày mai để xem vận may mới", "copied": "Đã sao chép liên kết", "failed": "Không thể chia sẻ. Hãy thử lại."},
+  "returnTomorrow": {
+    "title": "Hẹn gặp ngày mai ✦ Thẻ mới lúc nửa đêm",
+    "share": "Chia sẻ vận may hôm nay",
+    "installed": "Mở Koolo ngày mai để xem vận may mới",
+    "copied": "Đã sao chép liên kết",
+    "failed": "Không thể chia sẻ. Hãy thử lại."
+  },
   "today": "Hôm nay",
   "emptyTitle": "Nhập ngày sinh để xem thẻ hôm nay",
   "emptyDescription": "Gợi ý suy ngẫm ngắn theo quy tắc truyền thống.",
@@ -63,7 +69,10 @@
     "baziStem": "Trụ ngày {{day}} → {{god}} với nhật chủ {{master}}",
     "baziBranch": "Chi ngày {{daily}} và chi ngày sinh {{natal}}: {{relation}}",
     "baziYearBranch": "Chi ngày {{daily}} và chi năm sinh {{natal}}: {{relation}}",
-    "keyword": "Từ khóa hôm nay: {{keyword}}"
+    "keyword": "Từ khóa hôm nay: {{keyword}}",
+    "baziMonth": "Tháng tiết khí {{pillar}} · {{god}} (12 giờ UTC+8)",
+    "baziAnnual": "Năm tiết khí {{pillar}} · {{god}}",
+    "baziLuck": "Đại vận {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Ngày cá nhân {{day}} · {{card}}",
   "cards": {
@@ -301,5 +310,33 @@
     "error": "Không thể tạo lời giải AI. Đây là bản từ thẻ hôm nay.",
     "key": "Gemini Key không sử dụng được. Hãy kiểm tra cài đặt.",
     "retry": "Thử lại"
+  },
+  "profiles": {
+    "title": "Hồ sơ vận may hằng ngày",
+    "nickname": "Biệt danh",
+    "self": "Đánh dấu là của tôi",
+    "useHome": "Dùng ở trang chủ",
+    "active": "Đang dùng ở trang chủ",
+    "remove": "Bỏ khỏi vận may hằng ngày",
+    "restore": "Khôi phục",
+    "note": "Chỉ ảnh hưởng vận may hằng ngày, không xóa lịch sử hoặc báo cáo đã mua.",
+    "save": "Lưu",
+    "hidden": "Đã ẩn",
+    "add": "Thêm lá số",
+    "empty": "Chưa có lá số",
+    "device": "Cài đặt trên thiết bị này",
+    "view": "Xem lá số"
+  },
+  "godHeadlines": {
+    "比肩": "Giữ nhịp độ của riêng mình",
+    "劫財": "Làm rõ giới hạn khi hợp tác",
+    "食神": "Dành chỗ cho sáng tạo",
+    "傷官": "Diễn đạt ý tưởng từ góc nhìn mới",
+    "偏財": "Chú ý các lựa chọn mới",
+    "正財": "Sắp xếp nguồn lực từ tốn",
+    "七殺": "Chia áp lực thành bước nhỏ",
+    "正官": "Thực hiện cam kết có kế hoạch",
+    "偏印": "Thử một cách khác",
+    "正印": "Tổng kết kinh nghiệm đã có"
   }
 }

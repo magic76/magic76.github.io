@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "À demain ✦ Une nouvelle carte à minuit", "share": "Partager la fortune du jour", "installed": "Ouvrez Koolo demain pour une nouvelle fortune", "copied": "Lien copié", "failed": "Partage impossible. Réessayez."},
+  "returnTomorrow": {
+    "title": "À demain ✦ Une nouvelle carte à minuit",
+    "share": "Partager la fortune du jour",
+    "installed": "Ouvrez Koolo demain pour une nouvelle fortune",
+    "copied": "Lien copié",
+    "failed": "Partage impossible. Réessayez."
+  },
   "today": "Aujourd'hui",
   "emptyTitle": "Votre carte du jour commence par votre date de naissance",
   "emptyDescription": "Une courte réflexion fondée sur des règles traditionnelles.",
@@ -63,7 +69,10 @@
     "baziStem": "Pilier du jour {{day}} → {{god}} pour le maître {{master}}",
     "baziBranch": "Branche du jour {{daily}} et branche natale du jour {{natal}} : {{relation}}",
     "baziYearBranch": "Branche du jour {{daily}} et branche natale de l'année {{natal}} : {{relation}}",
-    "keyword": "Mot-clé du jour : {{keyword}}"
+    "keyword": "Mot-clé du jour : {{keyword}}",
+    "baziMonth": "Mois solaire {{pillar}} · {{god}} (midi UTC+8)",
+    "baziAnnual": "Année solaire {{pillar}} · {{god}}",
+    "baziLuck": "Cycle de chance {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Jour personnel {{day}} · {{card}}",
   "cards": {
@@ -301,5 +310,33 @@
     "error": "La lecture IA a échoué. Voici la version basée sur la carte.",
     "key": "La clé Gemini ne fonctionne pas. Vérifiez les paramètres.",
     "retry": "Réessayer"
+  },
+  "profiles": {
+    "title": "Profils de fortune du jour",
+    "nickname": "Surnom",
+    "self": "Définir comme mon thème",
+    "useHome": "Afficher à l’accueil",
+    "active": "Affiché à l’accueil",
+    "remove": "Retirer de la fortune du jour",
+    "restore": "Restaurer",
+    "note": "Seule la fortune du jour est concernée, pas l’historique ni les rapports achetés.",
+    "save": "Enregistrer",
+    "hidden": "Masqué",
+    "add": "Ajouter un thème",
+    "empty": "Aucun thème enregistré",
+    "device": "Réglages de cet appareil",
+    "view": "Voir le thème"
+  },
+  "godHeadlines": {
+    "比肩": "Respectez votre rythme",
+    "劫財": "Clarifiez les limites en équipe",
+    "食神": "Faites place à la créativité",
+    "傷官": "Exprimez vos idées autrement",
+    "偏財": "Repérez de nouvelles possibilités",
+    "正財": "Gérez vos ressources sereinement",
+    "七殺": "Divisez la pression en petites étapes",
+    "正官": "Tenez vos engagements avec méthode",
+    "偏印": "Essayez une autre approche",
+    "正印": "Faites le point sur vos acquis"
   }
 }

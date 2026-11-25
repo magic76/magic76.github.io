@@ -9,7 +9,7 @@ function loadTs(file,exports,imports={}){
  return Function(...Object.keys(imports),code+"\nreturn {"+exports.join(",")+"};")(...Object.values(imports));
 }
 const pure=loadTs("web-spa/src/fortune/dailyCard.ts",
- ["buildDailyCard","localDateKey","dailyProfileHash","fnv1a","personalCycle","dayStemRelation","dayBranchRelation","traditionalAlmanacText"]);
+ ["buildDailyCard","localDateKey","dailyProfileHash","fnv1a","personalCycle","dayStemRelation","dayBranchRelation","traditionalAlmanacText","dailySolarPeriod"]);
 const memory=new Map();
 global.localStorage={getItem:key=>memory.get(key)??null,setItem:(key,value)=>memory.set(key,String(value)),
  removeItem:key=>memory.delete(key)};
@@ -54,14 +54,14 @@ test("D3 missing birth time, persisted kind, and cache fault tolerance",()=>{
  const card=getCard(onDate("numerology","2026-10-27")),hash=pure.dailyProfileHash(profile);
  store.saveCachedDaily(card,hash,undefined,"en");
  assert.deepEqual(store.readCachedDaily(card.date,card.kind,hash).card,card);
- assert.equal(store.DAILY_COPY_REVISION,3);
- assert.equal(store.readCachedDaily(card.date,card.kind,hash).copyRevision,3);
+ assert.equal(store.DAILY_COPY_REVISION,4);
+ assert.equal(store.readCachedDaily(card.date,card.kind,hash).copyRevision,4);
  const raw=JSON.parse(memory.get(store.DAILY_CACHE_KEY));
- raw[card.date][card.kind+":"+hash].copyRevision=2;
+ raw[card.date][card.kind+":"+hash].copyRevision=3;
  memory.set(store.DAILY_CACHE_KEY,JSON.stringify(raw));
- assert.notEqual(store.readCachedDaily(card.date,card.kind,hash).copyRevision,3,"legacy artwork cache cannot match revision 3");
+ assert.notEqual(store.readCachedDaily(card.date,card.kind,hash).copyRevision,4,"legacy copy cache cannot match revision 4");
  store.saveCachedDaily(card,hash,undefined,"en");
- assert.equal(store.readCachedDaily(card.date,card.kind,hash).copyRevision,3);
+ assert.equal(store.readCachedDaily(card.date,card.kind,hash).copyRevision,4);
  memory.set(store.DAILY_CACHE_KEY,"{bad");assert.deepEqual(store.readDailyCache(),{});
 });
 
@@ -90,7 +90,7 @@ test("D1 bazi equivalence with original ten god and branch relations",()=>{
  for(const a of "子丑寅卯辰巳午未申酉戌亥")for(const b of "子丑寅卯辰巳午未申酉戌亥")
   assert.equal(pure.dayBranchRelation(a,b),W.CrewFortuneBaZi.branchRelation(a,b),a+b);
  const c=getCard(onDate("bazi","2026-10-27",profile,{bazi,lunar:fakeSolar,lang:"zh-TW"}));
- assert.equal(c.kind,"bazi");assert.equal(c.basis.length,3);
+ assert.equal(c.kind,"bazi");assert.equal(c.basis.length,5);
  assert.equal(c.almanac.yi.length,3);
 });
 
@@ -381,4 +381,57 @@ test("D12 daily fortune offers one safe, profile-bound Zoe interpretation route 
  assert.match(rule[1],/white-space:normal/);
  assert.match(rule[1],/overflow-wrap:anywhere/);
  assert.match(css,/\.fortune-daily-zoe:focus-visible\{[^}]*outline:/);
+});
+
+test("branch interactions affect actual advice and local rules remain deterministic",()=>{
+ const base=getCard(onDate("bazi","2026-11-13",profile,{bazi:{...bazi,dayPillar:"庚午",yearPillar:"乙未"},lunar:fakeSolar}));
+ const clash=getCard(onDate("bazi","2026-11-13",profile,{bazi:{...bazi,dayPillar:"庚子",yearPillar:"乙未"},lunar:fakeSolar}));
+ assert.match(clash.avoid,/templates\.responsibility/);
+ assert.match(base.avoid,/templates\.peers/);
+ assert.deepEqual(clash,getCard(onDate("bazi","2026-11-13",profile,{bazi:{...bazi,dayPillar:"庚子",yearPillar:"乙未"},lunar:fakeSolar})));
+});
+
+test("ten-god titles are distinct and all supported locales provide each title",()=>{
+ const gods=["比肩","劫財","食神","傷官","偏財","正財","七殺","正官","偏印","正印"];
+ for(const lang of ["zh-TW","en","ja","es","pt-BR","id","fr","de","ko","vi","th"]){
+  const catalog=JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/fortuneDaily.json"));
+  assert.equal(new Set(gods.map(g=>catalog.godHeadlines[g])).size,10);
+  assert.ok(gods.every(g=>typeof catalog.godHeadlines[g]==="string"&&catalog.godHeadlines[g].trim()));
+ }
+ const seen=new Set();
+ for(const stem of "甲乙丙丁戊己庚辛壬癸"){
+  const lunar={fromYmd:()=>({getLunar:()=>({getDayInGanZhi:()=>stem+"午"})})};
+  seen.add(getCard(onDate("bazi","2026-11-13",profile,{bazi,lunar})).headline);
+ }
+ assert.equal(seen.size,10);
+});
+
+test("solar term month and year change at the documented noon boundary",()=>{
+ assert.deepEqual(pure.dailySolarPeriod("2026-02-03"),{year:2025,yearGanZhi:"乙巳",monthGanZhi:"己丑"});
+ assert.deepEqual(pure.dailySolarPeriod("2026-02-04"),{year:2026,yearGanZhi:"丙午",monthGanZhi:"庚寅"});
+ assert.equal(pure.dailySolarPeriod("2026-11-07").monthGanZhi,"戊戌");
+ assert.equal(pure.dailySolarPeriod("2026-11-08").monthGanZhi,"己亥");
+ assert.equal(pure.dailySolarPeriod("1999-12-31"),null);
+ assert.equal(pure.dailySolarPeriod("2101-01-01"),null);
+ assert.equal(pure.dailySolarPeriod("2026-02-30"),null);
+ const card=getCard(onDate("bazi","2026-11-13",profile,{bazi:{...bazi,luckPillars:[{startYear:2020,endYear:2029,ganZhi:"戊寅"}]},lunar:fakeSolar}));
+ assert.equal(card.basis.length,6);
+ assert.ok(card.basis.some(x=>x.startsWith("basis.baziMonth")));
+ assert.ok(card.basis.some(x=>x.startsWith("basis.baziAnnual")));
+ assert.ok(card.basis.some(x=>x.startsWith("basis.baziLuck")));
+});
+
+test("local fortune copy composition produces at least 150 distinct full-card combinations",()=>{
+ const variants=new Set();
+ const stems="甲乙丙丁戊己庚辛壬癸",branches="子丑寅卯辰巳午未申酉戌亥";
+ for(let d=0;d<60;d++){
+  const date=new Date(Date.UTC(2026,0,1+d)).toISOString().slice(0,10);
+  const lunar={fromYmd:()=>({getLunar:()=>({getDayInGanZhi:()=>stems[d%10]+branches[d%12]})})};
+  for(let i=0;i<12;i++){
+   const natal={dayMaster:stems[i%10],dayPillar:stems[i%10]+branches[i],yearPillar:"乙丑",monthPillar:"丙寅",timePillar:"丁卯",balancingElements:["木","水"],luckPillars:[{startYear:2020,endYear:2029,ganZhi:"戊寅"}]};
+   const card=getCard(onDate("bazi",date,profile,{bazi:natal,lunar}));
+   variants.add(JSON.stringify([card.headline,card.theme,card.do,card.avoid]));
+  }
+ }
+ assert.ok(variants.size>=150,"Expected at least 150 distinct complete copy combinations, got "+variants.size);
 });

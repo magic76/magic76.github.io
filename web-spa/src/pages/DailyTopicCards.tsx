@@ -9,7 +9,7 @@ import {hasNewDailyFortune} from "./dailyReturn";
 import "./dailyTopicCards.css";
 
 type TodayQuote={id:string;text:string;language:string};
-type TodayPersonal={hash:string;text:string;language:string;kind:"bazi"|"numerology"};
+type TodayPersonal={hash:string;text:string;language:string;kind:"bazi"|"numerology";headline:string;date:string;action:string;color:{name:string;hex:string}};
 type ChartOption={hash:string;label:string;self:boolean};
 
 /** One SSG-safe frosted card. The chart engine only enters a lazy chunk after mount. */
@@ -19,9 +19,8 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  const [quote,setQuote]=useState<TodayQuote|null>(null);
  const [personal,setPersonal]=useState<TodayPersonal|null>(null);
  const [charts,setCharts]=useState<ChartOption[]>([]);
- const [chartHash,setChartHash]=useState<string|null>(null);
- const [revision,setRevision]=useState(0);
  const [dailyUpdated,setDailyUpdated]=useState(false);
+ const [needsChartSelection,setNeedsChartSelection]=useState(false);
  useEffect(()=>{
   let active=true,version=0;
   let timer:ReturnType<typeof setTimeout>;
@@ -35,21 +34,22 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
      if(active&&token===version&&text&&pickDailyQuote(new Date()).id===selected.id)setQuote({id:selected.id,text,language});
     });
    };
+   setNeedsChartSelection(false);
    if(!hasStoredChart())updateQuote();
    else{
     setQuote(null);setPersonal(null);
     void import("./personalDailyLine").then(async ({personalDailyLine})=>{
      const {readDailyProfiles,chooseDailyProfile,readDailyPreference,dailyProfileLabel}=await import("../fortune/dailyProfileSelection");
      if(!active||token!==version)return;
-     const found=readDailyProfiles(),chosen=chooseDailyProfile(found,chartHash);
-     if(!chosen){updateQuote();return;}
+     const found=readDailyProfiles(),chosen=chooseDailyProfile(found);
+     if(!chosen){setNeedsChartSelection(found.length>0||readDailyProfiles(true).length>0);updateQuote();return;}
      const pref=readDailyPreference();
      const options=found.map(chart=>({hash:chart.hash,self:chart.hash===pref.selfHash,
       label:dailyProfileLabel(chart,language,t("dailyQuote.kind."+chart.mode))}));
      const line=await personalDailyLine(language,undefined,chosen.hash);
      if(!active||token!==version)return;
      if(!line){updateQuote();return;}
-     setCharts(options);setPersonal({hash:line.hash,text:line.text,language,kind:line.kind});
+     setCharts(options);setPersonal({hash:line.hash,text:line.text,language,kind:line.kind,headline:line.card.headline,date:line.date,action:line.card.do[0],color:line.card.luckyColor});
     }).catch(()=>{if(active&&token===version)updateQuote()});
    }
    const nextMidnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1).getTime();
@@ -60,8 +60,9 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
   refresh();
   document.addEventListener("visibilitychange",onVisibility);
   window.addEventListener("storage",refresh);
-  return()=>{active=false;version++;clearTimeout(timer);document.removeEventListener("visibilitychange",onVisibility);window.removeEventListener("storage",refresh)};
- },[language,chartHash,revision,t]);
+  window.addEventListener("crew-daily-profile-change",refresh);
+  return()=>{active=false;version++;clearTimeout(timer);document.removeEventListener("visibilitychange",onVisibility);window.removeEventListener("storage",refresh);window.removeEventListener("crew-daily-profile-change",refresh)};
+ },[language,t]);
  const isPersonal=personal?.language===language&&Boolean(personal.text);
  const readyQuote=quote?.language===language;
  const text=isPersonal?personal!.text:readyQuote?quote!.text:"";
@@ -71,9 +72,9 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  const chatHref=isPersonal&&/^[a-f0-9]{64}$/.test(personal!.hash)?fortuneHref+"&zoe=1":"";
  const selectChart=(value:string)=>{
   if(value==="__self__"&&personal){
-   void import("../fortune/dailyProfileSelection").then(({saveDailyProfileChoice})=>{saveDailyProfileChoice(personal.hash,true);setChartHash(personal.hash);setRevision(x=>x+1)});
+   void import("../fortune/dailyProfileSelection").then(({saveDailyProfileChoice})=>{saveDailyProfileChoice(personal.hash,true)});
   }else if(charts.some(x=>x.hash===value)){
-   void import("../fortune/dailyProfileSelection").then(({saveDailyProfileChoice})=>{saveDailyProfileChoice(value);setChartHash(value);setRevision(x=>x+1)});
+   void import("../fortune/dailyProfileSelection").then(({saveDailyProfileChoice})=>{saveDailyProfileChoice(value)});
   }
  };
  return <section className={"daily-quote daily-quote--"+variant} aria-labelledby={"daily-quote-title-"+variant}>
@@ -82,20 +83,24 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
     <div className="daily-quote-heading">
      <h2 id={"daily-quote-title-"+variant}><span aria-hidden="true">✦</span> {title}</h2>
      {isPersonal&&dailyUpdated&&<span className="daily-quote-updated">{t("dailyQuote.updated")}</span>}
-     {isPersonal&&charts.length>1?<select className="daily-quote-chart" aria-label={t("dailyQuote.chooseChart")}
+     {isPersonal&&charts.length>0?<select className="daily-quote-chart" aria-label={t("dailyQuote.chooseChart")}
       value={personal!.hash} onChange={event=>selectChart(event.target.value)}>
       {charts.map(chart=><option key={chart.hash} value={chart.hash}>{chart.self?t("dailyQuote.me")+" · ":""}{chart.label}</option>)}
       {!selectedOption?.self&&<option value="__self__">{t("dailyQuote.markSelf")}</option>}
      </select>:null}
     </div>
+    {isPersonal&&<p className="daily-quote-basis">{t(personal!.kind==="bazi"?"dailyQuote.basisBazi":"dailyQuote.basisNumerology")} · {t("luckyColor",{ns:"fortuneDaily"})} <span className="daily-quote-swatch" style={{backgroundColor:personal!.color.hex}} aria-hidden="true"/>{personal!.color.name}</p>}
+    {isPersonal&&<time className="daily-quote-date" dateTime={personal!.date}>{new Intl.DateTimeFormat(language,{month:"short",day:"numeric"}).format(new Date(personal!.date+"T12:00:00"))}</time>}
+    {isPersonal&&<strong className="daily-quote-headline">{personal!.headline}</strong>}
     {text?<p className="daily-quote-text">{text}</p>:<span className="daily-quote-placeholder" aria-hidden="true"/>}
-    {!isPersonal&&<p className="daily-quote-benefit">{t("dailyQuote.setupHint")}</p>}
+    {isPersonal&&<p className="daily-quote-basis daily-quote-action-hint">{personal!.action}</p>}
+    {!isPersonal&&!needsChartSelection&&<p className="daily-quote-benefit">{t("dailyQuote.setupHint")}</p>}
    </div>
    <div className={"daily-quote-actions"+(isPersonal?"":" daily-quote-actions--setup")}>
     {isPersonal?<>
      <Link className={"daily-quote-action daily-quote-action--fortune"+(dailyUpdated?" daily-quote-action--updated":"")} to={fortuneHref} onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.fortuneFull")}</Link>
      {chatHref&&<Link className="daily-quote-action daily-quote-action--chat" to={chatHref} onClick={()=>trackUsageEvent("home_entry_click","friend")}>{t("dailyQuote.chatRead")}</Link>}
-    </>:<Link className="daily-quote-action daily-quote-action--chat" to="/fortune/reading?mode=bazi&from=daily" onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.setupChart")}</Link>}
+    </>:needsChartSelection?<Link className="daily-quote-action daily-quote-action--fortune" to="/fortune#daily-profiles">{t("dailyQuote.chooseChart")}</Link>:<Link className="daily-quote-action daily-quote-action--chat" to="/fortune/reading?mode=bazi&from=daily" onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.setupChart")}</Link>}
    </div>
   </div>
  </section>;

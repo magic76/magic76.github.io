@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "明天再來看 ✦ 每天 0 點有新小卡", "share": "分享今天的運勢", "installed": "明天打開 Koolo，就有新運勢", "copied": "已複製連結", "failed": "無法分享，請稍後再試"},
+  "returnTomorrow": {
+    "title": "明天再來看 ✦ 每天 0 點有新小卡",
+    "share": "分享今天的運勢",
+    "installed": "明天打開 Koolo，就有新運勢",
+    "copied": "已複製連結",
+    "failed": "無法分享，請稍後再試"
+  },
   "today": "今日",
   "emptyTitle": "填生日看今日小卡",
   "emptyDescription": "只要生日，就能用傳統規則看看今天值得反思的主題。",
@@ -63,7 +69,10 @@
     "baziStem": "流日 {{day}} → 對日主 {{master}} 為{{god}}",
     "baziBranch": "流日支 {{daily}} 與本命日支 {{natal}}：{{relation}}",
     "baziYearBranch": "流日支 {{daily}} 與本命年支 {{natal}}：{{relation}}",
-    "keyword": "今日關鍵字：{{keyword}}"
+    "keyword": "今日關鍵字：{{keyword}}",
+    "baziMonth": "流月 {{pillar}} · {{god}}（節氣以 UTC+8 中午判定）",
+    "baziAnnual": "流年 {{pillar}} · {{god}}",
+    "baziLuck": "大運 {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "個人日 {{day}} · {{card}}",
   "cards": {
@@ -301,5 +310,33 @@
     "error": "Zoe 這次沒能生成新解讀，先用小卡版本陪你看。",
     "key": "Gemini Key 無法使用，請在下方檢查設定。",
     "retry": "再試一次"
+  },
+  "profiles": {
+    "title": "首頁運勢命盤",
+    "nickname": "暱稱",
+    "self": "設為本人",
+    "useHome": "設為首頁運勢",
+    "active": "首頁使用中",
+    "remove": "從每日運勢移除",
+    "restore": "恢復",
+    "note": "移除只影響每日運勢，不會刪除歷史或已購買報告。",
+    "save": "儲存",
+    "hidden": "已移除",
+    "add": "新增命盤",
+    "empty": "目前沒有命盤",
+    "device": "此裝置的設定",
+    "view": "查看命盤"
+  },
+  "godHeadlines": {
+    "比肩": "保持自己的步調",
+    "劫財": "合作先說清界線",
+    "食神": "讓創意自然流動",
+    "傷官": "換個角度表達想法",
+    "偏財": "留意新的選擇",
+    "正財": "穩穩安排手中資源",
+    "七殺": "把壓力拆成小步",
+    "正官": "有條理地完成承諾",
+    "偏印": "試試不同的解法",
+    "正印": "整理經驗再出發"
   }
 }

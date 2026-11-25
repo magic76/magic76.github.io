@@ -12,12 +12,12 @@ import {FortuneZoeReading} from "./FortuneZoeReading";
 import {FortuneReturnTomorrow} from "./FortuneReturnTomorrow";
 import {rememberDailyView} from "../pages/dailyReturn";
 
-import {readDailyProfiles,chooseDailyProfile} from "./dailyProfileSelection";
+import {readDailyProfiles,chooseDailyProfile,dailyProfileLabel,DAILY_PROFILE_EVENT} from "./dailyProfileSelection";
 import type {FortuneProfile} from "./types";
 import "./dailyCard.css";
 
 function getProfile(chartHash?:string):Partial<FortuneProfile>|null{
- try{const charts=readDailyProfiles();return (chooseDailyProfile(charts,chartHash)||chooseDailyProfile(charts))?.profile||null;}
+ try{const charts=readDailyProfiles();return chooseDailyProfile(charts,chartHash)?.profile||null;}
  catch{return null;}
 }
 function useLocalDay(){
@@ -65,12 +65,13 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  const kind:DailyKind=selected==="bazi"&&profile?.birthTime?"bazi":"numerology";
  const locale=i18n.resolvedLanguage||i18n.language;
  useEffect(()=>{
-  const update=()=>{setProfile(getProfile(chartHash));setRefresh(x=>x+1);};
+  const update=()=>{const next=chooseDailyProfile(readDailyProfiles(),chartHash);setProfile(next?.profile||null);const kind=searchParams.get("kind");setSelected(kind==="bazi"||kind==="numerology"?kind:resolveDailyKind(next?.mode||"tarot",next?.profile.birthTime,readDailyKindChoice()));setRefresh(x=>x+1);};
   update();
   window.addEventListener("focus",update);
   window.addEventListener("storage",update);
-  return()=>{window.removeEventListener("focus",update);window.removeEventListener("storage",update);};
- },[chartHash]);
+  window.addEventListener(DAILY_PROFILE_EVENT,update);
+  return()=>{window.removeEventListener("focus",update);window.removeEventListener("storage",update);window.removeEventListener(DAILY_PROFILE_EVENT,update);};
+ },[chartHash,searchParams]);
  useEffect(()=>{
   if((kind!=="bazi"&&!/^zh/i.test(locale))||(kind==="bazi"&&!profile?.birthTime))return;
   let cancelled=false;
@@ -108,7 +109,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  if(!clientReady||!ready)return <section className="fortune-daily panel" aria-busy="true"><p>{t("loading")}</p></section>;
  if(!profile?.birthDate)return <section className="fortune-daily panel">
   <span className="kicker">Koolo FORTUNE · {t("today")}</span><h2>{t("emptyTitle")}</h2>
-  <p>{t("emptyDescription")}</p><Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} <Arrow/></Link>
+  <p>{t("emptyDescription")}</p>{readDailyProfiles(true).length>0?<a className="btn" href="#daily-profiles">{t("profiles.title")} <Arrow/></a>:<Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} <Arrow/></Link>}
  </section>;
  function changeKind(next:DailyKind){
   if(next==="bazi"&&!profile?.birthTime)return;
@@ -139,7 +140,8 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  }
  return <section className="fortune-daily panel" aria-label={t("today")} data-daily-kind={kind}>
   <div className="fortune-daily-top">
-   <div><span className="kicker">Koolo FORTUNE · {t("today")}</span><small>{date}</small></div>
+   <div><span className="kicker">Koolo FORTUNE · {t("today")}</span><small>{date}</small>{profile&&<small>{dailyProfileLabel({hash:profileHash,profile,mode:kind==="bazi"?"bazi":"tarot"},locale,t(kind))}</small>}</div>
+   <a href="#daily-profiles" className="text-button">{t("profiles.title")}</a>
    {streak.streak>0&&<span className="fortune-daily-streak">✦ {t("streak",{count:streak.streak})}</span>}
   </div>
   <div className="fortune-daily-kind" role="group" aria-label={t("selectKind")}>

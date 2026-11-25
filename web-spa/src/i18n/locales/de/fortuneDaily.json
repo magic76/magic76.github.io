@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "Bis morgen ✦ Täglich ab Mitternacht eine neue Karte", "share": "Heutiges Horoskop teilen", "installed": "Öffne Koolo morgen für ein neues Horoskop", "copied": "Link kopiert", "failed": "Teilen fehlgeschlagen. Bitte erneut versuchen."},
+  "returnTomorrow": {
+    "title": "Bis morgen ✦ Täglich ab Mitternacht eine neue Karte",
+    "share": "Heutiges Horoskop teilen",
+    "installed": "Öffne Koolo morgen für ein neues Horoskop",
+    "copied": "Link kopiert",
+    "failed": "Teilen fehlgeschlagen. Bitte erneut versuchen."
+  },
   "today": "Heute",
   "emptyTitle": "Deine Tageskarte beginnt mit deinem Geburtsdatum",
   "emptyDescription": "Eine kurze Reflexion nach traditionellen Regeln.",
@@ -63,7 +69,10 @@
     "baziStem": "Tagessäule {{day}} → {{god}} für Tagesmeister {{master}}",
     "baziBranch": "Tageszweig {{daily}} und Geburts-Tageszweig {{natal}}: {{relation}}",
     "baziYearBranch": "Tageszweig {{daily}} und Geburts-Jahreszweig {{natal}}: {{relation}}",
-    "keyword": "Schlüsselwort des Tages: {{keyword}}"
+    "keyword": "Schlüsselwort des Tages: {{keyword}}",
+    "baziMonth": "Solarer Monat {{pillar}} · {{god}} (12 Uhr UTC+8)",
+    "baziAnnual": "Solares Jahr {{pillar}} · {{god}}",
+    "baziLuck": "Glückszyklus {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Persönlicher Tag {{day}} · {{card}}",
   "cards": {
@@ -301,5 +310,33 @@
     "error": "Die KI-Deutung war nicht möglich. Hier ist die Kartenversion.",
     "key": "Gemini Key funktioniert nicht. Bitte prüfe die Einstellungen.",
     "retry": "Erneut versuchen"
+  },
+  "profiles": {
+    "title": "Profile für die Tagesdeutung",
+    "nickname": "Spitzname",
+    "self": "Als mein Profil markieren",
+    "useHome": "Auf Startseite anzeigen",
+    "active": "Auf Startseite aktiv",
+    "remove": "Aus Tagesdeutung entfernen",
+    "restore": "Wiederherstellen",
+    "note": "Betrifft nur die Tagesdeutung, nicht den Verlauf oder gekaufte Berichte.",
+    "save": "Speichern",
+    "hidden": "Ausgeblendet",
+    "add": "Profil hinzufügen",
+    "empty": "Keine gespeicherten Profile",
+    "device": "Einstellungen dieses Geräts",
+    "view": "Profil ansehen"
+  },
+  "godHeadlines": {
+    "比肩": "Bleib bei deinem eigenen Tempo",
+    "劫財": "Kläre Grenzen bei der Zusammenarbeit",
+    "食神": "Gib deiner Kreativität Raum",
+    "傷官": "Drücke Ideen anders aus",
+    "偏財": "Achte auf neue Möglichkeiten",
+    "正財": "Plane deine Ressourcen in Ruhe",
+    "七殺": "Teile Druck in kleine Schritte",
+    "正官": "Halte Zusagen mit einem Plan ein",
+    "偏印": "Probiere einen anderen Ansatz",
+    "正印": "Ordne deine Erfahrungen"
   }
 }

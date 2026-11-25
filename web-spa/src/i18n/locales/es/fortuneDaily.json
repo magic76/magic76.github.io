@@ -1,5 +1,11 @@
 {
-  "returnTomorrow": {"title": "Vuelve mañana ✦ Nueva carta a medianoche", "share": "Compartir la fortuna de hoy", "installed": "Abre Koolo mañana para ver una nueva fortuna", "copied": "Enlace copiado", "failed": "No se pudo compartir. Inténtalo de nuevo."},
+  "returnTomorrow": {
+    "title": "Vuelve mañana ✦ Nueva carta a medianoche",
+    "share": "Compartir la fortuna de hoy",
+    "installed": "Abre Koolo mañana para ver una nueva fortuna",
+    "copied": "Enlace copiado",
+    "failed": "No se pudo compartir. Inténtalo de nuevo."
+  },
   "today": "Hoy",
   "emptyTitle": "Tu tarjeta diaria comienza con tu fecha de nacimiento",
   "emptyDescription": "Una breve reflexión basada en reglas tradicionales.",
@@ -63,7 +69,10 @@
     "baziStem": "Pilar diario {{day}} → {{god}} respecto al maestro {{master}}",
     "baziBranch": "Rama diaria {{daily}} y rama natal del día {{natal}}: {{relation}}",
     "baziYearBranch": "Rama diaria {{daily}} y rama natal del año {{natal}}: {{relation}}",
-    "keyword": "Palabra clave de hoy: {{keyword}}"
+    "keyword": "Palabra clave de hoy: {{keyword}}",
+    "baziMonth": "Mes solar {{pillar}} · {{god}} (mediodía UTC+8)",
+    "baziAnnual": "Año solar {{pillar}} · {{god}}",
+    "baziLuck": "Ciclo de suerte {{pillar}} · {{god}}"
   },
   "numerologyHeadline": "Día personal {{day}} · {{card}}",
   "cards": {
@@ -301,5 +310,33 @@
     "error": "No se pudo generar la lectura con IA. Aquí tienes la versión de la carta.",
     "key": "La clave Gemini no funciona. Revisa la configuración.",
     "retry": "Reintentar"
+  },
+  "profiles": {
+    "title": "Perfiles de fortuna diaria",
+    "nickname": "Apodo",
+    "self": "Marcar como mi carta",
+    "useHome": "Usar en inicio",
+    "active": "En inicio",
+    "remove": "Quitar de fortuna diaria",
+    "restore": "Restaurar",
+    "note": "Solo se elimina de la fortuna diaria, no del historial ni de los informes comprados.",
+    "save": "Guardar",
+    "hidden": "Oculto",
+    "add": "Añadir carta",
+    "empty": "No hay cartas guardadas",
+    "device": "Ajustes de este dispositivo",
+    "view": "Ver carta"
+  },
+  "godHeadlines": {
+    "比肩": "Mantén tu propio ritmo",
+    "劫財": "Aclara los límites al colaborar",
+    "食神": "Deja espacio para la creatividad",
+    "傷官": "Expresa tus ideas desde otro ángulo",
+    "偏財": "Observa nuevas opciones",
+    "正財": "Organiza tus recursos con calma",
+    "七殺": "Divide la presión en pasos pequeños",
+    "正官": "Cumple tus compromisos con un plan",
+    "偏印": "Prueba un enfoque distinto",
+    "正印": "Ordena lo que has aprendido"
   }
 }
