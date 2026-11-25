@@ -188,7 +188,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  useEffect(()=>{if(textFirst||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textFirst,shortsPost,creatureEmbed]);
  useFriendBodyTheme(creatureEmbed);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
- const {recognitionLanguages,recognitionOverride,setRecognitionOverride,recognitionLanguage,browserSpeech}=useFriendRecognition({language,friendNativeLanguage,friendChatMode,live,active,creatureEmbed});
+ const {recognitionLanguages,recognitionOverride,setRecognitionOverride,recognitionLanguage,automaticRecognitionLanguage,browserSpeech}=useFriendRecognition({language,friendNativeLanguage,friendChatMode,live,active,creatureEmbed});
  useAuxiliaryLiveSession(active,false);
  useFriendVoiceTheme(!creatureEmbed&&!active);
  const needsKey=live.state==="error"&&live.errorKind==="key";
