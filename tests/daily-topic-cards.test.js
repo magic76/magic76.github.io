@@ -103,8 +103,7 @@ test("SSG placeholder, local midnight + visibility refresh; personalized Zoe CTA
  assert.match(cards,/import \{hasStoredChart\} from "\.\/storedChart"/);
  assert.match(read(root+"storedChart.ts"),/crew_fortune_profile_v2/);
  const mobile=read(root+"MobileHomePage.tsx"),desktop=read(root+"HomePage.tsx");
- assert.ok(mobile.indexOf('<DailyTopicCards variant="mobile"/>')<mobile.indexOf('className="cmh-allowance-slot"'));
- assert.ok(mobile.indexOf('className="cmh-allowance-slot"')>mobile.indexOf('<section className="cmh-apps"'));
+ assert.doesNotMatch(mobile,/cmh-allowance-slot/);
  assert.ok(mobile.indexOf('<DailyTopicCards variant="mobile"/>')<mobile.indexOf('<section className="cmh-apps"'));
  assert.match(desktop,/className="crew-home-world-inner">\s*<DailyTopicCards variant="desktop"\/>/);
 });

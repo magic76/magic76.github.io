@@ -28,12 +28,11 @@ export function GuestTrialFinish({expired,failed,name}:{expired:boolean;failed:b
   <div className="guest-trial-finish-icon" aria-hidden="true">✦</div>
   <h2 id="guest-trial-finish-title">{failed?t("guestTrial.interrupted"):expired?t("guestTrial.completeTitle",{name:displayName}):t("guestTrial.ended")}</h2>
   <p>{failed?t("guestTrial.interruptedBody"):t("guestTrial.completeBody")}</p>
-  {failed&&isFriend?<Link className="btn secondary" to={location.pathname+"?"+textParams.toString()}>{t("voice:friendLive.useText")}</Link>:null}
+  {isFriend?<Link className="btn secondary" to={location.pathname+"?"+textParams.toString()}>{t("voice:friendLive.useText")}</Link>:null}
   <div className="guest-trial-finish-actions" aria-label={t("guestTrial.freeNextTitle")}>
    <Link className="btn" to="/games/1a2b">{t("guestTrial.free1a2b")}</Link>
    <Link className="btn secondary" to="/teacher/vocabulary">{t("guestTrial.freeVocabulary")}</Link>
    <Link className="btn secondary" to="/story">{t("guestTrial.freeStory")}</Link>
   </div>
-  <Link className="guest-trial-finish-key" to="/account#settings-gemini">{t("guestTrial.continueKey")}</Link>
  </section>;
 }

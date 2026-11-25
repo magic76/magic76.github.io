@@ -190,7 +190,7 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
   <div style={{display:"grid",gap:10,width:"100%"}}>
    {!textEntry&&phase!=="exhausted"&&phase!=="full"&&<><strong>{phase==="error"&&micUnavailable&&textFallback?t("guestTrial.micTextTitle"):t("guestTrial.homeTitle")}</strong>
     <p>{phase==="error"&&micUnavailable&&textFallback?t("guestTrial.micTextDesc"):t("guestTrial.homeDesc")}</p>
-    {remaining!==null&&<p role="status">{t(memberSignedIn?"guestTrial.memberRemaining":"guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
+    {remaining!==null&&remaining<=1&&<p role="status">{t(memberSignedIn?"guestTrial.memberRemaining":"guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
    {phase==="checking"&&<p role="status">{t("guestTrial.checking")}</p>}
    {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
     {precall&&<p className={"friend-precall-verification"+(challenge?" is-verified":"")} role="status" aria-live="polite">{t(challenge?"voice:friendLive.preCallVerified":"voice:friendLive.preCallWaiting")}</p>}
@@ -204,7 +204,7 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
    {phase==="full"&&<p role="status">{t("guestTrial.limit")}</p>}
    {phase==="exhausted"&&dailyQuota&&!memberSignedIn&&<Link className="btn" to="/account" {...linkTarget}>{t("voice:guestText.memberUpgrade")}</Link>}
    {(phase==="exhausted"||phase==="full")&&<>
-    <Link className="btn" to="/account#settings-gemini" {...linkTarget}>{t("guestTrial.continueKey")}</Link>
+    {textFallback&&!onTextGrant&&<Link className="btn secondary" to={textFallback.href} {...linkTarget}>{t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}
     <Link className="btn secondary" to="/games/1a2b" {...linkTarget}>{t("guestTrial.free1a2b")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role={phase==="error"&&micPermissionDenied?"alert":"status"}>{message||t("guestTrial.unavailable")}</p>}
    {phase==="error"&&textFallback&&!onTextGrant&&<Link className={precall&&!micUnavailable?"btn secondary friend-precall-text-fallback":"btn"} to={textFallback.href} onClick={()=>offerGuestChallengeToken(challenge)}>{precall&&!micUnavailable?t("voice:friendLive.preCallTextFallback",{name:textFallback.name}):t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}
@@ -214,7 +214,6 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
     clearGuestChallengeHandoff();setChallenge("");onVerificationChange?.(false);setMicPermissionDenied(false);setMicUnavailable(false);setPhase("ready");
    }}>{t(micUnavailable?"guestTrial.retryMic":"guestTrial.retry")}</button>}
    {phase==="error"&&micPermissionDenied&&<p style={{fontSize:13,lineHeight:1.6,margin:0,overflowWrap:"anywhere"}}>{microphoneHelp()}</p>}
-   {(phase==="error"||phase==="unavailable")&&<Link className="guest-live-key-link" style={{minHeight:44,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:13,lineHeight:1.5,textDecoration:"underline"}} to="/account#settings-gemini" {...linkTarget}>{t("guestTrial.keySettingsLink")}</Link>}
   </div>
  </div>;
 }

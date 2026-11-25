@@ -117,7 +117,6 @@ export function SettingsPage(){
   <header className="crew-settings-group-heading"><h2>{t("group.voiceHeading")}</h2>
    <p>{t("group.voiceIntro")}</p>
   </header>
-  <section className="section panel crew-settings-key-link"><p className="meta">{t("group.keyInAccount")}</p><Link className="crew-settings-quick-link" to="/account#settings-gemini">{t("group.manageAi")} <Arrow/></Link></section>
   <GeminiConnectionPanel section="voice"/>
   <section className="section panel crew-settings-voice-links">
    <h3>{t("group.pronunciationHeading")}</h3>
