@@ -256,3 +256,6 @@
 /* Vertical learning cards must not inherit the horizontal copy track. */
 .crew-section-learn .crew-learn-tool>.crew-section-card-icon{grid-column:1;grid-row:1}
 .crew-section-learn .crew-learn-tool>.crew-section-card-copy{grid-column:1;grid-row:2}
+
+/* Teacher-first learning hub: keep the activity dashboard available on demand. */
+.crew-learn-progress-details{margin:0;min-width:0;border:1px solid var(--line);border-radius:var(--crew-card-radius);background:var(--surface);padding:0 14px}.crew-learn-progress-details>summary{display:list-item;min-height:44px;padding:12px 0;box-sizing:border-box;font-weight:700;cursor:pointer}.crew-learn-progress-content{display:grid;gap:12px;padding:0 0 14px;min-width:0}.crew-learn-progress-details>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
