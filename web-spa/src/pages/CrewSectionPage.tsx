@@ -7,7 +7,6 @@ import {Icon,type IconName} from "../components/Icon";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import type {CrewSection} from "./crewNavigation";
 import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
-import {creatureLabHref} from "./creatureLabProgress";
 import {CurrentTeacherCard} from "../teacher/CurrentTeacherCard";
 import {LearningFocusCard} from "../teacher/LearningFocusCard";
 import {LearningSnapshot} from "../teacher/LearningSnapshot";
@@ -233,24 +232,11 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
      <Arrow direction="right" className="crew-explore-arrow"/>
     </Link>)}
-    <a className="crew-explore-tile" data-kind="creature" href={creatureLabHref()} onClick={()=>trackUsageEvent("explore_entry_click","play")}>
-     <div className="crew-explore-art" aria-hidden="true"><img className="crew-explore-creature-art" src={creatureLabHref()+"art/creatures/moonfox-egg.webp"} width="180" height="240" alt="" loading="lazy" decoding="async"/></div>
-     <span className="crew-explore-text"><strong>{t("creatureLab.discover")}</strong><small>{t("creatureLab.intro")}</small></span>
-     <Arrow direction="right" className="crew-explore-arrow"/>
-    </a>
     <Link className="crew-explore-tile crew-explore-souls" data-kind="souls" to="/souls" onClick={()=>trackUsageEvent("explore_entry_click","souls")}>
      <div className="crew-explore-art"><ExploreArtwork kind="souls"/></div>
      <span className="crew-explore-text">
       <strong>{en?"Koolo Souls · Bring photos to life":"Koolo Souls · 讓照片活過來"}</strong>
       <small>{en?"Give an object or portrait a personality, then talk to it with AI.":"拍下物品或人物，打造有個性的角色，直接用 AI 語音聊天。"}</small>
-     </span>
-     <Arrow direction="right" className="crew-explore-arrow"/>
-    </Link>
-    <Link className="crew-explore-tile crew-explore-magic" data-kind="magic" onClick={()=>trackUsageEvent("explore_entry_click","magic")} to="/magic">
-     <div className="crew-explore-art"><ExploreArtwork kind="magic"/></div>
-     <span className="crew-explore-text">
-      <strong>{en?"Koolo Magic · Speak worlds into life":"Koolo Magic · 用聲音創造世界"}</strong>
-      <small>{en?"Summon dragons, change the sky and create live adventures with an AI guide.":"召喚飛龍、改變天空，和 AI 嚮導一起創造即時冒險。"}</small>
      </span>
      <Arrow direction="right" className="crew-explore-arrow"/>
     </Link>

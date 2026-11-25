@@ -201,9 +201,6 @@ jobs:
       - name: Validate OAuth sign-in security (auth PRs only)
         if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'crew-auth') || contains(github.event.pull_request.head.ref, 'guest-auth-quota') || contains(github.event.pull_request.head.ref, 'member-daily'))
         run: node --test tests/crew-auth.test.js
-      - name: Validate Crew Magic world and Live tools (Magic PRs only)
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'magic')
-        run: node --test tests/magic-world.test.js tests/magic-live-composition.test.js tests/magic-navigation.test.js
       - name: Validate Koolo dual-origin migration safety
         if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'koolo-domain') || contains(github.event.pull_request.head.ref, 'koolo-trial-worker-domain'))
         run: node --test tests/koolo-domain-ready.test.js tests/crew-auth.test.js tests/guest-trial.test.js tests/guest-text-chat.test.js
@@ -315,19 +312,6 @@ jobs:
           path: artifacts/mobile-home-hero-v3/*
           retention-days: 14
           if-no-files-found: warn
-      # Magic changes require real WebGL evidence, including the 390px sculpted
-      # robot/fox/dragon close-ups produced by smoke-magic-creator-browser.mjs.
-      - name: Real browser snapshot of Crew Magic 3D (Magic PRs only)
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'magic')
-        run: |
-          npm run build:cloudflare
-          node scripts/smoke-magic-creator-browser.mjs
-      - uses: actions/upload-artifact@v4
-        if: always() && github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'magic')
-        with:
-          name: magic-creator-browser-screenshots
-          path: artifacts/magic-creator-*
-          if-no-files-found: ignore
       - name: Browser-render Crew Town 3D (town PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'town')
         run: |

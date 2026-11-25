@@ -10,8 +10,6 @@ import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {readLatestFriendActivity,type FriendActivity} from "../live/sessionTranscript";
 import {DailyTopicCards} from "./DailyTopicCards";
-import {CreatureLabResume} from "./CreatureLabResume";
-import type {CreatureLabProgress} from "./creatureLabProgress";
 import type {ShortFeed} from "../teacher/shortsFeed";
 import {GuideHub} from "../guides/GuideHub";
 import {HomeGeminiVerify} from "./HomeGeminiVerify";
@@ -32,11 +30,10 @@ const SHORTCUTS:readonly Shortcut[]=[
 ];
 const FEATURE_FRIENDS=["noah","iris","bella"] as const;
 
-export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgress,featuredGame}:{
+export function DesktopHomePage({recents,shortsFeed,shortsStatus,featuredGame}:{
  recents:readonly Recent[];
  shortsFeed:ShortFeed|null;
  shortsStatus:"loading"|"ready"|"error";
- creatureProgress:CreatureLabProgress|null;
  featuredGame:"1a2b"|"connect4"|"reversi";
 }){
  const {i18n,t}=useTranslation("home");
@@ -88,7 +85,7 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
    </div>
   </section>
   <HomeGeminiVerify variant="desktop"/>
-  {(recents.length>0||creatureProgress)&&<section className="kdh-resume-section" aria-label={t("continue")}>
+  {(recents.length>0)&&<section className="kdh-resume-section" aria-label={t("continue")}>
    <div className="kdh-section-title"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
    <div className="kdh-resume-grid">
     {recents.map(recent=><Link key={recent.key} className="kdh-resume-card" to={recent.to}>
@@ -96,7 +93,6 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
      <span className="kdh-resume-copy"><strong>{recent.title}</strong><small>{recent.description}</small></span>
      <Arrow/>
     </Link>)}
-    {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
    </div>
   </section>}
   <section className="kdh-shortcuts-section" aria-label={t("showcase29.desktop.quick")}>

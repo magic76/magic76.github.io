@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync, rmSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
@@ -68,6 +68,12 @@ export default defineConfig(({ command }) => {
     writeBundle(options) {
       const commit = buildInfo.commit?.slice(0, 8) || "dev";
       const outDir = options.dir || resolve(process.cwd(), isCloudflareBuild ? "../dist" : "../crew-app");
+      // Retired feature: keep the old bookmark as a redirect, never publish its assets.
+      const retiredLab = resolve(outDir, "crew-creature-lab");
+      rmSync(retiredLab, { recursive: true, force: true });
+      mkdirSync(retiredLab, { recursive: true });
+      const destination = isCloudflareBuild ? "/explore" : "../index.html#/explore";
+      writeFileSync(resolve(retiredLab, "index.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${destination}"><title>Koolo</title></head><body><a href="${destination}">Koolo</a></body></html>`);
       const walk = (dir: string): string[] => {
         if (!existsSync(dir)) return [];
         return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {

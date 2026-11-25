@@ -14,7 +14,6 @@ import {HomeLiveBubble} from "./HomeLiveBubble";
 import {MobileHomePage} from "./MobileHomePage";
 import {DesktopHomePage} from "./DesktopHomePage";
 import {DailyTopicCards} from "./DailyTopicCards";
-import {CreatureLabResume,useCreatureLabProgress} from "./CreatureLabResume";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {readLatestFriendActivity} from "../live/sessionTranscript";
 import {readUnfinishedNumberRound} from "../games/unfinishedNumberRound";
@@ -125,7 +124,6 @@ function activities(book:Book|null):Recent[]{
 export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
  const ready=useClientReady();
- const creatureProgress=useCreatureLabProgress();
  const [orbAvailable,setOrbAvailable]=useState(false);
  const [shortsFeed,setShortsFeed]=useState<ShortFeed|null>(null);
  const [shortsStatus,setShortsStatus]=useState<"loading"|"ready"|"error">("loading");
@@ -170,7 +168,7 @@ export function HomePage(){
   })().catch(()=>{/* Book progress is optional when browser storage is unavailable. */});
   return()=>{live=false};
  },[]);
- return <><DesktopHomePage recents={recents} shortsFeed={shortsFeed} shortsStatus={shortsStatus} creatureProgress={creatureProgress} featuredGame={featuredGame}/><div className="crew-home-legacy" aria-hidden="true" inert><div className="crew-home">
+ return <><DesktopHomePage recents={recents} shortsFeed={shortsFeed} shortsStatus={shortsStatus} featuredGame={featuredGame}/><div className="crew-home-legacy" aria-hidden="true" inert><div className="crew-home">
   {orbAvailable&&<div className="crew-home-content"><Link to="/orb" className="crew-home-orb-quick">
    <span className="crew-home-orb-icon" aria-hidden="true">◉</span>
    <span className="crew-home-orb-quick-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選角色，開始背景語音聊天":"Choose a character for hands-free chat"}</small></span>
@@ -189,13 +187,13 @@ export function HomePage(){
     </section>:ready&&configured&&!verified?<Link to="/account#settings-gemini" className="crew-home-start-verify">
      <Icon name="settings"/><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true"><Arrow/></b>
     </Link>:null}
-    {recents.length||creatureProgress?<section className="crew-home-continue" aria-label={t("continue")}>
+    {recents.length?<section className="crew-home-continue" aria-label={t("continue")}>
      <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
      <div className="crew-home-continue-cards">{recents.map(recent=><Link key={recent.key} to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
       <span className="crew-home-recent-art" aria-hidden="true">{recent.cover?<img src={recent.cover} alt=""/>:<Icon name={recent.kind==="friend"?"chat":recent.kind}/>}</span>
       <span className="crew-home-recent-copy"><span className="crew-home-overline">{recent.kind==="teacher"?"Koolo TEACHER":recent.kind==="story"?"Koolo STORY":recent.kind==="fortune"?"Koolo FORTUNE":recent.kind==="play"?"Koolo PLAY":"Koolo FRIEND"}</span><strong>{recent.title}</strong><small>{recent.description}</small></span>
       <Arrow className="crew-home-recent-arrow"/>
-     </Link>)}{creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}</div>
+     </Link>)}</div>
     </section>:null}
    <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge")}<i/></div>
    <HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>
@@ -249,6 +247,6 @@ export function HomePage(){
   </div>
   <HomeLiveBubble/>
  </div></div>
- <MobileHomePage shortsFeed={shortsFeed} shortsStatus={shortsStatus} creatureProgress={creatureProgress}/>
+ <MobileHomePage shortsFeed={shortsFeed} shortsStatus={shortsStatus}/>
  </>;
 }

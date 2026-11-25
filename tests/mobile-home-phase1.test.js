@@ -11,7 +11,7 @@ test("mobile homepage is a separate responsive presentation; desktop keeps its p
  assert.match(home,/className="crew-home"/);
  assert.match(home,/<HomePortal shortsFeed=\{shortsFeed\}\/>/);
  assert.match(home,/<HomeLiveBubble\/>/);
- assert.match(home,/<MobileHomePage shortsFeed=\{shortsFeed\} shortsStatus=\{shortsStatus\} creatureProgress=\{creatureProgress\}\/>/);
+ assert.match(home,/<MobileHomePage shortsFeed=\{shortsFeed\} shortsStatus=\{shortsStatus\}\/>/);
  assert.match(css,/\.crew-mobile-home\{display:none\}/);
  assert.match(css,/@media\(max-width:767px\)/);
  assert.match(css,/\.crew-home-legacy\{display:none!important\}/);
@@ -106,7 +106,7 @@ test("every ordinary mobile route uses one shared five-tab dock and desktop reta
  assert.match(css,/\.crew-mobile-dock-item\.active/);
  assert.match(css,/\.app-header \.crew-feature-menu-trigger\{display:none!important\}/);
  assert.match(css,/\.crew-mobile-dock--immersive\{display:none!important\}/);
- assert.match(app,/<GlobalNav active=\{active\} mobileImmersive=\{pathname==="\/magic"\}\/>/);
+ assert.match(app,/<GlobalNav active=\{active\} mobileImmersive=\{false\}\/>/);
  assert.doesNotMatch(app,/!pathname\.startsWith\("\/circle"\)/);
  assert.match(model,/pathname==="\/story\/me"\|\|pathname==="\/fortune\/history"/);
  assert.match(model,/if\(root==="teacher"\)/);
