@@ -9,14 +9,14 @@ const menuFile="web-spa/src/components/CrewFeatureMenu.tsx";
 const menu=read(menuFile)+"\n"+read("web-spa/src/components/CrewFeatureMenuPanel.tsx");
 const css=read("web-spa/src/components/crewFeatureMenu.css");
 
-test("all 29 visible feature destinations are direct, existing Crew routes",()=>{
+test("all 27 visible feature destinations are direct, existing Crew routes",()=>{
  const targets=[...menu.matchAll(/\{id:"([a-zA-Z0-9]+)",to:"([^"]+)"/g)];
- assert.equal(targets.length,29,"the directory should expose 29 verified destinations");
- assert.equal(new Set(targets.map(item=>item[1])).size,29,"unique feature keys");
- assert.equal(new Set(targets.map(item=>item[2])).size,29,"unique deep links");
+ assert.equal(targets.length,27,"the directory should expose 27 verified destinations");
+ assert.equal(new Set(targets.map(item=>item[1])).size,27,"unique feature keys");
+ assert.equal(new Set(targets.map(item=>item[2])).size,27,"unique deep links");
  for(const [,id,to] of targets)assert.ok(to.startsWith("/")&&!to.startsWith("//"),id+" must be an internal route");
  const app=read("web-spa/src/App.tsx");
- for(const route of ["/games","/souls","/mate","/story","/fortune","/timeline","/town","/magic","/discover","/research","/me","/settings","/feedback"]){
+ for(const route of ["/games","/souls","/mate","/story","/fortune","/timeline","/town","/magic","/research","/me","/settings","/feedback"]){
   assert.ok(app.includes('path="'+route+'"'),route+" must have a routed page");
  }
  assert.ok(app.includes('path="roles"'),"teacher/friend picker exists");
@@ -29,7 +29,7 @@ test("all 29 visible feature destinations are direct, existing Crew routes",()=>
  assert.ok(app.includes('path="/games/:gameId"'),"connect4 and reversi use the game-id route");
  for(const route of ["me","history"])assert.ok(app.includes('path="'+route+'"'),route+" nested story/fortune route must exist");
  assert.ok(menu.includes('/settings#memory-settings'),"friend memory settings remain accessible");
- assert.ok(!targets.some(([,id])=>["circle","story","timeline","mate","town"].includes(id)),"paused discovery entries must stay hidden");
+ assert.ok(!targets.some(([,id])=>["circle","story","timeline","mate","town","magic","discover"].includes(id)),"paused discovery entries must stay hidden");
  assert.deepEqual([...menu.matchAll(/\{id:"([a-z]+)",icon:"[^"]+",items:\[/g)].map(m=>m[1]),["chat","learn","games","explore","me"],"directory has five ordered categories");
 });
 
@@ -67,7 +67,7 @@ test("all 11 supported interface locales provide complete menu labels and descri
   for(const key of ["title","subtitle","close"])assert.ok(dict[key]?.trim(),locale+":"+key);
   for(const key of ["chat","learn","games","explore","me"])assert.ok(dict.groups[key]?.trim(),locale+" group:"+key);
   assert.ok(dict.featureCount?.trim(),locale+": missing feature count label");
-  assert.deepEqual(Object.keys(dict.items).filter(id=>!["story","timeline","town","mate"].includes(id)).sort(),featureIds.slice().sort(),locale+": visible feature parity; retain hidden translations");
+  assert.deepEqual(Object.keys(dict.items).filter(id=>!["story","timeline","town","mate","magic"].includes(id)).sort(),featureIds.slice().sort(),locale+": visible feature parity; retain hidden translations");
   for(const id of featureIds)for(const field of ["title","desc"]){
    assert.ok(dict.items[id]?.[field]?.trim(),locale+":"+id+"."+field);
   }

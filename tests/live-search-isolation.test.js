@@ -14,7 +14,7 @@ test("Live session does not attach Google Search to audio WebSocket setup",()=>{
  assert.doesNotMatch(live,/tools:configRef\.current\.webSearch/);
 });
 
-test("Teacher, Friends and Discover use opt-in separate grounded requests",()=>{
+test("Teacher and Friends use opt-in separate grounded requests",()=>{
  const action=read("web-spa/src/live/LiveSearchAction.tsx");
  assert.match(action,/searchGroundedText\(/);
  assert.match(action,/live\.sendText\(/);
@@ -24,10 +24,6 @@ test("Teacher, Friends and Discover use opt-in separate grounded requests",()=>{
   assert.match(code,/LiveSearchAction/);
   assert.doesNotMatch(code,/webSearch:/);
  }
- const discover=read("web-spa/src/pages/DiscoverPage.tsx");
- assert.match(discover,/searchGroundedText\(/);
- assert.match(discover,/live\.presentGrounding\(/);
- assert.doesNotMatch(discover,/webSearch:/);
 });
 
 test("Searched facts have HTTPS-only citations and fail closed for speech injection",()=>{
