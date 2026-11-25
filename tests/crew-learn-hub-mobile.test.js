@@ -41,16 +41,25 @@ test("Existing Learn center deep link redirects to the canonical dashboard",()=>
 });
 
 
-test("Three-minute speaking entry constrains SVG and reserves readable copy width",()=>{
+test("Three-minute speaking is a compact secondary link with all five destinations and bounded icons",()=>{
  const source=read("web-spa/src/pages/LearnHubExtras.tsx");
  const css=read("web-spa/src/pages/crewSections.css");
- assert.match(source,/<span className="crew-section-card-icon crew-learn-three-minute-icon"><Icon name="chat"\/><\/span>/);
- assert.match(source,/className="crew-learn-three-minute-copy"/);
- assert.match(source,/className="crew-learn-three-minute-arrow"/);
- assert.match(css,/\.crew-learn-three-minute\{display:grid;grid-template-columns:40px minmax\(0,1fr\) 20px/);
- assert.match(css,/\.crew-learn-three-minute-icon svg\{[^}]*width:22px;height:22px;stroke:currentColor;[^}]*fill:none/);
- assert.doesNotMatch(source,/<Link className="crew-learn-three-minute"[^>]*>\s*<Icon/);
+ const nav=source.match(/<nav className="crew-learn-secondary-links"[\s\S]*?<\/nav>/);
+ assert.ok(nav);
+ for(const [destination,icon] of [['to={speakingPath}','mic'],['to="/teacher/reading-library"','book'],['to="/teacher/reports"','history'],['to="/settings#settings-learning"','settings'],['to="/teacher/course"','scene']]){
+  assert.ok(nav[0].includes(destination+'><Icon name="'+icon+'"/><span>'));
+ }
+ assert.equal((nav[0].match(/<Link /g)||[]).length,5);
+ assert.doesNotMatch(source,/className="crew-learn-three-minute"/);
+ assert.match(css,/\.crew-learn-secondary-links a\{display:inline-flex;align-items:center;gap:6px;min-height:44px/);
+ assert.match(css,/\.crew-learn-secondary-links a svg\{display:block;width:18px;height:18px;flex:0 0 18px;stroke:currentColor;fill:none/);
+ const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
+ for(const [route,icon] of [['vocabulary','cards'],['phrasebook','chat'],['pronunciation','mic'],['textbook','book'],['board','scene']]){
+  assert.ok(hub.includes('to:"/teacher/'+route+'",icon:"'+icon+'"'));
+ }
+ assert.match(hub,/<p className="meta crew-learn-native-help" role="note">\{shownHint\}<\/p>/);
 });
+
 
 test("Learn exposes the teacher gallery above the daily learning action",()=>{
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
