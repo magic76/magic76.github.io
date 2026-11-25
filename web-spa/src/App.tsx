@@ -54,7 +54,6 @@ const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.Sho
 const MatePage=lazy(()=>withNamespace("mate",import("./mate/MatePage")).then(m=>({default:m.MatePage})));
 const CrewTownPage=lazy(()=>import("./town/Town3DPage").then(m=>({default:m.Town3DPage})));
 const SandboxLab=lazy(()=>import("./sandbox/SandboxLab").then(m=>({default:m.SandboxLab})));
-const MagicPage=lazy(()=>withNamespace("magic",import("./magic/MagicPage")).then(m=>({default:m.MagicPage})));
 const SoulsPage=lazy(()=>withNamespace("voice",import("./souls/SoulsPage")).then(m=>({default:m.SoulsPage})));
 const BooksPage=lazy(()=>import("./books/BooksPage"));
 const OnboardingGate=lazy(()=>import("./onboarding/OnboardingGate").then(m=>({default:m.OnboardingGate})));
@@ -83,7 +82,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/discover" element={<AppChrome product="home"><DiscoverPage/></AppChrome>}/>
  <Route path="/mate" element={<AppChrome product="home"><MatePage/></AppChrome>}/>
 <Route path="/town" element={<AppChrome product="home"><CrewTownPage/></AppChrome>}/>
-<Route path="/magic" element={<AppChrome product="home"><MagicPage/></AppChrome>}/>
+<Route path="/magic" element={<Navigate to="/explore" replace/>}/>
  <Route path="/souls" element={<AppChrome product="home"><SoulsPage/></AppChrome>}/>
 <Route path="/learn" element={<AppChrome product="teacher"><CrewSectionPage section="learn"/></AppChrome>}/>
 <Route path="/me" element={<AppChrome product="settings"><CrewSectionPage section="me"/></AppChrome>}/>
@@ -137,4 +136,4 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/fortune/live" element={<FortuneLivePage/>}/>
 <Route path="/zh-TW/*" element={<ZhTwCanonicalRedirect/>}/>
 <Route path="*" element={<Navigate to="/" replace/>}/>
-</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&pathname!=="/phone"&&<GlobalNav active={active} mobileImmersive={pathname==="/magic"}/>}{(pathname==="/"||pathname==="/settings")&&<OptionalWidgetBoundary><Suspense fallback={null}><OnboardingGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<OptionalWidgetBoundary><Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}<OptionalWidgetBoundary><Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense></OptionalWidgetBoundary>{pathname==="/"&&<OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallNudge/></Suspense></OptionalWidgetBoundary>}</>}
+</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&pathname!=="/phone"&&<GlobalNav active={active} mobileImmersive={false}/>}{(pathname==="/"||pathname==="/settings")&&<OptionalWidgetBoundary><Suspense fallback={null}><OnboardingGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<OptionalWidgetBoundary><Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}<OptionalWidgetBoundary><Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense></OptionalWidgetBoundary>{pathname==="/"&&<OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallNudge/></Suspense></OptionalWidgetBoundary>}</>}
