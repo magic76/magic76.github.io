@@ -4,9 +4,9 @@ const {readFileSync}=require("node:fs");
 const {resolve}=require("node:path");
 const read=path=>readFileSync(resolve(path),"utf8");
 
-test("four illustrated slides preserve Zoe first and real destinations",()=>{
+test("four illustrated slides put the teacher first and real destinations",()=>{
  const jsx=read("web-spa/src/pages/MobileHomePage.tsx");
- assert.match(jsx,/SLIDES=\["zoe","friends","game","learn"\]/);
+ assert.match(jsx,/SLIDES=\["learn","zoe","friends","game"\]/);
  assert.match(jsx,/CAROUSEL_INTERVAL_MS=11000/);
  assert.match(jsx,/const resumeFriend=resume\?CREW_FRIENDS.find/);
  assert.match(jsx,/const friendResume=resumeFriend\?resume:null/);
@@ -134,5 +134,5 @@ test("autoplay waits 11 seconds and only advances when visible, mobile and motio
   "onTouchStart={touchBegin}","onClick={()=>manualSlide(index)}","onKeyDown={event=>"]){
   assert.ok(page.includes(stopper),"user gesture stops autoplay: "+stopper);
  }
- assert.match(page,/if\(carouselPaused\|\|activity\)return/);
+ assert.match(page,/if\(carouselPaused\)return/);
 });
