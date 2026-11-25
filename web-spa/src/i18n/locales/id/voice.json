@@ -308,5 +308,13 @@
     "nextCall": "Berlaku pada panggilan berikutnya",
     "instructions": "Anda bisa mengucapkannya atau menjawab dengan kata-kata sendiri",
     "unavailable": "Model ini tidak mendukung saran jawaban"
+  },
+  "learningFeedback": {
+    "grammar": "Tata bahasa",
+    "wording": "Pilihan kata",
+    "natural": "Lebih alami",
+    "save": "Simpan frasa",
+    "saved": "Tersimpan",
+    "failed": "Gagal menyimpan. Coba lagi."
   }
 }

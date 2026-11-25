@@ -308,5 +308,13 @@
     "nextCall": "Có hiệu lực từ cuộc gọi tiếp theo",
     "instructions": "Bạn có thể đọc theo hoặc trả lời bằng lời của mình",
     "unavailable": "Mô hình này không hỗ trợ gợi ý trả lời"
+  },
+  "learningFeedback": {
+    "grammar": "Ngữ pháp",
+    "wording": "Cách dùng từ",
+    "natural": "Tự nhiên hơn",
+    "save": "Lưu cụm từ",
+    "saved": "Đã lưu",
+    "failed": "Không thể lưu. Hãy thử lại."
   }
 }
