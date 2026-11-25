@@ -26,7 +26,7 @@ test("native recognition is explicitly language-bound and stops on cleanup/error
 test("friend call opt-in is isolated from Gemini input and STT lab is removed",()=>{
  const hook=read("web-spa/src/live/useBrowserSpeechCaptions.ts"),page=read("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.match(hook,/useState\(false\)/);
- assert.match(page,/live\.state==="listening"&&live\.micEnabled&&!live\.muted&&!live\.openingProtected/);
+ assert.match(read("web-spa/src/friends/useFriendRecognition.ts"),/live\.state==="listening"&&live\.micEnabled&&!live\.muted&&!live\.openingProtected/);
  assert.match(page,/browserInput=\{browserSpeech\.text\}/);
  assert.doesNotMatch(hook,/sendText|sendControl|getUserMedia|fetch\(/);
  assert.equal(fs.existsSync("web-spa/public/stt-lab/index.html"),false);
@@ -63,7 +63,8 @@ test("ambiguous mixed and same-script evidence does not invent a language",()=>{
 });
 test("manual recognition override stays inside the allowed pair and leaves conversation mode alone",()=>{
  const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
- assert.match(page,/recognitionLanguages\.includes\(recognitionOverride\)\?recognitionOverride:automaticRecognitionLanguage/);
- assert.match(page,/resolveBrowserSpeechLanguage\(recognitionLanguages,live\.turns\)/);
+ const recognition=read("web-spa/src/friends/useFriendRecognition.ts");
+ assert.match(recognition,/recognitionLanguages\.includes\(recognitionOverride\)\?recognitionOverride:automaticRecognitionLanguage/);
+ assert.match(recognition,/resolveBrowserSpeechLanguage\(recognitionLanguages,live\.turns\)/);
  assert.match(page,/onChange=\{e=>setRecognitionOverride\(e\.target\.value\)\}/);
 });
