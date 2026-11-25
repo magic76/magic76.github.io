@@ -140,7 +140,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  }
  return <section className="fortune-daily panel" aria-label={t("today")} data-daily-kind={kind}>
   <div className="fortune-daily-top">
-   <div><span className="kicker">Koolo FORTUNE · {t("today")}</span><small>{date}</small>{profile&&<small>{dailyProfileLabel({hash:profileHash,profile,mode:kind==="bazi"?"bazi":"tarot"},locale,t(kind))}</small></div>
+   <div><span className="kicker">Koolo FORTUNE · {t("today")}</span><small>{date}</small>{profile&&<small>{dailyProfileLabel({hash:profileHash,profile,mode:kind==="bazi"?"bazi":"tarot"},locale,t(kind))}</small>}</div>
    <a href="#daily-profiles" className="text-button">{t("profiles.title")}</a>
    {streak.streak>0&&<span className="fortune-daily-streak">✦ {t("streak",{count:streak.streak})}</span>}
   </div>
