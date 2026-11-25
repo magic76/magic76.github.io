@@ -16,6 +16,10 @@ import {readDailyProfiles,chooseDailyProfile,dailyProfileLabel,DAILY_PROFILE_EVE
 import type {FortuneProfile} from "./types";
 import "./dailyCard.css";
 
+function openDailyProfiles(){
+ const manager=document.getElementById("daily-profiles");
+ if(manager instanceof HTMLDetailsElement)manager.open=true;
+}
 function getProfile(chartHash?:string):Partial<FortuneProfile>|null{
  try{const charts=readDailyProfiles();return chooseDailyProfile(charts,chartHash)?.profile||null;}
  catch{return null;}
@@ -109,7 +113,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  if(!clientReady||!ready)return <section className="fortune-daily panel" aria-busy="true"><p>{t("loading")}</p></section>;
  if(!profile?.birthDate)return <section className="fortune-daily panel">
   <span className="kicker">Koolo FORTUNE · {t("today")}</span><h2>{t("emptyTitle")}</h2>
-  <p>{t("emptyDescription")}</p>{readDailyProfiles(true).length>0?<a className="btn" href="#daily-profiles">{t("profiles.title")} <Arrow/></a>:<Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} <Arrow/></Link>}
+  <p>{t("emptyDescription")}</p>{readDailyProfiles(true).length>0?<a className="btn" href="#daily-profiles" onClick={openDailyProfiles}>{t("profiles.title")} <Arrow/></a>:<Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} <Arrow/></Link>}
  </section>;
  function changeKind(next:DailyKind){
   if(next==="bazi"&&!profile?.birthTime)return;
@@ -140,8 +144,11 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  }
  return <section className="fortune-daily panel" aria-label={t("today")} data-daily-kind={kind}>
   <div className="fortune-daily-top">
-   <div><span className="kicker">Koolo FORTUNE · {t("today")}</span><small>{date}</small>{profile&&<small>{dailyProfileLabel({hash:profileHash,profile,mode:kind==="bazi"?"bazi":"tarot"},locale,t(kind))}</small>}</div>
-   <a href="#daily-profiles" className="text-button">{t("profiles.title")}</a>
+   <div className="fortune-daily-identity">
+    <span className="kicker">✦ {t("today")}</span>
+    <small><time dateTime={date}>{date}</time> · {dailyProfileLabel({hash:profileHash,profile,mode:kind==="bazi"?"bazi":"tarot"},locale,t(kind))}</small>
+   </div>
+   <a href="#daily-profiles" className="text-button fortune-daily-manage" onClick={openDailyProfiles}>{t("profiles.title")}</a>
    {streak.streak>0&&<span className="fortune-daily-streak">✦ {t("streak",{count:streak.streak})}</span>}
   </div>
   <div className="fortune-daily-kind" role="group" aria-label={t("selectKind")}>

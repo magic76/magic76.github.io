@@ -61,13 +61,11 @@ export function FortuneHomePage(){
  return <>
   {invite&&<FortuneInviteLanding invite={invite} locale={i18n.resolvedLanguage||i18n.language}/>}
   {dailyIntent?dailySection:null}
-  <section className="hero fortune-journey-hero">
+  {!dailyIntent&&<section className="hero fortune-journey-hero">
    <span className="kicker">Koolo FORTUNE · EXPLORE</span>
    <h1>{t("landing.title")}</h1>
    <p>{t("landing.intro")}</p>
-  </section>
-  {!dailyIntent?dailySection:null}
-  <DailyProfileManager/>
+  </section>}
   <section className="section fortune-journey-create" id="fortune-new-reading">
    <div className="section-head">
     <h2>{t("landing.createTitle")}</h2>
@@ -98,6 +96,7 @@ export function FortuneHomePage(){
     <a href="/fortune/numerology/"><span>{t("home.tarot")} · {t("home.tarotDesc")}</span><Arrow className="crew-arrow--plain"/></a>
    </div>
   </section>
+  {!dailyIntent?dailySection:null}
   {(list===null||Boolean(latest)||Boolean(error))&&<section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
    {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
     <div className="fortune-journey-latest">
@@ -137,6 +136,7 @@ export function FortuneHomePage(){
    <summary>{t("landing.todayReflection")}</summary>
    <FortuneDailyCard/>
   </details>}
+  <DailyProfileManager/>
   <section className="section fortune-journey-other">
    <div className="section-head"><h2>{t("landing.exploreOther")}</h2></div>
    <div className="fortune-journey-other-links">

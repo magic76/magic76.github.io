@@ -94,3 +94,11 @@
 .fortune-journey-daily>.fortune-daily{margin:6px 0 0}
 @media(max-width:600px){.fortune-journey-create .fortune-home-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}}
 @media(prefers-reduced-motion:reduce){.fortune-journey-daily>summary{scroll-behavior:auto}}
+
+/* Daily deep links go straight to the card; the ordinary exploration hub leads with the three methods. */
+.fortune-journey-today{min-width:0;margin:12px 0 16px;scroll-margin-top:100px}
+.fortune-journey-today>.fortune-daily{margin:0}
+.fortune-journey-hero{padding-block:12px}
+.fortune-journey-hero h1{margin:4px 0}
+.fortune-journey-hero p{margin:0}
+@media(max-width:600px){.fortune-journey-create .fortune-home-mode{min-height:88px;padding:8px;gap:10px}.fortune-journey-create .fortune-home-mode .fortune-mode-cover{width:clamp(96px,30vw,126px)}.fortune-journey-create .fortune-home-grid{gap:8px}.fortune-journey-guides{gap:8px;margin-top:8px}}
