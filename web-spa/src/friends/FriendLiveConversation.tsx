@@ -22,7 +22,7 @@ import {LiveControls} from "../live/LiveControls";
 import {FriendCallControls} from "./FriendCallControls";
 import {FriendVoiceMute} from "./FriendVoiceMute";
 import {FriendCallCaptions} from "./FriendCallCaptions";
-import {buildFriendVoiceOpening} from "../live/friendVoiceOpening";
+import {buildFriendVoiceOpening,CURRENT_FACTS,FORTUNE_HANDOFF} from "../live/friendVoiceOpening";
 import {useFriendTextViewport,useFriendBodyTheme,useFriendVoiceTheme} from "./useFriendTextViewport";
 import {friendVoiceStatusKey} from "./friendVoiceStatusKey";
 import {FriendChatHistory} from "./FriendChatHistory";
@@ -106,7 +106,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const dailyFortuneStarter=dailyFortune?t("dailyFortuneStarter"):undefined;
  const fortuneContinue=dailyHandoff?t("dailyFortuneContinue"):undefined;
  const fortuneReplies=dailyHandoff?[t("dailyFortuneStarters.goodFor"),t("dailyFortuneStarters.watchOut")]:undefined;
- const fortuneSystem=dailyHandoff?(dailyLookup?.handoff||"[ZOE DAILY FORTUNE HANDOFF — FIRST REPLY]\nContinue discussing TODAY fortune with the user; do not greet or switch topics. Ask fortune follow-ups only.\n[/ZOE DAILY FORTUNE HANDOFF]"):"";
+ const fortuneSystem=dailyHandoff?(dailyLookup?.handoff||FORTUNE_HANDOFF):"";
  const shortsReturnTo=shortsPost?"/teacher/shorts?post="+encodeURIComponent(shortsPost.id):null;
  const language=useTeacherStore(s=>s.targetLanguage);
  const fromHome=params.get("from")==="home"&&!shortsPost;
@@ -124,7 +124,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   const system=buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost);
   const scopedSystem=gameRoundContext(system,"friend:"+friend.id);
   return {
-   system:scopedSystem+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":"")+creatureContext,
+   system:scopedSystem+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+(!shortsPost?CURRENT_FACTS:"")+creatureContext,
   openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
    shortsHook,selectedQuestion,lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
    conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
@@ -143,9 +143,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   ...friendLiveMemoryConfig(liveMemory,!creatureEmbed),
   onInputSpeech:replyHints.onInputSpeech,
   onObservedExchange:turn=>{
-   // Only this confirmed two-sided turn represents a successful conversation.
-   // Unlike onSessionFinished, this callback also fires for guest Live and unified text chat.
-   // Keep the pointer content-free: do not persist a voice transcript or an AI-only greeting.
+   // Confirmed two-sided exchange only, including guest Live and keyboard; store no transcript.
    recordFriendActivity(sessionId,"voice");
    recordFriendVoiceExchange(sessionId,language);
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
