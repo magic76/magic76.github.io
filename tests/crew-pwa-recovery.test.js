@@ -98,3 +98,39 @@ test("Fortune failures and update failures are distinguishable without exposing 
   assert.ok(server.includes('"'+str+'"'),str+" server");
  }
 });
+
+test("asset recovery rejects poisoned cache and retries 404 or network failure only once",async()=>{
+ const src=read("web-spa/public/sw.js");
+ const request={url:"https://koolo.app/assets/build/chat-hash.js",mode:"cors",method:"GET"};
+ const response=(mime,ok=true)=>({ok,type:"basic",headers:{get:()=>mime},clone(){return this;}});
+ const html=response("text/html"),js=response("text/javascript"),missing=response("text/html",false);
+ for(const first of [missing,new Error("network")]){
+  const listeners={},calls=[],deleted=[],saved=[];
+  let cached=html;
+  const cache={match:async()=>cached,delete:async req=>{deleted.push(req.url);cached=null;},put:async(req,res)=>{saved.push(req.url);cached=res;},keys:async()=>[]};
+  vm.runInNewContext(src,{self:{location:{origin:"https://koolo.app"},addEventListener:(name,fn)=>{listeners[name]=fn;}},caches:{open:async()=>cache},URL,Response,fetch:async(req,opts)=>{
+   calls.push({req,opts});
+   if(calls.length===1){if(first instanceof Error)throw first;return first;}
+   return js;
+  }});
+  const fetchAsset=()=>{let result;listeners.fetch({request,respondWith:p=>{result=p;}});return result;};
+  assert.equal(await fetchAsset(),js);
+  assert.deepEqual(deleted,[request.url]);
+  assert.deepEqual(saved,[request.url]);
+  assert.equal(calls.length,2);
+  assert.match(calls[1].req,/__crew_asset_retry=/);
+  assert.equal(calls[1].opts.cache,"no-store");
+  assert.equal(await fetchAsset(),js);
+  assert.equal(calls.length,2,"valid cached JS needs no extra network fetch");
+ }
+});
+
+test("two failed network requests terminate recovery without caching an invalid response",async()=>{
+ const listeners={};let calls=0,saved=0;
+ vm.runInNewContext(read("web-spa/public/sw.js"),{self:{location:{origin:"https://koolo.app"},addEventListener:(name,fn)=>{listeners[name]=fn;}},caches:{open:async()=>({match:async()=>null,put:async()=>{saved++;}})},URL,Response,fetch:async()=>{calls++;throw new Error("offline");}});
+ let result;
+ listeners.fetch({request:{url:"https://koolo.app/assets/build/chat-hash.js",method:"GET",mode:"cors"},respondWith:p=>{result=p;}});
+ assert.equal((await result).type,"error");
+ assert.equal(calls,2);
+ assert.equal(saved,0);
+});
