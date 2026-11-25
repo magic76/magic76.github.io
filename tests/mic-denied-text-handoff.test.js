@@ -28,7 +28,7 @@ function trial(errorName,withFallback=true,afterToken=false){
  const ctx={
   DOMException,Error,Event,window:{dispatchEvent(){}},
   navigator:{mediaDevices:microphone?{getUserMedia:microphone}:undefined},
-  busy:{current:false},phase:'ready',challenge:'unused-challenge',micUnavailable:false,role:'friend',active:{current:true},
+  busy:{current:false},phase:'ready',challenge:'unused-challenge',micUnavailable:false,role:'friend',friendMemory:false,active:{current:true},
   ...retryApi.rules,
   signinRequired:false,memberSignedIn:false,textFallback:fallback,
   ensureLive:async()=>{},trackUsageEvent:(name)=>events.push(name),
