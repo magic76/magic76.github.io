@@ -68,8 +68,8 @@ test("Finish is honest across expired, early-ended and interrupted states",()=>{
  assert.match(finish,/useLocation\(\)/);
  assert.match(finish,/new URLSearchParams\(location.search\).get\("id"\)/);
  assert.match(finish,/failed\?t\("guestTrial.interrupted"\):expired\?t\("guestTrial.completeTitle",\{name:displayName\}\):t\("guestTrial.ended"\)/);
- for(const dest of ["/games/1a2b","/teacher/vocabulary","/story","/account#settings-gemini"])assert.ok(finish.includes('to="'+dest+'"'));
- assert.ok(finish.indexOf('to="/games/1a2b"')<finish.indexOf('to="/account#settings-gemini"'));
+ assert.deepEqual([...finish.matchAll(/\bto="([^"]+)"/g)].map(m=>m[1]),["/games/1a2b","/teacher/vocabulary","/story"]);
+ assert.doesNotMatch(finish,/#settings-gemini/);
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/common.json"));
  assert.match(zh.guestTrial.completeBody,/每天/);
  assert.match(zh.guestTrial.completeBody,/1A2B/);

@@ -52,17 +52,16 @@ test("Desktop modes and deep links stay intact; mobile slide actions use origina
  assert.match(mobile,/onKeyDown=\{event=>/);
 });
 
-test("Mobile quota follows carousel, hides for BYOK and preserves one primary chat action",()=>{
+test("Mobile home omits quota, preserves carousel/fortune/apps order and one primary chat action",()=>{
  const a=mobile.indexOf('className="cmh-zoe-primary"');
  const dots=mobile.indexOf('className="cmh-carousel-dots"');
- const q=mobile.indexOf('className="cmh-allowance-slot"');
- assert.ok(a>=0&&dots>a&&q>dots);
- assert.match(mobile,/!hasKey&&<div className="cmh-allowance-slot">/);
+ const fortune=mobile.indexOf('<DailyTopicCards variant="mobile"/>');
+ const apps=mobile.indexOf('<section className="cmh-apps"');
+ assert.ok(a>=0&&dots>a&&fortune>dots&&apps>fortune);
+ assert.doesNotMatch(mobile,/cmh-allowance-slot|cmh-free-allowance|world\.freeAllowance\./);
  assert.match(desktop,/!hasKey&&<div className="crew-portal-status-slot">/);
- assert.match(mobile,/trial.seconds\/60/);
  assert.match(desktop,/trial.seconds\/60/);
  for(const key of ["full","textOnly","voiceUsed"]){
-  assert.ok(mobile.includes("world.freeAllowance."+key));
   assert.ok(desktop.includes("world.freeAllowance."+key));
  }
  assert.doesNotMatch(mobile.split('className="cmh-zoe-actions"')[1].split("</div>")[0],/cmh-zoe-secondary/);

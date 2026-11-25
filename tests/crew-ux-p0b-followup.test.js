@@ -20,7 +20,7 @@ test("DAILY_LIMIT means shared capacity full, not personal consumption",()=>{
  assert.match(render,/\{phase==="full"&&<p role="status">\{t\("guestTrial.limit"\)\}<\/p>\}/);
  assert.doesNotMatch(full[0],/guestTrial\.(?:usedUpTitle|used)"/);
  assert.match(render,/\(phase==="exhausted"\|\|phase==="full"\)&&<>/);
- assert.equal((render.match(/t\("guestTrial.continueKey"\)/g)||[]).length,1);
+ assert.equal((render.match(/t\("guestTrial.continueKey"\)/g)||[]).length,0);
  assert.equal((render.match(/t\("guestTrial.free1a2b"\)/g)||[]).length,1);
  const retryButton=render.match(/phase==="error"&&<button\b[\s\S]*?<\/button>/)?.[0];
  assert.ok(retryButton,"error state still has a retry button");
