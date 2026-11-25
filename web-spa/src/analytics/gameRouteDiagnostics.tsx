@@ -1,6 +1,7 @@
 import {createContext,useCallback,useContext,useEffect,useRef,type ReactNode} from "react";
 import {trackUsageEvent} from "./usage";
 import {currentBuild} from "../runtime/buildUpdates";
+import {localeFromPublicPath,localePrefix} from "../i18n/localeCatalog";
 
 // Paths and build identifiers are stored only in this browser; analytics sends
 // allowlisted event names and duration buckets, never URLs or identifiers.
@@ -33,6 +34,26 @@ function record(path:string,status:Status,elapsedMs:number|null){
  }catch{/* Best effort only. */}
 }
 export function recordGameRouteAssetError(path:string){record(path,"asset_error",null)}
+
+// A bounded, privacy-safe page category makes the aggregate asset failures actionable.
+// Never send a complete URL, query, user-supplied route segment or exception message.
+export function routeAssetContext(path:string){
+ const locale=localeFromPublicPath(path);
+ const root=(locale?path.slice(localePrefix(locale).length):path).split("/")[1]||"";
+ switch(root){
+  case "":return "home";
+  case "chat":case "friend":return "friend";
+  case "teacher":return "teacher";
+  case "learn":return "learn";
+  case "games":return "play";
+  case "fortune":return "fortune";
+  case "explore":return "explore";
+  default:return "other";
+ }
+}
+export function recordRouteAssetError(path:string){
+ try{trackUsageEvent("route_asset_error_context",routeAssetContext(path))}catch{/* Best effort. */}
+}
 
 const ReadyContext=createContext<(()=>void)|null>(null);
 export function GameRouteMonitor({pathname,children}:{pathname:string;children:ReactNode}){
