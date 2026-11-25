@@ -30,8 +30,9 @@
 @media(max-width:640px){
  .friend-live-page:has(.friend-phone-stage):has(.friend-unified-composer){overflow:hidden}
  .friend-live-page:has(.friend-unified-composer) .friend-phone-stage{padding:8px 12px 4px;gap:6px}
- .friend-live-page:has(.friend-unified-composer) .friend-phone-stage:focus-within>.live-identity{display:none}
- .friend-live-page:has(.friend-unified-composer) .friend-phone-stage:focus-within>.friend-live-post{display:none}
+ /* Only typing should hide the identity; focusing a call button must not hide it. */
+ .friend-live-page:has(.friend-unified-composer) .friend-phone-stage:has(>.friend-unified-composer .friend-unified-input-row textarea:focus)>.live-identity{display:none}
+ .friend-live-page:has(.friend-unified-composer) .friend-phone-stage:has(>.friend-unified-composer .friend-unified-input-row textarea:focus)>.friend-live-post{display:none}
  .friend-unified-composer{padding-bottom:max(4px,env(safe-area-inset-bottom,0px))}
 }
 
