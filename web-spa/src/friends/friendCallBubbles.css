@@ -1,5 +1,5 @@
 /* Existing call palette: pale AI cards and translucent navy learner cards. */
-.friend-phone-stage .friend-chat-bubbles{display:flex;flex-direction:column;align-items:stretch;gap:10px;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scroll-behavior:auto;padding:8px 3px 12px;box-sizing:border-box}
+.friend-phone-stage .friend-chat-bubbles{display:flex;flex-direction:column;align-items:stretch;gap:10px;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;touch-action:pan-y;scroll-behavior:auto;padding:8px 3px 12px;box-sizing:border-box}
 .friend-chat-bubbles .friend-bubble-turn{display:contents}
 .friend-chat-bubbles .friend-bubble{box-sizing:border-box;max-width:86%;min-width:0;flex:0 0 auto;padding:11px 13px;border-radius:16px;overflow-wrap:anywhere;white-space:pre-wrap}
 .friend-chat-bubbles .friend-bubble-ai{align-self:flex-start;background:#f6f9ff;color:#182640;border-bottom-left-radius:5px}
