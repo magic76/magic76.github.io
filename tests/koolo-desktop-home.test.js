@@ -31,8 +31,7 @@ test("Koolo desktop home mirrors the mobile product entry points without changin
  assert.doesNotMatch(desktop,/PREVIEW_HIDDEN_KEY|formatResumePreview|activity\?\.resume/);
  assert.doesNotMatch(desktop,/HomeChatChoices/);
  assert.match(desktop,/className="kdh-primary"/);
- assert.match(desktop,/to=\{activity\?\.mode==="voice"\?voiceTo:/);
- assert.match(desktop,/&from=home&chat=text/);
+ assert.match(desktop,/to=\{voiceTo\}/);
  const apps=desktop.slice(desktop.indexOf("const SHORTCUTS:"),desktop.indexOf("const FEATURE_FRIENDS="));
  assert.equal((apps.match(/\{id:"/g)||[]).length,6);
  assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
