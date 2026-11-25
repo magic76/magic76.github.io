@@ -285,12 +285,6 @@
     }
   },
   "callCaptions": {
-    "browserRecognitionLanguage": "인식 언어",
-    "browserRecognitionAuto": "자동 (대화에 따라 전환)",
-    "browserRecognition": "브라우저 음성 인식",
-    "browserRecognitionNotice": "실험 기능: 브라우저 클라우드 음성 서비스를 사용하거나 통화 오디오에 영향을 줄 수 있습니다.",
-    "browserRecognitionFailed": "음성 인식을 사용할 수 없습니다. 기존 자막은 유지됩니다.",
-    "browserRecognitionLabel": "브라우저 인식",
     "aria": "이중 언어 통화 자막",
     "more": "추가 옵션",
     "closeMenu": "옵션 닫기",

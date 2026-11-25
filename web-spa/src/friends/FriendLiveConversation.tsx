@@ -13,8 +13,7 @@ import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {detectNativeLanguage} from "../teacher/teacherLocale";
 import {useLiveSession} from "../live/useLiveSession";
-import {useFriendRecognition} from "./useFriendRecognition";
-import {browserSpeechLanguagePair} from "../live/browserSpeechRecognition";
+import {inputTranscriptionLanguageCodes} from "../live/inputTranscriptionLanguageCodes";
 import {createElementPlayback} from "../live/createElementPlayback";
 import {useCreatureStageSync,useCreatureVoiceBridge} from "./useCreatureVoiceBridge";
 import {creatureVoiceInstruction} from "./creatureVoiceBridge.mjs";
@@ -142,7 +141,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   // URL-scoped comparison: the existing voice WS, never a second ASR request.
   // All reply modes receive the same mother-tongue + target-language hints.
-  inputLanguageCodes:params.get("asrHints")==="1"?browserSpeechLanguagePair(language,friendNativeLanguage,"natural"):undefined,
+  inputLanguageCodes:params.get("asrHints")==="1"?inputTranscriptionLanguageCodes(language,friendNativeLanguage):undefined,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
   ...friendLiveMemoryConfig(liveMemory,!creatureEmbed),
   onInputSpeech:replyHints.onInputSpeech,
@@ -192,7 +191,6 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  useEffect(()=>{if(textFirst||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textFirst,shortsPost,creatureEmbed]);
  useFriendBodyTheme(creatureEmbed);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
- const {recognitionLanguages,recognitionOverride,setRecognitionOverride,recognitionLanguage,automaticRecognitionLanguage,browserSpeech}=useFriendRecognition({language,friendNativeLanguage,friendChatMode,live,active,creatureEmbed});
  useAuxiliaryLiveSession(active,false);
  useFriendVoiceTheme(!creatureEmbed&&!active);
  const needsKey=live.state==="error"&&live.errorKind==="key";
@@ -261,18 +259,6 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
      <small className="friend-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</small>
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
-    {browserSpeech.supported&&recognitionLanguage&&<div className="friend-call-menu-preferences">
-     <button type="button" aria-pressed={browserSpeech.enabled} onClick={browserSpeech.toggle}>{t("voice:callCaptions.browserRecognition")} · {recognitionLanguage} · {t(browserSpeech.enabled?"voice:suggestReplies.on":"voice:suggestReplies.off")}</button>
-     {recognitionLanguages.length>1&&browserSpeech.enabled&&<label>
-      <small>{t("voice:callCaptions.browserRecognitionLanguage")}</small>
-      <select className="field" value={recognitionLanguages.includes(recognitionOverride)?recognitionOverride:""} onChange={e=>setRecognitionOverride(e.target.value)}>
-       <option value="">{t("voice:callCaptions.browserRecognitionAuto")} · {automaticRecognitionLanguage}</option>
-       {recognitionLanguages.map(code=><option key={code} value={code}>{code}</option>)}
-      </select>
-     </label>}
-     <small>{t("voice:callCaptions.browserRecognitionNotice")}</small>
-     {browserSpeech.failed&&<small role="status">{t("voice:callCaptions.browserRecognitionFailed")}</small>}
-    </div>}
     <FriendCallMenuPreferences hintsEnabled={replyHints.enabled} hintsLocked={replyHintsLocked(live.state)} onHintsToggle={replyHints.toggle} translationEnabled={translationEnabled} onTranslationToggle={toggleTranslation}/>
     </div>
     <div className="live-presets">
@@ -292,7 +278,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
       {live.voicePhase==="no-reply"&&!guestStarted?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
     <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
-    {active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output} browserInput={browserSpeech.text} browserLanguage={recognitionLanguage}
+    {active?<FriendCallCaptions name={friend.name} turns={live.turns} input={live.input} output={live.output}
      learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled}
      speaking={live.state==="speaking"} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled}/>:null}
     {/* Keep the sticky keyboard out of voice pre-call; its two gate buttons need the full width and height. */}
