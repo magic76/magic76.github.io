@@ -3,27 +3,18 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const read=file=>fs.readFileSync(file,"utf8");
 
-test("Kitten Nano English and five Pico languages share a lazy classic WASM worker",()=>{
+test("learning uses device speech without a neural worker or download UI",()=>{
  const speech=read("web-spa/src/teacher/learningSpeech.ts");
- const worker=read("web-spa/src/teacher/learningSpeech.worker.ts");
- assert.match(speech,/const PICO_LANGUAGES=new Set\(\["de","es","fr","it","pt"\]\)/);
- assert.match(speech,/if\(code==="en"\|\|code==="en-US"\|\|code==="en-GB"\)return"nano"/);
- assert.match(speech,/new Worker\(new URL\("\.\/learningSpeech\.worker\.ts",import\.meta\.url\),\{type:"classic"\}\)/);
- assert.match(speech,/koolo-learning-speech-v1/);
- assert.match(worker,/kitten_tts_2_nano_en_int4\.onnx/);
- assert.match(worker,/kitten_tts_2_pico_"\+language\+"_int4\.onnx/);
- assert.match(worker,/voices_"\+language\+"\.npz"/);
- assert.match(worker,/vocab\.json/);
- assert.match(worker,/uccharan@1\.0\.0/);
- assert.match(worker,/lang:g2pLanguage\(language\),profile:"kitten"/);
- assert.match(worker,/language==="en"\?"eleanor":/);
- assert.match(speech,/await systemSpeak\(value,language,speed\)/);
- assert.match(speech,/next=generateTiny\(chunks\[index\+1\],language,speed,false\)/);
- assert.match(speech,/await playBlob\(blob,id\)/);
- assert.doesNotMatch(speech+worker,/import\("\.\/learningSpeechKokoro"\)|KokoroTTS|KOKORO_MODEL_ID|kokoro-js@|@uzen\/kokoro-js/);
+ assert.match(speech,/new SpeechSynthesisUtterance\(value\)/);
+ assert.match(speech,/await speakText\(value,\{speed\}\)/);
+ assert.doesNotMatch(speech,/new Worker|fetch\(|onnxruntime|uccharan|generateTiny/);
+ assert.equal(fs.existsSync("web-spa/src/teacher/learningSpeech.worker.ts"),false);
+ for(const path of ["web-spa/src/teacher/PhrasebookPage.tsx","web-spa/src/teacher/VocabularyPage.tsx","web-spa/src/live/TextChatLearning.tsx"]){
+  assert.doesNotMatch(read(path),/onModelStatus|modelDownloading/);
+ }
 });
 
-test("all supported locales include phrase, vocabulary neural-voice and chat learning copy",()=>{
+test("all supported locales retain phrase, vocabulary and chat learning copy",()=>{
  for(const locale of ["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"]){
   const teacher=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/teacher.json"));
   const voice=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/voice.json"));

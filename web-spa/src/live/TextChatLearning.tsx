@@ -51,14 +51,13 @@ function saveLearningPhrase(value:string,target:string,originalPrefix:string,sav
  addDeckItem({category:original?"correction":"phrase",originalText:(better||value).trim().slice(0,260),translation:"",notes:original?originalPrefix+original.trim().slice(0,180):savedNote,language:normalizeLearningLanguage(target)});
 }
 export function FriendLearningActions({text}:{text:string}){
- const {t}=useTranslation("voice"),target=useTeacherStore(state=>state.targetLanguage),[saved,setSaved]=useState(false),[busy,setBusy]=useState(false),[notice,setNotice]=useState("");
+ const {t}=useTranslation("voice"),target=useTeacherStore(state=>state.targetLanguage),[saved,setSaved]=useState(false),[busy,setBusy]=useState(false);
  const value=text.trim(),canSave=value.length>0&&value.length<=260;
  if(!value)return null;
  const save=()=>{saveLearningPhrase(value,target,t("textChat.learning.originalPrefix"),t("textChat.learning.savedNote"));setSaved(true)};
  return <div className="crew-text-learning-actions">
-  <button type="button" disabled={busy} onClick={()=>{setBusy(true);setNotice("");void speakLearningText(value,target,{mode:value.split(/\s+/).length<=5?"phrase":"sentence",onModelStatus:status=>setNotice(status==="loading"?t("textChat.learning.modelDownloading"):"")}).catch(error=>{console.warn("[learning-speech]",error);setNotice("")}).finally(()=>setBusy(false))}}>🔊 {t("textChat.learning.listen")}</button>
+  <button type="button" disabled={busy} onClick={()=>{setBusy(true);void speakLearningText(value,target).catch(error=>{console.warn("[learning-speech]",error)}).finally(()=>setBusy(false))}}>🔊 {t("textChat.learning.listen")}</button>
   {canSave&&<button type="button" disabled={saved} onClick={save}>{saved?t("textChat.learning.saved"):t("textChat.learning.savePhrase")}</button>}
-  {notice&&<small className="crew-text-learning-model-status" role="status">{notice}</small>}
  </div>;
 }
 export function FriendLearningSummary({phrases,onDismiss}:{phrases:string[];onDismiss:()=>void}){
