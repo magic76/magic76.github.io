@@ -55,9 +55,9 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  * destinations from drifting apart. */
 const NAV_SECTIONS=[
  {id:"home",to:"/",icon:"home"},
- {id:"chat",to:"/chat",icon:"chat"},
- {id:"explore",to:"/explore",icon:"sparkles"},
  {id:"learn",to:"/learn",icon:"teacher"},
+ {id:"explore",to:"/explore",icon:"sparkles"},
+ {id:"chat",to:"/chat",icon:"chat"},
  {id:"me",to:"/me",icon:"settings"}
 ] as const;
 

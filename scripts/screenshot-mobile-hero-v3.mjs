@@ -25,7 +25,7 @@ const url="http://127.0.0.1:"+server.address().port+"/";
 const bin=["chromium","chromium-browser","google-chrome"].find(name=>spawnSync("which",[name],{encoding:"utf8"}).status===0);
 const executablePath=bin?spawnSync("which",[bin],{encoding:"utf8"}).stdout.trim():undefined;
 const browser=await chromium.launch({headless:true,...(executablePath?{executablePath}:{}),args:["--no-sandbox","--disable-dev-shm-usage"]});
-const labels=["zoe","friends","game","learn"];
+const labels=["learn","zoe","friends","game"];
 const report=[];
 try{
  for(const width of [390,360]){
@@ -46,9 +46,9 @@ try{
   await page.locator(".cmh-slide.cmh-zoe").waitFor({state:"visible",timeout:30000});
   await page.waitForTimeout(350);
   if(state==="return"){
-   await page.waitForFunction(()=>document.querySelector(".cmh-zoe h1")?.textContent?.includes("繼續和 Zoe"),null,{timeout:7000});
+   await page.waitForFunction(()=>document.querySelector(".cmh-zoe h2")?.textContent?.includes("繼續和 Zoe"),null,{timeout:7000});
   }else{
-   await page.waitForFunction(()=>document.querySelector(".cmh-zoe h1")?.textContent?.includes("一起聊聊"),null,{timeout:7000});
+   await page.waitForFunction(()=>document.querySelector(".cmh-zoe h2")?.textContent?.includes("一起聊聊"),null,{timeout:7000});
   }
   const dots=page.locator(".cmh-carousel-dots button");
   if(await dots.count()!==4)throw Error("Expected 4 slide dots");
@@ -149,8 +149,8 @@ try{
  await desktop.screenshot({path:join(output,"1440-desktop-unchanged.png"),animations:"disabled"});
  await desktop.close();
 
- // Actual Chromium motion record: auto advance Zoe->friends, then dot navigation,
- // touch swipe and return to Zoe. All recorded with animation enabled.
+ // Actual Chromium motion record: auto advance Learn->Zoe, then dot navigation,
+ // touch swipe and return to Learn. All recorded with animation enabled.
  const movieContext=await browser.newContext({
   viewport:{width:390,height:844},deviceScaleFactor:1,locale:"zh-TW",hasTouch:true,
   reducedMotion:"no-preference",recordVideo:{dir:output,size:{width:390,height:844}}
@@ -158,15 +158,15 @@ try{
  const moviePage=await movieContext.newPage();
  await moviePage.goto(url,{waitUntil:"domcontentloaded"});
  await moviePage.locator(".cmh-slide.cmh-zoe").waitFor({state:"visible"});
- const firstArt=await moviePage.evaluate(()=>getComputedStyle(document.querySelector(".cmh-zoe-scene")).animationName);
+ const firstArt=await moviePage.evaluate(()=>getComputedStyle(document.querySelector(".cmh-learn-art")).animationName);
  if(firstArt==="none")throw Error("Hero entrance animation absent with reduced motion off");
- const nearDrift=await moviePage.evaluate(()=>getComputedStyle(document.querySelector(".cmh-zoe .cmh-sparks"),"::before").animationName);
+ const nearDrift=await moviePage.evaluate(()=>getComputedStyle(document.querySelector(".cmh-slide-learn .cmh-sparks"),"::before").animationName);
  if(!nearDrift.includes("cmh-dust-near"))throw Error("Colored motes do not drift on motion-enabled pages: "+nearDrift);
- await moviePage.waitForFunction(()=>document.querySelector(".cmh-slide-friends")?.getAttribute("data-active")==="true",null,{timeout:12500});
+ await moviePage.waitForFunction(()=>document.querySelector(".cmh-slide.cmh-zoe")?.getAttribute("data-active")==="true",null,{timeout:12500});
  await moviePage.waitForTimeout(1100);
  const movieDots=moviePage.locator(".cmh-carousel-dots button");
  await movieDots.nth(2).click();
- await moviePage.waitForFunction(()=>document.querySelector(".cmh-slide-game")?.getAttribute("data-active")==="true");
+ await moviePage.waitForFunction(()=>document.querySelector(".cmh-slide-friends")?.getAttribute("data-active")==="true");
  await moviePage.waitForTimeout(1550);
  await moviePage.locator(".cmh-carousel-viewport").evaluate(node=>{
   const at=(x,y)=>new Touch({identifier:7,target:node,clientX:x,clientY:y});
@@ -174,10 +174,10 @@ try{
   node.dispatchEvent(new TouchEvent("touchstart",{bubbles:true,touches:[start],targetTouches:[start],changedTouches:[start]}));
   node.dispatchEvent(new TouchEvent("touchend",{bubbles:true,touches:[],targetTouches:[],changedTouches:[end]}));
  });
- await moviePage.waitForFunction(()=>document.querySelector(".cmh-slide-learn")?.getAttribute("data-active")==="true",null,{timeout:3000});
+ await moviePage.waitForFunction(()=>document.querySelector(".cmh-slide-game")?.getAttribute("data-active")==="true",null,{timeout:3000});
  await moviePage.waitForTimeout(1650);
  await movieDots.nth(0).click();
- await moviePage.waitForFunction(()=>document.querySelector(".cmh-slide.cmh-zoe")?.getAttribute("data-active")==="true");
+ await moviePage.waitForFunction(()=>document.querySelector(".cmh-slide-learn")?.getAttribute("data-active")==="true");
  await moviePage.waitForTimeout(1700);
  const recording=moviePage.video();
  if(!recording)throw Error("Missing Playwright video");
@@ -192,7 +192,7 @@ try{
  // Check that manual selection remains stopped after > one auto interval.
  const pauseContext=await browser.newContext({viewport:{width:390,height:844},locale:"zh-TW",reducedMotion:"no-preference"});
  const pausePage=await pauseContext.newPage();await pausePage.goto(url,{waitUntil:"domcontentloaded"});
- await pausePage.locator(".cmh-carousel-dots button").nth(2).click();
+ await pausePage.locator(".cmh-carousel-dots button").nth(3).click();
  await pausePage.waitForTimeout(5600);
  if(await pausePage.locator(".cmh-slide-game").getAttribute("data-active")!=="true")throw Error("Manual slide failed to pause autoplay");
  await pauseContext.close();

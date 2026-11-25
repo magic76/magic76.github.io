@@ -6,7 +6,7 @@ const read=file=>readFileSync(resolve(__dirname,"..",file),"utf8");
 
 test("mobile home effects preserve slides, carousel timing, shortcuts and existing entry links",()=>{
  const home=read("web-spa/src/pages/MobileHomePage.tsx");
- assert.ok(home.includes('const SLIDES=["zoe","friends","game","learn"]'));
+ assert.ok(home.includes('const SLIDES=["learn","zoe","friends","game"]'));
  assert.ok(home.includes("CAROUSEL_INTERVAL_MS=11000"));
  assert.equal((home.slice(home.indexOf("const APPS:"),home.indexOf("/** Mobile-only")).match(/\{id:"/g)||[]).length,6);
  for(const href of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher","/teacher/shorts"]){
@@ -28,7 +28,7 @@ test("no duplicate homepage chat bubble; single unified CTA remains the only Zoe
  assert.doesNotMatch(art,/cmh-friend-invite|cmh-friend-pop|cmh-chat-pop-last/);
  assert.doesNotMatch(hero,/cmh-chat-pop-last/);
  assert.match(home,/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
- assert.match(home,/<Link to=\{voiceDestination\} tabIndex=\{activeSlide===0\?0:-1\} className="cmh-zoe-primary"/);
+ assert.match(home,/<Link to=\{voiceDestination\} tabIndex=\{activeSlide===1\?0:-1\} className="cmh-zoe-primary"/);
  assert.match(home,/cmh-chat-pop-first/,"retain the distinct non-interactive Hey! decoration");
  assert.match(hero,/\.cmh-chat-pop-first/);
 });

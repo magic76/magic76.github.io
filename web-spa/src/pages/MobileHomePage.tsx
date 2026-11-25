@@ -21,7 +21,7 @@ import "./mobileHomeEffects.css";
 
 const ZOE_VOICE="/friend/live?id=zoe&from=home&entry=bubble";
 const GAMES=["1a2b","connect4","reversi"] as const;
-const SLIDES=["zoe","friends","game","learn"] as const;
+const SLIDES=["learn","zoe","friends","game"] as const;
 const CAROUSEL_INTERVAL_MS=11000;
 type App={id:string;zh:string;en:string;icon:IconName;to:string;event:"friend"|"learn"|"play"|"story"|"fortune"|"shorts"|"timeline"};
 const APPS:readonly App[]=[
@@ -54,7 +54,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
  // Rotate only while the mobile hero is visible. User interaction permanently pauses
  // autoplay for this page view, and reduced-motion users never auto-advance.
  useEffect(()=>{
-  if(carouselPaused||activity)return;
+  if(carouselPaused)return;
   if(!homeMotion)return;
   const mobile=window.matchMedia("(max-width:767px)");
   const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -72,7 +72,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
    }
   },CAROUSEL_INTERVAL_MS);
   return()=>{observer.disconnect();window.clearInterval(timer)};
- },[carouselPaused,homeMotion,activity]);
+ },[carouselPaused,homeMotion]);
  const manualSlide=(index:number)=>{setCarouselPaused(true);setActiveSlide((index+SLIDES.length)%SLIDES.length)};
  const touchBegin=(event:TouchEvent<HTMLDivElement>)=>{
   const touch=event.touches[0];if(!touch)return;
@@ -109,12 +109,32 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
      if(ignoreSwipeClick.current){event.preventDefault();event.stopPropagation();ignoreSwipeClick.current=false}
     }}>
     <div className="cmh-carousel-track" style={{transform:`translate3d(-${activeSlide*100}%,0,0)`}}>
-     <section className={"cmh-slide cmh-zoe"+(friendResume?" cmh-zoe-return":"")} data-active={activeSlide===0} aria-hidden={activeSlide!==0}
+     <section className="cmh-slide cmh-slide-learn" data-active={activeSlide===0} aria-hidden={activeSlide!==0}
+      aria-label={t("showcase29.learnAria")}>
+      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
+      <div className="cmh-slide-copy">
+       <span className="cmh-zoe-eyebrow">✦ Koolo {t("showcase29.badgeLearn")}</span>
+       <h1>{t("showcase29.learnTitle")}</h1>
+       <p>{t("showcase29.learnDesc")}</p>
+      </div>
+      <div className="cmh-scene cmh-learn-art" aria-hidden="true">
+       <span className="cmh-learn-ring cmh-learn-ring-one"/><span className="cmh-learn-ring cmh-learn-ring-two"/>
+       <div className="cmh-learn-portrait"><img src={oliviaPhoto} width="154" height="196" alt="" loading="eager" decoding="async"/></div>
+       <span className="cmh-learn-word cmh-learn-word-hi">Hello!</span>
+       <span className="cmh-learn-word cmh-learn-word-konnichiwa">こんにちは</span>
+       <span className="cmh-learn-wave"><i/><i/><i/><i/><i/></span>
+      </div>
+      <div className="cmh-zoe-actions">
+       <Link to="/learn" tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","learn")}><Icon name="teacher"/>{t("showcase29.startLearning")}</Link>
+       <Link to="/teacher/roles?mode=teacher" tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","learn")}>{t("showcase29.pickTeacher")}</Link>
+      </div>
+     </section>
+     <section className={"cmh-slide cmh-zoe"+(friendResume?" cmh-zoe-return":"")} data-active={activeSlide===1} aria-hidden={activeSlide!==1}
       aria-label={friendResume?t("layout2.resumeTitle",{name:resumeFriend!.name}):t("showcase29.zoeAria")}>
       <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
       <div className={"cmh-zoe-copy cmh-slide-copy"+(friendResume?" cmh-zoe-copy-return":"")}>
        <span className="cmh-zoe-eyebrow"><i aria-hidden="true"/> {friendResume?resumeFriend!.name.toUpperCase():"ZOE"} · {t("showcase29.badgeFriend")}</span>
-       <h1>{friendResume?t("layout2.resumeTitle",{name:resumeFriend!.name}):t("mobileHero.title")}</h1>
+       <h2>{friendResume?t("layout2.resumeTitle",{name:resumeFriend!.name}):t("mobileHero.title")}</h2>
        <p className={resumeTopic?"cmh-return-topic":undefined}>{resumeTopic?t("chatChoices.resume")+": "+resumeTopic:t(friendResume?"chatChoices.returnPrompt":"chatChoices.prompt")}</p>
       </div>
       <div className="cmh-scene cmh-zoe-scene" aria-hidden="true">
@@ -125,10 +145,10 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
       <div className="cmh-zoe-actions">
-       <Link to={voiceDestination} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>{trackUsageEvent("home_entry_click","friend");beginHomeFriendJourney(resumeId||"zoe",Boolean(friendResume))}}><Icon name="chat"/>{t(friendResume?"chatChoices.resume":"showcase29.voice")}</Link>
+       <Link to={voiceDestination} tabIndex={activeSlide===1?0:-1} className="cmh-zoe-primary" onClick={()=>{trackUsageEvent("home_entry_click","friend");beginHomeFriendJourney(resumeId||"zoe",Boolean(friendResume))}}><Icon name="chat"/>{t(friendResume?"chatChoices.resume":"showcase29.voice")}</Link>
       </div>
      </section>
-     <section className="cmh-slide cmh-slide-friends" data-active={activeSlide===1} aria-hidden={activeSlide!==1}
+     <section className="cmh-slide cmh-slide-friends" data-active={activeSlide===2} aria-hidden={activeSlide!==2}
       aria-label={t("showcase29.friendsAria")}>
       <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
       <div className="cmh-slide-copy">
@@ -147,11 +167,11 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
        <span className="cmh-art-sparkle cmh-friend-star">✳</span>
       </div>
       <div className="cmh-zoe-actions">
-       <Link to="/friend/live?id=noah&from=home&chat=text" tabIndex={activeSlide===1?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.chatNoah")}</Link>
-       <Link to="/teacher/roles?mode=friends" tabIndex={activeSlide===1?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","friend")}>{t("showcase29.allFriends")}</Link>
+       <Link to="/friend/live?id=noah&from=home&chat=text" tabIndex={activeSlide===2?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.chatNoah")}</Link>
+       <Link to="/teacher/roles?mode=friends" tabIndex={activeSlide===2?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","friend")}>{t("showcase29.allFriends")}</Link>
       </div>
      </section>
-     <section className="cmh-slide cmh-slide-game" data-active={activeSlide===2} aria-hidden={activeSlide!==2}
+     <section className="cmh-slide cmh-slide-game" data-active={activeSlide===3} aria-hidden={activeSlide!==3}
       aria-label={t("showcase29.gameAria")}>
       <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
       <div className="cmh-slide-copy">
@@ -170,28 +190,8 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
        <div className="cmh-game-floating-token">✦<span>{t("showcase29.badgePlay")}</span></div>
       </div>
       <div className="cmh-zoe-actions">
-       <Link to={todayLink} tabIndex={activeSlide===2?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","play")}><Icon name="play"/>{t("showcase29.playNow")}</Link>
-       <Link to="/games" tabIndex={activeSlide===2?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","play")}>{t("showcase29.allGames")}</Link>
-      </div>
-     </section>
-     <section className="cmh-slide cmh-slide-learn" data-active={activeSlide===3} aria-hidden={activeSlide!==3}
-      aria-label={t("showcase29.learnAria")}>
-      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
-      <div className="cmh-slide-copy">
-       <span className="cmh-zoe-eyebrow">✦ Koolo {t("showcase29.badgeLearn")}</span>
-       <h2>{t("showcase29.learnTitle")}</h2>
-       <p>{t("showcase29.learnDesc")}</p>
-      </div>
-      <div className="cmh-scene cmh-learn-art" aria-hidden="true">
-       <span className="cmh-learn-ring cmh-learn-ring-one"/><span className="cmh-learn-ring cmh-learn-ring-two"/>
-       <div className="cmh-learn-portrait"><img src={oliviaPhoto} width="154" height="196" alt="" loading="lazy" decoding="async"/></div>
-       <span className="cmh-learn-word cmh-learn-word-hi">Hello!</span>
-       <span className="cmh-learn-word cmh-learn-word-konnichiwa">こんにちは</span>
-       <span className="cmh-learn-wave"><i/><i/><i/><i/><i/></span>
-      </div>
-      <div className="cmh-zoe-actions">
-       <Link to="/learn" tabIndex={activeSlide===3?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","learn")}><Icon name="teacher"/>{t("showcase29.startLearning")}</Link>
-       <Link to="/teacher/roles?mode=teacher" tabIndex={activeSlide===3?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","learn")}>{t("showcase29.pickTeacher")}</Link>
+       <Link to={todayLink} tabIndex={activeSlide===3?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","play")}><Icon name="play"/>{t("showcase29.playNow")}</Link>
+       <Link to="/games" tabIndex={activeSlide===3?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","play")}>{t("showcase29.allGames")}</Link>
       </div>
      </section>
     </div>

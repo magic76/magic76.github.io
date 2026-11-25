@@ -8,6 +8,8 @@ test("bottom navigation is genuinely regrouped by intent, not merely a home card
  const chrome=read("web-spa/src/components/AppChrome.tsx");
  const model=read("web-spa/src/pages/crewNavigation.ts");
  const app=read("web-spa/src/App.tsx");
+ assert.deepEqual([...chrome.split("const NAV_SECTIONS=[")[1].split("] as const")[0].matchAll(/id:"([^"]+)"/g)].map(m=>m[1]),["home","learn","explore","chat","me"]);
+ assert.ok(model.includes('["home","learn","explore","chat","me"]'));
  assert.match(chrome,/CREW_SECTIONS\.indexOf\(active\)/);
  for(const tab of ["home","chat","explore","learn","me"]){
   assert.match(model,new RegExp('"'+tab+'"'));

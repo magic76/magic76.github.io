@@ -44,14 +44,14 @@ try{
    await page.waitForTimeout(900);
    if(width<768){
     await page.locator(".cmh-zoe").waitFor({state:"visible"});
-    if(state==="return")await page.getByRole("heading",{name:/繼續和 Zoe|Continue with Zoe/}).waitFor({state:"visible"});
+    if(state==="return")await page.waitForFunction(()=>document.querySelector(".cmh-zoe h2")?.textContent?.includes("繼續和 Zoe"));
    }
    const info=await page.evaluate(()=>{
     const visible=selector=>{const el=document.querySelector(selector);return !!el&&getComputedStyle(el).display!=="none"&&el.getBoundingClientRect().width>0};
     return {overflow:document.documentElement.scrollWidth-innerWidth, mobileHome:visible(".crew-mobile-home"),
      legacyHome:visible(".crew-home-legacy"),onboardingOpen:!!document.querySelector(".crew-onboarding-dialog[open]"),
      desktopTabCount:document.querySelectorAll(".global-nav a").length,mobileTabCount:document.querySelectorAll(".crew-mobile-dock a").length,
-     homeAppCount:document.querySelectorAll(".cmh-app").length,homeTextHref:document.querySelector(".cmh-zoe-primary")?.getAttribute("href"),
+     homeAppCount:document.querySelectorAll(".cmh-app").length,homeTextHref:document.querySelector(".cmh-zoe .cmh-zoe-primary")?.getAttribute("href"),
      seoVisible:visible(".cmh-seo"),mobileNavVisible:visible(".crew-mobile-dock"),
      slideCount:document.querySelectorAll(".cmh-slide").length,dotCount:document.querySelectorAll(".cmh-carousel-dots button").length,
      activeSlide:document.querySelector(".cmh-slide[data-active=true]")?.getAttribute("class"),
@@ -70,7 +70,7 @@ try{
     const scenarios=shortcuts.find(item=>item.href==="/teacher/course");
     if(!timeline||!scenarios||timeline.text!=="時光機"||scenarios.text!=="情境課程")throw Error("Timeline / Scenarios shortcut labels or links wrong");
     if(shortcuts.some(item=>item.href==="/magic"||item.width<44||item.height<44))throw Error("Invalid shortcut target or small touch area");
-    if(info.slideCount!==4||info.dotCount!==4||!info.activeSlide?.includes("cmh-zoe"))throw Error("mobile hero carousel missing or not Zoe-first");
+    if(info.slideCount!==4||info.dotCount!==4||!info.activeSlide?.includes("cmh-slide-learn"))throw Error("mobile hero carousel missing or not teacher-first");
     if(info.duplicateGameCard)throw Error("Daily recommendation duplicated below carousel");
     if(info.reducedAnimationName!=="none")throw Error("Reduced-motion screenshot still animates Zoe");
     if(!info.seoVisible)throw Error("mobile SEO text hidden");
@@ -98,12 +98,12 @@ try{
  await interactionPage.locator(".cmh-zoe .cmh-zoe-primary").waitFor();
  await interactionPage.locator(".cmh-other-resume-link strong").waitFor({state:"visible"});
  const otherFriendState=await interactionPage.evaluate(()=>({
-  zoeGeneric:document.querySelector(".cmh-zoe h1")?.textContent?.includes("一起聊聊吧"),
+  zoeGeneric:document.querySelector(".cmh-zoe h2")?.textContent?.includes("一起聊聊吧"),
   noahLink:document.querySelector(".cmh-other-resume-link")?.getAttribute("href")?.includes("id=noah"),
   motionEnabled:getComputedStyle(document.querySelector(".cmh-zoe-photo")).animationName!=="none"
  }));
  if(!otherFriendState.zoeGeneric||!otherFriendState.noahLink||!otherFriendState.motionEnabled)throw Error("Other-friend resume or motion-enabled regression");
- await interactionPage.locator(".cmh-carousel-dots button").nth(2).click();
+ await interactionPage.locator(".cmh-carousel-dots button").nth(3).click();
  await interactionPage.waitForFunction(()=>document.querySelector(".cmh-slide-game")?.getAttribute("data-active")==="true");
  await interactionPage.waitForTimeout(5450);
  if(await interactionPage.locator(".cmh-slide-game").getAttribute("data-active")!=="true")throw Error("Carousel autoplay did not pause after user interaction");
@@ -117,7 +117,7 @@ try{
  const videoPage=await videoContext.newPage();
  await videoPage.goto("http://127.0.0.1:"+port+"/",{waitUntil:"domcontentloaded"});
  await videoPage.locator(".cmh-zoe").waitFor({state:"visible"});
- await videoPage.waitForFunction(()=>document.querySelector(".cmh-carousel-dots button:nth-child(2)")?.classList.contains("is-active"),null,{timeout:11000});
+ await videoPage.waitForFunction(()=>document.querySelector(".cmh-carousel-dots button:nth-child(2)")?.classList.contains("is-active"),null,{timeout:15000});
  await videoPage.waitForTimeout(850);
  // Synthetic TouchEvents exercise the same React touch handlers as a physical swipe.
  await videoPage.locator(".cmh-carousel-viewport").evaluate(element=>{
@@ -126,10 +126,10 @@ try{
   element.dispatchEvent(new TouchEvent("touchstart",{bubbles:true,touches:[start],targetTouches:[start],changedTouches:[start]}));
   element.dispatchEvent(new TouchEvent("touchend",{bubbles:true,touches:[],targetTouches:[],changedTouches:[end]}));
  });
- await videoPage.waitForFunction(()=>document.querySelector(".cmh-slide-game")?.getAttribute("data-active")==="true",null,{timeout:3000});
+ await videoPage.waitForFunction(()=>document.querySelector(".cmh-slide-friends")?.getAttribute("data-active")==="true",null,{timeout:3000});
  await videoPage.waitForTimeout(1600);
  await videoPage.locator(".cmh-carousel-dots button").nth(3).click();
- await videoPage.waitForFunction(()=>document.querySelector(".cmh-slide-learn")?.getAttribute("data-active")==="true",null,{timeout:3000});
+ await videoPage.waitForFunction(()=>document.querySelector(".cmh-slide-game")?.getAttribute("data-active")==="true",null,{timeout:3000});
  await videoPage.waitForTimeout(1650);
  await videoPage.locator(".cmh-carousel-dots button").first().click();
  await videoPage.waitForTimeout(1450);
@@ -242,8 +242,8 @@ try{
   }
   const item=await navInspect();
   if(item.dockCount!==1||!item.visible||!item.desktopHidden||item.labels.length!==5)throw Error("Unexpected duplicated/hidden nav on "+route+": "+JSON.stringify(item));
-  if(item.labels.join(",")!=="首頁,聊天,探索,學習,我的")throw Error("Different dock labels on "+route+": "+item.labels.join(","));
-  if(item.hrefs.join(",")!=="/,/chat,/explore,/learn,/me")throw Error("Different dock routes on "+route);
+  if(item.labels.join(",")!=="首頁,學習,探索,聊天,我的")throw Error("Different dock labels on "+route+": "+item.labels.join(","));
+  if(item.hrefs.join(",")!=="/,/learn,/explore,/chat,/me")throw Error("Different dock routes on "+route);
   if(item.active!==active||item.current.length!==1||item.current[0]!==({home:"/",chat:"/chat",explore:"/explore",learn:"/learn",me:"/me"})[active])throw Error("Incorrect active tab on "+route+": "+JSON.stringify(item));
   if(Math.abs(item.geometry.bottom-844)>1||Math.abs(item.geometry.width-390)>1)throw Error("Dock misplaced on "+route);
   if(item.hitTargets.some(x=>!x.hit||x.height<44||x.width<44))throw Error("Dock obstructed/undersized on "+route+": "+JSON.stringify(item.hitTargets));

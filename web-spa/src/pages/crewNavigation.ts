@@ -1,6 +1,6 @@
 /** Intent-based global navigation. Existing product deep links remain unchanged. */
 export type CrewSection = "home" | "chat" | "explore" | "learn" | "me";
-export const CREW_SECTIONS:readonly CrewSection[]=["home","chat","explore","learn","me"];
+export const CREW_SECTIONS:readonly CrewSection[]=["home","learn","explore","chat","me"];
 
 export function sectionForRoute(pathname:string,search=""):CrewSection{
  const root=pathname.split("/")[1];

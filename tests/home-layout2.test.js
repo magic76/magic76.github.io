@@ -9,7 +9,7 @@ const rail=read("web-spa/src/pages/HomeModeRail.tsx");
 const css=read("web-spa/src/pages/homeLayout2.css");
 
 test("Desktop Layout 2 stays fixed while mobile restores the four-slide carousel",()=>{
- assert.match(mobile,/const SLIDES=\["zoe","friends","game","learn"\]/);
+ assert.match(mobile,/const SLIDES=\["learn","zoe","friends","game"\]/);
  assert.match(mobile,/const CAROUSEL_INTERVAL_MS=11000/);
  assert.match(mobile,/className="cmh-carousel"/);
  assert.match(mobile,/className="cmh-carousel-dots"/);
@@ -64,7 +64,7 @@ test("Mobile home omits quota, preserves carousel/fortune/apps order and one pri
  for(const key of ["full","textOnly","voiceUsed"]){
   assert.ok(desktop.includes("world.freeAllowance."+key));
  }
- assert.doesNotMatch(mobile.split('className="cmh-zoe-actions"')[1].split("</div>")[0],/cmh-zoe-secondary/);
+ assert.doesNotMatch(mobile.slice(mobile.indexOf('className={"cmh-slide cmh-zoe"')).split('className="cmh-zoe-actions"')[1].split("</div>")[0],/cmh-zoe-secondary/);
  assert.match(mobile,/className="cmh-zoe-primary"/);
   assert.match(mobile,/className="cmh-zoe-primary"[^\n]*showcase29\.voice/);
  assert.match(mobile,/t\(friendResume\?"chatChoices\.resume":"showcase29\.voice"\)/);
@@ -74,7 +74,7 @@ test("Mobile home omits quota, preserves carousel/fortune/apps order and one pri
  assert.match(desktop,/className="crew-portal-layout2-voice"/);
 });
 
-test("Last friend resumes in the first mobile slide and desktop without removing the old continue card",()=>{
+test("Last friend resumes in the Zoe mobile slide and desktop without removing the old continue card",()=>{
  assert.match(mobile,/const resumeFriend=activity\?CREW_FRIENDS.find/);
  assert.match(mobile,/const friendResume=resumeFriend\?activity:null/);
  assert.match(mobile,/resumeFriend\?\.avatar\|\|zoePhoto/);
