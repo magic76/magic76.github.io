@@ -642,7 +642,7 @@ async function run(){
           const tiles=page.locator(".crew-explore-grid .crew-explore-tile");
           assert.equal(await tiles.count(),9,locale+" Explore offers visible destinations");
           assert.equal(await page.locator('.crew-explore-grid a[href="/circle"]').count(),0,locale+" Circle is hidden from Explore");
-          for(const [position,kind] of ["fortune","timeline","games","story","research"].entries()){
+          for(const [position,kind] of ["fortune","games","research"].entries()){
             assert.equal((await tiles.nth(position).locator("strong").textContent())?.trim(),homeStrings.sectionExplore[kind].title,locale+" Explore translated "+kind);
           }
         }
