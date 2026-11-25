@@ -19,6 +19,7 @@ type LiveAttempt={active:boolean};
 type Config={
  createPlaybackRoute?:LiveSessionOptions["createPlaybackRoute"];
  separateCaptureContext?:boolean;
+ rememberPlaybackVolume?:boolean;
  inputLanguageCodes?:LiveSessionOptions["inputLanguageCodes"];
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  resolveSessionContext?:()=>{system:string;openingPrompt:string};
@@ -42,6 +43,19 @@ type Config={
  onOutputLevel?:(level:number)=>void;
  persistHistory?:boolean;sessionKind?:"teacher"|"friend"|"timeline";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
+// Friend and teacher calls share one device-local playback preference.
+const CALL_VOLUME_KEY="koolo_live_call_volume_v1";
+function readCallVolume(){
+ try{
+  const raw=window.localStorage.getItem(CALL_VOLUME_KEY);
+  if(raw===null||raw.trim()==="")return 100;
+  const value=Number(raw);
+  return Number.isFinite(value)&&value>=0&&value<=100?value:100;
+ }catch{return 100}
+}
+function saveCallVolume(value:number){
+ try{window.localStorage.setItem(CALL_VOLUME_KEY,String(value))}catch{/* Storage can be unavailable. */}
+}
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
 function classifyError(value:unknown):Exclude<LiveErrorKind,null>{
  const text=String(value||"").toLowerCase();
@@ -110,7 +124,7 @@ export function useLiveSession(config:Config){
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
  const cancelFriendReplyTimer=()=>{if(friendReplyTimerRef.current!==null){window.clearTimeout(friendReplyTimerRef.current);friendReplyTimerRef.current=null}};
  const cancelUnrecognizedSpeechTimer=()=>{if(unrecognizedSpeechTimerRef.current!==null){window.clearTimeout(unrecognizedSpeechTimerRef.current);unrecognizedSpeechTimerRef.current=null}};
- const [volume,setPlaybackVolume]=useState(100);
+ const [volume,setPlaybackVolume]=useState(()=>config.rememberPlaybackVolume?readCallVolume():100);
  const volumeRef=useRef(volume);
  useEffect(()=>{const id=window.setInterval(()=>{
   if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs());
@@ -526,7 +540,9 @@ export function useLiveSession(config:Config){
  const sendVideoFrame=useCallback((frame:unknown)=>sessionRef.current?.sendVideoFrame?.(frame)??false,[]);
  const setVolume=useCallback((value:number)=>{
   if(!Number.isFinite(value))return;
-  const next=Math.max(0,Math.min(300,value));
+  const remember=configRef.current.rememberPlaybackVolume;
+  const next=Math.max(0,Math.min(remember?100:300,value));
+  if(remember)saveCallVolume(next);
   volumeRef.current=next;
   setPlaybackVolume(next);
   sessionRef.current?.setVolume(next);

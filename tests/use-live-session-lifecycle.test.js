@@ -20,6 +20,7 @@ function harness({
   startSession = async () => {},
   stopSession = async () => {},
   teacherReport,
+  storage = new Map(),
 } = {}) {
   const sessions = [], saved = [], slots = [], cleanups = [];
   let cursor = 0, effects = 0, callsToEnsureLive = 0;
@@ -50,11 +51,12 @@ function harness({
       await stopSession(this);
       this.running = this.ready = false;
     }
-    setVolume() {}
+    setVolume(value) { this.volume = value; }
     getDurationMs() { return 1000; }
   }
   const window = {
     CrewLive: { Session }, CrewTeacherReport: teacherReport,
+    localStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
     setInterval: () => 0, setTimeout: () => 0, clearTimeout: () => {},
   };
   const deps = {
@@ -75,6 +77,7 @@ function harness({
     },
     "./conversationFlow": { ConversationFlowState: class { observe() {} } },
     "./grounding": {},
+    "./learningFeedback.mjs": require("../web-spa/src/live/learningFeedback.mjs"),
   };
   vm.runInNewContext(source, {
     exports, window, require: name => deps[name], clearInterval: () => {},
@@ -178,4 +181,52 @@ test("a deferred report retains the ended session's config and leaves the new ca
   assert.equal(app.render().report, null);
   assert.deepEqual(notified, ["old"]);
   await next.stop();
+});
+
+test("friend and teacher calls share saved playback volume, including zero before the first audio", async () => {
+  const storage = new Map();
+  const friend = harness({storage});
+  const live = friend.render({rememberPlaybackVolume:true});
+  assert.equal(live.volume, 100);
+  await live.start();
+  live.setVolume(17);
+  assert.equal(friend.sessions[0].volume, 17);
+  await live.stop();
+  friend.unmount();
+
+  const teacher = harness({storage});
+  const lesson = teacher.render({pageKey:"teacher",rememberPlaybackVolume:true});
+  assert.equal(lesson.volume, 17);
+  await lesson.start();
+  assert.equal(teacher.sessions[0].options.volume, 17);
+  lesson.setVolume(0);
+  assert.equal(teacher.sessions[0].volume, 0);
+  await lesson.stop();
+  teacher.unmount();
+
+  const next = harness({storage});
+  const muted = next.render({rememberPlaybackVolume:true});
+  assert.equal(muted.volume, 0);
+  await muted.start();
+  assert.equal(next.sessions[0].options.volume, 0);
+  await muted.stop();
+  const unrelated = harness({storage});
+  const other = unrelated.render();
+  assert.equal(other.volume, 100);
+  other.setVolume(250);
+  assert.equal(unrelated.render().volume, 250);
+  assert.equal(harness({storage}).render({rememberPlaybackVolume:true}).volume, 0);
+});
+
+test("invalid or inaccessible persisted volume falls back safely", () => {
+  for(const value of ["", " ", "bad", "-1", "101", "Infinity"]){
+    const storage = new Map([["koolo_live_call_volume_v1",value]]);
+    assert.equal(harness({storage}).render({rememberPlaybackVolume:true}).volume,100);
+  }
+  const storage={get(){throw Error("blocked")},set(){throw Error("blocked")}};
+  const app=harness({storage});
+  const live=app.render({rememberPlaybackVolume:true});
+  assert.equal(live.volume,100);
+  live.setVolume(7);
+  assert.equal(app.render().volume,7);
 });

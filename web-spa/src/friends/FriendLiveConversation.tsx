@@ -129,6 +129,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const live=useLiveSession({
   createPlaybackRoute:separatePlayback?createElementPlayback:undefined,
   separateCaptureContext:separatePlayback,
+  rememberPlaybackVolume:true,
   pageKey:"friend-"+sessionId,title:"Koolo 朋友 · "+friend.name,
   ...resolveSessionContext(),resolveSessionContext,languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
