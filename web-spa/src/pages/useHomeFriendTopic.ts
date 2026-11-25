@@ -25,7 +25,7 @@ export function useHomeFriendTopic(friendId:string|undefined){
   window.addEventListener("crew-friend-memory-changed",refresh);
   return()=>{disposed=true;window.removeEventListener("storage",refresh);window.removeEventListener("focus",refresh);window.removeEventListener("crew-friend-memory-changed",refresh)};
  },[friendId,language]);
- if(note?.id!==friendId||note?.language!==language)return "";
+ if(!note||note.id!==friendId||note.language!==language)return "";
  // Title only, never a transcript or the note summary. No topic content in analytics or links.
  return Array.from(note.title).slice(0,36).join("")+(Array.from(note.title).length>36?"…":"");
 }
