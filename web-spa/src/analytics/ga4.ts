@@ -44,6 +44,27 @@ export function safeGa4Referrer(referrer:string,siteOrigin:string){
  }catch{return ""}
 }
 
+// Fixed acquisition labels, not raw query strings or conversation text.
+export function aiReferralSource(referrer:string,campaign:string){
+ const providers:Record<string,string>={
+  "chatgpt.com":"chatgpt","chat.openai.com":"chatgpt",
+  "perplexity.ai":"perplexity","gemini.google.com":"gemini",
+  "copilot.microsoft.com":"copilot","claude.ai":"claude","grok.com":"grok"
+ };
+ const resolve=(host:string)=>{
+  const key=host.toLowerCase().replace(/^www\./,"");
+  return Object.hasOwn(providers,key)?providers[key]:"";
+ };
+ try{
+  const host=new URL(referrer).hostname;
+  const source=resolve(host);
+  if(source)return source;
+ }catch{/* referrer unavailable */}
+ const source=new URLSearchParams(campaign).get("utm_source")||"";
+ return resolve(source);
+}
+let aiSource="";
+
 const reserved=new Set("en zh zh-tw zh-cn ja ko es fr pt de vi id th teacher friend story fortune research briefing guides settings privacy usage timeline compare practice shorts friends roles learn tutor me vocabulary course pronunciation textbook phrasebook reports memory reading-library voice-lab live shelf create edit physical read history reading board town magic mate souls games nonsense crazy-court werewolf taboo gomoku connect4 reversi 1a2b twenty-questions mystery circle books explore chat orb".split(" "));
 // Unknown/dynamic slugs could contain personal information; never emit them to Google.
 export function safeGa4Path(pathname:string){
@@ -76,6 +97,7 @@ export function setGa4Enabled(enabled:boolean,landing?:{pathname:string;search:s
  landingPath=safeGa4Path(landing?.pathname??window.location.pathname);
  landingCampaign=safeGa4CampaignQuery(landing?.search??window.location.search);
  pageReferrer=safeGa4Referrer(landing?.referrer??document.referrer??"",window.location.origin);
+ aiSource=aiReferralSource(pageReferrer,landingCampaign);
  command("js",new Date());
  command("consent","default",consent(true));
  command("config",GA4_MEASUREMENT_ID,{
@@ -107,7 +129,8 @@ export function sendGa4PageView(pathname:string){
   page_title:"Crew Web",
   page_referrer:referral,
   page_location:window.location.origin+path+(initial&&path===landingPath?landingCampaign:""),
-  page_path:path
+  page_path:path,
+  ...(aiSource?{crew_ai_source:aiSource}:{})
  });
  pageReferrer=referral;
 }
@@ -124,6 +147,7 @@ export function sendGa4Event(event:string,detail:string,pathname=window.location
   // Product events can precede the first page_view in the app bootstrap.
   page_location:window.location.origin+path+
    (!lastViewPath&&path===landingPath?landingCampaign:""),
+  ...(aiSource?{crew_ai_source:aiSource}:{}),
   ...(detail?{crew_detail:detail}:{})
  });
 }

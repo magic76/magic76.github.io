@@ -19,7 +19,7 @@ function harness(options={}){
   head:{appendChild:node=>scripts.push(node)}
  };
  const exports=new Function("window","document",source+
-  "\nreturn {GA4_MEASUREMENT_ID,safeGa4Path,safeGa4CampaignQuery,safeGa4Referrer,setGa4Enabled,sendGa4PageView,sendGa4Event};")(window,document);
+  "\nreturn {GA4_MEASUREMENT_ID,safeGa4Path,safeGa4CampaignQuery,safeGa4Referrer,aiReferralSource,setGa4Enabled,sendGa4PageView,sendGa4Event};")(window,document);
  return {scripts,window,...exports};
 }
 test("GA4 queues native gtag Arguments objects (including consent updates)",()=>{
@@ -199,4 +199,24 @@ test("GA4 initialization may preserve the landing attribution captured before as
  const event=ga.window.dataLayer.at(-1)[2];
  assert.equal(event.page_location,config.page_location);
  assert.ok(!JSON.stringify(ga.window.dataLayer).includes("SECRET"));
+});
+
+test("AI referral source uses exact known hosts or sanitized campaign labels",()=>{
+ const ga=harness();
+ assert.equal(ga.aiReferralSource("https://www.perplexity.ai/",""),"perplexity");
+ assert.equal(ga.aiReferralSource("","?utm_source=chatgpt.com"),"chatgpt");
+ assert.equal(ga.aiReferralSource("https://gemini.google.com/",""),"gemini");
+ assert.equal(ga.aiReferralSource("https://chatgpt.com.example.org/",""),"");
+ assert.equal(ga.aiReferralSource("https://google.com/",""),"");
+ assert.equal(ga.aiReferralSource("","?utm_source=arbitrary"),"");
+ assert.equal(ga.aiReferralSource("","?utm_source=constructor"),"");
+ assert.equal(ga.aiReferralSource("","?utm_source=__proto__"),"");
+});
+test("AI acquisition enum accompanies eligible initial and subsequent events without raw URLs",()=>{
+ const ga=harness({referrer:"https://chatgpt.com/c/private-id?secret=never-send"});
+ ga.setGa4Enabled(true);ga.sendGa4PageView("/teacher/");ga.sendGa4Event("friend_conversation","");
+ const events=ga.window.dataLayer.filter(x=>x[0]==="event");
+ assert.equal(events.length,2);
+ for(const x of events)assert.equal(x[2].crew_ai_source,"chatgpt");
+ assert.doesNotMatch(JSON.stringify(events),/private-id|never-send/);
 });

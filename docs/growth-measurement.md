@@ -71,3 +71,12 @@
 - 不為 SEO 生成薄內容，不對使用者捏造使用成效或貼文觸及。
 - 涉及 GA4/使用事件變更，先遵守現有 `tests/ga4-usage.test.js`、`tests/crew-usage.test.js` 與既有 CI。
 - 此文件是可執行核對規格；**不是已完成 Search Console 真實數據分析或部署驗收的證明**。
+
+
+## AI 搜尋成效（AIEO / GEO）
+- 既有 GA4 Web stream 依 referrer origin 與 UTM 歸因，新增固定 enum `crew_ai_source`（chatgpt / perplexity / gemini / copilot / claude / grok），僅於原本允許分析的 session 送出。ChatGPT 官方會附 `utm_source=chatgpt.com`；未帶 referrer 或可辨識 UTM 的流量一律未知。這是來源標籤，不證明每次點擊都是 AI 搜尋引用。Google 一般與 AI 搜尋流量不可用 referrer 強行分開。
+- GA4 管理員建立 event-scoped custom dimension `crew_ai_source`，使用 Web stream、同一日期和 session cohort 分析 landing sessions、開始聊天和有效完成對話。缺資料標示待取得，不能跨分析系統相除；不新增 D1 或直接付費 API。
+- 每週固定問句：有沒有可以用中文聊天的 AI 朋友？有沒有不用 API Key 的英文口說網站？有沒有可以直接跟 AI 講話的網站？What AI conversation partner can I use in a browser? How can I practice English speaking without an API key?
+- 對 ChatGPT Search、Gemini、Perplexity、Google AI 搜尋（可用時）各自記錄日期、介面/地區、完整問句、是否實際搜尋、是否提及 Koolo、是否引用 canonical URL、功能及額度描述是否正確。記錄未執行或無法驗證的項目；提及率/引用率分母為已實際執行且可判讀的問句次數。固定相同測試條件，不用品牌詞誘導，不捏造排名。引用與導流分開計算。
+- 在每週成效報告加入 Bing AI Performance / Search Console 生成式 AI 報告（帳戶可用且已授權時），未取得數據不得填 0。
+- 官方歸因說明：https://help.openai.com/en/articles/12627856-publishers-and-developers-faq
