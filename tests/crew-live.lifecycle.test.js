@@ -1334,3 +1334,28 @@ test("protected opening timeout unlocks microphone",async()=>{
   assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
   await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+test("opt-in ASR hints affect only input transcription on the existing voice socket",async()=>{
+ for(const [model,extra,expected] of [
+  ["gemini-3.8-live",{}, {languageCodes:["zh-TW","en-US"]}],
+  ["gemini-3.8-live",{guestAccessToken:"ephemeral-test"}, {languageCodes:["zh-TW","en-US"]}],
+  ["gemini-3.8-live",{textOnly:true,allowMicUpgrade:true}, {languageCodes:["zh-TW","en-US"]}],
+  ["gemini-3.1-flash-live-preview",{}, {}],
+  ["gemini-3.8-live",{textOnly:true}, undefined]
+ ]){
+  resetSockets();const logs=[],{deps}=makeDeps(logs);
+  const session=new CrewLive.Session({models:[model],maxLiveAttempts:1,connectTimeoutMs:100,
+   inputLanguageCodes:["zh-TW","zh-TW","invalid","en-US","ja-JP"],deps,...extra});
+  const starting=session.start(),socket=await waitForSocket(0);socket.open();
+  const setup=socket.sent[0].setup;
+  assert.deepEqual(setup.inputAudioTranscription,expected);
+  assert.deepEqual(setup.outputAudioTranscription,{});
+  assert.equal("languageCode" in setup.generationConfig.speechConfig,false);
+  assert.match(socket.url,extra.guestAccessToken?/v1beta\.GenerativeService\.BidiGenerateContentConstrained/:extra.textOnly?/v1beta\.GenerativeService\.BidiGenerateContent\?key=/:/v1alpha\.GenerativeService\.BidiGenerateContent\?key=/);
+  socket.message({setupComplete:{}});await starting;
+  assert.equal(session.ready,true);
+  assert.equal(MockWebSocket.instances.length,1);
+  assert.equal(logs.some(item=>item.label==="[CrewLive ASR hints]"),Boolean(expected?.languageCodes));
+  await session.stop({silentStatus:true,emitTerminal:false});
+ }
+});

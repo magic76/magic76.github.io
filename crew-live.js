@@ -1203,6 +1203,12 @@
         if(!self._isActiveAttempt(attempt))return;
         attempt.openedAt=self._deps.now();
         try{
+          // Only opt-in callers of the current model send experimental hints.
+          // Other models and ordinary calls keep the original empty config.
+          var canTranscribe=!self.textOnly||self.options.allowMicUpgrade;
+          var inputLanguageCodes=canTranscribe&&model==="gemini-3.8-live"&&Array.isArray(self.options.inputLanguageCodes)
+            ?Array.from(new Set(self.options.inputLanguageCodes.filter(function(code){return typeof code==="string"&&/^[a-z]{2}-[A-Z]{2}$/.test(code);}))).slice(0,2):[];
+          attempt.inputLanguageCodes=inputLanguageCodes;
           socket.send(JSON.stringify({
             setup:{
               model:"models/"+model,
@@ -1226,7 +1232,7 @@
                   silenceDurationMs:self.options.turnTiming.silenceDurationMs
                 }}
               } : {}),
-              ...(self.textOnly&&!self.options.allowMicUpgrade?{}:{inputAudioTranscription:{}}),
+              ...(canTranscribe?{inputAudioTranscription:inputLanguageCodes.length?{languageCodes:inputLanguageCodes}:{}}:{}),
               outputAudioTranscription:{},
               systemInstruction:{
                 parts:[{text:self.options.system||"你是 Crew 的 Live 助手。自然、簡短地對話。"}]
@@ -1372,6 +1378,11 @@
     this.localVoicedFrames=0;
     this.model=attempt.model;
     this.activeModelIndex=attempt.index;
+    if(attempt.inputLanguageCodes&&attempt.inputLanguageCodes.length&&this._deps.logger&&this._deps.logger.info){
+      // setupComplete confirms the session opened, not that the recognizer
+      // honored the hints. Never log speech, credentials or a WebSocket URL.
+      this._deps.logger.info("[CrewLive ASR hints]",{model:attempt.model,languageCodes:attempt.inputLanguageCodes.slice(),guest:this.guestMode,setupAccepted:true});
+    }
     this._state("ready");
     this._status(this.textOnly?"Live 文字連線完成，可以輸入訊息":"Live 已連線，可以直接說話");
     if(this.textOnly){

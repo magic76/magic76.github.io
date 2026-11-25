@@ -138,7 +138,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   separateCaptureContext:separatePlayback,
   pageKey:"friend-"+sessionId,title:"Koolo 朋友 · "+friend.name,
   ...resolveSessionContext(),resolveSessionContext,languageDirective,
-  voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
+  voice:normalizeLiveVoice(friend.voice),language,nativeLanguage:friendNativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
   ...friendLiveMemoryConfig(liveMemory,!creatureEmbed),
   onInputSpeech:replyHints.onInputSpeech,

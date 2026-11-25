@@ -3,6 +3,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMemoryEnabled}from"../teacher/studentMemory";
 import{recordSpeakingLevel,effectiveSpeakingLevel}from"../teacher/speakingLevelMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import{turnTimingForLevel}from"./turnTiming";
+import {geminiInputLanguageHints} from "./geminiInputLanguageHints";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveSessionOptions,type LiveTurn} from "../lib/runtime";
 import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
@@ -262,6 +263,7 @@ export function useLiveSession(config:Config){
     createPlaybackRoute:configRef.current.createPlaybackRoute,
     separateCaptureContext:configRef.current.separateCaptureContext,
     guestAccessToken:grant?.token,
+    inputLanguageCodes:geminiInputLanguageHints(window.location.search,configRef.current.pageKey,configRef.current.sessionKind,configRef.current.language,configRef.current.nativeLanguage),
     textOnly:textOnly&&configRef.current.sessionKind==="friend",
     allowMicUpgrade:configRef.current.sessionKind==="friend",
     trackTextTurns:configRef.current.sessionKind==="friend",

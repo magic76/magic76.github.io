@@ -22,7 +22,7 @@ test("friend call uses actual two-way transcription and preserves the Live trans
  assert.match(controls,/live\.toggleMute/);
  assert.match(controls,/live\.interrupt\(\)/);
  assert.match(controls,/onEnd\(\)/);
- assert.match(transport,/inputAudioTranscription:\{\}/);
+ assert.match(transport,/inputAudioTranscription:inputLanguageCodes\.length\?\{languageCodes:inputLanguageCodes\}:\{\}/);
  assert.match(transport,/outputAudioTranscription:\{\}/);
 });
 test("call captions exist in all 11 voice locales",()=>{
