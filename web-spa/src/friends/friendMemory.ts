@@ -310,6 +310,19 @@ export function createFriendLiveMemory(id:string,language:string){
  };
 }
 
+/** Keep memory setup out of the size-constrained call page. */
+export function friendLiveMemoryConfig(memory:ReturnType<typeof createFriendLiveMemory>,enabled:boolean){
+ return {
+  tools:enabled&&friendMemoryEnabled()&&geminiKey()?FRIEND_MEMORY_TOOLS:undefined,
+  guestFriendMemory:enabled,
+  guestMemoryTools:enabled?FRIEND_MEMORY_TOOLS:undefined,
+  onMemorySessionStart:()=>memory.reset(),
+  onGuestMemoryTurn:(turns:LiveTurn[])=>memory.complete(turns),
+  onToolCall:(call:{id?:string;name:string;args?:unknown})=>memory.onCall(call),
+  onToolsUnavailable:()=>memory.toolsUnavailable()
+ };
+}
+
 /** Extract after one meaningful student turn; saving is independent of recent-chat duration. */
 async function captureFriendConversation(id:string,language:string,turns:LiveTurn[],_durationMs:number){
  if(!validFriend(id))return;
