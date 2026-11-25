@@ -17,10 +17,10 @@ test("mobile first screen prioritizes daily fortune and six shortcuts",()=>{
  assert.match(page,/className="cmh-app-grid">\{APPS.map/);
 });
 
-test("compact phone hero and 4x2 touch-safe app grid preserve navigation",()=>{
+test("compact phone hero and 3x2 touch-safe app grid preserve navigation",()=>{
  const base=read("web-spa/src/pages/mobileHome.css");
  const hero=read("web-spa/src/pages/mobileHomeHeroV3.css");
- assert.match(base,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(base,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(base,/\.cmh-app\{min-height:76px;gap:4px;padding:6px 3px\}/);
  assert.match(base,/\.cmh-app-icon\{width:35px;height:35px/);
  assert.match(hero,/\.cmh-slide\{height:180px;min-height:180px/);
