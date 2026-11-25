@@ -157,7 +157,7 @@ jobs:
       - name: Validate first-party usage analytics contract
         run: node --test tests/crew-usage.test.js
       - name: Verify usage and retention against current master
-        if: github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'chatgpt/koolo-usage-p0' || github.event.pull_request.head.ref == 'chatgpt/koolo-retention-p1')
+        if: github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'chatgpt/koolo-usage-p0' || github.event.pull_request.head.ref == 'chatgpt/koolo-retention-p1' || github.event.pull_request.head.ref == 'chatgpt/teacher-coaching-identity')
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
