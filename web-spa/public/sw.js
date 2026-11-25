@@ -42,13 +42,13 @@ self.addEventListener("fetch",event=>{
  event.respondWith((async()=>{
   const cache=await caches.open(STATIC_CACHE);
   const cached=await cache.match(request);
-  if(cached)return cached;
-  let response=await fetch(request);
-  // A CDN can return its cached SPA index.html with HTTP 200 for a JS/CSS
-  // module. Retry the SAME asset with a fresh query before letting the browser
-  // see an invalid MIME type (also fixes nested static imports).
-  const mime=(response.headers?.get("content-type")||"").toLowerCase();
-  if(/\.(?:js|css)$/.test(url.pathname)&&/^text\/html(?:;|$)/.test(mime)){
+  if(cached&&isValidAssetResponse(url,cached))return cached;
+  if(cached)try{await cache.delete(request)}catch{/* Never reuse an invalid cached asset. */}
+  let response;
+  try{response=await fetch(request)}catch{/* A transient network failure gets one repair attempt below. */}
+  // Retry a failed or invalid JS/CSS asset once with a fresh query; this also
+  // repairs stale negative CDN entries, nested imports and transient fetch failures.
+  if(/\.(?:js|css)$/.test(url.pathname)&&(!response||!isValidAssetResponse(url,response))){
    try{
     const bust=new URL(request.url);
     bust.searchParams.set("__crew_asset_retry",Date.now().toString(36));
@@ -56,6 +56,7 @@ self.addEventListener("fetch",event=>{
     if(isValidAssetResponse(url,repaired))response=repaired;
    }catch{/* Original response remains uncached and reports a MIME failure. */}
   }
+  if(!response)return Response.error();
   if(isValidAssetResponse(url,response)){
    try{
     await cache.put(request,response.clone());
