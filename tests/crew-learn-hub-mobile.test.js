@@ -102,17 +102,17 @@ test("Issue 811 reuses the existing plan and shows compact lesson/review counts"
 });
 
 
-test("Vertical Learn tool cards override horizontal tracks and render an arrow inside each link",()=>{
+test("Vertical Learn tool cards override horizontal tracks and omit decorative arrows",()=>{
  const source=read("web-spa/src/pages/LearnHubExtras.tsx");
  const css=read("web-spa/src/pages/crewSections.css");
  assert.match(css,/\.crew-section-card>\.crew-section-card-copy\{grid-column:2;grid-row:1\}/);
  assert.match(css,/\.crew-section-learn \.crew-learn-tool>\.crew-section-card-icon\{grid-column:1;grid-row:1\}/);
  assert.match(css,/\.crew-section-learn \.crew-learn-tool>\.crew-section-card-copy\{grid-column:1;grid-row:2\}/);
- assert.match(css,/\.crew-section-learn \.crew-learn-tool\{padding-bottom:34px\}/);
- assert.match(css,/\.crew-learn-tool \.crew-learn-tool-arrow\{position:absolute;right:10px;bottom:10px;width:20px;height:20px/);
+ assert.doesNotMatch(css,/\.crew-section-learn \.crew-learn-tool\{padding-bottom:34px\}/);
+ assert.doesNotMatch(css,/crew-learn-tool-arrow/);
  const card=source.match(/tools\.map\(tool=><Link\b[\s\S]*?<\/Link>/);
  assert.ok(card);
- assert.match(card[0],/crew-section-card-icon[\s\S]*crew-section-card-copy[\s\S]*<Arrow className="crew-learn-tool-arrow"\/>/);
- assert.equal((source.match(/<Arrow className="crew-learn-tool-arrow"\/>/g)||[]).length,1);
+ assert.match(card[0],/crew-section-card-icon[\s\S]*crew-section-card-copy/);
+ assert.doesNotMatch(source,/<Arrow\b|crew-learn-tool-arrow/);
  assert.doesNotMatch(source.slice(0,source.indexOf("export function")),/<Arrow\b/);
 });
