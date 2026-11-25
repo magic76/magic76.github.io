@@ -142,3 +142,16 @@ test("fortune overview is prominent, uses the existing aggregate report, and fit
  assert.match(css,/\.usage-fortune-grid\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(css,/@media\(max-width:700px\)\{\.usage-fortune-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
+
+test("route asset diagnostics export bounded categories but reject raw paths and unrelated details",()=>{
+ const {data}=fixture();
+ const details=["home","friend","teacher","learn","play","fortune","explore","other"];
+ for(const detail of [...details,"/friend/live?id=private","runtime",""]){
+  data.rows.push({day:"2026-11-12",event:"route_asset_error_context",detail,count:1,users:1});
+ }
+ const payload=buildUsageExport(data,7,{id:"all",label:"所有有效互動"},[],0);
+ assert.deepEqual(payload.rows.filter(row=>row.event==="route_asset_error_context").map(row=>row.detail),details);
+ const csv=usageExportCsv(payload);
+ assert.match(csv,/"route_asset_error_context","friend"/);
+ assert.doesNotMatch(csv,/private|"route_asset_error_context","runtime"/);
+});
