@@ -6,6 +6,7 @@ import {LiveSearchAction} from "../live/LiveSearchAction";
 import {buildAccentPrompt} from "../teacher/teacherAccent";
 import {awardCreatureChatEnergy} from "../pages/creatureChatRewards.mjs";
 import {trackUsageEvent,sessionDurationDetail} from "../analytics/usage";
+import {advanceHomeFriendJourney} from "../analytics/homeFriendJourney";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
@@ -126,7 +127,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   return {
    system:scopedSystem+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+(!shortsPost?CURRENT_FACTS:"")+creatureContext,
   openingPrompt:languageDirective+"\n"+buildFriendVoiceOpening({name:friend.name,languageDirective,shortsPost:!!shortsPost,
-   shortsHook,selectedQuestion,lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
+   shortsHook,selectedQuestion,lifeOpening:openingRecall.returning&&openingRecall.verifiedTopic?"":lifeOpening,conversationHint:fortuneContinue||gameRoundStarter(language,friend.name,window.location.search)||conversationOpening(intent,"friend"),
    conversationStyle:"one easy conversational observation",creatureContext,...openingRecall}),
   };
  };
@@ -149,6 +150,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
    // Confirmed two-sided exchange only, including guest Live and keyboard; store no transcript.
    recordFriendActivity(sessionId,"voice");
    recordFriendVoiceExchange(sessionId,language);
+   if(bubbleEntry)advanceHomeFriendJourney(sessionId,"reply");
    if(creatureEmbed){creatureBridge.reportTurn(turn);return;}
    if(turn.id)try{awardCreatureChatEnergy("friend-voice",creatureRewardSession.current+":"+turn.id)}catch{}
   },
@@ -187,7 +189,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   closingRef.current=true;
   try{await live.stop(true)}finally{navigate(shortsReturnTo|| (intent==="speak"?"/learn":"/teacher/roles?mode=friends"))}
  };
- useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry)trackUsageEvent("home_live_bubble_connected")}},[live.state]);
+ useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry){trackUsageEvent("home_live_bubble_connected");advanceHomeFriendJourney(sessionId,"verify")}}},[live.state]);
  useEffect(()=>{if(textFirst||creatureEmbed||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textFirst,shortsPost,creatureEmbed]);
  useFriendBodyTheme(creatureEmbed);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
