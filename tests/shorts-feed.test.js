@@ -58,7 +58,9 @@ test("Crew Shorts never plays a generic browser voice that disagrees with the ch
 test("Crew Shorts Live resolves post ID against friend and safe published feed",()=>{
  const live=load("web-spa/src/friends/FriendLiveConversation.tsx");
  const parser=load("web-spa/src/teacher/shortsFeed.ts");
- assert.match(live,/fetchShortsPost/);
+ const route=load("web-spa/src/friends/FriendLivePage.tsx");
+ assert.match(route,/fetchShortsPost\(postId,friendId\|\|"",abort.signal\)/);
+ assert.match(route,/<FriendLiveConversation shortsPost=/);
  assert.match(live,/buildShortsFriendContext\(shortsPost\)/);
  assert.match(live,/postUnavailable/);
  assert.match(live,/shorts_conversation/);
