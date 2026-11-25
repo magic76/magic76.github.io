@@ -44,7 +44,8 @@ test("Entering Fortune Live starts Friend narration without another click",()=>{
  // The same start call requests mic permission and uses the chart-based opening.
  assert.match(voice,/openingPrompt:opening/);
  assert.match(session,/await session\.start\(\)/);
- assert.match(session,/openingPrompt:configRef\.current\.openingPrompt/);
+ assert.match(session,/const sessionContext=configRef\.current\.resolveSessionContext\?\.\(\)\|\|configRef\.current/);
+ assert.match(session,/openingPrompt:sessionContext\.openingPrompt/);
  // If permission is denied or the connection fails, the UI still allows retry.
  assert.match(controls,/live\.errorKind==="mic"/);
  assert.match(controls,/onClick=\{\(\)=>void live\.start\(\)\}/);
