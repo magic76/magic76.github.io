@@ -92,7 +92,7 @@ jobs:
           echo "PASS: 0 new failing cases vs master; full npm test runs finished before the builds"
       - name: Validate Live-first Friend memory and guest token security
         if: github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'chatgpt/live-first-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/live-only-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/friend-memory-recall-scroll')
-        run: node --test tests/friend-memory-failures.test.js tests/friend-memory-provenance.test.js tests/friend-voice-opening.test.js tests/friend-call-chat-bubbles.test.js tests/friend-unified-live.test.js tests/short-chat-memory.test.js tests/guest-trial.test.js tests/live-search-isolation.test.js tests/mic-denied-text-handoff.test.js tests/crew-live.lifecycle.test.js tests/free-daily-quotas.test.mjs
+        run: node --test tests/friend-memory-failures.test.js tests/friend-memory-provenance.test.js tests/friend-voice-opening.test.js tests/friend-call-chat-bubbles.test.js tests/friend-unified-live.test.js tests/browser-speech-recognition.test.js tests/short-chat-memory.test.js tests/guest-trial.test.js tests/live-search-isolation.test.js tests/mic-denied-text-handoff.test.js tests/crew-live.lifecycle.test.js tests/free-daily-quotas.test.mjs
       - name: Validate Kokoro learning speech regression tests
         if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'chatgpt/kokoro-lab-en'
         run: node --test tests/chat-recall.test.js tests/text-chat-learning.test.js tests/learning-speech-phrases.test.js tests/learning-speech-multilingual.test.js tests/learning-speech-cache.test.js
