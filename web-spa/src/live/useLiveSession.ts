@@ -399,7 +399,7 @@ export function useLiveSession(config:Config){
        if(configRef.current.sessionKind==="friend")scheduleFriendReplyCheck();
       }else recoveryRequestRef.current=false;
     },
-     onTranscriptTurn:(turn,all)=>{if(!isActive())return;cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());if(feedbackAllowed){const correction=feedbackQueue.current.complete(turn.input);if(correction)setLearningFeedback(previous=>({...previous,[all.length-1]:correction}))}if(!guestModeRef.current)configRef.current.onConfirmedTranscript?.(turn)},
+     onTranscriptTurn:(turn,all)=>{if(!isActive())return;cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());if(feedbackAllowed){const correction=feedbackQueue.current.complete(turn.input,memoryConfig.language);if(correction)setLearningFeedback(previous=>({...previous,[all.length-1]:correction}))}if(!guestModeRef.current)configRef.current.onConfirmedTranscript?.(turn)},
     onTurnComplete:turn=>{
        if(!isActive())return;
        feedbackQueue.current.clear();

@@ -5,5 +5,6 @@ export const LEARNING_FEEDBACK_FUNCTION:string;
 export const LEARNING_FEEDBACK_TOOL:Record<string,unknown>;
 export const LEARNING_FEEDBACK_POLICY:string;
 export function validateLearningFeedback(args:unknown):LearningFeedback|null;
-export function createLearningFeedbackQueue():{propose(call:{id?:string;args?:unknown}):Record<string,unknown>;complete(input?:string):LearningFeedback|null;clear():void};
+export function preservesEnglishGrammarContent(original:string,corrected:string):boolean;
+export function createLearningFeedbackQueue():{propose(call:{id?:string;args?:unknown}):Record<string,unknown>;complete(input?:string,language?:string):LearningFeedback|null;clear():void};
 export function appendLearningFeedbackTool(tools?:ToolGroup[]):ToolGroup[];
