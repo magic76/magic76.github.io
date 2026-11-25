@@ -1,0 +1,9 @@
+export type LearningFeedback={original:string;corrected:string;explanation:string;type:"grammar"|"wording"|"natural"};
+export type LearningFeedbackByTurn=Record<number,LearningFeedback>;
+type ToolGroup={functionDeclarations:Array<Record<string,unknown>>}|{googleSearch:Record<string,never>};
+export const LEARNING_FEEDBACK_FUNCTION:string;
+export const LEARNING_FEEDBACK_TOOL:Record<string,unknown>;
+export const LEARNING_FEEDBACK_POLICY:string;
+export function validateLearningFeedback(args:unknown):LearningFeedback|null;
+export function createLearningFeedbackQueue():{propose(call:{id?:string;args?:unknown}):Record<string,unknown>;complete(input?:string):LearningFeedback|null;clear():void};
+export function appendLearningFeedbackTool(tools?:ToolGroup[]):ToolGroup[];
