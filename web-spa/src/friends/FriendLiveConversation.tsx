@@ -14,6 +14,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {detectNativeLanguage} from "../teacher/teacherLocale";
 import {useLiveSession} from "../live/useLiveSession";
 import {useFriendRecognition} from "./useFriendRecognition";
+import {browserSpeechLanguagePair} from "../live/browserSpeechRecognition";
 import {createElementPlayback} from "../live/createElementPlayback";
 import {useCreatureStageSync,useCreatureVoiceBridge} from "./useCreatureVoiceBridge";
 import {creatureVoiceInstruction} from "./creatureVoiceBridge.mjs";
@@ -139,6 +140,9 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   pageKey:"friend-"+sessionId,title:"Koolo 朋友 · "+friend.name,
   ...resolveSessionContext(),resolveSessionContext,languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
+  // URL-scoped comparison: the existing voice WS, never a second ASR request.
+  // All reply modes receive the same mother-tongue + target-language hints.
+  inputLanguageCodes:params.get("asrHints")==="1"?browserSpeechLanguagePair(language,friendNativeLanguage,"natural"):undefined,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",protectOpening:true,
   ...friendLiveMemoryConfig(liveMemory,!creatureEmbed),
   onInputSpeech:replyHints.onInputSpeech,

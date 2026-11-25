@@ -76,3 +76,10 @@ test("automatic recognition label uses the language returned by the recognition 
  assert.match(page,/const \{[^}]*automaticRecognitionLanguage[^}]*\}=useFriendRecognition/);
  assert.match(page,/browserRecognitionAuto"\)\} · \{automaticRecognitionLanguage\}/);
 });
+
+test("Gemini native ASR experiment uses both configured languages, independent of chat mode",()=>{
+ const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
+ const hook=read("web-spa/src/live/useLiveSession.ts");
+ assert.match(page,/inputLanguageCodes:params\.get\("asrHints"\)==="1"\?browserSpeechLanguagePair\(language,friendNativeLanguage,"natural"\):undefined/);
+ assert.match(hook,/inputLanguageCodes:configRef\.current\.inputLanguageCodes/);
+});
