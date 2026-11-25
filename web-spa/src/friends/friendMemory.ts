@@ -50,12 +50,15 @@ function emitMemoryChange(){if(typeof window!=="undefined")window.dispatchEvent(
 export type FriendCaptureStatus=""|"pending"|"saved"|"updated"|"empty"|"error"|"error-key"|"error-quota"|"error-network"|"error-service"|"error-response";
 export function getFriendCaptureStatus(id:string,language:string):FriendCaptureStatus{
  if(!friendMemoryEnabled()||!validFriend(id))return "";
- return (localStorage.getItem(CAPTURE_STATUS+captureKey(id,language))||"") as FriendCaptureStatus;
+ const k=captureKey(id,language),status=(localStorage.getItem(CAPTURE_STATUS+k)||"") as FriendCaptureStatus;
+ // An interrupted old text request cannot resume after a page reload. Do not show an orphaned spinner.
+ return status==="pending"&&![...pendingCaptures.keys()].some(key=>key.startsWith(k+":"))?"":status;
 }
-function captureStarted(id:string,language:string){
+function captureStarted(id:string,language:string,showPending=true){
  const k=captureKey(id,language),key=CAPTURE_REQUEST+k;
  const request=Number(localStorage.getItem(key)||0)+1;
- localStorage.setItem(key,String(request));localStorage.setItem(CAPTURE_STATUS+k,"pending");emitMemoryChange();
+ localStorage.setItem(key,String(request));
+ if(showPending){localStorage.setItem(CAPTURE_STATUS+k,"pending");emitMemoryChange()}
  return request;
 }
 function captureFinished(id:string,language:string,request:number,status:FriendCaptureStatus){
@@ -274,7 +277,6 @@ export const FRIEND_MEMORY_TOOLS=[{functionDeclarations:[{
 /** Tool calls may precede the final transcript. Keep proposals in RAM until a verified completed exchange. */
 export function createFriendLiveMemory(id:string,language:string){
  let pending:{epoch:number;topics:unknown[]}[]=[];
- let saved=false,unavailable=false;
  const seen=new Set<string>();
  return {
   onCall(call:{id?:string;name:string;args?:unknown}):Record<string,unknown>{
@@ -296,17 +298,14 @@ export function createFriendLiveMemory(id:string,language:string){
    if(!hasMeaningfulLearnerSpeech(speech))return;
    const topics=queued.filter(q=>q.epoch===epoch()).flatMap(q=>q.topics);
    if(!topics.length)return;
-   const token=captureStarted(id,language);
+   const token=captureStarted(id,language,false);
    try{
     const {added,updated}=applyVerifiedFriendTopics(id,language,speech,topics);
-    if(added||updated){saved=true;localStorage.setItem(CAPTURE_SOURCE+captureKey(id,language),"Live");}
+    if(added||updated)localStorage.setItem(CAPTURE_SOURCE+captureKey(id,language),"Live");
     captureFinished(id,language,token,added?"saved":updated?"updated":"empty");
    }catch{captureFinished(id,language,token,"error")}
   },
-  toolsUnavailable(){unavailable=true},
-  shouldCheckpointFallback(){return unavailable&&!saved},
-  hasSaved(){return saved},
-  reset(){pending=[];seen.clear();saved=false;unavailable=false}
+  reset(){pending=[];seen.clear()}
  };
 }
 
@@ -318,8 +317,7 @@ export function friendLiveMemoryConfig(memory:ReturnType<typeof createFriendLive
   guestMemoryTools:enabled?FRIEND_MEMORY_TOOLS:undefined,
   onMemorySessionStart:()=>memory.reset(),
   onGuestMemoryTurn:(turns:LiveTurn[])=>memory.complete(turns),
-  onToolCall:(call:{id?:string;name:string;args?:unknown})=>memory.onCall(call),
-  onToolsUnavailable:()=>memory.toolsUnavailable()
+  onToolCall:(call:{id?:string;name:string;args?:unknown})=>memory.onCall(call)
  };
 }
 

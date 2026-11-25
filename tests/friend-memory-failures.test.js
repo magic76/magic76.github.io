@@ -172,10 +172,9 @@ test("Live completion saves the finished transcript, not stale React state",()=>
  const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLiveConversation.tsx"),"utf8");
  assert.match(shared,/onTurnComplete\?\.\(turn,turnsRef\.current\.slice\(\)\)/);
  assert.match(friend,/onTurnComplete:\(_turn,completedTurns\)=>/);
- assert.match(friend,/rememberFriendConversation\(sessionId,language,completedTurns,0\)/);
- assert.match(friend,/checkpointCountRef\.current>=3/);
- assert.match(friend,/learnerTurns-lastCheckpointTurnRef\.current<3/);
- assert.match(friend,/rememberFriendConversation\(sessionId,language,item\.turns,item\.durationMs\)/);
+ assert.match(friend,/liveMemory\.complete\(completedTurns\)/);
+ assert.doesNotMatch(friend,/rememberFriendConversation|shouldCheckpointFallback|checkpointCountRef/);
+ assert.match(friend,/recordFriendChat\(sessionId,language,item\.turns,item\.durationMs\);\s*liveMemory\.reset\(\)/);
  assert.doesNotMatch(friend,/const snapshot=live\.turns/);
 });
 
@@ -199,7 +198,7 @@ test("Live memory is queued until a verified completed turn, without text model"
  live.complete(turns);
  assert.equal(friends.getFriendTopics("zoe","英文").length,1);
  assert.equal(friends.getFriendCaptureSource("zoe","英文"),"Live");
- assert.equal(live.hasSaved(),true);
+ assert.equal(friends.getFriendCaptureStatus("zoe","英文"),"saved");
  assert.equal(requests,0);
  assert.equal(friends.getFriendTopics("yuna","英文").length,0);
  assert.equal(friends.getFriendTopics("zoe","日文").length,0);
@@ -222,6 +221,23 @@ test("Live memory rejects assistant-only evidence and revoked consent",()=>{
  friends.clearFriendTopics("zoe","英文");
  live.complete(turns);
  assert.equal(friends.getFriendTopics("zoe","英文").length,0);
- live.toolsUnavailable();
- assert.equal(live.shouldCheckpointFallback(),true);
+ live.onCall({name:"save_friend_memory",args:valid});
+ live.reset();
+ live.complete(turns);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,0,"hangup discards unverified pending proposals");
+});
+
+
+test("orphaned pending status is hidden, without deleting existing memories",()=>{
+ const {friends,localStorage}=setup(async()=>{throw Error("unexpected text call")});
+ const live=friends.createFriendLiveMemory("zoe","英文");
+ live.onCall({name:"save_friend_memory",args:valid});
+ live.complete(turns);
+ // Use a known normalized language explicitly to avoid depending on locale aliases.
+ const liveEn=friends.createFriendLiveMemory("zoe","en");
+ liveEn.onCall({name:"save_friend_memory",args:valid});
+ liveEn.complete(turns);
+ localStorage.setItem("crew_friend_capture_status_v1_zoe_en","pending");
+ assert.equal(friends.getFriendCaptureStatus("zoe","en"),"");
+ assert.equal(friends.getFriendTopics("zoe","en").length,1);
 });
