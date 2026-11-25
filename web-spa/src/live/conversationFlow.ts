@@ -2,7 +2,7 @@ import type {LiveTurn} from "../lib/runtime";
 
 export type ConversationFlowKind = "friend" | "teacher";
 
-/** Common conversation policy for natural teacher chat and fictional Crew Friends only. */
+/** Friend-only conversational rhythm. Teachers use a separate learning-oriented policy. */
 export function freeChatRhythmPrompt():string{
  return "[CONVERSATION MOMENTUM — REACT · SHARE · EXPLORE · PIVOT]\n"+
   "Respond to the person's MEANING before anything else. Add one small conversational hook: a relevant observation, "+
@@ -16,7 +16,7 @@ export function freeChatRhythmPrompt():string{
   "If they engage with a detailed answer, stay on that thread instead of changing subjects. "+
   "If they are worried or upset, acknowledge it before joking; if they want to stop, let the conversation end. "+
   "As a Crew Friend share natural fictional opinions. Do not invent human experiences or shared memories. "+
-  "As a Crew Teacher support spontaneous conversation, not unsolicited correction, compulsory repetition or testing. "+
+  "As a Crew Friend support spontaneous conversation, not unsolicited correction, compulsory repetition or testing. "+
   "Keep spoken turns concise (usually one or two sentences), offer one opening for continuation, and respect silence.";
 }
 
@@ -59,9 +59,15 @@ export class ConversationFlowState{
   return this.detailedReplies>0?11000:9000;
  }
  rescue(kind:ConversationFlowKind,attempt=0):string{
-  const role=kind==="friend"
-   ?"Stay the same Crew Friend; NEVER switch to teaching or a roleplay. "
-   :"Stay the same Crew Teacher in free speaking chat; no drills or compulsory repetition. ";
+  if(kind==="teacher"){
+   const support=this.needsPivot()
+    ?"The learner may need an easier way to express the idea. Stop probing. Give one short useful target-language model or two simple choices on the current topic. "
+    :attempt>0?"This is the final gentle nudge. Offer one short starter phrase or a simpler alternative; do not repeat the previous question. "
+    :"Offer one short hint, example or sentence starter that helps the learner express their own idea on the current topic. ";
+   return "[TEACHER PRACTICE CONTINUATION — silent control] The learner has paused. Stay the same Crew Teacher; no drills or compulsory repetition. "+support+
+    "Follow the selected teaching mode and level; use native support only when allowed. Never grade silence or invent an error. Keep it optional, then give them room to answer.";
+  }
+  const role="Stay the same Crew Friend; NEVER switch to teaching or a roleplay. ";
   const nudge=this.needsPivot()
    ?"The chat has become a question/short-answer loop. Stop probing this subject. Offer one lightly related observation, witty angle or fresh topic WITHOUT requiring an answer. "
    :attempt>0
