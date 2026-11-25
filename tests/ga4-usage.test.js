@@ -209,6 +209,8 @@ test("AI referral source uses exact known hosts or sanitized campaign labels",()
  assert.equal(ga.aiReferralSource("https://chatgpt.com.example.org/",""),"");
  assert.equal(ga.aiReferralSource("https://google.com/",""),"");
  assert.equal(ga.aiReferralSource("","?utm_source=arbitrary"),"");
+ assert.equal(ga.aiReferralSource("","?utm_source=constructor"),"");
+ assert.equal(ga.aiReferralSource("","?utm_source=__proto__"),"");
 });
 test("AI acquisition enum accompanies eligible initial and subsequent events without raw URLs",()=>{
  const ga=harness({referrer:"https://chatgpt.com/c/private-id?secret=never-send"});
