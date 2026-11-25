@@ -1,3 +1,4 @@
+import {appendLearningFeedbackTool} from "../../../web-spa/src/live/learningFeedback.mjs";
 /** Crew guest Live trial. All long-lived credentials stay on the Worker. */
 import {quotaV2,readFreeQuotaPolicy,freeQuotaDay,reserveVoiceCapacity,releaseVoiceCapacity,reserveGuestVoice,releaseGuestVoice} from "../../../server/free-quota.mjs";
 const json=(value,status=200)=>new Response(JSON.stringify(value),{
@@ -168,7 +169,10 @@ export const GUEST_FRIEND_MEMORY_TOOLS=[{functionDeclarations:[{
 function guestFriendMemoryRequested(input,env){
  return env.GUEST_FRIEND_MEMORY_ENABLED!=="0"&&input?.role==="friend"&&input?.friendMemory===true;
 }
-async function mintToken(key,now,friendMemory=false){
+function guestLearningFeedbackRequested(input,env){
+ return env.GUEST_LEARNING_FEEDBACK_ENABLED!=="0"&&["friend","teacher"].includes(input?.role)&&input?.learningFeedback===true;
+}
+async function mintToken(key,now,friendMemory=false,learningFeedback=false){
  const body={
   uses:1,
   expireTime:new Date(now+310000).toISOString(),
@@ -178,7 +182,7 @@ async function mintToken(key,now,friendMemory=false){
   bidiGenerateContentSetup:{
    model:"models/"+LIVE_MODEL,
    generationConfig:{responseModalities:["AUDIO"]},
-   tools:friendMemory===true?GUEST_FRIEND_MEMORY_TOOLS:[]
+   tools:learningFeedback?appendLearningFeedbackTool(friendMemory===true?GUEST_FRIEND_MEMORY_TOOLS:[]):friendMemory===true?GUEST_FRIEND_MEMORY_TOOLS:[]
   },
   fieldMask:"model,generationConfig.responseModalities,tools"
  };
@@ -211,7 +215,7 @@ export async function memberTicket(raw,secret){
  }catch{return null}
 }
 async function issueMemberTrial(input,env){
- const friendMemory=guestFriendMemoryRequested(input,env);
+ const friendMemory=guestFriendMemoryRequested(input,env),learningFeedback=guestLearningFeedbackRequested(input,env);
  const member=await memberTicket(input.authTicket,env.CREW_GUEST_TICKET_SECRET);
  if(!member)return json({error:"Sign-in required",code:"SIGNIN_REQUIRED"},401);
  try{
@@ -235,9 +239,9 @@ async function issueMemberTrial(input,env){
   if(quota.meta?.changes!==1)return json({error:"Trial already used",code:"ALREADY_USED"},429);
   reserved=true;
   const issuedAt=Date.now();
-  const token=await mintToken(selectGuestGeminiKey(env),issuedAt,friendMemory);
+  const token=await mintToken(selectGuestGeminiKey(env),issuedAt,friendMemory,learningFeedback);
   minted=true;
-  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,...(friendMemory?{friendMemory:true}:{}),
+  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,...(friendMemory?{friendMemory:true}:{}),...(learningFeedback?{learningFeedback:true}:{}),
    issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+310000).toISOString()});
  }catch{return json({error:"Guest trial temporarily unavailable"},503)}
  finally{
@@ -250,7 +254,7 @@ async function issueMemberTrial(input,env){
  }
 }
 
-async function issueDailyAnonymousTrial(request,env,day,friendMemory=false){
+async function issueDailyAnonymousTrial(request,env,day,friendMemory=false,learningFeedback=false){
  const db=env.CREW_AUTH_DB;
  const hash=await fingerprint(request.headers.get("cf-connecting-ip"),request.headers.get("user-agent"),env.GUEST_TURNSTILE_SECRET);
  let claimed=false,minted=false;
@@ -260,9 +264,9 @@ async function issueDailyAnonymousTrial(request,env,day,friendMemory=false){
   claimed=true;
   const limit=await env.GUEST_TRIAL_RATE_LIMITER.limit({key:"crew-public-guest"});
   if(limit?.success!==true)return json({code:"DAILY_LIMIT"},429);
-  const issuedAt=Date.now(),token=await mintToken(selectGuestGeminiKey(env),issuedAt,friendMemory);
+  const issuedAt=Date.now(),token=await mintToken(selectGuestGeminiKey(env),issuedAt,friendMemory,learningFeedback);
   minted=true;
-  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,...(friendMemory?{friendMemory:true}:{}),issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+310000).toISOString()});
+  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,...(friendMemory?{friendMemory:true}:{}),...(learningFeedback?{learningFeedback:true}:{}),issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+310000).toISOString()});
  }catch{return json({error:"Guest trial temporarily unavailable"},503)}
  finally{
   if(claimed&&!minted)try{await releaseGuestVoice(db,hash,day)}catch{}
@@ -278,7 +282,7 @@ async function issueV2Trial(request,input,env){
   if(isMember&&!await memberTicket(input.authTicket,env.CREW_GUEST_TICKET_SECRET))return json({code:"SIGNIN_REQUIRED"},401);
   if(!await reserveVoiceCapacity(db,day,policy.voiceCap))return json({code:"DAILY_LIMIT"},429);
   reserved=true;
-  const result=isMember?await issueMemberTrial(input,env):await issueDailyAnonymousTrial(request,env,day,guestFriendMemoryRequested(input,env));
+  const result=isMember?await issueMemberTrial(input,env):await issueDailyAnonymousTrial(request,env,day,guestFriendMemoryRequested(input,env),guestLearningFeedbackRequested(input,env));
   issued=result.ok;
   return result;
  }catch{return json({error:"Guest trial temporarily unavailable"},503)}
@@ -311,7 +315,7 @@ export async function onRequestPost({request,env}){
   if(!await verifyCaptcha(input.challengeToken,ip,env.GUEST_TURNSTILE_SECRET,url.hostname))
    return json({error:"Verification failed"},403);
  }catch{return json({error:"Verification temporarily unavailable"},503)}
- const friendMemory=guestFriendMemoryRequested(input,env);
+ const friendMemory=guestFriendMemoryRequested(input,env),learningFeedback=guestLearningFeedbackRequested(input,env);
  if(quotaV2(env))return issueV2Trial(request,input,env);
  // In meter-only mode, signed-in visitors receive account-counted trials,
  // while unsigned visitors retain the existing anonymous flow.
@@ -327,8 +331,8 @@ export async function onRequestPost({request,env}){
   }catch{return json({error:"Guest limiter unavailable"},503)}
   try{
    const issuedAt=Date.now();
-   const token=await mintToken(selectGuestGeminiKey(env),issuedAt,friendMemory);
-   return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,...(friendMemory?{friendMemory:true}:{}),
+   const token=await mintToken(selectGuestGeminiKey(env),issuedAt,friendMemory,learningFeedback);
+   return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,...(friendMemory?{friendMemory:true}:{}),...(learningFeedback?{learningFeedback:true}:{}),
     issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+310000).toISOString()});
   }catch{return json({error:"Guest trial temporarily unavailable"},503)}
  }
@@ -354,9 +358,9 @@ export async function onRequestPost({request,env}){
   if(quota.meta?.changes!==1)return json({error:"Today's trial capacity reached",code:"DAILY_LIMIT"},429);
   reserved=true;
   const issuedAt=Date.now();
-  const token=await mintToken(selectGuestGeminiKey(env),issuedAt,friendMemory);
+  const token=await mintToken(selectGuestGeminiKey(env),issuedAt,friendMemory,learningFeedback);
   minted=true;
-  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,...(friendMemory?{friendMemory:true}:{}),issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+310000).toISOString()});
+  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,...(friendMemory?{friendMemory:true}:{}),...(learningFeedback?{learningFeedback:true}:{}),issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+310000).toISOString()});
  }catch{
   return json({error:"Trial temporarily unavailable"},503);
  }finally{
