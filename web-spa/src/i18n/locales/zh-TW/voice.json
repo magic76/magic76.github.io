@@ -285,6 +285,10 @@
     }
   },
   "callCaptions": {
+    "browserRecognition": "瀏覽器語音辨識",
+    "browserRecognitionNotice": "實驗功能：可能使用瀏覽器雲端語音服務，並影響通話音訊。",
+    "browserRecognitionFailed": "辨識不可用，已保留原字幕。",
+    "browserRecognitionLabel": "瀏覽器辨識",
     "aria": "雙語通話字幕",
     "more": "更多選項",
     "closeMenu": "關閉選單",

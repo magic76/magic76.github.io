@@ -285,6 +285,10 @@
     }
   },
   "callCaptions": {
+    "browserRecognition": "Spracherkennung im Browser",
+    "browserRecognitionNotice": "Experimentell: Kann den Cloud-Sprachdienst des Browsers nutzen und den Anrufton beeinflussen.",
+    "browserRecognitionFailed": "Spracherkennung nicht verfügbar. Die ursprünglichen Untertitel bleiben erhalten.",
+    "browserRecognitionLabel": "Browser-Erkennung",
     "aria": "Zweisprachige Anrufuntertitel",
     "more": "Weitere Optionen",
     "closeMenu": "Optionen schließen",
