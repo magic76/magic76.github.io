@@ -61,15 +61,18 @@ test("Three-minute speaking is a compact secondary link with all five destinatio
 });
 
 
-test("Learn exposes the teacher gallery above the daily learning action",()=>{
+test("Learn prioritizes teacher speaking and keeps the daily dashboard collapsed",()=>{
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  const picker=read("web-spa/src/teacher/CurrentTeacherCard.tsx");
  const tutor=read("web-spa/src/teacher/TutorPage.tsx");
  const focus=read("web-spa/src/teacher/LearningFocusCard.tsx");
  const extras=read("web-spa/src/pages/LearnHubExtras.tsx");
  const css=read("web-spa/src/pages/crewSections.css");
+ assert.ok(hub.indexOf("<CurrentTeacherCard/>")<hub.indexOf("<LearnHubExtras tools="));
+ assert.ok(hub.indexOf("<LearnHubExtras tools=")<hub.indexOf("<LearningFocusCard/>"));
  assert.ok(hub.indexOf("<LearningFocusCard/>")<hub.indexOf("<LearningSnapshot compact/>"));
- assert.ok(hub.indexOf("<LearningSnapshot compact/>")<hub.indexOf("<CurrentTeacherCard/>"));
+ assert.match(hub,/<details className="crew-learn-progress-details">/);
+ assert.match(hub,/<summary>\{tTeacher\("my\.kicker"\)\}<\/summary>/);
  assert.ok(picker.includes('to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}}'));
  assert.ok(picker.includes('className="crew-learn-teacher-start" to="/teacher/live"'));
  assert.ok(picker.includes('t("tutor.start",{name:teacher.name})'));
@@ -93,7 +96,7 @@ test("Learn exposes the teacher gallery above the daily learning action",()=>{
 test("Issue 811 reuses the existing plan and shows compact lesson/review counts",()=>{
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  const snapshot=read("web-spa/src/teacher/LearningSnapshot.tsx");
- assert.match(hub,/<LearningFocusCard\/>\s*<LearningSnapshot compact\/>\s*<CurrentTeacherCard\/>/);
+ assert.match(hub,/<details className="crew-learn-progress-details">[\s\S]*?<LearningFocusCard\/>\s*<LearningSnapshot compact\/>[\s\S]*?<\/details>/);
  assert.match(snapshot,/COURSE_LESSONS\.length/);
  assert.match(snapshot,/dueDeckItems\(\)/);
  assert.match(snapshot,/to="\/teacher\/phrasebook"/);
