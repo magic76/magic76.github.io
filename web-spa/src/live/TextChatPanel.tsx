@@ -1,6 +1,5 @@
 import {LiveTextConversation,easyFriendTextReplyRule} from "./liveTextChat";
 import {GUEST_TOKEN_ENDPOINT} from "../lib/guestTrial";
-import {awardCreatureChatEnergy} from "../pages/creatureChatRewards.mjs";
 import {GuestKeyRecovery} from "./GuestKeyRecovery";
 import {textChatByokMessage} from "./textChatByokMessage";
 import {useFriendTextLearning,FriendLearningCheck,FriendLearningTip,FriendLearningSummary,FriendLearningActions} from "./TextChatLearning";
@@ -60,8 +59,6 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
  const {t}=useTranslation("voice");
  const isFriend=sessionScope.startsWith("friend:");
  const chatFriend=isFriend?getCrewFriend(sessionScope.split(":")[1]):null;
- const creatureRewardSession=useRef("s"+Date.now().toString(36)+Math.random().toString(36).slice(2));
- const creatureRewardTurn=useRef(0);
  const learning=useFriendTextLearning(system,sessionScope);
  const fallbackReplies=useFriendNextReplyFallback(system);
  const [nextReplies,setNextReplies]=useState<string[]|"fallback"|null>(null);
@@ -287,8 +284,6 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
     pendingSend.current=null;
     setMessages(complete);
     setNextReplies(isFriend?(replyFallback||parsed?.replies||"fallback"):null);
-    try{awardCreatureChatEnergy(isFriend?"friend-text":"teacher-text",
-      creatureRewardSession.current+":"+(++creatureRewardTurn.current))}catch{}
     try{onExchange?.()}catch{/* Usage tracking must not roll back a successful reply. */}
    }
   }catch(reason){
