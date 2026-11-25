@@ -24,7 +24,11 @@ test("Japanese learner names are localized in Learn, tutor, hub and onboarding",
   const src=read(file);
   assert.match(src,/t\("friends:languages\."\+/);
   assert.match(src,/localizedNativeName\(/);
-  assert.match(src,/teacherLanguageHomeHint\(/);
+  if(file.endsWith("CrewSectionPage.tsx")){
+   assert.match(src,/t\("teacher:languageHint\."\+/);
+   assert.match(src,/\{native:shownNativeName,target:shownTargetName\}/);
+   assert.match(src,/role="note">\{shownHint\}<\/p>/);
+  }else assert.match(src,/teacherLanguageHomeHint\(/);
  }
  assert.match(read("web-spa/src/onboarding/LearningLanguageGate.tsx"),/localizedNativeName\(/);
  assert.match(read("web-spa/src/teacher/PracticePage.tsx"),/t\("friends:languages\."\+target/);
