@@ -77,6 +77,7 @@
   }
 
   function mergeTranscript(base,chunk){
+    var explicitBoundary=/\s$/.test(base||"")||/^\s/.test(chunk||"");
     base=(base||"").trim();
     chunk=(chunk||"").trim();
     if(!chunk)return base;
@@ -88,9 +89,19 @@
     for(var i=max;i>0;i--){
       if(base.slice(-i)===chunk.slice(0,i)){overlap=i;break;}
     }
+    // Whitespace supplied by the provider marks a word boundary, not an overlap.
+    // A single matching Latin letter is also too weak to dedupe (personality + you).
+    if(explicitBoundary||overlap===1&&/\p{Script=Latin}$/u.test(base)&&/^\p{Script=Latin}/u.test(chunk))overlap=0;
     var tail=chunk.slice(overlap);
     if(!tail)return base;
-    var needsSpace=/[A-Za-z0-9]$/.test(base)&&/^[A-Za-z0-9]/.test(tail);
+    // Latin word and sentence boundaries need a space; punctuation itself, CJK,
+    // contractions, decimals, and numeric grouping must remain intact.
+    var latinOrNumber=/^[\p{Script=Latin}\p{N}]/u.test(tail);
+    var wordBoundary=/[\p{Script=Latin}\p{N}]$/u.test(base)&&latinOrNumber;
+    var punctuationBoundary=/[.!?,;:](?:[”’"\)\]])?$/u.test(base)&&/^\p{Script=Latin}/u.test(tail);
+    // Keep initials such as U.S. intact when streamed as individual letters.
+    if(/(?:^|\s|\.)[A-Z]\.$/.test(base)&&/^[A-Z]\./.test(tail))punctuationBoundary=false;
+    var needsSpace=wordBoundary||punctuationBoundary||(explicitBoundary&&/[.!?,;:]$/.test(base)&&latinOrNumber);
     return base+(needsSpace?" ":"")+tail;
   }
 
