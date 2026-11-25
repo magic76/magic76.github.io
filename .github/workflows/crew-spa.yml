@@ -156,6 +156,35 @@ jobs:
         run: node --test tests/video-tts.test.mjs
       - name: Validate first-party usage analytics contract
         run: node --test tests/crew-usage.test.js
+      - name: Verify P0 usage and recovery against current master
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'chatgpt/koolo-usage-p0'
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          MERGE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$BASE_SHA" "$MERGE_SHA"
+          for snapshot in base merge; do
+            sha="$BASE_SHA"
+            if [ "$snapshot" = merge ]; then sha="$MERGE_SHA"; fi
+            dir="$RUNNER_TEMP/koolo-usage-p0-$snapshot"
+            git worktree add --detach "$dir" "$sha"
+            ln -s "$GITHUB_WORKSPACE/node_modules" "$dir/node_modules"
+            (cd "$dir" && npm test) > "$RUNNER_TEMP/usage-p0-$snapshot.log" 2>&1 || true
+            log="$RUNNER_TEMP/usage-p0-$snapshot.log"
+            if ! grep -Eq "^# tests [0-9]+" "$log"; then tail -60 "$log"; exit 1; fi
+            (grep -E "^[[:space:]]*not ok [0-9]+ - " "$log" || true) | sed -E "s/^[[:space:]]*not ok [0-9]+ - //" | LC_ALL=C sort -u > "$RUNNER_TEMP/usage-p0-$snapshot.failures"
+            echo "$snapshot failed cases: $(wc -l < "$RUNNER_TEMP/usage-p0-$snapshot.failures")"
+          done
+          LC_ALL=C comm -13 "$RUNNER_TEMP/usage-p0-base.failures" "$RUNNER_TEMP/usage-p0-merge.failures" > "$RUNNER_TEMP/usage-p0-new.failures"
+          if [ -s "$RUNNER_TEMP/usage-p0-new.failures" ]; then cat "$RUNNER_TEMP/usage-p0-new.failures"; exit 1; fi
+          echo "PASS: zero new npm test failures in the actual merge candidate"
+          cd "$RUNNER_TEMP/koolo-usage-p0-merge"
+          npm run check:web
+          npm run build:cloudflare
+          npm run test:cloudflare
+          npm run check:bundle
       - name: Validate secure Cloudflare D1 feedback submission
         run: node --test tests/crew-feedback.test.js
       - name: Validate Telegram feedback notification safety
