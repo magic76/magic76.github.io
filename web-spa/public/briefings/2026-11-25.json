@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-25",
+  "generatedAt": "2026-11-25T05:04:20.545Z",
+  "edition": "public",
+  "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 1 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
+  "items": [
+    {
+      "id": "d1a8a8c302ae6a4a",
+      "title": "Claude Code AI agent update: - Fixed turns ending in \"Prompt is too long\" after repeated auto-compaction failures when one more compaction at the context limit",
+      "summary": "- Fixed turns ending in \"Prompt is too long\" after repeated auto-compaction failures when one more compaction at the context limit could have kept them going - Fixed freezes and runaway memory use in most cases while a hook prints output without end - Fixed a freeze and context overflow when a hook blocks or fails during a turn, or after `/compact`, with a very large log; text over about 50,000 ch",
+      "publishedAt": "2026-11-25T01:32:14Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Claude Code v2.1.332",
+          "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.332",
+          "publishedAt": "2026-11-25T01:32:14Z",
+          "kind": "官方產品更新"
+        }
+      ],
+      "score": 90,
+      "body": "- Fixed turns ending in \"Prompt is too long\" after repeated auto-compaction failures when one more compaction at the context limit could have kept them going - Fixed freezes and runaway memory use in most cases while a hook prints output without end - Fixed a freeze and context overflow when a hook blocks or fails during a turn, or after `/compact`, with a very large log; text over about 50,000 characters is now shortened - Fixed SSE MCP servers hanging or refusing every tool call after their event stream was cut and came back on a new endpoint or not at all, until reconnected by hand"
+    }
+  ]
+}
