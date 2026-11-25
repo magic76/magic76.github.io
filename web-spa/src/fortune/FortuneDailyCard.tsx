@@ -17,7 +17,7 @@ import type {FortuneProfile} from "./types";
 import "./dailyCard.css";
 
 function getProfile(chartHash?:string):Partial<FortuneProfile>|null{
- try{const charts=readDailyProfiles();return (chooseDailyProfile(charts,chartHash)||chooseDailyProfile(charts))?.profile||null;}
+ try{const charts=readDailyProfiles();return chooseDailyProfile(charts,chartHash)?.profile||null;}
  catch{return null;}
 }
 function useLocalDay(){
@@ -65,7 +65,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  const kind:DailyKind=selected==="bazi"&&profile?.birthTime?"bazi":"numerology";
  const locale=i18n.resolvedLanguage||i18n.language;
  useEffect(()=>{
-  const update=()=>{const next=chooseDailyProfile(readDailyProfiles(),chartHash)||chooseDailyProfile(readDailyProfiles());setProfile(next?.profile||null);const kind=searchParams.get("kind");setSelected(kind==="bazi"||kind==="numerology"?kind:resolveDailyKind(next?.mode||"tarot",next?.profile.birthTime,readDailyKindChoice()));setRefresh(x=>x+1);};
+  const update=()=>{const next=chooseDailyProfile(readDailyProfiles(),chartHash);setProfile(next?.profile||null);const kind=searchParams.get("kind");setSelected(kind==="bazi"||kind==="numerology"?kind:resolveDailyKind(next?.mode||"tarot",next?.profile.birthTime,readDailyKindChoice()));setRefresh(x=>x+1);};
   update();
   window.addEventListener("focus",update);
   window.addEventListener("storage",update);

@@ -19,8 +19,6 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  const [quote,setQuote]=useState<TodayQuote|null>(null);
  const [personal,setPersonal]=useState<TodayPersonal|null>(null);
  const [charts,setCharts]=useState<ChartOption[]>([]);
- const [chartHash,setChartHash]=useState<string|null>(null);
- const [revision,setRevision]=useState(0);
  const [dailyUpdated,setDailyUpdated]=useState(false);
  useEffect(()=>{
   let active=true,version=0;
@@ -41,7 +39,7 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
     void import("./personalDailyLine").then(async ({personalDailyLine})=>{
      const {readDailyProfiles,chooseDailyProfile,readDailyPreference,dailyProfileLabel}=await import("../fortune/dailyProfileSelection");
      if(!active||token!==version)return;
-     const found=readDailyProfiles(),chosen=chooseDailyProfile(found,chartHash);
+     const found=readDailyProfiles(),chosen=chooseDailyProfile(found);
      if(!chosen){updateQuote();return;}
      const pref=readDailyPreference();
      const options=found.map(chart=>({hash:chart.hash,self:chart.hash===pref.selfHash,
@@ -62,7 +60,7 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
   window.addEventListener("storage",refresh);
   window.addEventListener("crew-daily-profile-change",refresh);
   return()=>{active=false;version++;clearTimeout(timer);document.removeEventListener("visibilitychange",onVisibility);window.removeEventListener("storage",refresh);window.removeEventListener("crew-daily-profile-change",refresh)};
- },[language,chartHash,revision,t]);
+ },[language,t]);
  const isPersonal=personal?.language===language&&Boolean(personal.text);
  const readyQuote=quote?.language===language;
  const text=isPersonal?personal!.text:readyQuote?quote!.text:"";
@@ -72,9 +70,9 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
  const chatHref=isPersonal&&/^[a-f0-9]{64}$/.test(personal!.hash)?fortuneHref+"&zoe=1":"";
  const selectChart=(value:string)=>{
   if(value==="__self__"&&personal){
-   void import("../fortune/dailyProfileSelection").then(({saveDailyProfileChoice})=>{saveDailyProfileChoice(personal.hash,true);setChartHash(personal.hash);setRevision(x=>x+1)});
+   void import("../fortune/dailyProfileSelection").then(({saveDailyProfileChoice})=>{saveDailyProfileChoice(personal.hash,true)});
   }else if(charts.some(x=>x.hash===value)){
-   void import("../fortune/dailyProfileSelection").then(({saveDailyProfileChoice})=>{saveDailyProfileChoice(value);setChartHash(value);setRevision(x=>x+1)});
+   void import("../fortune/dailyProfileSelection").then(({saveDailyProfileChoice})=>{saveDailyProfileChoice(value)});
   }
  };
  return <section className={"daily-quote daily-quote--"+variant} aria-labelledby={"daily-quote-title-"+variant}>

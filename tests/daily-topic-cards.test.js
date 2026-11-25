@@ -254,3 +254,34 @@ test("personal chart selection remains compact and the exact /en and /ja desktop
  assert.match(routeI18n,/import enHome from/);
  assert.doesNotMatch(home,/isAutomatedLocaleVisitor|preferredPublicLocaleDestination/);
 });
+
+test("daily profiles: nickname, remove, restore, explicit self and no wrong-person fallback",()=>{
+ const {dailyProfileHash}=loadPureTs("web-spa/src/fortune/dailyCard.ts",["dailyProfileHash"]);
+ const h=loadPureTs("web-spa/src/fortune/dailyProfileSelection.ts",["readDailyProfiles","chooseDailyProfile","readDailyPreference","saveDailyProfileChoice","dailyProfileLabel","readDailyChartMeta","saveDailyChartMeta"],{dailyProfileHash});
+ const memory=new Map(),before=global.localStorage;
+ global.localStorage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v))};
+ try{
+  const a={birthDate:"1990-03-04",birthTime:"07:30",gender:"1"},b={birthDate:"2000-03-04",gender:"2"};
+  const ah=dailyProfileHash(a),bh=dailyProfileHash(b);
+  const readings=JSON.stringify([{profile:a,mode:"bazi"},{profile:b,mode:"tarot"}]);
+  memory.set("crew_fortune_readings_v2",readings);
+  h.saveDailyProfileChoice(ah,true);
+  assert.equal(h.saveDailyChartMeta(ah,{nickname:"  Me  "}),true);
+  assert.equal(h.readDailyChartMeta(ah).nickname,"Me");
+  assert.match(h.dailyProfileLabel(h.readDailyProfiles()[0],"en","BaZi"),/^Me ·/);
+  assert.equal(h.saveDailyChartMeta("a".repeat(64),{nickname:"bad"}),false);
+  memory.set("crew_fortune_profile_v2",JSON.stringify(b));
+  assert.equal(h.chooseDailyProfile(h.readDailyProfiles()).hash,ah);
+  assert.equal(h.saveDailyChartMeta(ah,{hidden:true}),true);
+  assert.equal(h.chooseDailyProfile(h.readDailyProfiles()),undefined,"removed self must not become a relative");
+  assert.equal(h.readDailyProfiles(true).length,2);
+  assert.equal(memory.get("crew_fortune_readings_v2"),readings);
+  h.saveDailyProfileChoice(bh);
+  assert.equal(h.chooseDailyProfile(h.readDailyProfiles()).hash,bh);
+  h.saveDailyChartMeta(ah,{hidden:false});
+  assert.equal(h.readDailyProfiles().length,2);
+  assert.equal(h.chooseDailyProfile(h.readDailyProfiles()).hash,bh);
+  h.saveDailyProfileChoice(ah,true);
+  assert.equal(h.chooseDailyProfile(h.readDailyProfiles()).hash,ah);
+ }finally{global.localStorage=before;}
+});

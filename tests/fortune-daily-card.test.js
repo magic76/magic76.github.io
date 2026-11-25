@@ -54,14 +54,14 @@ test("D3 missing birth time, persisted kind, and cache fault tolerance",()=>{
  const card=getCard(onDate("numerology","2026-10-27")),hash=pure.dailyProfileHash(profile);
  store.saveCachedDaily(card,hash,undefined,"en");
  assert.deepEqual(store.readCachedDaily(card.date,card.kind,hash).card,card);
- assert.equal(store.DAILY_COPY_REVISION,3);
- assert.equal(store.readCachedDaily(card.date,card.kind,hash).copyRevision,3);
+ assert.equal(store.DAILY_COPY_REVISION,4);
+ assert.equal(store.readCachedDaily(card.date,card.kind,hash).copyRevision,4);
  const raw=JSON.parse(memory.get(store.DAILY_CACHE_KEY));
- raw[card.date][card.kind+":"+hash].copyRevision=2;
+ raw[card.date][card.kind+":"+hash].copyRevision=3;
  memory.set(store.DAILY_CACHE_KEY,JSON.stringify(raw));
- assert.notEqual(store.readCachedDaily(card.date,card.kind,hash).copyRevision,3,"legacy artwork cache cannot match revision 3");
+ assert.notEqual(store.readCachedDaily(card.date,card.kind,hash).copyRevision,4,"legacy copy cache cannot match revision 4");
  store.saveCachedDaily(card,hash,undefined,"en");
- assert.equal(store.readCachedDaily(card.date,card.kind,hash).copyRevision,3);
+ assert.equal(store.readCachedDaily(card.date,card.kind,hash).copyRevision,4);
  memory.set(store.DAILY_CACHE_KEY,"{bad");assert.deepEqual(store.readDailyCache(),{});
 });
 
@@ -381,4 +381,12 @@ test("D12 daily fortune offers one safe, profile-bound Zoe interpretation route 
  assert.match(rule[1],/white-space:normal/);
  assert.match(rule[1],/overflow-wrap:anywhere/);
  assert.match(css,/\.fortune-daily-zoe:focus-visible\{[^}]*outline:/);
+});
+
+test("branch interactions affect actual advice and local rules remain deterministic",()=>{
+ const base=getCard(onDate("bazi","2026-11-13",profile,{bazi:{...bazi,dayPillar:"庚午",yearPillar:"乙未"},lunar:fakeSolar}));
+ const clash=getCard(onDate("bazi","2026-11-13",profile,{bazi:{...bazi,dayPillar:"庚子",yearPillar:"乙未"},lunar:fakeSolar}));
+ assert.match(clash.avoid,/templates\.responsibility/);
+ assert.match(base.avoid,/templates\.peers/);
+ assert.deepEqual(clash,getCard(onDate("bazi","2026-11-13",profile,{bazi:{...bazi,dayPillar:"庚子",yearPillar:"乙未"},lunar:fakeSolar})));
 });

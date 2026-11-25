@@ -215,11 +215,11 @@ export function buildDailyCard(input:DailyInput):DailyResult{
   const interactions=[result?.yearPillar,result?.monthPillar,result?.dayPillar,result?.timePillar].map(p=>dayBranchRelation(ganZhi.charAt(1),typeof p==="string"?p.charAt(1):""));
   const caution=interactions.some(r=>r==="六沖"||r==="六害");
   const supportive=interactions.includes("六合");
-  const exactGodIndex=Object.keys(TEN_GOD_CATEGORY).indexOf(god);
-  const primary=chooseCopy(input,category,(seed>>>5)+Math.max(0,exactGodIndex));
+  const primary=chooseCopy(input,category,seed>>>5);
   const annualCategory=TEN_GOD_CATEGORY[dayStemRelation(dayMaster,annual?.ganZhi?.charAt(0)||"")];
   const luckCategory=TEN_GOD_CATEGORY[dayStemRelation(dayMaster,luck?.ganZhi?.charAt(0)||"")];
-  const secondaryCategory=caution?"responsibility":supportive?"peers":annualCategory||luckCategory||(dailyElement&&favorable.includes(dailyElement)?"expression":category);
+  const contextualCategories=[annualCategory,luckCategory].filter(Boolean);
+  const secondaryCategory=caution?"responsibility":supportive?"peers":contextualCategories.length?contextualCategories[(seed>>>11)%contextualCategories.length]:(dailyElement&&favorable.includes(dailyElement)?"expression":category);
   const secondary=chooseCopy(input,secondaryCategory,(seed>>>9)+Number(localDate.slice(5,7)));
   headline=primary.headline;theme=primary.theme;suggestions=[primary.do[0],secondary.do[1]];avoid=secondary.avoid;
   colorElement=(dailyElement&&favorable.includes(dailyElement)?dailyElement:favorable[(seed>>>8)%Math.max(1,favorable.length)])||result?.dayMasterElement||"木";

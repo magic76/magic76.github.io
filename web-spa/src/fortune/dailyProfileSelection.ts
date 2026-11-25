@@ -76,8 +76,10 @@ export function chooseDailyProfile(charts:DailyChart[],requestedHash?:string|nul
   return sha.test(requestedHash)?charts.find(chart=>chart.hash===requestedHash):undefined;
  }
  const pref=readDailyPreference();
- return (pref.manualOverride?charts.find(x=>x.hash===pref.selectedHash):undefined)||
-  charts.find(x=>x.hash===pref.selfHash)||charts.find(x=>x.hash===pref.selectedHash)||charts[0];
+ const chosen=(pref.manualOverride?charts.find(x=>x.hash===pref.selectedHash):undefined)||
+  charts.find(x=>x.hash===pref.selfHash)||charts.find(x=>x.hash===pref.selectedHash);
+ // Do not silently substitute a relative when the explicitly selected profile disappears.
+ return chosen||(pref.selfHash||pref.selectedHash?undefined:charts[0]);
 }
 export function saveDailyProfileChoice(hash:string,markSelf=false):void{
  if(!sha.test(hash)||!readDailyProfiles().some(chart=>chart.hash===hash))return;
