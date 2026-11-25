@@ -15,7 +15,8 @@ test("Explore preserves its illustrated destinations and hides Circle from navig
  assert.match(page,/\.filter\(item=>showCircleInExplore\|\|item\.to!=="\/circle"\)/);
  assert.match(page,/className="crew-explore-tile"/);
  assert.match(page,/exploreKinds:readonly ExploreKind\[\]=\["fortune","timeline","games","story","research","circle"\]/);
- assert.match(page,/<ExploreArtwork kind=\{exploreKinds\[i\]\}\/>/);
+ assert.match(page,/<ExploreArtwork kind=\{kind\}\/>/);
+ assert.match(page,/map\(\(item,i\)=>\(\{item,kind:exploreKinds\[i\]\}\)\)\.filter\(\(\{kind\}\)=>kind!=="timeline"&&kind!=="story"\)/);
  // Other top-level sections still use their original hero + link list.
  assert.match(page,/className="crew-section-hero"/);
  assert.match(page,/className="crew-section-discover"/);
@@ -57,10 +58,11 @@ test("All eight non-Timeline cards use local 3:2 Explore illustrations",()=>{
   const url=`/assets/explore/${kind}.webp`;
   assert.equal("/assets/explore/"+kind+".webp",url);
   assert.ok(art.includes(`"${kind}"`),`missing kind for ${url}`);
-  if(["mate","town","magic"].includes(kind))assert.match(page,new RegExp(`data-kind="${kind}"`));
-  else assert.match(page,/data-kind=\{exploreKinds\[i\]\}/);
+  if(kind==="magic")assert.match(page,new RegExp(`data-kind="${kind}"`));
+  else if(["mate","town"].includes(kind))assert.doesNotMatch(page,new RegExp(`data-kind="${kind}"`));
+  else assert.match(page,/data-kind=\{kind\}/);
  }
- assert.match(page,/<ExploreArtwork kind="town"\/>/);
+ assert.doesNotMatch(page,/<ExploreArtwork kind="town"\/>/);
  assert.match(page,/<ExploreArtwork kind="magic"\/>/);
  assert.doesNotMatch(page,/crew-explore-town-mini|crew-explore-magic-preview/);
  assert.match(art,/width=\{1200\} height=\{800\}/);
