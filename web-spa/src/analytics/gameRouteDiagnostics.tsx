@@ -1,7 +1,7 @@
 import {createContext,useCallback,useContext,useEffect,useRef,type ReactNode} from "react";
 import {trackUsageEvent} from "./usage";
 import {currentBuild} from "../runtime/buildUpdates";
-import {localeFromPublicPath,localePrefix} from "../i18n/localeCatalog";
+import {localeFromPublicPath} from "../i18n/localeCatalog";
 
 // Paths and build identifiers are stored only in this browser; analytics sends
 // allowlisted event names and duration buckets, never URLs or identifiers.
@@ -39,7 +39,7 @@ export function recordGameRouteAssetError(path:string){record(path,"asset_error"
 // Never send a complete URL, query, user-supplied route segment or exception message.
 export function routeAssetContext(path:string){
  const locale=localeFromPublicPath(path);
- const root=(locale?path.slice(localePrefix(locale).length):path).split("/")[1]||"";
+ const root=path.split("/")[locale?2:1]||"";
  switch(root){
   case "":return "home";
   case "chat":case "friend":return "friend";
