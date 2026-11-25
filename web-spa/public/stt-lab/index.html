@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Koolo STT Lab</title>
+<style>
+:root{color-scheme:light dark;font:16px/1.55 system-ui,sans-serif}*{box-sizing:border-box}body{margin:0;background:Canvas;color:CanvasText}main{max-width:780px;margin:auto;padding:20px 16px 48px}h1{font-size:30px;margin:12px 0}h2{font-size:20px;margin:0 0 6px}p{margin:6px 0 12px}section,article{border:1px solid #8886;border-radius:14px;padding:16px;margin:12px 0}button,select,input,textarea{font:inherit;color:inherit;max-width:100%;min-height:44px;border:1px solid #8889;border-radius:8px;background:Canvas;padding:8px 12px}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}textarea{width:100%;min-height:72px}label{display:block;margin-top:8px}audio{width:100%;margin:10px 0}small,.muted{opacity:.8}output{display:block;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0}a{color:LinkText} .actions{display:flex;flex-wrap:wrap;gap:8px} [hidden]{display:none!important}
+</style></head><body><main>
+<a href="/usage">← Usage</a><h1>語音辨識實驗室</h1><p id="gate" role="status">確認管理員權限中…</p>
+<div id="lab" hidden>
+<p>錄一段話，使用同一段音訊比較本機模型。只評估 STT，不改正式通話、字幕或記憶。</p>
+<section><h2>1. 錄音</h2><label for="language">辨識語言</label><select id="language"><option value="auto">自動辨識／中英混說</option><option value="zh" selected>中文（華語）</option><option value="en">英文</option><option value="ja">日文</option><option value="ko">韓文</option><option value="pt">葡萄牙文</option><option value="es">西班牙文</option><option value="fr">法文</option><option value="de">德文</option><option value="vi">越南文</option></select>
+<label for="reference">實際說的話（選填，供人工比對）</label><textarea id="reference" placeholder="例如：今天我想跟 Zoe 聊聊工作。"></textarea>
+<div class="actions"><button id="record">開始錄音</button><button id="stop" disabled>停止錄音</button><button id="clear" disabled>清除錄音與結果</button></div><p id="capture" role="status">最多錄 20 秒。</p><audio id="player" controls hidden></audio>
+<label for="file">或選擇現有音檔（最多 20 秒、15 MB）</label><input id="file" type="file" accept="audio/*"><div class="actions"><a id="download" hidden download="koolo-stt.wav">儲存同一段 PCM WAV</a></div>
+</section>
+<section><h2>2. 同音檔比較 · 本機 WASM</h2><p>首次按下才下載。權重大小是估計值，不含 runtime、tokenizer 與快取。錄音不會上傳；模型下載會連線 CDN/Hugging Face。</p>
+<div class="actions"><button id="both" disabled>依序比較 Tiny 與 Base</button><button id="cancel" disabled>取消辨識</button></div>
+<article><h2>Whisper Tiny Q8</h2><small>約 41 MB 權重 · 多語言</small><div><button data-model="tiny" disabled>辨識</button></div><output id="tiny-text" aria-live="polite">待測試</output><small id="tiny-time"></small></article>
+<article><h2>Whisper Base Q8</h2><small>約 77 MB 權重 · 多語言</small><div><button data-model="base" disabled>辨識</button></div><output id="base-text" aria-live="polite">待測試</output><small id="base-time"></small></article>
+<p class="muted">兩個模型依序執行，每次釋放 Worker，避免手機同時載入大量權重。計時區分載入與推論；重新測試可能命中磁碟快取。</p></section>
+<section><h2>3. 瀏覽器語音辨識 · 另一次錄音</h2><p>Web Speech API 可能使用瀏覽器供應商的雲端服務，且部分手機不支援。請再次說相同句子；不是同音檔對照。不會在 Whisper 錄音時另外開啟麥克風。</p><div class="actions"><button id="native">開始瀏覽器辨識</button><button id="native-stop" disabled>停止</button></div><output id="native-text" aria-live="polite">待測試</output><small id="native-time"></small></section>
+<section><h2>4. 其他候選與 Gemini 基準</h2><p>SenseVoice 和 Zipformer 先使用官方 WASM 示範（外部網站、尚未整合）。Gemini Live 可將正式通話的原字幕貼入下方作人工參考。</p><p><a target="_blank" rel="noopener noreferrer" href="https://huggingface.co/spaces/k2-fsa/web-assembly-vad-asr-sherpa-onnx-zh-en-ja-ko-cantonese-sense-voice">SenseVoice 官方示範</a> · <a target="_blank" rel="noopener noreferrer" href="https://huggingface.co/spaces/k2-fsa/web-assembly-asr-sherpa-onnx-zh-en">Zipformer 官方示範</a></p><label for="gemini">Gemini Live 原字幕（手動貼入，非自動辨識）</label><textarea id="gemini"></textarea><button id="copy">複製測試結果</button><output id="copy-status" aria-live="polite"></output></section>
+</div></main><script type="module" src="./lab.js?v=__CREW_COMMIT__"></script></body></html>

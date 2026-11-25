@@ -94,3 +94,9 @@ https://:version.magic76-github-io.pages.dev/*
 /tts-lab/*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-store, max-age=0
+
+# Independent speech recognition research lab; no indexing.
+/stt-lab/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store, max-age=0
+  X-Content-Type-Options: nosniff
