@@ -27,6 +27,7 @@ import{legacyMissionsJa,legacyMissions}from"./legacyMissions";
 import{FriendCallMenu,FriendCallMenuTrigger}from"../friends/FriendCallMenu";
 import{FriendCallControls}from"../friends/FriendCallControls";
 import{FriendCallCaptions}from"../friends/FriendCallCaptions";
+import{FriendVoiceMute}from"../friends/FriendVoiceMute";
 import{FriendChatHistory}from"../friends/FriendChatHistory";
 import"../friends/friendCall.css";import"./teacherCall.css";
 import{nativeLanguageName}from"./teacherLocale";
@@ -250,7 +251,7 @@ export function TeacherLivePage(){
   {live.turns.length?<FriendChatHistory turns={live.turns} friendName={profile.name} youLabel={t("voice:friendLive.youLabel")} summary={t("voice:friendLive.historySummary")}/>:null}
  </FriendCallMenu>}
 <div className="live-identity">
-   <div className="teacher-presence-shell" data-state={presenceState}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/></div></div>
+   <div className="friend-voice-avatar-anchor"><div className="teacher-presence-shell" data-state={presenceState}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/></div></div>{!textMode&&live.micEnabled&&(live.state==="listening"||live.state==="speaking")&&<FriendVoiceMute volume={live.volume} onVolume={live.setVolume}/>}</div>
    <h1>{fortuneKind?t("live.fortuneTitle",{name:profile.name}):course?courseTitle(course):mission?mission.title:t("live.teacherName",{name:profile.name})}</h1>
     {textMode?teacherOptions:null}
   </div>
