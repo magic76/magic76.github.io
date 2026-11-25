@@ -84,7 +84,7 @@ return Array.from({length:days},(_,i)=>{
   <AccountStatsPanel/>
   <MembershipDiagnosticsPanel/>
   <PlatformUsagePanel rows={data.platformBreakdown}/>
-  <UsageJourneySection days={days} journey={data.journey}/>
+  <UsageJourneySection days={days} journey={data.journey} rows={rows}/>
   <SoulsUsagePanel rows={rows} unique={unique}/>
   <section className="panel section" aria-label="Magic 事件診斷">
    <div className="section-head"><h2>Magic 事件診斷</h2><small>同一統計期間 · 不含個人識別資料</small></div>
