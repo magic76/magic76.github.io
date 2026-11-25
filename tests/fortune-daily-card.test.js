@@ -420,3 +420,18 @@ test("solar term month and year change at the documented noon boundary",()=>{
  assert.ok(card.basis.some(x=>x.startsWith("basis.baziAnnual")));
  assert.ok(card.basis.some(x=>x.startsWith("basis.baziLuck")));
 });
+
+test("local fortune copy composition produces at least 150 distinct full-card combinations",()=>{
+ const variants=new Set();
+ const stems="甲乙丙丁戊己庚辛壬癸",branches="子丑寅卯辰巳午未申酉戌亥";
+ for(let d=0;d<60;d++){
+  const date=new Date(Date.UTC(2026,0,1+d)).toISOString().slice(0,10);
+  const lunar={fromYmd:()=>({getLunar:()=>({getDayInGanZhi:()=>stems[d%10]+branches[d%12]})})};
+  for(let i=0;i<12;i++){
+   const natal={dayMaster:stems[i%10],dayPillar:stems[i%10]+branches[i],yearPillar:"乙丑",monthPillar:"丙寅",timePillar:"丁卯",balancingElements:["木","水"],luckPillars:[{startYear:2020,endYear:2029,ganZhi:"戊寅"}]};
+   const card=getCard(onDate("bazi",date,profile,{bazi:natal,lunar}));
+   variants.add(JSON.stringify([card.headline,card.theme,card.do,card.avoid]));
+  }
+ }
+ assert.ok(variants.size>=150,"Expected at least 150 distinct complete copy combinations, got "+variants.size);
+});

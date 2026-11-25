@@ -109,7 +109,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
  if(!clientReady||!ready)return <section className="fortune-daily panel" aria-busy="true"><p>{t("loading")}</p></section>;
  if(!profile?.birthDate)return <section className="fortune-daily panel">
   <span className="kicker">Koolo FORTUNE · {t("today")}</span><h2>{t("emptyTitle")}</h2>
-  <p>{t("emptyDescription")}</p><Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} <Arrow/></Link>
+  <p>{t("emptyDescription")}</p>{readDailyProfiles(true).length>0?<a className="btn" href="#daily-profiles">{t("profiles.title")} <Arrow/></a>:<Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} <Arrow/></Link>}
  </section>;
  function changeKind(next:DailyKind){
   if(next==="bazi"&&!profile?.birthTime)return;

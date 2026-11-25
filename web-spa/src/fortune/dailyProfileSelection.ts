@@ -55,7 +55,7 @@ export function readDailyProfiles(includeHidden=false):DailyChart[]{
   const profile=item.profile as Partial<FortuneProfile>,hash=dailyProfileHash(profile);
   if(seen.has(hash)){
    const existing=charts.find(x=>x.hash===hash);
-   if(existing&&existing.mode==="tarot"&&item.mode!=="tarot")existing.mode=item.mode;
+   if(existing&&(item.mode==="bazi"||(existing.mode==="tarot"&&item.mode==="vedic")))existing.mode=item.mode;
    continue;
   }
   seen.add(hash);charts.push({hash,profile,mode:item.mode});
