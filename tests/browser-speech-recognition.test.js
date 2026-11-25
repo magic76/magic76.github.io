@@ -68,3 +68,11 @@ test("manual recognition override stays inside the allowed pair and leaves conve
  assert.match(recognition,/resolveBrowserSpeechLanguage\(recognitionLanguages,live\.turns\)/);
  assert.match(page,/onChange=\{e=>setRecognitionOverride\(e\.target\.value\)\}/);
 });
+
+test("automatic recognition label uses the language returned by the recognition hook",()=>{
+ const page=read("web-spa/src/friends/FriendLiveConversation.tsx");
+ const recognition=read("web-spa/src/friends/useFriendRecognition.ts");
+ assert.match(recognition,/return \{[^}]*automaticRecognitionLanguage[^}]*\}/);
+ assert.match(page,/const \{[^}]*automaticRecognitionLanguage[^}]*\}=useFriendRecognition/);
+ assert.match(page,/browserRecognitionAuto"\)\} · \{automaticRecognitionLanguage\}/);
+});
