@@ -25,3 +25,16 @@ test("teacher call ring, captions and bottom buttons have dedicated mobile layou
  assert.ok(css.includes(".friend-caption-heading>.guest-trial-countdown"));
  assert.ok(css.includes(".guest-trial-countdown-number{\n min-width:0;font-size:14px"));
 });
+
+test("teacher transcript remains a native vertical scroll container after all scoped overrides",()=>{
+ const rules=[...css.matchAll(/\.teacher-call-page \.teacher-live-stage\.friend-phone-stage>\.friend-phone-captions\s*\{([^}]+)\}/g)];
+ assert.ok(rules.length>=2,"check both original and follow-up rules");
+ for(const [,body] of rules){
+  assert.match(body,/flex:1 1 0/);
+  assert.match(body,/min-height:0/);
+  assert.match(body,/overflow-y:auto/);
+  assert.doesNotMatch(body,/(?:^|;)\s*overflow\s*:\s*(?:hidden|clip)\b/);
+ }
+ assert.match(rules.at(-1)[1],/overscroll-behavior:contain/);
+ assert.match(rules.at(-1)[1],/scroll-behavior:auto/);
+});
