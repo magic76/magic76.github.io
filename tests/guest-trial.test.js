@@ -483,7 +483,8 @@ test("guest trial 10-second guidance and completion UX preserve hard stop",()=>{
  assert.match(component,/secondsLeft<=10/);
  assert.match(component,/role="timer"/);
  assert.match(component,/role="status"/);
- assert.match(component,/to="\/account#settings-gemini"/);
+ assert.doesNotMatch(component,/settings-gemini/);
+ assert.match(component,/isFriend\?<Link[^\n]*voice:friendLive.useText/);
  for(const destination of ["/games/1a2b","/teacher/vocabulary","/story"])assert.ok(component.includes('to="'+destination+'"'));
  assert.match(teacher,/<GuestTrialFinish expired=\{live\.guestExpired\} failed=\{live\.state==="error"\} name=\{profile\.name\}/);
  assert.match(friend,/<GuestTrialFinish expired=\{live\.guestExpired\}/);

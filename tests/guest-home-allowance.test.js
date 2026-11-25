@@ -22,44 +22,10 @@ test("guest text allowance agrees with the Worker DAILY_TURNS",()=>{
  assert.doesNotMatch(panel,/Up to 12 messages|每天最多 12 則/);
 });
 
-test("desktop and mobile both show localized truthful allowance, never a second remaining-trial line",()=>{
- const desktop=read("web-spa/src/pages/HomePortal.tsx");
- const mobile=read("web-spa/src/pages/MobileHomePage.tsx");
- const desktopCss=read("web-spa/src/pages/homePortal.css");
- const mobileCss=read("web-spa/src/pages/mobileHomeHeroV3.css");
- for(const [name,source] of [["desktop",desktop],["mobile",mobile]]){
-  assert.match(source,/GUEST_TEXT_DAILY_TURNS/,name);
-  for(const key of ["full","textOnly","voiceUsed"])assert.ok(source.includes(`world.freeAllowance.${key}`),name+":"+key);
-  assert.match(source,/!hasKey/,name+":hide for BYOK");
-  assert.match(source,/trial\.seconds\/60/,name+":minutes from config");
-  assert.doesNotMatch(source,/freeAllowance[^\n]*\b(?:12|5)\b/,name+":no hardcoded quotas");
- }
- assert.match(desktop,/className="crew-portal-remaining" role="status"/);
- assert.doesNotMatch(desktop,/common:guestTrial\.(?:memberRemaining|remaining)/);
- assert.match(desktopCss,/\.crew-portal-invitation-meta \.crew-portal-status-slot\{order:-1/);
- assert.match(mobile,/className="cmh-allowance-slot"/);
- assert.match(mobileCss,/\.cmh-allowance-slot\{min-height:36px/);
- assert.match(mobileCss,/\.cmh-free-allowance\{font-size:12px/);
-});
-
-test("BYOK hides allowance slots entirely; guests keep the preexisting reserved space",()=>{
- const desktop=read("web-spa/src/pages/HomePortal.tsx");
- const mobile=read("web-spa/src/pages/MobileHomePage.tsx");
- const desktopCss=read("web-spa/src/pages/homePortal.css");
- const layoutCss=read("web-spa/src/pages/homeDesktopLayout.css");
- const mobileCss=read("web-spa/src/pages/mobileHomeHeroV3.css");
- for(const [name,source] of [["desktop",desktop],["mobile",mobile]]){
-  assert.match(source,/const hasKey=ready&&Boolean\(geminiKey\(\)\)/,name+": key detection after hydration");
- }
- // The slot node, not only its status text, must disappear when BYOK is ready.
- assert.match(mobile,/\{!hasKey&&<div className="cmh-allowance-slot">/,"BYOK has no 36px mobile slot");
- assert.match(desktop,/\{!hasKey&&<div className="crew-portal-status-slot">/,"BYOK has no empty desktop slot");
- // On the SSG first render hasKey is false: preserve the guest layout and quota status.
- assert.match(mobile,/\{ready&&!hasKey&&<p className="cmh-free-allowance" role="status">/);
- assert.match(desktop,/ready&&!hasKey&&trial\.resolved&&trial\.enabled/);
- assert.match(mobileCss,/\.cmh-allowance-slot\{min-height:36px/);
- assert.match(desktopCss,/\.crew-portal-invitation-meta \.crew-portal-status-slot\{order:-1;min-height:38px/);
- assert.match(layoutCss,/\.crew-home-legacy \.crew-portal-status-slot\{min-height:19px/);
+test("active home surfaces do not advertise quotas; legacy portal remains inert",()=>{
+ const home=read("web-spa/src/pages/HomePage.tsx");
+ for(const source of [read("web-spa/src/pages/MobileHomePage.tsx"),read("web-spa/src/pages/DesktopHomePage.tsx")])assert.doesNotMatch(source,/useGuestTrialQuota|world\.freeAllowance|cmh-allowance-slot/);
+ assert.match(home,/className="crew-home-legacy" aria-hidden="true" inert/);
 });
 
 test("all 11 home locales use string leaves and quota interpolation",()=>{

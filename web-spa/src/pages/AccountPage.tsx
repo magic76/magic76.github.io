@@ -48,7 +48,7 @@ export function AccountPage(){
       <p role="status">{t("auth.trialCount",{used:state.trial.used,limit:state.trial.limit})}</p>
       {state.trial.used<state.trial.limit
        ?<Link className="btn secondary small" to="/teacher/roles?mode=teacher">{t("guestTrial.start")}</Link>
-       :<Link className="btn secondary small" to="/account#settings-gemini">{t("guestTrial.setupKey")}</Link>}
+       :<p role="status">{t("guestTrial.usedMemberNoCount")}</p>}
      </section>}
     {state.textTrial&&<section className="crew-account-trial" aria-label={t("voice:textChat.ui.freePractice")}>
       <strong>{t("voice:textChat.ui.freeDaily",{count:state.textTrial.limit})}</strong>
@@ -65,10 +65,11 @@ export function AccountPage(){
    <Link className="btn secondary" to="/fortune/purchases">{/^zh/.test(i18n.resolvedLanguage||i18n.language)?"查看已購買命理報告":"View purchased fortune reports"}</Link>
    <Link className="crew-account-back" to="/settings">{t("auth.backSettings")}</Link>
   </section>;
- const aiPanel=<section className="crew-account-ai" aria-label={t("auth.aiSettings")}>
-   <div className="crew-account-section-heading"><h2>{t("auth.aiSettings")}</h2><p>{t("auth.aiIntro")}</p></div>
+ const aiPanel=<details className="crew-account-ai section panel" open={geminiFirst||undefined}>
+   <summary className="crew-account-section-heading">{t("auth.aiSettings")}</summary>
+   <p className="meta">{t("auth.aiIntro")}</p>
    <GeminiConnectionPanel section="key"/>
-  </section>;
+  </details>;
  return <div className="crew-account-page">
   <section className="hero"><span className="kicker">{t("auth.account")}</span><h1>{t("auth.title")}</h1><p>{t("auth.intro")}</p></section>
   {geminiFirst?<>{aiPanel}{signInPanel}</>:<>{signInPanel}{aiPanel}</>}

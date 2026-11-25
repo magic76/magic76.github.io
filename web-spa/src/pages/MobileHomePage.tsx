@@ -8,15 +8,11 @@ import type {ShortFeed} from "../teacher/shortsFeed";
 import {readLatestFriendActivity,type FriendActivity} from "../live/sessionTranscript";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {GuideHub} from "../guides/GuideHub";
-import {useClientReady} from "../lib/useClientReady";
 import {useHomeAmbientMotion} from "../lib/useHomeAmbientMotion";
 import {DailyTopicCards} from "./DailyTopicCards";
 import {HomeGeminiVerify} from "./HomeGeminiVerify";
 import {CreatureLabResume} from "./CreatureLabResume";
 import type {CreatureLabProgress} from "./creatureLabProgress";
-import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
-import {geminiKey} from "../lib/runtime";
-import {GUEST_TEXT_DAILY_TURNS} from "../live/guestAllowance";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
 import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./mobileHome.css";
@@ -42,10 +38,7 @@ const APPS:readonly App[]=[
 /** Mobile-only, first-party home. Client state loads after hydration; SSG has a stable first-visit card. */
 export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{shortsFeed:ShortFeed|null;shortsStatus:"loading"|"ready"|"error";creatureProgress:CreatureLabProgress|null}){
  const {i18n,t}=useTranslation("home");
- const ready=useClientReady();
  const homeMotion=useHomeAmbientMotion(true);
- const hasKey=ready&&Boolean(geminiKey());
- const trial=useGuestTrialQuota(!ready||hasKey);
  const zh=i18n.language.startsWith("zh");
  const copy=(z:string,e:string)=>zh?z:e;
  const [activity,setActivity]=useState<FriendActivity|null>(null);
@@ -219,13 +212,6 @@ export function MobileHomePage({shortsFeed,shortsStatus,creatureProgress}:{short
    </Link>)}</div>
   </section>
   <HomeGeminiVerify variant="mobile"/>
-  {!hasKey&&<div className="cmh-allowance-slot">
-   {ready&&!hasKey&&<p className="cmh-free-allowance" role="status">{trial.resolved&&trial.enabled&&trial.remaining===0
-    ?trial.memberTextLimit?t("world.freeAllowance.memberDaily",{count:trial.memberTextLimit,minutes:0}):t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})
-    :trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null
-     ?trial.memberTextLimit?t("world.freeAllowance.memberDaily",{count:trial.memberTextLimit,minutes:(trial.remaining??0)*trial.seconds/60}):t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})
-     :trial.memberTextLimit?t("world.freeAllowance.memberTextOnly",{count:trial.memberTextLimit}):t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
-  </div>}
   <div className="cmh-shorts"><HomeShortsPreview maxPosts={6} sharedFeed={shortsFeed} sharedStatus={shortsStatus} motionEnabled={homeMotion}/></div>
   {creatureProgress&&<CreatureLabResume progress={creatureProgress}/>}
   <section className="cmh-seo" aria-labelledby="cmh-seo-heading">
