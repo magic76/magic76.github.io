@@ -8,7 +8,7 @@ test("retired Magic and Creature Lab are no longer exposed",()=>{
  const app=read("web-spa/src/App.tsx");
  assert.doesNotMatch(app,/import\("\.\/magic\/MagicPage"\)/);
  assert.match(app,/<Route path="\/magic" element={<Navigate to="\/explore" replace\/>}\/>/);
- for(const file of ["CrewSectionPage.tsx","HomePage.tsx","DesktopHomePage.tsx","MobileHomePage.tsx","PhoneLabPage.tsx"]){
+ for(const file of ["CrewSectionPage.tsx","HomePage.tsx","DesktopHomePage.tsx","MobileHomePage.tsx"]){
   assert.doesNotMatch(read("web-spa/src/pages/"+file),/creatureLabHref|CreatureLabResume|creatureProgress|to="\/magic"|to:"\/magic"/);
  }
  assert.doesNotMatch(read("web-spa/src/components/CrewFeatureMenuPanel.tsx"),/to:"\/magic"/);

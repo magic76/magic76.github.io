@@ -16,7 +16,6 @@ import{AppChrome}from"./components/AppChrome";
 
 const CrewUpdateNotice=lazy(()=>import("./components/CrewUpdateNotice").then(m=>({default:m.CrewUpdateNotice})));
 const CrewInstallNudge=lazy(()=>import("./components/CrewInstallEntry").then(m=>({default:m.CrewInstallNudge})));
-const PhoneLabPage=lazy(()=>import("./pages/PhoneLabPage").then(m=>({default:m.PhoneLabPage})));
 const TruthNewsPage=lazy(()=>import("./games/TruthNewsPage").then(m=>({default:m.TruthNewsPage})));
 const CyberOrbPage=lazy(()=>import("./pages/CyberOrbPage").then(m=>({default:m.CyberOrbPage})));
 
@@ -28,7 +27,6 @@ const TeacherBoardPage=lazy(()=>withNamespace("voice",import("./teacher/TeacherB
 const StudentMemoryPage=lazy(()=>import("./teacher/StudentMemoryPage").then(m=>({default:m.StudentMemoryPage})));const RolesPage=lazy(()=>import("./teacher/RolesPage").then(m=>({default:m.RolesPage})));
 const StoryLayout=lazy(()=>import("./story/StoryLayout").then(m=>({default:m.StoryLayout})));const StoryShelfPage=lazy(()=>import("./story/ShelfPage").then(m=>({default:m.StoryShelfPage})));const StoryMyPage=lazy(()=>import("./story/MyPage").then(m=>({default:m.StoryMyPage})));const StoryCreatePage=lazy(()=>import("./story/CreatePage").then(m=>({default:m.StoryCreatePage})));const StoryReaderPage=lazy(()=>import("./story/ReaderPage").then(m=>({default:m.StoryReaderPage})));const StoryEditorPage=lazy(()=>import("./story/EditorPage").then(m=>({default:m.StoryEditorPage})));const PhysicalBookPage=lazy(()=>import("./story/PhysicalBookPage").then(m=>({default:m.PhysicalBookPage})));const StoryLivePage=lazy(()=>withNamespace("voice",import("./story/LivePage")).then(m=>({default:m.StoryLivePage})));
 const FortuneLayout=lazy(()=>import("./fortune/FortuneLayout").then(m=>({default:m.FortuneLayout})));const FortuneHomePage=lazy(()=>import("./fortune/HomePage").then(m=>({default:m.FortuneHomePage})));const FortuneHistoryPage=lazy(()=>import("./fortune/HistoryPage").then(m=>({default:m.FortuneHistoryPage})));const FortunePurchasedReportsPage=lazy(()=>import("./fortune/PurchasedReportsPage").then(m=>({default:m.FortunePurchasedReportsPage})));const FortuneEcpayStagePage=lazy(()=>import("./fortune/EcpayStagePage").then(m=>({default:m.FortuneEcpayStagePage})));const FortunePurchasedReportDetailPage=lazy(()=>import("./fortune/PurchasedReportsPage").then(m=>({default:m.FortunePurchasedReportDetailPage})));const FortunePremiumPage=lazy(()=>import("./fortune/FortunePremiumPage").then(m=>({default:m.FortunePremiumPage})));const FortuneReadingPage=lazy(()=>import("./fortune/ReadingPage").then(m=>({default:m.FortuneReadingPage})));const FortuneLivePage=lazy(()=>withNamespace("voice",import("./fortune/LivePage")).then(m=>({default:m.FortuneLivePage})));
-const VoiceLabPage=lazy(()=>import("./teacher/VoiceLabPage").then(m=>({default:m.VoiceLabPage})));
 const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(m=>({default:m.UsageDashboardPage})));
 const FeedbackInboxPage=lazy(()=>import("./analytics/FeedbackInboxPage").then(m=>({default:m.FeedbackInboxPage})));
 const AccountPage=lazy(()=>withNamespace("voice",import("./pages/AccountPage")).then(m=>({default:m.AccountPage})));const VoiceCreditsPage=lazy(()=>import("./pages/VoiceCreditsPage").then(m=>({default:m.VoiceCreditsPage})));
@@ -77,7 +75,6 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
  },[pathname,search]);const active=sectionForRoute(pathname,search);return <>{uiLocaleFailedToLoad&&<div className="crew-locale-error" role="alert">{t("language.loadError")}</div>}<RouteErrorBoundary key={pathname}><GameRouteMonitor pathname={pathname}><Suspense fallback={<KooloLoader label={t("loading")}/>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
-<Route path="/phone" element={<PhoneLabPage/>}/>
 <Route path="/chat" element={<AppChrome product="home"><CrewSectionPage section="chat"/></AppChrome>}/>
 <Route path="/explore" element={<AppChrome product="home"><CrewSectionPage section="explore"/></AppChrome>}/>
 <Route path="/discover" element={<Navigate to="/explore" replace/>}/>
@@ -128,7 +125,6 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/timeline/observe/classic" element={<Navigate to="/games" replace/>}/>
  <Route path="/timeline/compare" element={<AppChrome product="teacher"><TimelineComparePage/></AppChrome>}/>
 <Route path="/timeline/live" element={<TimelineLivePage/>}/>
-<Route path="/teacher/voice-lab" element={<VoiceLabPage/>}/>
 <Route path="/teacher/board" element={<TeacherBoardPage/>}/>
 <Route path="/teacher/live" element={<TeacherLivePage/>}/><Route path="/friend/live" element={<FriendLivePage/>}/>
 <Route path="/story" element={<StoryLayout/>}><Route index element={<StoryShelfPage/>}/><Route path="shelf" element={<StoryShelfPage/>}/><Route path="me" element={<StoryMyPage/>}/><Route path="create" element={<StoryCreatePage/>}/><Route path="edit/:id" element={<StoryEditorPage/>}/><Route path="physical" element={<PhysicalBookPage/>}/><Route path="physical/:id" element={<PhysicalBookPage/>}/><Route path="read/:id" element={<StoryReaderPage/>}/></Route>
@@ -137,4 +133,4 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/fortune/live" element={<FortuneLivePage/>}/>
 <Route path="/zh-TW/*" element={<ZhTwCanonicalRedirect/>}/>
 <Route path="*" element={<Navigate to="/" replace/>}/>
-</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&pathname!=="/phone"&&<GlobalNav active={active} mobileImmersive={false}/>}{(pathname==="/"||pathname==="/settings")&&<OptionalWidgetBoundary><Suspense fallback={null}><OnboardingGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<OptionalWidgetBoundary><Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}<OptionalWidgetBoundary><Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense></OptionalWidgetBoundary>{pathname==="/"&&<OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallNudge/></Suspense></OptionalWidgetBoundary>}</>}
+</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&<GlobalNav active={active} mobileImmersive={false}/>}{(pathname==="/"||pathname==="/settings")&&<OptionalWidgetBoundary><Suspense fallback={null}><OnboardingGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<OptionalWidgetBoundary><Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}<OptionalWidgetBoundary><Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense></OptionalWidgetBoundary>{pathname==="/"&&<OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallNudge/></Suspense></OptionalWidgetBoundary>}</>}

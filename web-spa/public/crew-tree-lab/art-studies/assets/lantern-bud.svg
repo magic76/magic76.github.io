@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="120" height="165" viewBox="0 0 120 165">
-<title>Crew original lantern flower</title>
-<defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7e2b5"/><stop offset=".45" stop-color="#e6b7c0"/><stop offset="1" stop-color="#9ac5bb"/></linearGradient></defs>
-<path d="M60 4Q58 34 62 44" fill="none" stroke="#5b8d85" stroke-width="4"/>
-<path d="M60 41C15 40 11 90 32 113Q45 133 60 147Q77 130 91 111C112 79 97 42 60 41Z" fill="url(#b)" stroke="#7896a0" stroke-width="3"/>
-<path d="M59 43Q49 97 60 142M35 64Q59 54 84 65" fill="none" stroke="#fff4df" stroke-width="5" opacity=".6"/>
-<path d="M31 111Q44 134 46 146M90 112Q79 134 75 147" fill="none" stroke="#749e99" stroke-width="2.3" opacity=".8"/>
-<ellipse cx="60" cy="96" rx="15" ry="22" fill="#fff6d6" opacity=".33"/>
-</svg>

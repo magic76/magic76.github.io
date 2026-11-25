@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, writeFileSync, rmSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, rmSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
@@ -57,42 +57,24 @@ export default defineConfig(({ command }) => {
       this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify(buildInfo, null, 2) + "\n" });
     }
   };
-  // Tree Lab pages are static files in public/, so their script URLs carry a
-  // manual ?v= query. Browsers cached the pre-art forest-v6.js for hours
-  // because that query never changed. Stamp the current commit into every
-  // built HTML file so each deploy busts the cache automatically; the
-  // sources keep the __CREW_COMMIT__ placeholder.
-  const treeLabVersion: Plugin = {
-    name: "crew-tree-lab-version",
+  // Keep only a redirect for the previously retired Creature Lab.
+  const retiredCreatureRedirect: Plugin = {
+    name: "crew-retired-creature-redirect",
     apply: "build",
     writeBundle(options) {
-      const commit = buildInfo.commit?.slice(0, 8) || "dev";
       const outDir = options.dir || resolve(process.cwd(), isCloudflareBuild ? "../dist" : "../crew-app");
-      // Retired feature: keep the old bookmark as a redirect, never publish its assets.
       const retiredLab = resolve(outDir, "crew-creature-lab");
       rmSync(retiredLab, { recursive: true, force: true });
       mkdirSync(retiredLab, { recursive: true });
       const destination = isCloudflareBuild ? "/explore" : "../index.html#/explore";
       writeFileSync(resolve(retiredLab, "index.html"), `<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${destination}"><title>Koolo</title></head><body><a href="${destination}">Koolo</a></body></html>`);
-      const walk = (dir: string): string[] => {
-        if (!existsSync(dir)) return [];
-        return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
-          const p = resolve(dir, e.name);
-          return e.isDirectory() ? walk(p) : e.name.endsWith(".html") ? [p] : [];
-        });
-      };
-      for (const file of walk(outDir)) {
-        const text = readFileSync(file, "utf8");
-        if (!text.includes("__CREW_COMMIT__")) continue;
-        writeFileSync(file, text.replaceAll("__CREW_COMMIT__", commit));
-      }
     }
   };
   return {
     root: "web-spa",
     // GitHub Pages continues serving the legacy HashRouter build until DNS cutover.
     base: isCloudflareBuild ? "/" : "./",
-    plugins: [react(), versionAsset, treeLabVersion, {
+    plugins: [react(), versionAsset, retiredCreatureRedirect, {
       name: "crew-pwa-icons",
       apply: "build",
       generateBundle() {

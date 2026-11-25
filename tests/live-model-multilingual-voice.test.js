@@ -27,9 +27,3 @@ test("Crew Friend and Crew Teacher persona do not impose British, Taiwanese or o
  assert.match(f,/buildAccentPrompt\(language,region,accentStrength,customAccent\)/);
  assert.match(identity,/Always respond in the learner's SELECTED target language/);
 });
-test("Voice Lab displays selected actual model and controlled English-specific accent experiments",()=>{
- const lab=read("web-spa/src/teacher/VoiceLabPage.tsx");
- assert.match(lab,/liveModel=useTeacherStore\(s=>s.liveModel\)/);
- assert.match(lab,/\/settings#live-model-settings/);
- assert.match(lab,/voiceIdentityPrompt\(role,actor.id,"英文",accent,style,strength\)/);
-});

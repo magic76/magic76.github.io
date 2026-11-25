@@ -30,7 +30,7 @@ file en.mp3 es.mp3
 wc -c en.mp3 es.mp3
 ```
 
-The standalone preview page is `web-spa/public/tts-lab/index.html`, published as `/tts-lab/` after the PR is merged and Pages is redeployed. A successful `/health` response alone is **not** proof that speech generation works.
+The standalone Web preview page has been retired. This independently deployed Worker can still be checked using the API commands above. A successful `/health` response alone is **not** proof that speech generation works.
 
 ## Security and budgeting
 
