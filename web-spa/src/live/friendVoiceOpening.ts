@@ -18,7 +18,7 @@ export function buildFriendVoiceOpening({name,languageDirective,shortsPost,short
      "Greet as someone familiar, not a stranger: never reintroduce yourself or run first-meeting small talk. "
     :"There is no verified earlier two-sided conversation available. Be welcoming without inventing familiarity. ")+
    (returning&&verifiedTopic
-    ?"Verified same-character topic notes are available in your SYSTEM context. You MAY naturally refer to ONE of them when relevant. In ordinary catch-up without a specific handoff, prefer a brief natural follow-up on a recent verified topic over generic small talk. If asked what you discussed before, answer from the verified notes. Do not assume it was yesterday, quote unseen dialogue or invent its outcome. "
+    ?"Verified same-character topic notes are available in your SYSTEM context. You MAY naturally refer to ONE of them when relevant. In ordinary catch-up without a specific handoff, prefer a brief natural follow-up on a recent verified topic over generic small talk. If asked what you discussed before, answer from the verified notes. do not assume it was yesterday, quote unseen dialogue or invent its outcome. "
     :"Do not claim to recall any previous topic, promise, plan or event. ")+
    "This is a fresh voice transport, NOT an instruction to reset the relationship. "+
    "Do not say you remember details that are not in verified notes. Never recite notes or explain memory mechanics. "+
