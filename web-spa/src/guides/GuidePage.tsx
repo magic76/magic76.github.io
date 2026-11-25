@@ -14,7 +14,7 @@ export function GuidePage(){
  const locale=getLocale(i18n.language),english=locale==="en";
  const guide=getGuide(slug,locale);
  useEffect(()=>{if(guide)document.title=guide.title},[guide]);
- if(!guide)return <section className="guide-error section"><h1>{english?"Guide not found":"找不到這篇指南"}</h1><Link to="/teacher">{english?"Back to Crew Teacher":"返回 Crew Teacher"}</Link></section>;
+ if(!guide)return <section className="guide-error section"><h1>{english?"Guide not found":"找不到這篇指南"}</h1><Link to="/teacher">{english?"Back to Koolo Teacher":"返回 Crew Teacher"}</Link></section>;
  const related=guideSlugs.filter(other=>other!==slug).slice(0,4);
  return <article className="crew-guide">
   <nav className="crew-guide-breadcrumbs" aria-label={english?"Breadcrumb":"麵包屑導覽"}>
@@ -23,7 +23,7 @@ export function GuidePage(){
    <span aria-current="page">{guide.label}</span>
   </nav>
   <header className="crew-guide-hero">
-   <span className="kicker">CREW GUIDES / {guide.label}</span>
+   <span className="kicker">KOOLO GUIDES / {guide.label}</span>
    <h1>{guide.headline}</h1>
    <p>{guide.intro}</p>
    <div className="crew-guide-actions">
@@ -31,8 +31,8 @@ export function GuidePage(){
     <Link className="btn secondary" to={guide.secondaryTarget}>{guide.secondary}</Link>
    </div>
    <small className="crew-guide-requirement">{english?
-    "Try AI voice for free. After your trial, you can add your Gemini key to continue.":
-    "AI 語音可先免費試用；用完額度後可設定自己的 Gemini API Key。"}</small>
+    "Use daily free AI text or voice without an API key. Check current limits and sign-in options.":
+    "每日免費文字與語音額度，無需自備 API Key；實際用量與登入選項以網站顯示為準。"}</small>
   </header>
   <div className="crew-guide-layout">
    <div className="crew-guide-main">
@@ -58,7 +58,7 @@ export function GuidePage(){
     </section>
     <section className="crew-guide-end">
      <h2>{english?"Ready to try it yourself?":"想自己試試看？"}</h2>
-     <p>{english?"Choose the Crew experience that fits your goal. No separate Crew account is required.":"選擇適合自己的 Crew 練習方式；不需要另外註冊 Crew 帳號。"}</p>
+     <p>{english?"Choose the Koolo experience that fits your goal. Sign in for additional allowance where available.":"選擇適合自己的 Koolo 練習方式；登入後可查看額外額度。"}</p>
      <div className="crew-guide-chat-actions">
       <Link className="crew-guide-chat-primary" to={"/friend/live?id=zoe&chat=text&topic=guide-"+slug}>{t("contentChat.articleText")}</Link>
       <Link className="crew-guide-chat-secondary" to="/fortune?daily=1">{t("contentChat.todayFortune")}</Link>
