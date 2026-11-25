@@ -15,7 +15,7 @@ test("mobile homepage is a separate responsive presentation; desktop keeps its p
  assert.match(css,/\.crew-mobile-home\{display:none\}/);
  assert.match(css,/@media\(max-width:767px\)/);
  assert.match(css,/\.crew-home-legacy\{display:none!important\}/);
- assert.match(css,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.cmh-app-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
 });
 
 test("mobile hero follows last active friend identity without storing any transcript",()=>{
@@ -33,17 +33,17 @@ test("mobile hero follows last active friend identity without storing any transc
  assert.match(page,/const ZOE_VOICE="\/friend\/live\?id=zoe&from=home&entry=bubble"/);
 });
 
-test("eight one-tap app destinations, one Shorts strip and one daily recommendation",()=>{
+test("six one-tap app destinations, one Shorts strip and one daily recommendation",()=>{
  const page=read("web-spa/src/pages/MobileHomePage.tsx");
  const css=read("web-spa/src/pages/mobileHome.css");
- for(const route of ["/teacher/roles?mode=friends","/learn","/games","/story","/fortune","/teacher/shorts","/timeline","/teacher/course"]){
+ for(const route of ["/teacher/roles?mode=friends","/learn","/games","/fortune","/teacher/shorts","/teacher/course"]){
   assert.ok(page.includes('to:"'+route+'"'),"missing direct app "+route);
  }
  assert.match(page,/className="cmh-app-grid"\>\{APPS\.map/);
- assert.ok(page.includes('id:"timeline",zh:"時光機",en:"Timeline",icon:"history",to:"/timeline",event:"timeline"'));
+ assert.doesNotMatch(page,/\{id:"(?:story|timeline)",/);
  assert.ok(page.includes('id:"scenarios",zh:"情境課程",en:"Scenarios",icon:"scene",to:"/teacher/course",event:"learn"'));
  const shortcuts=page.slice(page.indexOf("const APPS:"),page.indexOf("/** Mobile-only"));
- assert.equal((shortcuts.match(/\{id:"/g)||[]).length,8,"exactly eight shortcuts");
+ assert.equal((shortcuts.match(/\{id:"/g)||[]).length,6,"exactly six shortcuts");
  assert.ok(!shortcuts.includes('to:"/magic"'),"Magic must not be added");
  assert.match(page,/HomeShortsPreview maxPosts=\{6\} sharedFeed=\{shortsFeed\}/);
  assert.match(page,/className="cmh-slide cmh-slide-game"/);
