@@ -1,6 +1,6 @@
 import {createServer} from "vite";
 import {join} from "node:path";
-import {readPublishedResearch,hasArticleHeading,articleHeadingText} from "./research-seo.mjs";
+import {readPublishedResearch,hasArticleHeading,articleHeadingText,decodeHtmlText} from "./research-seo.mjs";
 import {recommendPublishedResearch} from "./research-discovery.mjs";
 import {GAME_SEO_SLUGS} from "./game-seo.mjs";
 import {COURSE_SEO} from "./course-seo.mjs";
@@ -75,7 +75,8 @@ export async function prerenderPublicRoutes(root){
     const path="/guides/"+slug,guide=getGuide(slug,locale==="en"?"en":"zh");
     if(!guide)throw Error("Guide missing content: "+locale+" "+slug);
     const html=await renderStaticRoute(path,locale);
-    if(!html.includes("<h1")||!html.includes(guide.headline))throw Error("Guide SSG missing content: "+locale+" "+slug);
+    const heading=html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1\s*>/i);
+    if(!heading||decodeHtmlText(heading[1].replace(/<[^>]*>/g,""))!==guide.headline)throw Error("Guide SSG missing content: "+locale+" "+slug);
     result.set(locale+":"+path,html);
     guides.set(locale+":"+path,{slug,locale,content:guide});
    }
