@@ -4,6 +4,8 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
 import {trackUsageEvent} from "../analytics/usage";
+import {beginHomeFriendJourney} from "../analytics/homeFriendJourney";
+import {useHomeFriendTopic} from "./useHomeFriendTopic";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {readLatestFriendActivity,type FriendActivity} from "../live/sessionTranscript";
@@ -46,6 +48,7 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
  },[]);
  const friend=activity?CREW_FRIENDS.find(person=>person.id===activity.friendId):null;
  const id=friend?.id;
+ const resumeTopic=useHomeFriendTopic(id);
  const voiceTo=id?"/friend/live?id="+encodeURIComponent(id)+"&from=home&entry=bubble":ZOE_VOICE;
  const track=(detail:Shortcut["event"])=>trackUsageEvent("home_entry_click",detail);
  return <div className="koolo-desktop-home">
@@ -54,9 +57,9 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,creatureProgres
     <div className="kdh-zoe-content">
      <span className="kdh-eyebrow"><span className="kdh-status-dot"/> {friend?friend.name.toUpperCase():"ZOE"} · {t("showcase29.badgeFriend")}</span>
      <h1>{friend?t("layout2.resumeTitle",{name:friend.name}):t("mobileHero.title")}</h1>
-     <p>{t(friend?"chatChoices.returnPrompt":"chatChoices.prompt")}</p>
+     <p className={resumeTopic?"kdh-return-topic":undefined}>{resumeTopic?t("chatChoices.resume")+": "+resumeTopic:t(friend?"chatChoices.returnPrompt":"chatChoices.prompt")}</p>
      <div className="kdh-zoe-actions">
-      <Link className="kdh-primary" to={voiceTo} onClick={()=>track("friend")}><Icon name="chat"/>{t("showcase29.desktop.voice")}</Link>
+      <Link className="kdh-primary" to={voiceTo} onClick={()=>{track("friend");beginHomeFriendJourney(id||"zoe",Boolean(friend))}}><Icon name="chat"/>{t(friend?"chatChoices.resume":"showcase29.desktop.voice")}</Link>
      </div>
     </div>
     <div className="kdh-zoe-visual" aria-hidden="true">
