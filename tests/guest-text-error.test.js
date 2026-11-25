@@ -93,16 +93,17 @@ test("new guest failure messages and buttons exist as strings in all 11 voice na
  assert.match(css,/\.crew-text-chat-error \.btn\{min-height:44px/);
 });
 
-test("quota recovery promotes free key creation and returns to the same conversation",()=>{
+test("quota recovery offers tomorrow and free exploration, preserving explicit BYOK recovery",()=>{
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
  const recovery=read("web-spa/src/live/GuestKeyRecovery.tsx");
  const css=read("web-spa/src/live/TextChatPanel.css");
  assert.ok(panel.includes('<GuestKeyRecovery exhausted={guestPhase==="exhausted"} hasKey={hasKey}/>'));
  assert.ok(recovery.includes('encodeURIComponent(location.pathname+location.search)'));
  assert.ok(recovery.includes('"#settings-gemini"'));
- assert.ok(recovery.includes('exhausted&&!hasKey&&<p>{t("guestText.nextDayHint")}</p>'));
- assert.ok(recovery.includes('hasKey?t("guestText.useKey"):t("guestText.applyKey")'));
- assert.ok(recovery.includes('!hasKey&&<small>{t("guestText.keyApplyNote")}</small>'));
+ assert.ok(recovery.includes('exhausted&&<p>{t("guestText.nextDayHint")}</p>'));
+ assert.match(recovery,/hasKey\?<Link[^\n]*guestText\.useKey[^\n]*to="\/games"/);
+ assert.doesNotMatch(recovery,/guestText\.applyKey|guestText\.keyApplyNote/);
+ assert.match(panel,/hasKey&&guestFailure&&/);
  assert.match(css,/\.crew-text-guest \.crew-text-key-recovery \.btn\{[^}]*min-height:44px/);
  assert.match(css,/\.crew-text-chat\.is-chatting \.crew-text-guest \.crew-text-key-recovery p\{display:block\}/);
  for(const locale of ["zh-TW","en","ja","ko","es","fr","de","pt-BR","id","vi","th"]){
@@ -111,6 +112,5 @@ test("quota recovery promotes free key creation and returns to the same conversa
  }
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/voice.json")).guestText;
  assert.match(zh.nextDayHint,/明天/);
- assert.match(zh.applyKey,/免費申請/);
- assert.match(zh.keyApplyNote,/額度/);
+ assert.doesNotMatch(zh.nextDayHint,/Key|金鑰/);
 });

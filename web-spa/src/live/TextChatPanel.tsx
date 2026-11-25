@@ -335,13 +335,13 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   </div>}
   {!guestMode&&<small role="status" className="crew-text-chat-live-status">{liveStatus||t("textChat.ui.liveKeyboard")}</small>}
   {guestMode&&<div ref={guestBox} className="crew-text-guest" role="region" aria-label={t("textChat.ui.freePractice")}>
-   <strong>{t("textChat.ui.freeDaily",{count:dailyLimit})}</strong>
+   {remaining!==null&&remaining<=3&&<strong>{t("textChat.ui.freeDaily",{count:dailyLimit})}</strong>}
    {micFallbackNotice&&<small role="status">{t("guestText.micFallbackNotice",{name:speaker})}</small>}
    {guestPhase==="checking"&&<small role="status">{t("textChat.ui.checking")}</small>}
    {challengeRequested&&guestPhase==="ready"&&<><div ref={host} className="crew-text-challenge-host" aria-label={t("textChat.ui.verification")}/>
     <small role="status">{t("guestText.interactionHint")}</small></>}
    {guestPhase==="starting"&&<small role="status">{t("guestText.connecting")}</small>}
-   {(guestPhase==="active"||guestPhase==="ready")&&remaining!==null&&<small role="status">{t("textChat.ui.remaining",{count:remaining})}</small>}
+   {(guestPhase==="active"||guestPhase==="ready")&&remaining!==null&&remaining<=3&&<small role="status">{t("textChat.ui.remaining",{count:remaining})}</small>}
    {guestPhase==="error"&&guestFailure?.kind==="verification"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.verifyAgain")}</button>}
    {guestPhase==="paused"&&<button className="btn secondary" type="button" onClick={()=>{setGuestPhase("ready");setError("");setGuestFailure(null)}}>{t("guestText.restart")}</button>}
    {guestPhase==="unavailable"&&<small role="status">{t("textChat.ui.unavailable")}</small>}
@@ -374,7 +374,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {guestFailure?.start&&!guestFailure.kind.startsWith("verification")&&guestFailure.kind!=="dailyLimit"&&<p>{t("guestText.restartHint")}</p>}
    {guestFailure?.repeated&&<p>{t("guestText.backendNext")}</p>}
    {guestFailure&&!guestFailure.start&&guestFailure.retry&&<button type="button" className="btn secondary" disabled={busy} onClick={()=>void sendMessage(draft)}>{t("guestText.retry")}</button>}
-   {guestFailure&&(guestFailure.kind==="capacity"||guestFailure.repeated)&&<Link className="btn secondary" to="/account#settings-gemini">{t("guestText.useKey")}</Link>}
+   {hasKey&&guestFailure&&(guestFailure.kind==="capacity"||guestFailure.repeated)&&<Link className="btn secondary" to="/account#settings-gemini">{t("guestText.useKey")}</Link>}
   </div>}
   {historyReady&&messages.length>0&&(showStarterWithHistory||isGameRoundLink())&&firstStarter&&!draft.trim()&&!busy&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} firstOnly/>}
   <form className="crew-text-chat-form" onSubmit={event=>{event.preventDefault();void sendMessage(draft)}}>
