@@ -1,6 +1,6 @@
 
-/* Four learning-method cards use the same right-edge arrow slot. */
-.crew-section-learn .crew-learn-tool{position:relative;padding-right:42px}
+/* Learning-method cards reserve a bottom-right arrow slot. */
+.crew-section-learn .crew-learn-tool{position:relative}
 .crew-section-learn .crew-learn-tool .crew-learn-tool-arrow{position:absolute;right:10px;bottom:10px;width:20px;height:20px;color:inherit}
 /* Intent-first Crew hub destinations. Original products remain directly reachable. */
 .crew-section-hub{display:grid;gap:22px;max-width:1000px;margin:0 auto;padding:8px 0 40px}
@@ -260,3 +260,7 @@
 
 /* Fixed tracks: a missing icon must never push copy into the 40px icon column. */
 .crew-section-card>.crew-section-card-icon{grid-column:1;grid-row:1}.crew-section-card>.crew-section-card-copy{grid-column:2;grid-row:1}.crew-section-card>.crew-section-arrow{grid-column:3;grid-row:1;justify-self:end}
+/* Vertical learning cards must not inherit the horizontal copy track. */
+.crew-section-learn .crew-learn-tool>.crew-section-card-icon{grid-column:1;grid-row:1}
+.crew-section-learn .crew-learn-tool>.crew-section-card-copy{grid-column:1;grid-row:2}
+.crew-section-learn .crew-learn-tool{padding-bottom:34px}
