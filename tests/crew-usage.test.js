@@ -125,6 +125,7 @@ test("new game and experience events survive ingestion without personal payloads
   ["town_interaction","person"],["town_3d_fallback","render_error"],
   ["magic_spell",""],["magic_panel_choice",""],["magic_voice_failed",""],
   ["mate_handoff_completed",""],["research_article_completed",""],
+  ["seo_quiz_started","ed_ending"],["seo_quiz_completed","travel_english"],["seo_quiz_cta_click","ed_ending"],
   ["circle_post_published","live"],["home_entry_click","play"]
  ]){
   const response=await onRequestPost({request:request({...payload,event,detail}),env});
@@ -140,6 +141,9 @@ test("GA4 keeps known product routes while redacting dynamic paths",()=>{
  const js=stripTypeScriptTypes(section,{mode:"strip"}).replace("export function safeGa4Path","function safeGa4Path");
  const safe=new Function(js+"\nreturn safeGa4Path;")();
  assert.equal(safe("/town"),"/town");
+ assert.equal(safe("/en/guides/english-pronunciation/"),"/en/guides/english-pronunciation");
+ assert.equal(safe("/guides/travel-english-dialogues/"),"/guides/travel-english-dialogues");
+ assert.equal(safe("/guides/my-personal-name"),"/guides/item");
  assert.equal(safe("/magic"),"/magic");
  assert.equal(safe("/mate"),"/mate");
  assert.equal(safe("/souls"),"/souls");
