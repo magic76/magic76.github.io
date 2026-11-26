@@ -20,8 +20,8 @@
 .crew-section-row-title h2{font-size:19px;letter-spacing:-.025em;margin:0}
 .crew-section-row-title a{font-size:12px;color:var(--accent);font-weight:750;text-decoration:none}
 .crew-section-discover,.crew-section-people{display:grid;gap:15px}
-.crew-section-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.crew-section-card{display:grid;grid-template-columns:40px minmax(0,1fr) 32px;align-items:center;gap:12px;min-height:96px;padding:16px 14px;border:1px solid var(--line);border-radius:17px;background:#fff;color:var(--text);text-decoration:none;transition:transform .18s,box-shadow .18s}
+.crew-section-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--crew-card-gap)}
+.crew-section-card{display:grid;grid-template-columns:40px minmax(0,1fr) 32px;align-items:center;gap:12px;min-height:96px;padding:var(--crew-card-padding);border:1px solid var(--line);border-radius:var(--crew-card-radius);background:#fff;color:var(--text);text-decoration:none;transition:transform .18s,box-shadow .18s}
 .crew-section-card-icon{height:40px;width:40px;border-radius:12px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
 .crew-section-card-icon svg{width:22px;height:22px}
 .crew-section-card-copy strong{font-size:13px;line-height:1.4}
@@ -37,7 +37,7 @@
 @media(prefers-reduced-motion:reduce){.crew-section-card,.crew-section-hero{transition:none}}
 
 /* Visual hierarchy: shared hub layout uses the existing palette and canonical spacing. */
-.crew-section-hub{gap:var(--crew-space-section);padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.crew-section-hub{gap:var(--crew-space-section);padding-bottom:0}
 .crew-section-heading{gap:7px}
 .crew-section-heading h1{font-size:var(--crew-page-title)}
 .crew-section-heading p{font-size:var(--crew-support-size);line-height:1.65}
@@ -62,10 +62,10 @@
 .crew-section-people-strip .crew-section-friend{position:relative;display:flex;flex:0 0 calc((100% - 39px)/4);min-width:0;min-height:320px;flex-direction:column;align-items:stretch;justify-content:flex-end;text-align:left;gap:0;overflow:hidden;padding:0;border-radius:var(--crew-card-radius);border:1px solid var(--line);background:#e8e1ee;scroll-snap-align:start;isolation:isolate;transition:transform 240ms var(--crew-motion-ease),box-shadow 240ms var(--crew-motion-ease),border-color 180ms}
 .crew-section-friend-photo{position:absolute;inset:0;z-index:0;display:grid;place-items:center;background:linear-gradient(130deg,#e7dcf2,#cac4d8);font-size:72px;font-weight:800;color:#75678b}
 .crew-section-friend-photo .crew-friend-avatar{position:absolute;inset:0;width:100%;height:100%;border-radius:0;object-fit:cover;object-position:center 19%;transition:transform 240ms var(--crew-motion-ease)}
-.crew-section-friend-copy{display:grid;gap:6px;min-width:0;width:100%;z-index:1;padding:50px 15px 16px;color:#fff;background:linear-gradient(0deg,rgba(23,17,38,.93),rgba(23,17,38,.68) 52%,transparent)}
+.crew-section-friend-copy{display:grid;gap:6px;min-width:0;width:100%;z-index:1;padding:50px 15px 16px;color:#fff;background:linear-gradient(0deg,rgba(23,17,38,.96),rgba(23,17,38,.8) calc(100% - 38px),transparent)}
 .crew-section-people-strip .crew-section-friend strong{font-size:22px;line-height:1.2;color:#fff;overflow-wrap:anywhere}
 .crew-section-people-strip .crew-section-friend small{color:#f4edf9;font-size:14px;line-height:1.4}
-.crew-section-friend-bio{font-size:13px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.crew-section-friend-bio{font-size:15px;line-height:1.5;overflow-wrap:anywhere}
 .crew-section-friend-cta{display:inline-flex;align-items:center;gap:7px;margin-top:7px;font-size:14px;font-weight:800;color:#fff}
 @media(hover:hover) and (pointer:fine){
  .crew-section-people-strip .crew-section-friend:hover{transform:translateY(-3px);box-shadow:var(--crew-elevation);border-color:var(--accent)}
@@ -119,9 +119,11 @@
 .crew-section-focus-card-portrait{position:relative}
 .crew-section-focus-card-portrait span{position:absolute;inset:0;display:grid;place-items:center}
 .crew-section-focus-card-portrait img{position:absolute;inset:0}
-@media(max-width:430px){
- .crew-section-people-toolbar{width:100%;justify-content:space-between}
- .crew-section-carousel-actions{flex:none}
+@media(max-width:700px),(pointer:coarse){
+ .crew-section-carousel-actions,.crew-section-chat-life .crew-home-shorts-controls{display:none}
+ .crew-section-people-toolbar>a{margin-right:0}
+ .crew-section-people-strip{scrollbar-width:none}
+ .crew-section-people-strip::-webkit-scrollbar{display:none}
 }
 
 @media(hover:none),(pointer:coarse){.crew-section-hero:hover,.crew-section-card:hover{transform:none;box-shadow:none}}
@@ -129,7 +131,7 @@
 /* Learning: one recommendation, one compact progress summary, then real 2x2 actions. */
 .crew-section-learn{gap:16px}
 .crew-learn-heading{padding-bottom:0}
-.crew-learn-heading-row{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;min-width:0}
+.crew-learn-heading-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 14px;min-width:0}
 .crew-learn-heading-copy{min-width:0;display:grid;gap:5px}
 .crew-learn-language{display:grid;gap:5px;min-width:130px;max-width:46%;font-size:12px;font-weight:650;color:var(--muted)}
 .crew-learn-language select{width:100%;min-width:0;min-height:44px;padding:8px 29px 8px 12px;font:inherit;font-size:14px;font-weight:650;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:12px}
@@ -191,25 +193,20 @@
 
 /* Direct teacher conversation is the primary action; changing teachers stays optional. */
 .crew-learn-teacher-card{display:grid;gap:12px;box-sizing:border-box;min-width:0;padding:16px 18px;border:1px solid var(--line);border-radius:var(--crew-card-radius);background:var(--surface)}
-.crew-learn-teacher-card .kicker{font-size:12px}
-.crew-learn-teacher-identity{display:grid;grid-template-columns:68px minmax(0,1fr);gap:14px;align-items:center;min-width:0}
-.crew-learn-teacher-portrait{display:block;width:68px;height:68px;overflow:hidden;border-radius:15px;background:var(--accent-soft)}
+.crew-learn-teacher-identity{display:grid;grid-template-columns:56px minmax(0,1fr) minmax(44px,auto);gap:12px;align-items:center;min-width:0}
+.crew-learn-teacher-portrait{display:block;width:56px;height:56px;overflow:hidden;border-radius:12px;background:var(--accent-soft)}
 .crew-learn-teacher-portrait .teacher-avatar-image{display:block;width:100%;height:100%}
 .crew-learn-teacher-copy{display:grid;gap:5px;min-width:0;overflow-wrap:anywhere}
 .crew-learn-teacher-copy strong{font-size:19px;line-height:1.3}
 .crew-learn-teacher-copy small{color:var(--muted);font-size:12px;line-height:1.5}
-.crew-learn-teacher-actions{display:flex;gap:10px;align-items:stretch;min-width:0}
 .crew-learn-teacher-start{display:flex;flex:1 1 auto;align-items:center;justify-content:center;gap:8px;min-width:0;min-height:48px;padding:10px 16px;box-sizing:border-box;border-radius:12px;background:var(--accent);color:#fff;font-size:15px;font-weight:750;line-height:1.4;text-align:center;text-decoration:none;overflow-wrap:anywhere}
-.crew-learn-teacher-pick{display:flex;flex:0 0 auto;align-items:stretch;min-width:0;color:var(--text);text-decoration:none;border-radius:12px}
+.crew-learn-teacher-pick{display:inline-flex;align-items:center;justify-content:center;max-width:9em;min-width:44px;min-height:44px;padding:0 4px;color:var(--accent);font-size:14px;font-weight:650;text-align:center;overflow-wrap:anywhere;text-underline-offset:3px}
 .crew-learn-teacher-start:focus-visible,.crew-learn-teacher-pick:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.crew-learn-teacher-action{display:inline-flex;gap:8px;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:1px solid var(--accent);border-radius:12px;color:var(--accent);font-size:14px;font-weight:700;white-space:nowrap}
-@media(hover:hover) and (pointer:fine){.crew-learn-teacher-start:hover{filter:brightness(.94)}.crew-learn-teacher-pick:hover .crew-learn-teacher-action{background:var(--accent-soft)}}
+@media(hover:hover) and (pointer:fine){.crew-learn-teacher-start:hover{filter:brightness(.94)}.crew-learn-teacher-pick:hover{text-decoration-thickness:2px}}
 @media(max-width:600px){
  .crew-learn-teacher-card{padding:14px 16px}
- .crew-learn-teacher-identity{grid-template-columns:64px minmax(0,1fr);gap:12px}
- .crew-learn-teacher-portrait{width:64px;height:64px}
- .crew-learn-teacher-actions{display:grid;grid-template-columns:minmax(0,1fr)}
- .crew-learn-teacher-pick,.crew-learn-teacher-action{box-sizing:border-box;width:100%}
+ .crew-learn-teacher-identity{grid-template-columns:48px minmax(0,1fr) fit-content(38%);gap:8px}
+ .crew-learn-teacher-portrait{width:48px;height:48px}
  .crew-section-learn .crew-section-focus-card{padding:16px}
 }
 
@@ -264,3 +261,7 @@
 
 /* Teacher-first learning hub: keep the activity dashboard available on demand. */
 .crew-learn-progress-details{margin:0;min-width:0;border:1px solid var(--line);border-radius:var(--crew-card-radius);background:var(--surface);padding:0 14px}.crew-learn-progress-details>summary{display:list-item;min-height:44px;padding:12px 0;box-sizing:border-box;font-weight:700;cursor:pointer}.crew-learn-progress-content{display:grid;gap:12px;padding:0 0 14px;min-width:0}.crew-learn-progress-details>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.crew-section-chat-life .crew-home-short-content .crew-short-reply-prompt{display:block;overflow:visible;min-height:0;line-clamp:unset;-webkit-line-clamp:unset;font-weight:650;overflow-wrap:anywhere}
+.crew-short-translation-details{font-size:13px;line-height:1.5;color:var(--muted)}
+.crew-short-translation-details summary{min-height:44px;align-content:center;cursor:pointer}

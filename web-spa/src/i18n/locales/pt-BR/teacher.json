@@ -47,12 +47,12 @@
     "shortsUnavailable": "Histórias indisponíveis. Abra o Koolo Shorts e tente novamente.",
     "shortsDisclosure": "Histórias fictícias criadas pelo Koolo.",
     "shortsDemo": "Conteúdo de prévia",
-    "shortsChatThis": "Conversar com {{name}} sobre esta foto"
+    "shortsChatThis": "Responder a {{name}}"
   },
   "learn": {
     "threeMinute": "Prática de fala de 3 minutos",
     "threeMinuteDesc": "Converse naturalmente no idioma de estudo com um amigo Koolo",
-    "title": "Aprender",
+    "title": "Prática de conversação",
     "intro": "Escolha o que deseja praticar.",
     "method": "Formas de aprender",
     "textbook": "Ler com um professor",
@@ -60,7 +60,7 @@
     "vocab": "Prática de vocabulário",
     "vocabDesc": "Memorize palavras difíceis e revise quando for necessário",
     "course": "Lições de situações",
-    "courseDesc": "Pratique conversas naturais, do cotidiano ao trabalho",
+    "courseDesc": "Peça uma refeição, pergunte o caminho ou pratique uma entrevista.",
     "pronunciation": "Prática de pronúncia",
     "pronunciationDesc": "Leia em voz alta e trabalhe seus maiores pontos de melhoria",
     "library": "Biblioteca de leitura",
@@ -68,7 +68,8 @@
     "board": "Lousa de ensino ao vivo com IA",
     "boardDesc": "See explanations, examples and quizzes evolve while talking",
     "phrases": "Prática de frases",
-    "phrasesDesc": "Ouça, reduza a velocidade, repita, salve e revise com um jogo de compreensão auditiva."
+    "phrasesDesc": "Ouça, reduza a velocidade, repita, salve e revise com um jogo de compreensão auditiva.",
+    "targetLabel": "Quero praticar"
   },
   "tutor": {
     "title": "Praticar com um professor",
@@ -194,7 +195,9 @@
     "library": "Biblioteca de leitura",
     "libraryDesc": "Clássicos curtos e materiais para ler em voz alta",
     "android": "App Android",
-    "androidDesc": "Tenha a experiência completa do Koolo Teacher no Android."
+    "androidDesc": "Tenha a experiência completa do Koolo Teacher no Android.",
+    "noReports": "Ainda não há relatórios",
+    "noReportsDesc": "Aqui aparecem as sessões que receberam feedback após a prática."
   },
   "vocabulary": {
     "listenSlow": "Ouvir devagar",
@@ -260,7 +263,8 @@
     "base": "Pergunte sobre significados ou gramática em {{native}}. O professor explica em {{native}} e dá exemplos em {{target}}. ",
     "beginner": "Iniciantes recebem mais ajuda no idioma materno.",
     "advanced": "Nos níveis avançados, praticamos mais {{target}}.",
-    "adaptive": "A ajuda se adapta ao seu nível de fala."
+    "adaptive": "A ajuda se adapta ao seu nível de fala.",
+    "switchHelp": "Não sabe como dizer algo em {{target}}? Pergunte em {{native}}."
   },
   "course": {
     "materialNotice": "As aulas de situações usam apenas material em inglês no momento. Para praticar {{language}}, converse com o professor; ele pode explicar em {{native}}.",
@@ -298,7 +302,7 @@
     "timelineIntro": "Conheça a mesma pessoa aos 7, 16, 25, 40, 55 ou 70 anos.",
     "timelineAction": "Explore a vida de Mira →",
     "intentsAria": "Escolha a conversa",
-    "intentsHeading": "O que você gostaria de fazer hoje?",
+    "intentsHeading": "Sem assunto?",
     "intentsHint": "Comece com um motivo para conversar",
     "shareTitle": "Conte algo sobre seu dia",
     "shareDesc": "Converse naturalmente, sem cobrança.",
@@ -463,8 +467,8 @@
     "recordStart": "Gravar",
     "reviewed": "Revisei",
     "nextReview": "Próxima: {{date}}",
-    "emptyTitle": "Seu baralho de estudo ainda está vazio",
-    "emptyDesc": "Salve uma das cinco frases de hoje ou uma frase de uma conversa com Zoe que você realmente queira aprender.",
+    "emptyTitle": "Nenhuma palavra ou frase salva ainda",
+    "emptyDesc": "Salve uma frase do dia acima para revisá-la aqui.",
     "dailyNote": "5 frases de hoje",
     "modelDownloading": "Baixando modelo",
     "tags": {
@@ -479,6 +483,7 @@
       "learning": "Aprendendo",
       "review": "Revisando",
       "familiar": "Familiar"
-    }
+    },
+    "readFailed": "Não foi possível ler suas frases salvas."
   }
 }

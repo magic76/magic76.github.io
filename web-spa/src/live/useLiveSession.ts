@@ -4,7 +4,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMemoryEnabled}from"../teacher/studentMemory";
 import{recordSpeakingLevel,effectiveSpeakingLevel}from"../teacher/speakingLevelMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import{turnTimingForLevel}from"./turnTiming";
-import {useCallback,useEffect,useRef,useState} from "react";
+import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveSessionOptions,type LiveTurn} from "../lib/runtime";
 import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
 import {extractGroundingSources,extractSearchSuggestions,mergeGroundingSources,type GroundingSource} from "./grounding";
@@ -15,11 +15,12 @@ export type LiveState="idle"|"requesting-mic"|"connecting"|"listening"|"speaking
 export type FriendVoicePhase="idle"|"hearing"|"pause"|"processing"|"recovering"|"no-transcript"|"no-reply";
 export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
-type LiveAttempt={active:boolean};
+type LiveAttempt={active:boolean;captionScope?:string;captionOffset:number;failed?:boolean};
 type Config={
  createPlaybackRoute?:LiveSessionOptions["createPlaybackRoute"];
  separateCaptureContext?:boolean;
  rememberPlaybackVolume?:boolean;
+ recoveryCaptionScope?:string;
  inputLanguageCodes?:LiveSessionOptions["inputLanguageCodes"];
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  resolveSessionContext?:()=>{system:string;openingPrompt:string};
@@ -110,6 +111,11 @@ export function useLiveSession(config:Config){
  const feedbackQueue=useRef(createLearningFeedbackQueue());
  const [learningFeedback,setLearningFeedback]=useState<LearningFeedbackByTurn>({});
  const [turns,setTurns]=useState<LiveTurn[]>([]),[input,setInput]=useState(""),[output,setOutput]=useState("");
+ // Caption history stays on this screen. Reports, memories and the transport only receive
+ // the current session's turns, so retrying never submits a previous message again.
+ const [earlierCaptions,setEarlierCaptions]=useState<LiveTurn[]>([]);
+ const pendingCaption=useRef<LiveTurn>({});
+ const captionTurns=useMemo(()=>earlierCaptions.length?[...earlierCaptions,...turns]:turns,[earlierCaptions,turns]);
  const [searchSources,setSearchSources]=useState<GroundingSource[]>([]),[searchUnavailable,setSearchUnavailable]=useState(false),[searchSuggestions,setSearchSuggestions]=useState("");
  const [micEnabled,setMicEnabled]=useState(false);
  const [openingProtected,setOpeningProtected]=useState(false);
@@ -177,10 +183,23 @@ export function useLiveSession(config:Config){
   }
   return {turns:(item?.turns||[]) as LiveTurn[],durationMs:Number(item?.durationMs||0),report:completedReport};
  },[]);
- const start=useCallback(async(grant?:GuestTrialGrant,textOnly=false)=>{
+ const start=useCallback(async(grant?:GuestTrialGrant,textOnly=false,continueCaptions=false)=>{
   if(!mountedRef.current||attemptRef.current?.active||sessionRef.current)return;
   if(!geminiKey()&&!grant){trackUsageEvent("gemini_key_missing");setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
-  const attempt={active:true};
+  const captionScope=configRef.current.recoveryCaptionScope;
+  const previous=attemptRef.current;
+  const keepCaptions=Boolean(captionScope&&previous?.captionScope===captionScope&&(previous.failed||continueCaptions));
+
+  const completed=turnsRef.current;
+  const partial=pendingCaption.current;
+  const retained=partial.input||partial.output?[...completed,partial]:completed;
+  const attempt:LiveAttempt={active:true,captionScope,captionOffset:keepCaptions?(previous?.captionOffset||0)+retained.length:0};
+  setEarlierCaptions(previous=>keepCaptions?[...previous,...retained]:[]);
+  pendingCaption.current={};
+  turnsRef.current=[];setTurns([]);setInput("");setOutput("");
+  if(!keepCaptions)setLearningFeedback({});
+  setErrorKind(null);setState(textOnly?"connecting":"requesting-mic");
+  setStatus(textOnly?"正在連線…":"正在準備麥克風…");
   attemptRef.current=attempt;
   const isActive=()=>attempt.active&&attemptRef.current===attempt;
   const memoryConfig=configRef.current;
@@ -189,7 +208,7 @@ export function useLiveSession(config:Config){
   const guestMemoryAllowed=guestMemory&&guestMemoryTools?.length===1;
   const feedbackAllowed=Boolean(memoryConfig.learningFeedback&&(!grant||grant.learningFeedback===true));
    const baseTools=grant?(guestMemoryAllowed?[{functionDeclarations:guestMemoryTools!}]:undefined):memoryConfig.tools;
-   feedbackQueue.current=createLearningFeedbackQueue();setLearningFeedback({});
+   feedbackQueue.current=createLearningFeedbackQueue();
    memoryConfig.onMemorySessionStart?.();
   try{
    await ensureLive();
@@ -200,8 +219,8 @@ export function useLiveSession(config:Config){
    guestConnectedAtRef.current=0;guestEndedReportedRef.current=false;guestConnectFailedReportedRef.current=false;guestEffectiveReportedRef.current=false;
    cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();friendReplyRescueSentRef.current=false;setFriendPhase("idle");
    cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
-   turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setSearchSources([]);setSearchUnavailable(false);setSearchSuggestions("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
-   setState("requesting-mic");setStatus("正在準備麥克風…");
+   awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setSearchSources([]);setSearchUnavailable(false);setSearchSuggestions("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
+
    // Maximum two nudges per pause; never synthesize a transcript "user" turn.
    // The timeout starts only AFTER the model has finished speaking.
    const scheduleRescue=()=>{
@@ -316,7 +335,7 @@ export function useLiveSession(config:Config){
      if(v==="requesting-mic")setState("requesting-mic");
      else if(v==="connecting"){setOpeningProtected(false);setState("connecting")}
      else if(v==="ready"){recordGuestConnect();setState("listening");setFriendPhase("idle")}
-     else if(v==="error"){recordGuestFailure();setState("error")}
+     else if(v==="error"){recordGuestFailure();setState("ending")}
     },
     onSpeaking:v=>{
       if(!isActive())return;
@@ -371,7 +390,7 @@ export function useLiveSession(config:Config){
        trackUsageEvent(chatKind==="teacher"?"teacher_user_spoke":chatKind==="friend"?"friend_user_spoke":"timeline_user_spoke");
       }
      }
-     setInput(v);
+     pendingCaption.current.input=v;setInput(v);
     },
     onOutputTranscript:v=>{
       if(!isActive())return;
@@ -381,7 +400,7 @@ export function useLiveSession(config:Config){
       aiReplied=true;
       trackUsageEvent(chatKind==="teacher"?"teacher_ai_replied":chatKind==="friend"?"friend_ai_replied":"timeline_ai_replied");
      }
-     setOutput(v);
+     pendingCaption.current.output=v;setOutput(v);
     },
     onRecovered:()=>{
        if(!isActive())return;
@@ -413,7 +432,7 @@ export function useLiveSession(config:Config){
        if(configRef.current.sessionKind==="friend")scheduleFriendReplyCheck();
       }else recoveryRequestRef.current=false;
     },
-     onTranscriptTurn:(turn,all)=>{if(!isActive())return;cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());if(feedbackAllowed){const correction=feedbackQueue.current.complete(turn.input,memoryConfig.language);if(correction)setLearningFeedback(previous=>({...previous,[all.length-1]:correction}))}if(!guestModeRef.current)configRef.current.onConfirmedTranscript?.(turn)},
+     onTranscriptTurn:(turn,all)=>{if(!isActive())return;pendingCaption.current={};cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());if(feedbackAllowed){const correction=feedbackQueue.current.complete(turn.input,memoryConfig.language);if(correction)setLearningFeedback(previous=>({...previous,[attempt.captionOffset+all.length-1]:correction}))}if(!guestModeRef.current)configRef.current.onConfirmedTranscript?.(turn)},
     onTurnComplete:turn=>{
        if(!isActive())return;
        feedbackQueue.current.clear();
@@ -446,7 +465,7 @@ export function useLiveSession(config:Config){
        }
        if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
      },
-     onError:e=>{if(!isActive())return;recordGuestFailure();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
+     onError:e=>{if(!isActive())return;recordGuestFailure();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setStatus(uiMessage(e.message))},
      onTerminal:info=>{
       if(!isActive())return;
       attempt.active=false;
@@ -455,7 +474,7 @@ export function useLiveSession(config:Config){
       cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");
       const item=snapshot(info?.status||"terminal");
       sessionRef.current=null;
-      if(info?.state==="error"){setState("error");return}
+      if(info?.state==="error"){attempt.failed=true;setState("error");return}
       void finish(item,attempt,configRef.current,Boolean(grant));
      }
    });
@@ -482,7 +501,7 @@ export function useLiveSession(config:Config){
    session.setVolume(volumeRef.current);setState("listening");setMicEnabled(!textOnly);
   }catch(e){
    if(!isActive())return;
-   attempt.active=false;
+   attempt.active=false;attempt.failed=true;
    recordGuestFailure();clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);
    sessionRef.current=null;
    const message=e instanceof Error?e.message:e,kind=classifyError(message);
@@ -496,7 +515,7 @@ export function useLiveSession(config:Config){
   const attempt=attemptRef.current;
   if(!attempt)return null;
   attempt.active=false;
-  const s=sessionRef.current;if(!s)return null;
+  const s=sessionRef.current;if(!s){if(!attempt.failed)setState("ended");return null}
   clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);
   cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");setState("ending");setStatus("正在結束…");
   const item=snapshot("user-stop");
@@ -561,7 +580,7 @@ export function useLiveSession(config:Config){
    void closeSession(session,"page-leave");
   };
  },[closeSession,snapshot]);
- return{state,status,micEnabled,openingProtected,enableMicrophone,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,learningFeedback,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
+ return{state,status,micEnabled,openingProtected,enableMicrophone,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,captionTurns,learningFeedback,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
 
 

@@ -69,7 +69,7 @@ test("Published Shorts UI offers story questions on home and feed, with server-s
  assert.match(feed,/shortsPhotoQuestions\(post/);
  assert.match(feed,/crew-short-primary-cta/);
  assert.match(home,/<Link className="crew-home-short-photo" to=\{"\/teacher\/shorts\?post="\+encodeURIComponent\(post.id\)\}/);
- assert.match(home,/to=\{shortsChatUrl\(post,undefined,0\)\}/, "Home CTA keeps a contextual Friend Live path");
+ assert.match(home,/replyMode\?shortsChatUrl\(post\)\+"&entry=reply":shortsChatUrl\(post,undefined,0\)/, "Home CTA keeps a contextual Friend Live path");
  assert.match(home,/practice\.shortsChatThis/);
  assert.doesNotMatch(home,/crew-home-short-chat|\/friend\/live\?id=/,"No duplicate generic homepage chat");
  assert.doesNotMatch(feed,/\/friend\/live\?id=/,"No duplicate generic feed chat");
@@ -82,4 +82,11 @@ test("Published Shorts UI offers story questions on home and feed, with server-s
  assert.match(live,/completedTurns\.some/);
  for(const event of ["shorts_hook_click","shorts_story_followup"])assert.ok(server.includes('"'+event+'"'));
  assert.match(load("web-spa/src/friends/friendMemory.ts"),/localStorage\.removeItem\("crew_shorts_conversations_v1"\)/);
+});
+
+test("Chat reply prompts come only from the verified post caption",async()=>{
+ const {shortsReplyPromptKey}=await socialModule();
+ assert.equal(shortsReplyPromptKey({caption:"A new keyboard switch."}),"replyKeyboard");
+ assert.equal(shortsReplyPromptKey({caption:"My jacket zip caught its lining."}),"replyZipper");
+ assert.equal(shortsReplyPromptKey({caption:"A quiet morning."}),"replyEveryday");
 });

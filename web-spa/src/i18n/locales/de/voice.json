@@ -1,5 +1,6 @@
 {
   "controls": {
+    "connectingTo": "Verbindung mit {{name}} wird hergestellt…",
     "myTurn": "Ich bin dran",
     "friendVoice": "Stimme",
     "muteFriend": "Stimme des Freundes stummschalten",

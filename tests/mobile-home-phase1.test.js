@@ -50,7 +50,7 @@ test("six one-tap app destinations, one Shorts strip and one daily recommendatio
  assert.doesNotMatch(page,/className="cmh-featured"/);
  assert.match(page,/className="cmh-seo"/);
  assert.match(page,/<GuideHub\/>/);
- assert.match(page,/className="cmh-seo"[\s\S]*?to="\/learn"/);
+ assert.match(page,/className="cmh-seo"><GuideHub\/>/);
  assert.match(css,/\.cmh-shorts \.crew-home-short-card/);
 });
 
@@ -61,7 +61,7 @@ test("the phone hero is four real one-tap slides with the teacher in the first s
  assert.match(page,/CAROUSEL_INTERVAL_MS=11000/);
  assert.ok(page.indexOf('<section className="cmh-slide cmh-slide-learn"')<page.indexOf('<section className={"cmh-slide cmh-zoe"'));
  assert.match(page,/className="cmh-slide cmh-slide-learn" data-active=\{activeSlide===0\} aria-hidden=\{activeSlide!==0\}/);
- assert.match(page,/<Link to="\/learn" tabIndex=\{activeSlide===0\?0:-1\}/);
+ assert.match(page,/<Link to="\/teacher\/live" tabIndex=\{activeSlide===0\?0:-1\}/);
  assert.match(page,/cmh-carousel-track/);
  for(const className of ["cmh-slide cmh-zoe","cmh-slide cmh-slide-friends","cmh-slide cmh-slide-game","cmh-slide cmh-slide-learn"]){
   assert.ok(page.includes(className),"missing carousel slide "+className);

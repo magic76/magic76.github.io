@@ -45,7 +45,7 @@ import {buildFriendSystem,recordFriendChat,recordFriendVoiceExchange,friendVoice
 import {recordFriendActivity,clearLegacyFriendChats} from "../live/sessionTranscript";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
 import {buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
-import {isShortsHook,shortsSelectedQuestion,rememberShortsConversation} from "../teacher/shortsSocial";
+import {shortsReplyPromptKey,isShortsHook,shortsSelectedQuestion,rememberShortsConversation} from "../teacher/shortsSocial";
 import "./friends.css";
 import "./friendCall.css";
 import "./friendCallFocus.css";
@@ -60,6 +60,8 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
  const [params]=useSearchParams();
  const textFirst=params.get("chat")==="text";
+ const textParams=new URLSearchParams(params);textParams.set("chat","text");
+ const textHref="/friend/live?"+textParams.toString();
   const voiceParams=new URLSearchParams(params);voiceParams.delete("chat");
   useEffect(()=>{clearLegacyFriendChats()},[]);
  const textStage=useRef<HTMLElement|null>(null);
@@ -73,7 +75,8 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const selectedQuestion=shortsPost?shortsSelectedQuestion(shortsPost,params.get("q"),
   (key,detail)=>t("home:shorts."+key,{detail})):"";
  const shortsHookText=shortsHook?t("home:shorts."+({details:"hooksDetails",feelings:"hooksFeelings",next:"hooksNext"}[shortsHook])):undefined;
- const shortsStarter=shortsPost?(selectedQuestion||shortsHookText||t("voice:friendLive.postStarter")):undefined;
+ const replyPrompt=shortsPost&&params.get("entry")==="reply"?t("home:shorts."+shortsReplyPromptKey(shortsPost)):"";
+ const shortsStarter=shortsPost&&!replyPrompt?(selectedQuestion||shortsHookText||t("voice:friendLive.postStarter")):undefined;
  const dailyTopic=!shortsPost&&friend.id==="zoe"?getDailyTopic(params.get("topic")):undefined;
  const dailyTopicStarter=dailyTopic?t("textStarters.topics."+dailyTopic.id,{name:friend.name}):undefined;
  const selectedQuote=!shortsPost&&friend.id==="zoe"?getDailyQuote(params.get("quote")):undefined;
@@ -114,7 +117,8 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
  const resolveSessionContext=()=>{
   const openingRecall=friendVoiceOpeningRecall(friend.id,language);
-  const system=buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost);
+  const system=buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost)
+   +(replyPrompt?"\nThe friend asked the learner this app-provided question about the post: "+replyPrompt+" Respond to their answer in the context of this story.":"");
   const scopedSystem=gameRoundContext(system,"friend:"+friend.id);
   return {
    system:scopedSystem+(dailyFortune?"\n"+dailyFortune.context:"")+(fortuneSystem?"\n"+fortuneSystem:"")+(!shortsPost?CURRENT_FACTS:""),
@@ -129,7 +133,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const live=useLiveSession({
   createPlaybackRoute:separatePlayback?createElementPlayback:undefined,
   separateCaptureContext:separatePlayback,
-  rememberPlaybackVolume:true,
+  rememberPlaybackVolume:true,recoveryCaptionScope:JSON.stringify([friend.id,shortsPost?.id,intent,language]),
   pageKey:"friend-"+sessionId,title:"Koolo 朋友 · "+friend.name,
   ...resolveSessionContext(),resolveSessionContext,languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
@@ -183,9 +187,11 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  useAuxiliaryLiveSession(active,false);
  useFriendVoiceTheme(!active);
+ const interruptedCaptions=live.state==="error"&&Boolean(live.captionTurns.length||live.input||live.output);
+ const reopenGuestGate=()=>{setGuestVerified(false);setGuestStarted(false);setPendingTextStart(false)};
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
- const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active,live.micEnabled,live.muted));
+ const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active,live.micEnabled,live.muted),{name:friend.name});
  const voiceMuteProps=live.micEnabled&&(live.state==="listening"||live.state==="speaking")
   ?{volume:live.volume,onVolume:live.setVolume}:null;
  useFriendTextViewport(true,textStage);
@@ -207,8 +213,8 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
   {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
   {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" learningFeedback precall friendMemory={undefined} textEntry={textFirst} autoTextOnVerified={textFirst&&(pendingTextStart||Boolean(dailyHandoff&&fortuneContinue))}
     onVerificationChange={setGuestVerified} focusStartOnVerified={homeFirstAction} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}} onTextGrant={async grant=>{setGuestStarted(true);setPendingTextStart(false);await live.start(grant,true)}}/>
-   :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
-   :textFirst&&!active?null:<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}>{active?(live.micEnabled?<FriendCallControls live={live} onEnd={endAndReturn}/>:<button type="button" className="friend-unified-end" onClick={()=>void endAndReturn()}>{t("callCaptions.hangUp")}</button>):<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}</div>}
+   :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"} onRetry={reopenGuestGate} textFallback={textHref} onUseText={reopenGuestGate}/>
+   :textFirst&&!active&&live.state!=="error"?null:<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}>{active?(live.micEnabled?<FriendCallControls live={live} onEnd={endAndReturn}/>:<button type="button" className="friend-unified-end" onClick={()=>void endAndReturn()}>{t("callCaptions.hangUp")}</button>):<LiveControls live={live} textFallback={textFirst?undefined:textHref} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}</div>}
  </>;
  return <>
   <header className="app-header"><div className="shell inner">
@@ -218,7 +224,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
    <div className="friend-call-header-actions"><span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>{shortsPost&&voiceMuteProps&&<FriendVoiceMute {...voiceMuteProps} compact/>}<FriendCallMenuTrigger active={true} open={showCallOptions} label={t("callCaptions.more")} onToggle={()=>setShowCallOptions(v=>!v)}/></div>
   </div></header>
   <main className="session-shell friend-live-page">
-   <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(active?" friend-phone-stage":" friend-precall-stage")+(active&&shortsPost?" friend-shorts-voice-compact":"")+(textFirst?" friend-text-first-stage":"")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
+   <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(active||interruptedCaptions?" friend-phone-stage":" friend-precall-stage")+(active&&shortsPost?" friend-shorts-voice-compact":"")+(textFirst?" friend-text-first-stage":"")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
     <div className="live-identity">
      <div className="friend-voice-avatar-anchor">
       <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
@@ -232,6 +238,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>
       <div><small>{t("friendLive.postOrigin")}<span className="friend-live-post-date"> · {shortsPost.publishedAt.slice(0,10)}</span></small>
        <p lang={shortsPost.language}>{shortsPost.caption}</p>
+       {replyPrompt?<p>{replyPrompt}</p>:null}
        {selectedQuestion?<small className="friend-live-post-hook">{t("friendLive.hookPrefix")}{selectedQuestion}</small>
         :shortsHook?<small className="friend-live-post-hook">{t("friendLive.hookPrefix")}{shortsHookText}</small>:null}</div>
      </section>:null}
@@ -257,17 +264,17 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
 </>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
     </div>
-    {live.turns.length?<FriendChatHistory turns={live.turns} friendName={friend.name} youLabel={t("friendLive.youLabel")} summary={t("friendLive.historySummary")}/>:null}
+    {live.captionTurns.length?<FriendChatHistory turns={live.captionTurns} friendName={friend.name} youLabel={t("friendLive.youLabel")} summary={t("friendLive.historySummary")}/>:null}
     </FriendCallMenu>
     {(textFirst||!shortsPost)&&!homeFirstAction?voiceStart:null}
     {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
     {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?
      <div className="live-recovery" role="status">
       <span>{live.voicePhase==="no-transcript"?t("friendLive.noTranscript"):t("friendLive.noReply")}</span>
-      {live.voicePhase==="no-reply"&&!guestStarted?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
+      {live.voicePhase==="no-reply"&&!guestStarted?<button type="button" className="live-btn" onClick={()=>void live.stop(true).then(()=>live.start(undefined,!live.micEnabled,true))}>{t("controls.reconnect")}</button>:null}
      </div>:null}
     <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
-    {active?<FriendCallCaptions name={friend.name} turns={live.turns} learningFeedback={live.learningFeedback} input={live.input} output={live.output}
+    {active||interruptedCaptions?<FriendCallCaptions name={friend.name} turns={live.captionTurns} learningFeedback={live.learningFeedback} input={live.input} output={live.output}
      learningLanguage={language} nativeLanguage={friendNativeLanguage} translationEnabled={translationEnabled}
      speaking={live.state==="speaking"} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled}/>:null}
     {/* Keep the sticky keyboard out of voice pre-call; its two gate buttons need the full width and height. */}
@@ -276,7 +283,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
      blocked={dailyLookupPending} autoStarter={dailyHandoff&&textFirst?fortuneContinue:undefined}
      starters={[gameRoundStarter(language,friend.name,window.location.search),shortsStarter,fortuneContinue,dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter,...(fortuneReplies||[]),...homeStarters].filter((v):v is string=>Boolean(v))}/>}
     <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
-   </section>{active&&live.micEnabled&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
+   </section>{active&&live.micEnabled&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.captionTurns} input={live.input} output={live.output} state={live.state}/>}</div>
   </main>
  </>;
 }

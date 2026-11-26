@@ -17,7 +17,7 @@ test("#66: chat=text hides voice trial promotion while keeping verification",()=
  assert.match(starter,/role==="friend"&&onTextGrant&&!textEntry&&<button/);
  assert.match(starter,/phase==="ready"&&<><div ref=\{host\}/);
  assert.match(page,/voiceParams\.delete\("chat"\)/);
- assert.match(page,/textFirst&&!active\?null/);
+ assert.match(page,/textFirst&&!active&&live.state!=="error"\?null/);
 });
 test("#66: typed message survives verification and uses a text-only Live grant",()=>{
  assert.match(composer,/pendingText\.current=text;autoSent\.current=true/);

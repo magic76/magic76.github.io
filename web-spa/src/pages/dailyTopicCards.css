@@ -44,12 +44,6 @@
 @supports not (backdrop-filter:blur(1px)){.daily-quote-chart{background:#fff}}
 @media(max-width:380px){.daily-quote-chart{padding-left:5px;padding-right:17px}}
 
-/* A same-device, next-day update cue; no extra banner or layout shift animation. */
-.daily-quote-updated{display:inline-flex;align-items:center;justify-self:start;align-self:flex-start;width:max-content;max-width:100%;min-height:27px;flex:none;padding:3px 9px;border-radius:999px;background:#ece1ff;color:#523772;font-size:12px;font-weight:800;line-height:1.3}
-.daily-quote-action--updated{border-color:#9471be;background:#f1e6ff;color:#472e67;box-shadow:inset 0 0 0 1px #b59ad6}
-.daily-quote--desktop .daily-quote-updated{background:#f1defa;color:#342041}
-.daily-quote--desktop .daily-quote-action--updated{background:#f1defa;border-color:#f1defa;color:#342041}
-
 /* Mobile: daily fortune precedes shortcuts, with tight but readable spacing. */
 @media(max-width:767px){
  .daily-quote--mobile{margin-top:10px}
@@ -68,10 +62,6 @@
  .daily-quote--mobile .daily-quote-text{line-height:18px;white-space:nowrap;text-overflow:ellipsis}
 }
 
-/* Update cue stays in the natural-height heading, and may wrap on narrow screens. */
-.daily-quote-heading .daily-quote-updated{max-width:100%;align-self:center;white-space:normal;overflow-wrap:anywhere}
-@media(max-width:380px){.daily-quote-heading .daily-quote-updated{font-size:12px;padding:3px 6px}}
-
 .daily-quote-swatch{display:inline-block;width:11px;height:11px;border-radius:50%;margin-inline-end:5px;border:1px solid currentColor;vertical-align:middle}
 .daily-quote-headline{display:block;font-size:14px;line-height:calc(1em + 4px);overflow-wrap:anywhere}
 .daily-quote-action-hint{overflow-wrap:anywhere}
@@ -80,3 +70,15 @@
 /* Explicit margins replace flex gaps so the floated control cannot stretch the text stack. */
 .daily-quote-body > :not(.daily-quote-chart) + :not(.daily-quote-chart){margin-block-start:4px}
 .daily-quote--mobile .daily-quote-body:has(.daily-quote-headline) .daily-quote-text{line-height:calc(1em + 4px)}
+
+.daily-quote-actions{justify-items:start}
+.daily-quote-action.daily-quote-action--fortune,.daily-quote-action.daily-quote-action--chat{background:transparent;border:0;color:inherit;padding-inline:0;text-decoration:underline;text-underline-offset:3px}
+.daily-quote--mobile .daily-quote-card{background:#fff;border-color:#e1e5e1;box-shadow:none}
+.daily-quote--desktop .daily-quote-card{grid-template-columns:minmax(0,1fr) auto}
+
+@media(max-width:380px) and (max-height:680px){
+ .daily-quote--mobile .daily-quote-card:has(.daily-quote-chart){position:relative}
+ .daily-quote--mobile .daily-quote-body:has(.daily-quote-chart){padding-inline-end:82px;min-height:88px}
+ .daily-quote--mobile .daily-quote-chart{position:absolute;inset:6px 10px auto auto;max-width:76px}
+ .daily-quote--mobile .daily-quote-card:has(.daily-quote-chart) .daily-quote-actions{position:absolute;bottom:6px;right:10px;max-width:76px}
+}

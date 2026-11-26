@@ -78,7 +78,7 @@ test("future checkout remains disabled; source routes and migration do not grant
  const schema=read("migrations/crew-auth/0006_fortune_paid_reports.sql");
  const routes=JSON.parse(read("_routes.json"));
  const app=read("web-spa/src/App.tsx");
- const me=read("web-spa/src/pages/CrewSectionPage.tsx");
+ const me=read("web-spa/src/pages/MyAccountGroups.tsx");
  assert.ok(routes.include.includes("/api/fortune/*"));
  assert.match(schema,/CHECK\(status<>'paid' OR paid_at IS NOT NULL\)/);
  assert.match(schema,/provider_event_hash TEXT NOT NULL UNIQUE/);

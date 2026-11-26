@@ -1,5 +1,6 @@
 {
   "controls": {
+    "connectingTo": "Menghubungkan ke {{name}}…",
     "myTurn": "Giliranku",
     "friendVoice": "Suara teman",
     "muteFriend": "Bisukan suara teman",

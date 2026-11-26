@@ -47,12 +47,12 @@
     "shortsUnavailable": "Stories are unavailable. Open Koolo Shorts to try again.",
     "shortsDisclosure": "Fictional stories created by Koolo.",
     "shortsDemo": "Preview content",
-    "shortsChatThis": "Chat with {{name}} about this"
+    "shortsChatThis": "Reply to {{name}}"
   },
   "learn": {
     "threeMinute": "3-minute speaking",
     "threeMinuteDesc": "Chat naturally in your target language with a Koolo Friend",
-    "title": "Learn",
+    "title": "Speaking practice",
     "intro": "Choose what you'd like to work on.",
     "method": "Ways to learn",
     "textbook": "Read with a teacher",
@@ -60,7 +60,7 @@
     "vocab": "Vocabulary practice",
     "vocabDesc": "Remember difficult words and review them when it matters",
     "course": "Scenario lessons",
-    "courseDesc": "Practice naturally, from everyday life to work",
+    "courseDesc": "Order a meal, ask for directions or practise a job interview.",
     "pronunciation": "Pronunciation practice",
     "pronunciationDesc": "Read aloud and focus on your biggest improvements",
     "library": "Reading library",
@@ -68,7 +68,8 @@
     "board": "AI Live Teaching Board",
     "boardDesc": "See explanations, examples and quizzes evolve while talking",
     "phrases": "Phrase practice",
-    "phrasesDesc": "Listen, slow down, shadow, save, and review with a listening game."
+    "phrasesDesc": "Listen, slow down, shadow, save, and review with a listening game.",
+    "targetLabel": "I want to practise"
   },
   "tutor": {
     "title": "Practice with a teacher",
@@ -194,7 +195,9 @@
     "library": "Reading library",
     "libraryDesc": "Short classics and reading-aloud materials",
     "android": "Android app",
-    "androidDesc": "Get the full Koolo Teacher experience on Android."
+    "androidDesc": "Get the full Koolo Teacher experience on Android.",
+    "noReports": "No practice reports yet",
+    "noReportsDesc": "Sessions with feedback appear here after speaking practice."
   },
   "vocabulary": {
     "listenSlow": "Play slowly",
@@ -260,7 +263,8 @@
     "base": "Ask about meanings, grammar or culture in {{native}}. Your teacher explains in {{native}} and models in {{target}}. ",
     "beginner": "More native-language help at beginner levels.",
     "advanced": "Higher levels use more {{target}}.",
-    "adaptive": "Support adapts to your speaking, automatically."
+    "adaptive": "Support adapts to your speaking, automatically.",
+    "switchHelp": "Stuck on a word in {{target}}? Ask your teacher in {{native}}."
   },
   "course": {
     "materialNotice": "Scenario lessons currently use English materials. To practice {{language}}, use Teacher Chat; your teacher can explain in {{native}}.",
@@ -298,7 +302,7 @@
     "timelineIntro": "Meet one person at 7, 16, 25, 40, 55, or 70.",
     "timelineAction": "Explore Mira's life →",
     "intentsAria": "Choose your conversation",
-    "intentsHeading": "What do you feel like doing?",
+    "intentsHeading": "Need a conversation starter?",
     "intentsHint": "Start with a reason to speak",
     "shareTitle": "Share something from today",
     "shareDesc": "Just talk. No lesson or pressure.",
@@ -463,8 +467,8 @@
     "recordStart": "Record",
     "reviewed": "Reviewed",
     "nextReview": "Next: {{date}}",
-    "emptyTitle": "Your learning deck is empty",
-    "emptyDesc": "Save one of today's five phrases above, or save a sentence from a Zoe chat that you really want to learn.",
+    "emptyTitle": "No saved words or phrases yet",
+    "emptyDesc": "Save a daily phrase above to review it here later.",
     "dailyNote": "Today's 5 phrases",
     "modelDownloading": "Downloading model",
     "tags": {
@@ -479,6 +483,7 @@
       "learning": "Learning",
       "review": "Reviewing",
       "familiar": "Familiar"
-    }
+    },
+    "readFailed": "Couldn’t read your saved phrases."
   }
 }

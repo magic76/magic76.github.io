@@ -23,7 +23,7 @@
   bottom:calc(8px + env(safe-area-inset-bottom,0px));
   z-index:70;
   width:auto;max-width:620px;
-  height:calc(var(--nav-h,68px) - 8px);
+  min-height:calc(var(--nav-h,68px) - 8px);
   margin:0 auto;box-sizing:border-box;
   padding:0;
   border:1px solid var(--crew-frost-border);
@@ -38,7 +38,7 @@
   -webkit-font-smoothing:antialiased;
  }
  .crew-mobile-dock-inner{
-  width:100%;max-width:620px;height:100%;margin:0 auto;
+  width:100%;max-width:620px;min-height:inherit;margin:0 auto;
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;
  }
  .crew-mobile-dock-item{
@@ -46,7 +46,7 @@
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:2px;text-decoration:none!important;background:transparent!important;
   color:var(--crew-frost-idle)!important;border-radius:0;
-  font-size:12px;font-weight:700;letter-spacing:-.05em;line-height:1.15;
+  font-size:.75rem;font-weight:700;letter-spacing:normal;line-height:1.15;
   touch-action:manipulation;
  }
  .crew-mobile-dock-icon{
@@ -54,7 +54,7 @@
   background:transparent;border-radius:10px;
  }
  .crew-mobile-dock-icon svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
- .crew-mobile-dock-label{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+ .crew-mobile-dock-label{max-width:100%;padding:0 2px;white-space:normal;overflow-wrap:anywhere;text-align:center}
  .crew-mobile-dock-item.active{color:var(--crew-frost-active)!important}
  .crew-mobile-dock-item.active .crew-mobile-dock-icon{background:var(--crew-frost-highlight)}
  .crew-mobile-dock-item:focus-visible{outline:3px solid #6674ca;outline-offset:-4px;border-radius:12px}
@@ -67,15 +67,4 @@
  .app-header .crew-feature-menu-trigger{display:none!important}
  /* Circle is a separate full-width page; preserve access to the shared dock without obscuring its footer. */
  .books-root{padding-bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom,0px))}
-}
-
-/* Two-line labels at 360px: no clipped navigation names or smaller touch targets. */
-@media(max-width:360px){
- .crew-mobile-dock-item{min-width:0;min-height:54px}
- .crew-mobile-dock-label{
-  box-sizing:border-box;min-width:0;max-width:100%;padding:0 2px;
-  font-size:12px;line-height:1.15;text-align:center;white-space:normal;
-  overflow-wrap:anywhere;word-break:normal;overflow:hidden;text-overflow:clip;
-  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
- }
 }

@@ -9,7 +9,7 @@ const styles=read("web-spa/src/friends/friendCall.css");
 test("#68: voice pre-call never mounts the sticky composer over its gate buttons",()=>{
  // The phone layout is activated by a running/connecting Live session, not by screen width.
  assert.match(page,/const active=\["requesting-mic","connecting","listening","speaking","ending","reporting"\]\.includes\(live\.state\)/);
- assert.match(page,/active\?" friend-phone-stage":" friend-precall-stage"/);
+ assert.match(page,/active\|\|interruptedCaptions\?" friend-phone-stage":" friend-precall-stage"/);
  assert.match(page,/const textFirst=params\.get\("chat"\)==="text"/);
  // The composer is mounted for chat=text before a session, and for any ongoing call.
  // On the ordinary voice entry it must NOT exist while the verification CTAs are shown.
@@ -25,7 +25,7 @@ test("#68: text-first and active-call paths keep their existing unified input",(
  assert.match(page,/textEntry=\{textFirst\}/);
  assert.match(page,/onVerificationNeeded=\{textFirst\?\(\)=>setPendingTextStart\(true\):undefined\}/);
  assert.match(page,/onTextGrant=\{async grant=>\{setGuestStarted\(true\);setPendingTextStart\(false\);await live\.start\(grant,true\)\}\}/);
- assert.match(page,/\{active\?<FriendCallCaptions\b/);
+ assert.match(page,/\{active\|\|interruptedCaptions\?<FriendCallCaptions\b/);
  // Connected sessions still switch from the pre-call to phone-stage class.
- assert.match(page,/active\?" friend-phone-stage":" friend-precall-stage"/);
+ assert.match(page,/active\|\|interruptedCaptions\?" friend-phone-stage":" friend-precall-stage"/);
 });

@@ -84,7 +84,7 @@ body{min-height:100vh;padding-bottom:0}
 
 
 /* UX polish: onboarding, safe mobile navigation, and desktop use of space. */
-:root{--muted:#686868}
+:root{--muted:#56615b}
 .page{padding-bottom:calc(var(--nav-h,68px) + 34px + env(safe-area-inset-bottom))}
 .app-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;margin-left:auto}
 .status,.fortune-header-history,.subnav a,.fortune-result-tabs button,.btn,.teacher-picker-close,.live-tool-btn,.live-presets button,.vision-btn,.continue-last{min-height:44px}
@@ -295,7 +295,7 @@ body{min-height:100vh;padding-bottom:0}
  gap:8px;
  border-top:1px solid var(--line);
  padding:16px 0 18px;
- margin-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));
+ margin-bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));
  color:var(--muted);
  font-size:12px;
  line-height:1.6;

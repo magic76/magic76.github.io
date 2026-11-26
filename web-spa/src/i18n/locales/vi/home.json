@@ -96,11 +96,33 @@
     "explore": "Xem thêm hoạt động",
     "tap": "Chạm để mở"
   },
-  "layout2": {"title": "Học tiếng cùng {{name}}","action": "Chào {{name}}","description": "Không cần chuẩn bị chủ đề. Cứ chào trước nhé.","voice": "Chuyển sang trò chuyện bằng giọng nói","more": "Muốn thử điều khác không?","resumeTitle": "Tiếp tục trò chuyện với {{name}}",
-    "previewLabel": "Lần trước:","resumeAction": "Tiếp tục nhắn tin","chatTitle": "Bắt đầu bằng lời chào","chatDescription": "Trò chuyện cùng bạn AI và xem câu chuyện sẽ đi đến đâu.","previewHidden": "Đã ẩn tin nhắn gần nhất","showPreview": "Hiện tin nhắn gần nhất","hidePreview": "Ẩn tin nhắn gần nhất"},
+  "layout2": {
+    "title": "Học tiếng cùng {{name}}",
+    "action": "Chào {{name}}",
+    "description": "Không cần chuẩn bị chủ đề. Cứ chào trước nhé.",
+    "voice": "Chuyển sang trò chuyện bằng giọng nói",
+    "more": "Muốn thử điều khác không?",
+    "resumeTitle": "Tiếp tục trò chuyện với {{name}}",
+    "previewLabel": "Lần trước:",
+    "resumeAction": "Tiếp tục nhắn tin",
+    "chatTitle": "Bắt đầu bằng lời chào",
+    "chatDescription": "Trò chuyện cùng bạn AI và xem câu chuyện sẽ đi đến đâu.",
+    "previewHidden": "Đã ẩn tin nhắn gần nhất",
+    "showPreview": "Hiện tin nhắn gần nhất",
+    "hidePreview": "Ẩn tin nhắn gần nhất"
+  },
   "world": {
-    "freeAllowance": {"full": "Không cần đăng ký · {{count}} tin nhắn + {{minutes}} phút thoại mỗi ngày. Mai lại có", "memberDaily": "Thành viên: {{count}} tin nhắn/ngày · còn {{minutes}} phút thoại", "memberTextOnly": "Thành viên: {{count}} tin nhắn/ngày", "textOnly": "Không cần đăng ký · {{count}} tin nhắn miễn phí mỗi ngày. Mai lại có", "voiceUsed": "Hết lượt thoại hôm nay · {{count}} tin nhắn/ngày. Mai lại có"},
-    "practiceLang": {"label": "Ngôn ngữ luyện tập:", "aria": "Chọn ngôn ngữ luyện tập khi chat và trò chuyện bằng giọng nói"},
+    "freeAllowance": {
+      "full": "Không cần đăng ký · {{count}} tin nhắn + {{minutes}} phút thoại mỗi ngày. Mai lại có",
+      "memberDaily": "Thành viên: {{count}} tin nhắn/ngày · còn {{minutes}} phút thoại",
+      "memberTextOnly": "Thành viên: {{count}} tin nhắn/ngày",
+      "textOnly": "Không cần đăng ký · {{count}} tin nhắn miễn phí mỗi ngày. Mai lại có",
+      "voiceUsed": "Hết lượt thoại hôm nay · {{count}} tin nhắn/ngày. Mai lại có"
+    },
+    "practiceLang": {
+      "label": "Ngôn ngữ luyện tập:",
+      "aria": "Chọn ngôn ngữ luyện tập khi chat và trò chuyện bằng giọng nói"
+    },
     "modes": {
       "chat": {
         "lead": "AI không chỉ để trò chuyện.",
@@ -370,6 +392,9 @@
     "loadingMore": "Đang tải thêm chuyện…",
     "progress": "Cuộn để xem thêm · {{count}} / {{total}}",
     "retryMore": "Tải lại chuyện",
+    "replyKeyboard": "Bạn thích bàn phím êm hay bàn phím gõ lách cách?",
+    "replyZipper": "Khóa kéo của bạn từng bị kẹt chưa? Bạn gỡ thế nào?",
+    "replyEveryday": "Điều này gợi bạn nhớ đến chuyện gì mình từng trải qua?",
     "hooksDetails": "Kể thêm đi",
     "hooksFeelings": "Bạn cảm thấy thế nào?",
     "hooksNext": "Sau đó thế nào?",
@@ -412,11 +437,11 @@
   },
   "sectionExplore": {
     "title": "Khám phá",
-    "intro": "Hôm nay bạn muốn khám phá điều gì? Hãy chọn một điều khiến bạn tò mò.",
+    "intro": "Tìm bài để đọc hoặc chọn một trò chơi.",
     "destinations": "Các mục khám phá",
     "fortune": {
-      "title": "Khám phá vận mệnh",
-      "desc": "Xem lá số, lịch sử luận giải, tạo lần xem mới và nghe bạn Koolo giải thích."
+      "title": "Vận may hôm nay",
+      "desc": "Xem vận may hôm nay hoặc mở lá số của bạn."
     },
     "timeline": {
       "title": "Dòng thời gian cuộc đời",
@@ -424,19 +449,23 @@
     },
     "games": {
       "title": "Trò chơi tương tác",
-      "desc": "Câu đố bí ẩn, Taboo, đoán số 1A2B và nhiều trò chơi khác."
+      "desc": "Chơi đoán số hoặc giải câu đố suy luận."
     },
     "story": {
       "title": "Truyện tương tác",
       "desc": "Sáng tác, đọc và khám phá những câu chuyện cùng Koolo."
     },
     "research": {
-      "title": "Bản tin nghiên cứu AI",
-      "desc": "Khám phá công nghệ AI, nghiên cứu và những phát hiện mới."
+      "title": "Tin nghiên cứu",
+      "desc": "Đọc tin mới về nghiên cứu và công cụ AI."
     },
     "circle": {
       "title": "Cộng đồng",
       "desc": "Chia sẻ, trao đổi đồ dùng và kết nối với mọi người."
+    },
+    "souls": {
+      "title": "Trò chuyện với ảnh",
+      "desc": "Chụp một người hoặc đồ vật, chọn tính cách rồi bắt đầu trò chuyện."
     }
   },
   "sectionHubs": {
@@ -477,12 +506,12 @@
       "next": "Bạn tiếp theo",
       "chatWith": "Trò chuyện với {{name}}",
       "friendBios": {
-        "zoe": "Tìm niềm vui trong chuyện hằng ngày.",
-        "noah": "Người bạn điềm tĩnh, biết lắng nghe.",
-        "iris": "Phim ảnh, thiết kế và ý tưởng sáng tạo.",
-        "max": "Phiêu lưu và thử thách mới.",
-        "yuna": "Trò chuyện nhẹ nhàng theo nhịp của bạn.",
-        "felix": "Khám phá những góc nhìn khác."
+        "zoe": "Hôm nay có chuyện gì khiến bạn chỉ muốn trêu một câu?",
+        "noah": "Bạn muốn kể cho ai nghe khoảnh khắc nào của hôm nay?",
+        "iris": "Gần đây có hình ảnh nào cứ ở mãi trong tâm trí bạn?",
+        "max": "Nếu ra ngoài ngay bây giờ, bạn muốn đi đâu?",
+        "yuna": "Chuyện nhỏ nào hôm nay giúp bạn thư giãn?",
+        "felix": "Gần đây có chuyện gì khiến bạn đổi ý?"
       }
     },
     "learn": {
@@ -532,6 +561,22 @@
       "resumeCta": "Tiếp tục luyện tập"
     },
     "me": {
+      "groups": {
+        "content": "Nội dung của tôi",
+        "support": "Tài khoản và hỗ trợ",
+        "lifeReadings": "Luận giải cuộc đời",
+        "purchased": "Báo cáo đã mua",
+        "credits": "Số dư thoại trả trước",
+        "orders": "Đơn hàng của tôi",
+        "payments": "Thanh toán và hỗ trợ",
+        "loading": "Đang tải",
+        "unavailable": "Không tải được",
+        "signIn": "Đăng nhập để xem",
+        "reportCount": "{{number}} báo cáo",
+        "retry": "Tải lại dữ liệu tài khoản",
+        "adminTools": "Quản trị",
+        "admin": "Bảng quản trị"
+      },
       "title": "Koolo của tôi",
       "intro": "Tiến độ, nội dung đã lưu và tùy chọn cá nhân đều ở đây.",
       "hero": {
@@ -592,8 +637,15 @@
     "soulsDescription": "Cho đồ vật thường ngày biết nói.",
     "learnDescription": "Học một câu ngoại ngữ mới."
   },
-  "mobileHero": {"title": "Chơi mà học", "subtitle": "Chào một câu là đủ."},
-  "quickEntry": {"heading": "Khám phá Koolo", "fortune": "Vận may hôm nay", "shorts": "Xem Shorts"},
+  "mobileHero": {
+    "title": "Chơi mà học",
+    "subtitle": "Chào một câu là đủ."
+  },
+  "quickEntry": {
+    "heading": "Khám phá Koolo",
+    "fortune": "Vận may hôm nay",
+    "shorts": "Xem Shorts"
+  },
   "liveBubble": {
     "invite": "Chào! Trò chuyện chút nhé?",
     "start": "Thoại",
@@ -601,10 +653,34 @@
     "withZoe": "Trò chuyện với Zoe",
     "setup": "Cài Key"
   },
-  "dailyQuote": {"unnamedChart": "Lá số {{number}}", "title": "Một lời nhắn hôm nay", "fortune": "Xem vận may hôm nay", "chat": "Trò chuyện với Zoe", "fortuneFull": "Xem vận may chi tiết", "personalTitle": "Vận may hôm nay", "chooseChart": "Chọn lá số", "me": "Của tôi", "markSelf": "Đánh dấu là của tôi", "kind": {"bazi": "Bát tự", "tarot": "Thần số học", "vedic": "Chiêm tinh Vệ Đà"}, "chatRead": "Nhờ Zoe giải nghĩa vận may hôm nay", "setupChart": "Tạo lá số để xem vận may riêng mỗi ngày", "setupHint": "Nhập ngày và giờ sinh để xem vận may riêng của bạn mỗi ngày.",
+  "dailyQuote": {
+    "unnamedChart": "Lá số {{number}}",
+    "title": "Một lời nhắn hôm nay",
+    "fortune": "Xem vận may hôm nay",
+    "chat": "Trò chuyện với Zoe",
+    "fortuneFull": "Xem vận may chi tiết",
+    "personalTitle": "Vận may hôm nay",
+    "chooseChart": "Chọn lá số",
+    "me": "Của tôi",
+    "markSelf": "Đánh dấu là của tôi",
+    "kind": {
+      "bazi": "Bát tự",
+      "tarot": "Thần số học",
+      "vedic": "Chiêm tinh Vệ Đà"
+    },
+    "chatRead": "Nhờ Zoe giải nghĩa vận may hôm nay",
+    "setupChart": "Tạo lá số để xem vận may riêng mỗi ngày",
+    "setupHint": "Nhập ngày và giờ sinh để xem vận may riêng của bạn mỗi ngày.",
     "basisBazi": "Dựa trên lá số Bát Tự của bạn",
-    "basisNumerology": "Dựa trên ngày sinh (thần số học)", "updated": "Vận may hôm nay đã cập nhật"},
+    "basisNumerology": "Dựa trên ngày sinh (thần số học)",
+    "updated": "Vận may hôm nay đã cập nhật"
+  },
   "showcase29": {
+    "teacherTitle": "Nói {{language}} cùng {{name}}",
+    "firstPractice": "Luyện nói cùng giáo viên AI",
+    "practiceWith": "Luyện cùng {{name}}",
+    "practiceNow": "Thử nói một câu",
+    "changeTeacher": "Đổi giáo viên",
     "carousel": "Băng chuyền giới thiệu Koolo",
     "zoeAria": "Trò chuyện với Zoe",
     "bubble": "Trò chuyện nhé?",

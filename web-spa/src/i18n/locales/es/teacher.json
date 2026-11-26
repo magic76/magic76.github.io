@@ -47,12 +47,12 @@
     "shortsUnavailable": "Las historias no están disponibles. Abre Koolo Shorts y vuelve a intentarlo.",
     "shortsDisclosure": "Historias ficticias creadas por Koolo.",
     "shortsDemo": "Contenido de muestra",
-    "shortsChatThis": "Hablar de esta foto con {{name}}"
+    "shortsChatThis": "Responder a {{name}}"
   },
   "learn": {
     "threeMinute": "Práctica oral de 3 minutos",
     "threeMinuteDesc": "Charla con naturalidad en el idioma que aprendes con un amigo Koolo",
-    "title": "Aprender",
+    "title": "Práctica oral",
     "intro": "Elige qué quieres mejorar.",
     "method": "Formas de aprender",
     "textbook": "Leer con un profesor",
@@ -60,7 +60,7 @@
     "vocab": "Practicar vocabulario",
     "vocabDesc": "Recuerda palabras difíciles y repásalas cuando corresponda",
     "course": "Lecciones por situaciones",
-    "courseDesc": "Practica de forma natural, desde el día a día hasta el trabajo",
+    "courseDesc": "Practica cómo pedir comida, preguntar por una dirección o hacer una entrevista.",
     "pronunciation": "Practicar pronunciación",
     "pronunciationDesc": "Lee en voz alta y céntrate en lo que más necesitas mejorar",
     "library": "Biblioteca de lectura",
@@ -68,7 +68,8 @@
     "board": "Pizarra de enseñanza en vivo con IA",
     "boardDesc": "See explanations, examples and quizzes evolve while talking",
     "phrases": "Práctica de frases",
-    "phrasesDesc": "Escucha, baja la velocidad, repite, guarda y repasa con un juego de comprensión auditiva."
+    "phrasesDesc": "Escucha, baja la velocidad, repite, guarda y repasa con un juego de comprensión auditiva.",
+    "targetLabel": "Quiero practicar"
   },
   "tutor": {
     "title": "Practicar con un profesor",
@@ -194,7 +195,9 @@
     "library": "Biblioteca de lectura",
     "libraryDesc": "Clásicos breves y materiales de lectura en voz alta",
     "android": "App de Android",
-    "androidDesc": "Disfruta de la experiencia completa de Koolo Teacher en Android."
+    "androidDesc": "Disfruta de la experiencia completa de Koolo Teacher en Android.",
+    "noReports": "Todavía no hay informes",
+    "noReportsDesc": "Aquí aparecerán las sesiones con comentarios después de practicar."
   },
   "vocabulary": {
     "listenSlow": "Reproducir lentamente",
@@ -260,7 +263,8 @@
     "base": "Puedes preguntar por significados o gramática en {{native}}. Tu profesor explica en {{native}} y da ejemplos en {{target}}. ",
     "beginner": "Los principiantes reciben más ayuda en su idioma.",
     "advanced": "En niveles avanzados se practica más {{target}}.",
-    "adaptive": "La ayuda se adapta a tu nivel al hablar."
+    "adaptive": "La ayuda se adapta a tu nivel al hablar.",
+    "switchHelp": "¿No sabes cómo decirlo en {{target}}? Pregunta en {{native}}."
   },
   "course": {
     "materialNotice": "Los cursos por situaciones solo tienen material en inglés por ahora. Para practicar {{language}}, usa el chat con tu profesor; puede explicarte en {{native}}.",
@@ -298,7 +302,7 @@
     "timelineIntro": "Conoce a una persona a los 7, 16, 25, 40, 55 o 70 años.",
     "timelineAction": "Explorar la vida de Mira →",
     "intentsAria": "Elige una conversación",
-    "intentsHeading": "¿Qué te apetece hacer hoy?",
+    "intentsHeading": "¿Te falta un tema?",
     "intentsHint": "Empieza con un motivo para hablar",
     "shareTitle": "Cuenta algo sobre tu día",
     "shareDesc": "Charla sin clases ni presión.",
@@ -463,8 +467,8 @@
     "recordStart": "Grabar",
     "reviewed": "Ya la repasé",
     "nextReview": "Próxima: {{date}}",
-    "emptyTitle": "Tu mazo de aprendizaje está vacío",
-    "emptyDesc": "Guarda una de las cinco frases de hoy o una frase de un chat con Zoe que de verdad quieras aprender.",
+    "emptyTitle": "Aún no has guardado palabras ni frases",
+    "emptyDesc": "Guarda una de las frases del día para repasarla aquí.",
     "dailyNote": "5 frases de hoy",
     "modelDownloading": "Descargando modelo",
     "tags": {
@@ -479,6 +483,7 @@
       "learning": "Aprendiendo",
       "review": "Repasando",
       "familiar": "Dominado"
-    }
+    },
+    "readFailed": "No se pudieron leer tus frases guardadas."
   }
 }

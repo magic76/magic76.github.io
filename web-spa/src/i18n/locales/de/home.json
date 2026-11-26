@@ -96,11 +96,33 @@
     "explore": "Weitere Möglichkeiten entdecken",
     "tap": "Zum Öffnen tippen"
   },
-  "layout2": {"title": "Sprachen mit {{name}}","action": "Sag {{name}} Hallo","description": "Du brauchst kein Thema. Sag einfach Hallo.","voice": "Stattdessen per Sprache chatten","more": "Lust auf etwas anderes?","resumeTitle": "Mit {{name}} weiterchatten",
-    "previewLabel": "Zuletzt:","resumeAction": "Textchat fortsetzen","chatTitle": "Sag erst mal Hallo","chatDescription": "Sprich mit einem KI-Freund und schau, wohin es führt.","previewHidden": "Letzte Nachricht ausgeblendet","showPreview": "Letzte Nachricht zeigen","hidePreview": "Letzte Nachricht ausblenden"},
+  "layout2": {
+    "title": "Sprachen mit {{name}}",
+    "action": "Sag {{name}} Hallo",
+    "description": "Du brauchst kein Thema. Sag einfach Hallo.",
+    "voice": "Stattdessen per Sprache chatten",
+    "more": "Lust auf etwas anderes?",
+    "resumeTitle": "Mit {{name}} weiterchatten",
+    "previewLabel": "Zuletzt:",
+    "resumeAction": "Textchat fortsetzen",
+    "chatTitle": "Sag erst mal Hallo",
+    "chatDescription": "Sprich mit einem KI-Freund und schau, wohin es führt.",
+    "previewHidden": "Letzte Nachricht ausgeblendet",
+    "showPreview": "Letzte Nachricht zeigen",
+    "hidePreview": "Letzte Nachricht ausblenden"
+  },
   "world": {
-    "freeAllowance": {"full": "Ohne Anmeldung · {{count}} Texte + {{minutes}} Min. Sprache täglich. Morgen wieder", "memberDaily": "Mitglieder: {{count}} Nachrichten täglich · {{minutes}} Sprachminuten übrig", "memberTextOnly": "Mitglieder: {{count}} Nachrichten täglich", "textOnly": "Ohne Anmeldung · {{count}} Gratis-Nachrichten täglich. Morgen wieder", "voiceUsed": "Sprachzeit heute verbraucht · {{count}} Nachrichten täglich. Morgen wieder"},
-    "practiceLang": {"label": "Übungssprache:", "aria": "Sprache zum Üben im Chat und Gespräch wählen"},
+    "freeAllowance": {
+      "full": "Ohne Anmeldung · {{count}} Texte + {{minutes}} Min. Sprache täglich. Morgen wieder",
+      "memberDaily": "Mitglieder: {{count}} Nachrichten täglich · {{minutes}} Sprachminuten übrig",
+      "memberTextOnly": "Mitglieder: {{count}} Nachrichten täglich",
+      "textOnly": "Ohne Anmeldung · {{count}} Gratis-Nachrichten täglich. Morgen wieder",
+      "voiceUsed": "Sprachzeit heute verbraucht · {{count}} Nachrichten täglich. Morgen wieder"
+    },
+    "practiceLang": {
+      "label": "Übungssprache:",
+      "aria": "Sprache zum Üben im Chat und Gespräch wählen"
+    },
     "modes": {
       "chat": {
         "lead": "KI kann mehr als chatten.",
@@ -370,6 +392,9 @@
     "loadingMore": "Weitere Geschichten werden geladen…",
     "progress": "Scrollen für mehr · {{count}} / {{total}}",
     "retryMore": "Erneut laden",
+    "replyKeyboard": "Magst du leise Tastaturen oder solche, die klicken?",
+    "replyZipper": "Hat dein Reißverschluss schon mal geklemmt? Wie hast du ihn gelöst?",
+    "replyEveryday": "Erinnert dich das an etwas, das du erlebt hast?",
     "hooksDetails": "Erzähl mir mehr",
     "hooksFeelings": "Wie fühlst du dich?",
     "hooksNext": "Was geschah danach?",
@@ -412,11 +437,11 @@
   },
   "sectionExplore": {
     "title": "Entdecken",
-    "intro": "Was möchtest du heute erkunden? Wähle etwas, das dich neugierig macht.",
+    "intro": "Entdecke etwas zum Lesen oder Spielen.",
     "destinations": "Entdeckungsbereiche",
     "fortune": {
-      "title": "Dein Schicksal erkunden",
-      "desc": "Entdecke deine Horoskope, frühere Deutungen, neue Analysen und Erklärungen deiner Koolo-Freunde."
+      "title": "Tageshoroskop",
+      "desc": "Lies dein Tageshoroskop oder öffne dein Horoskop."
     },
     "timeline": {
       "title": "Lebenszeitreise",
@@ -424,19 +449,23 @@
     },
     "games": {
       "title": "Interaktive Spiele",
-      "desc": "Rätsel, Taboo, Zahlenraten mit 1A2B und viele weitere Spiele."
+      "desc": "Errate eine Zahl oder löse ein Denkrätsel."
     },
     "story": {
       "title": "Interaktive Geschichten",
       "desc": "Erfinde, lies und erkunde Geschichten mit Koolo."
     },
     "research": {
-      "title": "KI-Forschung",
-      "desc": "Entdecke Neuigkeiten und Forschung rund um künstliche Intelligenz."
+      "title": "Forschungsnews",
+      "desc": "Lies Neues aus der KI-Forschung und zu KI-Tools."
     },
     "circle": {
       "title": "Community",
       "desc": "Teile Beiträge, tausche Dinge und vernetze dich."
+    },
+    "souls": {
+      "title": "Mit einem Foto sprechen",
+      "desc": "Fotografiere eine Person oder einen Gegenstand, wähle eine Persönlichkeit und starte ein Gespräch."
     }
   },
   "sectionHubs": {
@@ -477,12 +506,12 @@
       "next": "Weitere Freunde",
       "chatWith": "Mit {{name}} chatten",
       "friendBios": {
-        "zoe": "Entdecke den Humor im Alltag.",
-        "noah": "Ein ruhiger Freund, der gut zuhört.",
-        "iris": "Filme, Design und kreative Ideen.",
-        "max": "Abenteuer und neue Herausforderungen.",
-        "yuna": "Unterhalte dich in deinem Tempo.",
-        "felix": "Entdecke andere Perspektiven."
+        "zoe": "Worüber musstest du heute schmunzeln?",
+        "noah": "Von welchem Moment heute möchtest du erzählen?",
+        "iris": "Welches Bild geht dir gerade nicht aus dem Kopf?",
+        "max": "Wohin würdest du jetzt am liebsten rausgehen?",
+        "yuna": "Was hat dir heute einen ruhigen Moment geschenkt?",
+        "felix": "Was hat dich zuletzt zum Umdenken gebracht?"
       }
     },
     "learn": {
@@ -532,6 +561,22 @@
       "resumeCta": "Übung fortsetzen"
     },
     "me": {
+      "groups": {
+        "content": "Meine Inhalte",
+        "support": "Konto und Hilfe",
+        "lifeReadings": "Meine Lebensdeutungen",
+        "purchased": "Gekaufte Berichte",
+        "credits": "Sprachguthaben",
+        "orders": "Meine Bestellungen",
+        "payments": "Zahlungen und Hilfe",
+        "loading": "Wird geladen",
+        "unavailable": "Nicht verfügbar",
+        "signIn": "Anmelden",
+        "reportCount": "Berichte: {{number}}",
+        "retry": "Kontodaten erneut laden",
+        "adminTools": "Verwaltung",
+        "admin": "Verwaltungsbereich"
+      },
       "title": "Mein Koolo",
       "intro": "Deine Fortschritte, gespeicherten Inhalte und Einstellungen an einem Ort.",
       "hero": {
@@ -592,8 +637,15 @@
     "soulsDescription": "Lass einen Alltagsgegenstand sprechen.",
     "learnDescription": "Lerne einen neuen Satz."
   },
-  "mobileHero": {"title": "Spiel & lern", "subtitle": "Sag einfach Hallo."},
-  "quickEntry": {"heading": "Koolo entdecken", "fortune": "Tagesglück", "shorts": "Shorts ansehen"},
+  "mobileHero": {
+    "title": "Spiel & lern",
+    "subtitle": "Sag einfach Hallo."
+  },
+  "quickEntry": {
+    "heading": "Koolo entdecken",
+    "fortune": "Tagesglück",
+    "shorts": "Shorts ansehen"
+  },
   "liveBubble": {
     "invite": "Hey, Lust auf ein Gespräch?",
     "start": "Audio",
@@ -601,10 +653,34 @@
     "withZoe": "Mit Zoe chatten",
     "setup": "Key einrichten"
   },
-  "dailyQuote": {"unnamedChart": "Profil {{number}}", "title": "Ein Gedanke für heute", "fortune": "Mein Tageshoroskop ansehen", "chat": "Mit Zoe darüber reden", "fortuneFull": "Ganze Tagesdeutung", "personalTitle": "Deine Tagesdeutung", "chooseChart": "Geburtsprofil wählen", "me": "Mein Profil", "markSelf": "Als mein Profil markieren", "kind": {"bazi": "BaZi", "tarot": "Numerologie", "vedic": "Vedisches Horoskop"}, "chatRead": "Zoe erklärt mein heutiges Horoskop", "setupChart": "Geburtsprofil anlegen und täglich persönliche Impulse erhalten", "setupHint": "Geburtsdatum und -zeit eingeben und täglich dein Horoskop ansehen.",
+  "dailyQuote": {
+    "unnamedChart": "Profil {{number}}",
+    "title": "Ein Gedanke für heute",
+    "fortune": "Mein Tageshoroskop ansehen",
+    "chat": "Mit Zoe darüber reden",
+    "fortuneFull": "Ganze Tagesdeutung",
+    "personalTitle": "Deine Tagesdeutung",
+    "chooseChart": "Geburtsprofil wählen",
+    "me": "Mein Profil",
+    "markSelf": "Als mein Profil markieren",
+    "kind": {
+      "bazi": "BaZi",
+      "tarot": "Numerologie",
+      "vedic": "Vedisches Horoskop"
+    },
+    "chatRead": "Zoe erklärt mein heutiges Horoskop",
+    "setupChart": "Geburtsprofil anlegen und täglich persönliche Impulse erhalten",
+    "setupHint": "Geburtsdatum und -zeit eingeben und täglich dein Horoskop ansehen.",
     "basisBazi": "Basierend auf deinem BaZi-Geburtshoroskop",
-    "basisNumerology": "Basierend auf deinem Geburtstag (Numerologie)", "updated": "Dein Tageshoroskop ist neu"},
+    "basisNumerology": "Basierend auf deinem Geburtstag (Numerologie)",
+    "updated": "Dein Tageshoroskop ist neu"
+  },
   "showcase29": {
+    "teacherTitle": "Mit {{name}} {{language}} sprechen",
+    "firstPractice": "Mit einer KI-Lehrkraft sprechen",
+    "practiceWith": "Mit {{name}} üben",
+    "practiceNow": "Einen Satz üben",
+    "changeTeacher": "Lehrkraft wechseln",
     "carousel": "Koolo-Highlights",
     "zoeAria": "Mit Zoe chatten",
     "bubble": "Lust zu reden?",

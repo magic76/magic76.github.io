@@ -1,3 +1,4 @@
+import {AccountListLoading} from "../components/AccountListLoading";
 import {useEffect,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -18,6 +19,7 @@ export function VoiceCreditsPage(){
  const {i18n}=useTranslation();const zh=/^zh(?:-|$)/i.test(i18n.resolvedLanguage||i18n.language);
  const copy=(a:string,b:string)=>zh?a:b;
  const[state,setState]=useState<PageState>("loading");
+ const [revision,setRevision]=useState(0);
  const[wallet,setWallet]=useState<CreditWallet|null>(null);
  useEffect(()=>{
   const controller=new AbortController();
@@ -34,25 +36,22 @@ export function VoiceCreditsPage(){
     setWallet(data);setState("ready");
    }).catch(()=>{if(!controller.signal.aborted)setState("error")});
   return()=>controller.abort();
- },[]);
+ },[revision]);
  return <main className="koolo-credits-page">
   <Link className="text-button" to="/me">‹ {copy("返回我的 Koolo","Back to My Koolo")}</Link>
   <header className="hero"><span className="kicker">KOOLO VOICE</span>
    <h1>{copy("語音額度","Voice credits")}</h1>
    <p>{copy("未來購買的語音時間將綁定你的 Koolo 帳號，可以在不同裝置接續使用。","Purchased voice time will belong to your Koolo account and follow you across devices.")}</p>
   </header>
-  {state==="loading"&&<p role="status">{copy("正在讀取語音額度…","Loading voice credits…")}</p>}
+  {state==="loading"&&<AccountListLoading label={copy("正在讀取語音額度…","Loading voice credits…")}/>}
   {state==="login"&&<section className="panel section koolo-credits-message">
    <h2>{copy("登入後才能查看額度","Sign in to view credits")}</h2>
    <p>{copy("語音額度與帳號綁定。免費語音體驗不受影響。","Voice credits belong to your account. Free voice trials are unaffected.")}</p>
    <Link className="btn" to="/account">{copy("前往登入","Sign in")}</Link>
   </section>}
-  {state==="unavailable"&&<section className="panel section koolo-credits-message" role="status">
-   <h2>{copy("語音額度功能尚未就緒","Voice credits are being prepared")}</h2>
-   <p>{copy("新資料庫尚待設定或服務暫時無法使用，目前不影響免費通話。","The database may still need setup, or the service is temporarily unavailable. Free calls are unaffected.")}</p>
-  </section>}
-  {state==="error"&&<section className="panel section koolo-credits-message" role="alert">
-   <p>{copy("暫時無法讀取，請重新整理後再試。","Unable to load credits. Please refresh and try again.")}</p>
+  {(state==="unavailable"||state==="error")&&<section className="panel section koolo-credits-message" role="alert">
+   <p>{copy("暫時讀不到語音餘額。","Your voice balance is temporarily unavailable.")}</p>
+   <button type="button" className="btn secondary" onClick={()=>{setState("loading");setRevision(n=>n+1)}}>{copy("重試","Retry")}</button>
   </section>}
   {state==="ready"&&wallet&&<>
    <section className="panel section koolo-credits-summary" aria-label={copy("語音額度摘要","Voice credit summary")}>

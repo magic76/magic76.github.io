@@ -96,11 +96,33 @@
     "explore": "Lihat aktivitas lainnya",
     "tap": "Ketuk untuk membuka"
   },
-  "layout2": {"title": "Belajar bahasa dengan {{name}}","action": "Sapa {{name}}","description": "Tak perlu topik. Mulai saja dengan halo.","voice": "Pakai obrolan suara","more": "Mau mencoba yang lain?","resumeTitle": "Lanjut mengobrol dengan {{name}}",
-    "previewLabel": "Chat terakhir:","resumeAction": "Lanjutkan chat teks","chatTitle": "Mulai dengan halo","chatDescription": "Mengobrol dengan teman AI dan lihat ke mana arahnya.","previewHidden": "Pesan terakhir disembunyikan","showPreview": "Tampilkan pesan terakhir","hidePreview": "Sembunyikan pesan terakhir"},
+  "layout2": {
+    "title": "Belajar bahasa dengan {{name}}",
+    "action": "Sapa {{name}}",
+    "description": "Tak perlu topik. Mulai saja dengan halo.",
+    "voice": "Pakai obrolan suara",
+    "more": "Mau mencoba yang lain?",
+    "resumeTitle": "Lanjut mengobrol dengan {{name}}",
+    "previewLabel": "Chat terakhir:",
+    "resumeAction": "Lanjutkan chat teks",
+    "chatTitle": "Mulai dengan halo",
+    "chatDescription": "Mengobrol dengan teman AI dan lihat ke mana arahnya.",
+    "previewHidden": "Pesan terakhir disembunyikan",
+    "showPreview": "Tampilkan pesan terakhir",
+    "hidePreview": "Sembunyikan pesan terakhir"
+  },
   "world": {
-    "freeAllowance": {"full": "Tanpa daftar · {{count}} pesan + {{minutes}} menit suara per hari. Ada lagi besok", "memberDaily": "Anggota: {{count}} pesan per hari · {{minutes}} menit suara tersisa", "memberTextOnly": "Anggota: {{count}} pesan per hari", "textOnly": "Tanpa daftar · {{count}} pesan gratis per hari. Ada lagi besok", "voiceUsed": "Jatah suara hari ini habis · {{count}} pesan per hari. Besok ada lagi"},
-    "practiceLang": {"label": "Bahasa latihan:", "aria": "Pilih bahasa latihan untuk chat dan percakapan suara"},
+    "freeAllowance": {
+      "full": "Tanpa daftar · {{count}} pesan + {{minutes}} menit suara per hari. Ada lagi besok",
+      "memberDaily": "Anggota: {{count}} pesan per hari · {{minutes}} menit suara tersisa",
+      "memberTextOnly": "Anggota: {{count}} pesan per hari",
+      "textOnly": "Tanpa daftar · {{count}} pesan gratis per hari. Ada lagi besok",
+      "voiceUsed": "Jatah suara hari ini habis · {{count}} pesan per hari. Besok ada lagi"
+    },
+    "practiceLang": {
+      "label": "Bahasa latihan:",
+      "aria": "Pilih bahasa latihan untuk chat dan percakapan suara"
+    },
     "modes": {
       "chat": {
         "lead": "AI bukan cuma untuk ngobrol.",
@@ -370,6 +392,9 @@
     "loadingMore": "Memuat cerita lainnya…",
     "progress": "Gulir untuk melihat lagi · {{count}} / {{total}}",
     "retryMore": "Coba muat lagi",
+    "replyKeyboard": "Kamu suka keyboard yang senyap atau yang berbunyi klik?",
+    "replyZipper": "Ritsletingmu pernah macet? Bagaimana kamu membukanya?",
+    "replyEveryday": "Ini mengingatkanmu pada pengalaman apa?",
     "hooksDetails": "Ceritakan lebih lanjut",
     "hooksFeelings": "Bagaimana perasaanmu?",
     "hooksNext": "Apa yang terjadi selanjutnya?",
@@ -412,11 +437,11 @@
   },
   "sectionExplore": {
     "title": "Jelajahi",
-    "intro": "Apa yang ingin kamu temukan hari ini? Pilih sesuatu yang membuatmu penasaran.",
+    "intro": "Temukan bacaan atau permainan yang menarik.",
     "destinations": "Pilihan eksplorasi",
     "fortune": {
-      "title": "Jelajahi ramalan",
-      "desc": "Lihat bagan, riwayat, pembacaan baru, dan penjelasan dari teman Koolo."
+      "title": "Ramalan hari ini",
+      "desc": "Baca ramalan hari ini atau buka bagan kelahiranmu."
     },
     "timeline": {
       "title": "Linimasa kehidupan",
@@ -424,19 +449,23 @@
     },
     "games": {
       "title": "Game interaktif",
-      "desc": "Teka-teki, Taboo, tebak angka 1A2B, dan banyak lagi."
+      "desc": "Main tebak angka atau pecahkan teka-teki."
     },
     "story": {
       "title": "Cerita interaktif",
       "desc": "Buat, baca, dan jelajahi cerita bersama Koolo."
     },
     "research": {
-      "title": "Riset AI",
-      "desc": "Temukan penelitian, teknologi, dan kabar terbaru tentang AI."
+      "title": "Kabar riset",
+      "desc": "Baca kabar terbaru tentang riset dan alat AI."
     },
     "circle": {
       "title": "Komunitas",
       "desc": "Berbagi, bertukar barang, dan terhubung dengan komunitas."
+    },
+    "souls": {
+      "title": "Mengobrol dengan foto",
+      "desc": "Potret orang atau benda, pilih kepribadiannya, lalu ajak mengobrol."
     }
   },
   "sectionHubs": {
@@ -477,12 +506,12 @@
       "next": "Teman berikutnya",
       "chatWith": "Mengobrol dengan {{name}}",
       "friendBios": {
-        "zoe": "Temukan sisi lucu dari keseharian.",
-        "noah": "Teman tenang yang suka mendengarkan.",
-        "iris": "Bicara soal film, desain, dan ide kreatif.",
-        "max": "Petualangan dan tantangan baru.",
-        "yuna": "Mengobrol santai sesuai ritmemu.",
-        "felix": "Jelajahi sudut pandang lain."
+        "zoe": "Ada kejadian hari ini yang bikin kamu ingin nyeletuk?",
+        "noah": "Momen apa hari ini yang ingin kamu ceritakan?",
+        "iris": "Pemandangan apa yang masih terbayang akhir-akhir ini?",
+        "max": "Kalau keluar sekarang, kamu mau ke mana?",
+        "yuna": "Hal kecil apa yang bikin kamu rileks hari ini?",
+        "felix": "Apa yang belakangan ini membuatmu berubah pikiran?"
       }
     },
     "learn": {
@@ -532,6 +561,22 @@
       "resumeCta": "Lanjutkan latihan"
     },
     "me": {
+      "groups": {
+        "content": "Konten saya",
+        "support": "Akun dan bantuan",
+        "lifeReadings": "Bacaan hidup saya",
+        "purchased": "Laporan yang dibeli",
+        "credits": "Saldo suara prabayar",
+        "orders": "Pesanan saya",
+        "payments": "Pembayaran dan bantuan",
+        "loading": "Memuat",
+        "unavailable": "Tidak tersedia",
+        "signIn": "Masuk untuk melihat",
+        "reportCount": "{{number}} laporan",
+        "retry": "Muat ulang data akun",
+        "adminTools": "Administrasi",
+        "admin": "Dasbor admin"
+      },
       "title": "Koolo Saya",
       "intro": "Kemajuan, konten tersimpan, dan pengaturan pribadimu ada di sini.",
       "hero": {
@@ -592,8 +637,15 @@
     "soulsDescription": "Buat benda sehari-hari bisa berbicara.",
     "learnDescription": "Pelajari frasa bahasa baru."
   },
-  "mobileHero": {"title": "Main & belajar", "subtitle": "Mulai dengan halo."},
-  "quickEntry": {"heading": "Jelajahi Koolo", "fortune": "Ramalan hari ini", "shorts": "Lihat Shorts"},
+  "mobileHero": {
+    "title": "Main & belajar",
+    "subtitle": "Mulai dengan halo."
+  },
+  "quickEntry": {
+    "heading": "Jelajahi Koolo",
+    "fortune": "Ramalan hari ini",
+    "shorts": "Lihat Shorts"
+  },
   "liveBubble": {
     "invite": "Hai, mau ngobrol sebentar?",
     "start": "Suara",
@@ -601,10 +653,34 @@
     "withZoe": "Ngobrol dengan Zoe",
     "setup": "Atur Key"
   },
-  "dailyQuote": {"unnamedChart": "Bagan {{number}}", "title": "Renungan kecil hari ini", "fortune": "Lihat ramalanku hari ini", "chat": "Bahas ini dengan Zoe", "fortuneFull": "Lihat ramalan lengkap", "personalTitle": "Ramalanmu hari ini", "chooseChart": "Pilih bagan lahir", "me": "Baganku", "markSelf": "Tandai sebagai milikku", "kind": {"bazi": "BaZi", "tarot": "Numerologi", "vedic": "Bagan Weda"}, "chatRead": "Minta Zoe jelaskan ramalan hari ini", "setupChart": "Buat profil lahir untuk ramalan harian pribadiku", "setupHint": "Isi tanggal dan waktu lahir untuk melihat ramalan pribadimu setiap hari.",
+  "dailyQuote": {
+    "unnamedChart": "Bagan {{number}}",
+    "title": "Renungan kecil hari ini",
+    "fortune": "Lihat ramalanku hari ini",
+    "chat": "Bahas ini dengan Zoe",
+    "fortuneFull": "Lihat ramalan lengkap",
+    "personalTitle": "Ramalanmu hari ini",
+    "chooseChart": "Pilih bagan lahir",
+    "me": "Baganku",
+    "markSelf": "Tandai sebagai milikku",
+    "kind": {
+      "bazi": "BaZi",
+      "tarot": "Numerologi",
+      "vedic": "Bagan Weda"
+    },
+    "chatRead": "Minta Zoe jelaskan ramalan hari ini",
+    "setupChart": "Buat profil lahir untuk ramalan harian pribadiku",
+    "setupHint": "Isi tanggal dan waktu lahir untuk melihat ramalan pribadimu setiap hari.",
     "basisBazi": "Berdasarkan bagan kelahiran BaZi-mu",
-    "basisNumerology": "Berdasarkan tanggal lahir (numerologi)", "updated": "Ramalan hari ini diperbarui"},
+    "basisNumerology": "Berdasarkan tanggal lahir (numerologi)",
+    "updated": "Ramalan hari ini diperbarui"
+  },
   "showcase29": {
+    "teacherTitle": "Berlatih {{language}} bersama {{name}}",
+    "firstPractice": "Berbicara dengan guru AI",
+    "practiceWith": "Berlatih dengan {{name}}",
+    "practiceNow": "Coba satu kalimat",
+    "changeTeacher": "Ganti guru",
     "carousel": "Sorotan Koolo",
     "zoeAria": "Ngobrol dengan Zoe",
     "bubble": "Mau ngobrol?",

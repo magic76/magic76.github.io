@@ -5,15 +5,15 @@
 /* Crew Explore — nine destinations with image-backed illustrations and unchanged Timeline portraits. */
 .crew-section-explore{max-width:1120px;gap:23px}
 .crew-section-explore .crew-section-heading{padding:8px 2px 0}
-.crew-section-explore .crew-section-heading h1{font-size:clamp(24px,4.5vw,40px)}
+.crew-section-explore .crew-section-heading h1{font-size:clamp(26px,4.5vw,40px)}
 .crew-section-explore .crew-section-heading p{font-size:14px}
 .crew-explore-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .crew-explore-tile{
  --art:#f4ecfc;--art-2:#e7dff8;--art-ink:#8067ae;--art-border:#e1d8f2;
  position:relative;min-width:0;display:flex;flex-direction:column;overflow:hidden;
- border:1px solid var(--art-border);border-radius:23px;background:#fff;
+ border:1px solid var(--line);border-radius:var(--crew-art-radius);background:#fff;
  color:var(--text);text-decoration:none;
- box-shadow:0 3px 13px rgba(25,36,60,.035);
+ box-shadow:none;
  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease
 }
 .crew-explore-tile[data-kind="timeline"]{--art:#e5f2f1;--art-2:#d4e8e6;--art-ink:#547e85;--art-border:#d3e6e3}
@@ -50,7 +50,7 @@
 .crew-explore-life img:nth-of-type(2){z-index:1;width:81px;height:100px}
 .crew-explore-life img:nth-of-type(3){transform:translateY(10px) rotate(8deg);width:63px;height:76px}
 .crew-explore-text{display:grid;align-content:start;gap:6px;padding:18px 42px 21px 18px;min-height:112px}
-.crew-explore-text strong{font-size:17px;line-height:1.45;letter-spacing:-.035em;font-weight:760}
+.crew-explore-text strong{font-size:17px;line-height:1.45;letter-spacing:-.035em;font-weight:700}
 .crew-explore-text small{font-size:12px;line-height:1.65;color:var(--muted)}
 .crew-explore-arrow{
  position:absolute;bottom:14px;right:12px;display:grid;place-items:center;
@@ -74,14 +74,14 @@
  .crew-explore-life{gap:5px}
  .crew-explore-life img:first-of-type,.crew-explore-life img:nth-of-type(3){width:44px;height:59px;border-width:2px;border-radius:12px}
  .crew-explore-life img:nth-of-type(2){width:56px;height:79px;border-width:2px;border-radius:12px}
- .crew-explore-text{padding:12px 46px 13px 12px;min-height:112px;gap:5px}
- .crew-explore-text strong{font-size:14px}
+ .crew-explore-text{padding:12px 12px 36px;min-height:112px;gap:5px}
+ .crew-explore-text strong{font-size:16px}
  .crew-explore-text small{font-size:12px;line-height:1.5}
 }
 @media(prefers-reduced-motion:reduce){.crew-explore-tile{transition:none}}
 
 /* Fortune remains the prominent editorial recommendation. */
-.crew-explore-tile:first-child{grid-column:span 2;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);min-height:225px;border-color:#cbb7e9}
+.crew-explore-tile:first-child{grid-column:span 2;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);min-height:225px}
 .crew-explore-tile:first-child .crew-explore-art{height:100%;min-height:225px}
 .crew-explore-tile:first-child .crew-explore-text{align-content:center;padding:25px 54px 25px 22px}
 .crew-explore-tile:first-child .crew-explore-text strong{font-size:clamp(19px,2.2vw,24px)}
@@ -148,3 +148,6 @@
 
 /* Crew Souls shares the same full-bleed picture treatment as Mate and other destinations. */
 .crew-explore-tile[data-kind="souls"]{--art:#f4e6f6;--art-2:#ead8f1;--art-ink:#875a9f;--art-border:#eadbef}
+
+:root .crew-explore-text small{font-size:.8125rem;line-height:1.55;overflow-wrap:anywhere}
+.crew-explore-headline{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}

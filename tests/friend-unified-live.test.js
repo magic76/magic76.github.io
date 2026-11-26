@@ -74,7 +74,7 @@ test("friend route renders one composer and one shared caption timeline",()=>{
  const style=read("web-spa/src/friends/friendUnifiedComposer.css");
  assert.match(route,/FriendLiveConversation/);
  assert.doesNotMatch(friend,/TextChatPanel|crew-chat-mode-switch/);
- assert.match(friend,/FriendCallCaptions name=\{friend\.name\} turns=\{live\.turns\}/);
+ assert.match(friend,/FriendCallCaptions name=\{friend\.name\} turns=\{live\.captionTurns\}/);
  assert.match(friend,/<FriendUnifiedComposer live=\{live\}/);
  assert.match(friend,/focusOnMount=\{params\.get\("chat"\)==="text"\}/);
  assert.match(friend,/onTextGrant=\{async grant=>/);

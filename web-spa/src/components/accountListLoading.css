@@ -1,0 +1,2 @@
+.koolo-account-loading{display:grid;gap:8px}
+.koolo-account-loading>span{display:block;min-height:56px;border-radius:12px;background:var(--line,#e1e5e1)}

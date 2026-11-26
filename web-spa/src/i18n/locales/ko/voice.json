@@ -1,5 +1,6 @@
 {
   "controls": {
+    "connectingTo": "{{name}} 연결 중…",
     "myTurn": "내가 말할게",
     "friendVoice": "친구 음성",
     "muteFriend": "친구 음성 끄기",

@@ -51,7 +51,7 @@ test("#16: header, practice selector, CTA columns and quote reserve stable dimen
  assert.match(portal,/crew-portal-practice-holder\{[^}]*width:min\(100%,290px\);min-height:44px/);
  assert.match(portal,/crew-portal-practice-lang,\.crew-portal-practice-preview\{[^}]*width:100%/);
  assert.match(header,/crew-language-picker-header \.crew-language-trigger\{width:104px;min-width:104px/);
- assert.match(header,/@media\(max-width:700px\)\{\.crew-language-picker-header \.crew-language-trigger\{width:92px;min-width:92px/);
+ assert.match(header,/@media\(max-width:700px\)\{\.crew-language-picker-header \.crew-language-trigger\{width:82px;min-width:82px/);
  assert.match(quote,/daily-quote--mobile \.daily-quote-text,\.daily-quote--mobile \.daily-quote-placeholder\{[^}]*overflow:hidden/);
  assert.match(art,/cmh-zoe-primary\{flex:1\.35 1 0;min-width:0/);
  assert.match(art,/cmh-zoe-secondary\{flex:\.8 1 0;min-width:0/);

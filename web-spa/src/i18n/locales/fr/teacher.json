@@ -47,12 +47,12 @@
     "shortsUnavailable": "Histoires indisponibles. Ouvrez Koolo Shorts pour réessayer.",
     "shortsDisclosure": "Histoires fictives créées par Koolo.",
     "shortsDemo": "Contenu d'aperçu",
-    "shortsChatThis": "Parler de cette photo avec {{name}}"
+    "shortsChatThis": "Répondre à {{name}}"
   },
   "learn": {
     "threeMinute": "Expression orale de 3 minutes",
     "threeMinuteDesc": "Discutez naturellement dans la langue apprise avec un ami Koolo",
-    "title": "Apprendre",
+    "title": "Pratique orale",
     "intro": "Choisissez ce que vous souhaitez améliorer.",
     "method": "Méthodes d'apprentissage",
     "textbook": "Lire avec un professeur",
@@ -60,7 +60,7 @@
     "vocab": "Vocabulaire",
     "vocabDesc": "Retenez les mots difficiles et révisez-les au bon moment",
     "course": "Leçons en situation",
-    "courseDesc": "Entraînez-vous naturellement, du quotidien au travail",
+    "courseDesc": "Commande un repas, demande ton chemin ou passe un entretien.",
     "pronunciation": "Prononciation",
     "pronunciationDesc": "Lisez à voix haute et concentrez-vous sur vos principaux progrès",
     "library": "Bibliothèque de lecture",
@@ -68,7 +68,8 @@
     "board": "Tableau pédagogique IA en direct",
     "boardDesc": "See explanations, examples and quizzes evolve while talking",
     "phrases": "Pratique des expressions",
-    "phrasesDesc": "Écoute, ralentis, répète, enregistre et révise avec un jeu d’écoute."
+    "phrasesDesc": "Écoute, ralentis, répète, enregistre et révise avec un jeu d’écoute.",
+    "targetLabel": "Je veux pratiquer"
   },
   "tutor": {
     "title": "Pratiquer avec un professeur",
@@ -194,7 +195,9 @@
     "library": "Bibliothèque de lecture",
     "libraryDesc": "Classiques courts et supports de lecture à voix haute",
     "android": "Application Android",
-    "androidDesc": "Profitez de Koolo Teacher dans son intégralité sur Android."
+    "androidDesc": "Profitez de Koolo Teacher dans son intégralité sur Android.",
+    "noReports": "Aucun bilan pour le moment",
+    "noReportsDesc": "Les séances ayant reçu des commentaires apparaîtront ici."
   },
   "vocabulary": {
     "listenSlow": "Écouter lentement",
@@ -260,7 +263,8 @@
     "base": "Posez vos questions de sens ou de grammaire en {{native}}. Le professeur explique en {{native}} et donne des exemples en {{target}}. ",
     "beginner": "Les débutants reçoivent davantage d’aide dans leur langue maternelle.",
     "advanced": "Aux niveaux avancés, la pratique se fait davantage en {{target}}.",
-    "adaptive": "L’aide s’adapte à votre aisance à l’oral."
+    "adaptive": "L’aide s’adapte à votre aisance à l’oral.",
+    "switchHelp": "Un mot te manque en {{target}} ? Pose ta question en {{native}}."
   },
   "course": {
     "materialNotice": "Les cours en situation utilisent actuellement des supports en anglais uniquement. Pour pratiquer {{language}}, discutez avec le professeur ; il peut expliquer en {{native}}.",
@@ -298,7 +302,7 @@
     "timelineIntro": "Rencontrez une personne à 7, 16, 25, 40, 55 ou 70 ans.",
     "timelineAction": "Explorer la vie de Mira →",
     "intentsAria": "Choisir une conversation",
-    "intentsHeading": "Que souhaitez-vous faire aujourd'hui ?",
+    "intentsHeading": "Besoin d’un sujet de conversation ?",
     "intentsHint": "Commencez avec une raison de parler",
     "shareTitle": "Raconter sa journée",
     "shareDesc": "Discutez librement, sans cours ni pression.",
@@ -463,8 +467,8 @@
     "recordStart": "Enregistrer",
     "reviewed": "Révisé",
     "nextReview": "Prochaine fois : {{date}}",
-    "emptyTitle": "Ton jeu d’apprentissage est vide",
-    "emptyDesc": "Enregistre l’une des cinq phrases du jour ou une phrase d’un chat avec Zoe que tu veux vraiment apprendre.",
+    "emptyTitle": "Aucun mot ni aucune phrase enregistrés",
+    "emptyDesc": "Enregistre une phrase du jour ci-dessus pour la revoir ici.",
     "dailyNote": "5 phrases du jour",
     "modelDownloading": "Téléchargement du modèle",
     "tags": {
@@ -479,6 +483,7 @@
       "learning": "En cours",
       "review": "Révision",
       "familiar": "Maîtrisé"
-    }
+    },
+    "readFailed": "Impossible de lire les phrases enregistrées."
   }
 }

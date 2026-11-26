@@ -14,6 +14,8 @@ import type {ShortFeed} from "../teacher/shortsFeed";
 import {GuideHub} from "../guides/GuideHub";
 import {HomeGeminiVerify} from "./HomeGeminiVerify";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
+import {TeacherAvatar} from "../teacher/TeacherAvatar";
+import {useHomeTeacher} from "./useHomeTeacher";
 import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./desktopHome.css";
 
@@ -37,8 +39,9 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,featuredGame}:{
  featuredGame:"1a2b"|"connect4"|"reversi";
 }){
  const {i18n,t}=useTranslation("home");
- const zh=i18n.language.startsWith("zh");
- const copy=(z:string,e:string)=>zh?z:e;
+ const teacher=useHomeTeacher(i18n.language);
+ const title=teacher?t("showcase29.teacherTitle",teacher):t("showcase29.firstPractice");
+ const startPractice=teacher?t("showcase29.practiceWith",teacher):t("showcase29.practiceNow");
  const [activity,setActivity]=useState<FriendActivity|null>(null);
  useEffect(()=>{
   setActivity(readLatestFriendActivity());
@@ -77,9 +80,9 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,featuredGame}:{
      <span className="kdh-game-art" aria-hidden="true"><b>1</b><b>A</b><b>2</b><b>B</b></span>
      <Arrow direction="right" className="kdh-feature-arrow"/>
     </Link>
-    <Link to="/learn" className="kdh-feature kdh-feature-learn" onClick={()=>track("learn")}>
-     <span className="kdh-feature-copy"><small>{t("showcase29.desktop.learnBadge")}</small><strong>{t("showcase29.learnTitle")}</strong><span>{t("showcase29.desktop.learnDesc")}</span></span>
-     <img className="kdh-teacher-image" src={oliviaPhoto} width="85" height="110" alt="" loading="lazy" decoding="async"/>
+    <Link to="/teacher/live" className="kdh-feature kdh-feature-learn" onClick={()=>track("learn")}>
+     <span className="kdh-feature-copy"><small>{t("showcase29.desktop.learnBadge")}</small><strong>{title}</strong><span>{startPractice}</span></span>
+     {teacher?<TeacherAvatar className="kdh-teacher-image" profile={teacher.profile} decorative/>:<img className="kdh-teacher-image" src={oliviaPhoto} width="85" height="110" alt="" loading="lazy" decoding="async"/>}
      <Arrow direction="right" className="kdh-feature-arrow"/>
     </Link>
    </div>
@@ -103,13 +106,9 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,featuredGame}:{
    </Link>)}</div>
   </section>
   <section className="kdh-moments">
-   <HomeShortsPreview maxPosts={10} sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>
+   <HomeShortsPreview maxPosts={10} sharedFeed={shortsFeed} sharedStatus={shortsStatus} compact/>
   </section>
   <section className="kdh-daily"><DailyTopicCards variant="desktop"/></section>
   <section className="kdh-more"><GuideHub/></section>
-  <section className="kdh-seo" aria-label={copy("關於 Koolo","About Koolo")}>
-   <h2>{copy("Koolo：AI 朋友、語言學習與互動小遊戲","Koolo: AI friends, language learning and interactive games")}</h2>
-   <p>{copy("在 Koolo 可以和 AI 朋友自然聊天，跟老師練習口說，也能玩遊戲、閱讀故事、探索每日新發現。","Chat naturally with AI friends, practice languages, play games, and discover stories and ideas in Koolo.")}</p>
-  </section>
  </div>;
 }

@@ -1,3 +1,4 @@
+import {AccountListLoading} from "../components/AccountListLoading";
 import {useEffect,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -44,7 +45,7 @@ export function PurchaseOrdersPage(){
  return <div className="koolo-purchase-support">
   <header className="hero"><span className="kicker">KOOLO</span><h1>{c("我的訂單","My orders")}</h1><p>{c("付款與交付分開顯示。結果未確認前請勿再次付款。","Payment and delivery are shown separately. Do not pay again while the result is unknown.")}</p></header>
   <p><Link to="/purchase-info">{c("購買、退款與客服說明","Purchase, refund and support information")}</Link></p>
-  {state==="loading"&&<p role="status">{c("正在查詢訂單…","Loading orders…")}</p>}
+  {state==="loading"&&<AccountListLoading label={c("正在查詢訂單…","Loading orders…")}/>}
   {state==="login"&&<section className="panel section"><Link to="/account">{c("請使用購買時的帳號登入","Sign in with the purchasing account")}</Link></section>}
   {state==="error"&&<section className="panel section" role="alert"><p>{c("訂單暫時無法查詢，不代表未付款。請稍後重新查詢，不要再次付款。","Orders are temporarily unavailable. This does not mean unpaid. Refresh later and do not pay again.")}</p><button className="btn secondary" onClick={()=>setRevision(x=>x+1)}>{c("重新查詢","Refresh")}</button></section>}
   {state==="ready"&&<><button className="btn secondary" onClick={()=>setRevision(x=>x+1)}>{c("重新查詢","Refresh")}</button>

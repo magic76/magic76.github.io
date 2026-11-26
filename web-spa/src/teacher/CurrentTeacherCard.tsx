@@ -16,7 +16,6 @@ export function CurrentTeacherCard(){
  const english=i18n.resolvedLanguage?.startsWith("en");
  const copy=teacherProfileDisplay(teacher,i18n.resolvedLanguage||"en");
  return <section className="crew-learn-teacher-card" aria-label={t("tutor.current")}>
-  <span className="kicker">{t("tutor.current")}</span>
   <div className="crew-learn-teacher-identity">
    <span className="crew-learn-teacher-portrait" aria-hidden="true">
     <TeacherAvatar profile={teacher} decorative/>
@@ -25,14 +24,12 @@ export function CurrentTeacherCard(){
     <strong>{teacher.name}</strong>
     <small>{english?teacher.taglineEn:copy.title}</small>
    </span>
-  </div>
-  <div className="crew-learn-teacher-actions">
-   <Link className="crew-learn-teacher-start" to="/teacher/live">
-    {t("tutor.start",{name:teacher.name})} <Arrow/>
-   </Link>
    <Link className="crew-learn-teacher-pick" to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}}>
-    <span className="crew-learn-teacher-action">{t("tutor.change")} <Arrow/></span>
+    {t("tutor.change")}
    </Link>
   </div>
+  <Link className="crew-learn-teacher-start" to="/teacher/live">
+   {t("tutor.start",{name:teacher.name})} <Arrow/>
+  </Link>
  </section>;
 }

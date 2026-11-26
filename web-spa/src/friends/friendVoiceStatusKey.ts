@@ -3,6 +3,7 @@ const responsePhases:Record<string,string>={
 };
 
 export function friendVoiceStatusKey(state:string,voicePhase:string,needsKey:boolean,active:boolean,micEnabled:boolean,muted:boolean){
+ if(state==="connecting"||state==="requesting-mic")return "voice:controls.connectingTo";
  if(state==="speaking")return "liveStatus.speaking";
  if(state==="listening"){
   if(responsePhases[voicePhase])return "liveStatus."+responsePhases[voicePhase];

@@ -96,11 +96,33 @@
     "explore": "Découvrir les autres activités",
     "tap": "Touchez pour ouvrir"
   },
-  "layout2": {"title": "Les langues avec {{name}}","action": "Dire bonjour à {{name}}","description": "Pas besoin de sujet. Dis simplement bonjour.","voice": "Passer au chat vocal","more": "Envie d’autre chose ?","resumeTitle": "Reprendre avec {{name}}",
-    "previewLabel": "Dernier échange :","resumeAction": "Reprendre le chat écrit","chatTitle": "Dis d’abord bonjour","chatDescription": "Discute avec un ami IA et vois où cela mène.","previewHidden": "Dernier message masqué","showPreview": "Afficher le dernier message","hidePreview": "Masquer le dernier message"},
+  "layout2": {
+    "title": "Les langues avec {{name}}",
+    "action": "Dire bonjour à {{name}}",
+    "description": "Pas besoin de sujet. Dis simplement bonjour.",
+    "voice": "Passer au chat vocal",
+    "more": "Envie d’autre chose ?",
+    "resumeTitle": "Reprendre avec {{name}}",
+    "previewLabel": "Dernier échange :",
+    "resumeAction": "Reprendre le chat écrit",
+    "chatTitle": "Dis d’abord bonjour",
+    "chatDescription": "Discute avec un ami IA et vois où cela mène.",
+    "previewHidden": "Dernier message masqué",
+    "showPreview": "Afficher le dernier message",
+    "hidePreview": "Masquer le dernier message"
+  },
   "world": {
-    "freeAllowance": {"full": "Sans inscription · {{count}} messages et {{minutes}} min de voix par jour. À demain", "memberDaily": "Membres : {{count}} messages par jour · {{minutes}} minutes vocales restantes", "memberTextOnly": "Membres : {{count}} messages par jour", "textOnly": "Sans inscription · {{count}} messages gratuits par jour. À demain", "voiceUsed": "Voix épuisée aujourd’hui · {{count}} messages par jour. À demain"},
-    "practiceLang": {"label": "Langue de pratique :", "aria": "Choisir la langue du chat et de la conversation vocale"},
+    "freeAllowance": {
+      "full": "Sans inscription · {{count}} messages et {{minutes}} min de voix par jour. À demain",
+      "memberDaily": "Membres : {{count}} messages par jour · {{minutes}} minutes vocales restantes",
+      "memberTextOnly": "Membres : {{count}} messages par jour",
+      "textOnly": "Sans inscription · {{count}} messages gratuits par jour. À demain",
+      "voiceUsed": "Voix épuisée aujourd’hui · {{count}} messages par jour. À demain"
+    },
+    "practiceLang": {
+      "label": "Langue de pratique :",
+      "aria": "Choisir la langue du chat et de la conversation vocale"
+    },
     "modes": {
       "chat": {
         "lead": "L’IA ne fait pas que parler.",
@@ -370,6 +392,9 @@
     "loadingMore": "Chargement d'autres histoires…",
     "progress": "Faites défiler · {{count}} / {{total}}",
     "retryMore": "Réessayer le chargement",
+    "replyKeyboard": "Tu préfères les claviers silencieux ou ceux qui font clic ?",
+    "replyZipper": "Ta fermeture éclair s’est déjà coincée ? Comment l’as-tu débloquée ?",
+    "replyEveryday": "Ça te rappelle quelque chose que tu as vécu ?",
     "hooksDetails": "Raconte-moi",
     "hooksFeelings": "Comment te sens-tu ?",
     "hooksNext": "Et ensuite ?",
@@ -412,11 +437,11 @@
   },
   "sectionExplore": {
     "title": "Explorer",
-    "intro": "Qu’aimeriez-vous découvrir aujourd’hui ? Choisissez ce qui éveille votre curiosité.",
+    "intro": "Découvre un article à lire ou un jeu à essayer.",
     "destinations": "Destinations à explorer",
     "fortune": {
-      "title": "Explorez votre destinée",
-      "desc": "Retrouvez vos thèmes, l’historique, de nouvelles lectures et les explications de vos amis Koolo."
+      "title": "Horoscope du jour",
+      "desc": "Lis ton horoscope du jour ou consulte ton thème."
     },
     "timeline": {
       "title": "Frise de vie",
@@ -424,19 +449,23 @@
     },
     "games": {
       "title": "Jeux interactifs",
-      "desc": "Énigmes, Taboo, jeu de chiffres 1A2B et bien plus encore."
+      "desc": "Devine un nombre ou résous une énigme."
     },
     "story": {
       "title": "Histoires interactives",
       "desc": "Créez, lisez et explorez des histoires avec Koolo."
     },
     "research": {
-      "title": "Veille et recherche IA",
-      "desc": "Découvrez les recherches, technologies et nouveautés en intelligence artificielle."
+      "title": "Actualités de la recherche",
+      "desc": "Découvre les dernières recherches et les outils d’IA."
     },
     "circle": {
       "title": "Communauté",
       "desc": "Partagez, échangez et rencontrez la communauté."
+    },
+    "souls": {
+      "title": "Parler à une photo",
+      "desc": "Photographie une personne ou un objet, choisis sa personnalité et lance la conversation."
     }
   },
   "sectionHubs": {
@@ -477,12 +506,12 @@
       "next": "Amis suivants",
       "chatWith": "Discuter avec {{name}}",
       "friendBios": {
-        "zoe": "De l'humour dans les petites choses.",
-        "noah": "Un ami calme qui sait écouter.",
-        "iris": "Cinéma, design et idées créatives.",
-        "max": "Aventures et nouveaux défis.",
-        "yuna": "Discutez tranquillement, à votre rythme.",
-        "felix": "Explorez d'autres points de vue."
+        "zoe": "Qu’est-ce qui t’a donné envie de faire une remarque amusante aujourd’hui ?",
+        "noah": "De quel moment de ta journée aimerais-tu parler ?",
+        "iris": "Quelle image t’est restée en tête dernièrement ?",
+        "max": "Si on sortait maintenant, où irais-tu ?",
+        "yuna": "Quel petit détail t’a fait du bien aujourd’hui ?",
+        "felix": "Qu’est-ce qui t’a fait changer d’avis récemment ?"
       }
     },
     "learn": {
@@ -532,6 +561,22 @@
       "resumeCta": "Reprendre l'exercice"
     },
     "me": {
+      "groups": {
+        "content": "Mes contenus",
+        "support": "Compte et assistance",
+        "lifeReadings": "Mes lectures de vie",
+        "purchased": "Rapports achetés",
+        "credits": "Crédit vocal prépayé",
+        "orders": "Mes commandes",
+        "payments": "Paiements et assistance",
+        "loading": "Chargement",
+        "unavailable": "Indisponible",
+        "signIn": "Se connecter",
+        "reportCount": "Rapports : {{number}}",
+        "retry": "Recharger les données du compte",
+        "adminTools": "Administration",
+        "admin": "Tableau de bord"
+      },
       "title": "Mon Koolo",
       "intro": "Retrouvez vos progrès, vos contenus enregistrés et vos préférences.",
       "hero": {
@@ -592,8 +637,15 @@
     "soulsDescription": "Donnez la parole à un objet.",
     "learnDescription": "Apprenez une expression étrangère."
   },
-  "mobileHero": {"title": "Joue et parle", "subtitle": "Commence par bonjour."},
-  "quickEntry": {"heading": "Explorer Koolo", "fortune": "Mon horoscope", "shorts": "Voir les Shorts"},
+  "mobileHero": {
+    "title": "Joue et parle",
+    "subtitle": "Commence par bonjour."
+  },
+  "quickEntry": {
+    "heading": "Explorer Koolo",
+    "fortune": "Mon horoscope",
+    "shorts": "Voir les Shorts"
+  },
   "liveBubble": {
     "invite": "Coucou, on discute un peu ?",
     "start": "Vocal",
@@ -601,10 +653,34 @@
     "withZoe": "Parler avec Zoe",
     "setup": "Régler Key"
   },
-  "dailyQuote": {"unnamedChart": "Thème {{number}}", "title": "La pensée du jour", "fortune": "Voir ma fortune du jour", "chat": "En parler avec Zoe", "fortuneFull": "Voir la lecture complète", "personalTitle": "Votre fortune du jour", "chooseChart": "Choisir un thème natal", "me": "Mon thème", "markSelf": "Définir comme mon thème", "kind": {"bazi": "BaZi", "tarot": "Numérologie", "vedic": "Thème védique"}, "chatRead": "Demander à Zoe de déchiffrer ma journée", "setupChart": "Créer mon thème pour une guidance quotidienne", "setupHint": "Indique ta date et ton heure de naissance pour découvrir ta fortune du jour.",
+  "dailyQuote": {
+    "unnamedChart": "Thème {{number}}",
+    "title": "La pensée du jour",
+    "fortune": "Voir ma fortune du jour",
+    "chat": "En parler avec Zoe",
+    "fortuneFull": "Voir la lecture complète",
+    "personalTitle": "Votre fortune du jour",
+    "chooseChart": "Choisir un thème natal",
+    "me": "Mon thème",
+    "markSelf": "Définir comme mon thème",
+    "kind": {
+      "bazi": "BaZi",
+      "tarot": "Numérologie",
+      "vedic": "Thème védique"
+    },
+    "chatRead": "Demander à Zoe de déchiffrer ma journée",
+    "setupChart": "Créer mon thème pour une guidance quotidienne",
+    "setupHint": "Indique ta date et ton heure de naissance pour découvrir ta fortune du jour.",
     "basisBazi": "Selon ton thème BaZi",
-    "basisNumerology": "Selon ta date de naissance (numérologie)", "updated": "La fortune du jour a changé"},
+    "basisNumerology": "Selon ta date de naissance (numérologie)",
+    "updated": "La fortune du jour a changé"
+  },
   "showcase29": {
+    "teacherTitle": "Parlez en {{language}} avec {{name}}",
+    "firstPractice": "Parlez avec un prof IA",
+    "practiceWith": "Pratiquer avec {{name}}",
+    "practiceNow": "Essayer une phrase",
+    "changeTeacher": "Changer de prof",
     "carousel": "Carrousel des nouveautés Koolo",
     "zoeAria": "Parler avec Zoe",
     "bubble": "On discute ?",

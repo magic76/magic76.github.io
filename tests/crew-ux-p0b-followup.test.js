@@ -55,10 +55,10 @@ test("trial finish takes a teacher name and keeps friend ID fallback",()=>{
  const finish=read("web-spa/src/live/GuestTrialExperience.tsx");
  const teacher=read("web-spa/src/teacher/LivePage.tsx");
  const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
- assert.match(finish,/GuestTrialFinish\(\{expired,failed,name\}:\{expired:boolean;failed:boolean;name\?:string\}\)/);
+ assert.match(finish,/GuestTrialFinish\(\{expired,failed,name,onRetry,textFallback,onUseText\}:\{expired:boolean;failed:boolean;name\?:string;/);
  assert.match(finish,/const displayName=name\|\|\(isFriend&&friendId\?getCrewFriend\(friendId\)\.name:t\("guestTrial.aiFriend"\)\)/);
  assert.match(finish,/completeTitle",\{name:displayName\}/);
- assert.match(teacher,/<GuestTrialFinish expired=\{live\.guestExpired\} failed=\{live\.state==="error"\} name=\{profile\.name\}\/>/);
+ assert.match(teacher,/<GuestTrialFinish expired=\{live\.guestExpired\} failed=\{live\.state==="error"\} name=\{profile\.name\} onRetry=\{\(\)=>setGuestStarted\(false\)\}/);
  assert.match(friend,/<GuestTrialFinish expired=\{live\.guestExpired\}/);
  assert.ok(Buffer.byteLength(teacher)<26000,"LivePage must stay under 26 KB");
  assert.equal(JSON.parse(read("web-spa/src/i18n/locales/en/common.json")).guestTrial.aiFriend,"an AI friend");

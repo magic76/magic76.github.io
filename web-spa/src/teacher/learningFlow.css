@@ -154,3 +154,6 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 .learning-deck-card .text-button{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 
 .crew-phrase-recording{grid-column:1/-1;display:grid;gap:8px;padding:10px 0 0;border-top:1px solid var(--line,#e7e5ee);min-width:0}.crew-phrase-recording .btn{min-height:44px}.crew-phrase-recording audio{display:block;width:100%;max-width:400px}.crew-phrase-recording .crew-phrase-card-actions{margin:0}.crew-phrase-recording .inline-link{justify-self:start;min-height:44px;display:inline-flex;align-items:center}
+
+.crew-learning-placeholder{min-height:96px;background:var(--surface);pointer-events:none}
+.crew-learning-placeholder::before{content:"";display:block;width:48%;height:14px;margin:8px 0;border-radius:4px;background:var(--line)}

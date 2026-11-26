@@ -47,12 +47,12 @@
     "shortsUnavailable": "近況を利用できません。Koolo Shorts を開いて再試行してください。",
     "shortsDisclosure": "Koolo による架空の物語です。",
     "shortsDemo": "プレビューコンテンツ",
-    "shortsChatThis": "{{name}} とこの写真について話す"
+    "shortsChatThis": "{{name}} に返信"
   },
   "learn": {
     "threeMinute": "3 分間スピーキング",
     "threeMinuteDesc": "Koolo の友達と学習言語で自然に会話しよう",
-    "title": "学ぶ",
+    "title": "スピーキング練習",
     "intro": "取り組みたいことを選んでください。",
     "method": "学習方法",
     "textbook": "先生と教材を読む",
@@ -60,7 +60,7 @@
     "vocab": "単語練習",
     "vocabDesc": "難しい単語を覚え、適切なときに復習する",
     "course": "場面別レッスン",
-    "courseDesc": "日常から仕事まで自然に会話を練習",
+    "courseDesc": "注文、道案内、面接から場面を選んで練習。",
     "pronunciation": "発音練習",
     "pronunciationDesc": "声に出して読み、苦手な点を改善する",
     "library": "読書ライブラリ",
@@ -68,7 +68,8 @@
     "board": "AI ライブ学習ボード",
     "boardDesc": "話すだけで例文・タイムライン・問題が増える",
     "phrases": "フレーズ練習",
-    "phrasesDesc": "聞く・ゆっくり再生・シャドーイング・保存・リスニングゲームで復習できます。"
+    "phrasesDesc": "聞く・ゆっくり再生・シャドーイング・保存・リスニングゲームで復習できます。",
+    "targetLabel": "練習する言語"
   },
   "tutor": {
     "title": "先生と練習",
@@ -194,7 +195,9 @@
     "library": "読書ライブラリ",
     "libraryDesc": "短い名作や音読教材",
     "android": "Android アプリ",
-    "androidDesc": "Android で Koolo Teacher の全機能を体験できます。"
+    "androidDesc": "Android で Koolo Teacher の全機能を体験できます。",
+    "noReports": "練習レポートはまだありません",
+    "noReportsDesc": "会話練習後、フィードバックがある回がここに表示されます。"
   },
   "vocabulary": {
     "listenSlow": "ゆっくり再生",
@@ -260,7 +263,8 @@
     "base": "意味や文法は{{native}}で質問できます。先生は{{native}}で説明し、{{target}}で練習します。",
     "beginner": "初心者には母語でのサポートを増やします。",
     "advanced": "話す力に合わせて{{target}}の練習を増やします。",
-    "adaptive": "話す力に合わせて自動調整します。"
+    "adaptive": "話す力に合わせて自動調整します。",
+    "switchHelp": "{{target}}で言い方が分からないときは、{{native}}で先生に聞けます。"
   },
   "course": {
     "materialNotice": "シーン別コースの教材は現在英語のみです。{{language}}を練習するには先生とのチャットを利用してください。説明は{{native}}で受けられます。",
@@ -298,7 +302,7 @@
     "timelineIntro": "7歳から70歳まで、同じ人物の6つの人生の場面を見よう。",
     "timelineAction": "Mira の人生を探検 →",
     "intentsAria": "会話を選ぶ",
-    "intentsHeading": "今日は何を話したい？",
+    "intentsHeading": "話題に迷ったら",
     "intentsHint": "話したいことから始めよう",
     "shareTitle": "今日の出来事を友だちに話す",
     "shareDesc": "レッスンやプレッシャーなしで自然に話そう。",
@@ -463,8 +467,8 @@
     "recordStart": "録音開始",
     "reviewed": "復習した",
     "nextReview": "次回：{{date}}",
-    "emptyTitle": "学習デッキはまだ空です",
-    "emptyDesc": "上の「今日の5フレーズ」から保存するか、Zoeとのチャットで本当に覚えたい文を保存しましょう。",
+    "emptyTitle": "保存した単語やフレーズはまだありません",
+    "emptyDesc": "上の今日のフレーズを保存すると、ここで復習できます。",
     "dailyNote": "今日の5フレーズ",
     "modelDownloading": "モデルをダウンロード中",
     "tags": {
@@ -479,6 +483,7 @@
       "learning": "学習中",
       "review": "復習中",
       "familiar": "習得済み"
-    }
+    },
+    "readFailed": "保存したフレーズを読み込めません。"
   }
 }

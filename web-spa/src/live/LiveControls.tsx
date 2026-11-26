@@ -1,3 +1,4 @@
+import{Link}from"react-router-dom";
 import{GeminiSetupNotice}from"../components/GeminiSetupNotice";
 import{useTranslation}from"react-i18next";
 import type{ReturnTypeOfLive}from"./types";
@@ -7,7 +8,7 @@ import "./gameVoiceCompact.css";
 
 function clock(ms:number){const s=Math.floor(ms/1000);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 
-export function LiveControls({live,interruptLabel:customInterrupt,prominentInterrupt=false,onEnd,compact=false}:{live:ReturnTypeOfLive;interruptLabel?:string;prominentInterrupt?:boolean;onEnd?:()=>void|Promise<unknown>;compact?:boolean;/** Deprecated: compact labels now follow the UI locale. */english?:boolean}){
+export function LiveControls({live,interruptLabel:customInterrupt,prominentInterrupt=false,onEnd,textFallback,compact=false}:{live:ReturnTypeOfLive;interruptLabel?:string;prominentInterrupt?:boolean;onEnd?:()=>void|Promise<unknown>;textFallback?:string;compact?:boolean;/** Deprecated: compact labels now follow the UI locale. */english?:boolean}){
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const error=live.state==="error";
  const {t}=useTranslation(["voice","settings"]);
@@ -32,8 +33,9 @@ export function LiveControls({live,interruptLabel:customInterrupt,prominentInter
   </div>;
  }
  return <>
-  <div className={"live-status "+(error&&!needsKey?"error":"")} role="status">{needsKey?t("gemini.initialMissing"):statusKey?t(statusKey):live.status}</div>
+  <div className={"live-status "+(error&&!needsKey?"error":"")} role="status">{needsKey?t("gemini.initialMissing"):error&&live.errorKind==="mic"?t("common:guestTrial.micDenied"):error&&live.errorKind==="network"?t("common:guestTrial.interrupted"):statusKey?t(statusKey):live.status}</div>
   {error?<div className="live-recovery">
+   {live.errorKind==="mic"&&textFallback&&<Link className="live-btn" to={textFallback}>{t("friendLive.useText")}</Link>}
    {live.errorKind==="key"?<GeminiSetupNotice force className="crew-gemini-setup-live"/>:
     <button className="live-btn" onClick={()=>void live.start()}>{live.errorKind==="mic"?t("controls.retryMic"):t("controls.reconnect")}</button>}
    {live.errorKind==="mic"&&<small>{t("controls.micBlocked")}</small>}

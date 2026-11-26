@@ -47,12 +47,12 @@
     "shortsUnavailable": "Cerita tidak tersedia. Buka Koolo Shorts dan coba lagi.",
     "shortsDisclosure": "Cerita fiksi yang dibuat Koolo.",
     "shortsDemo": "Konten pratinjau",
-    "shortsChatThis": "Ngobrol soal foto ini dengan {{name}}"
+    "shortsChatThis": "Balas {{name}}"
   },
   "learn": {
     "threeMinute": "Berbicara 3 menit",
     "threeMinuteDesc": "Mengobrol alami dalam bahasa belajar bersama teman Koolo",
-    "title": "Belajar",
+    "title": "Latihan berbicara",
     "intro": "Pilih hal yang ingin Anda pelajari.",
     "method": "Cara belajar",
     "textbook": "Baca bersama guru",
@@ -60,7 +60,7 @@
     "vocab": "Latihan kosakata",
     "vocabDesc": "Ingat kata sulit dan tinjau kembali pada waktu yang tepat",
     "course": "Pelajaran situasi",
-    "courseDesc": "Berlatih secara alami dari kehidupan sehari-hari hingga pekerjaan",
+    "courseDesc": "Coba pesan makanan, tanyakan arah, atau latihan wawancara.",
     "pronunciation": "Latihan pelafalan",
     "pronunciationDesc": "Baca dengan lantang dan fokus pada perbaikan terpenting",
     "library": "Perpustakaan bacaan",
@@ -68,7 +68,8 @@
     "board": "Papan belajar AI langsung",
     "boardDesc": "See explanations, examples and quizzes evolve while talking",
     "phrases": "Latihan frasa",
-    "phrasesDesc": "Dengarkan, perlambat, tirukan, simpan, lalu ulangi lewat permainan mendengar."
+    "phrasesDesc": "Dengarkan, perlambat, tirukan, simpan, lalu ulangi lewat permainan mendengar.",
+    "targetLabel": "Saya ingin berlatih"
   },
   "tutor": {
     "title": "Berlatih dengan guru",
@@ -194,7 +195,9 @@
     "library": "Perpustakaan bacaan",
     "libraryDesc": "Karya klasik pendek dan bahan membaca lantang",
     "android": "Aplikasi Android",
-    "androidDesc": "Nikmati pengalaman Koolo Teacher lengkap di Android."
+    "androidDesc": "Nikmati pengalaman Koolo Teacher lengkap di Android.",
+    "noReports": "Belum ada laporan latihan",
+    "noReportsDesc": "Sesi yang mendapat masukan akan muncul di sini setelah latihan."
   },
   "vocabulary": {
     "listenSlow": "Putar perlahan",
@@ -260,7 +263,8 @@
     "base": "Tanyakan arti atau tata bahasa dalam {{native}}. Guru menjelaskan dalam {{native}} dan memberi contoh dalam {{target}}. ",
     "beginner": "Pemula mendapat lebih banyak bantuan dalam bahasa ibu.",
     "advanced": "Tingkat lanjut lebih banyak berlatih dalam {{target}}.",
-    "adaptive": "Bantuan menyesuaikan kemampuan berbicaramu."
+    "adaptive": "Bantuan menyesuaikan kemampuan berbicaramu.",
+    "switchHelp": "Bingung mengatakannya dalam {{target}}? Tanyakan dalam {{native}}."
   },
   "course": {
     "materialNotice": "Materi kursus situasi saat ini hanya tersedia dalam bahasa Inggris. Untuk berlatih {{language}}, gunakan chat guru; penjelasan bisa dalam {{native}}.",
@@ -298,7 +302,7 @@
     "timelineIntro": "Kenali satu orang pada usia 7, 16, 25, 40, 55, atau 70 tahun.",
     "timelineAction": "Jelajahi kehidupan Mira →",
     "intentsAria": "Pilih percakapan",
-    "intentsHeading": "Ingin melakukan apa hari ini?",
+    "intentsHeading": "Bingung mau ngobrol apa?",
     "intentsHint": "Mulai dari alasan untuk berbicara",
     "shareTitle": "Ceritakan kejadian hari ini",
     "shareDesc": "Ngobrol santai tanpa pelajaran atau tekanan.",
@@ -463,8 +467,8 @@
     "recordStart": "Mulai merekam",
     "reviewed": "Sudah diulang",
     "nextReview": "Berikutnya: {{date}}",
-    "emptyTitle": "Deck belajarmu masih kosong",
-    "emptyDesc": "Simpan salah satu dari lima frasa hari ini atau kalimat dari chat Zoe yang benar-benar ingin kamu pelajari.",
+    "emptyTitle": "Belum ada kata atau frasa tersimpan",
+    "emptyDesc": "Simpan frasa harian di atas untuk mengulanginya di sini.",
     "dailyNote": "5 frasa hari ini",
     "modelDownloading": "Mengunduh model",
     "tags": {
@@ -479,6 +483,7 @@
       "learning": "Belajar",
       "review": "Mengulang",
       "familiar": "Sudah akrab"
-    }
+    },
+    "readFailed": "Frasa tersimpan tidak dapat dimuat."
   }
 }

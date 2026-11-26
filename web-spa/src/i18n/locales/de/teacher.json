@@ -47,12 +47,12 @@
     "shortsUnavailable": "Geschichten sind nicht verfügbar. Öffne Koolo Shorts und versuch es erneut.",
     "shortsDisclosure": "Fiktive Geschichten von Koolo.",
     "shortsDemo": "Vorschauinhalt",
-    "shortsChatThis": "Mit {{name}} darüber sprechen"
+    "shortsChatThis": "{{name}} antworten"
   },
   "learn": {
     "threeMinute": "3 Minuten sprechen",
     "threeMinuteDesc": "Sprich ganz natürlich in deiner Lernsprache mit einem Koolo-Freund",
-    "title": "Lernen",
+    "title": "Sprechtraining",
     "intro": "Wähle, woran du arbeiten möchtest.",
     "method": "Lernmethoden",
     "textbook": "Mit Lehrkraft lesen",
@@ -60,7 +60,7 @@
     "vocab": "Vokabeltraining",
     "vocabDesc": "Schwierige Wörter merken und zum richtigen Zeitpunkt wiederholen",
     "course": "Situationslektionen",
-    "courseDesc": "Übe natürlich, vom Alltag bis zur Arbeit",
+    "courseDesc": "Übe eine Bestellung, eine Wegbeschreibung oder ein Vorstellungsgespräch.",
     "pronunciation": "Aussprachetraining",
     "pronunciationDesc": "Lies laut vor und konzentriere dich auf deine wichtigsten Verbesserungen",
     "library": "Lesebibliothek",
@@ -68,7 +68,8 @@
     "board": "KI-Live-Lerntafel",
     "boardDesc": "See explanations, examples and quizzes evolve while talking",
     "phrases": "Redewendungen üben",
-    "phrasesDesc": "Anhören, langsamer abspielen, nachsprechen, speichern und mit einem Hörspiel wiederholen."
+    "phrasesDesc": "Anhören, langsamer abspielen, nachsprechen, speichern und mit einem Hörspiel wiederholen.",
+    "targetLabel": "Ich übe"
   },
   "tutor": {
     "title": "Mit Lehrkraft üben",
@@ -194,7 +195,9 @@
     "library": "Lesebibliothek",
     "libraryDesc": "Kurze Klassiker und Materialien zum Vorlesen",
     "android": "Android-App",
-    "androidDesc": "Erlebe die vollständigen Koolo Teacher-Funktionen auf Android."
+    "androidDesc": "Erlebe die vollständigen Koolo Teacher-Funktionen auf Android.",
+    "noReports": "Noch keine Übungsberichte",
+    "noReportsDesc": "Hier findest du Übungen, zu denen du Feedback erhalten hast."
   },
   "vocabulary": {
     "listenSlow": "Langsam abspielen",
@@ -260,7 +263,8 @@
     "base": "Fragen zu Bedeutung oder Grammatik sind auf {{native}} möglich. Die Lehrkraft erklärt auf {{native}} und zeigt Beispiele auf {{target}}. ",
     "beginner": "Anfänger erhalten mehr Hilfe in ihrer Muttersprache.",
     "advanced": "Auf höherem Niveau wird mehr {{target}} geübt.",
-    "adaptive": "Die Unterstützung passt sich deinem Sprachniveau an."
+    "adaptive": "Die Unterstützung passt sich deinem Sprachniveau an.",
+    "switchHelp": "Dir fehlt ein Wort auf {{target}}? Frag auf {{native}} nach."
   },
   "course": {
     "materialNotice": "Die Szenariolektionen enthalten derzeit nur englisches Lernmaterial. Übe {{language}} im Lehrkraft-Chat; Erklärungen sind auf {{native}} möglich.",
@@ -298,7 +302,7 @@
     "timelineIntro": "Entdecke eine Person mit 7, 16, 25, 40, 55 oder 70 Jahren.",
     "timelineAction": "Miras Leben erkunden →",
     "intentsAria": "Gespräch auswählen",
-    "intentsHeading": "Was möchtest du heute machen?",
+    "intentsHeading": "Du suchst ein Gesprächsthema?",
     "intentsHint": "Wähle erst einen Gesprächsanlass",
     "shareTitle": "Erzähl etwas von heute",
     "shareDesc": "Ganz entspannt, ohne Unterricht oder Druck.",
@@ -463,8 +467,8 @@
     "recordStart": "Aufnehmen",
     "reviewed": "Wiederholt",
     "nextReview": "Nächstes Mal: {{date}}",
-    "emptyTitle": "Dein Lernstapel ist noch leer",
-    "emptyDesc": "Speichere oben einen der fünf heutigen Sätze oder einen Satz aus einem Zoe-Chat, den du wirklich lernen möchtest.",
+    "emptyTitle": "Noch keine Wörter oder Sätze gespeichert",
+    "emptyDesc": "Speichere oben einen Tagessatz, um ihn hier zu wiederholen.",
     "dailyNote": "5 Sätze von heute",
     "modelDownloading": "Modell wird heruntergeladen",
     "tags": {
@@ -479,6 +483,7 @@
       "learning": "Lernen",
       "review": "Wiederholen",
       "familiar": "Vertraut"
-    }
+    },
+    "readFailed": "Gespeicherte Sätze konnten nicht geladen werden."
   }
 }

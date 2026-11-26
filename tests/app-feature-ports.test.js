@@ -812,7 +812,7 @@ test("Gemini saved and verified states stay separate with actionable Live recove
  assert.ok(readUiLocale("settings").gemini.initialPending.includes("尚未驗證"));
  assert.ok(settings.includes("setGeminiVerified(true)"));
  assert.ok(!chrome.includes('t("gemini.pending")'),"header no longer duplicates Gemini status");
- const me=fs.readFileSync(path.join(root,"web-spa/src/pages/CrewSectionPage.tsx"),"utf8");
+ const me=fs.readFileSync(path.join(root,"web-spa/src/pages/MyAccountGroups.tsx"),"utf8");
  assert.ok(chrome.includes('to="/account"')||me.includes('to="/account"'),"account must remain reachable in the header or My menu");
  assert.equal(readUiLocale("common").gemini.pending,"Gemini 待驗證");
  assert.ok(home.includes('t("setup.verify")'));

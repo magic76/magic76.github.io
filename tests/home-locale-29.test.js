@@ -15,7 +15,7 @@ const flattened=(obj,prefix="",out={})=>{
 };
 test("#29: homepage carousel, labels and all eight app entries have translated keys",()=>{
  const source=flattened(JSON.parse(read("web-spa/src/i18n/locales/en/home.json")).showcase29);
- assert.equal(Object.keys(source).length,49);
+ assert.equal(Object.keys(source).length,54);
  const allowed=["slideZoe","badgeFriend","badgeFriends","badgeLearn","badgePlay","desktop.learnBadge"];
  for(const locale of locales){
   const text=flattened(JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/home.json")).showcase29);
@@ -55,9 +55,9 @@ test("#29: five bottom tabs retain >=44px targets and can wrap at 360px",()=>{
  const common=JSON.parse(read("web-spa/src/i18n/locales/vi/common.json"));
  const chrome=read("web-spa/src/components/AppChrome.tsx");
  assert.equal(common.nav.me,"Tôi");
- assert.match(css,/@media\(max-width:360px\)/);
+ assert.match(css,/@media\(max-width:767px\)/);
  assert.match(css,/\.crew-mobile-dock-label\{[\s\S]*?white-space:normal/);
- assert.match(css,/font-size:12px/);
- assert.match(css,/\.crew-mobile-dock-item\{min-width:0;min-height:54px\}/);
+ assert.match(css,/font-size:\.75rem/);
+ assert.match(css,/\.crew-mobile-dock-item\{[^}]*min-width:0;min-height:54px/);
  for(const id of ["home","chat","explore","learn","me"])assert.ok(chrome.includes('id:"'+id+'"'));
 });

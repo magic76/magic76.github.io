@@ -1,10 +1,12 @@
 import {Arrow} from "../components/Arrow";
 import {useEffect,useState} from "react";
+import {useTranslation} from "react-i18next";
 import {Link} from "react-router-dom";
 import {Icon} from "../components/Icon";
 
 // The API verifies the session and server-side allowlist; no email or allowlist is shipped to the browser.
-export function KooloAdminEntry({english}:{english:boolean}){
+export function KooloAdminEntry(){
+ const {t}=useTranslation("home");
  const [authorized,setAuthorized]=useState(false);
  useEffect(()=>{
   const controller=new AbortController();
@@ -15,12 +17,9 @@ export function KooloAdminEntry({english}:{english:boolean}){
   return()=>controller.abort();
  },[]);
  if(!authorized)return null;
- return <Link className="crew-section-card" to="/usage">
-  <span className="crew-section-card-icon"><Icon name="settings"/></span>
-  <span className="crew-section-card-copy">
-   <strong>{english?"Admin dashboard":"管理後台"}</strong>
-   <small>{english?"Usage, accounts and membership diagnostics":"使用統計、帳號與會員測試"}</small>
-  </span>
-  <Arrow className="crew-section-arrow"/>
- </Link>;
+ return <section className="koolo-account-group">
+  <h2>{t("sectionHubs.me.groups.adminTools")}</h2><div className="koolo-account-list">
+   <Link className="koolo-account-row" to="/usage"><Icon name="settings"/><span className="koolo-account-label">{t("sectionHubs.me.groups.admin")}</span><Arrow direction="chevron-right" size={16}/></Link>
+  </div>
+ </section>;
 }

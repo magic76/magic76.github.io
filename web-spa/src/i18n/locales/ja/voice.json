@@ -1,5 +1,6 @@
 {
   "controls": {
+    "connectingTo": "{{name}} に接続中…",
     "myTurn": "私の番",
     "friendVoice": "相手の音声",
     "muteFriend": "相手の音声をミュート",

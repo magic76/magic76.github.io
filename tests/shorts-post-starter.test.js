@@ -10,7 +10,7 @@ const extract=(name)=>{
  assert.ok(match,"must evaluate the actual FriendLivePage expression: "+name);
  return match[1];
 };
-const names=["shortsHook","selectedQuestion","shortsHookText","shortsStarter"];
+const names=["shortsHook","selectedQuestion","shortsHookText","replyPrompt","shortsStarter"];
 const expressions=names.map(name=>`const ${name}=${extract(name)};`).join("\n");
 const first=friend.match(/starters=\{\[gameRoundStarter\([^)]*\),(.+?),\.\.\.\(fortuneReplies\|\|\[\]\)/);
 assert.ok(first,"must read the real unified Live starter list");
@@ -37,7 +37,7 @@ function renderStarter({post=generic,query="q=0",lang="zh-TW",dailyFortuneStarte
   throw Error("unexpected translation: "+key);
  };
  const scope={shortsPost:post,params,urlHook:params.get("hook"),isShortsHook:module.isShortsHook,
-  shortsSelectedQuestion:module.shortsSelectedQuestion,t,dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter,fortuneContinue};
+  shortsReplyPromptKey:module.shortsReplyPromptKey,shortsSelectedQuestion:module.shortsSelectedQuestion,t,dailyFortuneStarter,dailyQuoteStarter,dailyTopicStarter,fortuneContinue};
  script.runInNewContext(scope);
  return scope.result;
 }
@@ -125,4 +125,10 @@ test("starter is opt-in and uses the unchanged verified first-send path",()=>{
  assert.match(friend,/starters=\{\[gameRoundStarter\(/);
  assert.match(starters,/friendStarterTopics\(speaker\)\.map\(key=>/);
  assert.match(friend,/<FriendUnifiedComposer live=\{live\}/);
+});
+
+test("replying to the friend's question does not suggest sending that question back",async()=>{
+ const module=await social();
+ const result=renderStarter({query:"entry=reply"},module);
+ assert.equal(result.firstStarter,undefined);
 });

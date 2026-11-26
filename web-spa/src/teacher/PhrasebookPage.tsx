@@ -1,7 +1,7 @@
-import{useMemo,useState}from"react";
+import{useEffect,useMemo,useState}from"react";
 import{PhraseRecording}from"./PhraseRecording";
 import{useTranslation}from"react-i18next";
-import{addDeckItem,dueDeckItems,learningDeck,removeDeckItem,reviewDeckItem,type DeckItem}from"./learningDeck";
+import{addDeckItem,dueDeckItems,readLearningDeck,removeDeckItem,reviewDeckItem,type DeckItem}from"./learningDeck";
 import{dailyPhrases}from"./dailyPhrases";
 import{normalizeLearningLanguage,speakLearningText}from"./learningSpeech";
 import{useTeacherStore}from"../store/teacherStore";
@@ -12,11 +12,17 @@ function unique<T extends{text:string}>(items:T[]){const seen=new Set<string>();
 export function PhrasebookPage(){
  const{t}=useTranslation("teacher");
  const target=useTeacherStore(s=>s.targetLanguage),code=normalizeLearningLanguage(target);
- const[items,setItems]=useState(()=>learningDeck()),[speechStatus,setSpeechStatus]=useState(""),[activePhrase,setActivePhrase]=useState<string|null>(null),[quizIndex,setQuizIndex]=useState(0),[quizAnswer,setQuizAnswer]=useState("");
- const due=dueDeckItems().length,daily=useMemo(()=>dailyPhrases(code),[code]);
+ const[items,setItems]=useState<DeckItem[]>([]);
+ const[deckState,setDeckState]=useState<"loading"|"ready"|"error">("loading");
+ const[speechStatus,setSpeechStatus]=useState(""),[activePhrase,setActivePhrase]=useState<string|null>(null),[quizIndex,setQuizIndex]=useState(0),[quizAnswer,setQuizAnswer]=useState("");
+ const due=dueDeckItems(items).length,daily=useMemo(()=>dailyPhrases(code),[code]);
  const tag=(x:DeckItem)=>t("phrasebook.tags."+x.category,{defaultValue:t("phrasebook.tags.saved")});
  const stage=(x:DeckItem)=>t("phrasebook.stages."+(x.reviewCount>=5?"familiar":x.reviewCount>=2?"review":x.reviewCount>=1?"learning":"new"));
- function refresh(){setItems(learningDeck())}
+ function refresh(){
+  try{setItems(readLearningDeck());setDeckState("ready")}
+  catch{setItems([]);setDeckState("error")}
+ }
+ useEffect(refresh,[]);
  async function listen(text:string,language=code,slow=false){
   if(activePhrase)return;setSpeechStatus("");
   try{
@@ -50,7 +56,7 @@ export function PhrasebookPage(){
    <div className="section-head"><div><span className="kicker">{t("phrasebook.todayKicker")}</span><h2>{t("phrasebook.todayTitle")}</h2></div><small>{target}</small></div>
    <div className="crew-phrase-daily-list">{daily.map((phrase,index)=><article key={phrase.text} className="crew-phrase-row">
     <span className="crew-phrase-number">{index+1}</span><div><strong>{phrase.text}</strong><small>{phrase.translation}</small></div>
-    <div className="crew-phrase-inline-actions"><button className="btn secondary small" disabled={activePhrase!==null} onClick={()=>void listen(phrase.text)}>🔊 {t("phrasebook.listen")}</button><button className="btn secondary small" onClick={()=>saveDaily(phrase.text,phrase.translation)}>＋ {t("phrasebook.save")}</button>{practiceButton("daily:"+phrase.text)}</div>
+    <div className="crew-phrase-inline-actions"><button className="btn secondary small" disabled={activePhrase!==null} onClick={()=>void listen(phrase.text)}>🔊 {t("phrasebook.listen")}</button><button className="btn secondary small" disabled={deckState!=="ready"} onClick={()=>saveDaily(phrase.text,phrase.translation)}>＋ {t("phrasebook.save")}</button>{practiceButton("daily:"+phrase.text)}</div>
     {practicePanel("daily:"+phrase.text,phrase.text,code)}
    </article>)}</div>
   </section>
@@ -63,8 +69,11 @@ export function PhrasebookPage(){
    {quizAnswer&&<div className="crew-learning-answer-feedback" role="status"><strong>{quizAnswer===current.text?t("phrasebook.correct"):t("phrasebook.tryAgain")}</strong><p>{current.text} · {current.translation}</p><button className="btn secondary small" onClick={()=>{setQuizAnswer("");setQuizIndex(value=>value+1)}}>{t("phrasebook.next")}</button></div>}
   </section>}
 
-  <section className="section"><div className="section-head"><h2>{t("phrasebook.mySaved")}</h2><small>{t("phrasebook.savedCount",{count:items.length,due})}</small></div>
-   <div className="learning-deck-list">{items.length?items.map(x=><article className="learning-deck-card" key={x.id}>
+  <section className="section"><div className="section-head"><h2>{t("phrasebook.mySaved")}</h2>{deckState==="ready"&&<small>{t("phrasebook.savedCount",{count:items.length,due})}</small>}</div>
+   <div className="learning-deck-list" aria-busy={deckState==="loading"}>
+    {deckState==="loading"?<div className="learning-deck-card crew-learning-placeholder" role="status" aria-label={t("common:loading")}/>:
+     deckState==="error"?<div className="notice" role="alert"><span>{t("phrasebook.readFailed")}</span><button className="btn secondary small" onClick={refresh}>{t("vocabulary.retry")}</button></div>:
+     items.length?items.map(x=><article className="learning-deck-card" key={x.id}>
     <div className="row" style={{justifyContent:"space-between"}}><span className="pill">{tag(x)} · {stage(x)}</span><button className="text-button danger-text" onClick={()=>{if(activePhrase==="saved:"+x.id)setActivePhrase(null);removeDeckItem(x.id);refresh()}}>{t("phrasebook.delete")}</button></div>
     <h3>{x.originalText}</h3>{x.translation&&<p className="translation">{x.translation}</p>}{x.notes&&<p className="meta">{x.notes}</p>}
     <div className="crew-phrase-card-actions"><button className="btn secondary small" disabled={activePhrase!==null} onClick={()=>void listen(x.originalText,legacyLanguage(x))}>🔊 {t("phrasebook.listen")}</button><button className="btn secondary small" disabled={activePhrase!==null} onClick={()=>void listen(x.originalText,legacyLanguage(x),true)}>🐢 {t("phrasebook.slow")}</button>{practiceButton("saved:"+x.id)}</div>

@@ -1,5 +1,6 @@
 {
   "controls": {
+    "connectingTo": "正在連線 {{name}}…",
     "myTurn": "換我說",
     "friendVoice": "朋友聲音",
     "muteFriend": "關閉朋友的聲音",

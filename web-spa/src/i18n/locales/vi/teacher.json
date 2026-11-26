@@ -47,12 +47,12 @@
     "shortsUnavailable": "Không thể xem câu chuyện. Mở Koolo Shorts rồi thử lại.",
     "shortsDisclosure": "Các câu chuyện hư cấu do Koolo tạo.",
     "shortsDemo": "Nội dung xem trước",
-    "shortsChatThis": "Trò chuyện về ảnh này với {{name}}"
+    "shortsChatThis": "Trả lời {{name}}"
   },
   "learn": {
     "threeMinute": "Luyện nói 3 phút",
     "threeMinuteDesc": "Trò chuyện tự nhiên bằng ngôn ngữ đang học với bạn Koolo",
-    "title": "Học",
+    "title": "Luyện nói",
     "intro": "Chọn kỹ năng bạn muốn cải thiện.",
     "method": "Cách học",
     "textbook": "Đọc sách cùng giáo viên",
@@ -60,7 +60,7 @@
     "vocab": "Luyện từ vựng",
     "vocabDesc": "Ghi nhớ từ khó và ôn lại đúng lúc",
     "course": "Bài học tình huống",
-    "courseDesc": "Luyện trò chuyện tự nhiên từ đời sống đến công việc",
+    "courseDesc": "Tập gọi món, hỏi đường hoặc phỏng vấn xin việc.",
     "pronunciation": "Luyện phát âm",
     "pronunciationDesc": "Đọc thành tiếng và tập trung cải thiện điểm yếu nhất",
     "library": "Thư viện đọc",
@@ -68,7 +68,8 @@
     "board": "Bảng học trực tiếp AI",
     "boardDesc": "See explanations, examples and quizzes evolve while talking",
     "phrases": "Luyện cụm từ",
-    "phrasesDesc": "Nghe, phát chậm, nói theo, lưu và ôn lại bằng trò chơi nghe."
+    "phrasesDesc": "Nghe, phát chậm, nói theo, lưu và ôn lại bằng trò chơi nghe.",
+    "targetLabel": "Tôi muốn luyện"
   },
   "tutor": {
     "title": "Luyện tập với giáo viên",
@@ -194,7 +195,9 @@
     "library": "Thư viện đọc",
     "libraryDesc": "Tác phẩm ngắn kinh điển và tài liệu luyện đọc to",
     "android": "Ứng dụng Android",
-    "androidDesc": "Tận hưởng trải nghiệm Koolo Teacher đầy đủ trên Android."
+    "androidDesc": "Tận hưởng trải nghiệm Koolo Teacher đầy đủ trên Android.",
+    "noReports": "Chưa có báo cáo luyện tập",
+    "noReportsDesc": "Những buổi luyện nói có nhận xét sẽ xuất hiện tại đây."
   },
   "vocabulary": {
     "listenSlow": "Phát chậm",
@@ -260,7 +263,8 @@
     "base": "Bạn có thể hỏi về ý nghĩa hoặc ngữ pháp bằng {{native}}. Giáo viên giải thích bằng {{native}} và làm mẫu bằng {{target}}. ",
     "beginner": "Người mới học được hỗ trợ bằng tiếng mẹ đẻ nhiều hơn.",
     "advanced": "Ở trình độ cao, tăng thời lượng luyện {{target}}.",
-    "adaptive": "Hỗ trợ tự điều chỉnh theo khả năng nói của bạn."
+    "adaptive": "Hỗ trợ tự điều chỉnh theo khả năng nói của bạn.",
+    "switchHelp": "Bí từ khi nói {{target}}? Bạn có thể hỏi bằng {{native}}."
   },
   "course": {
     "materialNotice": "Các bài học tình huống hiện chỉ có tài liệu tiếng Anh. Để luyện {{language}}, hãy trò chuyện với giáo viên; giáo viên có thể giải thích bằng {{native}}.",
@@ -298,7 +302,7 @@
     "timelineIntro": "Gặp cùng một người ở tuổi 7, 16, 25, 40, 55 hoặc 70.",
     "timelineAction": "Khám phá cuộc đời Mira →",
     "intentsAria": "Chọn cuộc trò chuyện",
-    "intentsHeading": "Hôm nay bạn muốn làm gì?",
+    "intentsHeading": "Chưa biết nói chuyện gì?",
     "intentsHint": "Bắt đầu với điều bạn muốn nói",
     "shareTitle": "Kể chuyện hôm nay",
     "shareDesc": "Trò chuyện tự nhiên, không áp lực học bài.",
@@ -463,8 +467,8 @@
     "recordStart": "Bắt đầu ghi âm",
     "reviewed": "Đã ôn",
     "nextReview": "Lần tới: {{date}}",
-    "emptyTitle": "Bộ thẻ học của bạn vẫn đang trống",
-    "emptyDesc": "Hãy lưu một trong 5 câu hôm nay ở trên, hoặc lưu câu từ cuộc trò chuyện với Zoe mà bạn thực sự muốn học.",
+    "emptyTitle": "Chưa lưu từ hay cụm từ nào",
+    "emptyDesc": "Lưu một cụm từ hằng ngày ở trên để ôn lại tại đây.",
     "dailyNote": "5 câu hôm nay",
     "modelDownloading": "Đang tải mô hình",
     "tags": {
@@ -479,6 +483,7 @@
       "learning": "Đang học",
       "review": "Đang ôn",
       "familiar": "Đã quen"
-    }
+    },
+    "readFailed": "Chưa đọc được các cụm từ đã lưu."
   }
 }

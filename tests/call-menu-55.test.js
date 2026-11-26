@@ -15,7 +15,7 @@ test("#55 moves call settings, presets and history to the header bottom sheet",(
  assert.match(page,/className="friend-language-switch"/);
  assert.doesNotMatch(page,/crew-chat-mode-switch/);
  assert.match(page,/className="live-presets"/);
- assert.match(page,/<FriendChatHistory turns=\{live\.turns\}/);
+ assert.match(page,/<FriendChatHistory turns=\{live\.captionTurns\}/);
  assert.match(page,/FriendCallCaptions name=\{friend\.name\}/);
  assert.match(page,/FriendCallControls live=\{live\}/);
  assert.match(sheet,/createPortal\(/);

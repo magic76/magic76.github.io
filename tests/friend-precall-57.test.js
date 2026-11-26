@@ -6,7 +6,7 @@ const page=read(root+"friends/FriendLiveConversation.tsx");
 const css=read(root+"friends/friendCall.css");
 const gate=read(root+"live/GuestLiveStarter.tsx");
 test("#57 pre-call canvas and header stay black, without a floating stage card",()=>{
- assert.match(page,/active\?" friend-phone-stage":" friend-precall-stage"/);
+ assert.match(page,/active\|\|interruptedCaptions\?" friend-phone-stage":" friend-precall-stage"/);
  for(const sel of ["html:has(.friend-precall-stage)","html:has(.friend-precall-stage) body","body:has(.friend-precall-stage) #root","body:has(.friend-precall-stage) .app-header"])assert.ok(css.includes(sel+"{"),sel);
  assert.match(css,/\.friend-precall-stage\{[^}]*background:#000;background-image:none;color:#f5f5f5;border:0;border-radius:0;box-shadow:none/);
  assert.match(css,/safe-area-inset-bottom/);
