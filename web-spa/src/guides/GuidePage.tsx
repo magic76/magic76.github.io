@@ -7,7 +7,8 @@ import {EdEndingQuiz} from "./EdEndingQuiz";
 
 
 const getLocale=(value:string)=>value==="zh-TW"?"zh":"en";
-const url=(slug:GuideSlug)=>"/guides/"+slug;
+const url=(slug:GuideSlug)=>"/guides/"+slug+"/";
+const canonicalGuideTarget=(target:string)=>/^\/guides\/[a-z0-9-]+$/.test(target)?target+"/":target;
 
 export function GuidePage(){
  const {slug}=useParams();
@@ -20,7 +21,7 @@ export function GuidePage(){
  return <article className="crew-guide">
   <nav className="crew-guide-breadcrumbs" aria-label={english?"Breadcrumb":"麵包屑導覽"}>
    <Link to="/">{english?"Home":"首頁"}</Link><Arrow className="crew-arrow--plain"/>
-   <Link to="/teacher">Crew Teacher</Link><Arrow className="crew-arrow--plain"/>
+   <Link to="/teacher/">Koolo Teacher</Link><Arrow className="crew-arrow--plain"/>
    <span aria-current="page">{guide.label}</span>
   </nav>
   <header className="crew-guide-hero">
@@ -29,7 +30,7 @@ export function GuidePage(){
    <p>{guide.intro}</p>
    <div className="crew-guide-actions">
     <Link className="btn" to={guide.target}>{guide.cta} <Arrow direction="right"/></Link>
-    <Link className="btn secondary" to={guide.secondaryTarget}>{guide.secondary}</Link>
+    <Link className="btn secondary" to={canonicalGuideTarget(guide.secondaryTarget)}>{guide.secondary}</Link>
    </div>
    <small className="crew-guide-requirement">{english?
     "Use daily free AI text or voice without an API key. Check current limits and sign-in options.":
@@ -71,7 +72,7 @@ export function GuidePage(){
    <aside className="crew-guide-aside" aria-label={english?"Other useful guides":"其他指南"}>
     <h2>{english?"Continue exploring":"延伸閱讀"}</h2>
     <div className="crew-guide-related">{related.map(s=><Link key={s} to={url(s)}>
-     <strong>{getGuide(s,locale)?.headline}</strong><Arrow direction="right"/>
+     <strong>{s==="ai-english-speaking"?(english?"AI English Speaking Practice":"AI 英文口說練習"):getGuide(s,locale)?.headline}</strong><Arrow direction="right"/>
     </Link>)}</div>
    </aside>
   </div>

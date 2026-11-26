@@ -11,8 +11,8 @@ const PAGES = [
   {
     "slug": "",
     "nav": "首頁",
-    "title": "AI 朋友聊天、英文口說練習與互動遊戲｜Koolo",
-    "description": "和 AI 朋友免費文字聊天，也能練英文口說、玩 1A2B 猜數字與五子棋。選一種想練的語言，開啟 Koolo 就能開始探索。",
+    "title": "Koolo 酷囉｜AI 英文口說練習與 AI 朋友聊天",
+    "description": "和 AI 老師練英文、與 AI 朋友自然聊天，探索互動遊戲與故事。不用下載，開啟瀏覽器即可免費體驗。",
     "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
     "heading": "你的 AI 夥伴，從學習到探索。",
     "intro": "用 Koolo 老師與朋友練習語言、和故事角色一起閱讀、從不同角度認識自己，再透過每日研發情報發現值得研究的新方向。",
@@ -346,8 +346,8 @@ const EN_PAGES = [
   {
     "slug": "",
     "nav": "Home",
-    "title": "Chat with AI Friends, Practice Speaking & Play Games | Koolo",
-    "description": "Start a free text chat with an AI friend, practice speaking English and other languages, and play guessing or board games in your browser with Koolo.",
+    "title": "Koolo – AI English Speaking Practice & AI Friends",
+    "description": "Practice English with AI tutors, talk naturally with AI friends, and explore interactive games and stories. Start free in your browser.",
     "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
     "heading": "Your AI companions for learning and exploring.",
     "intro": "Practice speaking with a Koolo teacher or friend, read stories together, explore personal charts, and discover useful AI research—all in one place.",
