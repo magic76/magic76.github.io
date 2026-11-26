@@ -13,6 +13,7 @@ import {GuideHub} from "../guides/GuideHub";
 import {useHomeAmbientMotion} from "../lib/useHomeAmbientMotion";
 import {DailyTopicCards} from "./DailyTopicCards";
 import {HomeGeminiVerify} from "./HomeGeminiVerify";
+import {captureZoePortrait} from "../friends/zoePortraitTransition";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
 import {TeacherAvatar} from "../teacher/TeacherAvatar";
 import {useHomeTeacher} from "./useHomeTeacher";
@@ -148,7 +149,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
        <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
       </div>
       <div className="cmh-zoe-actions">
-       <Link to={voiceDestination} tabIndex={activeSlide===1?0:-1} className="cmh-zoe-primary" onClick={()=>{trackUsageEvent("home_entry_click","friend");beginHomeFriendJourney(resumeId||"zoe",Boolean(friendResume))}}><Icon name="chat"/>{t(friendResume?"chatChoices.resume":"showcase29.voice")}</Link>
+       <Link to={voiceDestination} tabIndex={activeSlide===1?0:-1} className="cmh-zoe-primary" onClick={event=>{if(!resumeId||resumeId==="zoe")captureZoePortrait(event,event.currentTarget.closest(".cmh-zoe")?.querySelector<HTMLImageElement>(".cmh-zoe-photo"));trackUsageEvent("home_entry_click","friend");beginHomeFriendJourney(resumeId||"zoe",Boolean(friendResume))}}><Icon name="chat"/>{t(friendResume?"chatChoices.resume":"showcase29.voice")}</Link>
       </div>
      </section>
      <section className="cmh-slide cmh-slide-friends" data-active={activeSlide===2} aria-hidden={activeSlide!==2}

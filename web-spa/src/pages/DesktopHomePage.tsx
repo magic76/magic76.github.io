@@ -13,6 +13,7 @@ import {DailyTopicCards} from "./DailyTopicCards";
 import type {ShortFeed} from "../teacher/shortsFeed";
 import {GuideHub} from "../guides/GuideHub";
 import {HomeGeminiVerify} from "./HomeGeminiVerify";
+import {captureZoePortrait} from "../friends/zoePortraitTransition";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
 import {TeacherAvatar} from "../teacher/TeacherAvatar";
 import {useHomeTeacher} from "./useHomeTeacher";
@@ -59,7 +60,7 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,featuredGame}:{
      <h1>{friend?t("layout2.resumeTitle",{name:friend.name}):t("mobileHero.title")}</h1>
      <p className={resumeTopic?"kdh-return-topic":undefined}>{resumeTopic?t("chatChoices.resume")+": "+resumeTopic:t(friend?"chatChoices.returnPrompt":"chatChoices.prompt")}</p>
      <div className="kdh-zoe-actions">
-      <Link className="kdh-primary" to={voiceTo} onClick={()=>{track("friend");beginHomeFriendJourney(id||"zoe",Boolean(friend))}}><Icon name="chat"/>{t(friend?"chatChoices.resume":"showcase29.desktop.voice")}</Link>
+      <Link className="kdh-primary" to={voiceTo} onClick={event=>{if(!id||id==="zoe")captureZoePortrait(event,event.currentTarget.closest(".kdh-zoe")?.querySelector<HTMLImageElement>(".kdh-zoe-visual img"));track("friend");beginHomeFriendJourney(id||"zoe",Boolean(friend))}}><Icon name="chat"/>{t(friend?"chatChoices.resume":"showcase29.desktop.voice")}</Link>
      </div>
     </div>
     <div className="kdh-zoe-visual" aria-hidden="true">

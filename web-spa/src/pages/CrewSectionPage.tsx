@@ -5,6 +5,7 @@ import {Link} from "react-router-dom";
 import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
+import {captureZoePortrait} from "../friends/zoePortraitTransition";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import type {CrewSection} from "./crewNavigation";
 import {LatestBriefingTitle} from "../briefing/LatestBriefingTitle";
@@ -264,7 +265,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
        </div>
        <div className="crew-section-people-strip" ref={friendsSliderRef} onScroll={syncFriends} role="group" aria-label={t("sectionHubs.chat.meetFriends")}>
         {featuredFriends.map(friend=>
-         <Link key={friend.id} className="crew-section-friend" to={"/friend/live?id="+encodeURIComponent(friend.id)}>
+         <Link key={friend.id} className="crew-section-friend" to={"/friend/live?id="+encodeURIComponent(friend.id)} onClick={friend.id==="zoe"?event=>captureZoePortrait(event,event.currentTarget.querySelector<HTMLImageElement>(".crew-section-friend-photo img")):undefined}>
           <span className="crew-section-friend-photo" aria-hidden="true">
            <span>{friend.name.charAt(0)}</span>
            <img className="crew-friend-avatar" src={friend.avatar} alt="" loading="lazy" decoding="async" onError={event=>{event.currentTarget.style.display="none"}}/>

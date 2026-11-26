@@ -214,6 +214,7 @@ export function TeacherLivePage(){
   if(textMode)alternateParams.delete("chat");else alternateParams.set("chat","text");
   const alternateHref="/teacher/live?"+alternateParams.toString();
  const presenceState=teacherPresenceState(live);
+ const voiceConnected=!textMode&&live.micEnabled&&(live.state==="listening"||live.state==="speaking");
  const stage=useRef<HTMLElement>(null);
  useFriendTextViewport(!textMode,stage);
  const voiceStatus=t(teacherCallStatusKey(live),{name:profile.name});
@@ -251,7 +252,7 @@ export function TeacherLivePage(){
   {live.captionTurns.length?<FriendChatHistory turns={live.captionTurns} friendName={profile.name} youLabel={t("voice:friendLive.youLabel")} summary={t("voice:friendLive.historySummary")}/>:null}
  </FriendCallMenu>}
 <div className="live-identity">
-   <div className="friend-voice-avatar-anchor"><div className="teacher-presence-shell" data-state={presenceState}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/></div></div>{!textMode&&live.micEnabled&&(live.state==="listening"||live.state==="speaking")&&<FriendVoiceMute volume={live.volume} onVolume={live.setVolume}/>}</div>
+   <div className="friend-voice-avatar-anchor"><div className="teacher-presence-shell" data-state={presenceState} data-voice-connected={voiceConnected||undefined} data-output-muted={(voiceConnected&&live.volume===0)||undefined}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/></div></div>{!textMode&&live.micEnabled&&(live.state==="listening"||live.state==="speaking")&&<FriendVoiceMute volume={live.volume} onVolume={live.setVolume}/>}</div>
    <h1>{fortuneKind?t("live.fortuneTitle",{name:profile.name}):course?courseTitle(course):mission?mission.title:t("live.teacherName",{name:profile.name})}</h1>
     {textMode?teacherOptions:null}
   </div>
