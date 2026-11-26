@@ -31,19 +31,20 @@ test("#46 daily fortune: chat is first, Gemini help is collapsed, and self-link 
  assert.match(panel,/prefers-reduced-motion: reduce/);
 });
 
-test("#43 game dock: collapsed text CTA, fixed topic mapping, and secondary voice",()=>{
+test("game dock keeps voice reachable as the primary action, without text chat",()=>{
  const dock=src("games/GameVoiceDock.tsx"),css=src("games/gameVoiceDock.css");
- assert.match(dock,/useLocation\(\)/);
- assert.match(dock,/const topic=topics\[id\]\|\|"game-play"/);
- assert.match(dock,/"\/friend\/live\?id=zoe&chat=text&topic="\+topic/);
- assert.match(dock,/className="game-voice-dock-chat"/);
- assert.match(css,/\.game-voice-dock\.is-collapsed \.game-voice-dock-chat\{/);
- assert.match(css,/\.game-voice-dock\.is-collapsed:not\(:has\(\.crew-game-voice-controls\)\)/);
+ assert.doesNotMatch(dock,/chat=text|game-voice-dock-chat|contentChat\.gameText|useLocation/);
+ assert.match(dock,/\{children\}/);
+ assert.doesNotMatch(css,/game-voice-dock-chat/);
+ assert.match(css,/\.game-voice-dock :is\(\.crew-play-voice-start,\.crew-mini-primary,\.friend-gomoku-start-voice\)\{background:#51418f;color:#fff/);
+ assert.match(css,/\.game-voice-dock\.is-collapsed :is\(\.crew-play-voice-start,\.crew-mini-primary,\.friend-gomoku-start-voice\)\{[^}]*min-height:44px/);
+ for(const [,selectors,body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)){
+  if(!/display\s*:\s*none\b/.test(body))continue;
+  const targets=selectors.replace(/:has\([^)]*\)/g,"");
+  assert.doesNotMatch(targets,/crew-play-voice-start|crew-mini-primary|friend-gomoku-start-voice|crew-mini-key-link/);
+ }
  assert.match(css,/\.game-voice-dock\.is-collapsed:has\(\.crew-game-voice-controls\)/);
- assert.match(css,/\.game-voice-dock \.game-voice-dock-chat\{[^}]*min-height:44px/);
- for(const [,topic] of dock.matchAll(/\b(?:connect4|reversi|gomoku|friend-gomoku|1a2b|number-bomb|memory|taboo):"(game-[^"]+)"/g))
-  assert.ok(newTopics.includes(topic),topic+" must be allowed");
- assert.doesNotMatch(dock,/encodeURIComponent|searchParams\.get\("topic"\)|item\.title/);
+ assert.match(css,/\.game-voice-dock\.is-collapsed \.crew-mini-key-link\{flex:1 1 0/);
 });
 
 test("#37 guide and research end with text chat and today's fortune, SSR-safe",()=>{

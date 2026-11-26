@@ -19,16 +19,18 @@ test("#61 desktop reveals the shared end card without moving focus; mobile keeps
  assert.doesNotMatch(card,/\.focus\(/);
 });
 
-test("#61 finished boards hide only the duplicate generic chat action, preserving the contextual card and rematch",()=>{
+test("#61 finished boards retain the voice dock and rematch without a text-chat action",()=>{
  const css=src("games/gameEndCard.css");
  const dock=src("games/GameVoiceDock.tsx");
  const board=src("games/CrewBoardGames.tsx");
  const gomoku=src("games/FriendGomokuPage.tsx");
  assert.match(css,/:has\(\.crew-game-end\)/);
- assert.match(css,/\.game-voice-dock-chat\s*\{\s*display\s*:\s*none/);
+ assert.doesNotMatch(css,/game-voice-dock-chat|crew-game-end-chat/);
  assert.match(css,/crew-play-page/);
  assert.match(css,/friend-gomoku-page/);
- assert.match(dock,/game-voice-dock-chat/);
+ assert.doesNotMatch(dock,/game-voice-dock-chat|chat=text/);
+ assert.match(dock,/\{children\}/);
+ assert.doesNotMatch(src("games/GameEndCard.tsx"),/crew-game-end-chat|chat=text/);
  assert.match(board,/GameEndCard game="connect4"/);
  assert.match(board,/GameEndCard game="reversi"/);
  assert.match(gomoku,/GameEndCard game="gomoku"/);

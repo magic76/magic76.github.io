@@ -10,8 +10,9 @@ test("#12 finished boards render a result- and move-aware end card with a rematc
  const card=src("games/GameEndCard.tsx");
  const boards=src("games/CrewBoardGames.tsx");
  const gomoku=src("games/FriendGomokuPage.tsx");
- assert.match(card,/topic=game-.*&result=.*&moves=/);
- assert.match(card,/crew-game-end-chat/);
+ assert.match(card,/t\("playHub\.gameEnd\."\+result,\{name:friendName\}\)/);
+ assert.match(card,/t\("playHub\.gameEnd\.moves",\{count:moves\}\)/);
+ assert.doesNotMatch(card,/chat=text|crew-game-end-chat|gameEnd\.hint/);
  assert.match(card,/onClick=\{onRematch\}/);
  assert.match(boards,/connect\.winner.*GameEndCard|GameEndCard game="connect4"/s);
  assert.match(boards,/GameEndCard game="reversi"/);
