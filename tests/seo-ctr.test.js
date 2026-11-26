@@ -7,9 +7,9 @@ const ROOT=path.resolve(__dirname,"..");
 const read=(file)=>fs.readFileSync(path.join(ROOT,file),"utf8");
 const decode=(text)=>text.replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'");
 const routes=[
- {locale:"zh-TW",prefix:"",page:"",key:"home",intent:"AI 朋友聊天"},
+ {locale:"zh-TW",prefix:"",page:"",key:"home",intent:"Koolo 酷囉｜AI 英文口說練習"},
  {locale:"zh-TW",prefix:"",page:"teacher/",key:"teacher",intent:"AI 英文口說練習"},
- {locale:"en",prefix:"en/",page:"",key:"home",intent:"Chat with AI Friends"},
+ {locale:"en",prefix:"en/",page:"",key:"home",intent:"Koolo – AI English Speaking Practice"},
  {locale:"en",prefix:"en/",page:"teacher/",key:"teacher",intent:"AI English Speaking Practice"}
 ];
 
@@ -18,7 +18,7 @@ test("CTR pilot titles remain aligned across SSG, OG, JSON-LD and SPA route meta
   const html=read(prefix+page+"index.html");
   const common=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/common.json"));
   const title=common.seo[key];
-  assert.ok(title.startsWith(intent),locale+":"+key+" should lead with search intent");
+  assert.ok(title.startsWith(intent),locale+":"+key+" should lead with the chosen brand and search intent");
   assert.equal(decode(html.match(/<title>([^<]+)<\/title>/)[1]),title,locale+":"+key+" title");
   assert.equal(decode(html.match(/<meta property="og:title" content="([^"]+)">/)[1]),title,locale+":"+key+" OG");
   const jsonld=JSON.parse(html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)[1]);
