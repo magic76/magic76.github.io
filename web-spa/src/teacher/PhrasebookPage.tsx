@@ -27,7 +27,7 @@ function PhrasebookSession({code,target}:{code:NonNullable<ReturnType<typeof lea
   catch{setItems([]);setDeckState("error")}
  }
  useEffect(refresh,[]);
- async function listen(text:string,language=code,slow=false){
+ async function listen(text:string,language:string=code,slow=false){
   if(activePhrase)return;setSpeechStatus("");
   try{
    await speakLearningText(text,language,{speed:slow?"slow":"normal"});
