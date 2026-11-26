@@ -5,3 +5,6 @@ const CORE_VOCABULARY_WORDS:VocabularyWord[]=[
 export const VOCABULARY_WORDS:VocabularyWord[]=[...CORE_VOCABULARY_WORDS,...ANDROID_VOCABULARY_SEED.filter(x=>!CORE_VOCABULARY_WORDS.some(a=>a[0].toLowerCase()===x[0].toLowerCase()))].filter((x,i,all)=>all.findIndex(y=>y[0].toLowerCase()===x[0].toLowerCase())===i);
 export const vocabularyIds=()=>VOCABULARY_WORDS.map(x=>x[0]);
 export function cefrForScore(score:number){return score<=20?"Pre-A1":score<=40?"A1":score<=60?"A2":score<=80?"B1":"B2+"}
+
+const VOCABULARY_CATALOGS:Record<string,VocabularyWord[]>={en:VOCABULARY_WORDS};
+export function vocabularyCatalog(language:string="en"){return VOCABULARY_CATALOGS[language]||[]}

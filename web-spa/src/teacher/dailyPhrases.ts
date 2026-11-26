@@ -1,4 +1,4 @@
-import {normalizeLearningLanguage} from "./learningSpeech";
+import {learningLanguageCode} from "./learningLanguages";
 
 export type DailyPhrase={text:string;translation:string};
 
@@ -130,6 +130,8 @@ function daySeed(date=new Date()){
  return Math.floor(local.getTime()/86400000);
 }
 export function dailyPhrases(languageValue:string,date=new Date(),count=5):DailyPhrase[]{
- const code=normalizeLearningLanguage(languageValue),items=CATALOG[code]||CATALOG.en,start=Math.abs(daySeed(date))%items.length;
+ const code=learningLanguageCode(languageValue),items=code?CATALOG[code]||[]:[];
+ if(!items.length)return [];
+ const start=Math.abs(daySeed(date))%items.length;
  return Array.from({length:Math.min(count,items.length)},(_,index)=>items[(start+index)%items.length]);
 }

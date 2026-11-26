@@ -1,3 +1,4 @@
+import {learningLanguageCode} from "./learningLanguages";
 import {Arrow} from "../components/Arrow";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
@@ -20,6 +21,10 @@ const DAILY_GOAL=20;
 
 
 export function VocabularyPage(){
+ const target=useTeacherStore(s=>s.targetLanguage),language=learningLanguageCode(target)||"en";
+ return <VocabularySession key={language} language={language}/>;
+}
+function VocabularySession({language}:{language:NonNullable<ReturnType<typeof learningLanguageCode>>}){
  const {t}=useTranslation("teacher");
  const {t:tToday}=useTranslation("lesson");
  const stringsReady=useRouteNamespace("lesson");
@@ -29,41 +34,41 @@ export function VocabularyPage(){
  const autoNextTimeoutRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const[refresh,setRefresh]=useState(0);
  const[contentError,setContentError]=useState("");
- const[score,setScore]=useState(()=>placementState().score);
- const[done,setDone]=useState(()=>todayVocabulary());
+ const[score,setScore]=useState(()=>placementState(language).score);
+ const[done,setDone]=useState(()=>todayVocabulary(language));
  const[streak,setStreak]=useState(0);
- const[word,setWord]=useState<VocabularyWord>(()=>chooseVocabulary(placementState().score,undefined,0,native));
+ const[word,setWord]=useState<VocabularyWord>(()=>chooseVocabulary(placementState(language).score,undefined,0,native,language));
  const[revealed,setRevealed]=useState(false);
  const[picked,setPicked]=useState("");
  const[feedback,setFeedback]=useState(()=>teacherText(native,"vocabQuestion"));
- const[showCompletion,setShowCompletion]=useState(()=>todayVocabulary()>=DAILY_GOAL);
+ const[showCompletion,setShowCompletion]=useState(()=>todayVocabulary(language)>=DAILY_GOAL);
  const[continueAfterGoal,setContinueAfterGoal]=useState(false);
  // Keep the choices stable for the entire question, even if translation finishes
  // while the learner is reading or selecting an answer.
- const options=useMemo(()=>vocabularyChoices(word,native),[word,native]);
- const needsContent=useMemo(()=>!contentReady(native,score),[native,score,refresh]);
- const usingFallback=native!=="zh-TW"&&!nativeVocabularyChoicesReady(native);
- const stats=vocabStats(localizedVocabulary(native).map(x=>x[0]));
+ const options=useMemo(()=>vocabularyChoices(word,native,language),[word,native,language]);
+ const needsContent=useMemo(()=>!contentReady(native,score,language),[native,score,refresh,language]);
+ const usingFallback=native!=="zh-TW"&&!nativeVocabularyChoicesReady(native,language);
+ const stats=vocabStats(localizedVocabulary(native,language).map(x=>x[0]),language);
 
  // A pending auto-advance must never update a quiz after navigation away.
  useEffect(()=>()=>{if(autoNextTimeoutRef.current!==null)clearTimeout(autoNextTimeoutRef.current)},[]);
 
  function pronounce(text:string,slow=false){
   setSpeechError("");
-  void speakLearningText(text,"en",{speed:slow?"slow":"normal"})
+  void speakLearningText(text,language,{speed:slow?"slow":"normal"})
    .catch(error=>{console.warn("[learning-speech]",error);setSpeechError(t("vocabulary.speechFailed"))});
  }
 
  useEffect(()=>{
   let cancelled=false;
   setContentError("");
-  void ensureVocabularyContent(native,score).then(()=>{
+  void ensureVocabularyContent(native,score,language).then(()=>{
    if(!cancelled)setRefresh(v=>v+1);
   }).catch(e=>{
    if(!cancelled)setContentError(e instanceof Error?e.message:t("vocabulary.contentError"));
   });
   return()=>{cancelled=true};
- },[native,Math.floor(score/20)]);
+ },[native,Math.floor(score/20),language]);
 
  function answer(choice:string){
   if(answerLockRef.current||revealed||showCompletion)return;
@@ -72,9 +77,9 @@ export function VocabularyPage(){
   const correct=choice===word[1];
   setRevealed(true);
   setPicked(choice);
-  const nextPlacement=recordPlacement(word,correct);
-  const nextDone=incrementTodayVocabulary();
-  recordVocab(word[0],correct);
+  const nextPlacement=recordPlacement(word,correct,language);
+  const nextDone=incrementTodayVocabulary(language);
+  recordVocab(word[0],correct,language);
   setScore(nextPlacement.score);
   setDone(nextDone);
   setStreak(previous=>correct?previous+1:0);
@@ -99,7 +104,7 @@ export function VocabularyPage(){
    setShowCompletion(true);
    return;
   }
-  setWord(previous=>chooseVocabulary(nextScore,previous,nextDone,native));
+  setWord(previous=>chooseVocabulary(nextScore,previous,nextDone,native,language));
  }
  function nextQuestion(){
   if(!revealed||picked===word[1])return;
@@ -113,7 +118,7 @@ export function VocabularyPage(){
   setPicked("");
   setSavedExample("");
   setFeedback(teacherText(native,"vocabQuestion"));
-  setWord(previous=>chooseVocabulary(score,previous,done,native));
+  setWord(previous=>chooseVocabulary(score,previous,done,native,language));
  }
 
  return <div className="crew-learning-focus">
@@ -121,7 +126,7 @@ export function VocabularyPage(){
   <section className="crew-learning-quiz" aria-label={t("vocabulary.title")}>
    <div className="crew-learning-quiz-top">
     <div><span className="kicker">{t("vocabulary.kicker")}</span><h1>{t("vocabulary.title")}</h1></div>
-    <span className="pill">{placementState().attempts<8?t("vocabulary.placementEstimating"):placementLabel({...placementState(),score})}</span>
+    <span className="pill">{placementState(language).attempts<8?t("vocabulary.placementEstimating"):placementLabel({...placementState(language),score})}</span>
    </div>
    <div className="crew-learning-quiz-progress">
     <span>{t("vocabulary.progress")}</span>
@@ -146,7 +151,7 @@ export function VocabularyPage(){
     </div>
     {speechError&&<p className="crew-vocab-voice-error" role="alert">{speechError}</p>}
     {needsContent&&<p className="crew-learning-translation-note" role="status">{usingFallback?t("vocabulary.fallbackNotice"):t("vocabulary.partialNotice")}
-     {contentError&&<button className="btn secondary small" onClick={()=>{setContentError("");void ensureVocabularyContent(native,score).then(()=>setRefresh(v=>v+1)).catch(e=>setContentError(String(e)))}}>{t("vocabulary.retry")}</button>}
+     {contentError&&<button className="btn secondary small" onClick={()=>{setContentError("");void ensureVocabularyContent(native,score,language).then(()=>setRefresh(v=>v+1)).catch(e=>setContentError(String(e)))}}>{t("vocabulary.retry")}</button>}
     </p>}
     <div className="quiz-list" role="group" aria-label={t("vocabulary.pickMeaning")}>
      {options.map((choice,index)=><button key={choice} className={"quiz-choice "+(revealed?(choice===word[1]?"correct":choice===picked?"wrong":""):"")} disabled={revealed} onClick={()=>answer(choice)} aria-label={String.fromCharCode(65+index)+". "+choice}>
@@ -159,7 +164,7 @@ export function VocabularyPage(){
      <strong>{feedback} {picked!==word[1]&&" · "+word[1]}</strong>
      {word[2]&&<p>{word[2]}</p>}{word[2]&&<div className="crew-vocab-example-actions">
       <button className="btn secondary small" type="button" onClick={()=>pronounce(word[2])}>🔊 {t("vocabulary.listenExample")}</button>
-      <button className="btn secondary small" type="button" disabled={savedExample===word[2]} onClick={()=>{addDeckItem({category:"phrase",originalText:word[2],translation:"",notes:t("vocabulary.fromWord",{word:word[0]}),language:"en"});setSavedExample(word[2])}}>{savedExample===word[2]?t("vocabulary.saved"):t("vocabulary.saveExample")}</button>
+      <button className="btn secondary small" type="button" disabled={savedExample===word[2]} onClick={()=>{addDeckItem({category:"phrase",originalText:word[2],translation:"",notes:t("vocabulary.fromWord",{word:word[0]}),language});setSavedExample(word[2])}}>{savedExample===word[2]?t("vocabulary.saved"):t("vocabulary.saveExample")}</button>
      </div>}
     </div>}
     {revealed&&picked!==word[1]&&<button className="btn primary crew-learning-full-cta" onClick={nextQuestion}>{t("vocabulary.nextQuestion")} <Arrow/></button>}

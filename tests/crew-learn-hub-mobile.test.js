@@ -19,7 +19,7 @@ test("Learning language changes the same teacher preference used by live",()=>{
  assert.match(source,/useTeacherStore\(s=>s\.setTargetLanguage\)/);
  assert.match(source,/TARGET_LANGUAGES\.map/);
  assert.match(source,/onChange=\{event=>setTargetLanguage\(event\.target\.value\)\}/);
- assert.match(read("web-spa/src/teacher/LearningFocusCard.tsx"),/targetLanguage==="英文"/);
+ assert.match(read("web-spa/src/teacher/LearningFocusCard.tsx"),/learningMaterialAvailable\("vocabulary",targetLanguage\)/);
 });
 
 test("Daily progress stays accessible in compact mode without duplicating large stats",()=>{
