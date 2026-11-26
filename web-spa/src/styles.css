@@ -9,7 +9,8 @@ body{min-height:100vh;padding-bottom:0}
 .live-history-list>div{display:grid;gap:7px}
 .live-stage .technical-copy{display:none}
 .spa-loading{padding:28px;text-align:center;color:var(--muted);font-size:12px}
-.koolo-loader{display:grid;place-items:center;min-height:45vh;min-height:45svh;box-sizing:border-box}
+.koolo-loader{display:grid;place-items:center;box-sizing:border-box}
+.koolo-loader:not(.koolo-loader--inline){position:fixed;inset:0;pointer-events:none}
 .koolo-loader--inline{min-height:0;padding:12px}
 .koolo-loader-content{display:grid;justify-items:center;gap:8px;animation:koolo-loader-reveal .15s steps(1,end) both}
 .koolo-loader-content img{display:block;max-width:100%;height:auto}
