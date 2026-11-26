@@ -278,10 +278,9 @@ export function useLiveSession(config:Config){
      }
     },delayMs);
    };
-   // Only Crew Teacher/Friends and their Voice Lab use this experimental selection.
+   // Only Crew Teacher/Friends use this explicit model selection.
    // Crew Story/Fortune keep their existing automatic fallback behavior.
    const teacherVoiceSession=(configRef.current.pageKey==="teacher"||configRef.current.pageKey==="teacher-board")
-     ||configRef.current.pageKey==="voice-lab"
      ||configRef.current.pageKey.startsWith("friend-")
       ||configRef.current.pageKey.startsWith("timeline-mira-");
    const levelSetting=useTeacherStore.getState();

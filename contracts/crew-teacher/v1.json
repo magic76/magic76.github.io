@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-18.1",
+  "revision": "2026-11-25.1",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -109,7 +109,6 @@
       "accentIsBestEffort": true,
       "accentDoesNotOverrideSelectedLanguage": true,
       "voiceLabAndroidDebugOnly": true,
-      "voiceLabWebOptIn": true,
       "ratingsStoredLocally": true,
       "languageNeutralCharacterAccent": true,
       "modelSelector": [
@@ -117,7 +116,8 @@
         "gemini-3.1-flash-live-preview"
       ],
       "explicitModelNoFallback": true,
-      "otherProductsRetainFallback": true
+      "otherProductsRetainFallback": true,
+      "voiceLabWebRetired": true
     },
     "teacherLanguageSupport": {
       "levelOptions": [
@@ -298,7 +298,7 @@
     },
     {
       "id": "voice_diversity",
-      "label": "30 Live voice identities, character delivery, experimental accent and internal Voice Lab",
+      "label": "30 Live voice identities, character delivery, experimental accent and Android debug Voice Lab",
       "android": "supported",
       "web": "supported",
       "androidEntry": "app/src/main/java/com/crewpocket/teacher/LiveVoiceCatalog.java",
@@ -596,15 +596,6 @@
           "path": "web-spa/src/teacher/LivePage.tsx",
           "contains": [
             "voiceIdentityPrompt(\"teacher\""
-          ]
-        },
-        {
-          "path": "web-spa/src/teacher/VoiceLabPage.tsx",
-          "contains": [
-            "persistHistory:false",
-            "teacherReport:false",
-            "lab",
-            "crew_voice_lab_ratings_v1"
           ]
         }
       ]

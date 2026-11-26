@@ -49,8 +49,7 @@ test("rejected play falls back and a stopped recording never starts Live",async(
 test("other languages go directly to Live and return its stop function",()=>{
  const f=fixture(),stop=f.start("日文");assert.deepEqual(f.urls,[]);assert.equal(f.calls.length,1);assert.equal(f.calls[0][1],"日文");assert.equal(f.calls[0][3],f.opts);stop();assert.equal(f.stops(),1);
 });
-test("both learning entrances use the recorded-first wrapper, while Voice Lab is not rerouted",()=>{
+test("both learning entrances use the recorded-first wrapper",()=>{
  assert.match(read("web-spa/src/teacher/TutorPage.tsx"),/stopRef\.current=previewTeacherVoiceRecorded\(profile,s\.targetLanguage,setPreview/);
  assert.match(read("web-spa/src/teacher/TeacherProfilePicker.tsx"),/previewStop\.current=previewTeacherVoiceRecorded\(detail,targetLanguage,setPreview/);
- assert.doesNotMatch(read("web-spa/src/teacher/VoiceLabPage.tsx"),/previewTeacherVoiceRecorded/);
 });

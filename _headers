@@ -64,10 +64,6 @@ https://:version.magic76-github-io.pages.dev/*
 /offline.html
   Cache-Control: no-cache, must-revalidate
 
-# Playtest is intentionally unindexed and updates frequently.
-/neon-swarm-lab/*
-  X-Robots-Tag: noindex, nofollow
-  Cache-Control: no-store, max-age=0
 
 /feedback*
   X-Robots-Tag: noindex
@@ -90,7 +86,3 @@ https://:version.magic76-github-io.pages.dev/*
   Cache-Control: no-store, max-age=0
   X-Content-Type-Options: nosniff
 
-# TTS experiments are private product-evaluation pages.
-/tts-lab/*
-  X-Robots-Tag: noindex, nofollow
-  Cache-Control: no-store, max-age=0

@@ -24,7 +24,7 @@ export function canOfferCrewRefresh(pathname: string) {
  const path=pathname.replace(/^\/(?:en|ja|es|pt-BR|id|fr|de|ko|vi|th)(?=\/|$)/,"")||"/";
  return !(/\/live(?:\/|$)/.test(path) ||
   /^\/(?:games|mate|magic|town|orb)(?:\/|$)/.test(path) ||
-  /^\/teacher\/(?:board|voice-lab|textbook|course|practice|vocabulary|pronunciation)(?:\/|$)/.test(path) ||
+  /^\/teacher\/(?:board|textbook|course|practice|vocabulary|pronunciation)(?:\/|$)/.test(path) ||
   /^\/story\/(?:edit|create|read|physical)(?:\/|$)/.test(path) ||
   /^\/timeline\/compare(?:\/|$)/.test(path) ||
   /^\/fortune\/reading(?:\/|$)/.test(path));

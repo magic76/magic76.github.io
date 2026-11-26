@@ -43,13 +43,3 @@ test("Live and audition select normalized speaker without changing tutoring or m
  assert.match(prompt,/accent must never change the language/);
  assert.match(prompt,/english&&voiceAccent!==/);
 });
-
-test("Web Voice Lab is an explicit opt-in and never saves conversation/history",()=>{
- const page=read("web-spa/src/teacher/VoiceLabPage.tsx"),routes=read("web-spa/src/App.tsx");
- assert.match(routes,/\/teacher\/voice-lab/);
- assert.match(page,/params\.get\("lab"\)==="1"/);
- assert.match(page,/persistHistory:false,teacherReport:false/);
- assert.match(page,/durationMs>=20000/);
- assert.match(page,/localStorage\.setItem\(KEY/);
- assert.match(page,/30/);
-});

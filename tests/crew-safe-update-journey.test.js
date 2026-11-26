@@ -17,7 +17,7 @@ test("New version notice does not interrupt any long-running Crew workflow",()=>
  }
  for(const unsafe of ["/mate","/magic","/town","/orb","/games","/games/taboo","/en/games/1a2b",
   "/teacher/live","/friend/live","/story/live","/fortune/live","/timeline/live",
-  "/teacher/board","/teacher/voice-lab","/teacher/textbook","/teacher/course",
+  "/teacher/board","/teacher/textbook","/teacher/course",
   "/teacher/practice","/teacher/pronunciation","/story/create","/story/edit/private",
   "/story/read/private","/story/physical","/fortune/reading","/timeline/compare",
   "/ja/magic","/en/mate"]){
