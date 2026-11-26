@@ -90,9 +90,17 @@ test("B: direct setup and after-reading daily deep link contain only hash and ki
  assert.doesNotMatch(reading,/birthDate\+"&/);
 });
 
-test("C: the basis label always follows displayed kind in all 11 locales",()=>{
+test("C: home personal fortune uses a compact header, full-width message and shared footer",()=>{
  const home=read("web-spa/src/pages/DailyTopicCards.tsx");
- assert.match(home,/personal!\.kind==="bazi"\?"dailyQuote.basisBazi":"dailyQuote.basisNumerology"/);
+ const css=read("web-spa/src/pages/dailyTopicCards.css");
+ const detail=read("web-spa/src/fortune/FortuneDailyCard.tsx");
+ assert.doesNotMatch(home,/dailyQuote\.basisBazi|dailyQuote\.basisNumerology|daily-quote-action-hint/);
+ assert.match(detail,/t\("basisLabel"\)/);
+ assert.match(home,/className="daily-quote-heading">[\s\S]*?<select className="daily-quote-chart"[\s\S]*?<\/select>[\s\S]*?<strong className="daily-quote-headline"/);
+ assert.match(home,/className="daily-quote-actions">[\s\S]*?className="daily-quote-color"[\s\S]*?t\("dailyQuote\.fortuneFull"\)/);
+ assert.match(css,/\.daily-quote-card--personal \.daily-quote-actions\{[^}]*display:flex;flex-wrap:wrap/);
+ assert.match(css,/\.daily-quote-card--personal \.daily-quote-text\{[^}]*white-space:normal;overflow:visible/);
+ assert.doesNotMatch(css,/float:right|position:absolute|max-height:680px/);
  for(const lang of ["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"]){
   const data=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/home.json`)).dailyQuote;
   const fortune=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/fortune.json`)).reading;

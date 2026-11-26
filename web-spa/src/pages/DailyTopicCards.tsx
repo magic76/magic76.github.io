@@ -1,5 +1,6 @@
 import {useEffect,useState} from "react";
 import {Link} from "react-router-dom";
+import {Arrow} from "../components/Arrow";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
 import {pickDailyQuote} from "./dailyQuotes";
@@ -8,7 +9,7 @@ import {hasStoredChart} from "./storedChart";
 import "./dailyTopicCards.css";
 
 type TodayQuote={id:string;text:string;language:string};
-type TodayPersonal={hash:string;text:string;language:string;kind:"bazi"|"numerology";headline:string;action:string;color:{name:string;hex:string}};
+type TodayPersonal={hash:string;text:string;language:string;kind:"bazi"|"numerology";headline:string;color:{name:string;hex:string}};
 type ChartOption={hash:string;label:string};
 
 /** One SSG-safe frosted card. The chart engine only enters a lazy chunk after mount. */
@@ -46,7 +47,7 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
      const line=await personalDailyLine(language,undefined,chosen.hash);
      if(!active||token!==version)return;
      if(!line){updateQuote();return;}
-     setCharts(options);setPersonal({hash:line.hash,text:line.text,language,kind:line.kind,headline:line.card.headline,action:line.card.do[0],color:line.card.luckyColor});
+     setCharts(options);setPersonal({hash:line.hash,text:line.text,language,kind:line.kind,headline:line.card.headline,color:line.card.luckyColor});
     }).catch(()=>{if(active&&token===version)updateQuote()});
    }
    const nextMidnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1).getTime();
@@ -71,24 +72,26 @@ export function DailyTopicCards({variant}:{variant:"mobile"|"desktop"}){
   }
  };
  return <section className={"daily-quote daily-quote--"+variant} aria-labelledby={"daily-quote-title-"+variant}>
-  <div className="daily-quote-card">
+  <div className={"daily-quote-card"+(isPersonal?" daily-quote-card--personal":"")}>
    <div className="daily-quote-body">
+    <div className="daily-quote-heading">
+     <h2 id={"daily-quote-title-"+variant}><span aria-hidden="true">✦</span> {title}</h2>
      {isPersonal&&charts.length>0?<select className="daily-quote-chart" aria-label={t("dailyQuote.chooseChart")}
       value={personal!.hash} onChange={event=>selectChart(event.target.value)}>
       {charts.map(chart=><option key={chart.hash} value={chart.hash}>{chart.label}</option>)}
      </select>:null}
-    <div className="daily-quote-heading">
-     <h2 id={"daily-quote-title-"+variant}><span aria-hidden="true">✦</span> {title}</h2>
     </div>
-    {isPersonal&&<p className="daily-quote-basis">{t(personal!.kind==="bazi"?"dailyQuote.basisBazi":"dailyQuote.basisNumerology")} · {t("luckyColor",{ns:"fortuneDaily"})} <span className="daily-quote-swatch" style={{backgroundColor:personal!.color.hex}} aria-hidden="true"/>{personal!.color.name}</p>}
     {isPersonal&&<strong className="daily-quote-headline">{personal!.headline}</strong>}
     {text?<p className="daily-quote-text">{text}</p>:<span className="daily-quote-placeholder" aria-hidden="true"/>}
-    {isPersonal&&<p className="daily-quote-basis daily-quote-action-hint">{personal!.action}</p>}
     {!isPersonal&&!needsChartSelection&&<p className="daily-quote-benefit">{t("dailyQuote.setupHint")}</p>}
    </div>
    <div className="daily-quote-actions">
+    {isPersonal&&<div className="daily-quote-color">
+     <span>{t("luckyColor",{ns:"fortuneDaily"})}</span>
+     <span className="daily-quote-color-value"><span className="daily-quote-swatch" style={{backgroundColor:personal!.color.hex}} aria-hidden="true"/>{personal!.color.name}</span>
+    </div>}
     {isPersonal?
-     <Link className="daily-quote-action daily-quote-action--fortune" to={fortuneHref} onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.fortuneFull")}</Link>
+     <Link className="daily-quote-action daily-quote-action--fortune" to={fortuneHref} onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.fortuneFull")} <Arrow size={16}/></Link>
     :needsChartSelection?<Link className="daily-quote-action daily-quote-action--fortune" to="/fortune#daily-profiles">{t("dailyQuote.chooseChart")}</Link>:<Link className="daily-quote-action daily-quote-action--chat" to="/fortune/reading?mode=bazi&from=daily" onClick={()=>trackUsageEvent("home_entry_click","fortune")}>{t("dailyQuote.setupChart")}</Link>}
    </div>
   </div>
