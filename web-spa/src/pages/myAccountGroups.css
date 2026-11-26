@@ -11,3 +11,11 @@
 .koolo-account-skeleton{display:block;background:var(--line);border-radius:8px}
 .koolo-account-skeleton{width:42px;height:12px}
 .koolo-account-retry{justify-self:start;min-height:44px;padding:4px 12px;color:var(--accent);cursor:pointer}
+
+@media(max-width:700px){
+ .crew-section-me{padding-top:0;row-gap:12px}
+ .crew-section-me>.crew-section-heading{padding:0;gap:0}
+ .crew-section-me>.crew-section-heading h1{font-size:27px;line-height:1.2}
+ .crew-section-me>.crew-section-heading :is(.kicker,p){display:none}
+ .crew-section-me>.crew-me-summary{margin-top:0}
+}

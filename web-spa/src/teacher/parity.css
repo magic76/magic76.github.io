@@ -155,3 +155,8 @@ body.teacher-theme .crew-intent-card small{color:var(--muted,#667085);font-size:
  body.teacher-theme.session-page .crew-voice-dock .live-audio-hint{display:block;margin-top:6px;font-size:10px;line-height:1.45}
 }
 @media(prefers-reduced-motion:reduce){.teacher-live-quick-actions>summary::after,.crew-voice-dock .live-audio-settings>summary span{transition:none}}
+
+@media(max-width:700px){
+ body.teacher-theme .crew-practice-heading{margin-bottom:0}
+ .crew-practice-heading>p{display:none}
+}

@@ -57,7 +57,7 @@ return Array.from({length:days},(_,i)=>{
  ];
  return <main className="usage-dashboard">
 <section className="hero">
- <span className="kicker">CREW / PRIVATE ANALYTICS</span>
+ <span className="kicker hero-context">CREW / PRIVATE ANALYTICS</span>
  <h1>Crew Usage</h1>
  <p>看有多少瀏覽器真正互動、完成對話，以及哪些功能值得持續投入。</p>
  <div className="usage-toolbar" role="group" aria-label="統計期間">

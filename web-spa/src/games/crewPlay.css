@@ -449,3 +449,10 @@
 .crew-play-game-art.game-6{background:radial-gradient(circle at 25% 18%,#ffe18a,#c36f63);font-size:35px}
 .crew-play-game-art.game-7{background:radial-gradient(circle at 28% 18%,#c6a8f4,#7061b4);font-size:35px}
 .crew-play-game-art.game-8{background:radial-gradient(circle at 28% 18%,#ffbb8c,#be6177);font-size:35px}
+
+@media(max-width:700px){
+ .crew-play-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 12px;text-align:start;margin:0 0 10px;padding-top:0}
+ .crew-play-hero>.crew-play-back{position:static;grid-column:2;grid-row:1;display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+ .crew-play-hero h1{grid-column:1;grid-row:1;font-size:27px;line-height:1.2;margin:0}
+ .crew-play-hero>.crew-play-eyebrow,.crew-play-hero>p{display:none}
+}

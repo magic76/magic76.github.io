@@ -402,7 +402,9 @@ test("core Web entry points follow the Android app parity contract",()=>{
 
  const storyUi=readUiLocale("story");
  assert.equal(storyUi.shelf.title,"今天想讀什麼故事？");
- for(const key of ["title","intro","recent","create","physical","myStory","explore"])
+ const storyHeader=fs.readFileSync(path.join(root,"web-spa/src/story/StoryLayout.tsx"),"utf8");
+ for(const key of ["title","intro"])assert.ok(storyHeader.includes('t("shelf.'+key+'")'),key);
+ for(const key of ["recent","create","physical","myStory","explore"])
   assert.ok(story.includes('t("shelf.'+key+'")'),key);
  assert.ok(storyMy.includes("BUILT_IN_STORIES.length"),"Story included count must come from the actual catalog");
  assert.ok(!story.includes("和 APK 一樣"));

@@ -421,11 +421,16 @@
 
 .cmh-learn-portrait>.teacher-avatar-image{display:block;width:100%;height:100%}
 
-@media(max-width:380px) and (max-height:680px){.cmh-app-grid .cmh-app{min-height:62px}}
+/* Let longer localized copy grow while keeping the first-screen scene compact. */
+@media(max-width:767px){
+ .crew-mobile-home .cmh-slide{height:auto;min-height:156px;padding-top:8px}
+ .crew-mobile-home .cmh-slide .cmh-slide-copy{padding-top:0}
+ .cmh-carousel .cmh-scene{scale:.49}
+}
 @media(max-width:380px) and (max-height:680px){
  .crew-mobile-home .cmh-slide{height:auto;min-height:148px}
  .crew-mobile-home .cmh-slide-copy{padding-top:0}
- .cmh-app-grid .cmh-app{padding-block:4px}
+ .cmh-app-grid .cmh-app{min-height:62px;padding-block:4px}
  .cmh-app-grid .cmh-app-icon{height:30px;width:30px}
  .cmh-app-grid .cmh-app-name{line-height:1.15}
 }

@@ -43,7 +43,7 @@
 @media(max-width:560px){.crew-guide-hub-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
 .crew-guide-hub-links a:hover{border-color:var(--accent);color:var(--accent)}
 @media(max-width:850px){.crew-guide-layout{grid-template-columns:1fr}.crew-guide-aside{position:static}}
-@media(max-width:560px){.crew-guide-breadcrumbs{margin:4px 0 12px}.crew-guide-hero{padding:14px 0 26px}.crew-guide-hero h1{font-size:25px;line-height:1.23}.crew-guide-hero>p{font-size:14px}.crew-guide-summary,.crew-guide-section,.crew-guide-faq,.crew-guide-end{padding:19px 17px;border-radius:16px}.crew-guide-section p,.crew-guide-faq p{font-size:14px}}
+@media(max-width:560px){.crew-guide-breadcrumbs{margin:0}.crew-guide-hero{padding:8px 0 10px}.crew-guide-hero .kicker{display:none}.crew-guide-hero h1{font-size:27px;line-height:1.2;margin:0 0 6px}.crew-guide-hero>p{margin:0;font-size:14px}.crew-guide-summary,.crew-guide-section,.crew-guide-faq,.crew-guide-end{padding:19px 17px;border-radius:16px}.crew-guide-section p,.crew-guide-faq p{font-size:14px}}
 
 /* Reader continuation: text-first Zoe, with fortune as a quiet next step. */
 .crew-guide-chat-actions{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 8px}

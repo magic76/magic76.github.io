@@ -16,3 +16,8 @@
 .fortune-purchases-section p{line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
 .fortune-purchases-note{font-size:12px;line-height:1.6;margin-top:20px;color:var(--text-muted,#627088)}
 @media(max-width:520px){.fortune-purchases{padding:16px 15px 90px}.fortune-purchases-item{padding:16px;align-items:stretch;flex-direction:column}.fortune-purchases-item .btn{width:100%}}
+
+@media(max-width:700px){
+ .fortune-purchases .hero{padding-block:8px 10px}
+ .fortune-purchases .hero h1{margin:6px 0 4px}
+}

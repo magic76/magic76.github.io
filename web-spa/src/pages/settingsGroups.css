@@ -75,3 +75,10 @@
 .crew-settings-page.is-category .hero{margin-bottom:12px}
 .crew-settings-key-explainer{margin:12px 6px 10px;color:var(--text,#253044);font-size:13px;line-height:1.6}
 .crew-settings-key-manage{display:inline-flex;align-items:center;min-height:44px;margin:0 6px 12px}
+
+@media(max-width:700px){
+ .crew-settings-page.is-overview>.hero{padding:0;margin:0}
+ .crew-settings-page.is-overview>.hero :is(.kicker,p){display:none}
+ .crew-settings-page.is-overview>.hero h1{margin:0}
+ .crew-settings-page.is-overview>.hero+.section{margin-top:12px}
+}
