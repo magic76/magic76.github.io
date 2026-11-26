@@ -411,7 +411,7 @@ export function TeacherBoardPage(){
  const phase=live.state==="speaking"?t("board.speaking"):live.state==="listening"?t("board.listening"):live.state==="connecting"||live.state==="requesting-mic"?t("board.connecting"):live.state==="error"?t("board.offline"):t("board.ready");
  return <>
   <header className="teaching-board-top"><Link to="/learn" className="teaching-board-back" aria-label={t("board.back")}><Arrow direction="left"/></Link>
-   <div><strong>{t("board.title")}</strong><small>{s.targetLanguage} · {s.learnerSpeakingLevel} · {profile.name}</small></div>
+   <div><strong>{t("board.title")}</strong><small>{s.targetLanguage} · {profile.name}</small></div>
    <span className="teaching-board-connection" data-state={live.state}>{phase}</span>
    <details className="teaching-board-diagnostics"><summary aria-label={english?"Report lesson problem":"回報教學問題"}>{english?"Report":"回報"}</summary><div className="teaching-board-diagnostics-panel"><strong>{english?"Lesson diagnostics":"教學診斷報告"}</strong><p>{english?"Session only. Nothing is uploaded. Optionally include transcript and card content. No audio or credential configuration is collected.":"僅保留本頁工作階段，不會上傳。勾選後才會在報告加入對話與教材內容；不收集原始錄音或金鑰設定。"}</p><label><input type="checkbox" checked={includeDiagnosticText} onChange={e=>{setIncludeDiagnosticText(e.target.checked);setDiagnosticStatus("")}}/>{english?"Include transcript and card content":"包含對話及教材內容"}</label><button type="button" onClick={()=>void copyDiagnostics()}>{english?"Copy diagnostics":"複製診斷報告"}</button><small role="status">{diagnosticStatus}</small></div></details>
   </header>
@@ -435,7 +435,7 @@ export function TeacherBoardPage(){
        aria-controls="teaching-board-active-panel" aria-selected={focusedCard?.id===card.id}
        className={"teaching-board-deck-tab"+(focusedCard?.id===card.id?" is-active":"")}
        onClick={()=>{if(lessonId)goLessonStep(index);else{record("card-selected",{cardId:card.id});setFollowing(false);setFocusedId(card.id)}}}>
-       <small>{index+1} · {cardKindName(card.type,english)}{latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
+       <small>{index+1} · {cardKindName(card.type,english)}{!lesson&&latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
       </button>)}
      </div>
     </div>}
