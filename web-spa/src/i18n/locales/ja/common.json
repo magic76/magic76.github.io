@@ -130,6 +130,14 @@
     "aiFriend": "AIの友だち"
   },
   "auth": {
+    "byokTitle": "AI 設定",
+    "byokBenefit": "自分の Gemini API キーで音声・テキストチャットや対話型学習などを、Koolo の無料日次上限に縛られず利用できます。",
+    "byokSetup": "Gemini API キーを設定",
+    "byokManage": "Gemini API キーを管理",
+    "byokFree": "Koolo の無料枠を利用中",
+    "byokPending": "キー未確認",
+    "byokActive": "自分の Gemini API キーを利用中",
+    "byokPolicy": "Google のモデル、利用上限、料金が適用されます。有料レポートは別料金です。",
     "trialCount": "本日の無料音声体験：{{used}} / {{limit}} 回利用済み（台北時間0時にリセット）",
     "account": "アカウント",
     "title": "Koolo アカウント",

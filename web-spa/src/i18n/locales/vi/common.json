@@ -130,6 +130,14 @@
     "aiFriend": "một người bạn AI"
   },
   "auth": {
+    "byokTitle": "Cài đặt AI của tôi",
+    "byokBenefit": "Dùng khóa API Gemini riêng cho nhiều tính năng AI hơn, gồm chat thoại, chat văn bản và học tương tác, không bị giới hạn miễn phí hằng ngày của Koolo.",
+    "byokSetup": "Thiết lập khóa API Gemini của tôi",
+    "byokManage": "Quản lý khóa API Gemini",
+    "byokFree": "Đang dùng hạn mức miễn phí Koolo",
+    "byokPending": "Khóa chưa xác minh",
+    "byokActive": "Đang dùng khóa API Gemini riêng",
+    "byokPolicy": "Mô hình, hạn mức và giá của Google vẫn áp dụng; báo cáo trả phí tính riêng.",
     "trialCount": "Lượt trò chuyện miễn phí hôm nay: đã dùng {{used}} / {{limit}} (đặt lại lúc 00:00 giờ Đài Bắc)",
     "account": "Tài khoản",
     "title": "Tài khoản Koolo",

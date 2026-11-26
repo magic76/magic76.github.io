@@ -130,6 +130,14 @@
     "aiFriend": "เพื่อน AI"
   },
   "auth": {
+    "byokTitle": "การตั้งค่า AI ของฉัน",
+    "byokBenefit": "ใช้ Gemini API Key ของคุณเองสำหรับฟีเจอร์ AI เพิ่มเติม เช่น แชตเสียง แชตข้อความ และการเรียนรู้แบบโต้ตอบ โดยไม่ติดโควตาฟรีรายวันของ Koolo",
+    "byokSetup": "ตั้งค่า Gemini API Key ของฉัน",
+    "byokManage": "จัดการ Gemini API Key",
+    "byokFree": "ใช้โควตาฟรีของ Koolo",
+    "byokPending": "ยังไม่ได้ยืนยันคีย์",
+    "byokActive": "ใช้ Gemini API Key ของคุณเอง",
+    "byokPolicy": "ยังคงเป็นไปตามโมเดล ขีดจำกัด และราคาของ Google ส่วนรายงานแบบชำระเงินคิดแยกต่างหาก",
     "trialCount": "ทดลองเสียงฟรีวันนี้: ใช้แล้ว {{used}} / {{limit}} ครั้ง (รีเซ็ต 00:00 น. เวลาไทเป)",
     "account": "บัญชี",
     "title": "บัญชี Koolo",

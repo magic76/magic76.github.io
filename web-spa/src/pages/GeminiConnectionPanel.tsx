@@ -3,7 +3,6 @@ import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
 import {useLocation,useNavigate,useSearchParams} from "react-router-dom";
 import i18n from "../i18n";
-import {GUEST_TEXT_DAILY_TURNS} from "../live/guestAllowance";
 import {clearGeminiKey,ensureLive,geminiKey,geminiVerified,saveGeminiKey,setGeminiVerified} from "../lib/runtime";
 import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled} from "../lib/guestTrial";
 
@@ -235,7 +234,8 @@ export function GeminiConnectionPanel({section="all"}:{section?:"key"|"voice"|"a
    <section id="settings-gemini" className="section panel">
     <h3>{configured?t("gemini.titleEdit"):t("gemini.titleNew")}</h3>
     <p className="meta">{t("gemini.intro")}</p>
-    <p className="meta">{t("gemini.keyCapabilities",{count:GUEST_TEXT_DAILY_TURNS})}</p>
+    <p className="meta">{t("common:auth.byokBenefit")}</p>
+    <p className="meta">{t("common:auth.byokPolicy")}</p>
     {!configured&&<div className="settings-gemini-free"><strong>{t("gemini.freeTitle")}</strong><p>{t("gemini.freeDesc")}</p></div>}
     {!configured&&guestAvailable&&<div className="settings-gemini-free"><strong>{t("common:guestTrial.settingsTitle")}</strong><p><a className="btn" href="/friend/live?id=zoe">{t("common:guestTrial.settingsCta")}</a></p></div>}
     <div className="setup-steps">

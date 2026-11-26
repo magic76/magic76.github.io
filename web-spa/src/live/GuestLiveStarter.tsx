@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from "react";
-import {Link} from "react-router-dom";
+import {Link,useLocation} from "react-router-dom";
 import {canRetryGuestMicrophone,isGuestVoiceVerificationExpired} from "./guestMicRetry";
 import {clearGuestChallengeHandoff,offerGuestChallengeToken} from "./guestTextChallenge";
 import {useTranslation} from "react-i18next";
@@ -15,6 +15,8 @@ const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
 export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusStartOnVerified=false,textEntry=false,autoTextOnVerified=false,onVerificationChange,textFallback,linksInNewTab=false,friendMemory=false,learningFeedback=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;onTextGrant?:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";precall?:boolean;focusStartOnVerified?:boolean;textEntry?:boolean;autoTextOnVerified?:boolean;onVerificationChange?:(verified:boolean)=>void;textFallback?:{href:string;name:string};linksInNewTab?:boolean;friendMemory?:boolean;learningFeedback?:boolean}){
  const {t}=useTranslation(["common","voice"]);
+ const location=useLocation();
+ const keySetupTo="/account?returnTo="+encodeURIComponent(location.pathname+location.search)+"#settings-gemini";
  const linkTarget=linksInNewTab?{target:"_blank",rel:"noopener noreferrer"}:{};
  const [micUnavailable,setMicUnavailable]=useState(false);
  const [micPermissionDenied,setMicPermissionDenied]=useState(false);
@@ -205,6 +207,7 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
    {phase==="exhausted"&&dailyQuota&&!memberSignedIn&&<Link className="btn" to="/account" {...linkTarget}>{t("voice:guestText.memberUpgrade")}</Link>}
    {(phase==="exhausted"||phase==="full")&&<>
     {textFallback&&!onTextGrant&&<Link className="btn secondary" to={textFallback.href} {...linkTarget}>{t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}
+    <Link className="btn secondary" to={keySetupTo} {...linkTarget}>{t("auth.byokSetup")}</Link>
     <Link className="btn secondary" to="/games/1a2b" {...linkTarget}>{t("guestTrial.free1a2b")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role={phase==="error"&&micPermissionDenied?"alert":"status"}>{message||t("guestTrial.unavailable")}</p>}
    {phase==="error"&&textFallback&&!onTextGrant&&<Link className={precall&&!micUnavailable?"btn secondary friend-precall-text-fallback":"btn"} to={textFallback.href} onClick={()=>offerGuestChallengeToken(challenge)}>{precall&&!micUnavailable?t("voice:friendLive.preCallTextFallback",{name:textFallback.name}):t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}

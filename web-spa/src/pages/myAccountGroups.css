@@ -19,3 +19,13 @@
  .crew-section-me>.crew-section-heading :is(.kicker,p){display:none}
  .crew-section-me>.crew-me-summary{margin-top:0}
 }
+
+.koolo-my-ai-card{display:grid;gap:8px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);min-width:0}
+.koolo-my-ai-heading{display:flex;align-items:center;gap:8px}
+.koolo-my-ai-heading svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;flex:none}
+.koolo-my-ai-heading h2{margin:0;font-size:18px;line-height:1.4}
+.koolo-my-ai-card p{margin:0;font-size:14px;line-height:1.55;overflow-wrap:anywhere}
+.koolo-my-ai-card .koolo-my-ai-status{font-weight:600;color:var(--muted)}
+.koolo-my-ai-card .koolo-my-ai-status[data-status="active"]{color:var(--accent)}
+.koolo-my-ai-card .btn{min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal}
+.koolo-my-ai-card small{font-size:12px;color:var(--muted);line-height:1.5}
