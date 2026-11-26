@@ -1,4 +1,3 @@
-import {LearningMaterialGate} from "./teacher/LearningMaterialGate";
 import{Navigate,Route,Routes,useLocation,useParams}from"react-router-dom";
 import{useEffect,lazy,Suspense}from"react";
 import{useTranslation}from"react-i18next";
@@ -58,6 +57,7 @@ const SandboxLab=lazy(()=>import("./sandbox/SandboxLab").then(m=>({default:m.San
 const SoulsPage=lazy(()=>withNamespace("voice",import("./souls/SoulsPage")).then(m=>({default:m.SoulsPage})));
 const BooksPage=lazy(()=>import("./books/BooksPage"));
 const OnboardingGate=lazy(()=>import("./onboarding/OnboardingGate").then(m=>({default:m.OnboardingGate})));
+const LearningMaterialGate=lazy(()=>import("./teacher/LearningMaterialGate").then(m=>({default:m.LearningMaterialGate})));
 const LearningLanguageGate=lazy(()=>import("./onboarding/LearningLanguageGate").then(m=>({default:m.LearningLanguageGate})));
 const CrewSectionPage=lazy(()=>withNamespace("lesson",import("./pages/CrewSectionPage")).then(m=>({default:m.CrewSectionPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
