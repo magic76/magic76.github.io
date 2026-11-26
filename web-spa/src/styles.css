@@ -38,7 +38,7 @@ body{min-height:100vh;padding-bottom:0}
 .teacher-picker-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(20,20,20,.48);display:flex;align-items:center;justify-content:center;padding:max(14px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom));overscroll-behavior:contain}
 .teacher-picker{width:min(620px,100%);max-height:min(82dvh,760px);overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border-radius:24px;padding:18px;border:1px solid var(--line);box-shadow:0 20px 70px rgba(0,0,0,.18)}
 .teacher-picker .section-head{align-items:flex-start}
-.teacher-picker-close{border:0;background:var(--surface-alt);color:var(--text);width:36px;height:36px;border-radius:50%;font-size:22px;cursor:pointer}
+.teacher-picker-close{border:0;background:var(--surface-alt);color:var(--text);box-sizing:border-box;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;display:grid;place-items:center;border-radius:50%;font-size:22px;line-height:1;cursor:pointer}
 .teacher-picker-list{display:grid;gap:10px;margin-top:14px}
 .teacher-profile-option{width:100%;display:grid;grid-template-columns:68px 1fr;gap:12px;align-items:center;border:1px solid var(--line);border-radius:18px;background:#fff;padding:10px;text-align:left;color:var(--text);cursor:pointer}
 .teacher-profile-option.active{border:2px solid var(--accent);background:var(--accent-soft)}
