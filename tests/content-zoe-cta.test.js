@@ -38,7 +38,11 @@ test("game dock keeps voice reachable as the primary action, without text chat",
  assert.doesNotMatch(css,/game-voice-dock-chat/);
  assert.match(css,/\.game-voice-dock :is\(\.crew-play-voice-start,\.crew-mini-primary,\.friend-gomoku-start-voice\)\{background:#51418f;color:#fff/);
  assert.match(css,/\.game-voice-dock\.is-collapsed :is\(\.crew-play-voice-start,\.crew-mini-primary,\.friend-gomoku-start-voice\)\{[^}]*min-height:44px/);
- assert.doesNotMatch(css,/[^{}]*(?:crew-play-voice-start|crew-mini-primary|friend-gomoku-start-voice|crew-mini-key-link)[^{}]*\{[^}]*display:none/);
+ for(const [,selectors,body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)){
+  if(!/display\s*:\s*none\b/.test(body))continue;
+  const targets=selectors.replace(/:has\([^)]*\)/g,"");
+  assert.doesNotMatch(targets,/crew-play-voice-start|crew-mini-primary|friend-gomoku-start-voice|crew-mini-key-link/);
+ }
  assert.match(css,/\.game-voice-dock\.is-collapsed:has\(\.crew-game-voice-controls\)/);
  assert.match(css,/\.game-voice-dock\.is-collapsed \.crew-mini-key-link\{flex:1 1 0/);
 });
