@@ -30,3 +30,12 @@ test("all tutor avatar slots use Vite-bundled profile assets",()=>{
   assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-"+id+".webp")));
  }
 });
+
+test("teacher picker close button stays circular and touch-sized in the flex header",()=>{
+ const css=read("web-spa/src/styles.css");
+ const rule=css.match(/\.teacher-picker-close\{([^}]+)\}/)?.[1];
+ assert.ok(rule);
+ for(const declaration of ["box-sizing:border-box","flex:0 0 44px","width:44px","height:44px","min-width:44px","min-height:44px","padding:0","display:grid","place-items:center","border-radius:50%"]){
+  assert.ok(rule.split(";").includes(declaration),declaration);
+ }
+});
