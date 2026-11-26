@@ -8,6 +8,7 @@ import {trackUsageEvent,sessionDurationDetail} from "../analytics/usage";
 import {advanceHomeFriendJourney} from "../analytics/homeFriendJourney";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {useEffect,useMemo,useRef,useState} from "react";
+import {playZoePortraitTransition} from "./zoePortraitTransition";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
 import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
@@ -192,9 +193,14 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
  const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active,live.micEnabled,live.muted),{name:friend.name});
- const voiceMuteProps=live.micEnabled&&(live.state==="listening"||live.state==="speaking")
+ const voiceConnected=live.micEnabled&&(live.state==="listening"||live.state==="speaking");
+ const voiceMuteProps=voiceConnected
   ?{volume:live.volume,onVolume:live.setVolume}:null;
  useFriendTextViewport(true,textStage);
+ const portraitRef=useRef<HTMLDivElement>(null);
+ useEffect(()=>{
+  if(friend.id==="zoe")return playZoePortraitTransition(portraitRef.current);
+ },[friend.id]);
  const changeFriendChatMode=(chosen:FriendChatLanguageMode)=>{
   if(chosen===friendChatMode)return;
   const connected=["listening","speaking"].includes(live.state);
@@ -227,7 +233,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
    <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(active||interruptedCaptions?" friend-phone-stage":" friend-precall-stage")+(active&&shortsPost?" friend-shorts-voice-compact":"")+(textFirst?" friend-text-first-stage":"")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
     <div className="live-identity">
      <div className="friend-voice-avatar-anchor">
-      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
+      <div ref={portraitRef} className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState} data-voice-connected={voiceConnected||undefined} data-output-muted={(voiceConnected&&live.volume===0)||undefined}><FriendAvatar friend={friend}/></div>
       {voiceMuteProps&&<FriendVoiceMute {...voiceMuteProps}/>}
      </div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>

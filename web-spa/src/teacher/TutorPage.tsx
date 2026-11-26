@@ -50,7 +50,7 @@ export function TutorPage(){
  <section className="section teacher-home">
   <div className="panel teacher-home-hero">
    <div className="teacher-home-identity">
-    <button type="button" className="teacher-avatar-button teacher-home-avatar" aria-label={t("tutor.change")} onClick={()=>{stopPreview();setPicker(true)}}><TeacherAvatar profile={profile}/></button>
+    <button type="button" className="teacher-avatar-button teacher-home-avatar" data-preview={preview?.state||"idle"} aria-label={t("tutor.change")} onClick={()=>{stopPreview();setPicker(true)}}><TeacherAvatar profile={profile}/></button>
     <div className="teacher-home-copy"><span className="kicker">{t("tutor.current")}</span><h2>{profile.name}</h2><strong>{chinese?profile.title:profileCopy.title}</strong><p>{profileCopy.description}</p></div>
    </div>
    <p className="teacher-native-help" role="note">{teacherLanguageHomeHint(
