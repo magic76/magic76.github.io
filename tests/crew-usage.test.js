@@ -120,18 +120,19 @@ test("frontend and Cloudflare ingest share one verified event/detail vocabulary"
 test("new game and experience events survive ingestion without personal payloads",async()=>{
  const {onRequestPost}=compile("functions/api/usage/event.ts");
  const points=[],env={ANALYTICS_ENGINE:{writeDataPoint:p=>points.push(p)}};
- for(const [event,detail] of [
+ const cases=[
   ["game_completed","nonsense"],["game_completed","crazy-court"],
   ["town_interaction","person"],["town_3d_fallback","render_error"],
   ["magic_spell",""],["magic_panel_choice",""],["magic_voice_failed",""],
   ["mate_handoff_completed",""],["research_article_completed",""],
   ["seo_quiz_started","ed_ending"],["seo_quiz_completed","travel_english"],["seo_quiz_cta_click","ed_ending"],
   ["circle_post_published","live"],["home_entry_click","play"]
- ]){
+ ];
+ for(const [event,detail] of cases){
   const response=await onRequestPost({request:request({...payload,event,detail}),env});
   assert.equal(response.status,204,event+":"+detail);
  }
- assert.equal(points.length,11);
+ assert.equal(points.length,cases.length);
  assert.equal((await onRequestPost({request:request({...payload,event:"research_article_open",detail:"private article title"}),env})).status,400);
 });
 
