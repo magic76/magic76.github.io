@@ -7,7 +7,7 @@ import{characterLifeView,lifeBookLabels}from"../characters/lifeBookLocale";
 import{useTeacherStore}from"../store/teacherStore";
 import{TeacherAvatar}from"./TeacherAvatar";
 import{completedTutorSessions}from"./teacherPracticeHistory";
-import{previewTeacherVoice,type PreviewStatus}from"./teacherVoicePreview";
+import{previewTeacherVoiceRecorded,type PreviewStatus}from"./teacherVoicePreview";
 import{transitionUI}from"../lib/motion";
 
 /** Matches Android's 16-profile gallery, without creating chat sessions for audition. */
@@ -39,7 +39,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
  function playPreview(){
   if(!detail)return;
   cancelPreview();
-  previewStop.current=previewTeacherVoice(detail,targetLanguage,setPreview,{voice:detail.id===active?activeVoice:detail.recommendedVoice,languageStyle,accentStrength,customAccent,speakingPace});
+  previewStop.current=previewTeacherVoiceRecorded(detail,targetLanguage,setPreview,{voice:detail.id===active?activeVoice:detail.recommendedVoice,languageStyle,accentStrength,customAccent,speakingPace});
  }
  function choose(profile:TeacherProfile){cancelPreview();select(profile.id);onCloseRef.current()}
  return createPortal(<div className="teacher-picker-backdrop" role="presentation" onClick={()=>onCloseRef.current()}>

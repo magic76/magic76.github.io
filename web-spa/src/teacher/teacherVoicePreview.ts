@@ -114,3 +114,45 @@ export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string
  })();
  return stop;
 }
+
+/** Recorded auditions are independent of Gemini; live stays available as a fallback. */
+export function recordedTeacherPreviewUrl(teacherId:string,targetLanguage:string):string|null{
+ const lang=targetLanguage==="英文"?"en":targetLanguage==="中文"?"zh":null;
+ return lang?`/teacher-previews/${encodeURIComponent(teacherId)}-${lang}.mp3`:null;
+}
+
+export function previewTeacherVoiceRecorded(
+ profile:TeacherProfile,targetLanguage:string,onStatus:(status:PreviewStatus)=>void,
+ opts?:Parameters<typeof previewTeacherVoice>[3],
+ createAudio:(src:string)=>HTMLAudioElement=src=>new Audio(src),
+ live=previewTeacherVoice,
+):()=>void{
+ const url=recordedTeacherPreviewUrl(profile.id,targetLanguage);
+ if(!url)return live(profile,targetLanguage,onStatus,opts);
+ let audio:HTMLAudioElement|null=null,stopLive:(()=>void)|null=null;
+ let closed=false,fellBack=false;
+ function releaseAudio(){
+  if(!audio)return;
+  const player=audio;audio=null;
+  player.onplaying=null;player.onended=null;player.onerror=null;
+  player.pause();player.removeAttribute("src");player.load();
+ }
+ function stop(){
+  if(closed)return;closed=true;
+  releaseAudio();stopLive?.();stopLive=null;
+ }
+ function fallback(){
+  if(closed||fellBack)return;fellBack=true;
+  releaseAudio();
+  stopLive=live(profile,targetLanguage,status=>{if(!closed)onStatus(status)},opts);
+ }
+ onStatus({state:"connecting"});
+ try{
+  audio=createAudio(url);
+  audio.onplaying=()=>{if(!closed&&!fellBack)onStatus({state:"playing"})};
+  audio.onended=()=>{if(!closed&&!fellBack){stop();onStatus({state:"finished"})}};
+  audio.onerror=fallback;
+  void audio.play().catch(fallback);
+ }catch{fallback()}
+ return stop;
+}
