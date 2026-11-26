@@ -8,6 +8,7 @@ export function GuestKeyRecovery({exhausted,hasKey}:{exhausted:boolean;hasKey:bo
  const continueTo="/account?returnTo="+encodeURIComponent(location.pathname+location.search)+"#settings-gemini";
  return <div className="crew-text-key-recovery" role="note">
   {exhausted&&<p>{t("guestText.nextDayHint")}</p>}
-  {hasKey?<Link className="btn secondary small" to={continueTo}>{t("guestText.useKey")}</Link>:<Link className="btn secondary small" to="/games">{t("common:guestTrial.freeNextTitle")}</Link>}
+  <Link className="btn secondary small" to={continueTo}>{hasKey?t("guestText.useKey"):t("common:auth.byokSetup")}</Link>
+  {!hasKey&&<Link className="btn secondary small" to="/games">{t("common:guestTrial.freeNextTitle")}</Link>}
  </div>;
 }

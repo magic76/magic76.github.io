@@ -101,7 +101,8 @@ test("quota recovery offers tomorrow and free exploration, preserving explicit B
  assert.ok(recovery.includes('encodeURIComponent(location.pathname+location.search)'));
  assert.ok(recovery.includes('"#settings-gemini"'));
  assert.ok(recovery.includes('exhausted&&<p>{t("guestText.nextDayHint")}</p>'));
- assert.match(recovery,/hasKey\?<Link[^\n]*guestText\.useKey[^\n]*to="\/games"/);
+ assert.match(recovery,/to=\{continueTo\}[^\n]*guestText\.useKey[^\n]*common:auth\.byokSetup/);
+ assert.match(recovery,/!hasKey&&<Link[^\n]*to="\/games"/);
  assert.doesNotMatch(recovery,/guestText\.applyKey|guestText\.keyApplyNote/);
  assert.match(panel,/hasKey&&guestFailure&&/);
  assert.match(css,/\.crew-text-guest \.crew-text-key-recovery \.btn\{[^}]*min-height:44px/);

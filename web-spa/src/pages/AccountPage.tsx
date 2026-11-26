@@ -66,8 +66,9 @@ export function AccountPage(){
    <Link className="crew-account-back" to="/settings">{t("auth.backSettings")}</Link>
   </section>;
  const aiPanel=<details className="crew-account-ai section panel" open={geminiFirst||undefined}>
-   <summary className="crew-account-section-heading">{t("auth.aiSettings")}</summary>
-   <p className="meta">{t("auth.aiIntro")}</p>
+   <summary className="crew-account-section-heading">{t("auth.byokTitle")} · Gemini API Key</summary>
+   <p className="meta">{t("auth.byokBenefit")}</p>
+   <p className="meta">{t("auth.byokPolicy")}</p>
    <GeminiConnectionPanel section="key"/>
   </details>;
  return <div className="crew-account-page">

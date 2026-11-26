@@ -5,6 +5,7 @@ import {Arrow} from "../components/Arrow";
 import {Icon,type IconName} from "../components/Icon";
 import {KooloAdminEntry} from "./KooloAdminEntry";
 import "./myAccountGroups.css";
+import {geminiKey,geminiVerified,GEMINI_KEY_CHANGED_EVENT} from "../lib/runtime";
 
 type RowItem={to:string;title:string;icon:IconName};
 type Summary={status:"loading"}|{status:"login"}|{status:"error"}|{status:"ready";value:number};
@@ -38,6 +39,25 @@ function AccountRow({to,icon,title,children}:{to:string;icon:IconName;title:stri
   {children&&<span className="koolo-account-value">{children}</span>}<Arrow direction="chevron-right" size={16}/>
  </Link>;
 }
+function MyAiSettingsCard(){
+ const {t}=useTranslation("common");
+ const [status,setStatus]=useState<"free"|"pending"|"active"|null>(null);
+ useEffect(()=>{
+  const refresh=()=>{try{setStatus(geminiVerified()?"active":geminiKey()?"pending":"free")}catch{setStatus(null)}};
+  refresh();
+  window.addEventListener(GEMINI_KEY_CHANGED_EVENT,refresh);
+  window.addEventListener("focus",refresh);
+  window.addEventListener("storage",refresh);
+  return()=>{window.removeEventListener(GEMINI_KEY_CHANGED_EVENT,refresh);window.removeEventListener("focus",refresh);window.removeEventListener("storage",refresh)};
+ },[]);
+ return <section className="koolo-my-ai-card" aria-labelledby="koolo-my-ai-title">
+  <div className="koolo-my-ai-heading"><Icon name="sparkles"/><h2 id="koolo-my-ai-title">{t("auth.byokTitle")}</h2></div>
+  {status&&<p className="koolo-my-ai-status" data-status={status} role="status">{t(status==="active"?"auth.byokActive":status==="pending"?"auth.byokPending":"auth.byokFree")}</p>}
+  <p>{t("auth.byokBenefit")}</p>
+  <Link className="btn" to="/account#settings-gemini">{t(status==="active"||status==="pending"?"auth.byokManage":"auth.byokSetup")}</Link>
+  <small>{t("auth.byokPolicy")}</small>
+ </section>;
+}
 export function MyAccountGroups({items}:{items:RowItem[]}){
  const {t,i18n}=useTranslation("home");
  const label=(key:string)=>t("sectionHubs.me.groups."+key);
@@ -57,6 +77,7 @@ export function MyAccountGroups({items}:{items:RowItem[]}){
  }
  function row(item:RowItem){return <AccountRow key={item.to} {...item}/>}
  return <>
+  <MyAiSettingsCard/>
   <section className="koolo-account-group"><h2>{label("content")}</h2><div className="koolo-account-list">
    {items.filter(item=>item.to!=="/settings"&&item.to!=="/teacher/reports").map(row)}
    <AccountRow to="/fortune/premium" icon="fortune" title={label("lifeReadings")}/>

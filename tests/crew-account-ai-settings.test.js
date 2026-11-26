@@ -28,3 +28,20 @@ test("Account AI settings retain per-device privacy warning and translated label
   assert.match(translations.auth.localData,/Gemini/);
  }
 });
+
+test("BYOK is discoverable in My and settings and both quota recovery flows",()=>{
+ const my=read("web-spa/src/pages/MyAccountGroups.tsx");
+ const settings=read("web-spa/src/pages/SettingsPage.tsx");
+ const voice=read("web-spa/src/live/GuestLiveStarter.tsx");
+ const text=read("web-spa/src/live/GuestKeyRecovery.tsx");
+ assert.match(my,/<MyAiSettingsCard\/>/);
+ assert.match(my,/geminiVerified\(\)\?"active":geminiKey\(\)\?"pending":"free"/);
+ assert.match(my,/to="\/account#settings-gemini"/);
+ assert.match(settings,/<Link to="\/account#settings-gemini">/);
+ assert.match(voice,/to=\{keySetupTo\}[^\n]*auth\.byokSetup/);
+ assert.match(text,/to=\{continueTo\}[^\n]*auth\.byokSetup/);
+ for(const {code} of JSON.parse(read("config/ui-locales.json")).locales){
+  const {auth}=JSON.parse(read("web-spa/src/i18n/locales/"+code+"/common.json"));
+  for(const key of ["byokTitle","byokBenefit","byokSetup","byokManage","byokFree","byokPending","byokActive","byokPolicy"])assert.ok(auth[key],code+" auth."+key);
+ }
+});
