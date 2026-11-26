@@ -1,0 +1,44 @@
+[
+  {
+    "word": "washed",
+    "base": "wash",
+    "last": "/ʃ/",
+    "ending": "/t/",
+    "rule": "voiceless"
+  },
+  {
+    "word": "played",
+    "base": "play",
+    "last": "/eɪ/",
+    "ending": "/d/",
+    "rule": "voiced"
+  },
+  {
+    "word": "wanted",
+    "base": "want",
+    "last": "/t/",
+    "ending": "/ɪd/",
+    "rule": "extra"
+  },
+  {
+    "word": "laughed",
+    "base": "laugh",
+    "last": "/f/",
+    "ending": "/t/",
+    "rule": "voiceless"
+  },
+  {
+    "word": "called",
+    "base": "call",
+    "last": "/l/",
+    "ending": "/d/",
+    "rule": "voiced"
+  },
+  {
+    "word": "needed",
+    "base": "need",
+    "last": "/d/",
+    "ending": "/ɪd/",
+    "rule": "extra"
+  }
+]

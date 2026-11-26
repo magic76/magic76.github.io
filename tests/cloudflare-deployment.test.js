@@ -276,6 +276,17 @@ check("search-intent guides serve real localized SSG HTML and enter the sitemap"
   }
  }
 });
+check("pronunciation guides ship the free ed ending quiz in both published locales",()=>{
+ for(const prefix of ["","en/"]){
+  const html=read(prefix+"guides/english-pronunciation/index.html");
+  assert.ok(html.includes('id="ed-ending-quiz"'),"quiz missing: "+prefix);
+  assert.ok(html.includes('id="ed-quiz-heading"'),"accessible heading missing: "+prefix);
+  assert.ok(html.includes("washed"),"initial question missing: "+prefix);
+  for(const choice of ["/t/","/d/","/ɪd/"])assert.ok(html.includes(choice),choice);
+  assert.ok(html.includes('<progress'),"progress missing: "+prefix);
+ }
+ for(const prefix of ["","en/"])assert.ok(!read(prefix+"guides/ai-english-speaking/index.html").includes('id="ed-ending-quiz"'),"quiz must stay scoped");
+});
 check("English Gemini key guide preserves its heading and direct account CTA in rendered HTML",async()=>{
  const {decodeHtmlText}=await import("../scripts/research-seo.mjs");
  const html=read("en/guides/gemini-key-for-ai-practice/index.html");

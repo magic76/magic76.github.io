@@ -132,7 +132,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
  "english-pronunciation":{
   zh:{
    title:"英文發音與跟讀練習｜單字重音、長短母音、ed 結尾｜Koolo",
-   description:"練習英文長短母音、過去式 ed 的三種發音、單字與句子重音。提供可朗讀的例句、跟讀步驟與發音練習入口。",
+   description:"練習英文長短母音、過去式 ed 的三種發音、單字與句子重音。免費 6 題 ed 發音測驗、答案解析與跟讀練習，不需登入。",
    label:"英文發音與跟讀",headline:"英文發音練習：先讓人聽懂，再追求像母語者",
    intro:"發音不是只有單字唸對。句子裡哪些字需要強調、哪裡該停頓，以及語速是否太快，都會影響對方能否聽懂。透過短句跟讀和自己的錄音比對，比連續朗讀一大段更容易發現問題。",
    bullets:["一次練一小段，不需要每個音節都同時修正。","先學會單字重音，再練整句語調。","用平常真的會講的句子，而不是只有繞口令。"],
@@ -150,7 +150,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
   },
   en:{
    title:"English Pronunciation Practice: Shadowing, Vowels and -ed Endings | Koolo",
-   description:"Practice English pronunciation with vowel pairs, regular past-tense -ed endings, sentence stress and short shadowing drills. Try Koolo pronunciation practice.",
+   description:"Practice English pronunciation with a free six-question -ed ending quiz, vowel pairs and shadowing drills. Get explanations and practice without signing in.",
    label:"ENGLISH PRONUNCIATION",headline:"Practice clear English pronunciation before chasing an accent",
    intro:"Pronunciation is not only about individual sounds. Stress, rhythm and pacing can make the difference between an understandable sentence and a confusing one. Short recordings and repeated phrases are easier to review than long passages.",
    bullets:["Work on one short phrase at a time.","Learn word stress, then focus on the rhythm of full sentences.","Use phrases you might actually say outside a classroom."],
