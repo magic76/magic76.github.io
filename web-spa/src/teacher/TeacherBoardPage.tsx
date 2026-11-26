@@ -18,7 +18,7 @@ import {TeachingCard,cardKindName} from "./TeachingCard";
 import type {FlashReview} from "./BoardFlashcards";
 import {flashcardTeacherPrompt} from "./boardRecallCoach";
 import {DIRECTOR_FUNCTION,DIRECTOR_TOOL,EMPTY_DIRECTOR,applyDirectorCommand,directorAfterAnswer,directorAfterPatch,validateDirectorCommand,type DirectorState} from "./teachingDirector";
-import {findLesson,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonId,type SpeakingAssessment} from "./boardLessons";
+import {findLesson,lessonLabel,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonId,type SpeakingAssessment} from "./boardLessons";
 import {GuidedLessonPanel} from "./GuidedLessonPanel";
 import {BoardQuickControls} from "./BoardQuickControls";
 import {BoardTutorPanel} from "./BoardTutorPanel";
@@ -55,6 +55,7 @@ export function TeacherBoardPage(){
  const [lessonExplained,setLessonExplained]=useState(false);
  const [lessonTransitioning,setLessonTransitioning]=useState(false);
  const [topicEnded,setTopicEnded]=useState(false);
+ const [pendingTopic,setPendingTopic]=useState("");
  const topicEndedRef=useRef(false);
  const [speakingAssessment,setSpeakingAssessment]=useState<SpeakingAssessment|null>(null);
  const [reviewReturn,setReviewReturn]=useState<{cardId:string;index:number}|null>(null);
@@ -88,9 +89,9 @@ export function TeacherBoardPage(){
   level:vocabularyLevel(),nativeLanguage:s.nativeLanguage,learnerSpeakingLevel:level
  })+"\n"+voiceIdentityPrompt("teacher",profile.id,s.targetLanguage)+"\n"+BOARD_VISUAL_POLICY,
  [s.targetLanguage,s.nativeLanguage,s.teachingMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,profile,level]);
- const opening="[SILENT LESSON BOARD CONTROL] Await the learner's question. Ask what they want to understand in one short spoken sentence. "+
+ const opening=(pendingTopic&&!lessonId?"[NEW LEARNER-CHOSEN TOPIC] Teach this topic directly using the board tools: "+pendingTopic+"\n":"[SILENT LESSON BOARD CONTROL] Await the learner's question. Ask what they want to understand in one short spoken sentence. ")+
   (cardRef.current.length?"Continue from this existing board, never reset it:\n"+boardNotes(cardRef.current).slice(0,1800):"Start with an empty board.")+"\n"+
-  (lessonRef.current?lessonPrompt(findLesson(lessonRef.current)!,0):"")+"\n"+localeHelp;
+  (lessonRef.current?lessonPrompt(findLesson(lessonRef.current)!,lessonStep):"")+"\n"+localeHelp;
  function changeDirector(next:DirectorState){
   directorRef.current=next;setDirector(next);
   record("director-state",{phase:next.phase,cardId:next.cardId,quizIndex:next.quizIndex,focusIndex:next.focusIndex,result:next.result});
@@ -165,14 +166,14 @@ export function TeacherBoardPage(){
   setLatestId(cardId);setFollowing(true);setFocusedId(null);setRevision(v=>v+1);
  }
  function endTopic(){
-  record("topic-end");
+  record("topic-end");setPendingTopic("");
   topicEndedRef.current=true;
   if(active)live.interrupt();
   setTopicEnded(true);setLessonTransitioning(false);
   changeDirector(EMPTY_DIRECTOR);
  }
  function startFreeTopic(topic:string){
-  record("topic-start",{mode:"free"},topic);
+  record("topic-start",{mode:"free"},topic);setPendingTopic(topic);
   topicEndedRef.current=false;
   if(active)live.interrupt();
   lessonRef.current=null;setLessonId(null);setLessonStep(0);
@@ -187,6 +188,7 @@ export function TeacherBoardPage(){
  function startLesson(id:LessonId){
   const lesson=findLesson(id);
   if(!lesson)return;
+  setPendingTopic("");
   if(active)live.interrupt();
   setLessonTransitioning(active);setLessonExplained(false);setCompletedSteps({});
   setTopicEnded(false);
@@ -284,6 +286,9 @@ export function TeacherBoardPage(){
  const active=speakingStates.includes(live.state);
  const focusedCard=cards.find(c=>c.id===(following?latestId:focusedId))||cards[cards.length-1];
  const lesson=lessonId?findLesson(lessonId):undefined;
+ const preparing=!active&&!cards.length&&!pendingTopic;
+ const hasTopic=!!lesson||!!pendingTopic;
+ const zh=(i18n.resolvedLanguage||"").startsWith("zh");
  const progress=lesson?lessonProgress(lesson,answers,speakingAssessment):null;
  const currentStepDone=!!lesson&&!!completedSteps[lesson.cards[lessonStep]?.id];
  function completeCurrentStep(){
@@ -316,6 +321,7 @@ export function TeacherBoardPage(){
   setHint("");
  }
  function showFormats(){
+  setPendingTopic("");
   lessonRef.current=null;setLessonId(null);setLessonStep(0);
   pendingQuizRef.current=null;changeDirector(EMPTY_DIRECTOR);
   reviewReturnRef.current=null;setReviewReturn(null);
@@ -330,6 +336,7 @@ export function TeacherBoardPage(){
  }
  function startDueReview(){
   if(directorRef.current.phase==="awaiting"||!reviews.due.length)return;
+  setPendingTopic("");
   lessonRef.current=null;setLessonId(null);setLessonStep(0);changeDirector(EMPTY_DIRECTOR);
   reviewReturnRef.current=null;setReviewReturn(null);
   const pairs=reviews.due.map(item=>({source:item.source,target:item.target}));
@@ -404,27 +411,21 @@ export function TeacherBoardPage(){
  const phase=live.state==="speaking"?t("board.speaking"):live.state==="listening"?t("board.listening"):live.state==="connecting"||live.state==="requesting-mic"?t("board.connecting"):live.state==="error"?t("board.offline"):t("board.ready");
  return <>
   <header className="teaching-board-top"><Link to="/learn" className="teaching-board-back" aria-label={t("board.back")}><Arrow direction="left"/></Link>
-   <div><strong>{t("board.title")}</strong><small>{s.targetLanguage} · {s.learnerSpeakingLevel} · {profile.name}</small></div>
+   <div><strong>{t("board.title")}</strong><small>{s.targetLanguage} · {profile.name}</small></div>
    <span className="teaching-board-connection" data-state={live.state}>{phase}</span>
    <details className="teaching-board-diagnostics"><summary aria-label={english?"Report lesson problem":"回報教學問題"}>{english?"Report":"回報"}</summary><div className="teaching-board-diagnostics-panel"><strong>{english?"Lesson diagnostics":"教學診斷報告"}</strong><p>{english?"Session only. Nothing is uploaded. Optionally include transcript and card content. No audio or credential configuration is collected.":"僅保留本頁工作階段，不會上傳。勾選後才會在報告加入對話與教材內容；不收集原始錄音或金鑰設定。"}</p><label><input type="checkbox" checked={includeDiagnosticText} onChange={e=>{setIncludeDiagnosticText(e.target.checked);setDiagnosticStatus("")}}/>{english?"Include transcript and card content":"包含對話及教材內容"}</label><button type="button" onClick={()=>void copyDiagnostics()}>{english?"Copy diagnostics":"複製診斷報告"}</button><small role="status">{diagnosticStatus}</small></div></details>
   </header>
-  <main className="teaching-board-layout">
+  <main className={"teaching-board-layout"+(preparing?" is-preparing":" is-teaching")}>
+   <BoardTutorPanel live={live} profile={profile} targetLanguage={s.targetLanguage} english={english} hint={hint} onAsk={ask} preparing={preparing}/>
    <GuidedLessonPanel lesson={lesson} lessonId={lessonId} lessonStep={lessonStep} progress={progress} english={english}
-    quizLocked={focusedCard?.type==="quiz"&&director.phase==="awaiting"} onStart={startLesson} onStep={goLessonStep}/>
+    onStart={startLesson} active={active} pendingTopic={pendingTopic} onTopic={startFreeTopic}/>
    <section className="teaching-board-workspace">
-   <BoardTutorPanel live={live} profile={profile} targetLanguage={s.targetLanguage} english={english} hint={hint} onAsk={ask}/>
    <section className="teaching-board-canvas" aria-label={t("board.canvas")}>
-    <BoardQuickControls english={english} guided={!!lesson} hasCards={cards.length>0&&!topicEnded} step={lessonStep} steps={lesson?.cards.length||0} onNext={()=>goLessonStep(lessonStep+1)} onEnd={endTopic} onLesson={startLesson} onTopic={startFreeTopic} voiceControls={<LiveControls live={live} compact prominentInterrupt english={english} onEnd={async()=>{record("call-end");await live.stop(true);navigate("/learn")}}/>}/>
-    {topicEnded&&<p className="teaching-board-topic-ended" role="status">{english?"Topic finished. Your notes remain below for review. Choose a new topic above when ready.":"這個話題已結束。下方教材保留供回顧，想繼續時可從上方選新話題。"}</p>}
-    <div className="teaching-board-canvas-head"><div><span className="kicker">{lesson?(english?"CURRENT LESSON":"目前教材"):"CREW · LIVE BOARD"}</span><h1>{lesson?lesson.title:t("board.canvas")}</h1>
-     <p>{lesson?(english?"The teacher explains this material. You choose when to change steps.":"老師依照這份教材講解，只有你切換步驟時才換頁。"):t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
-    </div></div>
-    <details className="teaching-board-more"><summary>{english?"Board tools & review":"白板工具與複習"}{reviews.due.length>0?" · "+reviews.due.length:""}</summary><div className="teaching-board-canvas-actions">{!lesson&&<button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>}
-     <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div>
-    <BoardReviewBanner due={reviews.due.length} total={reviews.total} enabled={memoryEnabled}
-     blocked={director.phase==="awaiting"} onStart={startDueReview} onClear={reviews.clear}/>
-    {!lessonId&&<BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"}/>}</details>
-    {cards.length>0&&<div className="teaching-board-navigator">
+    <BoardQuickControls english={english} active={active} guided={!!lesson} hasCards={cards.length>0&&!topicEnded} step={lessonStep} steps={lesson?.cards.length||0} onNext={()=>goLessonStep(lessonStep+1)} onEnd={endTopic} onLesson={startLesson} onTopic={startFreeTopic} voiceControls={<LiveControls live={live} compact prominentInterrupt english={english} onEnd={async()=>{record("call-end");await live.stop(true);navigate("/learn")}}/>}/>
+    {topicEnded&&<p className="teaching-board-topic-ended" role="status">{english?"Topic finished. Your notes remain below for review. Choose Change topic when ready.":"這個話題已結束。下方教材保留供回顧，想繼續時可選擇「換個話題」。"}</p>}
+    {hasTopic&&<div className="teaching-board-canvas-head"><div><h1>{lesson?lessonLabel(lesson,zh):pendingTopic}</h1></div></div>}
+
+    {cards.length>0&&<div className={"teaching-board-navigator"+(lesson?" is-guided":"")}>
      <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
       <small>{following?t("board.following"):t("board.paused")}</small>
       {!following&&<button className="teaching-board-follow" type="button" onClick={()=>{record("follow-latest");setFollowing(true);setFocusedId(null)}}>{t("board.followLatest")} <Arrow direction="right"/></button>}
@@ -434,12 +435,12 @@ export function TeacherBoardPage(){
        aria-controls="teaching-board-active-panel" aria-selected={focusedCard?.id===card.id}
        className={"teaching-board-deck-tab"+(focusedCard?.id===card.id?" is-active":"")}
        onClick={()=>{if(lessonId)goLessonStep(index);else{record("card-selected",{cardId:card.id});setFollowing(false);setFocusedId(card.id)}}}>
-       <small>{index+1} · {cardKindName(card.type,english)}{latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
+       <small>{index+1} · {cardKindName(card.type,english)}{!lesson&&latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
       </button>)}
      </div>
     </div>}
     {lesson&&<div className="teaching-board-curriculum-note" role="status"><p>{english?"Step":"教材"} {lessonStep+1} / {lesson.cards.length} · {lesson.goal}</p><p>{lessonTransitioning?(english?"Switching explanation…":"正在切換講解…"):(lessonExplained?(english?"Explanation ready":"老師已完成本段講解"):(english?"Listen to this lesson before completing it":"先聽老師講解這份教材"))}</p><button type="button" disabled={currentStepDone||lessonTransitioning||((focusedCard?.type==="quiz")?!progress?.quiz:(focusedCard?.type==="speaking")?!progress?.speaking:!lessonExplained)} onClick={completeCurrentStep}>{currentStepDone?(english?"Completed ✓":"已完成 ✓"):(english?"Mark this step complete":"完成這一節")}</button><span>{Object.keys(completedSteps).filter(id=>completedSteps[id]&&lesson.cards.some(card=>card.id===id)).length} / {lesson.cards.length}</span></div>}
-     <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} data-following={following} role="tabpanel" id="teaching-board-active-panel"
+     {!preparing&&<div className={"teaching-board-stage"+(focusedCard?" has-card":"")} data-following={following} role="tabpanel" id="teaching-board-active-panel"
      aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
      {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
       <TeachingCard key={focusedCard.id} card={focusedCard} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}
@@ -447,7 +448,7 @@ export function TeacherBoardPage(){
        revealCount={director.cardId===focusedCard.id?director.revealed:null}
        quizIndex={director.cardId===focusedCard.id?director.quizIndex:0} onNavigate={index=>navigateCard(focusedCard.id,index)}
        onSpeakingSubmit={text=>submitSpeaking(text,true)} onFlashcardPractice={coachFlashcard} onFlashcardRate={rateFlashcard} speakingAssessment={director.cardId===focusedCard.id?speakingAssessment:null}/>}
-    </div>
+    </div>}
     {focusedCard&&following&&director.cardId===focusedCard.id&&<div className="teaching-board-director-status" role="status">
      {director.phase==="awaiting"&&<button type="button" onClick={requestHint}>{t("board.lessonPicker.hint")}</button>}
      {director.phase==="awaiting"&&director.hintText&&<span className="teaching-board-director-hint">{director.hintText}</span>}
@@ -459,9 +460,14 @@ export function TeacherBoardPage(){
     {cards.length>0&&<div className="teaching-board-footer">
      <button type="button" onClick={()=>setNotesOpen(!notesOpen)} aria-expanded={notesOpen}>{t("board.notes")}</button>
      <button type="button" onClick={()=>void copyNotes()}>{t("board.copy")}</button>
-     <button type="button" onClick={()=>{cardRef.current=[];setCards([]);setAnswers({});setNotesOpen(false);setLatestId(null);setFocusedId(null);setFollowing(true);changeDirector(EMPTY_DIRECTOR);answersRef.current={};lessonRef.current=null;setLessonId(null);setLessonStep(0);speechAssessmentRef.current=null;setSpeakingAssessment(null);reviewReturnRef.current=null;setReviewReturn(null)}}>{t("board.clear")}</button>
+     <button type="button" onClick={()=>{setPendingTopic("");cardRef.current=[];setCards([]);setAnswers({});setNotesOpen(false);setLatestId(null);setFocusedId(null);setFollowing(true);changeDirector(EMPTY_DIRECTOR);answersRef.current={};lessonRef.current=null;setLessonId(null);setLessonStep(0);speechAssessmentRef.current=null;setSpeakingAssessment(null);reviewReturnRef.current=null;setReviewReturn(null)}}>{t("board.clear")}</button>
      {copyStatus&&<small role="status">{copyStatus}</small>}
     </div>}
+    <details className="teaching-board-more"><summary>{english?"Board tools & review":"白板工具與複習"}{reviews.due.length>0?" · "+reviews.due.length:""}</summary><div className="teaching-board-canvas-actions">{!lesson&&<button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>}
+     <p className="teaching-board-mode-hint">{t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p><span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div>
+    <BoardReviewBanner due={reviews.due.length} total={reviews.total} enabled={memoryEnabled}
+     blocked={director.phase==="awaiting"} onStart={startDueReview} onClear={reviews.clear}/>
+    {!lessonId&&<BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"}/>}</details>
     {notesOpen&&<section className="teaching-board-notes"><h2>{t("board.notes")}</h2><pre>{boardNotes(cards)}</pre></section>}
    </section>
    </section>
