@@ -28,3 +28,10 @@ test("HTML and route fallback share the loader without delaying a valid prerende
  assert.match(css,/koolo-loader-reveal \.15s/);
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
+test("route loading is viewport centered without intercepting navigation; inline remains in flow",()=>{
+ const css=read("web-spa/src/styles.css");
+ assert.match(css,/\.koolo-loader\{[^}]*display:grid;place-items:center/);
+ assert.match(css,/\.koolo-loader:not\(\.koolo-loader--inline\)\{position:fixed;inset:0;pointer-events:none\}/);
+ assert.match(css,/\.koolo-loader--inline\{min-height:0;padding:12px\}/);
+ assert.doesNotMatch(css,/\.koolo-loader\{[^}]*45s?vh/);
+});
