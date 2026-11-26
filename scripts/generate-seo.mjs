@@ -763,7 +763,7 @@ return `<!doctype html>
     <section class="section shell questions"><div class="section-lead"><span class="section-kicker">GOOD TO KNOW / 03</span><h2>${dict.faq}</h2></div><div class="faq">${faq}</div></section>
     <section class="shell final-cta"><span class="section-kicker">YOUR CREW SPACE</span><h2>${dict.ctaTitle}</h2><p>${dict.ctaBody}</p><a class="button primary" href="${escapeHTML(p.primary.href)}">${escapeHTML(p.primary.text)} <span aria-hidden="true">↗</span></a></section>
   </main>
-  <footer class="site-footer"><div class="shell"><div><a class="brand footer-brand" href="${pageUrl("",locale)}"><span class="brand-symbol" aria-hidden="true">✳</span><span>Koolo<span class="brand-dot">.</span></span></a><p>Learn, imagine, explore.</p></div><div class="footer-nav">${related}</div><div class="footer-bottom"><span>© Koolo</span><a href="mailto:crew@3sssi.com">crew@3sssi.com</a><a href="/crew-app/#/">Web App</a></div></div></footer>
+  <footer class="site-footer"><div class="shell"><div><a class="brand footer-brand" href="${pageUrl("",locale)}"><span class="brand-symbol" aria-hidden="true">✳</span><span>Koolo<span class="brand-dot">.</span></span></a><p>Learn, imagine, explore.</p></div><div class="footer-nav">${related}</div><div class="footer-bottom"><span>© Koolo</span><a href="mailto:cs@koolo.app">cs@koolo.app</a><a href="/crew-app/#/">Web App</a></div></div></footer>
 </body>
 </html>
 `;
