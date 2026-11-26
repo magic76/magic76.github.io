@@ -130,6 +130,14 @@
     "aiFriend": "einem KI-Freund"
   },
   "auth": {
+    "byokTitle": "Meine KI-Einstellungen",
+    "byokBenefit": "Nutze deinen eigenen Gemini-API-Schlüssel für weitere KI-Funktionen wie Sprachchat, Textchat und interaktives Lernen ohne das tägliche Gratislimit von Koolo.",
+    "byokSetup": "Meinen Gemini-API-Schlüssel einrichten",
+    "byokManage": "Gemini-API-Schlüssel verwalten",
+    "byokFree": "Kostenloses Koolo-Kontingent aktiv",
+    "byokPending": "Schlüssel nicht verifiziert",
+    "byokActive": "Eigener Gemini-API-Schlüssel aktiv",
+    "byokPolicy": "Modelle, Nutzungslimits und Preise von Google gelten weiterhin; kostenpflichtige Berichte sind separat.",
     "trialCount": "Kostenlose Sprachtests heute: {{used}} / {{limit}} genutzt (Reset um 00:00 Uhr Taipeh-Zeit)",
     "account": "Konto",
     "title": "Koolo-Konto",

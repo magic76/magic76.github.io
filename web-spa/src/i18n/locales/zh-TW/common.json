@@ -130,6 +130,14 @@
     "aiFriend": "AI 朋友"
   },
   "auth": {
+    "byokTitle": "我的 AI 設定",
+    "byokBenefit": "自備 Gemini API Key，即可使用更多 AI 功能，包括語音聊天、文字對話及互動學習，不受 Koolo 每日免費額度限制。",
+    "byokSetup": "設定我的 Gemini API Key",
+    "byokManage": "管理 Gemini API Key",
+    "byokFree": "使用 Koolo 免費額度",
+    "byokPending": "Key 尚未驗證",
+    "byokActive": "使用自己的 Gemini API Key",
+    "byokPolicy": "Google 的模型、用量及計費規則仍適用；付費報告另計。",
     "trialCount": "今日免費語音：已使用 {{used}} / {{limit}} 次（台灣時間 00:00 重置）",
     "account": "帳號",
     "title": "Koolo 帳號",

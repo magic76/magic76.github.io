@@ -130,6 +130,14 @@
     "aiFriend": "AI 친구"
   },
   "auth": {
+    "byokTitle": "내 AI 설정",
+    "byokBenefit": "자신의 Gemini API 키로 음성 채팅, 문자 채팅, 대화형 학습 등 더 많은 AI 기능을 Koolo의 일일 무료 한도 없이 이용하세요.",
+    "byokSetup": "내 Gemini API 키 설정",
+    "byokManage": "Gemini API 키 관리",
+    "byokFree": "Koolo 무료 한도 사용 중",
+    "byokPending": "키 미인증",
+    "byokActive": "내 Gemini API 키 사용 중",
+    "byokPolicy": "Google의 모델, 사용 한도 및 요금이 적용되며 유료 보고서는 별도입니다.",
     "trialCount": "오늘 무료 음성 체험: {{used}} / {{limit}}회 사용 (타이베이 시간 00:00 초기화)",
     "account": "계정",
     "title": "Koolo 계정",

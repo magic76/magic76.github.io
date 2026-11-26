@@ -130,6 +130,14 @@
     "aiFriend": "un ami IA"
   },
   "auth": {
+    "byokTitle": "Mes réglages IA",
+    "byokBenefit": "Utilisez votre propre clé API Gemini pour davantage de fonctions IA, dont les chats vocaux et écrits et l’apprentissage interactif, sans le quota gratuit quotidien de Koolo.",
+    "byokSetup": "Configurer ma clé API Gemini",
+    "byokManage": "Gérer la clé API Gemini",
+    "byokFree": "Quota gratuit Koolo utilisé",
+    "byokPending": "Clé non vérifiée",
+    "byokActive": "Votre propre clé API Gemini",
+    "byokPolicy": "Les modèles, limites et tarifs Google s’appliquent ; les rapports payants sont distincts.",
     "trialCount": "Essais vocaux gratuits aujourd’hui : {{used}} / {{limit}} utilisés (remise à zéro à 00 h, heure de Taipei)",
     "account": "Compte",
     "title": "Compte Koolo",

@@ -130,6 +130,14 @@
     "aiFriend": "teman AI"
   },
   "auth": {
+    "byokTitle": "Pengaturan AI saya",
+    "byokBenefit": "Gunakan API key Gemini sendiri untuk fitur AI lainnya, termasuk obrolan suara, teks, dan pembelajaran interaktif, tanpa batas kuota harian gratis Koolo.",
+    "byokSetup": "Atur API key Gemini saya",
+    "byokManage": "Kelola API key Gemini",
+    "byokFree": "Menggunakan kuota gratis Koolo",
+    "byokPending": "Key belum diverifikasi",
+    "byokActive": "Menggunakan API key Gemini sendiri",
+    "byokPolicy": "Model, batas penggunaan, dan harga Google tetap berlaku; laporan berbayar terpisah.",
     "trialCount": "Uji coba suara gratis hari ini: {{used}} / {{limit}} terpakai (reset pukul 00.00 waktu Taipei)",
     "account": "Akun",
     "title": "Akun Koolo",
