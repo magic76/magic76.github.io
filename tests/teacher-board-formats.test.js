@@ -90,14 +90,31 @@ test("single page scroll places the lesson navigator before the card and exposes
  const styles=fs.readFileSync(root+"/web-spa/src/teacher/teachingBoard.css","utf8");
  const picker=fs.readFileSync(root+"/web-spa/src/teacher/GuidedLessonPanel.tsx","utf8");
  const controls=fs.readFileSync(root+"/web-spa/src/teacher/BoardPresentationBar.tsx","utf8");
- assert.ok(page.indexOf('className="teaching-board-navigator"')<page.indexOf('className={"teaching-board-stage"'));
+ assert.ok(page.indexOf('className={"teaching-board-navigator"')<page.indexOf('className={"teaching-board-stage"'));
  assert.match(page,/<BoardPresentationBar onChoose=\{choosePresentation\}/);
  assert.match(page,/PRESENTATION_CUES\[format\]/);
  assert.match(page,/formatRequestRef\.current=kind/);
  assert.match(styles,/\.teaching-board-stage\{height:auto;min-height:235px;overflow:visible/);
  assert.match(styles,/\.teaching-board-stage\{height:auto;min-height:210px/);
  assert.doesNotMatch(page,/stage\.scrollTop/);
- assert.match(picker,/<details className="teaching-board-lesson-picker"/);
+ assert.match(picker,/<section className="teaching-board-lesson-picker teaching-board-catalog"/);
  assert.match(controls,/type BoardPresentation="compare"\|"timeline"\|"dialogue"\|"flashcard"\|"quiz"/);
  assert.ok(!controls.includes("fetch("));
+});
+
+test("whiteboard prep exposes a category catalog and queued topic; active teaching hides the picker",()=>{
+ const page=fs.readFileSync(root+"/web-spa/src/teacher/TeacherBoardPage.tsx","utf8");
+ const picker=fs.readFileSync(root+"/web-spa/src/teacher/GuidedLessonPanel.tsx","utf8");
+ const quick=fs.readFileSync(root+"/web-spa/src/teacher/BoardQuickControls.tsx","utf8");
+ assert.match(picker,/!active&&\(!selected\|\|expanded\)/);
+ assert.match(picker,/LESSON_CATEGORIES\.map/);
+ assert.match(picker,/aria-pressed=\{category===c.id\}/);
+ assert.match(picker,/onTopic\(topic.trim\(\)\)/);
+ assert.match(page,/setPendingTopic\(topic\)/);
+ assert.match(page,/const opening=\(pendingTopic&&!lessonId\?/);
+ assert.match(page,/lessonPrompt\(findLesson\(lessonRef.current\)!,lessonStep\)/);
+ assert.match(quick,/\{active&&<div className="teaching-board-quick-row"/);
+ assert.match(quick,/\{hasCards&&<button/);
+ assert.doesNotMatch(page,/CREW · LIVE BOARD/);
+ assert.ok(page.indexOf('className={"teaching-board-stage"')<page.indexOf('className="teaching-board-more"'));
 });
