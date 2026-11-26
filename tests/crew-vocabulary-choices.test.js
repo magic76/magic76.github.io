@@ -23,11 +23,11 @@ function loadQueue(translations={}){
   .replace(/\bimport[^;]*;/g,"")
   .replace(/\bexport\s+(?=function\b)/g,""),{mode:"strip"});
  const create=vm.runInNewContext(
-  "(function(VOCABULARY_WORDS,localizedVocabulary,hasLocalizedGloss,dueVocabulary,placementState,nextBandFloor,localStorage){"
+  "(function(vocabularyCatalog,localizedVocabulary,hasLocalizedGloss,dueVocabulary,placementState,nextBandFloor,vocabProgress){"
   +js+"\nreturn {chooseVocabulary,vocabularyChoices,nativeVocabularyChoicesReady};})"
  );
- return create(base,localizedVocabulary,hasLocalizedGloss,()=>[],
-  ()=>({recovery:1,forceProbe:false,calibrationRemaining:12}),()=>61,{getItem:()=>null});
+ return create(()=>base,localizedVocabulary,hasLocalizedGloss,()=>[],
+  ()=>({recovery:1,forceProbe:false,calibrationRemaining:12}),()=>61,()=>({lastSeenAt:0}));
 }
 function checkThreeChoices(queue,native){
  for(let i=0;i<30;i++){
@@ -67,8 +67,8 @@ test("the page does not lock answers while AI content is pending or failed",()=>
  assert.match(page,/if\(answerLockRef\.current\|\|revealed\|\|showCompletion\)return/);
  assert.match(page,/disabled=\{revealed\}/);
  assert.doesNotMatch(page,/disabled=\{revealed\|\|needsContent\}/);
- assert.match(page,/recordVocab\(word\[0\],correct\)/);
- assert.match(page,/setWord\(previous=>chooseVocabulary\(score,previous,done,native\)\)/);
+ assert.match(page,/recordVocab\(word\[0\],correct,language\)/);
+ assert.match(page,/setWord\(previous=>chooseVocabulary\(score,previous,done,native,language\)\)/);
  assert.doesNotMatch(page,/setTimeout\s*\(\s*\(\)\s*=>\s*\{\s*setWord/,"Answer reveal must wait for explicit next");
  assert.match(page,/setShowCompletion\(true\)/);
  assert.match(page,/onClick=\{nextQuestion\}/);

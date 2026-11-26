@@ -1,3 +1,4 @@
+import {learningRouteAvailable} from "../teacher/learningLanguages";
 import {Arrow} from "../components/Arrow";
 import {useRef,useState} from "react";
 import {Link} from "react-router-dom";
@@ -280,7 +281,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       <>
        <CurrentTeacherCard/>
        <p className="meta crew-learn-native-help" role="note">{shownHint}</p>
-       <div className="crew-learn-tool-grid-host"><LearnHubExtras tools={learnTools} speakingPath={speakingPath}/></div>
+       <div className="crew-learn-tool-grid-host"><LearnHubExtras tools={learnTools.filter(tool=>learningRouteAvailable(tool.to,shownTarget))} speakingPath={speakingPath}/></div>
        <details className="crew-learn-progress-details">
         <summary>{tTeacher("my.kicker")}</summary>
         <div className="crew-learn-progress-content">

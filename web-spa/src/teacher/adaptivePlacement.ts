@@ -1,3 +1,4 @@
+import {learningStorageKey,type LearningLanguageCode} from "./learningLanguages";
 /* Placement parity with Android VocabularyProgressManager V2:
  * new-band probes require two verified correct answers; normal answers cannot skip bands.
  */
@@ -9,18 +10,18 @@ export function currentBandFloor(score:number){return score<=20?0:score<=40?21:s
 export function currentBandMax(score:number){return score<=20?20:score<=40?40:score<=60?60:score<=80?80:100}
 export function nextBandFloor(score:number){return score<=20?21:score<=40?41:score<=60?61:score<=80?81:score<=90?91:score<=95?96:100}
 export function isPlacementProbe(score:number,difficulty:number){return difficulty>=nextBandFloor(score)}
-export function placementState():Placement{
- const initialScore=Number(localStorage.getItem("crew_vocab_score")||50);
+export function placementState(language:LearningLanguageCode="en"):Placement{
+ const initialScore=Number(localStorage.getItem(learningStorageKey("crew_vocab_score",language))||50);
  const fresh={score:clamp(Number.isFinite(initialScore)?initialScore:50),attempts:0,calibrationRemaining:12,probeWins:0,forceProbe:false,recovery:0};
- try{const old=JSON.parse(localStorage.getItem(KEY)||"null");
+ try{const old=JSON.parse(localStorage.getItem(learningStorageKey(KEY,language))||"null");
  if(!old||typeof old!=="object")return fresh;
  return{score:clamp(Number(old.score)||0),attempts:Math.max(0,Number(old.attempts)||0),
  calibrationRemaining:Math.max(0,Number(old.calibrationRemaining)||0),probeWins:Math.max(0,Number(old.probeWins)||0),
  forceProbe:Boolean(old.forceProbe),recovery:Math.max(0,Number(old.recovery)||0)};
  }catch{return fresh}
 }
-export function recordPlacement(word:VocabularyWord,correct:boolean){
- const s=placementState(),difficulty=word[5];
+export function recordPlacement(word:VocabularyWord,correct:boolean,language:LearningLanguageCode="en"){
+ const s=placementState(language),difficulty=word[5];
  if(isPlacementProbe(s.score,difficulty)){
   if(correct){
    s.probeWins++;
@@ -33,8 +34,8 @@ export function recordPlacement(word:VocabularyWord,correct:boolean){
  }
  s.attempts++;s.calibrationRemaining=Math.max(0,s.calibrationRemaining-1);
  s.recovery=correct?Math.max(0,s.recovery-1):3;
- localStorage.setItem(KEY,JSON.stringify(s));
- localStorage.setItem("crew_vocab_score",String(s.score));
+ localStorage.setItem(learningStorageKey(KEY,language),JSON.stringify(s));
+ localStorage.setItem(learningStorageKey("crew_vocab_score",language),String(s.score));
  return s;
 }
 export function placementLabel(s=placementState()){

@@ -5,9 +5,9 @@ const read=path=>fs.readFileSync(path,"utf8");
 
 test("daily plan prioritizes due review, unresolved speaking needs, then new vocabulary",()=>{
  const plan=read("web-spa/src/teacher/learningCoordinator.ts");
- const due=plan.indexOf('if(targetLanguage==="英文"&&dueVocabulary>0)');
+ const due=plan.indexOf('if(learningMaterialAvailable("vocabulary",targetLanguage)&&dueVocabulary>0)');
  const correction=plan.indexOf('if(reviewFocus)');
- const fresh=plan.indexOf('if(targetLanguage==="英文"&&practicedVocabularyToday===0');
+ const fresh=plan.indexOf('if(learningMaterialAvailable("vocabulary",targetLanguage)&&practicedVocabularyToday===0');
  const course=plan.indexOf('if(targetLanguage==="英文"&&nextLesson)');
  assert.ok(due>0&&correction>due&&fresh>correction&&course>fresh);
  assert.match(plan,/latestReviewFocus\(teacherState.targetLanguage\)/);

@@ -1,3 +1,4 @@
+import {learningLanguageCode} from "./learningLanguages";
 import{useEffect,useMemo,useState}from"react";
 import{PhraseRecording}from"./PhraseRecording";
 import{useTranslation}from"react-i18next";
@@ -10,8 +11,11 @@ import"./learningFlow.css";
 function unique<T extends{text:string}>(items:T[]){const seen=new Set<string>();return items.filter(item=>{const key=item.text.trim().toLocaleLowerCase();if(seen.has(key))return false;seen.add(key);return true})}
 
 export function PhrasebookPage(){
+ const target=useTeacherStore(s=>s.targetLanguage),code=learningLanguageCode(target)||"en";
+ return <PhrasebookSession key={code} code={code} target={target}/>;
+}
+function PhrasebookSession({code,target}:{code:NonNullable<ReturnType<typeof learningLanguageCode>>;target:string}){
  const{t}=useTranslation("teacher");
- const target=useTeacherStore(s=>s.targetLanguage),code=normalizeLearningLanguage(target);
  const[items,setItems]=useState<DeckItem[]>([]);
  const[deckState,setDeckState]=useState<"loading"|"ready"|"error">("loading");
  const[speechStatus,setSpeechStatus]=useState(""),[activePhrase,setActivePhrase]=useState<string|null>(null),[quizIndex,setQuizIndex]=useState(0),[quizAnswer,setQuizAnswer]=useState("");
@@ -19,11 +23,11 @@ export function PhrasebookPage(){
  const tag=(x:DeckItem)=>t("phrasebook.tags."+x.category,{defaultValue:t("phrasebook.tags.saved")});
  const stage=(x:DeckItem)=>t("phrasebook.stages."+(x.reviewCount>=5?"familiar":x.reviewCount>=2?"review":x.reviewCount>=1?"learning":"new"));
  function refresh(){
-  try{setItems(readLearningDeck());setDeckState("ready")}
+  try{setItems(readLearningDeck().filter(item=>(item.language?learningLanguageCode(item.language):"en")===code));setDeckState("ready")}
   catch{setItems([]);setDeckState("error")}
  }
  useEffect(refresh,[]);
- async function listen(text:string,language=code,slow=false){
+ async function listen(text:string,language:string=code,slow=false){
   if(activePhrase)return;setSpeechStatus("");
   try{
    await speakLearningText(text,language,{speed:slow?"slow":"normal"});
@@ -33,9 +37,9 @@ export function PhrasebookPage(){
  function practiceButton(id:string){return <button type="button" className="btn secondary small" aria-expanded={activePhrase===id} onClick={()=>togglePractice(id)}>🎙 {t(activePhrase===id?"phrasebook.recordClose":"phrasebook.shadow")}</button>}
  function practicePanel(id:string,text:string,language:string){return activePhrase===id?<PhraseRecording key={id} text={text} language={language}/>:null}
  function saveDaily(text:string,translation:string){addDeckItem({category:"phrase",originalText:text,translation,notes:t("phrasebook.dailyNote"),language:code});refresh()}
- const legacyLanguage=(item:DeckItem)=>item.language||code;
+ const legacyLanguage=(item:DeckItem)=>item.language?normalizeLearningLanguage(item.language):"en";
  const pool=useMemo(()=>unique([
-  ...items.filter(item=>!item.language||item.language===code).map(item=>({text:item.originalText,translation:item.translation,language:item.language||code})),
+  ...items.map(item=>({text:item.originalText,translation:item.translation,language:legacyLanguage(item)})),
   ...daily.map(item=>({...item,language:code}))
  ]),[items,daily,code]);
  const current=pool.length?pool[quizIndex%pool.length]:null;

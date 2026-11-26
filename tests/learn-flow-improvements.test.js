@@ -30,7 +30,7 @@ test("learning progress and review link reuse existing data and routes",()=>{
  const snapshot=read("LearningSnapshot.tsx");
  const reports=read("ReportsPage.tsx");
  assert.match(snapshot,/completedLessons\(\)/);
- assert.match(snapshot,/dueDeckItems\(\)/);
+ assert.match(snapshot,/dueDeckItems\(deck\)/);
  assert.match(snapshot,/\/teacher\/phrasebook/);
  assert.match(reports,/queueReviewFocus/);
 });

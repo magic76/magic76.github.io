@@ -1,10 +1,11 @@
+import {learningMaterialAvailable,learningLanguageCode} from "./learningLanguages";
 import{ensureTeacherServices,vocabularyLevel}from"../lib/runtime";
 import{useTeacherStore}from"../store/teacherStore";
 import{getTeacherProfile}from"./teacherProfiles";
 import{bestNextLesson}from"./courseProgress";
 import{lessonsForTrack}from"./courseCatalog";
 import type{CourseLesson}from"./courseTypes";
-import{VOCABULARY_WORDS,vocabularyIds}from"./vocabularyCatalog";
+import{VOCABULARY_WORDS,vocabularyCatalog}from"./vocabularyCatalog";
 import{todayVocabulary,vocabStats}from"./vocabularyProgress";
 import{studentMemories,personalMemoryEnabled}from"./studentMemory";
 import{latestReviewFocus,reviewedFocusToday}from"./learningReview";
@@ -28,7 +29,7 @@ export function todayStep(input:TodayStepInput):DailyLearningPlan{
   teacherName,vocabularyLevel,primaryFocus,reviewFocus,learnerGoal,textbook}=input;
  const base={dueVocabulary,unseenVocabulary,vocabularyLevel,primaryFocus,reviewFocus,learnerGoal,textbook};
  // Due vocabulary first; then unresolved speaking skills before new material.
- if(targetLanguage==="英文"&&dueVocabulary>0){
+ if(learningMaterialAvailable("vocabulary",targetLanguage)&&dueVocabulary>0){
   return {...base,action:"vocabulary",warmupVocabulary:false,
    title:"複習 "+dueVocabulary+" 個快忘的字",
    note:"先複習到期的字。",to:"/teacher/vocabulary"};
@@ -37,7 +38,7 @@ export function todayStep(input:TodayStepInput):DailyLearningPlan{
   return {...base,action:"review",title:"再練上次不熟練的表達",
    note:reviewFocus,to:"/teacher/live?intent=review"};
  }
- if(targetLanguage==="英文"&&practicedVocabularyToday===0&&unseenVocabulary>0){
+ if(learningMaterialAvailable("vocabulary",targetLanguage)&&practicedVocabularyToday===0&&unseenVocabulary>0){
   return {...base,action:"vocabulary",warmupVocabulary:true,
    title:"單字練習",note:"先用免費單字練習暖身。",to:"/teacher/vocabulary"};
  }
@@ -55,8 +56,9 @@ export async function buildDailyLearningPlan():Promise<DailyLearningPlan>{
  try{await ensureTeacherServices()}catch{/* Key-free lesson and vocabulary routes stay available. */}
  let textbook:any;
  try{textbook=await window.CrewTextbookStore?.last?.()}catch{/* Optional recent material. */}
- const stats=vocabStats(vocabularyIds());
  const teacherState=useTeacherStore.getState();
+ const code=learningLanguageCode(teacherState.targetLanguage)||"en";
+ const stats=vocabStats(learningMaterialAvailable("vocabulary",teacherState.targetLanguage)?vocabularyCatalog(code).map(x=>x[0]):[],code);
  const memories=studentMemories(teacherState.targetLanguage);
  const candidate=latestReviewFocus(teacherState.targetLanguage);
  const reviewFocus=candidate&&!reviewedFocusToday(teacherState.targetLanguage,candidate)?candidate:undefined;
@@ -64,7 +66,7 @@ export async function buildDailyLearningPlan():Promise<DailyLearningPlan>{
  const learnerGoal=personalMemoryEnabled()?memories.find(m=>m.active&&m.type==="goal")?.detail:undefined;
  return todayStep({targetLanguage:teacherState.targetLanguage,
   dueVocabulary:stats.due,unseenVocabulary:stats.newCount,
-  practicedVocabularyToday:todayVocabulary(),nextLesson:bestNextLesson(),
+  practicedVocabularyToday:todayVocabulary(code),nextLesson:bestNextLesson(),
   teacherName:getTeacherProfile(teacherState.teacherProfile).name,
   vocabularyLevel:vocabularyLevel(),primaryFocus,reviewFocus,learnerGoal,
   textbook:textbook?.images?.length?textbook:undefined});

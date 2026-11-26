@@ -1,3 +1,4 @@
+import {learningMaterialAvailable} from "./learningLanguages";
 import {Arrow} from "../components/Arrow";
 import {useEffect,useState} from "react";
 import {Link} from "react-router-dom";
@@ -37,7 +38,7 @@ export function LearningFocusCard(){
  const materialNote=t("teacher:course.materialNotice",{language:t("friends:languages."+targetLanguage,{defaultValue:targetLanguage}),native:localizedNativeName(nativeLanguage,i18n.resolvedLanguage||"en")});
  const title=otherCourse?t("teacher:course.nonEnglishNext"):plan===null?t("learnToday.loading"):
   plan?.action==="review"?t("learnToday.reviewTitle"):
-  plan?.action==="vocabulary"&&targetLanguage==="英文"
+  plan?.action==="vocabulary"&&learningMaterialAvailable("vocabulary",targetLanguage)
   ?plan.warmupVocabulary?t("learnToday.vocabulary"):t("learnToday.due",{count:plan.dueVocabulary})
   :plan?.action==="course"?t("learnToday.lesson",{number:plan.nextLessonNumber,name:lessonName})
   :t("learnToday.conversation",{name:teacher.name});

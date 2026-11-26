@@ -13,7 +13,7 @@ function load(modulePath,localStorage){
   .replace(/^import.*(?:\n|$)/gm,"")
   .replace(/\bexport\s+(?=(?:function|const|let|class))/g,"");
  const names=modulePath.includes("adaptivePlacement")?["placementState","recordPlacement"]:["personalMemoryEnabled","saveStudentMemory","studentMemories","buildTutorMemoryContext","buildRoleplayMemoryContext","ingestStudentReport","setPersonalMemoryEnabled","deleteStudentMemory"];
- const exports={},ctx={exports,localStorage,Date,Math,JSON,clearAllSpeakingLevels:()=>{},clearSpeakingLevel:()=>{},clearAllBoardReviews:()=>{},clearBoardReviewsForLanguage:()=>{}};
+ const exports={},ctx={exports,localStorage,Date,Math,JSON,learningStorageKey:(base,language="en")=>language==="en"?base:base+"_"+language,clearAllSpeakingLevels:()=>{},clearSpeakingLevel:()=>{},clearAllBoardReviews:()=>{},clearBoardReviewsForLanguage:()=>{}};
  vm.runInNewContext(js+"\nObject.assign(exports,{"+names.join(",")+"});",ctx,{filename:modulePath});return exports;
 }
 test("verified next-band vocabulary requires two correct probes and ignores failed stretch guesses",()=>{

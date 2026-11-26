@@ -1,3 +1,5 @@
+import {learningMaterialAvailable,learningLanguageCode} from "./learningLanguages";
+import {useTeacherStore} from "../store/teacherStore";
 import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -10,18 +12,20 @@ import {history} from "../lib/runtime";
 /** Device-local facts only. Do not infer skill levels from completion counts. */
 export function LearningSnapshot({compact=false}:{compact?:boolean}={}){
  const ready=useClientReady();
+ const target=useTeacherStore(s=>s.targetLanguage),code=learningLanguageCode(target),available=learningMaterialAvailable("phrasebook",target);
+ const deck=ready&&available?learningDeck().filter(x=>(x.language?learningLanguageCode(x.language):"en")===code):[];
  const {i18n}=useTranslation();
  const en=i18n.resolvedLanguage?.startsWith("en")??false;
  const lessons=ready?completedLessons():null;
  const reports=ready?history("teacher").filter((x:any)=>Boolean(x.report)).length:null;
- const saved=ready?learningDeck().length:null;
- const due=ready?dueDeckItems().length:null;
+ const saved=ready?deck.length:null;
+ const due=ready?dueDeckItems(deck).length:null;
  if(compact)return <section className="section panel crew-learn-snapshot-compact" aria-label={en?"Learning progress":"學習進度"} style={{display:"grid",gap:8,minHeight:100}}>
   <div className="teacher-stats" style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:8}}>
    <div><strong>{lessons===null?"—":`${lessons} / ${COURSE_LESSONS.length}`}</strong><span>{en?"Lessons":"完成課程"}</span></div>
    <div><strong>{due??"—"}</strong><span>{en?"Due for review":"待複習"}</span></div>
   </div>
-  <Link className="btn secondary small" to="/teacher/phrasebook" style={{minHeight:44,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>{en?"Review phrases":"複習片語"} →</Link>
+  {available&&<Link className="btn secondary small" to="/teacher/phrasebook" style={{minHeight:44,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>{en?"Review phrases":"複習片語"} →</Link>}
  </section>;
  return <section className="section panel" aria-label={en?"Learning progress":"學習進度"} style={{display:"grid",gap:12}}>
   <div className="section-head"><h2>{en?"Your progress":"你的學習進度"}</h2><small>{en?"Saved on this device":"儲存在這台裝置"}</small></div>
@@ -32,7 +36,7 @@ export function LearningSnapshot({compact=false}:{compact?:boolean}={}){
   </div>
   <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
    <Link className="btn secondary small" to="/teacher/reports">{en?"View reports":"查看報告"} <Arrow/></Link>
-   <Link className="btn secondary small" to="/teacher/phrasebook">{en?"Review phrases":"複習片語"}{due!==null&&due>0?` (${due})`:""} <Arrow/></Link>
+   {available&&<Link className="btn secondary small" to="/teacher/phrasebook">{en?"Review phrases":"複習片語"}{due!==null&&due>0?` (${due})`:""} <Arrow/></Link>}
   </div>
  </section>;
 }

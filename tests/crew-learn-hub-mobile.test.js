@@ -19,7 +19,7 @@ test("Learning language changes the same teacher preference used by live",()=>{
  assert.match(source,/useTeacherStore\(s=>s\.setTargetLanguage\)/);
  assert.match(source,/TARGET_LANGUAGES\.map/);
  assert.match(source,/onChange=\{event=>setTargetLanguage\(event\.target\.value\)\}/);
- assert.match(read("web-spa/src/teacher/LearningFocusCard.tsx"),/targetLanguage==="英文"/);
+ assert.match(read("web-spa/src/teacher/LearningFocusCard.tsx"),/learningMaterialAvailable\("vocabulary",targetLanguage\)/);
 });
 
 test("Daily progress stays accessible in compact mode without duplicating large stats",()=>{
@@ -99,7 +99,7 @@ test("Issue 811 reuses the existing plan and shows compact lesson/review counts"
  const snapshot=read("web-spa/src/teacher/LearningSnapshot.tsx");
  assert.match(hub,/<details className="crew-learn-progress-details">[\s\S]*?<LearningFocusCard\/>\s*<LearningSnapshot compact\/>[\s\S]*?<\/details>/);
  assert.match(snapshot,/COURSE_LESSONS\.length/);
- assert.match(snapshot,/dueDeckItems\(\)/);
+ assert.match(snapshot,/dueDeckItems\(deck\)/);
  assert.match(snapshot,/to="\/teacher\/phrasebook"/);
  assert.match(snapshot,/minHeight:100/);
  assert.match(snapshot,/minHeight:44/);
