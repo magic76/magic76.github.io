@@ -39,8 +39,8 @@ test("#36 daily card records only a rendered full card; homepage remains SSG-saf
  const card=read("web-spa/src/fortune/FortuneDailyCard.tsx"),home=read("web-spa/src/pages/DailyTopicCards.tsx");
  assert.match(card,/card&&\!\("status" in card\)\)rememberDailyView\(date\)/);
  assert.doesNotMatch(card,/markDailySeen\(date\)/);
- assert.match(home,/isPersonal&&dailyUpdated&&/);
- assert.match(home,/setDailyUpdated\(hasNewDailyFortune\(\)\)/);
+ assert.doesNotMatch(home,/daily-quote-updated|daily-quote-action--updated/);
+ assert.match(home,/to=\{fortuneHref\}/);
  assert.match(home,/visibilitychange/);
  assert.doesNotMatch(home,/import .*fortune\/(?:dailyCard|dailyStore)|import .*CrewInstallEntry/);
  assert.doesNotMatch(home,/useState\(\(\)=>hasNewDailyFortune/);

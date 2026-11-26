@@ -55,7 +55,7 @@ test("phone nav is floating, frosted and safely inset without changing reserved 
 test("non-blur browsers use a more opaque fallback and focused tabs stay visible",()=>{
  assert.match(css,/@supports not \(\(backdrop-filter:blur\(1px\)\) or \(-webkit-backdrop-filter:blur\(1px\)\)\)/);
  assert.match(css,/\.crew-mobile-dock\{background:var\(--crew-frost-bg-fallback\)!important\}/);
- assert.match(rule(".crew-mobile-dock-item"),/font-size:12px/);
+ assert.match(rule(".crew-mobile-dock-item"),/font-size:\.75rem/);
  assert.match(css,/\.crew-mobile-dock-item:focus-visible\{outline:3px solid/);
  assert.match(rule(".crew-mobile-dock-item"),/min-height:54px/);
  assert.ok(!/transition\s*:|animation\s*:/.test(css),"new dock must not animate without a reduced-motion override");

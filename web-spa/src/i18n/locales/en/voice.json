@@ -1,5 +1,6 @@
 {
   "controls": {
+    "connectingTo": "Connecting to {{name}}…",
     "myTurn": "My turn",
     "friendVoice": "Friend’s voice",
     "muteFriend": "Mute friend’s voice",

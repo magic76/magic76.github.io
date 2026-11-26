@@ -17,6 +17,12 @@ test("Selected Teacher card keeps the approved avatar while the learning focus a
 
 test("Selected Teacher portrait keeps the approved square high-resolution crop",()=>{
  const css=read("web-spa/src/pages/crewSections.css");
- assert.match(css,/\.crew-learn-teacher-portrait\{[^}]*width:68px;height:68px/);
+ const portraits=[...css.matchAll(/\.crew-learn-teacher-portrait\{([^}]+)\}/g)];
+ assert.ok(portraits.length>0);
+ for(const [,rule] of portraits){
+  const width=rule.match(/(?:^|;)width:(\d+)px/);
+  assert.ok(width,rule);
+  assert.match(rule,new RegExp("height:"+width[1]+"px(?:;|$)"));
+ }
  assert.match(css,/\.crew-learn-teacher-portrait \.teacher-avatar-image\{[^}]*width:100%;height:100%/);
 });

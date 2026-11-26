@@ -14,8 +14,8 @@ export function FriendIntentCards(){
  if(ready)try{friendId=localStorage.getItem("crew_web_selected_friend_v1")}catch{/* No saved selection. */}
  const friend=CREW_FRIENDS.find(x=>x.id===friendId)||CREW_FRIENDS[0];
  const selectedFriend=encodeURIComponent(friend.id);
- return <section className="section crew-daily-intents" aria-label={t("practiceEntry.intentsAria")}>
-  <div className="section-head"><h2>{t("practiceEntry.intentsHeading")}</h2><small>{t("practiceEntry.intentsHint")}</small></div>
+ return <section className="section crew-daily-intents" aria-labelledby="crew-chat-topics">
+  <div className="section-head"><h2 id="crew-chat-topics">{t("practiceEntry.intentsHeading")}</h2></div>
   <div className="crew-intent-grid">
    <Link className="crew-intent-card" to={"/friend/live?id="+selectedFriend+"&intent=share"}><Icon name="chat"/><strong>{t("practiceEntry.shareTitle")}</strong><small>{t("practiceEntry.shareDesc")}</small></Link>
    <Link className="crew-intent-card" to={"/friend/live?id="+selectedFriend+"&intent=speak"}><Icon name="mic"/><strong>{t("practiceEntry.speakTitle")}</strong><small>{t("practiceEntry.speakDesc")}</small></Link>

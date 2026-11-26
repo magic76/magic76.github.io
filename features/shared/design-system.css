@@ -1,14 +1,14 @@
 :root{
-  --bg:#f7f7f4;
+  --bg:#f7f8f6;
   --surface:#ffffff;
   --surface-alt:#f4f3ef;
-  --text:#202124;
-  --muted:#767676;
-  --line:#e8e7e2;
+  --text:#202522;
+  --muted:#56615b;
+  --line:#e1e5e1;
   --soft:#f2f1ed;
   --ink:#202124;
-  --accent:#6257e7;
-  --accent-soft:#eeecff;
+  --accent:#5145c5;
+  --accent-soft:#efedff;
   /* Accent for small text on white or --accent-soft; keeps WCAG AA (≥4.5:1). */
   --crew-accent-ink:#5146d8;
   --good:#2ba471;
@@ -17,12 +17,15 @@
   --radius:20px;
   --nav-h:68px;
   /* Interior-page scale; extending the canonical tokens instead of adding a parallel system. */
-  --crew-page-title:clamp(28px,4vw,40px);
+  --crew-page-title:clamp(26px,4vw,40px);
   --crew-section-title:clamp(20px,2.2vw,24px);
   --crew-body-size:16px;
   --crew-support-size:14px;
   --crew-space-section:clamp(24px,3vw,32px);
-  --crew-card-radius:20px;
+  --crew-card-radius:16px;
+  --crew-art-radius:20px;
+  --crew-card-padding:16px;
+  --crew-card-gap:12px;
   --crew-button-radius:12px;
   --crew-tap-target:44px;
   --crew-elevation:0 8px 22px rgba(42,33,85,.075);
@@ -35,10 +38,10 @@ body{
   -webkit-font-smoothing:antialiased;
   padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));
 }
-body.teacher-theme{--accent:#6257e7;--accent-soft:#eeecff}
+body.teacher-theme{--accent:#5145c5;--accent-soft:#efedff}
 body.story-theme{--accent:#e5962b;--accent-soft:#fff2df;--crew-accent-ink:#9a5a0c}
 body.story-theme .kicker{color:var(--crew-accent-ink)}
-body.fortune-theme{--accent:#6a5ae0;--accent-soft:#eeecff;--crew-accent-ink:#5847cf}
+body.fortune-theme{--accent:#6a5ae0;--accent-soft:#efedff;--crew-accent-ink:#5847cf}
 button,input,textarea,select{font:inherit}
 button,a{-webkit-tap-highlight-color:transparent}
 button{cursor:pointer}
@@ -342,9 +345,9 @@ body.session-page{padding-bottom:0;background:var(--bg)}
 .hub-card h2{font-size:19px;letter-spacing:-.03em;margin:auto 0 5px;padding-top:22px}
 .hub-card p{font-size:12px;color:var(--muted);line-height:1.5;margin:0}
 .hub-card .hub-go{font-size:12px;font-weight:800;margin-top:14px}
-.hub-card.teacher{--accent:#6257e7;--accent-soft:#eeecff}
+.hub-card.teacher{--accent:#5145c5;--accent-soft:#efedff}
 .hub-card.story{--accent:#e5962b;--accent-soft:#fff2df}
-.hub-card.fortune{--accent:#6a5ae0;--accent-soft:#eeecff}
+.hub-card.fortune{--accent:#6a5ae0;--accent-soft:#efedff}
 .recent-item{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 12px;background:#fff;border:1px solid var(--line);border-radius:17px}
 .recent-item .list-icon{width:38px;height:38px;border-radius:12px}
 .recent-item strong{display:block;font-size:12px}.recent-item small{display:block;color:var(--muted);font-size:12px;line-height:1.45;margin-top:3px}

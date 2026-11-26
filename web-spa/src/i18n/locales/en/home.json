@@ -96,11 +96,33 @@
     "explore": "See what else is here",
     "tap": "Tap to open"
   },
-  "layout2": {"title": "Learn languages with {{name}}","action": "Say hello to {{name}}","description": "No topic needed. Just start with hello.","voice": "Use voice chat instead","more": "Want to try something else?","resumeTitle": "Continue with {{name}}",
-    "previewLabel": "Last chat:","resumeAction": "Continue text chat","chatTitle": "Start with hello","chatDescription": "Chat with an AI friend and see where it goes.","previewHidden": "Last message hidden","showPreview": "Show last message","hidePreview": "Hide last message"},
+  "layout2": {
+    "title": "Learn languages with {{name}}",
+    "action": "Say hello to {{name}}",
+    "description": "No topic needed. Just start with hello.",
+    "voice": "Use voice chat instead",
+    "more": "Want to try something else?",
+    "resumeTitle": "Continue with {{name}}",
+    "previewLabel": "Last chat:",
+    "resumeAction": "Continue text chat",
+    "chatTitle": "Start with hello",
+    "chatDescription": "Chat with an AI friend and see where it goes.",
+    "previewHidden": "Last message hidden",
+    "showPreview": "Show last message",
+    "hidePreview": "Hide last message"
+  },
   "world": {
-    "freeAllowance": {"full": "No sign-up · {{count}} texts + {{minutes}} min voice daily. More tomorrow", "memberDaily": "Members: {{count}} messages daily · {{minutes}} voice minutes left", "memberTextOnly": "Members: {{count}} messages daily", "textOnly": "No sign-up · {{count}} free texts daily. More tomorrow", "voiceUsed": "Voice used up today · {{count}} texts daily. More tomorrow"},
-    "practiceLang": {"label": "Practice language:", "aria": "Choose the language for chat and voice"},
+    "freeAllowance": {
+      "full": "No sign-up · {{count}} texts + {{minutes}} min voice daily. More tomorrow",
+      "memberDaily": "Members: {{count}} messages daily · {{minutes}} voice minutes left",
+      "memberTextOnly": "Members: {{count}} messages daily",
+      "textOnly": "No sign-up · {{count}} free texts daily. More tomorrow",
+      "voiceUsed": "Voice used up today · {{count}} texts daily. More tomorrow"
+    },
+    "practiceLang": {
+      "label": "Practice language:",
+      "aria": "Choose the language for chat and voice"
+    },
     "modes": {
       "chat": {
         "lead": "AI is more than chat.",
@@ -370,6 +392,9 @@
     "loadingMore": "Loading more stories…",
     "progress": "Scroll for more · {{count}} / {{total}}",
     "retryMore": "Retry loading stories",
+    "replyKeyboard": "Do you like quiet keyboards or clicky ones?",
+    "replyZipper": "Ever had a stuck zipper? How did you free it?",
+    "replyEveryday": "Does this remind you of something that happened to you?",
     "hooksDetails": "Tell me more",
     "hooksFeelings": "How do you feel?",
     "hooksNext": "What happened next?",
@@ -412,11 +437,11 @@
   },
   "sectionExplore": {
     "title": "Explore",
-    "intro": "What are you curious about today? Choose something interesting to discover.",
+    "intro": "Find something to read or a game to play.",
     "destinations": "Explore destinations",
     "fortune": {
-      "title": "Fortune exploration",
-      "desc": "Your charts, saved history, new readings and friend explanations in one place."
+      "title": "Daily fortune",
+      "desc": "Read today’s fortune or open your chart."
     },
     "timeline": {
       "title": "Koolo Timeline",
@@ -424,19 +449,23 @@
     },
     "games": {
       "title": "Interactive games",
-      "desc": "Mystery stories, Taboo, numbers and more."
+      "desc": "Play a number game or solve a lateral-thinking puzzle."
     },
     "story": {
       "title": "Koolo Story",
       "desc": "Write, read and explore interactive stories."
     },
     "research": {
-      "title": "Koolo Briefing",
-      "desc": "Explore AI technology and research briefings."
+      "title": "Research updates",
+      "desc": "Read the latest AI research and tool updates."
     },
     "circle": {
       "title": "Community circle",
       "desc": "Browse local exchange and community posts."
+    },
+    "souls": {
+      "title": "Talk to a photo",
+      "desc": "Photograph a person or object, choose its personality and start a conversation."
     }
   },
   "sectionHubs": {
@@ -477,12 +506,12 @@
       "next": "Next friends",
       "chatWith": "Chat with {{name}}",
       "friendBios": {
-        "zoe": "Find the funny side of ordinary life.",
-        "noah": "A calm friend for thoughtful chats.",
-        "iris": "Talk movies, design and creative ideas.",
-        "max": "Outdoor stories and new challenges.",
-        "yuna": "A gentle chat at your own pace.",
-        "felix": "Explore another side of an idea."
+        "zoe": "What happened today that deserves a little roasting?",
+        "noah": "Which moment from today would you like to talk about?",
+        "iris": "What picture or scene has stuck with you lately?",
+        "max": "If we went outside right now, where would you go?",
+        "yuna": "What little thing helped you unwind today?",
+        "felix": "What changed your mind about something recently?"
       }
     },
     "learn": {
@@ -532,6 +561,22 @@
       "resumeCta": "Continue practice"
     },
     "me": {
+      "groups": {
+        "content": "My content",
+        "support": "Account and support",
+        "lifeReadings": "My life readings",
+        "purchased": "Purchased reports",
+        "credits": "Prepaid voice balance",
+        "orders": "My orders",
+        "payments": "Payments and support",
+        "loading": "Loading",
+        "unavailable": "Unavailable",
+        "signIn": "Sign in to view",
+        "reportCount": "Reports: {{number}}",
+        "retry": "Retry account details",
+        "adminTools": "Administration",
+        "admin": "Admin dashboard"
+      },
       "title": "My Koolo",
       "intro": "Your progress, saved content and preferences in one place.",
       "hero": {
@@ -592,8 +637,15 @@
     "soulsDescription": "Give an everyday object a voice.",
     "learnDescription": "Try a fun new phrase in another language."
   },
-  "mobileHero": {"title": "Play & learn", "subtitle": "Say hello to begin."},
-  "quickEntry": {"heading": "Explore Koolo", "fortune": "Daily fortune", "shorts": "Watch Shorts"},
+  "mobileHero": {
+    "title": "Play & learn",
+    "subtitle": "Say hello to begin."
+  },
+  "quickEntry": {
+    "heading": "Explore Koolo",
+    "fortune": "Daily fortune",
+    "shorts": "Watch Shorts"
+  },
   "liveBubble": {
     "invite": "Hey, want to chat?",
     "start": "Voice",
@@ -601,10 +653,34 @@
     "withZoe": "Chat with Zoe",
     "setup": "Set up Key"
   },
-  "dailyQuote": {"unnamedChart": "Chart {{number}}", "title": "Today’s little thought", "fortune": "Check my daily fortune", "chat": "Talk to Zoe about this", "fortuneFull": "See full fortune", "personalTitle": "Your daily fortune", "chooseChart": "Choose a birth chart", "me": "My chart", "markSelf": "Mark as my chart", "kind": {"bazi": "BaZi", "tarot": "Numerology", "vedic": "Vedic chart"}, "chatRead": "Ask Zoe to explain today’s fortune", "setupChart": "Set up my chart for a daily personal fortune", "setupHint": "Enter your birth date and time to see your daily fortune.",
+  "dailyQuote": {
+    "unnamedChart": "Chart {{number}}",
+    "title": "Today’s little thought",
+    "fortune": "Check my daily fortune",
+    "chat": "Talk to Zoe about this",
+    "fortuneFull": "See full fortune",
+    "personalTitle": "Your daily fortune",
+    "chooseChart": "Choose a birth chart",
+    "me": "My chart",
+    "markSelf": "Mark as my chart",
+    "kind": {
+      "bazi": "BaZi",
+      "tarot": "Numerology",
+      "vedic": "Vedic chart"
+    },
+    "chatRead": "Ask Zoe to explain today’s fortune",
+    "setupChart": "Set up my chart for a daily personal fortune",
+    "setupHint": "Enter your birth date and time to see your daily fortune.",
     "basisBazi": "Based on your BaZi birth chart",
-    "basisNumerology": "Based on your birthday (numerology)", "updated": "Today’s fortune is updated"},
+    "basisNumerology": "Based on your birthday (numerology)",
+    "updated": "Today’s fortune is updated"
+  },
   "showcase29": {
+    "teacherTitle": "Speak {{language}} with {{name}}",
+    "firstPractice": "Speak with an AI teacher",
+    "practiceWith": "Practice with {{name}}",
+    "practiceNow": "Try a sentence",
+    "changeTeacher": "Change teacher",
     "carousel": "Koolo highlights carousel",
     "zoeAria": "Talk to Zoe",
     "bubble": "Talk?",

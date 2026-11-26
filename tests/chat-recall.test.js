@@ -65,7 +65,7 @@ test("unified friend page has no old recap, welcome-back, or prior-chat voice co
  assert.match(page,/clearLegacyFriendChats\(\)/);
  assert.match(page,/buildFriendVoiceOpening\(/);
  assert.match(page,/<FriendUnifiedComposer live=\{live\}/);
- assert.match(page,/<FriendChatHistory turns=\{live.turns\}/);
+ assert.match(page,/<FriendChatHistory turns=\{live\.captionTurns\}/);
  assert.doesNotMatch(page,/useVoiceTextRecap|VoiceTextRecap|voiceTextContext|voiceRecapReady|TEXT-TO-VOICE HANDOFF/);
  assert.doesNotMatch(panel,/readReturningFriendResume|returningFriendSystemHint|TextChatWelcomeBack|saveFriendResume|Previous conversation for continuity/);
  assert.match(panel,/if\(!isFriend\)writeSessionTranscript\(sessionScope,complete\)/);

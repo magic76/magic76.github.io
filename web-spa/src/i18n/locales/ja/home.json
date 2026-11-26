@@ -96,11 +96,33 @@
     "explore": "ほかの楽しみ方を見る",
     "tap": "タップして開く"
   },
-  "layout2": {"title": "{{name}}と楽しく語学","action": "{{name}} に話しかける","description": "話題を考えなくても大丈夫。まずは挨拶から。","voice": "音声チャットに切り替える","more": "ほかのことも試す？","resumeTitle": "{{name}} との会話を再開",
-    "previewLabel": "前回の会話：","resumeAction": "テキスト会話を続ける","chatTitle": "まずは挨拶から","chatDescription": "AI の友達に話しかけて、会話を楽しもう。","previewHidden": "前のメッセージは非表示です","showPreview": "前のメッセージを表示","hidePreview": "前のメッセージを隠す"},
+  "layout2": {
+    "title": "{{name}}と楽しく語学",
+    "action": "{{name}} に話しかける",
+    "description": "話題を考えなくても大丈夫。まずは挨拶から。",
+    "voice": "音声チャットに切り替える",
+    "more": "ほかのことも試す？",
+    "resumeTitle": "{{name}} との会話を再開",
+    "previewLabel": "前回の会話：",
+    "resumeAction": "テキスト会話を続ける",
+    "chatTitle": "まずは挨拶から",
+    "chatDescription": "AI の友達に話しかけて、会話を楽しもう。",
+    "previewHidden": "前のメッセージは非表示です",
+    "showPreview": "前のメッセージを表示",
+    "hidePreview": "前のメッセージを隠す"
+  },
   "world": {
-    "freeAllowance": {"full": "登録不要・文字は毎日{{count}}通、音声{{minutes}}分。明日また無料で", "memberDaily": "会員：毎日{{count}}メッセージ・音声残り{{minutes}}分", "memberTextOnly": "会員：毎日{{count}}メッセージ", "textOnly": "登録不要・文字は毎日{{count}}通。明日また無料で", "voiceUsed": "今日の音声分は終了・文字は毎日{{count}}通。明日また"},
-    "practiceLang": {"label": "練習する言語：", "aria": "チャットと音声会話の練習言語を選択"},
+    "freeAllowance": {
+      "full": "登録不要・文字は毎日{{count}}通、音声{{minutes}}分。明日また無料で",
+      "memberDaily": "会員：毎日{{count}}メッセージ・音声残り{{minutes}}分",
+      "memberTextOnly": "会員：毎日{{count}}メッセージ",
+      "textOnly": "登録不要・文字は毎日{{count}}通。明日また無料で",
+      "voiceUsed": "今日の音声分は終了・文字は毎日{{count}}通。明日また"
+    },
+    "practiceLang": {
+      "label": "練習する言語：",
+      "aria": "チャットと音声会話の練習言語を選択"
+    },
     "modes": {
       "chat": {
         "lead": "AIは会話だけじゃない。",
@@ -370,6 +392,9 @@
     "loadingMore": "ストーリーを追加読み込み中…",
     "progress": "下にスクロール · {{count}} / {{total}}",
     "retryMore": "読み込みを再試行",
+    "replyKeyboard": "キーボードは静かなタイプとカチカチ鳴るタイプ、どっちが好き？",
+    "replyZipper": "ファスナーが引っかかったことはある？どうやって直した？",
+    "replyEveryday": "これを見て、自分のどんな出来事を思い出す？",
     "hooksDetails": "詳しく教えて",
     "hooksFeelings": "どんな気持ち？",
     "hooksNext": "その後どうなった？",
@@ -412,11 +437,11 @@
   },
   "sectionExplore": {
     "title": "探索する",
-    "intro": "今日は何を探してみる？気になることを一つ選んで、ここから始めよう。",
+    "intro": "気になる記事やゲームを見つけよう。",
     "destinations": "探索できるコンテンツ",
     "fortune": {
-      "title": "運勢を探る・Fortune",
-      "desc": "自分の命式や鑑定履歴を見たり、新たに占ったり。Koolo の友だちによる解説も。"
+      "title": "今日の運勢",
+      "desc": "今日の運勢や自分の命盤を見よう。"
     },
     "timeline": {
       "title": "人生タイムライン",
@@ -424,19 +449,23 @@
     },
     "games": {
       "title": "インタラクティブゲーム",
-      "desc": "ウミガメのスープ、言葉当て、1A2B など、さまざまなゲームで遊ぼう。"
+      "desc": "数字当てやウミガメのスープで遊ぼう。"
     },
     "story": {
       "title": "インタラクティブストーリー",
       "desc": "物語を作り、読み、登場人物の世界を探検しよう。"
     },
     "research": {
-      "title": "AI 研究ニュース・Briefing",
-      "desc": "AI 技術、研究成果、新しい発見をチェック。"
+      "title": "研究ニュース",
+      "desc": "AI研究とツールの最新情報を読む。"
     },
     "circle": {
       "title": "コミュニティ",
       "desc": "投稿を共有したり、品物を交換したり、交流しよう。"
+    },
+    "souls": {
+      "title": "写真と話そう",
+      "desc": "人や物を撮影し、性格を選んで話しかけよう。"
     }
   },
   "sectionHubs": {
@@ -477,12 +506,12 @@
       "next": "次の友だち",
       "chatWith": "{{name}} と話す",
       "friendBios": {
-        "zoe": "日常の面白い瞬間を見つける友だち。",
-        "noah": "落ち着いて話を聞いてくれる友だち。",
-        "iris": "映画やデザイン、創造的な話が好き。",
-        "max": "アウトドアや冒険について話そう。",
-        "yuna": "自分のペースでゆっくりおしゃべり。",
-        "felix": "一つの話題を違う視点から楽しもう。"
+        "zoe": "今日、思わずツッコミたくなったことある？",
+        "noah": "今日のどの瞬間を誰かに話したい？",
+        "iris": "最近、頭から離れない風景はある？",
+        "max": "今すぐ外に出るなら、どこに行きたい？",
+        "yuna": "今日、ほっとできた小さなことは？",
+        "felix": "最近、考えが変わったことってある？"
       }
     },
     "learn": {
@@ -532,6 +561,22 @@
       "resumeCta": "練習を再開"
     },
     "me": {
+      "groups": {
+        "content": "マイコンテンツ",
+        "support": "アカウントとサポート",
+        "lifeReadings": "人生鑑定",
+        "purchased": "購入済みの鑑定書",
+        "credits": "通話のプリペイド残高",
+        "orders": "注文履歴",
+        "payments": "支払いとサポート",
+        "loading": "読み込み中",
+        "unavailable": "読み込めません",
+        "signIn": "ログインして表示",
+        "reportCount": "{{number}} 件",
+        "retry": "アカウント情報を再読み込み",
+        "adminTools": "管理ツール",
+        "admin": "管理画面"
+      },
       "title": "マイ Koolo",
       "intro": "学習記録や保存したコンテンツ、個人設定をまとめて確認できます。",
       "hero": {
@@ -592,8 +637,15 @@
     "soulsDescription": "身近な物をおしゃべりさせよう。",
     "learnDescription": "外国語のひと言に挑戦しよう。"
   },
-  "mobileHero": {"title": "遊んで学ぼう", "subtitle": "まずはあいさつから。"},
-  "quickEntry": {"heading": "Kooloを探索", "fortune": "今日の運勢", "shorts": "Shortsを見る"},
+  "mobileHero": {
+    "title": "遊んで学ぼう",
+    "subtitle": "まずはあいさつから。"
+  },
+  "quickEntry": {
+    "heading": "Kooloを探索",
+    "fortune": "今日の運勢",
+    "shorts": "Shortsを見る"
+  },
   "liveBubble": {
     "invite": "ねえ、少しおしゃべりしない？",
     "start": "音声会話",
@@ -601,10 +653,34 @@
     "withZoe": "Zoe と話す",
     "setup": "Key 設定"
   },
-  "dailyQuote": {"unnamedChart": "命式 {{number}}", "title": "今日のひとこと", "fortune": "今日の運勢を占う", "chat": "Zoeとこの言葉を話す", "fortuneFull": "詳しい運勢を見る", "personalTitle": "今日の運勢", "chooseChart": "命式を選ぶ", "me": "自分", "markSelf": "自分の命式にする", "kind": {"bazi": "四柱推命", "tarot": "数秘術", "vedic": "インド占星術"}, "chatRead": "Zoeに今日の運勢を解説してもらう", "setupChart": "命盤を設定して、毎日の運勢を見る", "setupHint": "生年月日と出生時刻を入力すると、毎日の運勢を確認できます。",
+  "dailyQuote": {
+    "unnamedChart": "命式 {{number}}",
+    "title": "今日のひとこと",
+    "fortune": "今日の運勢を占う",
+    "chat": "Zoeとこの言葉を話す",
+    "fortuneFull": "詳しい運勢を見る",
+    "personalTitle": "今日の運勢",
+    "chooseChart": "命式を選ぶ",
+    "me": "自分",
+    "markSelf": "自分の命式にする",
+    "kind": {
+      "bazi": "四柱推命",
+      "tarot": "数秘術",
+      "vedic": "インド占星術"
+    },
+    "chatRead": "Zoeに今日の運勢を解説してもらう",
+    "setupChart": "命盤を設定して、毎日の運勢を見る",
+    "setupHint": "生年月日と出生時刻を入力すると、毎日の運勢を確認できます。",
     "basisBazi": "あなたの四柱推命の命式に基づく",
-    "basisNumerology": "誕生日（数秘術）に基づく", "updated": "今日の運勢が更新されました"},
+    "basisNumerology": "誕生日（数秘術）に基づく",
+    "updated": "今日の運勢が更新されました"
+  },
   "showcase29": {
+    "teacherTitle": "{{name}}と{{language}}で話そう",
+    "firstPractice": "AIの先生と話そう",
+    "practiceWith": "{{name}}と一言練習",
+    "practiceNow": "一言練習する",
+    "changeTeacher": "先生を変更",
     "carousel": "Kooloの注目機能",
     "zoeAria": "Zoeと話す",
     "bubble": "お話しする？",

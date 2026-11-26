@@ -1,14 +1,15 @@
+import {shortPreviewTitle} from "./shortPreviewTitle";
 import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState,type TouchEvent} from "react";
 import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
 import {trackUsageEvent} from "../analytics/usage";
-import {shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSocial";
+import {shortsReplyPromptKey,shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSocial";
 import "./homeShorts.css";
 
 /** Lightweight homepage preview: photo content stays in the network feed, not the JS bundle. */
-export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[],sharedFeed,sharedStatus,motionEnabled=true}:{maxPosts?:number;excludeFriendIds?:string[];sharedFeed?:ShortFeed|null;sharedStatus?:"loading"|"ready"|"error";motionEnabled?:boolean}={}){
+export function HomeShortsPreview({maxPosts=3,compact=false,excludeFriendIds=[],sharedFeed,sharedStatus,motionEnabled=true,replyMode=false}:{maxPosts?:number;compact?:boolean;excludeFriendIds?:string[];sharedFeed?:ShortFeed|null;sharedStatus?:"loading"|"ready"|"error";motionEnabled?:boolean;replyMode?:boolean}={}){
  const {t,i18n}=useTranslation("teacher");
  const en=i18n.language.startsWith("en");
  const navigate=useNavigate();
@@ -133,14 +134,17 @@ export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[],sharedFeed,sha
      </Link>
      <div className="crew-home-short-content">
       <strong>{post.friendName}</strong>
+      {compact?<Link className="crew-home-short-title" to={"/teacher/shorts?post="+encodeURIComponent(post.id)}>{shortPreviewTitle(post,i18n.language)}</Link>:<>
       {shortsStoryEpisodes(post,feed?.posts||[]).length>1?<small className="crew-home-short-series">{en?"Ongoing story":"連載故事"}</small>:null}
       <p lang={post.language}>{post.caption}</p>
-      {i18n.resolvedLanguage==="zh-TW"&&post.translationZh&&post.language!=="zh"?<small className="crew-home-short-translation" lang="zh-Hant" title={post.translationZh}>{post.translationZh}</small>:null}
+      {replyMode&&<p className="crew-short-reply-prompt">{t("home:shorts."+shortsReplyPromptKey(post))}</p>}
+      {replyMode&&i18n.resolvedLanguage==="zh-TW"&&post.translationZh&&post.language!=="zh"?<details className="crew-short-translation-details"><summary>{t("home:shorts.showTranslation")}</summary><div lang="zh-Hant">{post.translationZh}</div></details>:!replyMode&&i18n.resolvedLanguage==="zh-TW"&&post.translationZh&&post.language!=="zh"?<small className="crew-home-short-translation" lang="zh-Hant" title={post.translationZh}>{post.translationZh}</small>:null}
       <Link className="crew-home-short-question" onClick={()=>{
        trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home");
-      }} to={shortsChatUrl(post,undefined,0)}>
+      }} to={replyMode?shortsChatUrl(post)+"&entry=reply":shortsChatUrl(post,undefined,0)}>
        {t("practice.shortsChatThis",{name:post.friendName})} <Arrow/>
       </Link>
+      </>}
      </div>
     </article>)}
     <div className="crew-home-short-end"

@@ -34,6 +34,7 @@ function harness({
       return [slots[index], value => { slots[index] = typeof value === "function" ? value(slots[index]) : value; }];
     },
     useCallback(fn) { return fn; },
+    useMemo(fn) { return fn(); },
     useEffect(fn) {
       const index = effects++;
       if (!(index in cleanups)) cleanups[index] = fn();
@@ -93,6 +94,7 @@ test("two starts during the first runtime load open a single Live session", asyn
   const runtime = deferred(), app = harness({ ensureLive: () => runtime.promise });
   const live = app.render();
   const first = live.start(), second = live.start();
+  assert.equal(app.render().state, "requesting-mic");
   assert.equal(app.callsToEnsureLive(), 1);
   runtime.resolve();
   await Promise.all([first, second]);
@@ -229,4 +231,34 @@ test("invalid or inaccessible persisted volume falls back safely", () => {
   assert.equal(live.volume,100);
   live.setVolume(7);
   assert.equal(app.render().volume,7);
+});
+
+test("manual retry keeps confirmed and unfinished captions on screen without replay or duplicate saved turns", async () => {
+  const app = harness();
+  const live = app.render({ recoveryCaptionScope: "friend-zoe" });
+  await live.start();
+  const original = app.sessions[0].options;
+  const turn = { input: "Hi", output: "Hello" };
+  original.onTranscriptTurn(turn, [turn]);
+  original.onInputTranscript("What happened?");
+  original.onOutputTranscript("I was");
+  original.onError(new Error("network"));
+  original.onTerminal({ state: "error" });
+  assert.equal(app.render().state, "error");
+  await app.render().start();
+  let resumed = app.render();
+  assert.deepEqual(Array.from(resumed.captionTurns, item => [item.input, item.output]), [
+    ["Hi", "Hello"], ["What happened?", "I was"],
+  ]);
+  assert.equal(resumed.turns.length, 0);
+  assert.equal(resumed.input, "");
+  assert.equal(resumed.output, "");
+  const next = { input: "Go on", output: "Sure" };
+  app.sessions[1].options.onTranscriptTurn(next, [next]);
+  assert.equal(app.render().captionTurns.length, 3);
+  await app.render().stop();
+  assert.deepEqual(Array.from(app.saved.at(-1).item.turns, item => item.input), ["Go on"]);
+  await app.render({ recoveryCaptionScope: "friend-noah" }).start();
+  assert.equal(app.render().captionTurns.length, 0);
+  await app.render().stop();
 });

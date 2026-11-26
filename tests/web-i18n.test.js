@@ -176,7 +176,7 @@ test("Chat, Learn, Me hubs and progress card translate every visible UI field in
  const resume=read("web-spa/src/teacher/ContinueLearningCard.tsx");
  assert.ok(hub.includes('sectionItemKeys'));
  assert.ok(hub.includes('t(prefix+"hero.title")'));
- assert.ok(hub.includes('t("sectionHubs.chat.friendTitles."+friend.id'));
+ assert.ok(hub.includes('t("sectionHubs.chat.friendBios."+friend.id'));
  assert.ok(progress.includes('useTranslation("home")'));
  assert.ok(progress.includes('t("todayLearning.summary",{minutes})'));
  assert.ok(resume.includes('plan&&chinese?plan.title'));

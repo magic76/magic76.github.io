@@ -14,6 +14,8 @@ import {useHomeAmbientMotion} from "../lib/useHomeAmbientMotion";
 import {DailyTopicCards} from "./DailyTopicCards";
 import {HomeGeminiVerify} from "./HomeGeminiVerify";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
+import {TeacherAvatar} from "../teacher/TeacherAvatar";
+import {useHomeTeacher} from "./useHomeTeacher";
 import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./mobileHome.css";
 import "./mobileHomeHeroV3.css";
@@ -37,8 +39,9 @@ const APPS:readonly App[]=[
 export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|null;shortsStatus:"loading"|"ready"|"error"}){
  const {i18n,t}=useTranslation("home");
  const homeMotion=useHomeAmbientMotion(true);
- const zh=i18n.language.startsWith("zh");
- const copy=(z:string,e:string)=>zh?z:e;
+ const teacher=useHomeTeacher(i18n.language);
+ const title=teacher?t("showcase29.teacherTitle",teacher):t("showcase29.firstPractice");
+ const startPractice=teacher?t("showcase29.practiceWith",teacher):t("showcase29.practiceNow");
  const [activity,setActivity]=useState<FriendActivity|null>(null);
  const [featured,setFeatured]=useState<(typeof GAMES)[number]>("1a2b");
  const [activeSlide,setActiveSlide]=useState(0);
@@ -114,19 +117,19 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
       <div className="cmh-slide-copy">
        <span className="cmh-zoe-eyebrow">✦ Koolo {t("showcase29.badgeLearn")}</span>
-       <h1>{t("showcase29.learnTitle")}</h1>
+       <h1>{title}</h1>
        <p>{t("showcase29.learnDesc")}</p>
       </div>
       <div className="cmh-scene cmh-learn-art" aria-hidden="true">
        <span className="cmh-learn-ring cmh-learn-ring-one"/><span className="cmh-learn-ring cmh-learn-ring-two"/>
-       <div className="cmh-learn-portrait"><img src={oliviaPhoto} width="154" height="196" alt="" loading="eager" decoding="async"/></div>
+       <div className="cmh-learn-portrait">{teacher?<TeacherAvatar profile={teacher.profile} decorative/>:<img src={oliviaPhoto} width="154" height="196" alt="" loading="eager" decoding="async"/>}</div>
        <span className="cmh-learn-word cmh-learn-word-hi">Hello!</span>
        <span className="cmh-learn-word cmh-learn-word-konnichiwa">こんにちは</span>
        <span className="cmh-learn-wave"><i/><i/><i/><i/><i/></span>
       </div>
       <div className="cmh-zoe-actions">
-       <Link to="/learn" tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","learn")}><Icon name="teacher"/>{t("showcase29.startLearning")}</Link>
-       <Link to="/teacher/roles?mode=teacher" tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","learn")}>{t("showcase29.pickTeacher")}</Link>
+       <Link to="/teacher/live" tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","learn")}><Icon name="teacher"/>{startPractice}</Link>
+       <Link to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","learn")}>{t("showcase29.changeTeacher")}</Link>
       </div>
      </section>
      <section className={"cmh-slide cmh-zoe"+(friendResume?" cmh-zoe-return":"")} data-active={activeSlide===1} aria-hidden={activeSlide!==1}
@@ -211,17 +214,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
    </Link>)}</div>
   </section>
   <HomeGeminiVerify variant="mobile"/>
-  <div className="cmh-shorts"><HomeShortsPreview maxPosts={6} sharedFeed={shortsFeed} sharedStatus={shortsStatus} motionEnabled={homeMotion}/></div>
-  <section className="cmh-seo" aria-labelledby="cmh-seo-heading">
-   <h2 id="cmh-seo-heading">{copy("Koolo：AI 朋友聊天、語言學習、互動遊戲與故事創作","Koolo: AI Friends, Language Practice, Games and Stories")}</h2>
-   <p>{copy("在 Koolo，你可以和不同個性的 AI 朋友自然聊天、用 Koolo Teacher 練習外語口說、一起玩猜數字或棋盤遊戲，也能探索命理、創作及閱讀故事。","Talk to AI friends, practice languages, play interactive games, explore fortune readings and create stories together.")}</p>
-   <nav aria-label={copy("探索 Koolo","Explore Koolo")}>
-    <Link to="/teacher/roles?mode=friends">{copy("AI 朋友","AI Friends")}</Link>
-    <Link to="/learn">{copy("語言學習","Learn languages")}</Link>
-    <Link to="/games">{copy("互動遊戲","Games")}</Link>
-    <Link to="/fortune">{copy("命理探索","Fortune")}</Link>
-   </nav>
-   <GuideHub/>
-  </section>
+  <div className="cmh-shorts"><HomeShortsPreview maxPosts={6} sharedFeed={shortsFeed} sharedStatus={shortsStatus} compact motionEnabled={homeMotion}/></div>
+  <div className="cmh-seo"><GuideHub/></div>
  </div>;
 }

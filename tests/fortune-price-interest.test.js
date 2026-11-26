@@ -15,11 +15,11 @@ test("bazi-only non-transactional price experiment",()=>{
  }
 });
 
-test("member purchase cards preserve icon, copy and arrow tracks",()=>{
- const page=read("web-spa/src/pages/CrewSectionPage.tsx"),css=read("web-spa/src/pages/crewSections.css");
- for(const route of ["/me/orders","/purchase-info"]){const start=page.indexOf('to="'+route+'"');assert.ok(start>=0);const card=page.slice(start,page.indexOf("</Link>",start));assert.match(card,/crew-section-card-icon[\s\S]*crew-section-card-copy[\s\S]*crew-section-arrow/);}
- assert.match(css,/crew-section-card>\.crew-section-card-copy\{grid-column:2;grid-row:1\}/);
- assert.match(css,/crew-section-card>\.crew-section-arrow\{grid-column:3;grid-row:1/);
+test("member purchase routes use the grouped whole-row link",()=>{
+ const page=read("web-spa/src/pages/MyAccountGroups.tsx"),css=read("web-spa/src/pages/myAccountGroups.css");
+ for(const route of ["/me/orders","/purchase-info"])assert.ok(page.includes('<AccountRow to="'+route+'"'));
+ assert.match(page,/<Link className="koolo-account-row" to=\{to\}>/);
+ assert.match(css,/koolo-account-row\{[^}]+min-height:56px/);
  assert.match(read("web-spa/src/pages/PurchaseSupportPage.tsx"),/預定原價 NT\$69/);
 });
 
@@ -58,7 +58,7 @@ test("website model varies with actual chart and does not invent missing years",
 });
 
 test("premium reading is a separate route with chart-scoped trial history",()=>{
- const app=read("web-spa/src/App.tsx"),page=read("web-spa/src/fortune/FortunePremiumPage.tsx"),store=read("web-spa/src/fortune/premiumStore.ts"),history=read("web-spa/src/fortune/HistoryPage.tsx"),mine=read("web-spa/src/pages/CrewSectionPage.tsx");
+ const app=read("web-spa/src/App.tsx"),page=read("web-spa/src/fortune/FortunePremiumPage.tsx"),store=read("web-spa/src/fortune/premiumStore.ts"),history=read("web-spa/src/fortune/HistoryPage.tsx"),mine=read("web-spa/src/pages/MyAccountGroups.tsx");
  assert.match(app,/<Route path="premium" element=\{<FortunePremiumPage\/>\}/);
  assert.match(page,/hasPremiumTrial\(id\)/);assert.match(page,/readPremiumChart\(id\)/);
  assert.match(page,/reading=\{reading\}/);assert.match(history,/hasPremiumTrial\(x\.id\)/);

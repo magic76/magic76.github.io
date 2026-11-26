@@ -1,5 +1,6 @@
 {
   "controls": {
+    "connectingTo": "Đang kết nối với {{name}}…",
     "myTurn": "Đến lượt tôi",
     "friendVoice": "Giọng bạn chat",
     "muteFriend": "Tắt tiếng bạn chat",

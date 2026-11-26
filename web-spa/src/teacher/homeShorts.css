@@ -61,3 +61,6 @@
 
 /* One muted translation line keeps the desktop preview at a stable height. */
 .crew-home-short-translation{display:block;overflow:hidden;min-width:0;max-width:100%;white-space:nowrap;text-overflow:ellipsis;color:var(--muted,#657084);font-size:12px;line-height:18px;font-weight:400}
+
+.crew-home-short-title{display:block;color:inherit;text-decoration:none;overflow-wrap:anywhere;line-height:1.45;font-size:13px}
+.crew-home-short-title:focus-visible,.crew-home-short-title:hover{text-decoration:underline}

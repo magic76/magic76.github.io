@@ -19,7 +19,8 @@ test("Souls is a visible Explore tile, with a working existing route and entry c
  assert.match(hub,/data-kind="souls" to="\/souls"/);
  assert.match(hub,/trackUsageEvent\("explore_entry_click","souls"\)/);
  assert.match(hub,/<ExploreArtwork kind="souls"\/>/);
- assert.match(hub,/Koolo Souls · 讓照片活過來/);
+ assert.ok(hub.includes('t("sectionExplore.souls.title")'));
+ assert.equal(JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json")).sectionExplore.souls.title,"讓照片開口說話");
  assert.ok(artwork.includes('src={"/assets/explore/"+kind+".webp"}'));
  assert.doesNotMatch(artwork,/crew-explore-souls-art/);
  assert.match(css,/\.crew-explore-tile\[data-kind="souls"\]/);

@@ -96,11 +96,33 @@
     "explore": "看看還能做什麼",
     "tap": "點擊進入"
   },
-  "layout2": {"title": "和 {{name}} 玩著學語言","action": "跟 {{name}} 說第一句","description": "不用準備話題，打個招呼就開始。","voice": "改用語音聊天","more": "還想做些別的？","resumeTitle": "繼續和 {{name}} 聊",
-    "previewLabel": "上次聊到：","resumeAction": "繼續文字聊天","chatTitle": "先說聲嗨","chatDescription": "和 AI 朋友聊聊，看會聊出什麼。","previewHidden": "上一則訊息已隱藏","showPreview": "顯示上一句","hidePreview": "隱藏上一句"},
+  "layout2": {
+    "title": "和 {{name}} 玩著學語言",
+    "action": "跟 {{name}} 說第一句",
+    "description": "不用準備話題，打個招呼就開始。",
+    "voice": "改用語音聊天",
+    "more": "還想做些別的？",
+    "resumeTitle": "繼續和 {{name}} 聊",
+    "previewLabel": "上次聊到：",
+    "resumeAction": "繼續文字聊天",
+    "chatTitle": "先說聲嗨",
+    "chatDescription": "和 AI 朋友聊聊，看會聊出什麼。",
+    "previewHidden": "上一則訊息已隱藏",
+    "showPreview": "顯示上一句",
+    "hidePreview": "隱藏上一句"
+  },
   "world": {
-    "freeAllowance": {"full": "免註冊・文字每天 {{count}} 則、語音 {{minutes}} 分鐘，明天再來又有", "memberDaily": "會員每日 {{count}} 則文字・語音剩餘 {{minutes}} 分鐘", "memberTextOnly": "會員每日 {{count}} 則文字", "textOnly": "免註冊・文字每天 {{count}} 則，明天再來又有", "voiceUsed": "今天語音額度已用完・文字每天 {{count}} 則，明天再來又有"},
-    "practiceLang": {"label": "練習語言：", "aria": "選擇聊天與語音的練習語言"},
+    "freeAllowance": {
+      "full": "免註冊・文字每天 {{count}} 則、語音 {{minutes}} 分鐘，明天再來又有",
+      "memberDaily": "會員每日 {{count}} 則文字・語音剩餘 {{minutes}} 分鐘",
+      "memberTextOnly": "會員每日 {{count}} 則文字",
+      "textOnly": "免註冊・文字每天 {{count}} 則，明天再來又有",
+      "voiceUsed": "今天語音額度已用完・文字每天 {{count}} 則，明天再來又有"
+    },
+    "practiceLang": {
+      "label": "練習語言：",
+      "aria": "選擇聊天與語音的練習語言"
+    },
     "modes": {
       "chat": {
         "lead": "AI 不只會聊天，",
@@ -370,6 +392,9 @@
     "loadingMore": "正在載入更多動態…",
     "progress": "往下滑看更多 · {{count}} / {{total}}",
     "retryMore": "重新載入動態",
+    "replyKeyboard": "你喜歡安靜的鍵盤，還是有喀噠聲的？",
+    "replyZipper": "你的拉鍊也卡過嗎？你怎麼解開的？",
+    "replyEveryday": "這讓你想到自己遇過的哪件事？",
     "hooksDetails": "怎麼回事？",
     "hooksFeelings": "你現在怎麼想？",
     "hooksNext": "後來呢？",
@@ -412,31 +437,35 @@
   },
   "sectionExplore": {
     "title": "探索",
-    "intro": "今天想探索什麼？選一件讓你好奇的事，從這裡開始。",
+    "intro": "每天看點新鮮的，也可以玩一局遊戲。",
     "destinations": "探索功能",
     "fortune": {
-      "title": "命理探索 Fortune",
-      "desc": "我的命盤、歷史紀錄、新命盤與 Koolo Friend 講解，全部從這裡開始。"
+      "title": "命理探索",
+      "desc": "看今天的運勢，或打開你的命盤。"
     },
     "timeline": {
-      "title": "人生時光機 Timeline",
+      "title": "人生時光機",
       "desc": "遇見角色在不同年紀的生活與選擇。"
     },
     "games": {
       "title": "互動遊戲",
-      "desc": "海龜湯、猜詞、1A2B 與更多遊戲。"
+      "desc": "玩一局猜數字或海龜湯。"
     },
     "story": {
-      "title": "互動故事 Story",
+      "title": "互動故事",
       "desc": "創作、閱讀並探索角色的故事。"
     },
     "research": {
-      "title": "研究情報 Briefing",
-      "desc": "AI 技術、研究與新發現。"
+      "title": "研究情報",
+      "desc": "閱讀最新 AI 研究與工具消息。"
     },
     "circle": {
       "title": "交流圈",
       "desc": "分享、交換與社群交流。"
+    },
+    "souls": {
+      "title": "讓照片開口說話",
+      "desc": "拍下物品或人物，替它選個性，再和它聊天。"
     }
   },
   "sectionHubs": {
@@ -477,12 +506,12 @@
       "next": "下一位朋友",
       "chatWith": "和 {{name}} 聊聊",
       "friendBios": {
-        "zoe": "嘴快心軟，喜歡生活裡的笑點。",
-        "noah": "善於傾聽，陪你慢慢聊。",
-        "iris": "一起聊電影、設計與創意。",
-        "max": "喜歡戶外、冒險與挑戰。",
-        "yuna": "溫柔慢熱，聊聊生活小事。",
-        "felix": "喜歡從不同角度思考問題。"
+        "zoe": "今天有什麼事，讓你忍不住想吐槽？",
+        "noah": "今天有哪一刻，你想找個人說說？",
+        "iris": "最近看過哪個畫面，讓你一直記著？",
+        "max": "如果現在就出門，你想往哪裡走？",
+        "yuna": "今天有什麼小事，讓你放鬆了一點？",
+        "felix": "最近有什麼事，讓你改變了想法？"
       }
     },
     "learn": {
@@ -532,6 +561,22 @@
       "resumeCta": "繼續練習"
     },
     "me": {
+      "groups": {
+        "content": "我的內容",
+        "support": "帳戶與支援",
+        "lifeReadings": "我的人生解析",
+        "purchased": "已購命理報告",
+        "credits": "預付語音餘額",
+        "orders": "我的訂單",
+        "payments": "付款與客服",
+        "loading": "載入中",
+        "unavailable": "暫時讀不到",
+        "signIn": "登入後查看",
+        "reportCount": "{{number}} 份",
+        "retry": "重新讀取帳戶資料",
+        "adminTools": "管理工具",
+        "admin": "管理後台"
+      },
       "title": "我的 Koolo",
       "intro": "把你的紀錄、收藏、個人設定放在一起，首頁不用全部展示。",
       "hero": {
@@ -592,8 +637,15 @@
     "soulsDescription": "讓身邊的物品開口說話。",
     "learnDescription": "今天學一句實用的外語。"
   },
-  "mobileHero": {"title": "一起玩著學語言", "subtitle": "打個招呼就開始。"},
-  "quickEntry": {"heading": "首頁快捷入口", "fortune": "今日運勢", "shorts": "看 Shorts"},
+  "mobileHero": {
+    "title": "一起玩著學語言",
+    "subtitle": "打個招呼就開始。"
+  },
+  "quickEntry": {
+    "heading": "首頁快捷入口",
+    "fortune": "今日運勢",
+    "shorts": "看 Shorts"
+  },
   "liveBubble": {
     "invite": "嗨，要不要聊兩句？",
     "start": "語音開聊",
@@ -601,10 +653,34 @@
     "withZoe": "和 Zoe 聊聊",
     "setup": "設定 Key"
   },
-  "dailyQuote": {"unnamedChart": "命盤 {{number}}", "title": "今日小語", "fortune": "算算我的今日運勢", "chat": "跟 Zoe 聊這句", "fortuneFull": "看完整運勢", "personalTitle": "今日運勢", "chooseChart": "選擇命盤", "me": "我自己", "markSelf": "這是我自己", "kind": {"bazi": "八字", "tarot": "生命靈數", "vedic": "印度星盤"}, "chatRead": "請 Zoe 解運勢", "setupChart": "設定我的命盤，每天看專屬運勢", "setupHint": "填生日和出生時間，完成後每天看專屬運勢",
+  "dailyQuote": {
+    "unnamedChart": "命盤 {{number}}",
+    "title": "今日小語",
+    "fortune": "算算我的今日運勢",
+    "chat": "跟 Zoe 聊這句",
+    "fortuneFull": "看完整運勢",
+    "personalTitle": "今日運勢",
+    "chooseChart": "選擇命盤",
+    "me": "我自己",
+    "markSelf": "這是我自己",
+    "kind": {
+      "bazi": "八字",
+      "tarot": "生命靈數",
+      "vedic": "印度星盤"
+    },
+    "chatRead": "請 Zoe 解運勢",
+    "setupChart": "設定我的命盤，每天看專屬運勢",
+    "setupHint": "填生日和出生時間，完成後每天看專屬運勢",
     "basisBazi": "根據你的八字命盤",
-    "basisNumerology": "根據你的生日（生命靈數）", "updated": "今天的運勢更新了"},
+    "basisNumerology": "根據你的生日（生命靈數）",
+    "updated": "今天的運勢更新了"
+  },
   "showcase29": {
+    "teacherTitle": "跟 {{name}} 練{{language}}口說",
+    "firstPractice": "跟 AI 老師練口說",
+    "practiceWith": "和 {{name}} 練一句",
+    "practiceNow": "開始練一句",
+    "changeTeacher": "換老師",
     "carousel": "Koolo 特色功能輪播",
     "zoeAria": "和 Zoe 聊天",
     "bubble": "聊聊？",

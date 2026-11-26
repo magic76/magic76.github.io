@@ -20,14 +20,16 @@ test("SSG and initial hydration never mistake an unread client key for a missing
  // Account entry belongs to My, not the shared page header.
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  assert.doesNotMatch(chrome,/crew-account-entry|to="\/account"/);
- assert.match(hub,/section==="me"&&<Link className="crew-section-card" to="\/account"/);
- assert.match(hub,/tCommon\("auth.account"\)/);
+ assert.match(hub,/section==="me"&&<MyAccountGroups/);
+ const groups=read("web-spa/src/pages/MyAccountGroups.tsx");
+ assert.match(groups,/<AccountRow to="\/account"/);
+ assert.match(groups,/t\("common:auth.account"\)/);
  assert.doesNotMatch(chrome,/crew-key-status-placeholder|t\("gemini.pending"\)/);
 });
 
 test("Gemini key setup remains actionable after client hydration when truly unconfigured",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
- const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
+ const hub=read("web-spa/src/pages/MyAccountGroups.tsx");
  assert.match(home,/setup\.title/);
  assert.match(home,/setup\.verify/);
  assert.match(home,/crew-home-start-option/);

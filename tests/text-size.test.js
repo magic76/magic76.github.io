@@ -76,7 +76,7 @@ test('explore and SEO guide headings shrink on phones only',()=>{
  const guide=read('web-spa/src/guides/guides.css');
  const m=explore.match(/\.crew-section-explore \.crew-section-heading h1\{font-size:clamp\((\d+)px,4\.5vw,40px\)\}/);
  assert.ok(m,'explore headline keeps the original desktop clamp ceiling');
- assert.ok(Number(m[1])<=24);
+ assert.equal(Number(m[1]),26);
  for(const width of [360,390])assert.ok(Math.max(Number(m[1]),Math.min(width*.045,40))<=26);
  assert.match(guide,/\.crew-guide-hero h1\{font-size:clamp\(29px,4\.2vw,49px\)/);
  const mobile=guide.match(/@media\(max-width:560px\)\{[\s\S]*?\.crew-guide-hero h1\{font-size:(\d+)px;line-height:([\d.]+)\}/);

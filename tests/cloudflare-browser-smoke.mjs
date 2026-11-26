@@ -691,7 +691,6 @@ async function run(){
           if(section==="chat"){
            assert.equal((await root.locator(".crew-section-people h2").textContent())?.trim(),strings.meetFriends,locale+" translated friend heading");
            assert.equal(await root.locator(".crew-section-friend").count(),6,locale+" six real featured friends");
-           assert.equal((await root.locator(".crew-section-friend").first().locator("small").textContent())?.trim(),strings.friendTitles.zoe,locale+" localized first friend");
            assert.equal((await root.locator(".crew-section-friend").first().locator(".crew-section-friend-bio").textContent())?.trim(),strings.friendBios.zoe,locale+" localized biography");
            assert.equal(await root.locator(".crew-section-carousel-actions button").count(),2,locale+" manual controls");
           }

@@ -96,11 +96,33 @@
     "explore": "Descubre más opciones",
     "tap": "Toca para abrir"
   },
-  "layout2": {"title": "Aprende idiomas con {{name}}","action": "Saluda a {{name}}","description": "No necesitas un tema. Empieza con un hola.","voice": "Usar chat de voz","more": "¿Quieres probar otra cosa?","resumeTitle": "Seguir hablando con {{name}}",
-    "previewLabel": "Último chat:","resumeAction": "Continuar chat de texto","chatTitle": "Empieza con un hola","chatDescription": "Habla con un amigo de IA y descubre adónde llegan.","previewHidden": "Último mensaje oculto","showPreview": "Mostrar último mensaje","hidePreview": "Ocultar último mensaje"},
+  "layout2": {
+    "title": "Aprende idiomas con {{name}}",
+    "action": "Saluda a {{name}}",
+    "description": "No necesitas un tema. Empieza con un hola.",
+    "voice": "Usar chat de voz",
+    "more": "¿Quieres probar otra cosa?",
+    "resumeTitle": "Seguir hablando con {{name}}",
+    "previewLabel": "Último chat:",
+    "resumeAction": "Continuar chat de texto",
+    "chatTitle": "Empieza con un hola",
+    "chatDescription": "Habla con un amigo de IA y descubre adónde llegan.",
+    "previewHidden": "Último mensaje oculto",
+    "showPreview": "Mostrar último mensaje",
+    "hidePreview": "Ocultar último mensaje"
+  },
   "world": {
-    "freeAllowance": {"full": "Sin registro · {{count}} mensajes y {{minutes}} min de voz al día. Más mañana", "memberDaily": "Miembros: {{count}} mensajes al día · {{minutes}} minutos de voz restantes", "memberTextOnly": "Miembros: {{count}} mensajes al día", "textOnly": "Sin registro · {{count}} mensajes gratis al día. Más mañana", "voiceUsed": "Voz agotada hoy · {{count}} mensajes al día. Vuelve mañana"},
-    "practiceLang": {"label": "Idioma de práctica:", "aria": "Elegir idioma para chat y conversación de voz"},
+    "freeAllowance": {
+      "full": "Sin registro · {{count}} mensajes y {{minutes}} min de voz al día. Más mañana",
+      "memberDaily": "Miembros: {{count}} mensajes al día · {{minutes}} minutos de voz restantes",
+      "memberTextOnly": "Miembros: {{count}} mensajes al día",
+      "textOnly": "Sin registro · {{count}} mensajes gratis al día. Más mañana",
+      "voiceUsed": "Voz agotada hoy · {{count}} mensajes al día. Vuelve mañana"
+    },
+    "practiceLang": {
+      "label": "Idioma de práctica:",
+      "aria": "Elegir idioma para chat y conversación de voz"
+    },
     "modes": {
       "chat": {
         "lead": "La IA no solo conversa.",
@@ -370,6 +392,9 @@
     "loadingMore": "Cargando más historias…",
     "progress": "Desliza para ver más · {{count}} / {{total}}",
     "retryMore": "Reintentar carga",
+    "replyKeyboard": "¿Prefieres los teclados silenciosos o los que hacen clic?",
+    "replyZipper": "¿Se te ha atascado una cremallera? ¿Cómo la soltaste?",
+    "replyEveryday": "¿Te recuerda a algo que te haya pasado?",
     "hooksDetails": "Cuéntame más",
     "hooksFeelings": "¿Cómo te sientes?",
     "hooksNext": "¿Qué pasó después?",
@@ -412,11 +437,11 @@
   },
   "sectionExplore": {
     "title": "Explorar",
-    "intro": "¿Qué te gustaría descubrir hoy? Elige algo que despierte tu curiosidad.",
+    "intro": "Encuentra algo que leer o un juego para pasar el rato.",
     "destinations": "Destinos para explorar",
     "fortune": {
-      "title": "Explora tu destino",
-      "desc": "Consulta tus cartas, lecturas anteriores y nuevas interpretaciones con tus amigos de Koolo."
+      "title": "Fortuna del día",
+      "desc": "Consulta tu fortuna de hoy o abre tu carta."
     },
     "timeline": {
       "title": "Línea de vida",
@@ -424,19 +449,23 @@
     },
     "games": {
       "title": "Juegos interactivos",
-      "desc": "Misterios, Taboo, adivina números 1A2B y muchos juegos más."
+      "desc": "Adivina el número o resuelve un acertijo."
     },
     "story": {
       "title": "Historias interactivas",
       "desc": "Crea, lee y explora historias junto con Koolo."
     },
     "research": {
-      "title": "Investigación e IA",
-      "desc": "Descubre novedades, investigaciones y avances en inteligencia artificial."
+      "title": "Noticias de investigación",
+      "desc": "Lee novedades sobre investigación y herramientas de IA."
     },
     "circle": {
       "title": "Comunidad",
       "desc": "Comparte, intercambia y participa en la comunidad."
+    },
+    "souls": {
+      "title": "Habla con una foto",
+      "desc": "Fotografía a una persona o un objeto, elige su personalidad y empieza a hablar."
     }
   },
   "sectionHubs": {
@@ -477,12 +506,12 @@
       "next": "Siguientes amigos",
       "chatWith": "Hablar con {{name}}",
       "friendBios": {
-        "zoe": "Encuentra el humor en lo cotidiano.",
-        "noah": "Un amigo tranquilo que sabe escuchar.",
-        "iris": "Cine, diseño e ideas creativas.",
-        "max": "Aventuras y nuevos desafíos.",
-        "yuna": "Conversa sin prisas y a tu ritmo.",
-        "felix": "Explora otros puntos de vista."
+        "zoe": "¿Qué te pasó hoy que merezca un comentario con un poco de humor?",
+        "noah": "¿Qué momento de hoy te gustaría compartir?",
+        "iris": "¿Qué imagen se te ha quedado grabada últimamente?",
+        "max": "Si salieras ahora, ¿adónde irías?",
+        "yuna": "¿Qué pequeño detalle te ayudó a relajarte hoy?",
+        "felix": "¿Qué te ha hecho cambiar de opinión últimamente?"
       }
     },
     "learn": {
@@ -532,6 +561,22 @@
       "resumeCta": "Continuar la práctica"
     },
     "me": {
+      "groups": {
+        "content": "Mi contenido",
+        "support": "Cuenta y ayuda",
+        "lifeReadings": "Mis lecturas de vida",
+        "purchased": "Informes comprados",
+        "credits": "Saldo de voz prepago",
+        "orders": "Mis pedidos",
+        "payments": "Pagos y ayuda",
+        "loading": "Cargando",
+        "unavailable": "No disponible",
+        "signIn": "Inicia sesión",
+        "reportCount": "Informes: {{number}}",
+        "retry": "Volver a cargar los datos",
+        "adminTools": "Administración",
+        "admin": "Panel de administración"
+      },
       "title": "Mi Koolo",
       "intro": "Tu progreso, tus contenidos guardados y tus preferencias, todo en un lugar.",
       "hero": {
@@ -592,8 +637,15 @@
     "soulsDescription": "Haz que un objeto cotidiano hable.",
     "learnDescription": "Aprende una frase en otro idioma."
   },
-  "mobileHero": {"title": "Habla y juega", "subtitle": "Empieza con un hola."},
-  "quickEntry": {"heading": "Explora Koolo", "fortune": "Suerte de hoy", "shorts": "Ver Shorts"},
+  "mobileHero": {
+    "title": "Habla y juega",
+    "subtitle": "Empieza con un hola."
+  },
+  "quickEntry": {
+    "heading": "Explora Koolo",
+    "fortune": "Suerte de hoy",
+    "shorts": "Ver Shorts"
+  },
   "liveBubble": {
     "invite": "¡Hola! ¿Charlamos un rato?",
     "start": "Voz",
@@ -601,10 +653,34 @@
     "withZoe": "Hablar con Zoe",
     "setup": "Config. Key"
   },
-  "dailyQuote": {"unnamedChart": "Carta {{number}}", "title": "Una frase para hoy", "fortune": "Consultar mi fortuna de hoy", "chat": "Hablar de esto con Zoe", "fortuneFull": "Ver la lectura completa", "personalTitle": "Tu fortuna de hoy", "chooseChart": "Elegir carta natal", "me": "Mi carta", "markSelf": "Marcar como mi carta", "kind": {"bazi": "BaZi", "tarot": "Numerología", "vedic": "Carta védica"}, "chatRead": "Pedir a Zoe que interprete mi día", "setupChart": "Crear mi carta para ver mi fortuna diaria", "setupHint": "Introduce tu fecha y hora de nacimiento para ver tu fortuna diaria.",
+  "dailyQuote": {
+    "unnamedChart": "Carta {{number}}",
+    "title": "Una frase para hoy",
+    "fortune": "Consultar mi fortuna de hoy",
+    "chat": "Hablar de esto con Zoe",
+    "fortuneFull": "Ver la lectura completa",
+    "personalTitle": "Tu fortuna de hoy",
+    "chooseChart": "Elegir carta natal",
+    "me": "Mi carta",
+    "markSelf": "Marcar como mi carta",
+    "kind": {
+      "bazi": "BaZi",
+      "tarot": "Numerología",
+      "vedic": "Carta védica"
+    },
+    "chatRead": "Pedir a Zoe que interprete mi día",
+    "setupChart": "Crear mi carta para ver mi fortuna diaria",
+    "setupHint": "Introduce tu fecha y hora de nacimiento para ver tu fortuna diaria.",
     "basisBazi": "Basado en tu carta BaZi",
-    "basisNumerology": "Basado en tu fecha de nacimiento (numerología)", "updated": "Tu fortuna de hoy se actualizó"},
+    "basisNumerology": "Basado en tu fecha de nacimiento (numerología)",
+    "updated": "Tu fortuna de hoy se actualizó"
+  },
   "showcase29": {
+    "teacherTitle": "Habla {{language}} con {{name}}",
+    "firstPractice": "Habla con un profesor de IA",
+    "practiceWith": "Practica con {{name}}",
+    "practiceNow": "Prueba una frase",
+    "changeTeacher": "Cambiar de profesor",
     "carousel": "Carrusel de novedades de Koolo",
     "zoeAria": "Hablar con Zoe",
     "bubble": "¿Charlamos?",

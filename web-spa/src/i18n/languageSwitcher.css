@@ -83,4 +83,4 @@
 
 /* #16: Reserve the same header width before and after locale hydration. */
 .crew-language-picker-header .crew-language-trigger{width:104px;min-width:104px;justify-content:space-between}
-@media(max-width:700px){.crew-language-picker-header .crew-language-trigger{width:92px;min-width:92px;max-width:92px}}
+@media(max-width:700px){.crew-language-picker-header .crew-language-trigger{width:82px;min-width:82px;max-width:82px}}

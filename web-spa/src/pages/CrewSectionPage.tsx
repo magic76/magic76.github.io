@@ -6,12 +6,15 @@ import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import type {CrewSection} from "./crewNavigation";
+import {LatestBriefingTitle} from "../briefing/LatestBriefingTitle";
 import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
 import {CurrentTeacherCard} from "../teacher/CurrentTeacherCard";
 import {LearningFocusCard} from "../teacher/LearningFocusCard";
 import {LearningSnapshot} from "../teacher/LearningSnapshot";
-import {KooloAdminEntry} from "./KooloAdminEntry";
+import {MyAccountGroups} from "./MyAccountGroups";
 import {LearnHubExtras} from "./LearnHubExtras";
+import {readLatestFriendActivity} from "../live/sessionTranscript";
+import {useHomeFriendTopic} from "./useHomeFriendTopic";
 import {FriendIntentCards} from "../friends/FriendIntentCards";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {threeMinuteSpeakingPath} from "../teacher/threeMinuteSpeaking";
@@ -158,20 +161,21 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
 
  const {t,i18n}=useTranslation("home");
  const {t:tTeacher}=useTranslation("teacher");
- const {t:tCommon}=useTranslation("common");
- const {t:tSettings}=useTranslation("settings");
  const clientReady=useClientReady();
+ const lastChatFriend=section==="chat"&&clientReady?readLatestFriendActivity()?.friendId:undefined;
+ const resumeTopic=useHomeFriendTopic(lastChatFriend);
+ const returningFriend=resumeTopic?CREW_FRIENDS.find(friend=>friend.id===lastChatFriend):undefined;
+ const featuredFriends=returningFriend?[returningFriend,...CREW_FRIENDS.filter(friend=>friend.id!==returningFriend.id)].slice(0,6):CREW_FRIENDS.slice(0,6);
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const teachingMode=useTeacherStore(s=>s.teachingMode);
- const learnerSpeakingLevel=useTeacherStore(s=>s.learnerSpeakingLevel);
  const setTargetLanguage=useTeacherStore(s=>s.setTargetLanguage);
  // Keep the first hydration render aligned with the SSG default values.
  const shownTarget=clientReady?targetLanguage:"英文",shownNative=clientReady?nativeLanguage:"zh-TW";
  const uiLanguage=i18n.resolvedLanguage||i18n.language;
  const shownTargetName=t("friends:languages."+shownTarget,{defaultValue:friendSpokenLanguage(shownTarget)});
  const shownNativeName=localizedNativeName(shownNative,uiLanguage);
- const shownHint=section==="learn"?t("teacher:languageHint."+(teachingMode==="immersion"?"immersion":teachingMode==="beginner"||learnerSpeakingLevel==="A1"||learnerSpeakingLevel==="A2"?"beginner":learnerSpeakingLevel==="B1"||learnerSpeakingLevel==="B2"?"advanced":"adaptive"),{native:shownNativeName,target:shownTargetName}):"";
+ const shownHint=section==="learn"?t("teacher:languageHint."+(teachingMode==="immersion"?"immersion":"switchHelp"),{native:shownNativeName,target:shownTargetName}):"";
  const en=i18n.language!=="zh-TW";
  const source=en?englishCopy[section]:copy[section];
  // The hero is Fortune; the remaining five cards start at Timeline.
@@ -213,9 +217,9 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
    {section==="learn"?
     <>
     <div className="crew-learn-heading-row">
-     <div className="crew-learn-heading-copy"><span className="kicker">{x.eyebrow}</span><h1>{tCommon("nav.learn")}</h1></div>
-     <label className="crew-learn-language"><span>{tSettings("group.targetLanguage")}</span>
-      <select aria-label={tSettings("group.targetLanguage")} value={shownTarget} onChange={event=>setTargetLanguage(event.target.value)}>
+     <div className="crew-learn-heading-copy"><h1>{tTeacher("learn.title")}</h1></div>
+     <label className="crew-learn-language"><span>{tTeacher("learn.targetLabel")}</span>
+      <select aria-label={tTeacher("learn.targetLabel")} value={shownTarget} onChange={event=>setTargetLanguage(event.target.value)}>
        {TARGET_LANGUAGES.map(({value})=><option key={value} value={value}>{t("friends:languages."+value,{defaultValue:value})}</option>)}
       </select>
      </label>
@@ -228,14 +232,14 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
     {[x.hero,...x.items].map((item,i)=>({item,kind:exploreKinds[i]})).filter(({kind})=>kind!=="timeline"&&kind!=="story").map(({item,kind})=><Link className="crew-explore-tile" key={item.to} to={item.to} onClick={()=>recordExploreEntry(item.to)} data-kind={kind}>
      <div className="crew-explore-art"><ExploreArtwork kind={kind}/></div>
-     <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
+     <span className="crew-explore-text"><strong>{item.title}</strong>{kind==="research"?<LatestBriefingTitle fallback={item.desc}/>:<small>{item.desc}</small>}</span>
      <Arrow direction="right" className="crew-explore-arrow"/>
     </Link>)}
     <Link className="crew-explore-tile crew-explore-souls" data-kind="souls" to="/souls" onClick={()=>trackUsageEvent("explore_entry_click","souls")}>
      <div className="crew-explore-art"><ExploreArtwork kind="souls"/></div>
      <span className="crew-explore-text">
-      <strong>{en?"Koolo Souls · Bring photos to life":"Koolo Souls · 讓照片活過來"}</strong>
-      <small>{en?"Give an object or portrait a personality, then talk to it with AI.":"拍下物品或人物，打造有個性的角色，直接用 AI 語音聊天。"}</small>
+      <strong>{t("sectionExplore.souls.title")}</strong>
+      <small>{t("sectionExplore.souls.desc")}</small>
      </span>
      <Arrow direction="right" className="crew-explore-arrow"/>
     </Link>
@@ -254,7 +258,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
         </div>
        </div>
        <div className="crew-section-people-strip" ref={friendsSliderRef} onScroll={syncFriends} role="group" aria-label={t("sectionHubs.chat.meetFriends")}>
-        {CREW_FRIENDS.slice(0,6).map(friend=>
+        {featuredFriends.map(friend=>
          <Link key={friend.id} className="crew-section-friend" to={"/friend/live?id="+encodeURIComponent(friend.id)}>
           <span className="crew-section-friend-photo" aria-hidden="true">
            <span>{friend.name.charAt(0)}</span>
@@ -262,16 +266,15 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
           </span>
           <span className="crew-section-friend-copy">
            <strong>{friend.name}</strong>
-           <small>{t("sectionHubs.chat.friendTitles."+friend.id,{defaultValue:en?friend.titleEn:friend.titleZh})}</small>
-           <span className="crew-section-friend-bio">{t("sectionHubs.chat.friendBios."+friend.id,{defaultValue:en?friend.bioEn:friend.bioZh})}</span>
-           <span className="crew-section-friend-cta">{t("sectionHubs.chat.chatWith",{name:friend.name,defaultValue:"Chat with "+friend.name})} <Arrow/></span>
+           {friend.id!==returningFriend?.id&&<span className="crew-section-friend-bio">{t("sectionHubs.chat.friendBios."+friend.id,{defaultValue:en?friend.bioEn:friend.bioZh})}</span>}
+           <span className="crew-section-friend-cta">{t(lastChatFriend===friend.id&&resumeTopic?"resume.friend":"sectionHubs.chat.chatWith",{name:friend.name})} <Arrow/></span>
           </span>
          </Link>
         )}
        </div>
       </section>
       <FriendIntentCards/>
-      <div className="crew-section-chat-life"><HomeShortsPreview maxPosts={3} excludeFriendIds={CREW_FRIENDS.slice(0,6).map(friend=>friend.id)}/></div>
+      <div className="crew-section-chat-life"><HomeShortsPreview maxPosts={3} replyMode excludeFriendIds={featuredFriends.map(friend=>friend.id)}/></div>
      </>:
      section==="learn"?
       <>
@@ -292,33 +295,11 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
        <Arrow className="crew-section-arrow"/>
       </Link></>
     }
-    {section!=="learn"&&<section className="crew-section-discover">
+    {section==="me"&&<MyAccountGroups items={x.items}/>}
+    {section==="chat"&&<section className="crew-section-discover">
      <div className="crew-section-row-title"><h2>{t("sectionHubs.more")}</h2></div>
      <div className="crew-section-grid">
-      {section==="me"&&<Link className="crew-section-card" to="/account" aria-label={tCommon("auth.accountAi")}>
-       <span className="crew-section-card-icon"><Icon name="teacher"/></span>
-       <span className="crew-section-card-copy"><strong>{tCommon("auth.account")}</strong><small>{tCommon("auth.intro")}</small></span>
-       <Arrow className="crew-section-arrow"/>
-      </Link>}
-      {section==="me"&&<Link className="crew-section-card" to="/fortune/premium">
-        <span className="crew-section-card-icon"><Icon name="fortune"/></span>
-        <span className="crew-section-card-copy"><strong>{en?"My life readings":"我的人生解析"}</strong><small>{en?"Reopen unlocked free-trial readings in this browser.":"重新閱讀此瀏覽器已解鎖的專屬人生解析。"}</small></span>
-        <Arrow className="crew-section-arrow"/>
-       </Link>}
-       {section==="me"&&<Link className="crew-section-card" to="/fortune/purchases">
-       <span className="crew-section-card-icon"><Icon name="fortune"/></span>
-       <span className="crew-section-card-copy"><strong>{en?"Purchased fortune reports":"已購買命理報告"}</strong><small>{en?"Reopen a paid report on any device after signing in.":"登入後跨裝置重新閱讀已購買的完整報告。"}</small></span>
-       <Arrow className="crew-section-arrow"/>
-      </Link>}
-      {section==="me"&&<Link className="crew-section-card" to="/me/voice-credits">
-       <span className="crew-section-card-icon"><Icon name="mic"/></span>
-       <span className="crew-section-card-copy"><strong>{en?"Voice credits":"我的語音額度"}</strong><small>{en?"Balance and top-up history (payments coming later).":"查看秒數餘額與儲值紀錄，目前尚未開放購買。"}</small></span>
-       <Arrow className="crew-section-arrow"/>
-      </Link>}
-      {section==="me"&&<Link className="crew-section-card" to="/me/orders"><span className="crew-section-card-icon"><Icon name="history"/></span><span className="crew-section-card-copy"><strong>{en?"My orders":"我的訂單"}</strong><small>{en?"Payments not available yet":"目前尚未開放付費"}</small></span><Arrow className="crew-section-arrow"/></Link>}
-      {section==="me"&&<Link className="crew-section-card" to="/purchase-info"><span className="crew-section-card-icon"><Icon name="book"/></span><span className="crew-section-card-copy"><strong>{en?"Purchase information":"購買與付款說明"}</strong><small>{en?"Planned products and support":"商品規劃與客服"}</small></span><Arrow className="crew-section-arrow"/></Link>}
-      {section==="me"&&<KooloAdminEntry english={en}/>}
-      {x.items.filter(item=>(section!=="chat"||item.to!=="/teacher/shorts")&&(section!=="me"||item.to!=="/teacher/reports")).map(item=>
+      {x.items.filter(item=>item.to!=="/teacher/shorts").map(item=>
       <Link className="crew-section-card" to={item.to} key={item.to}>
        <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
        <span className="crew-section-card-copy"><strong>{item.title}</strong><small>{item.desc}</small></span>

@@ -47,7 +47,7 @@ test("unified friend page never mounts recap or delays start waiting for one",()
  assert.match(page,/clearLegacyFriendChats\(\)/);
  assert.match(page,/openingPrompt:languageDirective/);
  assert.match(page,/<FriendUnifiedComposer live=\{live\}/);
- assert.match(page,/<FriendChatHistory turns=\{live.turns\}/);
+ assert.match(page,/<FriendChatHistory turns=\{live\.captionTurns\}/);
  assert.doesNotMatch(page,/VoiceTextRecap|useVoiceTextRecap|voiceTextContext|voiceRecapReady/);
  assert.match(page,/blocked=\{dailyLookupPending\}/);
  assert.ok(Buffer.byteLength(page)<26000);

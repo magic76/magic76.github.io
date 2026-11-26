@@ -1,3 +1,4 @@
+import {teacherCallStatusKey} from "./teacherCallStatus";
 import{Arrow}from"../components/Arrow";
 import {useAuxiliaryLiveSession} from "../live/useAuxiliaryLiveSession";
 import{useSuggestedReplies}from"../live/useSuggestedReplies";
@@ -74,7 +75,7 @@ export function TeacherLivePage(){
     ?conversationOpening(intent,"teacher")
     :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Use one brief welcome if useful, then offer a simple, level-appropriate speaking opportunity in the learner's selected language mode. Start from a useful everyday topic or verified learning goal, not a fictional personal-life anecdote. Give a short model or native-language support when the selected mode and level require it. Invite the learner to express one idea; adapt to what they actually say.";
  const replyHints=useSuggestedReplies({allowed:true,language:s.targetLanguage,nativeLanguage:s.nativeLanguage});
- const live=useLiveSession({pageKey:"teacher",rememberPlaybackVolume:true,learningFeedback:!fortuneKind,title:(fortuneKind?"命理聊聊":isReview?t("learnToday.reviewTitle"):mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system:system+(!isRoleplay&&!fortuneKind?"\n[CURRENT FACTS] Do not claim to have live web access. Only use fresh facts when verified context is explicitly provided. Otherwise explain you cannot verify the current news. Preserve teacher language and practice policies.":""),openingPrompt:languageDirective+"\n"+opening+"\n"+languageDirective,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&(intent==="continue"||s.conversationMode==="natural")?"teacher":fortuneKind?"teacher":undefined,
+ const live=useLiveSession({pageKey:"teacher",rememberPlaybackVolume:true,recoveryCaptionScope:JSON.stringify([profile.id,s.targetLanguage,scene,p.get("lesson"),fortuneKind]),learningFeedback:!fortuneKind,title:(fortuneKind?"命理聊聊":isReview?t("learnToday.reviewTitle"):mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system:system+(!isRoleplay&&!fortuneKind?"\n[CURRENT FACTS] Do not claim to have live web access. Only use fresh facts when verified context is explicitly provided. Otherwise explain you cannot verify the current news. Preserve teacher language and practice policies.":""),openingPrompt:languageDirective+"\n"+opening+"\n"+languageDirective,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&(intent==="continue"||s.conversationMode==="natural")?"teacher":fortuneKind?"teacher":undefined,
   onInputSpeech:replyHints.onInputSpeech,
   onTurnComplete:(_turn,completedTurns)=>{
    if(_turn.hasValidOutput)replyHints.generate(completedTurns);
@@ -177,6 +178,7 @@ export function TeacherLivePage(){
  };
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  useAuxiliaryLiveSession(sessionActive,textMode);
+ const interruptedCaptions=live.state==="error"&&Boolean(live.captionTurns.length||live.input||live.output);
  const openBoard=async()=>{
   if(openingBoard||changingTeacher||endingCourse)return;
   if(sessionActive&&!window.confirm(t("board.entryConfirm")))return;
@@ -211,12 +213,7 @@ export function TeacherLivePage(){
   const alternateHref="/teacher/live?"+alternateParams.toString();
   const awaitingReply=["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase);
  const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?(awaitingReply?"waiting":"listening"):live.state==="connecting"||live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":live.state==="error"&&live.errorKind!=="key"?"error":"idle";
- const voiceStatus=live.state==="error"&&live.errorKind==="key"?t("common:gemini.keyNeeded"):t("live.status."+(live.state==="speaking"?"speaking"
-  :live.state==="listening"?(live.voicePhase==="no-transcript"?"noTranscript":live.voicePhase==="no-reply"?"noReply":live.voicePhase==="processing"?"processing":"listening")
-  :live.state==="connecting"||live.state==="requesting-mic"?"connecting"
-  :live.state==="reporting"?"reporting"
-  :live.state==="error"?"error"
-  :"idle"));
+ const voiceStatus=t(teacherCallStatusKey(live),{name:profile.name});
  const courseTitle=(c:{titleZh:string;titleEn:string})=>zh?c.titleZh:c.titleEn;
  const missionNotes=<>
  {mission&&<div className="notice live-mission"><div><b>{t("live.missionGoal")}</b><p>{(course&&!zh?course.missions.map(m=>m.titleEn):mission.goals).join(" · ")}</p></div></div>}
@@ -248,7 +245,7 @@ export function TeacherLivePage(){
    {!guestStarted&&<TeacherLiveTools live={live} store={s} profile={profile} sessionActive={sessionActive} onPickTeacher={()=>setPicker(true)}/>}
   </div>
   <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
-  {live.turns.length?<FriendChatHistory turns={live.turns} friendName={profile.name} youLabel={t("voice:friendLive.youLabel")} summary={t("voice:friendLive.historySummary")}/>:null}
+  {live.captionTurns.length?<FriendChatHistory turns={live.captionTurns} friendName={profile.name} youLabel={t("voice:friendLive.youLabel")} summary={t("voice:friendLive.historySummary")}/>:null}
  </FriendCallMenu>}
 <div className="live-identity">
    <div className="friend-voice-avatar-anchor"><div className="teacher-presence-shell" data-state={presenceState}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/></div></div>{!textMode&&live.micEnabled&&(live.state==="listening"||live.state==="speaking")&&<FriendVoiceMute volume={live.volume} onVolume={live.setVolume}/>}</div>
@@ -261,14 +258,14 @@ export function TeacherLivePage(){
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?t("live.endingTitleBusy"):t("live.endingTitle")}</b><p>{evaluating?t("live.endingBodyBusy"):t("live.endingBody")}</p>{!evaluating&&(courseResult||evaluationError)&&<button type="button" className="btn secondary small" onClick={()=>void endAndReturn()}>{t("learnToday.backToLearn")}</button>}</div></div>
    :!geminiKey()&&!guestStarted?<GuestLiveStarter role="teacher" learningFeedback={!fortuneKind} textFallback={p.has("fortune")?undefined:{href:alternateHref,name:profile.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
-    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"} name={profile.name}/>
-    :sessionActive?<FriendCallControls live={live} onEnd={endAndReturn}/>:<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
+    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"} name={profile.name} onRetry={()=>setGuestStarted(false)} textFallback={fortuneKind?undefined:alternateHref} onUseText={()=>setGuestStarted(false)}/>
+    :sessionActive?<FriendCallControls live={live} onEnd={endAndReturn}/>:<LiveControls live={live} textFallback={fortuneKind?undefined:alternateHref} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
    {guestStarted&&!sessionActive&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
   {textMode?quickActions:null}
   </div>
-  {sessionActive?<FriendCallCaptions name={profile.name} turns={live.turns} learningFeedback={live.learningFeedback} input={live.input} output={live.output} learningLanguage={s.targetLanguage} nativeLanguage={s.nativeLanguage} speaking={live.state==="speaking"} speakerAvatar={<TeacherAvatar profile={profile} decorative/>} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled} waitingText={t("voice:callCaptions.waitingForTeacher")} headerAccessory={guestStarted&&live.state!=="ended"&&live.state!=="error"?<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>:null} replyExtra={<PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/>}/>:null}
+  {sessionActive||interruptedCaptions?<FriendCallCaptions name={profile.name} turns={live.captionTurns} learningFeedback={live.learningFeedback} input={live.input} output={live.output} learningLanguage={s.targetLanguage} nativeLanguage={s.nativeLanguage} speaking={live.state==="speaking"} speakerAvatar={<TeacherAvatar profile={profile} decorative/>} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled} waitingText={t("voice:callCaptions.waitingForTeacher")} headerAccessory={guestStarted&&live.state!=="ended"&&live.state!=="error"?<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>:null} replyExtra={<PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/>}/>:null}
   </>}
- </section>{!textMode&&<DesktopLivePanel kind="teacher" label={profile.name} language={s.targetLanguage} turns={live.turns} input={live.input} output={live.output} state={live.state} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode}/>}</div>
+ </section>{!textMode&&<DesktopLivePanel kind="teacher" label={profile.name} language={s.targetLanguage} turns={live.captionTurns} input={live.input} output={live.output} state={live.state} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode}/>}</div>
  <TeacherLiveResults report={live.report} course={course} evaluating={evaluating} evaluationError={evaluationError} courseResult={courseResult} onRetry={()=>{courseSavedRef.current=false;setEvaluationError("");setCourseResult(null);setEvaluating(true);setAssessmentRetry(x=>x+1)}}/>
  </main>{picker&&<TeacherProfilePicker onClose={()=>setPicker(false)}/>}</>
 }

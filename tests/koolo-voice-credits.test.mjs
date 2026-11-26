@@ -98,5 +98,5 @@ test("read-only wallet foundation includes shared orders and an idempotent signe
  assert.match(page,/topupsEnabled|尚未開放/);
  assert.doesNotMatch(page,/\/api\/voice\/checkout|onClick=.*topup/);
  assert.match(read("web-spa/src/App.tsx"),/path="\/me\/voice-credits"/);
- assert.match(read("web-spa/src/pages/CrewSectionPage.tsx"),/to="\/me\/voice-credits"/);
+ assert.match(read("web-spa/src/pages/MyAccountGroups.tsx"),/to="\/me\/voice-credits"/);
 });

@@ -1,5 +1,6 @@
 {
   "controls": {
+    "connectingTo": "Conectando com {{name}}…",
     "myTurn": "Minha vez",
     "friendVoice": "Voz do amigo",
     "muteFriend": "Silenciar a voz do amigo",

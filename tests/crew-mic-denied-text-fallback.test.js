@@ -3,11 +3,11 @@ const root=path.join(__dirname,"..");
 const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 const locales=["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"];
 
-test("friend guest can use verified text-first Live without microphone; teacher fallback remains unchanged",()=>{
+test("friend guest can use verified text-first Live without microphone; error controls retain the same-friend text link",()=>{
  const guest=read("web-spa/src/live/GuestLiveStarter.tsx");
  const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  assert.match(friend,/onTextGrant=\{async grant=>/);
- assert.doesNotMatch(friend,/alternateParams|textFallback=/);
+ assert.match(friend,/textFallback=\{textFirst\?undefined:textHref\}/);
  assert.match(guest,/onTextGrant\?:\(grant:GuestTrialGrant\)=>Promise<void>/);
  assert.match(guest,/if\(!textOnly\)\{/);
  assert.match(guest,/await \(textOnly&&onTextGrant\?onTextGrant:onGrant\)\(data\)/);

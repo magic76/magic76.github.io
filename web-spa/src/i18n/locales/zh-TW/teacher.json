@@ -47,12 +47,12 @@
     "shortsUnavailable": "動態暫時無法載入，前往 Koolo Shorts 重試",
     "shortsDisclosure": "Koolo 創作的虛構角色生活故事",
     "shortsDemo": "示範內容",
-    "shortsChatThis": "跟 {{name}} 聊這張"
+    "shortsChatThis": "回 {{name}}"
   },
   "learn": {
     "threeMinute": "3 分鐘口說",
     "threeMinuteDesc": "和 Koolo 朋友用目標語言自然聊三分鐘",
-    "title": "學習",
+    "title": "口說練習",
     "intro": "選一種現在最想練的方式。",
     "method": "學習方式",
     "textbook": "教材陪讀",
@@ -60,7 +60,7 @@
     "vocab": "單字練習",
     "vocabDesc": "記住你不熟的字，在適合的時候帶你複習",
     "course": "情境課程",
-    "courseDesc": "從生活到工作場合，一步步練到能自然開口",
+    "courseDesc": "點餐、問路、面試，選一個場景開始練。",
     "pronunciation": "朗讀糾音",
     "pronunciationDesc": "開口讀一段，老師抓最值得改善的發音",
     "library": "閱讀素材庫",
@@ -68,7 +68,8 @@
     "board": "AI 即時教學板",
     "boardDesc": "語音講解同步變成例句、時間軸與練習題",
     "phrases": "片語學習",
-    "phrasesDesc": "聽、慢速、跟讀、收藏，再用聽力小遊戲複習。"
+    "phrasesDesc": "聽、慢速、跟讀、收藏，再用聽力小遊戲複習。",
+    "targetLabel": "我想練"
   },
   "tutor": {
     "title": "和老師練習",
@@ -194,7 +195,9 @@
     "library": "閱讀素材庫",
     "libraryDesc": "經典短文與朗讀素材",
     "android": "Android 版",
-    "androidDesc": "想在手機上使用完整的 Koolo Teacher，可以直接安裝 Android App。"
+    "androidDesc": "想在手機上使用完整的 Koolo Teacher，可以直接安裝 Android App。",
+    "noReports": "還沒有課後報告",
+    "noReportsDesc": "完成口說練習後，有回饋的對話會列在這裡。"
   },
   "vocabulary": {
     "listenSlow": "慢速聽一次",
@@ -260,7 +263,8 @@
     "base": "可以直接用{{native}}問意思、文法或文化差異；老師用{{native}}解釋，再用{{target}}示範。",
     "beginner": "初階會提供較多母語引導。",
     "advanced": "較高程度以{{target}}練習為主。",
-    "adaptive": "依口說表現自動調整，不必設定語言比例。"
+    "adaptive": "依口說表現自動調整，不必設定語言比例。",
+    "switchHelp": "想不到{{target}}怎麼說時，也可以用{{native}}問老師。"
   },
   "course": {
     "materialNotice": "情境課程目前只有英文教材；若要練習{{language}}，請改用老師對話，老師可用{{native}}協助解釋。",
@@ -298,7 +302,7 @@
     "timelineIntro": "認識同一個人，從 7 歲到 70 歲的六段人生。",
     "timelineAction": "進入人生時光機 →",
     "intentsAria": "今天想做什麼？",
-    "intentsHeading": "今天想做什麼？",
+    "intentsHeading": "不知道聊什麼？",
     "intentsHint": "先選想做的事，再開始聊天",
     "shareTitle": "跟朋友說說今天的事",
     "shareDesc": "自然聊天、不必準備話題",
@@ -463,8 +467,8 @@
     "recordStart": "開始錄音",
     "reviewed": "我複習過了",
     "nextReview": "下次：{{date}}",
-    "emptyTitle": "你的學習卡還是空的",
-    "emptyDesc": "先把上面的「今天 5 句」加入收藏，或從 Zoe 對話裡收藏你想真的學會的句子。",
+    "emptyTitle": "還沒有收藏的單字或片語",
+    "emptyDesc": "先從上面的每日片語挑一句，點「收藏」，下次就能在這裡複習。",
     "dailyNote": "今日 5 句",
     "modelDownloading": "模型下載中",
     "tags": {
@@ -479,6 +483,7 @@
       "learning": "學習中",
       "review": "複習中",
       "familiar": "已熟悉"
-    }
+    },
+    "readFailed": "暫時無法讀取收藏。"
   }
 }

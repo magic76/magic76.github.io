@@ -16,7 +16,7 @@ export function GuestTrialCountdown({secondsLeft}:{secondsLeft:number}){
 }
 
 /** Never suggest trial renewal: the three free destinations work without Live or a Key. */
-export function GuestTrialFinish({expired,failed,name}:{expired:boolean;failed:boolean;name?:string}){
+export function GuestTrialFinish({expired,failed,name,onRetry,textFallback,onUseText}:{expired:boolean;failed:boolean;name?:string;onRetry?:()=>void;textFallback?:string;onUseText?:()=>void}){
  const {t}=useTranslation(["common","voice"]);
  const location=useLocation();
  const friendId=new URLSearchParams(location.search).get("id");
@@ -24,6 +24,13 @@ export function GuestTrialFinish({expired,failed,name}:{expired:boolean;failed:b
  const displayName=name||(isFriend&&friendId?getCrewFriend(friendId).name:t("guestTrial.aiFriend"));
  const textParams=new URLSearchParams(location.search);
  textParams.set("chat","text");
+ if(failed&&onRetry)return <section className="guest-trial-finish is-interrupted" role="region" aria-labelledby="guest-trial-finish-title">
+  <h2 id="guest-trial-finish-title" role="status">{t("guestTrial.interrupted")}</h2>
+  <div className="guest-trial-finish-actions">
+   <button className="btn" type="button" onClick={onRetry}>{t("voice:controls.reconnect")}</button>
+   {textFallback&&<Link className="btn secondary" to={textFallback} onClick={onUseText}>{t("voice:friendLive.useText")}</Link>}
+  </div>
+ </section>;
  return <section className="guest-trial-finish" role="region" aria-labelledby="guest-trial-finish-title">
   <div className="guest-trial-finish-icon" aria-hidden="true">✦</div>
   <h2 id="guest-trial-finish-title">{failed?t("guestTrial.interrupted"):expired?t("guestTrial.completeTitle",{name:displayName}):t("guestTrial.ended")}</h2>

@@ -9,7 +9,7 @@ test("Learn tab has exactly one primary recommendation and compact progress",()=
  assert.match(source,/<LearningFocusCard\/>/);
  assert.match(read("web-spa/src/teacher/LearningFocusCard.tsx"),/<TodayLearningCard compact\/>/);
  assert.match(source,/crew-learn-tool-grid/);
- assert.match(source,/section!=="learn"&&<section className="crew-section-discover"/);
+ assert.match(source,/section==="chat"&&<section className="crew-section-discover"/);
  assert.doesNotMatch(source,/section==="learn"&&<Link className="crew-section-card" to="\/teacher\/board"/);
 });
 
@@ -77,13 +77,13 @@ test("Learn prioritizes teacher speaking and keeps the daily dashboard collapsed
  assert.ok(picker.includes('to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}}'));
  assert.ok(picker.includes('className="crew-learn-teacher-start" to="/teacher/live"'));
  assert.ok(picker.includes('t("tutor.start",{name:teacher.name})'));
- assert.ok(picker.indexOf('className="crew-learn-teacher-start"')<picker.indexOf('className="crew-learn-teacher-pick"'));
+ assert.match(picker,/<div className="crew-learn-teacher-identity">[\s\S]*?teacher\.name[\s\S]*?crew-learn-teacher-pick[\s\S]*?<\/div>\s*<Link className="crew-learn-teacher-start"/);
  assert.match(picker,/crew-learn-teacher-identity/);
  assert.ok(css.includes('.crew-learn-teacher-start{display:flex'));
  assert.ok(css.includes('min-height:48px'));
- assert.ok(css.includes('.crew-learn-teacher-actions{display:grid;grid-template-columns:minmax(0,1fr)'));
+ assert.doesNotMatch(picker,/crew-learn-teacher-actions/);
  assert.match(picker,/crew-learn-teacher-portrait/);
- assert.match(picker,/crew-learn-teacher-action/);
+ assert.doesNotMatch(picker,/className="kicker"/);
  assert.match(tutor,/openTeacherPicker/);
  assert.doesNotMatch(focus,/TeacherAvatar/);
  assert.match(focus,/TodayLearningCard compact/);
