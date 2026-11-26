@@ -25,10 +25,16 @@
       background: transparent !important;
     }
   </style>
+  <style id="koolo-boot-style">
+    .koolo-boot-loader { display:none; position:fixed; inset:0; place-items:center; background:#f7f8f6; pointer-events:none; }
+    #root:empty + .koolo-boot-loader, html.crew-dynamic-route .koolo-boot-loader { display:grid; }
+    .koolo-boot-loader img { display:block; width:160px; height:64px; }
+  </style>
   <title>Crew</title>
 </head>
 <body>
   <div id="root"></div>
+  <div class="koolo-boot-loader" role="status" aria-label="Koolo"><img src="/brand/koolo-loading.svg" width="160" height="64" alt="" /></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
