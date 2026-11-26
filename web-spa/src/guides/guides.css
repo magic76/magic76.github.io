@@ -52,3 +52,25 @@
 .crew-guide-chat-secondary{background:#fff;color:#463878;border:1px solid #887aad}
 .crew-guide-chat-actions a:focus-visible{outline:3px solid #51418f;outline-offset:3px}
 @media(max-width:560px){.crew-guide-chat-actions{display:grid;grid-template-columns:minmax(0,1fr)}}
+
+/* The quiz uses existing guide/card tokens and stays within the mobile viewport. */
+.crew-ed-quiz{scroll-margin-top:72px}
+.crew-ed-quiz-progress{display:flex;align-items:center;gap:12px;color:var(--muted)}
+.crew-ed-quiz-progress progress{width:100%;height:9px;accent-color:var(--accent)}
+.crew-ed-quiz-progress small{flex:none;font-variant-numeric:tabular-nums}
+.crew-ed-quiz-question{display:grid;gap:5px;padding:16px 0;text-align:center}
+.crew-ed-quiz-question strong{font-size:clamp(26px,5vw,34px);line-height:1.25}
+.crew-ed-quiz-question small,.crew-ed-quiz-question span{font-size:13px;color:var(--muted)}
+.crew-ed-quiz-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.crew-ed-quiz-option{min-width:0;min-height:48px;font:inherit;font-size:18px;font-weight:750;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);cursor:pointer}
+.crew-ed-quiz-option:disabled{cursor:default;opacity:1}
+.crew-ed-quiz-option:not(:disabled):hover{border-color:var(--accent)}
+.crew-ed-quiz-option.is-correct{color:#14532d;background:#dcfce7;border-color:#15803d}
+.crew-ed-quiz-option.is-incorrect{color:#991b1b;background:#fee2e2;border-color:#dc2626}
+.crew-ed-quiz button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.crew-ed-quiz-feedback,.crew-ed-quiz-result{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:12px}
+.crew-ed-quiz-feedback p,.crew-ed-quiz-result p{margin:6px 0 0;line-height:1.65}
+.crew-ed-quiz-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.crew-ed-quiz-actions button,.crew-ed-quiz-result button{min-height:44px}
+.crew-ed-quiz-result button{margin-top:12px}
+@media(max-width:560px){.crew-ed-quiz-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.crew-ed-quiz-actions button{min-width:0;padding-inline:8px}}
