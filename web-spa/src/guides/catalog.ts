@@ -33,21 +33,24 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    ],cta:"開始 AI 英文口說練習",target:"/teacher/roles?mode=teacher",secondary:"查看 Gemini Key 設定教學",secondaryTarget:"/guides/gemini-key-for-ai-practice"
   },
   en:{
-   title:"AI English Speaking Practice: Daily 5-Minute Routine | Koolo Teacher",
-   description:"Learn a repeatable AI English speaking routine with a ready-to-use prompt, feedback method, and a clear path to speaking practice in Koolo Teacher.",
-   label:"AI ENGLISH SPEAKING",headline:"Practice spoken English with AI, five minutes at a time",
-   intro:"You do not need perfect grammar before your first conversation. Start with something you actually want to say, finish the thought, and ask for one useful correction. Koolo Teacher offers guided tutoring and natural conversation with Koolo Friends.",
+   title:"English Conversation Practice with an AI Tutor | Koolo",
+   description:"Practice English conversation with an AI tutor in your browser. Try a free voice allowance, follow a five-minute routine and get feedback. No API key needed to start.",
+   label:"AI ENGLISH SPEAKING",headline:"English conversation practice with an AI tutor",
+   intro:"Practice English by speaking aloud, listening to a reply and answering a follow-up question. Koolo works in your browser with a daily free AI voice allowance and no API key required to start. Choose an AI tutor for feedback or a Koolo Friend for relaxed conversation. You do not need perfect grammar before you begin.",
    bullets:["Talk about real situations instead of memorizing isolated phrases.","Ask for one correction per turn so the conversation keeps moving.","Save a useful replacement sentence for your next practice."],
    sections:[
     {heading:"A five-minute speaking routine",paragraphs:["Spend the first minute describing your day. Use the next three minutes for a follow-up conversation about that topic. In the final minute, repeat a sentence using feedback from your tutor.","Consistency matters more than making every sentence flawless."]},
     {heading:"What should I say to start?",paragraphs:["Give the AI a topic, your comfort level, and instructions for feedback. This is more productive than simply saying 'teach me English'."],sample:{label:"Copy this starting prompt",text:"I want to practice talking about my weekend. Please keep it casual, ask one question at a time, and correct only the biggest mistake.",note:"Choose Koolo Friends for a relaxed conversation or Koolo Teacher for structured feedback."}},
+    {heading:"Try a conversation before you open the tutor",paragraphs:["Read the question aloud: What did you do last weekend? Answer in two or three sentences, including one detail and one reason. Then ask the other person a question. For example, start with I went to a park because I wanted some fresh air. How about you?","If you get stuck, use a simple repair phrase: Could you repeat that more slowly? In a real practice session, listen to the AI response before answering instead of memorizing a script."],sample:{label:"A beginner-friendly tutoring prompt",text:"Ask me about my weekend. Wait for my answer, give me one more natural way to say it, and ask me a follow-up question.",note:"Open the AI tutor to try this prompt with your microphone, or start with text if you cannot speak aloud."}},
+    {heading:"Practice listening, pronunciation and speaking together",paragraphs:["Listen to one short sentence, repeat it at a comfortable pace, then answer in your own words. Ask for one difficult word or phrase to be repeated. Feedback is a practice aid, not a certified pronunciation assessment."],sample:{label:"A listening and speaking prompt",text:"Say one short sentence about travel. Let me repeat it, then ask me a simple question about it. Please suggest one improvement at a time.",note:"Choose a tutor for structured practice; use a friend if you want a less formal exchange."}},
     {heading:"How do I measure progress?",paragraphs:["Repeat the same everyday topic once a week. Notice whether you pause less, finish more complete ideas, and ask follow-up questions naturally.","Koolo offers a daily free AI voice allowance without requiring a Gemini API key upfront. Check the current allowance and sign-in options on the site; using your own key is optional."]}
    ],
    faq:[
     {question:"Can I practice English speaking without installing an app or getting an API key?",answer:"Koolo is a browser-based AI conversation and language-learning website. Choose a tutor or a friend and use the daily free text or voice allowance. Voice requires microphone permission; check current limits in the product."},
     {question:"Can absolute beginners practice speaking with AI?",answer:"Yes. Start by understanding the situation in your native language, then practice short English sentences."},
+    {question:"Can I practice listening and speaking in the same AI conversation?",answer:"Yes. In a voice session, listen to the reply, repeat a useful phrase and answer a follow-up question. Ask the tutor for a shorter or simpler sentence if needed."},
     {question:"Do I need to practice for an hour?",answer:"No. Start with a focused five-minute habit and extend it when that becomes comfortable."}
-   ],cta:"Start speaking practice",target:"/teacher/roles?mode=teacher",secondary:"Set up a Gemini API key",secondaryTarget:"/guides/gemini-key-for-ai-practice"
+   ],cta:"Practice with an AI tutor",target:"/teacher/roles?mode=teacher",secondary:"Practice pronunciation and listening",secondaryTarget:"/guides/english-pronunciation"
   }
  },
  "ai-conversation-partner":{
