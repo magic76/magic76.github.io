@@ -180,7 +180,7 @@ test("guest trial funnel events and duration details are privacy-allowlisted",as
  assert.match(starter,/guest_trial_token_issued/);
  assert.match(hook,/recordGuestConnect\(\)/);
  assert.match(hook,/recordGuestEnd\(\)/);
- assert.match(dash,/免費體驗（5 分鐘）/);
+ assert.match(dash,/免費語音體驗/);
  assert.match(dash,/eventRatio\(/);
  assert.match(hook,/from_180_to_300s/);
  assert.match(dash,/3–5 分鐘/);
@@ -297,16 +297,22 @@ test("platform labels are strictly allowlisted; legacy clients remain compatible
 });
 
 
-test("Koolo production analytics and Magic diagnostic contract",()=>{
+test("Koolo production analytics keeps historical rows but retires Magic diagnostics",()=>{
  const client=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
  const report=fs.readFileSync(path.join(root,"functions/api/usage/report.ts"),"utf8");
  const dashboard=fs.readFileSync(path.join(root,"web-spa/src/analytics/UsageDashboardPage.tsx"),"utf8");
  assert.match(client,/\["www\.3sssi\.com","3sssi\.com","koolo\.app"\]\.includes\(location\.hostname\)/);
- assert.match(report,/COUNT\(DISTINCT blob4\) AS users FROM crew_usage WHERE /);
- assert.match(report,/magicDiagnostics:\{entrySessions:/);
- assert.match(dashboard,/Magic 事件診斷/);
- assert.match(dashboard,/unique\("magic_enter"\)/);
- assert.match(dashboard,/magicDiagnostics\.entrySessions/);
+ assert.doesNotMatch(report,/magicDiagnostics|magicSessions|magic_voice_connected/);
+ assert.doesNotMatch(dashboard,/Magic 事件診斷|Crew Magic|magicDiagnostics/);
+ assert.match(dashboard,/<h1>Koolo Usage<\/h1>/);
+ assert.match(dashboard,/功能使用排行榜/);
+ assert.match(dashboard,/<summary>進階開發工具<\/summary>/);
+ assert.match(dashboard,/<summary>進階分析/);
+ const definitions=fs.readFileSync(path.join(root,"web-spa/src/analytics/usageDashboardDefinitions.ts"),"utf8");
+ const current=definitions.slice(definitions.indexOf("export const categories"),definitions.indexOf("export const games"));
+ assert.doesNotMatch(current,/magic_|home_live_bubble_|id:"circle"/);
+ const exporter=fs.readFileSync(path.join(root,"web-spa/src/analytics/usageExport.ts"),"utf8");
+ assert.match(exporter,/"magic_enter"/);
 });
 
 test("home chat analytics accept only fixed opener and stage codes",async()=>{

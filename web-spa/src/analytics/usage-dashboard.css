@@ -111,3 +111,15 @@
  .usage-dashboard .hero{padding-block:8px 10px}
  .usage-dashboard .hero h1{margin:6px 0 4px}
 }
+
+/* Usage is an operating dashboard; secondary diagnostics stay collapsed. */
+.usage-dashboard .hero{padding-block:12px 8px}
+.usage-dashboard .usage-toolbar{margin-top:12px}
+.usage-dashboard .usage-toolbar>button,.usage-dashboard .usage-toolbar .usage-jump,.usage-filter button{min-height:44px;min-width:44px;box-sizing:border-box}
+.usage-dashboard .usage-toolbar .usage-jump{display:inline-flex;align-items:center;justify-content:center}
+.usage-fold>summary{cursor:pointer;font-weight:650;min-height:44px;line-height:1.5;padding-block:10px;box-sizing:border-box}
+.usage-fold>summary:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.usage-fold>.section{margin-top:12px}
+.usage-inline-fold{margin-top:12px;border-top:1px solid var(--border,#e5e7ef)}
+#usage-chat,#usage-learning,#usage-ranking,#free-quota{scroll-margin-top:80px}
+@media(max-width:500px){.usage-dashboard .usage-toolbar{gap:8px}.usage-dashboard .usage-toolbar .usage-jump{padding:8px 12px;font-size:13px}.usage-dashboard .usage-toolbar>button{padding:8px 12px}.usage-feature>span{min-width:0;overflow-wrap:anywhere}}

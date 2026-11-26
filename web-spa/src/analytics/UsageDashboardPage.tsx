@@ -9,7 +9,7 @@ import "./usage-dashboard.css";
 import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
 import {RetentionUsagePanel,type RetentionSummary} from "./RetentionUsagePanel";
 import {SoulsUsagePanel} from "./SoulsUsagePanel";
-import {names,categories,games,eventRatio,chatStart,chatSpeech,chatReply,chatEffective,type Category} from "./usageDashboardDefinitions";
+import {categories,games,eventRatio,chatStart,chatSpeech,chatReply,chatEffective,type Category} from "./usageDashboardDefinitions";
 import {UsageExportControls} from "./UsageExportControls";
 import {num,total,totalMany,type Row,type EventUsers} from "./usageExport";
 
@@ -17,7 +17,6 @@ type Report={
  days:number;activeUsers:number;chatUsers:number;platformBreakdown?:PlatformUsage[];
  previousActiveUsers:number;previousChatUsers:number;
  eventUsers:EventUsers[];rows:Row[];generatedAt:string;
- magicDiagnostics?:{entrySessions:number};
  journey?:JourneyCounts;retention?:RetentionSummary
 };
 export function UsageDashboardPage(){
@@ -49,7 +48,6 @@ return Array.from({length:days},(_,i)=>{
 });
  },[data,days,category]);
  const max=Math.max(1,...bars.map(item=>item.count));
- const statEvents=categories[0].events;
  const stats=[
 {name:"老師",start:"teacher_conversation_start",spoke:"teacher_user_spoke",reply:"teacher_ai_replied",success:"teacher_conversation"},
 {name:"朋友",start:"friend_conversation_start",spoke:"friend_user_spoke",reply:"friend_ai_replied",success:"friend_conversation"},
@@ -57,46 +55,27 @@ return Array.from({length:days},(_,i)=>{
  ];
  return <main className="usage-dashboard">
 <section className="hero">
- <span className="kicker hero-context">CREW / PRIVATE ANALYTICS</span>
- <h1>Crew Usage</h1>
- <p>看有多少瀏覽器真正互動、完成對話，以及哪些功能值得持續投入。</p>
+ <span className="kicker hero-context">KOOLO / PRIVATE ANALYTICS</span>
+ <h1>Koolo Usage</h1>
+ <p>追蹤成長、聊天、學習、命理與免費用量。</p>
  <div className="usage-toolbar" role="group" aria-label="統計期間">
   <button type="button" aria-pressed={days===7} onClick={()=>setDays(7)}>最近 7 天</button>
   <button type="button" aria-pressed={days===30} onClick={()=>setDays(30)}>最近 30 天</button>
+  <a href="#usage-chat" className="usage-jump">聊天</a>
+  <a href="#usage-learning" className="usage-jump">學習</a>
   <a href="#fortune-usage" className="usage-jump">命理成效</a>
   <a href="#free-quota" className="usage-jump">免費額度管理</a>
-  <a href="#guest-trial-stats" className="usage-jump">免費試用統計</a>
   <a href="/usage/feedback" className="usage-jump">意見回饋管理</a>
-  {data&&<a href="/sandbox-lab" className="usage-jump">即時互動沙盒</a>}
-  <a href="/fortune/report-lab" className="usage-jump usage-report-lab-link" aria-label="開啟專屬命書私人驗收台">專屬命書驗收</a>
-  <a href="https://koolo.app/admin/payment-test" className="usage-jump">正式金流驗證</a>
   <UsageExportControls data={data} days={days} category={selected} bars={bars} categoryEventTotal={totalMany(rows,selected.events)} disabled={loading||!!error||!data||data.days!==days}/>
   <span className="usage-source">資料來源：Cloudflare Web 事件（Android Firebase 另計）</span>
  </div>
 </section>
-<FreeQuotaPanel/>
 {loading?<section className="panel section" role="status">正在讀取匿名使用事件…</section>:
  error?<section className="panel section" role="alert"><strong>無法讀取使用資料</strong><p>{error}</p><p className="meta">請確認 Cloudflare Access、Analytics Engine Binding 與唯讀 Token，參考 docs/CREW_USAGE.md。</p></section>:
  data&&<>
   <UsageOverviewCards data={data} rows={rows}/>
-  <FortuneUsagePanel rows={rows} eventUsers={data.eventUsers}/>
-  <RetentionUsagePanel retention={data.retention} returned={data.journey?.returned||0} engagedReturned={unique("user_returned_engaged")} days={days}/>
   <AccountStatsPanel/>
-  <MembershipDiagnosticsPanel/>
-  <PlatformUsagePanel rows={data.platformBreakdown}/>
-  <UsageJourneySection days={days} journey={data.journey} rows={rows}/>
-  <SoulsUsagePanel rows={rows} unique={unique}/>
-  <section className="panel section" aria-label="Magic 事件診斷">
-   <div className="section-head"><h2>Magic 事件診斷</h2><small>同一統計期間 · 不含個人識別資料</small></div>
-   <div className="usage-feature-list">
-    <div className="usage-feature"><span>頁面進入事件（加權）</span><strong>{num(total(rows,"magic_enter"))} 次</strong></div>
-    <div className="usage-feature"><span>進入過的不同瀏覽器</span><strong>{num(unique("magic_enter"))} 個</strong></div>
-    <div className="usage-feature"><span>進入過的不同工作階段</span><strong>{data.magicDiagnostics?num(data.magicDiagnostics.entrySessions)+" 個":"—"}</strong></div>
-    <div className="usage-feature"><span>施法／語音連線成功</span><strong>{num(total(rows,"magic_spell"))} / {num(total(rows,"magic_voice_connected"))} 次</strong></div>
-    <div className="usage-feature"><span>3D 降級</span><strong>{num(total(rows,"magic_3d_fallback"))} 次</strong></div>
-   </div>
-   <p className="usage-explain">進入事件在 Magic 頁面載入時送出，不代表已開始遊玩。次數使用 Analytics Engine 取樣加權；不同瀏覽器與工作階段是去重計數，不能直接視為真人數。正式站自動化瀏覽也可能計入。</p>
-  </section>
+  <RetentionUsagePanel retention={data.retention} returned={data.journey?.returned||0} engagedReturned={unique("user_returned_engaged")} days={days}/>
   <section className="panel section">
    <div className="section-head"><h2>每天實際發生了什麼</h2><small>台灣日期 · 下方統計的是事件次數</small></div>
    <div className="usage-filter" role="group" aria-label="篩選產品類別">
@@ -111,49 +90,8 @@ return Array.from({length:days},(_,i)=>{
    </div>
    <p className="usage-explain">目前篩選：{selected.label} · {num(totalMany(rows,selected.events))} 次事件。各階段的事件可能來自同一個瀏覽器，不應視為不同使用者。</p>
   </section>
-  <section id="guest-trial-stats" className="panel section">
-   <div className="section-head"><h2>免費體驗（5 分鐘）</h2><small>匿名使用率統計 · 老師／朋友</small></div>
-   <div className="usage-guest-overview" aria-label="免費試用成效摘要">
-    {[
-     {label:"看到可用入口",event:"guest_trial_entry_view",hint:"約 "+num(unique("guest_trial_entry_view"))+" 個瀏覽器"},
-     {label:"按下開始",event:"guest_trial_start_click",hint:"相對入口曝光 "+eventRatio(total(rows,"guest_trial_start_click"),total(rows,"guest_trial_entry_view"))},
-     {label:"取得語音憑證",event:"guest_trial_token_issued",hint:"相對開始次數 "+eventRatio(total(rows,"guest_trial_token_issued"),total(rows,"guest_trial_start_click"))},
-     {label:"成功語音連線",event:"guest_trial_connected",hint:"相對發證次數 "+eventRatio(total(rows,"guest_trial_connected"),total(rows,"guest_trial_token_issued"))}
-    ].map(x=><article key={x.event} className="usage-guest-metric"><small>{x.label}</small><strong>{num(total(rows,x.event))}</strong><span>{x.hint}</span></article>)}
-   </div>
-   <p className="usage-explain">以上百分比只比較事件總次數，不是同一批訪客的精準轉換率；瀏覽器停用統計、重試或遺失事件都會影響結果。</p>
-   <div className="usage-funnel">
-    {[
-     {label:"看見免費試用",event:"guest_trial_entry_view"},
-     {label:"按下開始",event:"guest_trial_start_click"},
-     {label:"成功取得短效憑證",event:"guest_trial_token_issued"},
-     {label:"真正連上語音",event:"guest_trial_connected"},
-     {label:"對話結束",event:"guest_trial_ended"}
-    ].map((step,i)=>{
-     const value=total(rows,step.event),base=Math.max(1,total(rows,"guest_trial_entry_view"));
-     return <div key={step.event} className="usage-funnel-step"><div><span>{i+1}. {step.label}</span><strong>{num(value)} 次</strong></div>
-      <div className="usage-funnel-track"><span style={{width:Math.min(100,value/base*100)+"%"}}/></div>
-     </div>;
-    })}
-   </div>
-   <div className="usage-feature-list">
-    {(["teacher","friend"] as const).map(role=><div className="usage-feature" key={role}>
-     <span>{role==="teacher"?"AI 老師":"AI 朋友"}</span>
-     <strong>曝光 {num(total(rows,"guest_trial_entry_view",role))} · 點擊 {num(total(rows,"guest_trial_start_click",role))} · 發證 {num(total(rows,"guest_trial_token_issued",role))} · 連線 {num(total(rows,"guest_trial_connected",role))}</strong>
-    </div>)}
-    <div className="usage-feature"><span>試用入口不可用</span><strong>{num(total(rows,"guest_trial_unavailable"))} 次</strong></div>
-    <div className="usage-feature"><span>憑證失敗</span><strong>{num(total(rows,"guest_trial_token_failed"))} 次</strong></div>
-    <div className="usage-feature"><span>連線失敗</span><strong>{num(total(rows,"guest_trial_connect_failed"))} 次</strong></div>
-    <div className="usage-feature"><span>麥克風未授權</span><strong>{num(total(rows,"guest_trial_mic_denied"))} 次</strong></div>
-    <div className="usage-feature"><span>其他準備失敗</span><strong>{num(total(rows,"guest_trial_setup_failed"))} 次</strong></div>
-    <div className="usage-feature"><span>實際對話時長</span>
-     <strong>不到 15 秒 {num(total(rows,"guest_trial_ended","under_15s"))} · 15–45 秒 {num(total(rows,"guest_trial_ended","from_15_to_45s"))} · 45–60 秒 {num(total(rows,"guest_trial_ended","from_45_to_60s"))} · 1–2 分鐘 {num(total(rows,"guest_trial_ended","from_60_to_120s"))} · 2–3 分鐘 {num(total(rows,"guest_trial_ended","from_120_to_180s"))} · 3–5 分鐘 {num(total(rows,"guest_trial_ended","from_180_to_300s"))}</strong>
-    </div>
-   </div>
-   <p className="usage-explain">這是尊重隱私設定的瀏覽器端事件，並非 Worker 實際發證總數。若停用統計、頁面突然關閉或多次重試，前後階段數量可能不一致；無法拿來限制每位使用者的試用次數。登入與每人計數留待第三階段。</p>
-  </section>
-  <section className="panel section">
-   <div className="section-head"><h2>聊天互動漏斗</h2><small>事件次數 · 非同一批人的精準轉換率</small></div>
+  <section id="usage-chat" className="panel section">
+   <div className="section-head"><h2>AI 聊天</h2><small>事件次數 · 非同一批人的精準轉換率</small></div>
    <div className="usage-funnel">
     {[
      {label:"成功建立語音連線",events:chatStart},
@@ -169,100 +107,114 @@ return Array.from({length:days},(_,i)=>{
      </div>;
     })}
    </div>
-   <p className="usage-explain">漏斗並非使用者追蹤：分開統計事件，再比較數量；不同日期、重連或多角色可能影響前後段關係。新事件從更新後才有資料。</p>
+   <p className="usage-explain">漏斗並非使用者追蹤：分開統計事件，再比較數量；不同日期、重連或多角色可能影響前後段關係。主要反映語音 Live 與已追蹤對話；一般文字聊天多數未計入。</p>
    <div className="usage-feature-list usage-role-list">
     {stats.map(item=><div className="usage-feature" key={item.name}><span><strong>{item.name}</strong><small>有效對話去重瀏覽器 {num(unique(item.success))}</small></span>
      <span>連線 {num(total(rows,item.start))} · 發話 {num(total(rows,item.spoke))} · 回覆 {num(total(rows,item.reply))} · <b>有效 {num(total(rows,item.success))}</b></span></div>)}
    </div>
   </section>
-  <div className="usage-panels">
-   <section className="panel section">
-    <div className="section-head"><h2>Timeline</h2><small>人生角色互動</small></div>
-    <div className="usage-feature-list">
-     {[
-      {label:"瀏覽人生",event:"timeline_view"},
-      {label:"連線開始聊天",event:"timeline_conversation_start"},
-      {label:"真正完成雙向對話",event:"timeline_conversation"}
-     ].map(x=><div className="usage-feature" key={x.event}><span>{x.label}</span><strong>{num(total(rows,x.event))} 次</strong></div>)}
-    </div>
-    <p className="usage-explain">人物探索分布：{["mira","ethan","hana"].map(id=>id.toUpperCase()+" "+num(total(rows,"timeline_view",id))).join(" · ")}</p>
-   </section>
-   <section className="panel section">
-    <div className="section-head"><h2>Crew Shorts</h2><small>動態有沒有帶動聊天</small></div>
-    <div className="usage-feature-list">
-     {[
-      {label:"瀏覽 Shorts",event:"shorts_view"},
-      {label:"點擊聊天入口",event:"shorts_chat_click"},
-      {label:"真正聊成功",event:"shorts_conversation"}
-     ].map(x=><div className="usage-feature" key={x.event}><span>{x.label}</span><strong>{num(total(rows,x.event))} 次</strong></div>)}
-    </div>
-    <p className="usage-explain">此處為各步驟總次數，不等於同一篇動態的逐人轉換率。</p>
-   </section>
-  </div>
-  <div className="usage-panels">
-   <section className="panel section">
-    <div className="section-head"><h2>Crew Town 3D</h2><small>使用深度與 3D 相容性</small></div>
-    <div className="usage-feature-list">
-     {[["進入小鎮","town_enter"],["選擇角色或街區","town_interaction"],["轉入 Live 聊天","town_chat_click"],["3D 自動降級","town_3d_fallback"]].map(([label,event])=><div className="usage-feature" key={event}><span>{label}</span><strong>{num(total(rows,event))} 次</strong></div>)}
-    </div>
-    <p className="usage-explain">3D 降級含不支援與繪製失敗，手動切換另計；轉入聊天不代表已成功建立連線。</p>
-   </section>
-   <section className="panel section">
-    <div className="section-head"><h2>Crew Magic</h2><small>施法、互動與 Live</small></div>
-    <div className="usage-feature-list">
-     {[["進入 Magic","magic_enter"],["施法成功","magic_spell"],["回答魔法挑戰","magic_challenge_answer"],["互動卡選擇","magic_panel_choice"],["語音連線成功","magic_voice_connected"],["語音連線失敗","magic_voice_failed"],["3D 自動降級","magic_3d_fallback"],["重新創造世界","magic_world_reset"]].map(([label,event])=><div className="usage-feature" key={event}><span>{label}</span><strong>{num(total(rows,event))} 次</strong></div>)}
-    </div>
-   </section>
-  </div>
-  <div className="usage-panels">
-   <section className="panel section">
-    <div className="section-head"><h2>Crew Mate</h2><small>交代到完成</small></div>
-    <div className="usage-feature-list">
-     {[["進入 Mate","mate_open"],["整理交代成功","mate_briefing_ready"],["交接連線成功","mate_handoff_started"],["任務完成","mate_handoff_completed"],["交接連線失敗","mate_handoff_failed"]].map(([label,event])=><div className="usage-feature" key={event}><span>{label}</span><strong>{num(total(rows,event))} 次</strong></div>)}
-    </div>
-   </section>
-   <section className="panel section">
-    <div className="section-head"><h2>Briefing / 交流圈</h2><small>閱讀與有效參與</small></div>
-    <div className="usage-feature-list">
-     {[["研究文章開啟","research_article_open"],["研究收藏","research_article_saved"],["研究已讀完","research_article_completed"],["研究原始來源","research_source_open"],["交流圈留言展開","circle_thread_open"],["交流圈貼文發布","circle_post_published"],["交流圈留言發送","circle_comment_posted"]].map(([label,event])=><div className="usage-feature" key={event}><span>{label}</span><strong>{num(total(rows,event))} 次</strong></div>)}
-    </div>
-    <p className="usage-explain">交流圈同時含示範與正式操作；示範互動不代表實際發佈到群組。</p>
-   </section>
-  </div>
-  <section className="panel section">
-   <div className="section-head"><h2>首頁與探索入口</h2><small>入口點擊次數，不等於實際有效使用</small></div>
+  <section id="usage-learning" className="panel section">
+   <div className="section-head"><h2>語言學習</h2><small>已追蹤的學習事件</small></div>
    <div className="usage-feature-list">
-    {["learn","story","fortune","timeline","play","briefing","town","magic","mate","shorts","circle"].map(detail=><div className="usage-feature" key={detail}><span>{detail}</span><strong>首頁 {num(total(rows,"home_entry_click",detail))} · 探索 {num(total(rows,"explore_entry_click",detail))}</strong></div>)}
+    {[
+     ["老師有效對話","teacher_conversation"],["單字作答","vocabulary_practice"],
+     ["教材陪讀開啟","textbook_open"],["教材語音開始","textbook_study"],
+     ["SEO 教材完成","seo_quiz_completed"]
+    ].map(([label,event])=><div className="usage-feature" key={event}><span>{label}<small>{num(unique(event))} 個瀏覽器</small></span><strong>{num(total(rows,event))} 次</strong></div>)}
    </div>
+   <p className="usage-explain">片語、情境課程與互動白板尚未有獨立統計，不以零次代替缺少的資料。</p>
   </section>
-  <section className="panel section">
-   <div className="section-head"><h2>Crew Games</h2><small>開啟、實際開始、完成局數</small></div>
+  <FortuneUsagePanel rows={rows} eventUsers={data.eventUsers}/>
+  <section className="panel section" id="usage-ranking">
+   <div className="section-head"><h2>功能使用排行榜</h2><small>依代表性事件次數排序</small></div>
    <div className="usage-feature-list">
-    {games.map(item=><div className="usage-feature" key={item.id}>
-     <span>{item.label}</span><strong>開啟 {num(total(rows,"game_open",item.id))} · 開始 {num(total(rows,"game_started",item.id))} · 完成 {num(total(rows,"game_completed",item.id))}</strong>
+    {[
+     ["AI 老師","有效對話","teacher_conversation"],["AI 朋友","有效對話","friend_conversation"],
+     ["語言學習","單字作答","vocabulary_practice"],["教材","語音開始","textbook_study"],
+     ["命理","命盤計算","fortune_calculated"],["遊戲","完成局數","game_completed"],
+     ["故事","閱讀","story_reading"],["Timeline","有效對話","timeline_conversation"],
+     ["Shorts","有效聊天","shorts_conversation"],["Souls","有效對話","souls_conversation"],
+     ["研究情報","文章開啟","research_article_open"],["Town 3D","互動","town_interaction"],
+     ["Mate","完成任務","mate_handoff_completed"]
+    ].map(([label,metric,event])=>({label,metric,event,count:total(rows,event)})).sort((a,b)=>b.count-a.count).map(item=><div className="usage-feature" key={item.event}><span>{item.label}<small>{item.metric} · 約 {num(unique(item.event))} 個瀏覽器</small></span><strong>{num(item.count)} 次</strong></div>)}
+   </div>
+   <p className="usage-explain">不同功能的代表事件不等價，僅供使用頻率參考；不是獨立使用者排名或完整的功能互動總數。</p>
+  </section>
+  <section id="guest-trial-stats" className="panel section">
+   <div className="section-head"><h2>免費語音體驗</h2><small>匿名語音事件 · 老師／朋友</small></div>
+   <div className="usage-guest-overview" aria-label="免費試用成效摘要">
+    {[
+     {label:"看到可用入口",event:"guest_trial_entry_view",hint:"約 "+num(unique("guest_trial_entry_view"))+" 個瀏覽器"},
+     {label:"按下開始",event:"guest_trial_start_click",hint:"相對入口曝光 "+eventRatio(total(rows,"guest_trial_start_click"),total(rows,"guest_trial_entry_view"))},
+     {label:"取得語音憑證",event:"guest_trial_token_issued",hint:"相對開始次數 "+eventRatio(total(rows,"guest_trial_token_issued"),total(rows,"guest_trial_start_click"))},
+     {label:"成功語音連線",event:"guest_trial_connected",hint:"相對發證次數 "+eventRatio(total(rows,"guest_trial_connected"),total(rows,"guest_trial_token_issued"))}
+    ].map(x=><article key={x.event} className="usage-guest-metric"><small>{x.label}</small><strong>{num(total(rows,x.event))}</strong><span>{x.hint}</span></article>)}
+   </div>
+   <p className="usage-explain">以上百分比只比較事件總次數，不是同一批訪客的精準轉換率；瀏覽器停用統計、重試或遺失事件都會影響結果。</p>
+   <details className="usage-fold usage-inline-fold"><summary>角色、失敗原因與對話時長</summary>
+   <div className="usage-feature-list">
+    {(["teacher","friend"] as const).map(role=><div className="usage-feature" key={role}>
+     <span>{role==="teacher"?"AI 老師":"AI 朋友"}</span>
+     <strong>曝光 {num(total(rows,"guest_trial_entry_view",role))} · 點擊 {num(total(rows,"guest_trial_start_click",role))} · 發證 {num(total(rows,"guest_trial_token_issued",role))} · 連線 {num(total(rows,"guest_trial_connected",role))}</strong>
     </div>)}
+    <div className="usage-feature"><span>試用入口不可用</span><strong>{num(total(rows,"guest_trial_unavailable"))} 次</strong></div>
+    <div className="usage-feature"><span>憑證失敗</span><strong>{num(total(rows,"guest_trial_token_failed"))} 次</strong></div>
+    <div className="usage-feature"><span>連線失敗</span><strong>{num(total(rows,"guest_trial_connect_failed"))} 次</strong></div>
+    <div className="usage-feature"><span>麥克風未授權</span><strong>{num(total(rows,"guest_trial_mic_denied"))} 次</strong></div>
+    <div className="usage-feature"><span>其他準備失敗</span><strong>{num(total(rows,"guest_trial_setup_failed"))} 次</strong></div>
+    <div className="usage-feature"><span>對話結束</span><strong>{num(total(rows,"guest_trial_ended"))} 次</strong></div>
+    <div className="usage-feature"><span>實際對話時長</span>
+     <strong>不到 15 秒 {num(total(rows,"guest_trial_ended","under_15s"))} · 15–45 秒 {num(total(rows,"guest_trial_ended","from_15_to_45s"))} · 45–60 秒 {num(total(rows,"guest_trial_ended","from_45_to_60s"))} · 1–2 分鐘 {num(total(rows,"guest_trial_ended","from_60_to_120s"))} · 2–3 分鐘 {num(total(rows,"guest_trial_ended","from_120_to_180s"))} · 3–5 分鐘 {num(total(rows,"guest_trial_ended","from_180_to_300s"))}</strong>
+    </div>
    </div>
+   </details>
+   <p className="usage-explain">這是尊重隱私設定的瀏覽器端事件，並非 Worker 實際發證總數。若停用統計、頁面突然關閉或多次重試，前後階段數量可能不一致；無法拿來限制每位使用者的試用次數。現行額度以免費額度管理的伺服器資料為準。</p>
   </section>
-  <div className="usage-panels">
+  <details className="usage-fold panel section"><summary>進階分析（平台、旅程、遊戲與入口）</summary>
+   <PlatformUsagePanel rows={data.platformBreakdown}/>
+   <UsageJourneySection days={days} journey={data.journey} rows={rows}/>
+   <SoulsUsagePanel rows={rows} unique={unique}/>
    <section className="panel section">
-    <div className="section-head"><h2>其他有效功能</h2><small>去重瀏覽器為整段期間計算</small></div>
+    <div className="section-head"><h2>Shorts 聊天轉換</h2></div>
     <div className="usage-feature-list">
-     {statEvents.filter(name=>!chatEffective.includes(name)&&name!=="game_completed").map(event=><div className="usage-feature" key={event}>
-      <span>{names[event]||event}<small>{num(unique(event))} 個瀏覽器</small></span><strong>{num(total(rows,event))} 次</strong>
-     </div>)}
+     {[
+      ["瀏覽 Shorts","shorts_view"],["點擊聊天入口","shorts_chat_click"],["有效聊天","shorts_conversation"]
+     ].map(([label,event])=><div className="usage-feature" key={event}><span>{label}</span><strong>{num(total(rows,event))} 次</strong></div>)}
+    </div>
+    <p className="usage-explain">各階段事件總數，非逐人轉換率。</p>
+   </section>
+   <section className="panel section">
+    <div className="section-head"><h2>首頁與探索入口</h2><small>入口點擊，不等於有效使用</small></div>
+    <div className="usage-feature-list">
+     {["learn","story","fortune","timeline","play","briefing","souls","shorts"].map(detail=><div className="usage-feature" key={detail}><span>{detail}</span><strong>首頁 {num(total(rows,"home_entry_click",detail))} · 探索 {num(total(rows,"explore_entry_click",detail))}</strong></div>)}
     </div>
    </section>
    <section className="panel section">
-    <div className="section-head"><h2>進站、回訪與 API Key</h2></div>
+    <div className="section-head"><h2>遊戲明細</h2><small>依完成局數排序</small></div>
     <div className="usage-feature-list">
-     {["visitor_first_seen","user_returned","gemini_key_missing","gemini_key_verified","textbook_open"].map(event=><div className="usage-feature" key={event}>
-      <span>{names[event]}</span><strong>{num(total(rows,event))} 次</strong>
-     </div>)}
+     {[...games].sort((a,b)=>total(rows,"game_completed",b.id)-total(rows,"game_completed",a.id)).map(item=><div className="usage-feature" key={item.id}><span>{item.label}</span><strong>開啟 {num(total(rows,"game_open",item.id))} · 開始 {num(total(rows,"game_started",item.id))} · 完成 {num(total(rows,"game_completed",item.id))}</strong></div>)}
     </div>
-    <p className="usage-explain">跨日回訪數是事件次數，並非整段期間的回訪人數。缺少 Key 不代表聊天失敗。</p>
    </section>
-  </div>
+   <section className="panel section">
+    <div className="section-head"><h2>Gemini 自備 Key</h2></div>
+    <div className="usage-feature-list">
+     <div className="usage-feature"><span>缺少 Key</span><strong>{num(total(rows,"gemini_key_missing"))} 次</strong></div>
+     <div className="usage-feature"><span>Key 驗證成功</span><strong>{num(total(rows,"gemini_key_verified"))} 次</strong></div>
+    </div>
+    <p className="usage-explain">驗證事件不是 BYOK 使用者占比；缺少 Key 不代表聊天失敗。</p>
+   </section>
+  </details>
   <p className="usage-note">這是匿名瀏覽器統計，不是可識別的真人數，也不包含 Android Firebase 的原生事件。無法區分同一人在不同裝置的瀏覽器，亦不會記錄已選擇退出或使用 GPC／DNT 的訪客。Cloudflare Analytics Engine 可能抽樣，去重數為近似值。過去缺失的事件不會回填；資料最長保留約三個月。更新：{new Date(data.generatedAt).toLocaleString("zh-TW")}。</p>
  </>}
+ <FreeQuotaPanel/>
+ <details className="usage-fold panel section">
+  <summary>進階開發工具</summary>
+  <div className="usage-toolbar" aria-label="開發工具">
+   {data&&<a href="/sandbox-lab" className="usage-jump">即時互動沙盒</a>}
+   <a href="/fortune/report-lab" className="usage-jump usage-report-lab-link" aria-label="開啟專屬命書私人驗收台">專屬命書驗收</a>
+   <a href="https://koolo.app/admin/payment-test" className="usage-jump">正式金流驗證</a>
+  </div>
+  {data&&<MembershipDiagnosticsPanel/>}
+ </details>
  </main>;
 }
