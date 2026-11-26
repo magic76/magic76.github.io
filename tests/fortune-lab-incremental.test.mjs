@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {labPost,labGet} from "../server/koolo-fortune-report-lab.mjs";
-import {PARTS,normalizeLabFacts,generateLabPart,labPartPrompt} from "../server/koolo-fortune-lab-core.mjs";
+import {PARTS,normalizeLabFacts,generateLabPart,labPartPrompt,BOOK28_PARTS,BOOK28_VERSION,normalizeBook28Facts} from "../server/koolo-fortune-lab-core.mjs";
 
 const UUID="11111111-2222-4333-8444-555555555555";
 const USER="22222222-2222-4333-8444-555555555555";
@@ -338,4 +338,40 @@ test("report list includes chapter counts but not private chart facts",async()=>
  assert.equal(Object.hasOwn(data.items[0],"facts"),false);
  assert.equal(Object.hasOwn(data.items[0],"content_json"),false);
  assert.doesNotMatch(JSON.stringify(data),/fourPillars|dayMaster/);
+});
+
+test("personal 28-page pipeline checkpoints all 25 pages, resumes, and opens without regeneration",async()=>{
+ const pillars=[{ganZhi:"庚午",startYear:YEAR-2,endYear:YEAR+7}];
+ const real={...facts,luckPillars:pillars,annual:Array.from({length:5},(_,i)=>{
+  const year=YEAR+i,cycle=((year-4)%60+60)%60;
+  return {year,ganZhi:"甲乙丙丁戊己庚辛壬癸"[cycle%10]+"子丑寅卯辰巳午未申酉戌亥"[cycle%12],themes:["學習"],stemTenGod:"正印",luckPillar:"庚午"};
+ })};
+ assert.equal(normalizeBook28Facts({...real,annual:real.annual.slice(0,4)}),null);
+ assert.equal(normalizeBook28Facts({...real,luckPillars:[]}),null);
+ assert.equal(normalizeBook28Facts({...real,annual:real.annual.map((v,i)=>i===4?{...v,ganZhi:"錯誤"}:v)}),null);
+ const db=database(),calls=[];let fail=true;
+ const ai=async(_url,options)=>{
+  const prompt=JSON.parse(options.body).contents[0].parts[0].text;
+  const part=BOOK28_PARTS.find(p=>prompt.includes("本次僅撰寫："+p+"。"));assert.ok(part);calls.push(part);
+  if(part==="p05"&&fail)return new Response("unavailable",{status:503});
+  const page=Number(part.slice(1)),year=page>=22&&page<=26?YEAR+page-22:YEAR;
+  const content=("你可能在工作與生活中重視清楚的方向，面對不同的安排會先了解背後的理由，再逐步整理自己的觀察與選擇。").repeat(4)+" "+year+" 年，第 "+part+" 頁的側寫著重於不同面向。";
+  return new Response(JSON.stringify({candidates:[{content:{parts:[{text:content}]},finishReason:"STOP"}],usageMetadata:{promptTokenCount:100,candidatesTokenCount:160}}),{headers:{"content-type":"application/json"}});
+ };
+ let r=await post(db,ai,{requestId:UUID,facts:real,pipeline:"book28"});
+ assert.equal(r.status,202);let report=(await r.json()).report;assert.equal(report.progress.total,25);
+ const id=report.id;
+ for(let i=0;i<2;i++)await post(db,ai,{action:"advance",reportId:id});
+ r=await post(db,ai,{action:"advance",reportId:id});report=(await r.json()).report;
+ assert.equal(report.status,"failed");assert.equal(report.progress.completed,2);
+ fail=false;
+ for(let i=2;i<25;i++){r=await post(db,ai,{action:"advance",reportId:id});assert.equal(r.status,i===24?201:202)}
+ report=(await r.json()).report;
+ assert.equal(report.version,BOOK28_VERSION);assert.equal(Object.keys(report.chapters).length,25);
+ assert.equal(report.facts.annual.length,5);assert.deepEqual(report.facts.luckPillars,pillars);
+ assert.equal(report.usage.outputTokens,4000);assert.equal(report.metrics.models["gemini-3.5-flash"].outputTokens,4000);
+ assert.equal(calls.filter(x=>x==="p03").length,1);assert.equal(calls.filter(x=>x==="p04").length,1);
+ assert.equal((await get(db,id)).status,200);const before=calls.length;
+ assert.equal((await post(db,ai,{action:"advance",reportId:id})).status,200);assert.equal(calls.length,before);
+ assert.ok(db.statements.every(s=>!/koolo_fortune_orders|koolo_voice_wallets/.test(s)));
 });

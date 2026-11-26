@@ -44,6 +44,52 @@ export function normalizeLabFacts(raw){
  return {fourPillars:p.join(" "),dayMaster:master,element,strength,weighted,counts,
   luck:ganZhi?ganZhi:"",annual,relations};
 }
+
+export const BOOK28_VERSION="bazi-private-lab-book28-v1";
+const BOOK28_PAGES=[["命盤總論","整體氣質與日主身強弱"],["五行的分布","五行相對權重與內在拉扯"],["外在性格","外在表現及陌生情境"],["內在動機","價值與投入動機"],["天賦與潛能","學習、表達、責任能力"],["優勢的另一面","長處過度使用的盲點"],["情緒與壓力","壓力反應與生活節奏"],["工作環境與節奏","自主、規則、合作與回饋"],["專業發展方向","能力累積方式，不指定職業"],["領導與創業特質","責任分配與決策習慣"],["正財與穩定累積","正財計數及長期資源管理"],["偏財與機會觀","偏財計數與風險取捨"],["金錢與資源的取捨","正偏財交互關係，不提供投資建議"],["愛情中的表達方式","日支及表達在意的方式"],["適合相處的伴侶特質","互動需求，不指定對象"],["親密關係與衝突","衝突處理及界線"],["家庭、朋友與人際","支持方式及責任，不假定家庭狀態"],["人生階段總覽","依完整大運起訖年解讀各階段，不杜撰經歷"],["當前十年大運","只依涵蓋基準年的大運；沒有則說明缺少資料"],["年度解析 1","只解讀指定年份的干支、十神、主題及大運"],["年度解析 2","只解讀指定年份的干支、十神、主題及大運"],["年度解析 3","只解讀指定年份的干支、十神、主題及大運"],["年度解析 4","只解讀指定年份的干支、十神、主題及大運"],["年度解析 5","只解讀指定年份的干支、十神、主題及大運"],["長期優勢與人生方向","整合長期方向，避免重複其他頁"]];
+export const BOOK28_PARTS=BOOK28_PAGES.map((_,i)=>"p"+String(i+3).padStart(2,"0"));
+export function normalizeBook28Facts(raw){
+ const base=normalizeLabFacts({...raw,annual:Array.isArray(raw?.annual)?raw.annual.slice(0,3):null});
+ if(!base||raw.annual.length!==5||!Array.isArray(raw.luckPillars)||raw.luckPillars.length<1||raw.luckPillars.length>12)return null;
+ const gz=v=>typeof v==="string"&&v.length===2&&GAN.includes(v[0])&&ZHI.includes(v[1]);
+ const annual=raw.annual.map((v,i)=>{
+  const year=base.annual[0].year+i,cycle=((year-4)%60+60)%60;
+  if(!v||v.year!==year||v.ganZhi!==GAN[cycle%10]+ZHI[cycle%12]||!Array.isArray(v.themes)||v.themes.length>4)return null;
+  const themes=v.themes.map(x=>safeText(x,20));if(themes.some(x=>!x))return null;
+  if(v.luckPillar&&!gz(v.luckPillar))return null;
+  return {year,ganZhi:v.ganZhi,themes,stemTenGod:safeText(v.stemTenGod,8),luckPillar:v.luckPillar||""};
+ });
+ const luckPillars=raw.luckPillars.map(v=>{
+  if(!v||!gz(v.ganZhi)||!Number.isInteger(v.startYear)||!Number.isInteger(v.endYear)||v.startYear<1800||v.endYear>2300||v.endYear-v.startYear!==9)return null;
+  return {ganZhi:v.ganZhi,startYear:v.startYear,endYear:v.endYear};
+ });
+ if(annual.some(x=>!x)||luckPillars.some(x=>!x))return null;
+ if(luckPillars.some((v,i)=>i>0&&v.startYear<=luckPillars[i-1].endYear))return null;
+ if(annual.some(v=>v.luckPillar!==(luckPillars.find(p=>v.year>=p.startYear&&v.year<=p.endYear)?.ganZhi||"")))return null;
+ const current=luckPillars.find(p=>annual[0].year>=p.startYear&&annual[0].year<=p.endYear);
+ return {...base,annual,luckPillars,luck:current?.ganZhi||""};
+}
+function validBook28Page(part,v,f){
+ if(typeof v!=="string"||v.trim().length<150||v.trim().length>280||/<[^>]+>|`{3}|[?？]|(?:你是否|你有沒有|不妨想想|請試著|想一想)|(?:保證|一定會)(?:升職|結婚|發財|生病|離婚)/.test(v))return false;
+ const page=Number(part.slice(1));
+ if(page>=22&&page<=26&&!v.includes(String(f.annual[page-22]?.year)))return false;
+ return !/^(.{2,12})\1{5,}$/.test(v.trim());
+}
+export function validateBook28Chapters(chapters,f){
+ if(!f||!Array.isArray(f.annual)||f.annual.length!==5||!Array.isArray(f.luckPillars)||!chapters||typeof chapters!=="object")return false;
+ return BOOK28_PARTS.every(p=>validBook28Page(p,chapters[p],f))&&new Set(BOOK28_PARTS.map(p=>chapters[p].trim())).size===BOOK28_PARTS.length;
+}
+export function book28PagePrompt(f,part){
+ const i=BOOK28_PARTS.indexOf(part);if(i<0)throw Error("INVALID_PART");
+ const [title,direction]=BOOK28_PAGES[i],page=i+3,annual=page>=22&&page<=26?f.annual[page-22]:null;
+ return [
+ "為 Koolo 撰寫繁體中文個人一生命書，直接以「你」描述個人傾向。只寫本頁正文，不要標題、JSON、Markdown、問句或作業。日常白話，具體且有辨識度。",
+ "本次僅撰寫："+part+"。"+title+"；"+direction+"。本頁 160–240 個繁體中文字，最多 280 字。",
+ "只依提供的命盤摘要推論象徵傾向；不捏造職業、婚姻、健康、收入、經歷或未來事件，不提供投資或醫療建議，不保證結果。不要重複其他頁主題。",
+ annual?"指定年度："+JSON.stringify(annual)+"。正文必須明列 "+annual.year+" 年，只談此年。":"",
+ "命盤摘要："+JSON.stringify(annual?{...f,annual:[annual]}:f)
+ ].join("\n");
+}
 export function validateLabChapters(raw,facts){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
  const result={};
@@ -122,6 +168,7 @@ export async function generateLabChapters(f,{key,model,fetcher=fetch,timeoutMs=6
 
 /** Write one independently checkpointed chapter per HTTP request. */
 export function labPartPrompt(f,part){
+ if(BOOK28_PARTS.includes(part))return book28PagePrompt(f,part);
  if(!PARTS.includes(part))throw Error("INVALID_PART");
  const directions={"preface":"開場先給讀者清楚的個性輪廓：你平時讓人感受到的特質、內心真正重視的事，以及兩者之間的反差。用一個具體生活場景說明，不以命理專有名詞開頭。","personality":"直接描述：你做決定的方式、你的三個鮮明長處、容易吃虧的習慣，以及壓力來時的典型反應。聚焦可觀察的性格，不問讀者任何問題。","career":"直接描述：你適合怎樣的工作節奏、與主管或同事合作的方式、發揮能力的條件、對金錢和資源的偏好與盲點。不推定實際職業或收入。","relationships":"直接描述：你如何建立信任、表達在意、面對衝突、維持界線，以及親密關係與朋友相處時的差異。不推定婚姻狀況或對方行為。","timing":"按命盤提供的三個年份逐一描述當年較適合把重心放在哪些方向、容易出現哪些選擇拉扯、如何調整節奏。年份必須明列；不保證必然事件。","letter":"直接揭示：你表面看起來的樣子與內在真正想得到的東西、最在乎的價值、受挫時怎樣保護自己、長期壓力的形成方式。這不是一封信，也不是安慰或勵志文。","plan":"直接描述：你長期值得維持的優勢、容易拖累自己的行為慣性、更適合你的選擇方式及生活步調。提供有針對性的洞察，不安排作業、反思題或四週練習。"};
  return [
@@ -135,7 +182,7 @@ export function labPartPrompt(f,part){
 }
 
 export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=28000}){
- if(!PARTS.includes(part))throw Error("INVALID_PART");
+ if(!PARTS.includes(part)&&!BOOK28_PARTS.includes(part))throw Error("INVALID_PART");
  const candidates=[model];
  if(/^gemini-2[.-]/.test(model))candidates.push("gemini-3.5-flash","gemini-3.5-flash-lite");
  else if(model==="gemini-3.5-flash")candidates.push("gemini-3.5-flash-lite");
@@ -219,6 +266,7 @@ export async function generateLabPart(f,part,{key,model,fetcher=fetch,timeoutMs=
     throw Error("QUALITY_CHECK_FAILED");
    // The model may express the chart's influence in everyday terms without
    // naming the day master or any traditional technical term.
+   if(BOOK28_PARTS.includes(part)&&!validBook28Page(part,text,f))throw Error("QUALITY_CHECK_FAILED");
    if(part==="timing"&&!f.annual.some(x=>text.includes(String(x.year))))
     throw Error("QUALITY_CHECK_FAILED");
    return {model:candidate,text,finishReason,usage:{

@@ -1,5 +1,5 @@
 import {reportLabHtml} from "./koolo-fortune-lab-html.mjs";
-import {normalizeLabFacts,validateLabChapters,generateLabChapters,generateLabPart,PARTS} from "./koolo-fortune-lab-core.mjs";
+import {normalizeLabFacts,validateLabChapters,generateLabChapters,generateLabPart,PARTS,BOOK28_PARTS,BOOK28_VERSION,normalizeBook28Facts,validateBook28Chapters} from "./koolo-fortune-lab-core.mjs";
 /** Private acceptance lab. No real checkout or grants. Admin permission is delegated to the existing /usage verifyAccess guard on every request. */
 const ORIGINS=new Set(["https://koolo.app","https://www.3sssi.com"]);
 const SESSION="__Host-crew_session";
@@ -37,16 +37,19 @@ async function owner({request,env,verifyAdmin},method){
  }catch{return {error:reply({error:"UNAVAILABLE"},503)}}
 }
 const PROGRESS_VERSION="bazi-private-lab-progress-v1";
+const BOOK28_PROGRESS="bazi-private-lab-book28-progress-v1";
+const reportParts=p=>p.version===BOOK28_PROGRESS?BOOK28_PARTS:PARTS;
 function parseProgress(row){
  let obj;try{obj=JSON.parse(row.content_json||"null")}catch{return null}
- if(!obj||obj.version!==PROGRESS_VERSION||!obj.chapters||
+ if(!obj||![PROGRESS_VERSION,BOOK28_PROGRESS].includes(obj.version)||!obj.chapters||
   typeof obj.facts?.fourPillars!=="string"||typeof obj.facts?.dayMaster!=="string")return null;
  return obj;
 }
 function progressSummary(row){
  const saved=parseProgress(row);if(!saved)return null;
- const summary={completed:PARTS.filter(k=>typeof saved.chapters[k]==="string").length,
-  total:PARTS.length,busy:!!(saved.lease&&Number(saved.lease.until)>Date.now())};
+ const parts=reportParts(saved);
+ const summary={completed:parts.filter(k=>typeof saved.chapters[k]==="string").length,
+  total:parts.length,busy:!!(saved.lease&&Number(saved.lease.until)>Date.now())};
  // Only the authenticated owner can retrieve this controlled, non-PII code.
  if(row.status==="failed"&&typeof saved.lastFailure==="string"&&
   /^[A-Z][A-Z0-9_]{2,55}$/.test(saved.lastFailure))summary.lastFailure=saved.lastFailure;
@@ -59,8 +62,8 @@ function readyReport(row){
  if(row.status!=="ready")return null;
  let content;
  try{content=JSON.parse(row.content_json||"")}catch{return null}
- if(!content||!content.facts||!validateLabChapters(content.chapters,content.facts))return null;
- return {...rowSummary(row),version:content.version||"bazi-private-lab-v1",facts:content.facts,chapters:content.chapters};
+ if(!content||!content.facts||!(content.version===BOOK28_VERSION?validateBook28Chapters(content.chapters,content.facts):validateLabChapters(content.chapters,content.facts)))return null;
+ return {...rowSummary(row),version:content.version||"bazi-private-lab-v1",facts:content.facts,chapters:content.chapters,...(content.version===BOOK28_VERSION?{metrics:content.metrics}: {})};
 }
 function existingReportResponse(row){
  if(row.status==="ready"){
@@ -117,10 +120,11 @@ export async function labPost(ctx){
   if(!UUID.test(payload?.reportId||""))return reply({error:"NOT_FOUND"},404);
   return advanceLabReport(a,ctx,String(payload.reportId),key,model);
  }
- const facts=normalizeLabFacts(payload?.facts);
+ const book28=payload?.pipeline==="book28";
+ const facts=book28?normalizeBook28Facts(payload?.facts):normalizeLabFacts(payload?.facts);
  if(!facts||!UUID.test(payload?.requestId||""))return reply({error:"INVALID_CHART"},400);
- const incremental=payload?.pipeline==="chapters";
- const progressSeed=incremental?JSON.stringify({version:PROGRESS_VERSION,facts,chapters:{},
+ const incremental=book28||payload?.pipeline==="chapters";
+ const progressSeed=incremental?JSON.stringify({version:book28?BOOK28_PROGRESS:PROGRESS_VERSION,facts,chapters:{},
   usage:{promptTokens:0,outputTokens:0},lease:null}):null;
  let progressSource=progressSeed;
  const now=nowSec();
@@ -144,7 +148,7 @@ export async function labPost(ctx){
    if(existing)return existing;
    if(incremental){
     const earlierProgress=parseProgress(earlier);
-    if(earlierProgress&&JSON.stringify(earlierProgress.facts)!==JSON.stringify(facts))
+    if(earlierProgress&&(earlierProgress.version!==(book28?BOOK28_PROGRESS:PROGRESS_VERSION)||JSON.stringify(earlierProgress.facts)!==JSON.stringify(facts)))
      return reply({error:"CHART_MISMATCH"},409);
     progressSource=earlier?.content_json||progressSeed;
    }
@@ -225,7 +229,8 @@ async function advanceLabReport(a,ctx,id,key,model){
  if(row.status!=="generating")return reply({error:"REPORT_INVALID"},409);
  if(progress.lease&&Number(progress.lease.until)>Date.now())
   return reply({report:rowSummary(row)},202);
- const part=PARTS.find(k=>typeof progress.chapters[k]!=="string");
+ const parts=reportParts(progress),book28=progress.version===BOOK28_PROGRESS;
+ const part=parts.find(k=>typeof progress.chapters[k]!=="string");
  if(!part)return reply({error:"REPORT_INVALID"},409);
  const token=crypto.randomUUID();
  const reserved=JSON.stringify({...progress,lastFailure:null,lease:{token,until:Date.now()+45000}});
@@ -248,11 +253,16 @@ async function advanceLabReport(a,ctx,id,key,model){
   const chapters={...progress.chapters,[part]:result.text};
   const usage={promptTokens:Number(progress.usage?.promptTokens||0)+result.usage.promptTokens,
    outputTokens:Number(progress.usage?.outputTokens||0)+result.usage.outputTokens};
-  const done=PARTS.every(k=>typeof chapters[k]==="string");
-  if(done&&!validateLabChapters(chapters,progress.facts))throw Error("QUALITY_CHECK_FAILED");
+  const done=parts.every(k=>typeof chapters[k]==="string");
+  if(book28&&Object.values(progress.chapters).some(t=>t.trim()===result.text.trim()))throw Error("QUALITY_CHECK_FAILED");
+  if(done&&!(book28?validateBook28Chapters(chapters,progress.facts):validateLabChapters(chapters,progress.facts)))throw Error("QUALITY_CHECK_FAILED");
+  const actualModel=result.model||model,prior=progress.metrics?.models||{},previousModel=prior[actualModel]||{};
+  const metrics={successfulElapsedMs:(progress.metrics?.successfulElapsedMs||0)+Date.now()-started,models:{...prior,[actualModel]:{
+   promptTokens:(previousModel.promptTokens||0)+result.usage.promptTokens,
+   outputTokens:(previousModel.outputTokens||0)+result.usage.outputTokens}}};
   const snapshot=JSON.stringify(done?
-   {version:"bazi-private-lab-v2",facts:progress.facts,chapters}:
-   {...progress,chapters,usage,lastFailure:null,lease:null});
+   {version:book28?BOOK28_VERSION:"bazi-private-lab-v2",facts:progress.facts,chapters,...(book28?{metrics}:{})}:
+   {...progress,chapters,usage,...(book28?{metrics}:{}),lastFailure:null,lease:null});
   if(snapshot.length>50000)throw Error("REPORT_TOO_LARGE");
   const write=await a.db.prepare(
    "UPDATE koolo_fortune_lab_reports SET status=?,model=?,content_json=?,prompt_tokens=?,output_tokens=?,updated_at=? "+
@@ -266,7 +276,7 @@ async function advanceLabReport(a,ctx,id,key,model){
   console.info("[fortune-lab] chapter saved",JSON.stringify({part,elapsedMs:Date.now()-started,
    model:result.model||model,finishReason:result.finishReason,chapterChars:result.text.length,
    promptTokens:result.usage.promptTokens,outputTokens:result.usage.outputTokens,
-   completed:PARTS.filter(k=>typeof chapters[k]==="string").length}));
+   completed:parts.filter(k=>typeof chapters[k]==="string").length}));
   const saved={...row,status:done?"ready":"generating",model:result.model||model,
    content_json:snapshot,prompt_tokens:usage.promptTokens,output_tokens:usage.outputTokens};
   return done?reply({report:readyReport(saved)},201):reply({report:rowSummary(saved)},202);

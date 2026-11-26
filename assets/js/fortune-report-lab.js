@@ -3,7 +3,8 @@
 (function(){
 "use strict";
 var path="/api/fortune/report-lab",pagePath=location.pathname,chart=document.getElementById("chart"),button=document.getElementById("generate");
-var msg=document.getElementById("message"),chooser=document.getElementById("chooser"),reportEl=document.getElementById("report");
+var extendedButton=document.getElementById("generateExtended");
+ var msg=document.getElementById("message"),chooser=document.getElementById("chooser"),reportEl=document.getElementById("report");
 var records=[],submitting=false,pendingRequest=null;
 var PENDING_KEY="koolo_fortune_lab_pending_v1";
 function rememberPending(item){
@@ -37,7 +38,7 @@ function failedDescription(report){
   "本章內容未通過品質檢查":code.startsWith("GEMINI_UPSTREAM_")||code==="AI_TIMEOUT"?
   "Gemini 服務暫時無法完成這一章":"本章製作暫時失敗";
  var count=Number(report&&report.progress&&report.progress.completed)||0;
- return meaning+"（"+code+"）。"+(count>0?"已保存 "+count+"／7 章；":"")+
+ return meaning+"（"+code+"）。"+(count>0?"已保存 "+count+"／"+(report.progress.total||7)+" 章；":"")+
   "已完成的章節仍保存在製作紀錄，按原紀錄可接續，不需要重做整份命書。";
 }
 function unexpectedApiResponse(response){
@@ -97,11 +98,12 @@ function getRecords(){
   return Array.isArray(x)?x.filter(function(r){return r&&r.mode==="bazi"&&r.result&&typeof r.id==="string"}).slice(0,30):[]
  }catch{return []}
 }
-function pickFacts(r){
+function pickFacts(r,extended){
  var x=r.result||{},now=new Date();
  var year=new Date(now.getTime()+28800000).getUTCFullYear();
- var annual=(x.annualTimeline||[]).filter(function(v){return v.year>=year&&v.year<=year+2}).sort(function(a,b){return a.year-b.year});
- if(annual.length!==3)throw Error("此命盤缺少接下來三年的計算資料，請重新算一次八字。");
+ var annual=(x.annualTimeline||[]).filter(function(v){return v.year>=year&&v.year<=year+(extended?4:2)}).sort(function(a,b){return a.year-b.year});
+ if(annual.length!==(extended?5:3))throw Error("此命盤缺少完整流年計算資料，請重新算一次八字。");
+  if(extended&&(!Array.isArray(x.luckPillars)||!x.luckPillars.length))throw Error("此命盤缺少大運資料，請重新算一次八字。");
  var weighted={};ELS.forEach(function(e){weighted[e]=Number(x.weightedFiveElements&&x.weightedFiveElements[e]||0)});
  return {fourPillars:String(x.fourPillars||""),dayMaster:String(x.dayMaster||""),
  dayMasterElement:String(x.dayMasterElement||""),strength:String(x.dayMasterStrength||""),weighted:weighted,
@@ -109,7 +111,8 @@ function pickFacts(r){
  officer:number(x.careerProfile&&x.careerProfile.officerCount),directWealth:number(x.wealthProfile&&x.wealthProfile.directWealthCount),
  indirectWealth:number(x.wealthProfile&&x.wealthProfile.indirectWealthCount)},
  luck:{ganZhi:String(x.currentLuckPillar&&x.currentLuckPillar.ganZhi||"")},
- annual:annual.map(function(v){return{year:v.year,ganZhi:v.ganZhi,themes:Array.isArray(v.themes)?v.themes.slice(0,4):[]}}),
+ annual:annual.map(function(v){return{year:v.year,ganZhi:v.ganZhi,themes:Array.isArray(v.themes)?v.themes.slice(0,4):[],...(extended?{stemTenGod:v.stemTenGod||"",luckPillar:v.luckPillar||""}:{})}}),
+  ...(extended?{luckPillars:x.luckPillars.map(function(p){return {ganZhi:p.ganZhi,startYear:p.startYear,endYear:p.endYear}})}:{}),
  relations:Array.isArray(x.natalInteractions)?x.natalInteractions.slice(0,5):[]};
 }
 function selectCharts(){
@@ -119,7 +122,7 @@ function selectCharts(){
   records=getRecords();chart.replaceChildren();
   if(records.length===0){
    var empty=document.createElement("option");empty.value="";empty.textContent="這個瀏覽器沒有已保存的八字命盤";
-   chart.appendChild(empty);button.disabled=true;
+   chart.appendChild(empty);button.disabled=true;if(extendedButton)extendedButton.disabled=true;
    node("chartStatus").textContent="沒有找到八字命盤。請先在同一個 Koolo 網域算一次，再回來重新讀取。PWA 與其他網域的瀏覽器資料不會自動共用。";
    return;
   }
@@ -128,10 +131,10 @@ function selectCharts(){
    option.textContent=String(r.result.fourPillars||"八字命盤")+" · "+String(r.createdAt||"").slice(0,10);
    chart.appendChild(option);
   });
-  chart.value="0";button.disabled=false;
+  chart.value="0";button.disabled=false;if(extendedButton)extendedButton.disabled=false;
   node("chartStatus").textContent="已找到 "+records.length+" 份本機八字命盤。";
  }catch(error){
-  records=[];button.disabled=true;
+  records=[];button.disabled=true;if(extendedButton)extendedButton.disabled=true;
   node("chartStatus").textContent="讀取本機命盤失敗，請重新載入頁面或回到命理頁重新計算。";
   console.error("[fortune report lab] chart init failed",error);
  }
@@ -293,13 +296,13 @@ function previewEl(tag,cls,value){
  var el=document.createElement(tag);if(cls)el.className=cls;
  if(value!==undefined)el.textContent=value;return el;
 }
-function buildExtendedPage(row,i,total){
+function buildExtendedPage(row,i,total,facts){
  var dark=i===0||i===total-1;
  var page=previewEl("article","sheet"+(dark?" dark":"")+" extended-preview-sheet");
  var n=String(i+1).padStart(2,"0");
  page.setAttribute("aria-label","第 "+(i+1)+" 頁 "+row[1]);
  var top=previewEl("div",dark?"cover-top":"page-top");
- top.append(previewEl("span","",dark?"KOOLO FORTUNE":n+" / "+row[0]),previewEl("span","","DEMO EDITION"));page.appendChild(top);
+ top.append(previewEl("span","",dark?"KOOLO FORTUNE":n+" / "+row[0]),previewEl("span","",facts?"PERSONAL EDITION":"DEMO EDITION"));page.appendChild(top);
  if(dark){
   var orbit=previewEl("div","orbit");orbit.appendChild(previewEl("b","",i===0?"命":"心"));page.appendChild(orbit);
   var title=previewEl("div","cover-title");title.append(previewEl("small","",row[2]),previewEl("h2","",row[1]),previewEl("p","",row[3]),previewEl("p","",row[4]));page.appendChild(title);
@@ -307,16 +310,18 @@ function buildExtendedPage(row,i,total){
   page.append(previewEl("h2","",row[1]),previewEl("p","section-lead",row[2]));
   if(i===3){
    var chart=previewEl("div","element-chart");
-   [32,26,18,10,14].forEach(function(v,k){
+   var values=facts?ELS.map(function(e){return facts.weighted[e]}):[32,26,18,10,14];
+    var max=Math.max.apply(Math,values)||1;
+    values.forEach(function(v,k){
     var line=previewEl("div","element-row"),track=previewEl("div","element-bar"),fill=previewEl("span","");
-    fill.style.width=v+"%";fill.style.setProperty("--bar-color",COLORS[k]);track.appendChild(fill);
+    fill.style.width=(facts?Math.round(v/max*100):v)+"%";fill.style.setProperty("--bar-color",COLORS[k]);track.appendChild(fill);
     line.append(previewEl("b","",ELS[k]),track,previewEl("small","",String(v)));chart.appendChild(line);
    });page.appendChild(chart);
   }
   var panel=previewEl("div",i===1?"fact-panel":"cream-panel");
-  panel.append(previewEl("p","bodycopy",row[3]),previewEl("p","bodycopy",row[4]));page.appendChild(panel);
+  panel.append(previewEl("p","bodycopy",row[3]));if(row[4])panel.append(previewEl("p","bodycopy",row[4]));page.appendChild(panel);
  }
- var footer=previewEl("footer","");footer.append(previewEl("span","","KOOLO / 示範命書"),previewEl("span","",n));page.appendChild(footer);return page;
+ var footer=previewEl("footer","");footer.append(previewEl("span","",facts?"KOOLO / 專屬命書":"KOOLO / 示範命書"),previewEl("span","",n));page.appendChild(footer);return page;
 }
 function restoreLegacyBook(){
  if(!legacyBookPages)return;
@@ -352,8 +357,42 @@ function jumpExtendedPage(){
  }else readerGo(page);
 }
 
-function showBook(x){
+
+ var BOOK28_LABELS=[["命格","命盤總論"],["命格","五行的分布"],["性格","外在性格"],["性格","內在動機"],["性格","天賦與潛能"],["性格","優勢的另一面"],["性格","情緒與壓力"],["事業","工作環境與節奏"],["事業","專業發展方向"],["事業","領導與創業特質"],["財富","正財與穩定累積"],["財富","偏財與機會觀"],["財富","金錢與資源的取捨"],["關係","愛情中的表達方式"],["關係","適合相處的伴侶特質"],["關係","親密關係與衝突"],["關係","家庭、朋友與人際"],["人生","人生階段總覽"],["人生","當前十年大運"],["流年","年度解析 1"],["流年","年度解析 2"],["流年","年度解析 3"],["流年","年度解析 4"],["流年","年度解析 5"],["總結","長期優勢與人生方向"]];
+ function personalBookRows(x){
+  var f=x.facts,c=x.chapters;
+  var rows=[["封面","專屬一生命書","PERSONAL LIFE BOOK",f.fourPillars,"你的個人命盤 · "+f.annual[0].year+" 年版"],
+   ["目錄","命書目錄","CONTENTS","命格 03–04 · 性格 05–09 · 事業 10–12 · 財富 13–15","關係 16–19 · 人生 20–21 · 流年 22–26 · 總結 27"]];
+  BOOK28_LABELS.forEach(function(label,i){
+   var page=i+3,title=label[1],lead=label[0],extra="";
+   if(page===3)lead=f.dayMaster+"日主 · "+f.strength;
+   if(page===4)lead="五行相對權重";
+   if(page===20){lead="大運起訖年";extra=f.luckPillars.map(function(p){return p.ganZhi+" "+p.startYear+"–"+p.endYear}).join(" · ")}
+   if(page===21){var p=f.luckPillars.find(function(p){return f.annual[0].year>=p.startYear&&f.annual[0].year<=p.endYear});lead=p?p.ganZhi+" · "+p.startYear+"–"+p.endYear:"此年未有對應大運資料"}
+   if(page>=22&&page<=26){var y=f.annual[page-22];title=y.year+" 年 · 流年解析";lead=y.ganZhi+(y.stemTenGod?" · "+y.stemTenGod:"")+(y.luckPillar?" · 大運 "+y.luckPillar:"")}
+   rows.push([label[0],title,lead,c["p"+String(page).padStart(2,"0")],extra]);
+  });
+  rows.push(["封底","一本可以重新翻閱的書","KOOLO FORTUNE","命盤提供線索，生活給出答案。","專屬一生命書"]);return rows;
+ }
+ function showPersonalBook(x){
+  restoreLegacyBook();
+  var rows=personalBookRows(x);legacyBookPages=readerPages();
+  var pages=rows.map(function(row,i){return buildExtendedPage(row,i,rows.length,x.facts)});
+  node("bookPages").replaceChildren.apply(node("bookPages"),pages);
+  readerTitles=rows.map(function(row){return row[1]});
+  var jump=node("previewPageJump");jump.replaceChildren();
+  rows.forEach(function(row,i){var option=previewEl("option","",String(i+1).padStart(2,"0")+" · "+row[1]);option.value=String(i);jump.appendChild(option)});
+  jump.hidden=false;jump.value="0";
+  text("print","列印／儲存為 PDF（28 頁）");
+  var u=x.usage||{},m=x.metrics||{},models=Object.keys(m.models||{});
+  text("meta","28 頁專屬命書 · "+(models.join(" / ")||x.model||"")+" · 輸入 "+(u.promptTokens||0)+" / 輸出 "+(u.outputTokens||0)+" tokens"+
+   (m.successfulElapsedMs?" · 成功頁生成約 "+Math.round(m.successfulElapsedMs/1000)+" 秒":"")+"（不含失敗請求的帳單成本）");
+  chooser.hidden=true;reportEl.hidden=false;reportEl.className="reader-open extended-report";
+  readerIndex=0;readerGo(0);if(!openFlip())node("flipBook").hidden=true;window.scrollTo(0,0);
+ }
+ function showBook(x){
  if(!x||x.status!=="ready"||!x.facts||!x.chapters){say("報告尚未完成");return}
+ if(x.version==="bazi-private-lab-book28-v1"){showPersonalBook(x);return}
  restoreLegacyBook();
  var f=x.facts,c=x.chapters,legacy=x.version!=="bazi-private-lab-v2";
  // Earlier saved books keep their original Q&A structure and must not be
@@ -404,7 +443,7 @@ function showBook(x){
 async function continueReport(id){
  // A single request creates at most one chapter; each chapter is committed to
  // D1 before the next starts. Reopening this report resumes from its checkpoint.
- var deadline=Date.now()+240000,completed=-1;
+ var deadline=Date.now()+720000,completed=-1,total=7;
  while(Date.now()<deadline){
   var result;
   try{
@@ -428,14 +467,14 @@ async function continueReport(id){
   }
   var step=result.report&&result.report.progress;
   if(!step)throw Error("進度暫時無法確認，請從製作紀錄重新開啟，不會重複產生已完成章節。");
-  completed=step.completed;
+  completed=step.completed;total=step.total;
   say("已完成 "+completed+"／"+step.total+" 章。"+
    (step.busy?"上一章正在寫作中…":
-    completed<step.total?"正在撰寫「"+CHAPTER_LABELS[completed]+"」，每章完成就會保存。":
+    completed<step.total?"正在撰寫「"+(total===25?BOOK28_LABELS[completed][1]:CHAPTER_LABELS[completed])+"」，每章完成就會保存。":
     "正在整理完整命書…"));
   await new Promise(function(resolve){setTimeout(resolve,step.busy?2500:400)});
  }
- say("已完成 "+Math.max(0,completed)+"／7 個章節，可從製作紀錄接續，不需重新開始。");
+ say("已完成 "+Math.max(0,completed)+"／"+total+" 個章節，可從製作紀錄接續，不需重新開始。");
 }
 async function waitForReport(id){
  // A duplicate POST must never start a second upstream generation while
@@ -474,19 +513,19 @@ async function openReport(id){
   }else say("這份舊版命書未完成，請選擇原命盤重新產生。");
  }catch(e){say("開啟失敗："+e.message)}
 }
-button.addEventListener("click",async function(){
+async function generateBook(extended){
  if(submitting)return;
  submitting=true;
  var pending=null;
  try{
   var r=records[Number(chart.value)];if(!r)throw Error("請先選擇命盤");
-  var facts=pickFacts(r),chartId=String(r.id);
+  var facts=pickFacts(r,extended),chartId=(extended?"book28:":"")+String(r.id);
   pending=getPending(chartId)||{chartId:chartId,requestId:crypto.randomUUID()};
   rememberPending(pending);
-  button.disabled=true;button.textContent="正在製作命書…";
+  button.disabled=true;if(extendedButton)extendedButton.disabled=true;(extended&&extendedButton?extendedButton:button).textContent="正在製作命書…";
   say("正在製作專屬命書，請保持此頁開啟。");
   var x=await api("",{method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({requestId:pending.requestId,facts:facts,pipeline:"chapters"})});
+   body:JSON.stringify({requestId:pending.requestId,facts:facts,pipeline:extended?"book28":"chapters"})});
   if(x.report&&x.report.status==="ready"){
    rememberPending(null);
    window.history.replaceState(null,"",pagePath+"#id="+encodeURIComponent(x.report.id));
@@ -510,12 +549,14 @@ button.addEventListener("click",async function(){
     (detail.includes("按原紀錄可接續")?"":"。若連線中斷，下一次按鈕會先確認原請求，不會直接重複製作。"));
   }
  }finally{
-  submitting=false;button.disabled=records.length===0;
-  button.textContent="產生專屬命書（測試）";
+  submitting=false;button.disabled=records.length===0;if(extendedButton)extendedButton.disabled=records.length===0;
+  button.textContent="產生 10 頁命書（舊版測試）";if(extendedButton)extendedButton.textContent="產生 28 頁專屬命書（NT$99 驗收）";
   history();
  }
-});
-// Initialize chart picker before any optional bindings / network requests.
+}
+ button.addEventListener("click",function(){return generateBook(false)});
+ extendedButton?.addEventListener("click",function(){return generateBook(true)});
+ // Initialize chart picker before any optional bindings / network requests.
 selectCharts();
 node("refreshCharts")?.addEventListener("click",selectCharts);
 node("back")?.addEventListener("click",function(){reportEl.hidden=true;chooser.hidden=false;window.history.replaceState(null,"",pagePath);window.scrollTo(0,0)});
