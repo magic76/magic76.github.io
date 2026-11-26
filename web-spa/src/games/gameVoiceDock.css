@@ -15,7 +15,6 @@
  .game-voice-dock.is-collapsed>.game-voice-dock-toggle{order:99}
  .game-voice-dock.is-collapsed>small,
  .game-voice-dock.is-collapsed .crew-mini-voice-settings,
- .game-voice-dock.is-collapsed .crew-mini-key-link,
  .game-voice-dock.is-collapsed .crew-game-speech{display:none}
  .game-voice-dock.is-collapsed :is(.crew-play-voice-person,.crew-mini-voice-header,.friend-gomoku-companion){flex:1 1 0;min-width:0;padding:0;border:0}
  .game-voice-dock.is-collapsed :is(.crew-play-voice-person,.friend-gomoku-companion) strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -45,17 +44,12 @@
  .crew-play-page:not(.crew-play-page--voice-required) .crew-play-session:not(.crew-play-session--word)>.crew-play-voice-pref{position:absolute;z-index:2;top:21px;right:10px;margin:0}
 }
 
-/* Text-first entry: keep one prominent action in the compact dock. Voice remains
-   accessible via expand; active voice controls remain available to stop a session. */
-.game-voice-dock .game-voice-dock-chat{box-sizing:border-box;display:flex;align-items:center;justify-content:center;min-width:0;min-height:44px;padding:10px 14px;border:1px solid #51418f;border-radius:12px;background:#51418f;color:#fff;text-align:center;text-decoration:none;font-size:14px;font-weight:750;line-height:1.35;overflow-wrap:anywhere}
-.game-voice-dock .game-voice-dock-chat:focus-visible{outline:3px solid #51418f;outline-offset:3px}
-.game-voice-dock :is(.crew-play-voice-start,.crew-mini-primary,.friend-gomoku-start-voice){background:var(--surface,#fff);color:#40336f;border:1px solid #998bc2}
+/* Voice is the primary in-game action; no external text-chat CTA. */
+.game-voice-dock :is(.crew-play-voice-start,.crew-mini-primary,.friend-gomoku-start-voice){background:#51418f;color:#fff;border:1px solid #51418f}
+.game-voice-dock :is(.crew-play-voice-start,.crew-mini-primary,.friend-gomoku-start-voice,.crew-mini-key-link):focus-visible{outline:3px solid #51418f;outline-offset:3px}
+.game-voice-dock .crew-mini-key-link{box-sizing:border-box;min-height:44px;display:flex;align-items:center;justify-content:center;overflow-wrap:anywhere}
 @media(max-width:620px){
  .game-voice-dock .game-voice-dock-toggle{width:44px;height:44px}
- .game-voice-dock.is-collapsed :is(.crew-play-voice-person,.crew-mini-voice-header,.friend-gomoku-companion){display:none}
- .game-voice-dock.is-collapsed:not(:has(.crew-game-voice-controls)) :is(.crew-play-voice-start,.crew-mini-primary,.friend-gomoku-start-voice){display:none}
- .game-voice-dock.is-collapsed .game-voice-dock-chat{order:1;flex:1 1 0;min-width:0;margin:0;padding:10px}
- .game-voice-dock.is-collapsed>.game-voice-dock-toggle{order:2}
- .game-voice-dock.is-collapsed:has(.crew-game-voice-controls) .game-voice-dock-chat{flex-basis:100%;order:98}
- .game-voice-dock:not(.is-collapsed) .game-voice-dock-chat{width:100%;margin-top:8px}
+ .game-voice-dock.is-collapsed:has(.crew-mini-key-link) .crew-mini-voice-header{display:none}
+ .game-voice-dock.is-collapsed .crew-mini-key-link{flex:1 1 0;min-width:0;margin:0}
 }
