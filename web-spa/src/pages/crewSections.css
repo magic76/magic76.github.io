@@ -244,12 +244,20 @@
 .crew-section-focus-card .crew-learn-review-link{grid-column:1 / -1;display:flex;align-items:center;min-height:44px;max-width:100%;padding:9px 12px;border:1px solid var(--line,#e7e5ee);border-radius:12px;color:var(--text,#1d2532);font-size:13px;line-height:1.55;text-decoration:none;overflow-wrap:anywhere}
 .crew-section-focus-card .crew-learn-review-link:hover,.crew-section-focus-card .crew-learn-review-link:focus-visible{text-decoration:underline}
 
+.crew-chat-heading-all{display:none}
+
 /* Compact /chat headline: show one useful title instead of three stacked copy rows. */
 .crew-section-chat .crew-section-heading{gap:0;padding:0 2px}
 .crew-section-chat .crew-section-heading h1{font-size:clamp(26px,3vw,32px)}
 @media(max-width:700px){
- .crew-section-chat{gap:14px}
- .crew-section-chat .crew-section-heading h1{font-size:24px}
+ .crew-section-hub:is(.crew-section-chat,.crew-section-explore){padding-top:0;row-gap:0}
+ .crew-section-chat .crew-section-heading,.crew-section-explore .crew-section-heading{padding:8px 0 10px}
+ .crew-section-chat .crew-section-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+ .crew-section-chat .crew-section-heading h1,.crew-section-explore .crew-section-heading h1{font-size:27px;line-height:1.2}
+ .crew-section-explore .crew-section-heading .kicker,.crew-section-explore .crew-section-heading p{display:none}
+ .crew-section-chat .crew-chat-heading-all{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--accent);font-size:14px;font-weight:700;text-decoration:none}
+ .crew-section-people .crew-section-row-title{display:none}
+ .crew-section-chat>:not(header):not(.crew-section-people){margin-top:16px}
 }
 
 /* My hub and Teacher My: keep the stats grid separate from adjacent CTAs. */
@@ -274,3 +282,14 @@
 .crew-section-chat-life .crew-home-short-content .crew-short-reply-prompt{display:block;overflow:visible;min-height:0;line-clamp:unset;-webkit-line-clamp:unset;font-weight:650;overflow-wrap:anywhere}
 .crew-short-translation-details{font-size:13px;line-height:1.5;color:var(--muted)}
 .crew-short-translation-details summary{min-height:44px;align-content:center;cursor:pointer}
+
+.crew-section-learn>.crew-learn-native-help{display:none}
+@media(max-width:700px){
+ .crew-section-learn{padding-top:0}
+ .crew-section-learn .crew-learn-heading{padding:0;gap:0;margin-bottom:-8px}
+ .crew-learn-heading .crew-learn-heading-row h1{font-size:27px;line-height:1.2}
+ .crew-learn-language{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;max-width:100%}
+ .crew-learn-language select{width:auto;max-width:9rem}
+ .crew-learn-heading>.crew-learn-native-help{display:none}
+ .crew-section-learn>.crew-learn-native-help{display:block;margin:0;font-size:13px;line-height:1.5;color:var(--muted)}
+}

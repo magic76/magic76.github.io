@@ -660,7 +660,7 @@ button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--
 .story-placeholder-stars i:nth-child(1){left:18%;top:22%}.story-placeholder-stars i:nth-child(2){left:79%;top:16%}.story-placeholder-stars i:nth-child(3){left:62%;top:32%}.story-placeholder-stars i:nth-child(4){left:29%;top:56%}.story-placeholder-stars i:nth-child(5){left:87%;top:64%}
 .crew-play-not-found .panel{margin:32px auto;max-width:540px;padding:30px;text-align:center;display:grid;gap:15px;justify-items:center}
 .crew-play-not-found h1{font-size:28px;line-height:1.25;margin:0}.crew-play-not-found p{font-size:14px;line-height:1.6;margin:0;color:var(--muted)}
-@media(max-width:640px){.story-create-hero h1{font-size:clamp(27px,7vw,35px);line-height:1.28}.crew-play-back{min-height:44px;display:inline-flex;align-items:center;padding:10px 4px}}
+@media(max-width:640px){.crew-play-back{min-height:44px;display:inline-flex;align-items:center;padding:10px 4px}}
 
 /* Reserve header controls; the brand copy takes the remaining width. */
 .app-header .app-brand{flex:1;min-width:0}

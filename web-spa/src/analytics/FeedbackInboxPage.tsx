@@ -85,7 +85,7 @@ export function FeedbackInboxPage(){
  }
  return <main className="crew-feedback-inbox">
   <header className="hero crew-inbox-heading">
-   <span className="kicker">CREW / PRIVATE INBOX</span>
+   <span className="kicker hero-context">CREW / PRIVATE INBOX</span>
    <h1>使用者意見回饋</h1>
    <p>從 Cloudflare D1 讀取回饋，依類別與處理狀態整理。只有通過既有管理員驗證才能查看內容。</p>
    <nav className="crew-inbox-links" aria-label="私人管理頁導覽">

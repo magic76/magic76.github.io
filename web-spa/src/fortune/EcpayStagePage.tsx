@@ -99,7 +99,7 @@ export function FortuneEcpayStagePage(){
  }
  return <main className="koolo-ecpay-stage">
   <Link className="text-button" to="/fortune/purchases">‹ {copy("返回命理書架","Back to reports")}</Link>
-  <header className="hero"><span className="kicker">KOOLO × ECPAY · SANDBOX</span>
+  <header className="hero"><span className="kicker hero-context">KOOLO × ECPAY · SANDBOX</span>
    <h1>{copy("專屬一生命書付款測試台","Personal life book payment sandbox")}</h1>
    <p>{copy("這裡只測流程，不會扣款、開通正式報告或增加語音額度。請勿使用真實信用卡。","Test the payment flow only. No real charges, paid reports or voice credits. Never enter a real credit card.")}</p>
   </header>

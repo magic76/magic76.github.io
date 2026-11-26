@@ -226,7 +226,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     </div>
      <p className="meta crew-learn-native-help" role="note">{shownHint}</p>
     </>
-    :section==="chat"?<h1>{x.title}</h1>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
+    :section==="chat"?<><h1>{x.title}</h1><Link className="crew-chat-heading-all" to="/teacher/roles?mode=friends">{t("sectionHubs.chat.allFriends")} <Arrow/></Link></>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>
   {section==="explore"?
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
@@ -279,6 +279,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      section==="learn"?
       <>
        <CurrentTeacherCard/>
+       <p className="meta crew-learn-native-help" role="note">{shownHint}</p>
        <div className="crew-learn-tool-grid-host"><LearnHubExtras tools={learnTools} speakingPath={speakingPath}/></div>
        <details className="crew-learn-progress-details">
         <summary>{tTeacher("my.kicker")}</summary>

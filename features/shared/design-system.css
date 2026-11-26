@@ -98,7 +98,16 @@ a.app-brand:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .hero{padding:8px 0 6px}
 .kicker{font-size:12px;font-weight:850;color:var(--accent)}
 .hero h1{font-size:clamp(30px,7vw,44px);line-height:1.08;letter-spacing:-.045em;margin:8px 0 8px}
-@media(max-width:700px){.hero h1{font-size:24px;line-height:1.2;letter-spacing:-.035em}}
+@media(max-width:700px){
+  .page{padding-top:10px}
+  .hero{padding-block:8px 10px}
+  .hero h1{font-size:clamp(26px,6.8vw,28px);line-height:1.2;letter-spacing:-.035em;margin:6px 0 4px}
+  .hero>.kicker:not(.hero-context){display:none}
+  .hero>.hero-context,.hero>.hero-context+h1{display:inline}
+  .hero>.hero-context{margin-inline-end:8px;line-height:1.2}
+  .hero:has(>.hero-context)>p{margin-top:4px}
+  .hero+.section{margin-top:4px}
+}
 .hero p{margin:0;color:var(--muted);font-size:14px;line-height:1.6;max-width:620px}
 .section{margin-top:24px;scroll-margin-top:76px}
 .section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:11px}
@@ -325,7 +334,6 @@ body.session-page{padding-bottom:0;background:var(--bg)}
 
 @media(max-width:620px){
   .shell{width:min(100% - 20px,760px)}
-  .page{padding-top:14px}
   .grid.two-col{grid-template-columns:1fr 1fr}
   .feature-card{min-height:128px;padding:14px}
   .two,.live-setup-grid{grid-template-columns:1fr}

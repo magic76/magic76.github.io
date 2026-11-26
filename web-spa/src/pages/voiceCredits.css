@@ -24,3 +24,8 @@
  .koolo-credits-record{align-items:start;flex-direction:column}
  .koolo-credits-deltas{text-align:left}
 }
+
+@media(max-width:700px){
+ .koolo-credits-page .hero{padding-block:8px 10px}
+ .koolo-credits-page .hero h1{margin:6px 0 4px}
+}

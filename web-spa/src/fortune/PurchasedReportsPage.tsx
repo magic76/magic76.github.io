@@ -91,7 +91,7 @@ export function FortunePurchasedReportDetailPage(){
   </section>}
   {status==="missing"&&<section className="panel section fortune-purchases-message" role="alert"><h1>{copy("找不到這份報告","Report not found")}</h1><p>{copy("請確認使用購買時的帳號登入；已退款的報告無法繼續閱讀。","Check that you're signed into the purchasing account. Refunded reports are not available.")}</p></section>}
   {status==="ready"&&report&&<article className="fortune-purchases-document">
-   <header className="hero"><span className="kicker">{copy("八字深度報告","BAZI DEEP REPORT")} · {dateLabel(report.createdAt,zh)}</span><h1>{report.title}</h1></header>
+   <header className="hero"><span className="kicker hero-context">{copy("八字深度報告","BAZI DEEP REPORT")} · {dateLabel(report.createdAt,zh)}</span><h1>{report.title}</h1></header>
    {report.sections.map((section,i)=><section className="panel section fortune-purchases-section" key={i}>
     <h2>{section.title}</h2><p>{section.body}</p>
    </section>)}

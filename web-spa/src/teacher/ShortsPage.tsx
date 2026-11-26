@@ -156,7 +156,7 @@ export function ShortsPage(){
  const followUps=shortsStoryFollowUps(posts);
  const chatClick=(detail:"shorts_feed")=>trackUsageEvent("shorts_chat_click",detail);
  return <div className="crew-shorts-page" data-scroll-snap={focusPostId||scrollSnapReady?"ready":"off"}>
-  <header className="hero crew-shorts-hero"><span className="kicker">{feed?.source==="seed"||feed?.source==="daily"?"Koolo SHORTS":"Koolo SHORTS · DEMO"}</span>
+  <header className="hero crew-shorts-hero"><span className="kicker hero-context">{feed?.source==="seed"||feed?.source==="daily"?"Koolo SHORTS":"Koolo SHORTS · DEMO"}</span>
    <h1>{t("shorts.heading")}</h1>
    <p>{t("shorts.intro")}</p>
   </header>

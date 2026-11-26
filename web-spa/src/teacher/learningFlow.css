@@ -157,3 +157,8 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 
 .crew-learning-placeholder{min-height:96px;background:var(--surface);pointer-events:none}
 .crew-learning-placeholder::before{content:"";display:block;width:48%;height:14px;margin:8px 0;border-radius:4px;background:var(--line)}
+
+@media(max-width:700px){
+ .crew-learning-quiz-top h1,.crew-learning-page-heading h1{font-size:27px;line-height:1.2;margin:0}
+ .crew-learning-page-heading>.kicker,.crew-learning-quiz-top>div>.kicker{display:none}
+}

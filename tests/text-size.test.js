@@ -53,22 +53,16 @@ test('mobile hero defines responsive headline styling without pinning exact CSS 
  assert.equal(typeof zh.layout2?.resumeTitle,'string');
 });
 
-test('section hub main headings are 24px on phones; chat remains 24px',()=>{
+test('chat and explore headings share the compact mobile title',()=>{
  const css=read('web-spa/src/pages/crewSections.css');
- assert.match(css,/@media\(max-width:430px\)\{\s*\.crew-section-hub\{[^}]+\}\s*\.crew-section-heading h1\{font-size:24px\}/);
- assert.doesNotMatch(css,/\.crew-section-heading h1\{font-size:30px\}/);
- assert.match(css,/@media\(max-width:700px\)\{\s*\.crew-section-chat\{[^}]+\}\s*\.crew-section-chat \.crew-section-heading h1\{font-size:24px\}/);
+ assert.match(css,/\.crew-section-chat \.crew-section-heading h1,\.crew-section-explore \.crew-section-heading h1\{font-size:27px;line-height:1\.2\}/);
+ assert.match(css,/\.crew-section-chat \.crew-section-heading,\.crew-section-explore \.crew-section-heading\{padding:8px 0 10px\}/);
 });
 
-test('shared hero title is 24px for 360/390 and desktop clamp is preserved',()=>{
+test('shared hero titles use the compact phone scale and preserve the desktop clamp',()=>{
  const css=read('features/shared/design-system.css');
  assert.match(css,/\.hero h1\{font-size:clamp\(30px,7vw,44px\)/);
- const match=css.match(/@media\(max-width:(\d+)px\)\{\.hero h1\{font-size:(\d+)px;/);
- assert.ok(match,'must have a mobile hero h1 override');
- const breakpoint=Number(match[1]),value=Number(match[2]);
- assert.ok(breakpoint>=390&&breakpoint<=700,'phone rule must cover 390px and preserve >=768px');
- for(const width of [360,390])assert.ok(width<=breakpoint&&value<=26,`${width}px title exceeds 26px`);
- assert.equal(value,24);
+ assert.match(css,/@media\(max-width:700px\)\{[\s\S]*?\.hero h1\{font-size:clamp\(26px,6\.8vw,28px\);line-height:1\.2/);
 });
 
 test('explore and SEO guide headings shrink on phones only',()=>{
@@ -79,9 +73,9 @@ test('explore and SEO guide headings shrink on phones only',()=>{
  assert.equal(Number(m[1]),26);
  for(const width of [360,390])assert.ok(Math.max(Number(m[1]),Math.min(width*.045,40))<=26);
  assert.match(guide,/\.crew-guide-hero h1\{font-size:clamp\(29px,4\.2vw,49px\)/);
- const mobile=guide.match(/@media\(max-width:560px\)\{[\s\S]*?\.crew-guide-hero h1\{font-size:(\d+)px;line-height:([\d.]+)\}/);
+ const mobile=guide.match(/@media\(max-width:560px\)\{[\s\S]*?\.crew-guide-hero h1\{font-size:(\d+)px;line-height:([\d.]+)[;}]/);
  assert.ok(mobile,'mobile-specific guide title is required');
- assert.ok(Number(mobile[1])>=24&&Number(mobile[1])<=26);
+ assert.ok(Number(mobile[1])>=26&&Number(mobile[1])<=28);
  assert.ok(Number(mobile[2])>=1.2&&Number(mobile[2])<=1.25);
 });
 
