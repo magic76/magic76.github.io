@@ -99,7 +99,7 @@ test("Issue 811 reuses the existing plan and shows compact lesson/review counts"
  const snapshot=read("web-spa/src/teacher/LearningSnapshot.tsx");
  assert.match(hub,/<details className="crew-learn-progress-details">[\s\S]*?<LearningFocusCard\/>\s*<LearningSnapshot compact\/>[\s\S]*?<\/details>/);
  assert.match(snapshot,/COURSE_LESSONS\.length/);
- assert.match(snapshot,/dueDeckItems\(\)/);
+ assert.match(snapshot,/dueDeckItems\(deck\)/);
  assert.match(snapshot,/to="\/teacher\/phrasebook"/);
  assert.match(snapshot,/minHeight:100/);
  assert.match(snapshot,/minHeight:44/);
