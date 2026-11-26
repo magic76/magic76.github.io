@@ -117,3 +117,27 @@ test("Piper rejects invalid cache and HTTP responses before model initialization
  assert.equal(low.voiceId,"low");assert.equal(medium.voiceId,"medium");assert.equal(sdk.TtsSession._instance,null);
  assert.doesNotMatch(source,/sdk\.download\(|sdk\.stored\(|sdk\.flush\(/);
 });
+
+test("Piper accepts official Huayan config schema independent of JSON byte count",async()=>{
+ const source=js.slice(js.indexOf("const PIPER_SDK="),js.indexOf("async function piperChinese("));
+ const {verifyPiperFile,piperFileError,PIPER_MODELS}=vm.runInNewContext(source+";({verifyPiperFile,piperFileError,PIPER_MODELS})",{Uint8Array,Blob});
+ const fixture=(tier,rate)=>({
+  audio:{sample_rate:rate,quality:tier},espeak:{voice:"cmn"},
+  inference:{noise_scale:0.667,length_scale:1,noise_w:0.8},
+  phoneme_map:{},phoneme_id_map:{"_":[0],"^":[1],"$":[2]},num_symbols:130,num_speakers:1,speaker_id_map:{},
+  piper_version:"0.2.0",language:{code:"zh_CN"}
+ });
+ for(const id of ["piperLow","piperMedium"]){
+  const cfg=PIPER_MODELS[id],json=fixture(cfg.tier,cfg.rate);
+  if(id==="piperMedium")json.phoneme_type="espeak";
+  for(const spaces of [0,2,4]){
+   assert.equal(await verifyPiperFile(new Blob([JSON.stringify(json,null,spaces)]),"config",cfg),true);
+  }
+  assert.equal(await verifyPiperFile(new Blob(["<html>error</html>"]),"config",cfg),false);
+  assert.equal(await piperFileError(new Blob([JSON.stringify({...json,audio:{...json.audio,sample_rate:123}})]),"config",cfg),"audio.sample_rate 不符");
+  assert.equal(await piperFileError(new Blob([JSON.stringify({...json,espeak:{voice:"en"}})]),"config",cfg),"espeak.voice 不是 cmn");
+  assert.equal(await verifyPiperFile(new Blob([JSON.stringify({...json,inference:{}})]),"config",cfg),false);
+  assert.match(cfg.sha,/^[a-f0-9]{64}$/);
+ }
+ assert.doesNotMatch(source,/configSize|cfg\.size/);
+});

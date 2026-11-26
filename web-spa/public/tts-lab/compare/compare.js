@@ -271,25 +271,37 @@ async function researchTts(id){
 const PIPER_SDK="https://cdn.jsdelivr.net/npm/@realtimex/piper-tts-web@1.1.1/+esm";
 const PIPER_BASE="https://huggingface.co/rhasspy/piper-voices/resolve/main/zh/zh_CN/huayan/";
 const PIPER_MODELS={
- piperLow:{tier:"x_low",size:20628813,configSize:5954,rate:16000,sha:"d30b143fac66d821a1285aa013295adf5cd129d3cc11d70334e51c7b20662c37"},
- piperMedium:{tier:"medium",size:63201294,configSize:6922,rate:22050,sha:"9929917bf8cabb26fd528ea44d3a6699c11e87317a14765312420be230be0f3d"}
+ piperLow:{tier:"x_low",rate:16000,sha:"d30b143fac66d821a1285aa013295adf5cd129d3cc11d70334e51c7b20662c37"},
+ piperMedium:{tier:"medium",rate:22050,sha:"9929917bf8cabb26fd528ea44d3a6699c11e87317a14765312420be230be0f3d"}
 };
 // SDK 1.1.1 uses OPFS piper/<basename>. Validate and close the exact files
 // before creating a session; do not call its unvalidated download() helper.
-async function verifyPiperFile(blob,kind,cfg){
- if(!blob||blob.size!==(kind==="model"?cfg.size:cfg.configSize))return false;
+// The upstream SHA-256 identifies the exact ONNX bytes (including length).
+// JSON may be reformatted; validate the actual fields consumed by the SDK,
+// rather than an assumed byte count. Both official Huayan configs are valid,
+// including the v0.2 x_low config that predates phoneme_type.
+async function piperFileError(blob,kind,cfg){
+ if(!blob||!blob.size)return "檔案不存在或空白";
  if(kind==="model"){
+  if(blob.size>100*1024*1024)return "ONNX 超過 100 MiB";
   const digest=await crypto.subtle.digest("SHA-256",await blob.arrayBuffer());
   const hex=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,"0")).join("");
-  return hex===cfg.sha;
+  return hex===cfg.sha?null:"ONNX SHA-256 不符";
  }
- try{
-  const c=JSON.parse(await blob.text());
-  return c.audio?.sample_rate===cfg.rate&&c.audio?.quality===cfg.tier&&c.espeak?.voice==="cmn"&&(c.phoneme_type??"espeak")==="espeak"&&
-   Object.keys(c.phoneme_id_map||{}).length>0&&c.speaker_id_map!=null&&
-   ["noise_scale","length_scale","noise_w"].every(key=>Number.isFinite(c.inference?.[key]));
- }catch{return false;}
+ if(blob.size>256*1024)return "設定檔異常過大";
+ let c;
+ try{c=JSON.parse(await blob.text());}catch{return "不是有效 JSON";}
+ if(c?.audio?.sample_rate!==cfg.rate)return "audio.sample_rate 不符";
+ if(c.audio.quality!==cfg.tier)return "audio.quality 不符";
+ if(c.espeak?.voice!=="cmn")return "espeak.voice 不是 cmn";
+ if((c.phoneme_type??"espeak")!=="espeak")return "phoneme_type 不支援";
+ const isMap=x=>x!==null&&typeof x==="object"&&!Array.isArray(x);
+ if(!isMap(c.phoneme_id_map)||!Object.keys(c.phoneme_id_map).length)return "phoneme_id_map 缺失";
+ if(!isMap(c.speaker_id_map))return "speaker_id_map 缺失";
+ if(!["noise_scale","length_scale","noise_w"].every(key=>Number.isFinite(c.inference?.[key])))return "inference 參數缺失";
+ return null;
 }
+async function verifyPiperFile(blob,kind,cfg){return (await piperFileError(blob,kind,cfg))===null;}
 async function getPiperDirectory(){
  if(!navigator.storage?.getDirectory)throw Error("此瀏覽器不支援 Piper 本機模型儲存（OPFS）");
  const root=await navigator.storage.getDirectory();
@@ -309,7 +321,8 @@ async function preparePiperFile(dir,name,url,kind,cfg,id){
  const response=await fetch(url,{cache:"reload"});
  if(!response.ok)throw Error(label+"下載失敗：HTTP "+response.status);
  const blob=await response.blob();
- if(!await verifyPiperFile(blob,kind,cfg))throw Error(label+"完整性驗證失敗（收到 "+blob.size+" bytes；預期 "+(kind==="model"?cfg.size:cfg.configSize)+"）");
+ const error=await piperFileError(blob,kind,cfg);
+ if(error)throw Error(label+"完整性驗證失敗："+error+"（收到 "+blob.size+" bytes）");
  const handle=await dir.getFileHandle(name,{create:true}),writer=await handle.createWritable();
  try{await writer.write(blob);await writer.close();}
  catch(e){try{await writer.abort();}catch{}try{await dir.removeEntry(name);}catch{}throw e;}
