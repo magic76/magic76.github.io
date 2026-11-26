@@ -91,49 +91,57 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
  },
  "travel-english-dialogues":{
   zh:{
-   title:"旅遊英文情境對話練習：機場、飯店、問路一次學｜Koolo Teacher",
-   description:"出國前練旅遊英文：機場找行李、飯店入住、問月台、餐廳點餐。提供實用英文句子與 AI 情境對話練習入口。",
-   label:"旅遊英文情境",headline:"出國前，先把會用到的旅遊英文講過一次",
+   title:"旅遊英文情境對話練習｜機場入境、飯店入住、餐廳點餐｜Koolo",
+   description:"出國前練習機場入境、飯店入住、交通問路與餐廳點餐的英文問答。提供可直接開口的對話範例及 AI 旅遊英文情境課程。",
+   label:"旅遊英文情境",headline:"旅遊英文情境對話練習：出國前先開口說一次",
    intro:"旅遊英文不需要背整本會話書。先挑最容易遇到、又會讓自己緊張的情境：機場、交通、入住、點餐。用 AI 模擬對方的回答，再練習把自己的需求說清楚。",
    bullets:["一個情境只準備 2～3 句最重要的表達。","先能讓對方理解需求，再追求自然口音。","把「請再說一次」練熟，遇到聽不懂時就不容易慌張。"],
    sections:[
     {heading:"機場與遺失行李",paragraphs:["先練習說出問題，再補充辨識資訊，例如顏色、尺寸、行李件數。不要一開始就試圖解釋很長的故事。"],sample:{label:"行李找不到",text:"My suitcase didn't arrive. It's a medium-sized gray suitcase. Could you help me check where it is?",note:"讓 AI 扮演行李櫃檯人員，再追問顏色、航班與行李牌。"}},
+    {heading:"機場入境英文問答",paragraphs:["入境時可能被問到旅遊目的、停留多久、住宿地點。請依實際情況回答，不需要背固定答案。"],sample:{label:"入境官員：What is the purpose of your visit?",text:"I'm here on vacation. I'll be staying for five days.",note:"練習追問 Where are you staying? 並用自己的實際住宿資訊回答。"}},
     {heading:"飯店入住與交通問路",paragraphs:["飯店：練習確認訂房、早餐與退房時間。交通：練習問月台、方向與這班車是不是正確。"],sample:{label:"問路與搭車",text:"Is this the right train for Paddington? Which platform should I go to?",note:"加入『Could you say that again, please?』，讓自己能處理沒聽清楚的情況。"}},
+    {heading:"飯店入住英文對話",paragraphs:["櫃檯可能詢問訂房姓名或要求出示證件。先練習報到，再問早餐與退房時間。"],sample:{label:"飯店櫃檯：Do you have a reservation?",text:"Yes, I have a reservation under Chen. What time is checkout?",note:"將 Chen 換成實際訂房姓名；練習聽懂櫃檯回覆的時間。"}},
+    {heading:"餐廳點餐英文對話",paragraphs:["用 I'd like... 點餐，用 Could I have... 提出需求。若有過敏或飲食限制，要直接說明並確認店家理解。"],sample:{label:"服務生：Are you ready to order?",text:"I'd like the grilled chicken, please. Does it come with rice?",note:"換成你喜歡的餐點，接著回答服務生關於飲料或配菜的追問。"}},
     {heading:"怎麼模擬一段完整對話？",paragraphs:["請 AI 扮演工作人員，一次只說一句，不要先給你完整答案；你回答後再往下一步。最後請老師整理真正需要修正的一個表達。","Koolo Teacher 提供每日免費語音額度；登入後可用額度以網站顯示為準，也可選擇 BYOK。"]}
    ],
    faq:[
     {question:"出國英文不好，需要先背很多單字嗎？",answer:"不需要。優先掌握你可能遇到的情境與求助句子，再逐步補充詞彙。"},
     {question:"如果聽不懂對方說話怎麼辦？",answer:"請對方放慢速度、重複一次或改用更簡單的說法，都是很實用的旅遊英文能力。"}
-   ],cta:"開始旅遊英文情境練習",target:"/teacher/course",secondary:"先練英文口說基礎",secondaryTarget:"/guides/ai-english-speaking"
+   ],cta:"開始旅遊英文情境練習",target:"/teacher/course/travel",secondary:"先練英文口說基礎",secondaryTarget:"/guides/ai-english-speaking"
   },
   en:{
-   title:"Travel English Dialogues for Airports, Hotels and Trains | Koolo Teacher",
-   description:"Practice travel English for lost luggage, hotel check-in, train platforms and ordering food. Learn practical phrases and try AI role-play scenarios.",
-   label:"TRAVEL ENGLISH",headline:"Practice your next travel conversation before you leave",
+   title:"Travel English Conversation Practice: Airport, Hotel & Restaurant | Koolo",
+   description:"Practice travel English dialogues for immigration, hotel check-in, train travel and ordering food. Try realistic questions and answers, then an AI role-play.",
+   label:"TRAVEL ENGLISH",headline:"Travel English conversation practice for real trips",
    intro:"You do not have to memorize an entire phrasebook. Choose the moments that matter most: airports, trains, hotels and restaurants. Practice expressing your needs, then respond to an unexpected follow-up question.",
    bullets:["Prepare two or three key phrases for each situation.","Focus on being understood before perfecting your accent.","Practice asking people to repeat themselves."],
    sections:[
     {heading:"At the airport: missing luggage",paragraphs:["Describe the problem first, then add details like size, color and quantity. Let the AI play the airport desk attendant."],sample:{label:"Missing bag example",text:"My suitcase didn't arrive. It's a medium-sized gray suitcase. Could you help me check where it is?",note:"Practice the follow-up questions about your flight and baggage receipt."}},
+    {heading:"Airport immigration questions and answers",paragraphs:["You may be asked why you are visiting, how long you will stay and where you are staying. Answer truthfully using your actual plans."],sample:{label:"Officer: What is the purpose of your visit?",text:"I'm here on vacation. I'll be staying for five days.",note:"Practice a follow-up: Where are you staying? Answer using your own travel plans."}},
     {heading:"Hotel check-in and getting around",paragraphs:["At a hotel, confirm your booking and ask about breakfast or checkout. On a train, confirm your destination and platform."],sample:{label:"Finding the right train",text:"Is this the right train for Paddington? Which platform should I go to?",note:"Add 'Could you say that again, please?' to practice recovering when you miss a detail."}},
+    {heading:"Hotel check-in dialogue",paragraphs:["Practice confirming your booking, then asking one question about the hotel. Use the name on your actual reservation."],sample:{label:"Receptionist: Do you have a reservation?",text:"Yes, I have a reservation under Chen. What time is checkout?",note:"Replace Chen with your name. Listen to the answer and confirm the checkout time."}},
+    {heading:"Ordering food at a restaurant",paragraphs:["Use I'd like to order a dish and Could I have to make a request. If you have allergies or dietary restrictions, state them clearly and confirm the staff understands."],sample:{label:"Server: Are you ready to order?",text:"I'd like the grilled chicken, please. Does it come with rice?",note:"Swap in your favorite dish and practice answering a follow-up about drinks or sides."}},
     {heading:"Build a full role-play",paragraphs:["Ask the AI to play a staff member, give one line at a time, and wait for your response. At the end, ask for your most important correction.","Koolo Teacher includes guided scenarios. Start with the daily free voice allowance; check current limits and sign-in options. BYOK remains optional and subject to Google's terms."]}
    ],
    faq:[
     {question:"Do I need to memorize many words before traveling?",answer:"No. Start with the situations you expect and a few ways to ask for help."},
     {question:"What if I can't understand someone?",answer:"Ask them to slow down, repeat, or explain in simpler words. Practicing those requests is useful on its own."}
-   ],cta:"Practice travel role-play",target:"/teacher/course",secondary:"Build speaking confidence",secondaryTarget:"/guides/ai-english-speaking"
+   ],cta:"Practice travel role-play",target:"/teacher/course/travel",secondary:"Build speaking confidence",secondaryTarget:"/guides/ai-english-speaking"
   }
  },
  "english-pronunciation":{
   zh:{
-   title:"英文發音練習怎麼做？AI 跟讀、重音與語速｜Koolo Teacher",
-   description:"英文發音總覺得不自然？先練清晰度，再練單字重音與句子節奏。提供 AI 發音練習方法、跟讀例句與 Koolo Teacher 入口。",
+   title:"英文發音與跟讀練習｜單字重音、長短母音、ed 結尾｜Koolo",
+   description:"練習英文長短母音、過去式 ed 的三種發音、單字與句子重音。提供可朗讀的例句、跟讀步驟與發音練習入口。",
    label:"英文發音與跟讀",headline:"英文發音練習：先讓人聽懂，再追求像母語者",
    intro:"發音不是只有單字唸對。句子裡哪些字需要強調、哪裡該停頓，以及語速是否太快，都會影響對方能否聽懂。透過短句跟讀和自己的錄音比對，比連續朗讀一大段更容易發現問題。",
    bullets:["一次練一小段，不需要每個音節都同時修正。","先學會單字重音，再練整句語調。","用平常真的會講的句子，而不是只有繞口令。"],
    sections:[
     {heading:"三步驟跟讀法",paragraphs:["先聽一遍自然語速的示範；再用比示範慢一點的速度跟讀；最後不用文字提示，試著自己說出同一句。","不要一開始就追求口音完全相同，先確認關鍵字是否清楚。"]},
-    {heading:"從句子重音開始",paragraphs:["比較下面這句話的不同重音：強調「今天」和強調「需要」時，聽起來的意思和語氣會不同。"],sample:{label:"跟讀例句",text:"I need to change my reservation for tomorrow.",note:"先強調 need，再強調 tomorrow；練習說清楚哪一部分才是你最想表達的。"}},
-    {heading:"如何請 AI 給有效的發音回饋",paragraphs:["不要只問「我發音對不對」，請對方指出最難理解的一個字、示範一次，再讓你重說。這樣比較不會被大量糾錯打亂節奏。","Koolo Teacher 提供每日免費語音額度，瀏覽器需允許麥克風；自備 Gemini Key 是進階選項。"]}
+    {heading:"從句子重音開始",paragraphs:["比較下面這句話的不同重音：強調「明天」和強調「需要」時，聽起來的意思和語氣會不同。"],sample:{label:"跟讀例句",text:"I need to change my reservation for tomorrow.",note:"先強調 need，再強調 tomorrow；練習說清楚哪一部分才是你最想表達的。"}},
+    {heading:"長短母音辨識：ship 和 sheep",paragraphs:["ship /ʃɪp/ 和 sheep /ʃiːp/ 的母音音質不同，不只是長度不同。先聽兩個字，再交替念出，最後放進句子。"],sample:{label:"母音對比練習",text:"ship — sheep; sit — seat; full — fool",note:"一次練一組，注意母音音質與口型，再請老師示範。"}},
+    {heading:"英文 ed 結尾的三種發音",paragraphs:["看動詞原形的最後一個音，而不是最後一個字母。規則過去式在 /t/ 或 /d/ 後念 /ɪd/（wanted、needed）；其他清子音後念 /t/（worked、washed）；母音或其他濁子音後念 /d/（played、called）。"],sample:{label:"過去式發音跟讀",text:"I worked yesterday. I played tennis. I wanted a break.",note:"wanted 多一個音節，worked 和 played 不多一個音節。"}},
+    {heading:"如何請 AI 給有效的發音回饋",paragraphs:["不要只問「我發音對不對」，請對方指出最難理解的一個字、示範一次，再讓你重說。這樣比較不會被大量糾錯打亂節奏。","AI 回饋是學習輔助，不是正式發音評量。Koolo Teacher 提供每日免費語音額度，瀏覽器需允許麥克風；自備 Gemini Key 是進階選項。"]}
    ],
    faq:[
     {question:"一定要練成美式或英式口音嗎？",answer:"不一定。先達到清楚、穩定且能被理解的表達；有需要再練習偏好的口音。"},
@@ -141,15 +149,17 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    ],cta:"開始英文發音練習",target:"/teacher/pronunciation",secondary:"改用英文聊天練流暢度",secondaryTarget:"/guides/ai-conversation-partner"
   },
   en:{
-   title:"English Pronunciation Practice: Stress, Pace and Shadowing | Koolo",
-   description:"Improve intelligibility with short shadowing drills, sentence stress practice, and specific AI feedback. Open Koolo Teacher pronunciation practice.",
+   title:"English Pronunciation Practice: Shadowing, Vowels and -ed Endings | Koolo",
+   description:"Practice English pronunciation with vowel pairs, regular past-tense -ed endings, sentence stress and short shadowing drills. Try Koolo pronunciation practice.",
    label:"ENGLISH PRONUNCIATION",headline:"Practice clear English pronunciation before chasing an accent",
    intro:"Pronunciation is not only about individual sounds. Stress, rhythm and pacing can make the difference between an understandable sentence and a confusing one. Short recordings and repeated phrases are easier to review than long passages.",
    bullets:["Work on one short phrase at a time.","Learn word stress, then focus on the rhythm of full sentences.","Use phrases you might actually say outside a classroom."],
    sections:[
     {heading:"A three-step shadowing routine",paragraphs:["Listen to one natural-speed example. Repeat it slowly while keeping the same word emphasis. Then say it again without looking at the text.","You do not have to match every aspect of the speaker's accent. Start by making your key words easy to understand."]},
     {heading:"Try changing the sentence stress",paragraphs:["The same sentence conveys a different focus when you emphasize 'need' instead of 'tomorrow'."],sample:{label:"Practice phrase",text:"I need to change my reservation for tomorrow.",note:"Emphasize need first, then tomorrow, and notice what each version communicates."}},
-    {heading:"Ask AI for feedback that helps",paragraphs:["Instead of 'Was my pronunciation good?', ask which single word was hardest to understand, request a model pronunciation, and say it again.","Koolo Teacher includes pronunciation practice. Allow microphone access; daily free voice usage is subject to the current allowance; BYOK is optional."]}
+    {heading:"Vowel minimal pairs: ship and sheep",paragraphs:["The vowels in ship /ʃɪp/ and sheep /ʃiːp/ differ in quality as well as typical duration. Listen to both, alternate them, then say them in a sentence."],sample:{label:"Minimal pair drill",text:"ship — sheep; sit — seat; full — fool",note:"Work on one pair at a time; ask a tutor to model the vowel contrast."}},
+    {heading:"Three pronunciations of regular past-tense -ed",paragraphs:["Listen to the final sound of the base verb, not its final written letter. After /t/ or /d/, pronounce -ed as /ɪd/ (wanted, needed). After other voiceless consonants, use /t/ (worked, washed). After vowels or other voiced consonants, use /d/ (played, called)."],sample:{label:"Past-tense shadowing",text:"I worked yesterday. I played tennis. I wanted a break.",note:"Wanted has an additional syllable; worked and played do not."}},
+    {heading:"Ask AI for feedback that helps",paragraphs:["Instead of 'Was my pronunciation good?', ask which single word was hardest to understand, request a model pronunciation, and say it again.","Koolo Teacher includes pronunciation practice. AI feedback is a learning aid, not a certified assessment. Allow microphone access; daily free voice usage is subject to the current allowance; BYOK is optional."]}
    ],
    faq:[
     {question:"Do I need a native English accent?",answer:"No. Prioritize clarity and reliable communication before working on a preferred accent."},
