@@ -11,10 +11,14 @@ function load(file,names){
  vm.runInNewContext(src+"\nObject.assign(target,{"+names.join(",")+"});",{target:ctx});
  return ctx;
 }
-const lessons=load("web-spa/src/teacher/boardLessons.ts",["LESSONS","findLesson","evaluateSpeakingTask","lessonProgress","lessonPrompt"]);
+const lessons=load("web-spa/src/teacher/boardLessons.ts",["LESSONS","findLesson","evaluateSpeakingTask","lessonProgress","lessonPrompt","lessonCategory","lessonLabel","LESSON_CATEGORIES"]);
 const protocol=load("web-spa/src/teacher/boardProtocol.ts",["validateBoardPatch","applyBoardPatch","BOARD_TOOLS"]);
-test("guided lesson presets cover hotel, interview and grammar with coherent session goals",()=>{
- assert.equal(lessons.LESSONS.length,3);
+test("guided lesson catalog covers five categories with coherent session goals",()=>{
+ assert.equal(lessons.LESSONS.length,21);
+ assert.equal(new Set(lessons.LESSONS.map(l=>l.id)).size,21);
+ assert.equal(new Set(lessons.LESSONS.flatMap(l=>l.cards.map(c=>c.id))).size,84);
+ for(const category of lessons.LESSON_CATEGORIES)assert.ok(lessons.LESSONS.some(l=>lessons.lessonCategory(l)===category.id));
+ for(const id of ["hotel","interview","grammar","ed-sounds","coffee","meeting"])assert.ok(lessons.findLesson(id));
  for(const lesson of lessons.LESSONS){
   assert.match(lesson.duration,/3.?5/);
   assert.ok(lesson.goal.length>15);
@@ -24,6 +28,12 @@ test("guided lesson presets cover hotel, interview and grammar with coherent ses
   assert.equal(new Set(lesson.cards.map(c=>c.id)).size,lesson.cards.length);
   assert.match(lessons.lessonPrompt(lesson,lesson.cards.length-1),/Wait|wait/);
   for(const card of lesson.cards)assert.ok(protocol.validateBoardPatch({action:"upsert",cards:[card]}));
+  const speaking=lesson.cards.at(-1);
+  assert.equal(lessons.evaluateSpeakingTask(speaking,speaking.speaking.example).met,true,lesson.id);
+  assert.equal(lessons.evaluateSpeakingTask(speaking,"No.").met,false,lesson.id);
+  const quiz=lesson.cards.find(c=>c.type==="quiz");
+  assert.ok(quiz.questions.length>0);
+  assert.ok(quiz.questions.every(q=>q.options[q.answerIndex]&&new Set(q.options).size===q.options.length));
  }
 });
 test("speaking goals require independent target forms and enough distinct sentences",()=>{

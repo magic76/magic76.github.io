@@ -424,3 +424,7 @@ details.teaching-board-lesson-picker .teaching-board-lesson-options{padding:2px 
  .teaching-board-layout{padding-bottom:calc(var(--board-dock-height,194px) + var(--board-keyboard-inset,0px) + 16px)}
  .teaching-board-stage{min-height:160px}
 }
+
+/* Keep the growing lesson catalog compact on small screens and in the voice dock. */
+.teaching-board-catalog-filter{display:grid;gap:6px;margin:8px 0;font-size:13px;min-width:0}
+.teaching-board-catalog-filter select{width:100%;min-width:0;min-height:44px;border:1px solid #b6cdbd;border-radius:10px;background:#fff;color:#254834;font:inherit;padding:8px 10px}
