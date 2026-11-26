@@ -282,7 +282,8 @@ check("English Gemini key guide preserves its heading and direct account CTA in 
  const heading=html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1\s*>/i);
  assert.ok(heading);
  assert.equal(decodeHtmlText(heading[1]),"How to use a Gemini API key for AI voice chat");
- assert.ok(html.includes('href="/account#settings-gemini"'),"direct Gemini setup link missing");
+ assert.ok(html.includes('href="/en/account#settings-gemini"'),"localized direct Gemini setup link missing");
+ assert.ok(read("guides/gemini-key-for-ai-practice/index.html").includes('href="/account#settings-gemini"'),"Chinese direct Gemini setup link missing");
 });
 check("Crew Play SSG has real game cards with correct bilingual canonical and JSON-LD",()=>{
  const origin="https://koolo.app",sitemap=read("sitemap.xml");
