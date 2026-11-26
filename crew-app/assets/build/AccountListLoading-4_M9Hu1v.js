@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-BtH0gOTJ.js";var t=e();function n({label:e}){return(0,t.jsxs)(`div`,{className:`koolo-account-loading`,role:`status`,"aria-label":e,children:[(0,t.jsx)(`span`,{"aria-hidden":`true`}),(0,t.jsx)(`span`,{"aria-hidden":`true`})]})}export{n as t};
