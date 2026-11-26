@@ -1,5 +1,5 @@
 import {SOULS_USAGE_EVENTS,SOULS_USAGE_NAMES} from "./SoulsUsagePanel";
-export type Category="all"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"souls"|"research"|"circle";
+export type Category="all"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"souls"|"research";
 
 export const names:Record<string,string>={
  app_opened:"開啟網站",visitor_first_seen:"首次造訪瀏覽器",user_returned:"跨日回訪事件",
@@ -35,20 +35,17 @@ export const names:Record<string,string>={
  circle_thread_open:"交流圈留言展開",circle_post_published:"交流圈發布貼文",circle_comment_posted:"交流圈送出留言"
 };
 export const categories:{id:Category;label:string;events:string[]}[]=[
- {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","souls_created","souls_conversation","research_article_completed","circle_post_published","circle_comment_posted"]},
+ {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","souls_created","souls_conversation","research_article_completed" ]},
  {id:"guest",label:"免費試用",events:["guest_trial_entry_view","guest_trial_unavailable","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed","guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended"]},
- {id:"chat",label:"老師／朋友／Souls 聊天",events:["teacher_conversation","friend_conversation","timeline_conversation","souls_conversation","home_live_bubble_view","home_live_bubble_click","home_live_bubble_connected","home_live_bubble_conversation"]},
+ {id:"chat",label:"老師／朋友／Souls 聊天",events:["teacher_conversation","friend_conversation","timeline_conversation","souls_conversation"]},
  {id:"timeline",label:"Timeline",events:["timeline_view","timeline_conversation_start","timeline_conversation"]},
  {id:"shorts",label:"Shorts",events:["shorts_view","shorts_chat_click","shorts_conversation"]},
  {id:"games",label:"遊戲",events:["game_open","game_started","game_completed","game_route_loaded","game_route_stalled","game_route_asset_error"]},
  {id:"learning",label:"學習",events:["vocabulary_practice","textbook_study","seo_quiz_started","seo_quiz_completed","seo_quiz_cta_click"]},
  {id:"story",label:"故事",events:["story_reading","story_narration","story_created"]},
  {id:"fortune",label:"命理",events:["fortune_calculated","fortune_ai_interpreted","fortune_price_view","fortune_price_interest"]},
- {id:"worlds",label:"Town / Magic",events:["town_enter","town_interaction","town_chat_click","magic_enter","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected"]},
- {id:"mate",label:"Mate",events:["mate_open","mate_briefing_ready","mate_handoff_started","mate_handoff_completed"]},
  {id:"souls",label:"Souls",events:SOULS_USAGE_EVENTS},
- {id:"research",label:"Briefing",events:["research_article_open","research_article_saved","research_article_completed"]},
- {id:"circle",label:"交流圈",events:["circle_thread_open","circle_post_published","circle_comment_posted"]}
+ {id:"research",label:"Briefing",events:["research_article_open","research_article_saved","research_article_completed"]}
 ];
 export const games:{id:string;label:string}[]=[
  {id:"taboo",label:"Taboo 描述猜詞"},{id:"1a2b",label:"1A2B 猜數字"},

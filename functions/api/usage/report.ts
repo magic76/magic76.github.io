@@ -227,17 +227,17 @@ export async function onRequestGet({request,env}:Context){
  const days=period==="30"?30:7;
  // The period is fixed to 7/30, and no user-provided SQL or identifiers are accepted.
  const bound="timestamp >= NOW() - INTERVAL '"+days+"' DAY";
- const activeEvents="'teacher_conversation','friend_conversation','timeline_conversation','game_completed','vocabulary_practice','textbook_study','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted','town_interaction','magic_spell','magic_challenge_answer','magic_panel_choice','magic_voice_connected','guest_trial_connected','mate_briefing_ready','mate_handoff_started','mate_handoff_completed','souls_created','souls_conversation','research_article_completed','circle_post_published','circle_comment_posted'";
+ const activeEvents="'teacher_conversation','friend_conversation','timeline_conversation','game_completed','vocabulary_practice','textbook_study','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted','town_interaction','guest_trial_connected','mate_briefing_ready','mate_handoff_started','mate_handoff_completed','souls_created','souls_conversation','research_article_completed'";
  const chatEvents="'teacher_conversation','friend_conversation','timeline_conversation','souls_conversation'";
  // Period-wide distinct browsers per stage; no joins, raw IDs or new DB.
  const journeyClickEvents="'home_entry_click','explore_entry_click','shorts_chat_click','guest_trial_start_click'";
- const journeyStartEvents="'teacher_conversation_start','friend_conversation_start','timeline_conversation_start','game_started','textbook_study','mate_handoff_started','magic_voice_connected','souls_live_connected','story_narration'";
+ const journeyStartEvents="'teacher_conversation_start','friend_conversation_start','timeline_conversation_start','game_started','textbook_study','mate_handoff_started','souls_live_connected','story_narration'";
  const platformBound=" AND blob5 IN ('web','pwa','android_shell')";
  const previous="timestamp >= NOW() - INTERVAL '"+(days*2)+"' DAY AND timestamp < NOW() - INTERVAL '"+days+"' DAY";
  try{
   // Browser identity is deduplicated ACROSS the entire reporting period by SQL.
   // Never sum the per-day distinct counts to infer unique browsers.
-  const [daily,active,eventUsers,chat,previousActive,previousChat,journeyClicks,journeyStarts,platformOpens,platformActive,platformChat,platformReturn,platformGames,magicSessions,retentionRows]=await Promise.all([
+  const [daily,active,eventUsers,chat,previousActive,previousChat,journeyClicks,journeyStarts,platformOpens,platformActive,platformChat,platformReturn,platformGames,retentionRows]=await Promise.all([
    sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Asia/Taipei') AS day, blob1 AS event, blob3 AS detail, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event, detail ORDER BY day ASC, event ASC LIMIT 5000"),
    sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+activeEvents+")"),
    sql(env,"SELECT blob1 AS event, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY event LIMIT 100"),
@@ -252,7 +252,6 @@ export async function onRequestGet({request,env}:Context){
    sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 IN ("+chatEvents+") GROUP BY platform LIMIT 10"),
    sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 = 'user_returned' GROUP BY platform LIMIT 10"),
    sql(env,"SELECT blob5 AS platform, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+platformBound+" AND blob1 = 'game_completed' GROUP BY platform LIMIT 10"),
-   sql(env,"SELECT COUNT(DISTINCT blob4) AS users FROM crew_usage WHERE "+bound+" AND blob1 = 'magic_enter'"),
    sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Asia/Taipei') AS day, blob1 AS event, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE timestamp >= NOW() - INTERVAL '"+(days+9)+"' DAY AND blob1 IN ('retention_cohort_started','retention_d1_returned','retention_d7_returned') GROUP BY day, event ORDER BY day ASC LIMIT 300")
   ]);
   const rows=daily.map(row=>({day:String(row.day||""),event:String(row.event||""),detail:String(row.detail||""),
@@ -275,7 +274,6 @@ export async function onRequestGet({request,env}:Context){
     return {platform,opened:get(platformOpens),active:get(platformActive),chat:get(platformChat),
       returned:get(platformReturn),gamesCompleted:get(platformGames)};
    }),
-   magicDiagnostics:{entrySessions:Number(magicSessions[0]?.users||0)},
    rows,generatedAt:new Date().toISOString()
   });
  }catch{
