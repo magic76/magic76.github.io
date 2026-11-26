@@ -159,38 +159,42 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
  },
  "gemini-key-for-ai-practice":{
   zh:{
-   title:"Gemini API Key 免費申請教學：Koolo Teacher 語音練習設定｜Koolo",
-   description:"第一次使用 Koolo Teacher？了解如何透過 Google AI Studio 建立 Gemini API Key、在網站驗證與允許麥克風，以及免費額度的重要限制。",
-   label:"GEMINI API KEY 設定",headline:"如何選擇 Koolo 免費額度或自備 Gemini API Key",
-   intro:"Koolo 提供每日免費文字與語音額度，不需先申請 Gemini API Key。自備 Key 是進階選項，不是使用網站的必要條件。申請 API Key 通常不需要付 Koolo 費用，但 Google 是否提供免費額度、模型是否支援，以及是否需要開通計費，都以你的 Google 專案設定為準。",
-   bullets:["從 Google AI Studio 建立 API Key，不要向陌生網站購買 Key。","在 Koolo 的共用設定頁貼上並驗證，避免每個功能重複設定。","不要把 Key 公開貼在論壇、截圖或聊天室。"],
+   title:"Gemini API Key 申請與設定教學｜AI 語音聊天、英文口說｜Koolo",
+   description:"用 Google AI Studio 建立 Gemini API Key，在 Koolo 設定自己的 Key 練英文、語音聊天。了解免費額度、計費、驗證失敗與麥克風問題。",
+   label:"GEMINI API KEY 設定",headline:"Gemini API Key 怎麼申請？AI 語音聊天與英文口說設定",
+   intro:"想用自己的 Gemini API Key 在瀏覽器和 AI 說話？Koolo 提供 AI 老師與朋友的即時語音練習，也提供每日免費文字與語音額度，第一次使用不必先申請 Key。需要更多用量時，可選擇自備 Key（BYOK）；Google 的免費額度、模型權限與計費條件另計。",
+   bullets:["在 Google AI Studio 建立自己的 Key，不要向陌生網站購買。","到 Koolo 的「我的」帳號頁面設定 Gemini API Key，儲存並驗證。","先確認 Google 專案的模型權限、配額與計費，再開始長時間語音練習。"],
    sections:[
-    {heading:"Step 1：在 Google AI Studio 建立 API Key",paragraphs:["前往 Google AI Studio，使用自己的 Google 帳號建立或選取專案，依畫面指引產生 Gemini API Key。部分模型和功能的免費／付費條件不同，請先確認 Google 顯示的配額。","如果介面要求啟用計費，先評估你選用的 Live 模型是否在免費額度內，無需為了進入 Koolo 而盲目開通付費。"]},
-    {heading:"Step 2：回到 Koolo 設定並驗證",paragraphs:["開啟 Koolo 共用設定頁，貼上 API Key、確認驗證結果。請在瀏覽器允許麥克風權限；若第一次沒有聲音，先檢查網站權限、輸出裝置和瀏覽器是否封鎖自動播放。"]},
-    {heading:"Step 3：開始練習並保護 Key",paragraphs:["前往 Koolo 老師或朋友頁面使用每日免費額度；用完可查看登入後額度或等待隔日重置，也可選擇自備 Key。不要把 Key 填入別人提供的表單，也不要傳給朋友共用。","Koolo 網站的 Key 會用於連接 Google Gemini；使用量與費用應至 Google AI Studio／Cloud Console 查詢。"],sample:{label:"Google AI Studio",text:"https://aistudio.google.com/apikey",note:"只在 Google 官方網站建立 Key；進入 Koolo 後在設定頁完成驗證。"}}
+    {heading:"Step 1：在 Google AI Studio 建立 API Key",paragraphs:["登入 Google AI Studio，開啟 API Keys 頁面，依畫面建立或選取專案並產生 Key。複製 Key 後，只在自己信任的使用環境輸入。"],sample:{label:"Google AI Studio API Keys",text:"https://aistudio.google.com/apikey",note:"請確認網址屬於 Google；不要把 Key 放進聊天訊息、截圖或公開程式碼。"}},
+    {heading:"Step 2：設定 Koolo 的 Gemini API Key",paragraphs:["按本頁的設定按鈕，直接前往帳號頁的 Gemini API Key 區塊。貼上自己的 Key，選擇是否記住，然後儲存並驗證。","在共用設定完成後，前往 AI 老師或朋友開始練習。驗證成功表示 Key 能通過基本 API 檢查，不代表所有 Live 模型都一定可用。"]},
+    {heading:"Step 3：免費試用與自備 Key 有什麼差別？",paragraphs:["只想試用 Koolo：使用網站當下提供的免費文字或語音額度，不必先建立 Key。需要更多用量：可查看登入後額度，或自備 Key 使用支援的 AI 功能。","自備 Key 不代表無限免費。請在 Google AI Studio 查詢專案實際用量、配額與計費狀態；Live 語音模型的條件可能和文字模型不同。"],sample:{label:"Google 官方 Gemini API 定價",text:"https://ai.google.dev/gemini-api/docs/pricing",note:"依你使用的模型與專案方案確認價格，不要只看一般文字模型的免費額度。"}},
+    {heading:"Step 4：Key 驗證成功，但語音聊天不能用？",paragraphs:["如果出現 401 或 403，先確認 Key 是否有效、專案權限與 API 限制；如果遇到 429，請確認 Google 專案的配額、速率限制或計費狀態，不要一直重試。","若 Key 可以驗證但沒有聲音，請確認瀏覽器麥克風權限、輸出裝置，並檢查設定頁的語音測試；也可能是使用的 Live 模型不支援目前專案。"],sample:{label:"Google 官方 Gemini API 問題排查",text:"https://ai.google.dev/gemini-api/docs/troubleshooting",note:"錯誤原因依實際回應而異，不要將完整 Key 貼給任何人排查。"}}
    ],
    faq:[
-    {question:"Koolo Teacher 是完全免費的嗎？",answer:"Koolo 提供每日免費額度，但不是無限使用；以網站當下顯示為準。若自備 Key，Gemini API 的配額與費用由 Google 決定。"},
-    {question:"網站可以不用 Gemini Key 嗎？",answer:"可以。閱讀指南、部分遊戲與免費文字及語音額度不需要自備 Key；登入後額度及進階選項以網站顯示為準。"},
-    {question:"API Key 需要分享給 Koolo 管理員嗎？",answer:"不需要。不要透過郵件、聊天或截圖傳送 Key。"}
-   ],cta:"前往 Koolo 的 Gemini 設定",target:"/settings",secondary:"先了解 AI 英文口說練習",secondaryTarget:"/guides/ai-english-speaking"
+    {question:"Gemini API Key 是免費的嗎？",answer:"建立 Key 與呼叫模型是不同的事。Google 提供部分免費模型與有限額度；實際語音模型、配額與可能的費用，以 Google 專案和官方定價為準。"},
+    {question:"可以不用 Gemini Key 就開始 AI 語音聊天嗎？",answer:"可以。Koolo 有每日免費文字與語音額度，不需要先自備 Key；實際可用量與登入選項以網站當下顯示為準。"},
+    {question:"為什麼 Gemini API Key 驗證成功卻不能語音聊天？",answer:"基本 Key 驗證不等於 Live 模型可用。請檢查模型權限、配額、計費及瀏覽器麥克風權限，並嘗試設定內的語音測試。"},
+    {question:"API Key 需要分享給 Koolo 管理員嗎？",answer:"不需要。請勿透過郵件、聊天或截圖傳送自己的 Key。"}
+   ],cta:"設定我的 Gemini API Key",target:"/account#settings-gemini",secondary:"先了解 AI 英文口說練習",secondaryTarget:"/guides/ai-english-speaking"
   },
   en:{
-   title:"How to Get a Gemini API Key for Koolo Teacher Voice Practice | Koolo",
-   description:"Set up a Gemini API key with Google AI Studio, verify it in Koolo Teacher, enable microphone permissions, and understand free tier and billing limits.",
-   label:"GEMINI API KEY SETUP",headline:"Use Koolo's free allowance or optionally set up your own Gemini API key",
-   intro:"Koolo offers daily free text and AI voice allowances without requiring an API key upfront. Sign in for additional allowance where available, or wait for the daily reset. Bringing your own Gemini API key is optional. Free allowances, supported models and billing requirements depend on your Google project and chosen model.",
-   bullets:["Create the key through Google AI Studio, not an unofficial seller.","Verify it once in Koolo's shared settings page.","Never post the key in screenshots, chats or public code."],
+   title:"Gemini API Key for Voice Chat: Setup and Free Limits | Koolo",
+   description:"Set up a Gemini API key for AI voice chat and English speaking practice. Learn how to use Google AI Studio, verify your key, check billing and fix common errors.",
+   label:"GEMINI API KEY SETUP",headline:"How to use a Gemini API key for AI voice chat",
+   intro:"Want to use your own Gemini API key for real-time voice conversations in a browser? Koolo offers AI tutors and conversational friends, with daily free text and voice allowances to get started without a key. Bring your own key (BYOK) for supported AI features when you need more usage. Google model access, quotas and billing are separate from Koolo's allowance.",
+   bullets:["Create a key in Google AI Studio, not through an unofficial seller.","Open your Koolo account's Gemini API Key settings, then save and verify.","Check model access, quotas and billing before starting long voice sessions."],
    sections:[
-    {heading:"Step 1: Create a key in Google AI Studio",paragraphs:["Sign in to Google AI Studio with your Google account. Select or create a project and generate a Gemini API key using the official setup flow.","Check the displayed quota and pricing before enabling billing, particularly for Gemini Live models. A free-tier option for one model does not guarantee free Live voice usage for every model."]},
-    {heading:"Step 2: Verify the key in Koolo",paragraphs:["Open Koolo's shared Settings, paste your Gemini API key, and complete verification. Allow microphone access when prompted. If you hear no audio, inspect site permissions and your output device."]},
-    {heading:"Step 3: Start talking safely",paragraphs:["Go to Koolo Teacher or Koolo Friends for live conversation. If you choose BYOK, use your own key and don't share it with other users. Monitor usage and costs in Google's tools."],sample:{label:"Official Google AI Studio",text:"https://aistudio.google.com/apikey",note:"Create keys through Google; verify them only in the Koolo settings page."}}
+    {heading:"Step 1: Get a Gemini API key from Google AI Studio",paragraphs:["Sign in to Google AI Studio, open the API Keys page, and create or select a project as instructed. Copy your key and keep it private."],sample:{label:"Google AI Studio API Keys",text:"https://aistudio.google.com/apikey",note:"Use Google's official site. Never put your key in chat messages, screenshots or public code."}},
+    {heading:"Step 2: Set up your key in Koolo",paragraphs:["Use the setup button on this page to open the Gemini API Key section of your Koolo account. Paste your key, choose whether to remember it, then save and verify.","Once configured, choose an AI tutor or friend to start practicing. Passing the basic API verification does not guarantee access to every Gemini Live model."]},
+    {heading:"Step 3: Free voice allowance vs. your own Gemini API key",paragraphs:["For a first session, use Koolo's current free text or voice allowance without creating a key. For more usage, check sign-in options or bring your own key for supported AI features.","A personal API key does not mean unlimited free voice chat. Check your project's usage, rate limits and billing in Google AI Studio. Live audio and text models may have different terms."],sample:{label:"Official Gemini API pricing",text:"https://ai.google.dev/gemini-api/docs/pricing",note:"Check pricing for the actual model and project tier you use."}},
+    {heading:"Step 4: Fix Gemini API key and voice connection problems",paragraphs:["For a 401 or 403 error, check the validity of the key, project permissions and API restrictions. A 429 error may indicate quota or rate limits: check project usage and billing instead of repeatedly retrying.","If verification works but there is no voice, check browser microphone permission, your audio output device and the voice test in Settings. Also verify that your project has access to the selected Live model."],sample:{label:"Official Gemini API troubleshooting",text:"https://ai.google.dev/gemini-api/docs/troubleshooting",note:"Check the actual error response without sharing your full API key."}}
    ],
    faq:[
-    {question:"Is Koolo Teacher free to use?",answer:"Koolo offers a daily free allowance, not unlimited usage. Check the site for current options. If you use your own key, Gemini API pricing and availability are controlled by Google."},
-    {question:"Can I use the website without a Gemini key?",answer:"Yes. Read guides and use daily free text and voice allowances without bringing your own key. Check the site for current limits and sign-in options."},
+    {question:"Is a Gemini API key free for voice chat?",answer:"Creating a key and using a model are different things. Google offers limited free access to some models; check the actual Live model, project quota and pricing before use."},
+    {question:"Can I try AI voice chat without a Gemini API key?",answer:"Yes. Koolo offers daily free text and voice allowances without a personal API key. Check current limits and sign-in options in the product."},
+    {question:"Why does my Gemini API key work but voice chat fail?",answer:"Basic key verification does not guarantee Live model access. Check model availability, quota, billing and microphone permissions, and try the voice test in Settings."},
     {question:"Should I send my API key to the Koolo team?",answer:"No. Never send your key by email, chat or screenshot."}
-   ],cta:"Open Koolo Gemini Settings",target:"/settings",secondary:"Explore AI speaking practice",secondaryTarget:"/guides/ai-english-speaking"
+   ],cta:"Set up my Gemini API key",target:"/account#settings-gemini",secondary:"Explore AI speaking practice",secondaryTarget:"/guides/ai-english-speaking"
   }
  }
 };

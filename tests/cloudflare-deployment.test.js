@@ -276,12 +276,14 @@ check("search-intent guides serve real localized SSG HTML and enter the sitemap"
   }
  }
 });
-check("English Gemini key guide preserves the exact escaped heading in rendered HTML",async()=>{
+check("English Gemini key guide preserves its heading and direct account CTA in rendered HTML",async()=>{
  const {decodeHtmlText}=await import("../scripts/research-seo.mjs");
  const html=read("en/guides/gemini-key-for-ai-practice/index.html");
  const heading=html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1\s*>/i);
  assert.ok(heading);
- assert.equal(decodeHtmlText(heading[1]),"Use Koolo's free allowance or optionally set up your own Gemini API key");
+ assert.equal(decodeHtmlText(heading[1]),"How to use a Gemini API key for AI voice chat");
+ assert.ok(html.includes('href="/en/account#settings-gemini"'),"localized direct Gemini setup link missing");
+ assert.ok(read("guides/gemini-key-for-ai-practice/index.html").includes('href="/account#settings-gemini"'),"Chinese direct Gemini setup link missing");
 });
 check("Crew Play SSG has real game cards with correct bilingual canonical and JSON-LD",()=>{
  const origin="https://koolo.app",sitemap=read("sitemap.xml");
