@@ -1,1 +1,0 @@
-var e=new URL(`crew_friend_zoe-BaLIUqkx.webp`,import.meta.url).href;export{e as t};
