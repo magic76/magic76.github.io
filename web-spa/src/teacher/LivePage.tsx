@@ -1,4 +1,6 @@
-import {teacherCallStatusKey} from "./teacherCallStatus";
+import{FriendUnifiedComposer}from"../friends/FriendUnifiedComposer";
+import{useFriendTextViewport}from"../friends/useFriendTextViewport";
+import {teacherCallStatusKey,teacherPresenceState} from "./teacherCallStatus";
 import{Arrow}from"../components/Arrow";
 import {useAuxiliaryLiveSession} from "../live/useAuxiliaryLiveSession";
 import{useSuggestedReplies}from"../live/useSuggestedReplies";
@@ -211,8 +213,9 @@ export function TeacherLivePage(){
  const alternateParams=new URLSearchParams(p);
   if(textMode)alternateParams.delete("chat");else alternateParams.set("chat","text");
   const alternateHref="/teacher/live?"+alternateParams.toString();
-  const awaitingReply=["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase);
- const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?(awaitingReply?"waiting":"listening"):live.state==="connecting"||live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":live.state==="error"&&live.errorKind!=="key"?"error":"idle";
+ const presenceState=teacherPresenceState(live);
+ const stage=useRef<HTMLElement>(null);
+ useFriendTextViewport(!textMode,stage);
  const voiceStatus=t(teacherCallStatusKey(live),{name:profile.name});
  const courseTitle=(c:{titleZh:string;titleEn:string})=>zh?c.titleZh:c.titleEn;
  const missionNotes=<>
@@ -238,7 +241,7 @@ export function TeacherLivePage(){
  <main className="session-shell teacher-call-page friend-live-page">
  {textMode?missionNotes:null}
 
- <div className="desktop-live-workspace teacher-desktop-workspace friend-desktop-workspace"><section className={"live-stage teacher-live-stage"+(!textMode?" friend-phone-stage":"")} data-state={live.state} aria-label={t("live.status.idle")}>
+ <div className="desktop-live-workspace teacher-desktop-workspace friend-desktop-workspace"><section ref={stage} className={"live-stage teacher-live-stage"+(!textMode?" friend-phone-stage":"")} data-state={live.state} aria-label={t("live.status.idle")}>
    {!textMode&&<FriendCallMenu inCall open={callOptions} onClose={()=>setCallOptions(false)} title={t("voice:callCaptions.more")} closeLabel={t("voice:callCaptions.closeMenu")}>
   <div className="friend-call-settings">
    {missionNotes}{modeSwitch}{teacherOptions}{quickActions}
@@ -261,9 +264,9 @@ export function TeacherLivePage(){
     :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"} name={profile.name} onRetry={()=>setGuestStarted(false)} textFallback={fortuneKind?undefined:alternateHref} onUseText={()=>setGuestStarted(false)}/>
     :sessionActive?<FriendCallControls live={live} onEnd={endAndReturn}/>:<LiveControls live={live} textFallback={fortuneKind?undefined:alternateHref} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
    {guestStarted&&!sessionActive&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
-  {textMode?quickActions:null}
   </div>
   {sessionActive||interruptedCaptions?<FriendCallCaptions name={profile.name} turns={live.captionTurns} learningFeedback={live.learningFeedback} input={live.input} output={live.output} learningLanguage={s.targetLanguage} nativeLanguage={s.nativeLanguage} speaking={live.state==="speaking"} speakerAvatar={<TeacherAvatar profile={profile} decorative/>} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled} waitingText={t("voice:callCaptions.waitingForTeacher")} headerAccessory={guestStarted&&live.state!=="ended"&&live.state!=="error"?<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>:null} replyExtra={<PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/>}/>:null}
+  {(sessionActive||interruptedCaptions)&&!endingCourse&&<FriendUnifiedComposer live={live} connectedOnly/>}
   </>}
  </section>{!textMode&&<DesktopLivePanel kind="teacher" label={profile.name} language={s.targetLanguage} turns={live.captionTurns} input={live.input} output={live.output} state={live.state} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode}/>}</div>
  <TeacherLiveResults report={live.report} course={course} evaluating={evaluating} evaluationError={evaluationError} courseResult={courseResult} onRetry={()=>{courseSavedRef.current=false;setEvaluationError("");setCourseResult(null);setEvaluating(true);setAssessmentRetry(x=>x+1)}}/>

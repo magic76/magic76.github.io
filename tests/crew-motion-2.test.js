@@ -36,7 +36,7 @@ test("Live presence shows actual listening, speaking, waiting and errors without
  const teacher=read("web-spa/src/teacher/LivePage.tsx");
  const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
  const motion=read("web-spa/src/motion.css");
- assert.match(teacher,/const awaitingReply=.*"no-reply"/);
+ assert.match(read("web-spa/src/teacher/teacherCallStatus.ts"),/const awaitingReply=.*"no-reply"/);
  assert.match(teacher,/data-state=\{presenceState\} role="status"/);
  assert.match(friend,/const friendVisualState=/);
  assert.match(friend,/data-state=\{friendVisualState\}/);

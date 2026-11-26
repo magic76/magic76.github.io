@@ -12,3 +12,13 @@ export function teacherCallStatusKey({state,errorKind,voicePhase}:Pick<ReturnTyp
  if(state==="speaking"||state==="reporting"||state==="error")return "live.status."+state;
  return "live.status.idle";
 }
+
+export function teacherPresenceState(live:Pick<ReturnTypeOfLive,"state"|"errorKind"|"voicePhase">){
+ const awaitingReply=["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase);
+ if(live.state==="speaking")return "speaking";
+ if(live.state==="listening")return awaitingReply?"waiting":"listening";
+ if(live.state==="connecting"||live.state==="requesting-mic")return "connecting";
+ if(live.state==="reporting")return "waiting";
+ if(live.state==="error"&&live.errorKind!=="key")return "error";
+ return "idle";
+}
