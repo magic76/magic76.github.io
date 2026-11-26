@@ -193,7 +193,8 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const needsKey=live.state==="error"&&live.errorKind==="key";
  const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
  const friendVoiceStatus=t(friendVoiceStatusKey(live.state,live.voicePhase,needsKey,active,live.micEnabled,live.muted),{name:friend.name});
- const voiceMuteProps=live.micEnabled&&(live.state==="listening"||live.state==="speaking")
+ const voiceConnected=live.micEnabled&&(live.state==="listening"||live.state==="speaking");
+ const voiceMuteProps=voiceConnected
   ?{volume:live.volume,onVolume:live.setVolume}:null;
  useFriendTextViewport(true,textStage);
  const portraitRef=useRef<HTMLDivElement>(null);
