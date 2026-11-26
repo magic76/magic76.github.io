@@ -6,8 +6,9 @@ import "./friendUnifiedComposer.css";
 
 type Props={
  live:ReturnTypeOfLive;
- hasKey:boolean;
- focusOnMount:boolean;
+ hasKey?:boolean;
+ focusOnMount?:boolean;
+ connectedOnly?:boolean;
  blocked?:boolean;
  starters?:string[];
  autoStarter?:string;
@@ -16,7 +17,7 @@ type Props={
 };
 
 /** One keyboard for the voice and text-first paths. Both call live.sendText. */
-export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,starters=[],autoStarter,verificationReady=false,onVerificationNeeded}:Props){
+export function FriendUnifiedComposer({live,hasKey=false,focusOnMount,connectedOnly=false,blocked=false,starters=[],autoStarter,verificationReady=false,onVerificationNeeded}:Props){
  const {t}=useTranslation("voice");
  const inputRef=useRef<HTMLTextAreaElement>(null);
  const autoSent=useRef(false);
@@ -30,7 +31,7 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
  useEffect(()=>{if(focusOnMount)inputRef.current?.focus({preventScroll:true})},[focusOnMount]);
  const send=async(value:string)=>{
   const text=value.trim();
-  if(!text||busy)return;
+  if(!text||busy||(connectedOnly&&!connected))return;
   if(blocked){setNotice(t("friendLive.preparingPost"));return}
   if(connecting){setNotice(t(onVerificationNeeded?"friendLive.connectingText":"friendLive.preparingPost"));return}
   if(!connected&&!hasKey){
@@ -44,7 +45,7 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
   setBusy(true);setNotice("");
   try{
    if(!connected)await live.start(undefined,true);
-   if(!live.sendText(text))throw Error("Live unavailable");
+   if(!(connectedOnly?live.sendText(text,true):live.sendText(text)))throw Error("Live unavailable");
    setDraft(current=>current.trim()===text?"":current);
    inputRef.current?.focus({preventScroll:true});
   }catch{
@@ -87,9 +88,9 @@ export function FriendUnifiedComposer({live,hasKey,focusOnMount,blocked=false,st
   {connected&&!live.micEnabled&&<button className="friend-unified-enable-mic" type="button" disabled={micBusy} onClick={()=>void enableMic()}>{t("friendLive.useVoice")}</button>}
   <form className="friend-unified-input-row" onSubmit={submit}>
    <textarea ref={inputRef} rows={1} value={draft} onChange={event=>setDraft(event.target.value)} onKeyDown={keyDown}
-    aria-label={t("friendLive.textChat")} placeholder={t("friendLive.textChat")} disabled={live.state==="ending"||live.state==="reporting"}
+    aria-label={t("textChat.ui.message")} placeholder={t("textChat.ui.placeholder")} disabled={live.state==="ending"||live.state==="reporting"}
     maxLength={2000}/>
-   <button type="submit" disabled={!draft.trim()||busy||connecting||blocked} aria-label={t("friendLive.textChat")}><Arrow direction="up" className="crew-arrow--plain"/></button>
+   <button type="submit" disabled={!draft.trim()||busy||connecting||blocked||(connectedOnly&&!connected)} aria-label={t("textChat.ui.send")}><Arrow direction="up" className="crew-arrow--plain"/></button>
   </form>
   {notice&&<p className="friend-unified-notice" role={notice===t("friendLive.verifyBeforeSend")?"alert":"status"}>{notice}</p>}
  </div>;

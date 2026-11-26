@@ -30,7 +30,7 @@ export type LiveSessionOptions={
 export interface LiveSession{
  ready:boolean;running:boolean;model:string;micMuted:boolean;
  start():Promise<void>;stop(options?:Record<string,unknown>):Promise<void>;setVolume(value:number):void;
- toggleMic():void;enableMicrophone?():Promise<void>;interrupt():boolean;sendText(text:string):boolean;sendControl?(instruction:string):boolean;sendImage(image:unknown,options?:Record<string,unknown>):boolean;sendVideoFrame?(frame:unknown):boolean;
+ toggleMic():void;enableMicrophone?():Promise<void>;interrupt():boolean;sendText(text:string,trackAsLearnerInput?:boolean):boolean;sendControl?(instruction:string):boolean;sendImage(image:unknown,options?:Record<string,unknown>):boolean;sendVideoFrame?(frame:unknown):boolean;
  getDurationMs():number;
  getMicHealth?():{captureMode:string;trackState:string;muted:boolean;rms:number;dbfs:number;lastFrameAt:number;lastVoiceAt:number;setupBufferedMs:number};
  getHealthSnapshot?():{socketState:number|null;audioContextState:string|null;micTrackState:string|null;bufferedBytes:number;lastAudioSentAgoMs:number|null;lastServerEventAgoMs:number|null;lastTranscriptAgoMs:number|null;lastModelOutputAgoMs:number|null};

@@ -663,7 +663,7 @@
     }
   };
 
-  LiveSession.prototype.sendText=function(text){
+  LiveSession.prototype.sendText=function(text,trackAsLearnerInput){
     text=String(text||"").trim();
     var attempt=this.activeAttempt;
     if(!text||!this.ready||!this._isActiveAttempt(attempt))return false;
@@ -675,7 +675,7 @@
           turnComplete:true
         }
       }));
-      if(this.textOnly||this.options.trackTextTurns){
+      if(trackAsLearnerInput||this.textOnly||this.options.trackTextTurns){
         this.inputTurn=text;
         if(this.options.onInputTranscript)this.options.onInputTranscript(text);
       }

@@ -531,7 +531,7 @@ export function useLiveSession(config:Config){
  const interrupt=useCallback(()=>{feedbackQueue.current.clear();awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");return sessionRef.current?.interrupt()??false},[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
  const enableMicrophone=useCallback(async()=>{const session=sessionRef.current;if(!session?.ready||!session.enableMicrophone)throw new Error("Live 尚未連線");await session.enableMicrophone();if(sessionRef.current===session)setMicEnabled(true)},[]);
- const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
+ const sendText=useCallback((text:string,trackAsLearnerInput?:boolean)=>sessionRef.current?.sendText(text,trackAsLearnerInput)??false,[]);
   const presentGrounding=useCallback((answer:{sources:GroundingSource[];searchSuggestions?:string})=>{
    setSearchSources(previous=>mergeGroundingSources(previous,answer.sources));
    if(answer.searchSuggestions)setSearchSuggestions(answer.searchSuggestions);
