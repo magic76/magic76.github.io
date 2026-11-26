@@ -94,7 +94,16 @@
 .crew-section-learn .crew-section-discover{gap:12px}
 .crew-section-learn .crew-section-card{background:transparent}
 @media(max-width:700px){
- .crew-section-people-strip .crew-section-friend{flex-basis:min(75%,285px);min-height:342px}
+ /* Three complete portrait cards fit the content width, including both 13px gaps. */
+ .crew-section-people-strip{scroll-padding-inline:3px}
+ .crew-section-people-strip .crew-section-friend{box-sizing:border-box;flex-basis:calc((100% - 26px)/3);min-height:0;aspect-ratio:2/3;align-self:flex-start}
+ .crew-section-people-strip .crew-section-friend-copy{box-sizing:border-box;gap:3px;padding:28px 7px 8px}
+ .crew-section-people-strip .crew-section-friend strong{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .crew-section-people-strip .crew-section-friend-bio,.crew-section-people-strip .crew-section-friend-cta{display:block;min-width:0;font-size:12px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ /* The whole card is already a link; retain only the returning friend's resume cue. */
+ .crew-section-friend-copy:has(.crew-section-friend-bio) .crew-section-friend-cta{display:none}
+ .crew-section-people-strip .crew-section-friend-cta{margin-top:0}
+ .crew-section-people-strip .crew-section-friend-cta .crew-arrow{display:none}
  .crew-section-chat-life .crew-home-shorts-heading{flex-wrap:wrap}
  .crew-section-focus-card{grid-template-columns:minmax(0,1fr) 88px;gap:12px;padding:18px}
  .crew-section-focus-card-portrait{border-radius:16px;grid-row:1}
