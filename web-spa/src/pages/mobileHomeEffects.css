@@ -49,3 +49,33 @@
  .cmh-shorts .crew-home-short-card{opacity:1!important;translate:0 0!important;rotate:0!important}
  .cmh-carousel::before{transition:none!important}
 }
+
+/* Keep the teacher slide readable while its portrait opens inside the existing frame. */
+@media(max-width:767px){
+ .crew-mobile-home .cmh-slide-learn[data-active="true"] :is(.cmh-slide-copy,.cmh-learn-art,.cmh-learn-portrait,.cmh-zoe-actions){
+  animation:none;
+ }
+}
+
+@media(max-width:767px) and (prefers-reduced-motion:no-preference){
+ @supports(clip-path:inset(0 40% round 50%)){
+  .crew-mobile-home[data-home-motion="on"] .cmh-slide-learn[data-active="true"] .cmh-learn-portrait > :is(img,.teacher-avatar-image){
+   animation:koolo-teacher-aperture 540ms cubic-bezier(.22,.72,.2,1);
+  }
+  .crew-mobile-home[data-home-motion="on"] .cmh-slide-learn[data-active="true"] .cmh-learn-portrait::after{
+   content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+   background:linear-gradient(108deg,transparent 29%,#ffe4b480 50%,transparent 72%);
+   animation:koolo-teacher-light 520ms ease-out 65ms;
+  }
+ }
+}
+
+@keyframes koolo-teacher-aperture{
+ from{clip-path:inset(6% 46% round 50% 50% 36% 36%);transform:scale(1.045)}
+ to{clip-path:inset(0 round 0);transform:scale(1)}
+}
+@keyframes koolo-teacher-light{
+ 0%{opacity:0;transform:translateX(-95%)}
+ 35%{opacity:.75}
+ 100%{opacity:0;transform:translateX(95%)}
+}
