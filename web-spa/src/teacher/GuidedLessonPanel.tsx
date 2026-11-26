@@ -6,10 +6,10 @@ import {LESSONS,LESSON_CATEGORIES,lessonCategory,lessonLabel,lessonProgress,type
 type Props={
  lesson?:Lesson;lessonId:LessonId|null;lessonStep:number;
  progress:ReturnType<typeof lessonProgress>|null;
- english:boolean;quizLocked:boolean;
- onStart:(id:LessonId)=>void;onStep:(index:number)=>void;active:boolean;pendingTopic:string;onTopic:(topic:string)=>void;
+ english:boolean;
+ onStart:(id:LessonId)=>void;active:boolean;pendingTopic:string;onTopic:(topic:string)=>void;
 };
-export function GuidedLessonPanel({lesson,lessonId,lessonStep,progress,english,onStart,active,pendingTopic,onTopic}:Props){
+export function GuidedLessonPanel({lesson,lessonId,lessonStep,progress,onStart,active,pendingTopic,onTopic}:Props){
  const {t,i18n}=useTranslation("teacher");
  const zh=(i18n.resolvedLanguage||"").startsWith("zh");
  const [category,setCategory]=useState<LessonCategory|"recommended">("recommended");
