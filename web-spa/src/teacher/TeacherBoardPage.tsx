@@ -287,6 +287,7 @@ export function TeacherBoardPage(){
  const focusedCard=cards.find(c=>c.id===(following?latestId:focusedId))||cards[cards.length-1];
  const lesson=lessonId?findLesson(lessonId):undefined;
  const preparing=!active&&!cards.length&&!pendingTopic;
+ const hasTopic=!!lesson||!!pendingTopic;
  const zh=(i18n.resolvedLanguage||"").startsWith("zh");
  const progress=lesson?lessonProgress(lesson,answers,speakingAssessment):null;
  const currentStepDone=!!lesson&&!!completedSteps[lesson.cards[lessonStep]?.id];
@@ -417,17 +418,13 @@ export function TeacherBoardPage(){
   <main className={"teaching-board-layout"+(preparing?" is-preparing":" is-teaching")}>
    <BoardTutorPanel live={live} profile={profile} targetLanguage={s.targetLanguage} english={english} hint={hint} onAsk={ask} preparing={preparing}/>
    <GuidedLessonPanel lesson={lesson} lessonId={lessonId} lessonStep={lessonStep} progress={progress} english={english}
-    quizLocked={focusedCard?.type==="quiz"&&director.phase==="awaiting"} onStart={startLesson} onStep={goLessonStep} active={active} pendingTopic={pendingTopic} onTopic={startFreeTopic}/>
+    onStart={startLesson} active={active} pendingTopic={pendingTopic} onTopic={startFreeTopic}/>
    <section className="teaching-board-workspace">
    <section className="teaching-board-canvas" aria-label={t("board.canvas")}>
     <BoardQuickControls english={english} active={active} guided={!!lesson} hasCards={cards.length>0&&!topicEnded} step={lessonStep} steps={lesson?.cards.length||0} onNext={()=>goLessonStep(lessonStep+1)} onEnd={endTopic} onLesson={startLesson} onTopic={startFreeTopic} voiceControls={<LiveControls live={live} compact prominentInterrupt english={english} onEnd={async()=>{record("call-end");await live.stop(true);navigate("/learn")}}/>}/>
-    {topicEnded&&<p className="teaching-board-topic-ended" role="status">{english?"Topic finished. Your notes remain below for review. Choose a new topic above when ready.":"這個話題已結束。下方教材保留供回顧，想繼續時可從上方選新話題。"}</p>}
-    {!preparing&&<div className="teaching-board-canvas-head"><div><h1>{lesson?lessonLabel(lesson,zh):pendingTopic||t("board.canvas")}</h1>{lesson&&<small>{lessonStep+1} / {lesson.cards.length}</small>}</div></div>}
-    <details className="teaching-board-more"><summary>{english?"Board tools & review":"白板工具與複習"}{reviews.due.length>0?" · "+reviews.due.length:""}</summary><div className="teaching-board-canvas-actions">{!lesson&&<button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>}
-     <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div>
-    <BoardReviewBanner due={reviews.due.length} total={reviews.total} enabled={memoryEnabled}
-     blocked={director.phase==="awaiting"} onStart={startDueReview} onClear={reviews.clear}/>
-    {!lessonId&&<BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"}/>}</details>
+    {topicEnded&&<p className="teaching-board-topic-ended" role="status">{english?"Topic finished. Your notes remain below for review. Choose Change topic when ready.":"這個話題已結束。下方教材保留供回顧，想繼續時可選擇「換個話題」。"}</p>}
+    {hasTopic&&<div className="teaching-board-canvas-head"><div><h1>{lesson?lessonLabel(lesson,zh):pendingTopic}</h1></div></div>}
+
     {cards.length>0&&<div className={"teaching-board-navigator"+(lesson?" is-guided":"")}>
      <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
       <small>{following?t("board.following"):t("board.paused")}</small>
@@ -466,6 +463,11 @@ export function TeacherBoardPage(){
      <button type="button" onClick={()=>{setPendingTopic("");cardRef.current=[];setCards([]);setAnswers({});setNotesOpen(false);setLatestId(null);setFocusedId(null);setFollowing(true);changeDirector(EMPTY_DIRECTOR);answersRef.current={};lessonRef.current=null;setLessonId(null);setLessonStep(0);speechAssessmentRef.current=null;setSpeakingAssessment(null);reviewReturnRef.current=null;setReviewReturn(null)}}>{t("board.clear")}</button>
      {copyStatus&&<small role="status">{copyStatus}</small>}
     </div>}
+    <details className="teaching-board-more"><summary>{english?"Board tools & review":"白板工具與複習"}{reviews.due.length>0?" · "+reviews.due.length:""}</summary><div className="teaching-board-canvas-actions">{!lesson&&<button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>}
+     <p className="teaching-board-mode-hint">{t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p><span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div>
+    <BoardReviewBanner due={reviews.due.length} total={reviews.total} enabled={memoryEnabled}
+     blocked={director.phase==="awaiting"} onStart={startDueReview} onClear={reviews.clear}/>
+    {!lessonId&&<BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"}/>}</details>
     {notesOpen&&<section className="teaching-board-notes"><h2>{t("board.notes")}</h2><pre>{boardNotes(cards)}</pre></section>}
    </section>
    </section>
