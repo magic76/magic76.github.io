@@ -758,7 +758,7 @@ test("Live product polish keeps one focal character and secondary tools collapse
 
 test("Teacher HQ portrait sprite uses six exact crops for all tutors",()=>{
  const avatar=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherAvatar.tsx"),"utf8");
- assert.ok(avatar.includes('backgroundSize:hq!==undefined?"600% 100%":"cover"'));
+ assert.ok(avatar.includes('backgroundSize:hq===undefined?"cover":portrait?"auto 100%":"600% 100%"'));
  for(const pair of ['emma:"0%"','alex:"20%"','james:"40%"','mia:"60%"','sophie:"80%"','lina:"100%"'])assert.ok(avatar.includes(pair));
  assert.ok(!avatar.includes('backgroundSize:"400% 100%"'));
 });
