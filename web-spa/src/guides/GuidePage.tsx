@@ -3,6 +3,7 @@ import {useEffect} from "react";
 import {Link,useParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {getGuide,guideSlugs,type GuideSlug} from "./catalog";
+import {EdEndingQuiz} from "./EdEndingQuiz";
 
 
 const getLocale=(value:string)=>value==="zh-TW"?"zh":"en";
@@ -36,6 +37,7 @@ export function GuidePage(){
   </header>
   <div className="crew-guide-layout">
    <div className="crew-guide-main">
+    {slug==="english-pronunciation"&&<EdEndingQuiz english={english}/>}
     <section className="crew-guide-summary" aria-label={english?"Key takeaways":"重點整理"}>
      <h2>{english?"What to remember":"先記住這三件事"}</h2>
      <ul>{guide.bullets.map(item=><li key={item}>{item}</li>)}</ul>
