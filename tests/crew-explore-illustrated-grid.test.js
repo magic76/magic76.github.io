@@ -75,3 +75,10 @@ test("All eight non-Timeline cards use local 3:2 Explore illustrations",()=>{
  assert.match(css,/scale\(1\.03\)/);
  assert.doesNotMatch(css,/crew-explore-town-mini|crew-explore-magic-preview/);
 });
+
+test("Explore renders the talking photo tile immediately before research in DOM order",()=>{
+ const page=read("web-spa/src/pages/CrewSectionPage.tsx");
+ const grid=page.slice(page.indexOf('<section className="crew-explore-grid"'),page.indexOf('</section>:',page.indexOf('<section className="crew-explore-grid"')));
+ assert.match(grid,/map\(\(\{item,kind\}\)=>\s*<Fragment key=\{item.to\}>\s*\{kind==="research"&&\s*<Link[^>]*data-kind="souls" to="\/souls"[\s\S]*?<\/Link>\s*\}\s*<Link className="crew-explore-tile"[^>]*to=\{item.to\}/);
+ assert.equal((grid.match(/data-kind="souls"/g)||[]).length,1);
+});

@@ -1,6 +1,6 @@
 import {learningRouteAvailable} from "../teacher/learningLanguages";
 import {Arrow} from "../components/Arrow";
-import {useRef,useState} from "react";
+import {Fragment,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
@@ -231,11 +231,8 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   </header>
   {section==="explore"?
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
-    {[x.hero,...x.items].map((item,i)=>({item,kind:exploreKinds[i]})).filter(({kind})=>kind!=="timeline"&&kind!=="story").map(({item,kind})=><Link className="crew-explore-tile" key={item.to} to={item.to} onClick={()=>recordExploreEntry(item.to)} data-kind={kind}>
-     <div className="crew-explore-art"><ExploreArtwork kind={kind}/></div>
-     <span className="crew-explore-text"><strong>{item.title}</strong>{kind==="research"?<LatestBriefingTitle fallback={item.desc}/>:<small>{item.desc}</small>}</span>
-     <Arrow direction="right" className="crew-explore-arrow"/>
-    </Link>)}
+    {[x.hero,...x.items].map((item,i)=>({item,kind:exploreKinds[i]})).filter(({kind})=>kind!=="timeline"&&kind!=="story").map(({item,kind})=><Fragment key={item.to}>
+    {kind==="research"&&
     <Link className="crew-explore-tile crew-explore-souls" data-kind="souls" to="/souls" onClick={()=>trackUsageEvent("explore_entry_click","souls")}>
      <div className="crew-explore-art"><ExploreArtwork kind="souls"/></div>
      <span className="crew-explore-text">
@@ -244,6 +241,13 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      </span>
      <Arrow direction="right" className="crew-explore-arrow"/>
     </Link>
+    }
+    <Link className="crew-explore-tile" to={item.to} onClick={()=>recordExploreEntry(item.to)} data-kind={kind}>
+     <div className="crew-explore-art"><ExploreArtwork kind={kind}/></div>
+     <span className="crew-explore-text"><strong>{item.title}</strong>{kind==="research"?<LatestBriefingTitle fallback={item.desc}/>:<small>{item.desc}</small>}</span>
+     <Arrow direction="right" className="crew-explore-arrow"/>
+    </Link>
+    </Fragment>)}
    </section>:
    <>
     {section==="chat"?
