@@ -1,0 +1,80 @@
+[
+  {
+    "placeZh": "機場報到",
+    "placeEn": "Airport check-in",
+    "prompt": "May I see your passport, please?",
+    "choices": [
+      "Here you are.",
+      "I'd like a table for two.",
+      "The room is too cold."
+    ],
+    "correct": 0,
+    "zh": "Here you are. 是遞交物品時常用的「給您」。",
+    "en": "Here you are is a natural way to hand someone a requested item."
+  },
+  {
+    "placeZh": "飯店入住",
+    "placeEn": "Hotel check-in",
+    "prompt": "Do you have a reservation?",
+    "choices": [
+      "Where is the train station?",
+      "Yes, it's under Lin.",
+      "I'd like a coffee."
+    ],
+    "correct": 1,
+    "zh": "under + 姓名表示以該姓名訂位或訂房。",
+    "en": "Under + a name identifies the name used for a booking."
+  },
+  {
+    "placeZh": "餐廳點餐",
+    "placeEn": "Ordering food",
+    "prompt": "Are you ready to order?",
+    "choices": [
+      "My flight leaves at noon.",
+      "I have a reservation for two nights.",
+      "I'd like the soup, please."
+    ],
+    "correct": 2,
+    "zh": "I'd like... 是禮貌提出點餐需求的說法。",
+    "en": "I'd like... is a polite way to order food."
+  },
+  {
+    "placeZh": "交通問路",
+    "placeEn": "Getting directions",
+    "prompt": "How can I help you?",
+    "choices": [
+      "Which platform is the train to Kyoto on?",
+      "Yes, the soup was delicious.",
+      "I booked a double room."
+    ],
+    "correct": 0,
+    "zh": "Which platform...? 用來詢問列車的月台。",
+    "en": "Which platform...? asks where to board a train."
+  },
+  {
+    "placeZh": "購物",
+    "placeEn": "Shopping",
+    "prompt": "Would you like to try it on?",
+    "choices": [
+      "I'm here on vacation.",
+      "Yes, where is the fitting room?",
+      "Can I see your passport?"
+    ],
+    "correct": 1,
+    "zh": "fitting room 是試衣間。",
+    "en": "A fitting room is where you try on clothes."
+  },
+  {
+    "placeZh": "聽不清楚",
+    "placeEn": "Asking for clarification",
+    "prompt": "The bus leaves from the stop across the street.",
+    "choices": [
+      "I'd like the bill.",
+      "I have two bags.",
+      "Could you say that again, please?"
+    ],
+    "correct": 2,
+    "zh": "Could you say that again, please? 是禮貌請對方重複的句子。",
+    "en": "Could you say that again, please? politely asks someone to repeat what they said."
+  }
+]

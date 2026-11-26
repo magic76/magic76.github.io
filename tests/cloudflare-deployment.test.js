@@ -276,6 +276,14 @@ check("search-intent guides serve real localized SSG HTML and enter the sitemap"
   }
  }
 });
+check("travel guide publishes free dialogue quiz in both indexed locales",()=>{
+ for(const prefix of ["","en/"]){
+  const html=read(prefix+"guides/travel-english-dialogues/index.html");
+  assert.ok(html.includes('id="travel-english-quiz"'),prefix);
+  assert.ok(html.includes("May I see your passport, please?"),prefix);
+  assert.ok(html.includes('<progress'),prefix);
+ }
+});
 check("pronunciation guides ship the free ed ending quiz in both published locales",()=>{
  for(const prefix of ["","en/"]){
   const html=read(prefix+"guides/english-pronunciation/index.html");

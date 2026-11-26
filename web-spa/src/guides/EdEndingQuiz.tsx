@@ -1,4 +1,6 @@
 import {useEffect,useRef,useState} from "react";
+import {Link} from "react-router-dom";
+import {trackUsageEvent} from "../analytics/usage";
 import questions from "./edQuizQuestions.json";
 import {speakLearningText,stopLearningSpeech} from "../teacher/learningSpeech";
 
@@ -14,6 +16,7 @@ export function EdEndingQuiz({english}:{english:boolean}){
  const [index,setIndex]=useState(0);
  const [audio,setAudio]=useState<"idle"|"playing"|"failed">("idle");
  const speechActive=useRef(false),speechRequest=useRef(0);
+ const started=useRef(false),completed=useRef(false);
  const question=questions[index];
  const selected=answers[index];
  const complete=index===questions.length;
@@ -26,10 +29,11 @@ export function EdEndingQuiz({english}:{english:boolean}){
   speechActive.current=false;setAudio("idle");
  }
  function select(choice:Choice){
+  if(!started.current){started.current=true;trackUsageEvent("seo_quiz_started","ed_ending")}
   setAnswers(previous=>previous.length===index?[...previous,choice]:previous);
  }
- function advance(){if(!selected)return;clearSpeech();setIndex(i=>Math.min(i+1,questions.length))}
- function reset(){clearSpeech();setAnswers([]);setIndex(0)}
+ function advance(){if(!selected)return;if(index===questions.length-1&&!completed.current){completed.current=true;trackUsageEvent("seo_quiz_completed","ed_ending")}clearSpeech();setIndex(i=>Math.min(i+1,questions.length))}
+ function reset(){started.current=false;completed.current=false;clearSpeech();setAnswers([]);setIndex(0)}
  async function listen(){
   if(!question||audio==="playing")return;
   const request=++speechRequest.current;
@@ -53,7 +57,8 @@ export function EdEndingQuiz({english}:{english:boolean}){
   {complete?<div className="crew-ed-quiz-result" role="status">
    <strong>{english?"Your score":"測驗結果"}：{score} / {questions.length}</strong>
    <p>{score===questions.length?(english?"All correct! Try saying the words aloud.":"全部答對！試著把單字念出來。"):(english?"Review the final sound of each base verb and try again.":"複習動詞原形的最後一個音，再試一次。")}</p>
-   <button type="button" className="btn secondary" onClick={reset}>{english?"Try again":"再練一次"}</button>
+   <div className="crew-ed-quiz-actions"><button type="button" className="btn secondary" onClick={reset}>{english?"Try again":"再練一次"}</button>
+   <Link className="btn" to="/teacher/pronunciation" onClick={()=>trackUsageEvent("seo_quiz_cta_click","ed_ending")}>{english?"Practice pronunciation":"開始發音練習"}</Link></div>
   </div>:<>
    <div className="crew-ed-quiz-question">
     <small>{english?"Question":"第"} {index+1}{english?"":" 題"}</small>

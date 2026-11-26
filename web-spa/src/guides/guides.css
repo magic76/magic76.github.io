@@ -74,3 +74,8 @@
 .crew-ed-quiz-actions button,.crew-ed-quiz-result button{min-height:44px}
 .crew-ed-quiz-result button{margin-top:12px}
 @media(max-width:560px){.crew-ed-quiz-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.crew-ed-quiz-actions button{min-width:0;padding-inline:8px}}
+
+.crew-travel-quiz-options{grid-template-columns:1fr}
+.crew-travel-quiz-options .crew-ed-quiz-option{font-size:15px;text-align:left;padding:10px 14px;line-height:1.5;overflow-wrap:anywhere}
+.crew-ed-quiz-question .crew-travel-quiz-prompt{font-size:clamp(20px,4vw,26px);overflow-wrap:anywhere}
+.crew-ed-quiz-actions a.btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:normal}

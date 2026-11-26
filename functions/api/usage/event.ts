@@ -15,6 +15,7 @@ const events=new Set([
   "game_open","game_started","game_completed",
   "game_route_loaded","game_route_stalled","game_route_asset_error",
   "teacher_session_end","friend_session_end",
+  "seo_quiz_started","seo_quiz_completed","seo_quiz_cta_click",
   "vocabulary_practice","textbook_open","textbook_study",
   "shorts_view","shorts_chat_click","shorts_conversation","shorts_hook_click","shorts_story_followup",
   "story_reading","story_narration","story_created",
@@ -34,7 +35,7 @@ const events=new Set([
   "research_article_open","research_article_saved","research_article_completed","research_source_open",
   "circle_thread_open","circle_post_published","circle_comment_posted"
 ]);
-const details=new Set(["","bazi","tarot","vedic","bazi_yes","bazi_partly","bazi_no","tarot_yes","tarot_partly","tarot_no","vedic_yes","vedic_partly","vedic_no","shorts_home","shorts_feed",
+const details=new Set(["","ed_ending","travel_english","bazi","tarot","vedic","bazi_yes","bazi_partly","bazi_no","tarot_yes","tarot_partly","tarot_no","vedic_yes","vedic_partly","vedic_no","shorts_home","shorts_feed",
   "under_1m","from_1_to_3m","from_3_to_10m","over_10m",
   "under_1s","from_1_to_3s","from_3_to_8s","over_8s",
   "teacher","friend","under_15s","from_15_to_45s","from_45_to_60s","from_60_to_120s","from_120_to_180s","from_180_to_300s",
