@@ -1,0 +1,572 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-11-24",
+  "articles": [
+    {
+      "slug": "google-ai-pro-flow-credits",
+      "category": "tools",
+      "image": "research",
+      "status": "published",
+      "published": "2026-11-24",
+      "source": "https://support.google.com/flow/answer/16526234",
+      "zh": {
+        "title": "Google AI Pro 額度怎麼看？Flow 點數與實際使用的整理方法",
+        "description": "Google AI Pro 的 Flow 影片生成點數、額度消耗和方案內容容易搞混。教你查官方額度、記錄成本並安排創作流程。",
+        "lead": "想把 AI 額度用得有效率，第一件事不是把它全部用完，而是知道自己到底用了什麼。",
+        "sections": [
+          [
+            "先把不同額度分開",
+            "Google AI Pro 是訂閱方案，Flow 的 AI 點數是某些創作功能的使用單位；Google 其他產品的限制不一定能直接換算成 Flow 點數。先確認目前方案和帳號顯示的權益，別用網路上過期的額度表估算。",
+            "Google 的支援文件會隨產品與方案調整。點數用完後是否能加購、哪些功能扣點、各地區是否可用，都應以官方說明及帳號內的即時資訊為準。"
+          ],
+          [
+            "做影片前，先做不耗生成點數的工作",
+            "先寫 20～40 秒的腳本，拆成鏡頭，再標註哪些畫面真的需要 AI 影片。能用文字、剪輯和現有合法素材處理的段落，就不必全部交給生成模型。",
+            "一支 30 秒解說可以拆成開場 5 秒、內容 20 秒、結尾 5 秒；先用靜態分鏡確認節奏，再生成最有價值的動態片段。"
+          ],
+          [
+            "用小表格追蹤哪種實驗值得",
+            "每次記錄日期、用途、模型、嘗試次數、成功片段數，以及帳號顯示的點數變化。不需要記錄自己的登入憑證。",
+            "如果某個鏡頭反覆失敗，先改提示詞、參考圖片或鏡頭要求，再重新生成；比盲目連續重試更容易知道問題在哪裡。"
+          ],
+          [
+            "把結果帶回自己的學習",
+            "你可以用 AI 生成的短片場景當英文對話素材：描述鏡頭中的人物、事件和下一句台詞，接著找 Koolo 的 AI 朋友練習口說。",
+            "把影片變成能反覆使用的練習場景，會比單純追求使用完點數更有價值。"
+          ]
+        ],
+        "faq": [
+          [
+            "Google AI Pro 的點數是固定不變的嗎？",
+            "不是適合永久寫死的數字。訂閱權益、支援區域、生成模式與消耗標準都可能調整，請看官方帳號畫面。"
+          ],
+          [
+            "Flow 點數能直接拿來付所有 AI 服務嗎？",
+            "不能假設不同產品的額度通用。要看 Google 對該功能的明確說明。"
+          ]
+        ],
+        "cta": [
+          "拿影片場景練英文",
+          "/friend/live?id=zoe&chat=text"
+        ]
+      },
+      "en": {
+        "title": "How to Plan Google AI Pro and Flow Credit Usage",
+        "description": "Understand Flow's AI credits, check your current entitlement and plan video experiments without wasting attempts.",
+        "lead": "The goal is not to exhaust your subscription credits. It is to learn which experiments actually produce something useful.",
+        "sections": [
+          [
+            "Separate subscription benefits from AI credits",
+            "A Google AI Pro subscription and Flow's credit accounting are related but not interchangeable with every Google AI product. Check the benefits shown in your account and the current official documentation.",
+            "Availability, model costs and top-up options can change. Avoid relying on screenshots of older credit tables."
+          ],
+          [
+            "Plan the video before generating it",
+            "Write a 20–40 second script, list the shots and decide which moments truly need generated video. A title card or subtitle does not need a newly generated scene.",
+            "For a 30-second explainer, sketch a five-second opening, a 20-second demonstration and a five-second conclusion before spending credits."
+          ],
+          [
+            "Measure useful output, not attempts alone",
+            "Record the date, task, model, attempts, usable shots and the credit change shown by the account. Do not save passwords or API keys in this sheet.",
+            "When a scene keeps failing, revise the shot description or reference materials rather than repeating the same prompt."
+          ],
+          [
+            "Turn your output into a language exercise",
+            "Describe a generated scene in English and ask an AI friend to play a character from it. Reusing a video as conversation material adds value beyond the first viewing.",
+            "Koolo lets you try the conversation in text before moving to speaking practice."
+          ]
+        ],
+        "faq": [
+          [
+            "Are Flow credit amounts permanent?",
+            "No. Entitlements and feature availability can change, so always consult the current official help and account view."
+          ],
+          [
+            "Are AI credits universal across Google products?",
+            "Do not assume so. Check the specific product's terms and credit rules."
+          ]
+        ],
+        "cta": [
+          "Practice describing a scene",
+          "/friend/live?id=zoe&chat=text"
+        ]
+      }
+    },
+    {
+      "slug": "make-a-website-with-ai-github-pages",
+      "category": "tools",
+      "image": "research",
+      "status": "published",
+      "published": "2026-11-24",
+      "source": "https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site",
+      "zh": {
+        "title": "不會寫程式也能做網站？AI＋GitHub Pages 從零開始",
+        "description": "從想法、AI 產生 HTML 到 GitHub Pages 上線：用一個簡單小工具理解免費靜態網站的製作流程與限制。",
+        "lead": "想做一個只給朋友玩的工具，不一定要先學會完整的前後端。先做出第一個能用的頁面，比一次規劃大型 App 更容易開始。",
+        "sections": [
+          [
+            "先選一個很小的問題",
+            "例如旅行英文抽題器：按一下按鈕，隨機出現一句旅行情境，讓你自己練習回答。這種工具只需要 HTML、CSS 和 JavaScript，就能在瀏覽器執行。",
+            "要是功能需要會員登入、私密資料或伺服器端 AI 金鑰，就不是純靜態頁面能安全處理的事，先不要把密鑰直接寫進 HTML。"
+          ],
+          [
+            "讓 AI 先做出第一個版本",
+            "可以這樣描述需求：『請產生單檔 index.html，手機優先，包含 10 道旅行英文情境、下一題按鈕、重設按鈕；不使用後端、不要求 API Key，文字清楚易讀。』",
+            "收到程式碼後，先在自己的瀏覽器開啟測試；確認按鈕真的有效、手機不會橫向溢出，再把問題貼回給 AI 修正。"
+          ],
+          [
+            "把檔案放到 GitHub",
+            "建立 GitHub 帳號與儲存庫，加入 index.html，接著到儲存庫 Settings → Pages 選擇發布來源。依 GitHub 官方文件完成設定後，可取得 github.io 網址。",
+            "GitHub Pages 的位置與可用選項依儲存庫及帳號類型而異；若目前沒有可選的發布來源，就先檢查分支和儲存庫設定。"
+          ],
+          [
+            "上線後應該驗收什麼",
+            "在手機實際點每個按鈕、重新整理、用無痕模式打開，再分享給朋友。尤其要確認沒有把私人資訊、授權 Token 或不該公開的檔案放進儲存庫。",
+            "做完第一版，才考慮加入新題目、語音或資料保存。真正重要的是有人願意使用，而不是功能清單有多長。"
+          ]
+        ],
+        "faq": [
+          [
+            "GitHub Pages 可以免費用嗎？",
+            "GitHub Pages 有提供公開專案的使用方式，實際資格、限制與條款以 GitHub 官方說明為準。"
+          ],
+          [
+            "可不可以把 Gemini API Key 放在前端？",
+            "不要。前端公開程式碼與網頁請求容易暴露金鑰；需要保密的金鑰應放在伺服器端。"
+          ]
+        ],
+        "cta": [
+          "試玩英文情境練習",
+          "/teacher/course/travel/"
+        ]
+      },
+      "en": {
+        "title": "Build Your First Website with AI and GitHub Pages",
+        "description": "Make a small static tool with AI, test an index.html file and publish it using GitHub Pages while avoiding exposed API keys.",
+        "lead": "You do not need a full web application to share your first tiny tool. Start with one problem and one working page.",
+        "sections": [
+          [
+            "Choose a very small task",
+            "A travel-English prompt picker is a good example: tap a button to see a random scenario and practice a response. HTML, CSS and browser JavaScript can handle this without a server.",
+            "If the idea requires private accounts, sensitive data or a secret AI API key, do not put those secrets in public browser code."
+          ],
+          [
+            "Ask AI for a first version",
+            "Try: 'Create a mobile-friendly single-file index.html with ten travel-English situations, Next and Reset buttons, no backend and no API key.'",
+            "Open the file locally and test every button and small-screen layout. Give AI concrete bug reports rather than asking it to make everything better."
+          ],
+          [
+            "Publish through GitHub Pages",
+            "Create a repository, add index.html and review Settings → Pages to choose a supported publishing source. GitHub's official instructions explain the available branch and workflow options.",
+            "Your public URL normally uses the github.io domain. Check your account and repository eligibility in the current GitHub documentation."
+          ],
+          [
+            "Validate the real experience",
+            "Test the page on a phone, refresh it, open it in a private tab and share the link with someone else. Check that no credentials or private files were committed.",
+            "Improve only what the first testers actually need, such as more prompts, clear feedback or better accessibility."
+          ]
+        ],
+        "faq": [
+          [
+            "Is GitHub Pages free?",
+            "GitHub provides Pages options, subject to its current account, repository and usage rules."
+          ],
+          [
+            "Should I put my Gemini API key in JavaScript?",
+            "No. Browser code and requests are observable; keep secret keys on the server."
+          ]
+        ],
+        "cta": [
+          "Try a travel-English activity",
+          "/teacher/course/travel/"
+        ]
+      }
+    },
+    {
+      "slug": "ai-english-seven-day-challenge",
+      "category": "learning",
+      "image": "teacher",
+      "status": "published",
+      "published": "2026-11-24",
+      "source": "https://research.google/blog/english-learners-can-now-practice-speaking-on-search/",
+      "zh": {
+        "title": "用 AI 練英文：7 天開口挑戰，不用從背單字開始",
+        "description": "給不敢開口的人一套 7 天 AI 英文對話安排，每天練開場、追問、日常情境與短回顧，附可直接使用的對話提示。",
+        "lead": "如果每次打開英文 App 都不知道要幹嘛，問題不一定是程度，而是沒有一個小到能每天完成的目標。",
+        "sections": [
+          [
+            "第一、二天：只求說出一句完整的話",
+            "第一天請 AI 問你今天做了什麼，回答『I worked today, and I cooked dinner.』。第二天換成分享週末計畫，練習用 because 補一個原因。",
+            "示範提示：『請用簡單英文一次只問我一個問題，等我回答後再追問，不要一次糾正所有文法。』"
+          ],
+          [
+            "第三、四天：讓對話延續三輪",
+            "第三天練習咖啡店點餐，第四天改成向朋友介紹興趣。每次至少完成三輪：回答、補充、反問。",
+            "不要刻意背完整對白。你可以先打字，熟悉後再換語音；關鍵是主動把話題接下去。"
+          ],
+          [
+            "第五、六天：加入自己的真實生活",
+            "第五天說一件今天遇到的小事，第六天描述正在看的影集或想去的地方。回答不必長，但要是真實想說的。",
+            "可以請 AI 改寫成兩種版本：更簡單的說法，以及更自然但不超出你程度的說法。選一句明天再用。"
+          ],
+          [
+            "第七天：回顧而不是考試",
+            "請 AI 從這七天的內容幫你整理三句最常用的句子，再問一題完全新的情境，看看能否不用中文先回答。",
+            "如果只能每天練五分鐘，也比安排一小時卻一週沒打開更容易維持節奏。"
+          ]
+        ],
+        "faq": [
+          [
+            "一定要語音嗎？",
+            "不用。先文字後語音是合理的入門方式；口說能力仍需要實際開口練習。"
+          ],
+          [
+            "AI 回饋一定正確嗎？",
+            "不一定。把回饋當成練習線索；遇到不自然或有爭議的用法，可以請 AI 舉例或查證。"
+          ]
+        ],
+        "cta": [
+          "從今天第一句開始",
+          "/friend/live?id=zoe&chat=text"
+        ]
+      },
+      "en": {
+        "title": "A 7-Day AI English Conversation Challenge",
+        "description": "A realistic daily plan for practicing English with AI, from one sentence to follow-up questions and a useful week-end review.",
+        "lead": "The hardest part is often deciding what to say. Make each day's goal small enough to finish.",
+        "sections": [
+          [
+            "Days 1–2: Say one complete thought",
+            "On day one, answer a question about your day: 'I worked today, and I cooked dinner.' On day two, describe a weekend plan and add one reason with because.",
+            "Prompt: 'Ask one simple English question at a time. Wait for my answer and ask a follow-up. Correct only the most important mistake.'"
+          ],
+          [
+            "Days 3–4: Keep three turns going",
+            "Practice ordering in a coffee shop, then explain a hobby to a new friend. Make three turns: answer, expand, and ask something back.",
+            "Start in text if you need to. Switch to voice after the situation feels familiar."
+          ],
+          [
+            "Days 5–6: Use your real life",
+            "Describe a small event from today and then a show, place or activity you enjoy. You will remember phrases that connect to your own experiences.",
+            "Ask AI for a simpler rewrite and a more natural rewrite. Keep one expression to reuse tomorrow."
+          ],
+          [
+            "Day 7: Review without a test",
+            "Ask the AI for three useful sentences from the week, then answer one new question without translating the whole sentence first.",
+            "Five consistent minutes a day can be a more realistic target than a long session you rarely start."
+          ]
+        ],
+        "faq": [
+          [
+            "Must I use voice from day one?",
+            "No. Text can help you start, but spoken practice is needed to develop speaking fluency."
+          ],
+          [
+            "Is every AI correction reliable?",
+            "No. Ask for examples, check uncertain claims and compare feedback with real usage."
+          ]
+        ],
+        "cta": [
+          "Start the first conversation",
+          "/friend/live?id=zoe&chat=text"
+        ]
+      }
+    },
+    {
+      "slug": "ai-english-pronunciation-practice",
+      "category": "learning",
+      "image": "teacher",
+      "status": "published",
+      "published": "2026-11-24",
+      "source": "https://research.google/blog/english-learners-can-now-practice-speaking-on-search/",
+      "zh": {
+        "title": "AI 英文發音怎麼練？聽、模仿、錄音比一直重播更有效率",
+        "description": "分清 TTS 朗讀、語音辨識和口說回饋的不同，搭配短句、節奏與錄音對照，建立可操作的英文發音練習。",
+        "lead": "聽到 AI 把單字念得很漂亮，不代表自己就學會發音。真正需要練的是從『聽懂』到『自己說得出來』的那段距離。",
+        "sections": [
+          [
+            "先分清三件不同的技術",
+            "TTS（文字轉語音）負責把文字唸出來；語音辨識把你的聲音轉成文字；口說回饋則可能結合音素或語句比對。它們不是同一回事。",
+            "語音辨識能猜出你說的字，不等於咬字、重音或語調完全正確；反過來，辨識錯誤也可能受到背景噪音影響。"
+          ],
+          [
+            "每次只練一個短句",
+            "先聽一句『Could you say that again, please?』，注意 could you 的連接與 again 的重音，再暫停播放自己唸一次。",
+            "比起聽十次單字但不開口，聽一次、模仿兩次、錄一次更容易發現自己卡住的位置。"
+          ],
+          [
+            "把重點放在清楚而非假裝母語",
+            "日常交流不需要刻意模仿某一種口音。先讓對方容易理解，再逐步調整停頓、句子節奏和重點字。",
+            "可以請 AI 把句子拆成短語、標出自然停頓，或換成更短、更常見的說法。"
+          ],
+          [
+            "用對話驗證是否真的會用",
+            "練好一句話後，不要停在單字卡。找 AI 朋友模擬真的聽不懂對方時，你能不能自然接出『Could you say that again?』。",
+            "把單句放回真實情境，才會從會跟讀變成敢開口。"
+          ]
+        ],
+        "faq": [
+          [
+            "TTS 聲音好聽就是發音評分準嗎？",
+            "不是。朗讀品質與對使用者聲音的評分屬於不同功能。"
+          ],
+          [
+            "一定要每次都錄音嗎？",
+            "不一定，但偶爾錄下自己的聲音和參考句對照，通常比單靠記憶更容易察覺差異。"
+          ]
+        ],
+        "cta": [
+          "找 AI 老師練一小段",
+          "/teacher/"
+        ]
+      },
+      "en": {
+        "title": "How to Practice English Pronunciation with AI",
+        "description": "Understand TTS, speech recognition and speaking feedback, then use short sentences, pauses and recordings to practice pronunciation.",
+        "lead": "A natural AI voice is useful to listen to, but hearing a sentence is not the same as being able to say it.",
+        "sections": [
+          [
+            "Three technologies, three different jobs",
+            "Text-to-speech reads text aloud. Speech recognition transcribes spoken language. Pronunciation feedback may compare sounds, timing or sentence delivery.",
+            "A transcription matching your words does not prove perfect stress or intonation, and background noise may cause transcription errors."
+          ],
+          [
+            "Practice one short sentence",
+            "Listen to 'Could you say that again, please?' Notice the connected words and the stress on again. Pause, repeat twice and record one attempt.",
+            "Listening ten times without speaking may feel productive, but speaking reveals what you can actually produce."
+          ],
+          [
+            "Aim for clarity, not a fake accent",
+            "Being understandable matters more than copying a particular native-speaker accent. Practice pauses, rhythm and emphasis.",
+            "Ask AI to break a sentence into chunks and suggest a simpler way of expressing it."
+          ],
+          [
+            "Move from imitation to conversation",
+            "After practicing one phrase, use it naturally in a simulated conversation. Ask an AI friend to speak a little too fast, then request repetition.",
+            "That turns a pronunciation drill into a practical communication skill."
+          ]
+        ],
+        "faq": [
+          [
+            "Does good TTS mean accurate pronunciation grading?",
+            "No. Generating a reference voice and evaluating your pronunciation are separate capabilities."
+          ],
+          [
+            "Do I need to record everything?",
+            "No, but occasional recordings can help you hear differences you might otherwise miss."
+          ]
+        ],
+        "cta": [
+          "Explore speaking practice",
+          "/teacher/"
+        ]
+      }
+    },
+    {
+      "slug": "ai-short-video-workflow",
+      "category": "tools",
+      "image": "research",
+      "status": "published",
+      "published": "2026-11-24",
+      "source": "https://support.google.com/flow/answer/16526234",
+      "zh": {
+        "title": "AI 短影片怎麼做？先腳本、再配音、最後剪輯的實用流程",
+        "description": "從 30 秒短影片腳本開始，安排鏡頭、配音、字幕與輸出，避免一次生成整部影片造成成本與品質難控制。",
+        "lead": "做 AI 影片最容易卡住的，不是沒有工具，而是每個工具都會做一點，最後卻拼不起一支能看的片。",
+        "sections": [
+          [
+            "用 30 秒先寫出三個段落",
+            "開場 3～5 秒只講一個問題；中段 20 秒解決一件事；最後 5 秒告訴觀眾下一步。先把整支影片的文字唸一次，確定不是寫得漂亮卻說不完。",
+            "例如題目『用 AI 練英文會不會尷尬？』，影片只展示一個簡單對話，不要同時介紹十種功能。"
+          ],
+          [
+            "把鏡頭分成必要與可替代",
+            "有些畫面只需要標題、圖示或實際操作錄影；有些才真的需要生成動態視覺。先用分鏡表標出素材來源、長度與版權狀態。",
+            "不要為了填滿秒數硬塞與主題無關的 AI 畫面，也不要拿生成圖片冒充真實產品操作截圖。"
+          ],
+          [
+            "先固定旁白，後面才做字幕",
+            "確認文稿後再產生或錄製旁白；依音檔實際長度安排鏡頭，字幕要校對專有名詞與標點。",
+            "用 FFmpeg、常見剪輯器或自己的工具都可以，重點是音畫同步、字幕不遮住手機畫面的重要資訊。"
+          ],
+          [
+            "輸出後至少做三次檢查",
+            "手機直式播放一次、靜音看字幕一次、耳機聽一次。確認開頭三秒的問題清楚、音量不忽大忽小、最後一秒沒有被截斷。",
+            "如果影片是在介紹自己的網站，就把可點擊的網址或文章連結放在發布平台允許的位置，別讓觀眾只能猜網站名稱。"
+          ]
+        ],
+        "faq": [
+          [
+            "每一秒都要 AI 生成嗎？",
+            "不用。實際操作錄影、文字和剪輯可以讓內容更清楚，也更可控。"
+          ],
+          [
+            "怎麼減少反覆重做？",
+            "先定稿腳本與語音，再處理鏡頭和字幕；大幅改稿才需要重排素材。"
+          ]
+        ],
+        "cta": [
+          "用英文說出你的影片腳本",
+          "/friend/live?id=zoe&chat=text"
+        ]
+      },
+      "en": {
+        "title": "A Practical AI Short-Video Workflow: Script, Voice, Edit",
+        "description": "Make a 30-second explainer by planning the script, choosing shots, recording voice, checking captions and reviewing the final export.",
+        "lead": "The challenge is usually not finding one more AI tool. It is connecting the parts into a watchable video.",
+        "sections": [
+          [
+            "Write three parts for 30 seconds",
+            "Use the first three to five seconds for one clear question, about 20 seconds for the demonstration and the final seconds for a next step. Read the script out loud before creating any visuals.",
+            "For example, 'Does practicing English with AI feel awkward?' only needs one short conversation on screen, not ten features."
+          ],
+          [
+            "Choose which shots need generation",
+            "Some scenes work better as real screen recordings, titles or icons. Reserve generated motion for moments where it adds meaning.",
+            "Record the source and license of each asset. Never present fabricated interface screenshots as real product evidence."
+          ],
+          [
+            "Lock the voice before timing captions",
+            "Finalize the script and narration first, then align shots and captions to the real audio length. Proofread names, spelling and technical terms.",
+            "An editor or FFmpeg can handle assembly. Clear timing and accurate subtitles matter more than a particular brand of tool."
+          ],
+          [
+            "Check the export three ways",
+            "Watch once on a phone, once muted for captions, and once with headphones for sound. Check the first seconds, audio levels and whether the ending is clipped.",
+            "Make the destination URL easy to find when sharing a product demonstration."
+          ]
+        ],
+        "faq": [
+          [
+            "Does every shot need AI video?",
+            "No. Text, legitimate footage and editing may explain an idea more clearly."
+          ],
+          [
+            "How can I avoid repeated rework?",
+            "Approve the script and voice before building subtitles and editing the timeline."
+          ]
+        ],
+        "cta": [
+          "Practice narrating your idea",
+          "/friend/live?id=zoe&chat=text"
+        ]
+      }
+    },
+    {
+      "slug": "numerology-life-path-vs-personal-year",
+      "category": "explore",
+      "image": "fortune",
+      "status": "published",
+      "published": "2026-11-24",
+      "source": "https://koolo.app/fortune/numerology/",
+      "zh": {
+        "title": "生命靈數與個人年有什麼不同？先搞懂再算",
+        "description": "生命道路數與個人流年數字各自回答什麼問題？用出生日期舉例解釋計算差異、常見混淆與命理文化的使用方式。",
+        "lead": "兩種數字都可能由生日算出，卻不是同一件事。一個通常用來描述長期主題，另一個用來整理某一年的象徵主題。",
+        "sections": [
+          [
+            "生命道路數看的是出生日期",
+            "常見的生命靈數系統會把出生年、月、日的數字加總，再依規則縮減。有些流派會保留 11、22 等大師數，有些會繼續縮減；查到不同答案時，先看採用哪一種規則。",
+            "這類數字屬於象徵性解讀，不是測量人格或預測人生的科學方法。"
+          ],
+          [
+            "個人年會隨年份改變",
+            "個人年一般會把出生月、日和目標年份合併縮減。例如 7 月 6 日在 2027 年：7＋6＋(2＋0＋2＋7→2)＝15→6。不同系統可能有不同簡化方式。",
+            "個人年變動，不代表你的生命道路數也會每年重算。兩者適合分開閱讀。"
+          ],
+          [
+            "別把塔羅牌、生命靈數與八字混成一套",
+            "塔羅出生牌、生命靈數、八字各有不同的符號和計算傳統；即使都提到性格或人生週期，也不代表答案可以相互驗證。",
+            "閱讀結果時可以拿來整理自己的目標與感受，但重要的醫療、財務和人生選擇仍要以可靠資訊與實際條件判斷。"
+          ],
+          [
+            "最簡單的體驗順序",
+            "先看生命靈數的計算規則，再選一個特定年份看個人年，最後比較兩種解讀的主題。把有共鳴的句子當成提問自己的素材，而不是當成必然發生的預言。",
+            "Koolo Fortune 有生命靈數與八字探索入口，可以讓你比較不同體系的呈現方式。"
+          ]
+        ],
+        "faq": [
+          [
+            "個人年每年會改嗎？",
+            "按常見計算方式，目標年份改變時個人年通常也會不同。"
+          ],
+          [
+            "生命靈數可以預測我一定會發生什麼事嗎？",
+            "不能把它當成保證的預測或科學評估。適合作為文化與自我反思的素材。"
+          ]
+        ],
+        "cta": [
+          "探索自己的生命靈數",
+          "/fortune/numerology/"
+        ]
+      },
+      "en": {
+        "title": "Life Path Number vs Personal Year in Numerology",
+        "description": "Understand the difference between a birth-date life path and a changing personal year, with an example and clear limits.",
+        "lead": "Both numbers may use your birthday, but they represent different symbolic ideas in numerology.",
+        "sections": [
+          [
+            "Life path uses your birth date",
+            "Common numerology systems sum your birth year, month and day and reduce the result. Some preserve so-called master numbers such as 11 and 22; others apply a different reduction rule.",
+            "These are symbolic traditions, not scientific personality measurements or reliable life predictions."
+          ],
+          [
+            "Personal year changes with the target year",
+            "A personal year commonly combines birth month, birth day and the year of interest. For July 6 in 2027: 7 + 6 + (2+0+2+7 reduced to 2) = 15, reduced to 6.",
+            "Changing the target year does not mean your birth-date life path needs to change."
+          ],
+          [
+            "Different traditions are not interchangeable",
+            "Tarot birth cards, numerology and BaZi use distinct methods and symbolic systems. Similar wording does not mean one framework scientifically verifies another.",
+            "Use interpretations for reflection, not for medical, financial or other consequential decisions."
+          ],
+          [
+            "A simple way to explore",
+            "Read the life-path calculation first, choose a target year for the personal-year calculation, then compare their themes without treating either as a fixed forecast.",
+            "Koolo Fortune provides entry points to explore numerology and other traditions."
+          ]
+        ],
+        "faq": [
+          [
+            "Does my personal year change each year?",
+            "Usually yes, under common methods that include the target calendar year."
+          ],
+          [
+            "Can numerology guarantee a future event?",
+            "No. It is a symbolic tradition, not a proven prediction method."
+          ]
+        ],
+        "cta": [
+          "Explore numerology",
+          "/fortune/numerology/"
+        ]
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "slug": "jensen-huang-ai-ecosystem",
+      "topic": "黃仁勳與 AI 生態系：GPU、軟體工具和學習場景的關係",
+      "category": "trend",
+      "status": "review",
+      "reason": "具社群討論價值，先核對最新演講與事件日期；避免只重述新聞",
+      "kooloLink": "/research/"
+    },
+    {
+      "slug": "tv-voice-assistant-home",
+      "topic": "在家把電視變成 AI 語音助理：實際可做到什麼？",
+      "category": "tools",
+      "status": "review",
+      "reason": "可融入實作經驗，先確認 LG 電視型號、操作能力與隱私注意事項",
+      "kooloLink": "/teacher/"
+    },
+    {
+      "slug": "free-ai-video-tools-comparison",
+      "topic": "AI 免費影片工具怎麼選：限制、浮水印與後續剪輯",
+      "category": "tools",
+      "status": "review",
+      "reason": "需逐一驗證最新免費方案和輸出限制，不照抄既有文章",
+      "kooloLink": "/research/"
+    }
+  ]
+}

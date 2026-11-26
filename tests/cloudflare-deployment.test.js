@@ -486,6 +486,22 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
  for(const slug of ["numerology",...Array.from({length:9},(_,i)=>"numerology/"+(i+1))]){expected.push(domain+"/fortune/"+slug+"/",domain+"/en/fortune/"+slug+"/")}
  for(const slug of ["free-english-speaking","ai-english-conversation","english-interview-practice","2027-bazi-luck","2027-personal-year","2027-goat-zodiac"]){expected.push(domain+"/guides/"+slug+"/",domain+"/en/guides/"+slug+"/")}
  for(const slug of ["travel","business","daily","teamwork","tickets","services"]){expected.push(domain+"/teacher/course/"+slug+"/",domain+"/en/teacher/course/"+slug+"/")}
+ // Published editorial entries must be represented by actual HTML documents, not SPA fallbacks.
+ const {readEditorial}=await import("../scripts/editorial-articles.mjs");
+ const editorial=readEditorial(ROOT);
+ for(const item of editorial)for(const locale of ["","en/"]){
+  const route="/"+locale+"articles/"+item.slug+"/",canonical=domain+route;
+  expected.push(canonical);
+  const html=read(locale+"articles/"+item.slug+"/index.html");
+  assert.ok(html.includes('<link rel="canonical" href="'+canonical+'">'),"editorial canonical: "+route);
+  assert.ok(html.includes('data-editorial-ssg-path="'+route+'"'),"missing editorial HTML content: "+route);
+  assert.ok(html.includes('<meta name="robots" content="index,follow">'),"editorial page indexability: "+route);
+ }
+ for(const locale of ["","en/"]){
+  const route="/"+locale+"articles/";
+  expected.push(domain+route);
+  assert.ok(read(locale+"articles/index.html").includes('data-editorial-ssg-path="'+route+'"'),"editorial index missing: "+route);
+ }
  assert.equal(urls.length,expected.length,"sitemap should enumerate all public and playable game routes");
  assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
  assert.ok(headers.includes("https://magic76-github-io.pages.dev/*"),"preview host missing noindex");
