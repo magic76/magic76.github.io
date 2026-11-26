@@ -13,7 +13,7 @@ test("Tutor picker has filters, portrait gallery, role style, preview and ground
  const picker=read("web-spa/src/teacher/TeacherProfilePicker.tsx"),policy=read("web-spa/src/teacher/teacherPolicy.ts");
  const preview=read("web-spa/src/teacher/teacherVoicePreview.ts"),history=read("web-spa/src/teacher/teacherPracticeHistory.ts");
  assert.match(picker,/createPortal/);assert.match(picker,/TEACHER_CATEGORIES/);assert.match(picker,/teacher-gallery-grid/);
- assert.match(picker,/previewTeacherVoice/);assert.match(picker,/completedTutorSessions/);
+ assert.match(picker,/previewStop\.current=previewTeacherVoiceRecorded\(detail,targetLanguage,setPreview/);assert.match(picker,/completedTutorSessions/);
  assert.match(picker,/t\("picker\.previewError"\)/);
  assert.ok(JSON.parse(read("web-spa/src/i18n/locales/zh-TW/teacher.json")).picker.previewError.includes("試聽失敗"));assert.match(picker,/detail\.id===active\?activeVoice:detail\.recommendedVoice/);
  assert.match(preview,/generationConfig/);assert.match(preview,/turnComplete:true/);

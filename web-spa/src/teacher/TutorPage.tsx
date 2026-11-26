@@ -11,7 +11,7 @@ import{getTeacherProfile}from"./teacherProfiles";
 import{teacherProfileDisplay}from"./teacherProfileLocale";
 import{TeacherProfilePicker}from"./TeacherProfilePicker";
 import{TeacherAvatar}from"./TeacherAvatar";
-import{previewTeacherVoice,type PreviewStatus}from"./teacherVoicePreview";
+import{previewTeacherVoiceRecorded,type PreviewStatus}from"./teacherVoicePreview";
 import{accentLabel,accentOptions,normalizedAccent}from"./teacherAccent";
 
 const CHAT_OPTIONS:{value:ConversationMode;label:string}[]=[
@@ -41,7 +41,7 @@ export function TutorPage(){
  useEffect(()=>()=>{stopRef.current?.()},[]);
  function audition(){
   stopPreview();
-  stopRef.current=previewTeacherVoice(profile,s.targetLanguage,setPreview,{voice:s.voice,
+  stopRef.current=previewTeacherVoiceRecorded(profile,s.targetLanguage,setPreview,{voice:s.voice,
    languageStyle:s.languageStyle,accentStrength:s.accentStrength,customAccent:s.customAccent,speakingPace:s.speakingPace});
  }
  const startPath="/teacher/live"+(s.conversationMode==="scenario"?"?mission="+encodeURIComponent(scene):"");
