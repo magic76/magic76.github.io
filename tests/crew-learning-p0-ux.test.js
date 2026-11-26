@@ -13,9 +13,9 @@ test("the vocabulary learner auto-advances correct answers but lets learners rev
  assert.match(src,/if\(answerLockRef\.current\|\|revealed\|\|showCompletion\)return/);
  assert.match(src,/answerLockRef\.current=true/);
  assert.match(src,/answerLockRef\.current=false/);
- assert.match(src,/recordPlacement\(word,correct\)/);
- assert.match(src,/incrementTodayVocabulary\(\)/);
- assert.match(src,/recordVocab\(word\[0\],correct\)/);
+ assert.match(src,/recordPlacement\(word,correct,language\)/);
+ assert.match(src,/incrementTodayVocabulary\(language\)/);
+ assert.match(src,/recordVocab\(word\[0\],correct,language\)/);
  assert.match(src,/onClick=\{nextQuestion\}/);
  assert.match(src,/if\(correct\)\{/);
  assert.match(src,/autoNextTimeoutRef\.current=setTimeout/);
@@ -85,9 +85,9 @@ test("all Today entry points use the shared priority and do not invent duration"
  const course=read("web-spa/src/teacher/CoursePage.tsx");
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  assert.match(planner,/export function todayStep/);
- assert.match(planner,/targetLanguage==="英文"&&dueVocabulary>0/);
+ assert.match(planner,/learningMaterialAvailable\("vocabulary",targetLanguage\)&&dueVocabulary>0/);
  assert.match(planner,/if\(reviewFocus\)/);
- assert.match(planner,/targetLanguage==="英文"&&practicedVocabularyToday===0&&unseenVocabulary>0/);
+ assert.match(planner,/learningMaterialAvailable\("vocabulary",targetLanguage\)&&practicedVocabularyToday===0&&unseenVocabulary>0/);
  assert.match(planner,/targetLanguage==="英文"&&nextLesson/);
  assert.match(planner,/lessonsForTrack\(nextLesson\.trackId\)\.findIndex/);
  assert.match(planner,/\/teacher\/course\?briefing=/);

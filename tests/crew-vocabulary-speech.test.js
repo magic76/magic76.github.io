@@ -51,14 +51,14 @@ test("voice preferences persist locally and unsupported values degrade safely",(
 test("vocabulary page uses device speech with optional slow playback",()=>{
  const page=fs.readFileSync("web-spa/src/teacher/VocabularyPage.tsx","utf8");
  const speech=fs.readFileSync("web-spa/src/teacher/learningSpeech.ts","utf8");
- assert.match(page,/speakLearningText\(text,"en",\{speed:slow\?"slow":"normal"\}/);
+ assert.match(page,/speakLearningText\(text,language,\{speed:slow\?"slow":"normal"\}/);
  assert.match(page,/onClick=\{\(\)=>pronounce\(word\[0\],true\)\}/);
  assert.match(speech,/new SpeechSynthesisUtterance\(value\)/);
  assert.match(speech,/await speakText\(value,\{speed\}\)/);
  assert.doesNotMatch(speech,/new Worker|learningSpeechKokoro|kokoro-js@|onnxruntime/);
  assert.doesNotMatch(page,/geminiKey\(|CrewAI\.call|useLiveSession|fetch\(/);
  assert.doesNotMatch(page,/synth\.getVoices\(\)|selectLocalEnglishVoice|changeSpeechPreferences/);
- assert.match(page,/recordVocab\(word\[0\],correct\)/);
+ assert.match(page,/recordVocab\(word\[0\],correct,language\)/);
  for(const locale of ["zh-TW","en"]){
   const dict=JSON.parse(fs.readFileSync("web-spa/src/i18n/locales/"+locale+"/teacher.json","utf8"));
   assert.ok(dict.vocabulary.speechFailed,locale+" speechFailed");

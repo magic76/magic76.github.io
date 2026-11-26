@@ -30,7 +30,7 @@ test("vocabulary uses native English speech on the Android shell",()=>{
  const page=read("web-spa/src/teacher/VocabularyPage.tsx");
  const speech=read("web-spa/src/teacher/learningSpeech.ts");
  const adapter=read("web-spa/src/lib/deviceCapabilities.ts");
- assert.match(page,/speakLearningText\(text,"en"/);
+ assert.match(page,/speakLearningText\(text,language/);
  assert.match(speech,/mode==="native-message"\|\|mode==="native-legacy"/);
  assert.match(speech,/await speakText\(value,\{speed\}\);return/);
  assert.match(adapter,/webMessagePort\(\)\?"native-message"/);
