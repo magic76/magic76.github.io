@@ -18,7 +18,7 @@ test("page-turn reader has 10 print-safe pages, controls, and a no-AI preview en
  assert.match(html,/\.sheet\.is-active\{display:flex!important;position:relative!important/);
  assert.equal((html.match(/<article class="sheet(?: dark)?"/g)||[]).length,10);
  assert.doesNotMatch(html,/留給自己的一題|建議：每週做一件/);
- assert.match(html,/v=20261124-book28/);
+ assert.match(html,/v=20261126-book28-personal/);
  assert.match(html,/touch-action:pan-y pinch-zoom/);
  assert.match(html,/overscroll-behavior-x:none/);
  assert.match(html,/overflow-x:clip/);
@@ -279,7 +279,7 @@ test("28-page editorial preview has distinct topics, five successive years and s
  const old=Array.from({length:10},make);node("bookPages").replaceChildren(...old);
  const reportEl=make(),chooser=make(),window={scrollTo(){}};
  const adapter=new Function("readerTitles","readerPages","node","document","ELS","COLORS","text","reportEl","chooser","window","readerGo","openFlip","readerFlip",
- "var readerIndex=0;"+section+";return {extendedPreviewData,showExtendedPreview,restoreLegacyBook}")(
+ "var readerIndex=0;"+section+";return {extendedPreviewData,showExtendedPreview,restoreLegacyBook,personalBookRows,showPersonalBook}")(
  Array(10).fill("舊"),()=>node("bookPages").children,node,{createElement:make},["木","火","土","金","水"],Array(5).fill("#aaa"),(id,v)=>{node(id).textContent=v},reportEl,chooser,window,()=>{},()=>false,null);
  const data=adapter.extendedPreviewData();
  assert.equal(data.length,28);assert.equal(new Set(data.map(x=>x[1])).size,28);
@@ -292,5 +292,14 @@ test("28-page editorial preview has distinct topics, five successive years and s
  adapter.restoreLegacyBook();assert.equal(node("bookPages").children.length,10);
  assert.equal(node("bookPages").children[0],old[0]);assert.equal(node("previewPageJump").hidden,true);
  adapter.showExtendedPreview();adapter.showExtendedPreview();assert.equal(node("bookPages").children.length,28);
+ adapter.restoreLegacyBook();assert.equal(node("bookPages").children[0],old[0]);
+ const f={fourPillars:"甲子 乙丑 丙寅 丁卯",dayMaster:"丙",strength:"中和",weighted:{木:4,火:3,土:2,金:1,水:2},
+  annual:Array.from({length:5},(_,i)=>({year:2026+i,ganZhi:"丙午",stemTenGod:"正印",luckPillar:"庚午"})),
+  luckPillars:[{ganZhi:"庚午",startYear:2024,endYear:2033}]};
+ const x={facts:f,chapters:Object.fromEntries(Array.from({length:25},(_,i)=>["p"+String(i+3).padStart(2,"0"),"個人專屬正文 "+i])),usage:{promptTokens:100,outputTokens:200}};
+ const rows=adapter.personalBookRows(x);assert.equal(rows.length,28);assert.match(rows[0][3],/甲子/);assert.match(rows[19][4],/2024–2033/);
+ assert.equal(rows[21][1],"2026 年 · 流年解析");assert.equal(rows[25][1],"2030 年 · 流年解析");
+ adapter.showPersonalBook(x);assert.equal(node("bookPages").children.length,28);assert.match(node("meta").textContent,/輸入 100 \/ 輸出 200/);
+ assert.doesNotMatch(node("meta").textContent,/虛構|示範/);assert.doesNotMatch(reportEl.className,/demo-report/);
  adapter.restoreLegacyBook();assert.equal(node("bookPages").children[0],old[0]);
 });
