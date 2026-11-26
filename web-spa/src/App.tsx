@@ -6,6 +6,7 @@ import{uiLocaleFailedToLoad,loadUiNamespace,type RouteNamespace}from"./i18n";
 const withNamespace=<T,>(namespaces:RouteNamespace|RouteNamespace[],module:Promise<T>)=>Promise.all([module,...[namespaces].flat().map(loadUiNamespace)]).then(([m])=>m as T);
 import{trackAppOpen,trackPageView}from"./analytics/usage";
 import{GlobalNav}from"./components/AppChrome";
+import{KooloLoader}from"./components/KooloLoader";
 import{sectionForRoute}from"./pages/crewNavigation";
 import{RouteErrorBoundary}from"./components/RouteErrorBoundary";
 import{OptionalWidgetBoundary}from"./components/OptionalWidgetBoundary";
@@ -73,7 +74,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
   const friendId=pathname==="/friend/live"?new URLSearchParams(search).get("id"):null;
   if(!game&&!(friendId&&/^[a-z0-9-]{1,32}$/.test(friendId)))return;
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
- },[pathname,search]);const active=sectionForRoute(pathname,search);return <>{uiLocaleFailedToLoad&&<div className="crew-locale-error" role="alert">{t("language.loadError")}</div>}<RouteErrorBoundary key={pathname}><GameRouteMonitor pathname={pathname}><Suspense fallback={<div className="spa-loading" role="status">{t("loading")}</div>}><Routes>
+ },[pathname,search]);const active=sectionForRoute(pathname,search);return <>{uiLocaleFailedToLoad&&<div className="crew-locale-error" role="alert">{t("language.loadError")}</div>}<RouteErrorBoundary key={pathname}><GameRouteMonitor pathname={pathname}><Suspense fallback={<KooloLoader label={t("loading")}/>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
 <Route path="/phone" element={<PhoneLabPage/>}/>
 <Route path="/chat" element={<AppChrome product="home"><CrewSectionPage section="chat"/></AppChrome>}/>

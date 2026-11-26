@@ -24,6 +24,10 @@ const read=path=>readFileSync(join(root,path),"utf8");
 if(!existsSync(join(out,"index.html")))throw Error("Missing Vite output. Run CREW_DEPLOY_TARGET=cloudflare vite build first.");
 
 const viteHtml=readFileSync(join(out,"index.html"),"utf8");
+// Reuse the pre-React loader in SSG shells only when the route guard hides a mismatched snapshot.
+const bootStyle=viteHtml.match(/<style id="koolo-boot-style">[\s\S]*?<\/style>/)?.[0];
+const bootMarkup=viteHtml.match(/<div class="koolo-boot-loader"[^>]*>[\s\S]*?<\/div>/)?.[0];
+if(!bootStyle||!bootMarkup)throw Error("Missing Koolo boot loader in Vite HTML");
 const viteAssetTags=[...viteHtml.matchAll(/<(?:script|link)\b[^>]*>/g)]
   .map(x=>x[0]).filter(tag=>/\b(?:src|href)="\/assets\//.test(tag))
   // The regex above extracts only opening tags. Script tags are NOT void:
@@ -150,7 +154,7 @@ const normalizePath=path=>path.replace(/\/+$/,"")||"/";
 // from the real URL, hide the wrong screen before first paint until React mounts.
 // Avoid regex backslash escapes inside the HTML-generating template string:
 // \/ turns into / in a JS template literal and breaks the emitted JS.
-const dynamicGuard=`<style>html.crew-dynamic-route #root{visibility:hidden!important}</style>
+const dynamicGuard=`${bootStyle}<style>html.crew-dynamic-route #root{visibility:hidden!important}</style>
 <script>(function(){
 var canonical=document.querySelector('link[rel="canonical"]');if(!canonical)return;
 var expected=new URL(canonical.href).pathname;
@@ -181,7 +185,7 @@ for(const locale of ["zh","en"]){
    .replace('<link rel="stylesheet" href="/seo.css">',linkedAppStylesheet+routeCssLinks(path)+newline+"  "+appTags)
    .replace("</head>",seedTag+newline+dynamicGuard+newline+"</head>")
    .replace(/<body>[\s\S]*?<\/body>/,
-    '<body'+(bodyTheme?' class="'+bodyTheme+'"':"")+'><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div></body>');
+    '<body'+(bodyTheme?' class="'+bodyTheme+'"':"")+'><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div>'+bootMarkup+'</body>');
   const target=join(out,relative);
   mkdirSync(dirname(target),{recursive:true});
   writeFileSync(target,html);
@@ -367,7 +371,7 @@ for(const locale of ["zh-TW","en"])for(const course of COURSE_SEO){
  page=page.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
  const html=template.replace(/<head>[\s\S]*?<\/head>/,head)
   .replace(/<body>[\s\S]*?<\/body>/,
-   '<body class="teacher-theme"><div id="root" data-crew-ssg-path="'+(locale==="en"?"/en":"")+route+'">'+page+'</div></body>');
+   '<body class="teacher-theme"><div id="root" data-crew-ssg-path="'+(locale==="en"?"/en":"")+route+'">'+page+'</div>'+bootMarkup+'</body>');
  const target=join(out,(locale==="en"?"en/":"")+"teacher/course/"+slug+"/index.html");
  mkdirSync(dirname(target),{recursive:true});writeFileSync(target,html);
 }
