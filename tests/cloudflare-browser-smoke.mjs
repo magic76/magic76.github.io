@@ -206,6 +206,26 @@ async function captureCrewVisualQA(browser){
   assert.ok(state.reduced,"Browser must emulate reduced-motion setting");
   assert.ok(state.duration.split(",").every(value=>parseFloat(value)<0.001),"Friend card transitions must be effectively static in reduced-motion mode: "+state.duration);
   process.stdout.write("PASS reduced-motion static friend cards\\n");
+
+  // Mobile /chat should expose exactly three full portraits, not one large card and a peek.
+  for(const width of [360,390,430]){
+   await reducedPage.setViewportSize({width,height:844});
+   const layout=await reducedPage.locator(".crew-section-people-strip").evaluate(strip=>{
+    strip.scrollLeft=0;
+    const bounds=strip.getBoundingClientRect();
+    const cards=[...strip.querySelectorAll(".crew-section-friend")].map(card=>{
+     const rect=card.getBoundingClientRect();
+     return {left:rect.left,right:rect.right,width:rect.width,height:rect.height,href:card.getAttribute("href")};
+    });
+    return {cards,left:bounds.left,right:bounds.right,clientWidth:strip.clientWidth,scrollWidth:strip.scrollWidth};
+   });
+   assert.equal(layout.cards.length,6,width+"px: preserve six featured friends");
+   assert.equal(layout.cards.filter(card=>card.left>=layout.left-1&&card.right<=layout.right+1).length,3,width+"px: three full visible portraits");
+   assert.ok(layout.cards.slice(0,3).every(card=>Math.abs(card.width/card.height-2/3)<.03&&card.height<230),width+"px: compact portrait ratio");
+   assert.ok(layout.scrollWidth>layout.clientWidth,width+"px: preserve horizontal browsing");
+   assert.ok(layout.cards.every(card=>card.href?.startsWith("/friend/live?id=")),width+"px: each entire card opens chat");
+  }
+  process.stdout.write("PASS mobile chat three visible portraits at 360/390/430px\n");
  }finally{await reduce.close();}
 }
 
