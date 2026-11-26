@@ -136,3 +136,13 @@ test("autoplay waits 11 seconds and only advances when visible, mobile and motio
  }
  assert.match(page,/if\(carouselPaused\)return/);
 });
+
+
+test("homepage teacher portraits crop the square sprite inside a tall frame",()=>{
+ const jsx=read("web-spa/src/pages/MobileHomePage.tsx");
+ const portrait=read("web-spa/src/teacher/TeacherAvatar.tsx");
+ const desktop=read("web-spa/src/pages/DesktopHomePage.tsx");
+ assert.match(jsx,/<TeacherAvatar profile=\{teacher\.profile\} decorative portrait\/>/);
+ assert.match(desktop,/<TeacherAvatar className="kdh-teacher-image" profile=\{teacher\.profile\} decorative portrait\/>/);
+ assert.ok(portrait.includes('portrait?"auto 100%":"600% 100%"'));
+});

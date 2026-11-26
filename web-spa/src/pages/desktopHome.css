@@ -53,7 +53,7 @@
  .kdh-feature-faces img:nth-child(3){transform:rotate(11deg);right:0}
  .kdh-game-art{position:absolute;right:32px;bottom:12px;display:grid;grid-template-columns:repeat(2,42px);gap:5px;transform:rotate(9deg)}
  .kdh-game-art b{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#fff9ed;color:#bc7a5d;font-size:20px;box-shadow:0 3px 6px #8c604f22}
- .kdh-teacher-image{position:absolute;right:18px;bottom:0;width:105px;height:124px;object-fit:cover;object-position:center top;border-radius:40% 40% 0 0;mask-image:linear-gradient(to bottom,#000 0%,#000 83%,transparent 100%)}
+ .kdh-feature-learn .kdh-teacher-image{position:absolute;right:18px;bottom:0;width:105px;height:124px;object-fit:cover;object-position:center top;border-radius:40% 40% 0 0;mask-image:linear-gradient(to bottom,#000 0%,#000 83%,transparent 100%)}
  .kdh-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
  .kdh-section-title h2{font-size:clamp(19px,1.8vw,23px);line-height:1.25;letter-spacing:-.035em;color:#363b51;margin:0}
  .kdh-section-title :is(a,span){color:#857a90;font-size:13px;text-decoration:none}

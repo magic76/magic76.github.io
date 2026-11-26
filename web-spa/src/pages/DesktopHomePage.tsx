@@ -82,7 +82,7 @@ export function DesktopHomePage({recents,shortsFeed,shortsStatus,featuredGame}:{
     </Link>
     <Link to="/teacher/live" className="kdh-feature kdh-feature-learn" onClick={()=>track("learn")}>
      <span className="kdh-feature-copy"><small>{t("showcase29.desktop.learnBadge")}</small><strong>{title}</strong><span>{startPractice}</span></span>
-     {teacher?<TeacherAvatar className="kdh-teacher-image" profile={teacher.profile} decorative/>:<img className="kdh-teacher-image" src={oliviaPhoto} width="85" height="110" alt="" loading="lazy" decoding="async"/>}
+     {teacher?<TeacherAvatar className="kdh-teacher-image" profile={teacher.profile} decorative portrait/>:<img className="kdh-teacher-image" src={oliviaPhoto} width="85" height="110" alt="" loading="lazy" decoding="async"/>}
      <Arrow direction="right" className="kdh-feature-arrow"/>
     </Link>
    </div>

@@ -122,7 +122,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       </div>
       <div className="cmh-scene cmh-learn-art" aria-hidden="true">
        <span className="cmh-learn-ring cmh-learn-ring-one"/><span className="cmh-learn-ring cmh-learn-ring-two"/>
-       <div className="cmh-learn-portrait">{teacher?<TeacherAvatar profile={teacher.profile} decorative/>:<img src={oliviaPhoto} width="154" height="196" alt="" loading="eager" decoding="async"/>}</div>
+       <div className="cmh-learn-portrait">{teacher?<TeacherAvatar profile={teacher.profile} decorative portrait/>:<img src={oliviaPhoto} width="154" height="196" alt="" loading="eager" decoding="async"/>}</div>
        <span className="cmh-learn-word cmh-learn-word-hi">Hello!</span>
        <span className="cmh-learn-word cmh-learn-word-konnichiwa">こんにちは</span>
        <span className="cmh-learn-wave"><i/><i/><i/><i/><i/></span>
