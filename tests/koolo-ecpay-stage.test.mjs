@@ -184,8 +184,8 @@ test("authenticated sandbox query recovers paid orders without callback; never r
  const id=created.orderId,row=s.orders.get(id),path="/api/fortune/ecpay/test-status?id="+id;
  let calls=0;
  const upstream=async(url,options)=>{
-  calls++;assert.equal(url,"https://payment-stage.ecpay.com.tw/Cashier/QueryTradeInfo/V5");assert.equal(options.method,"POST");
-  const f=Object.fromEntries(options.body);assert.equal(f.MerchantTradeNo,row.merchant_trade_no);assert.equal(f.CheckMacValue,await ecpayCheckMac(f));
+  calls++;assert.equal(url,"https://payment-stage.ecpay.com.tw/Cashier/QueryTradeInfo/V5");assert.equal(options.method,"POST");assert.equal(options.redirect,"manual");
+  const f=Object.fromEntries(options.body);assert.equal(f.MerchantTradeNo,row.merchant_trade_no);assert.equal(f.PlatformID,"");assert.equal(f.CheckMacValue,await ecpayCheckMac(f));
   const v={MerchantID:"3002607",MerchantTradeNo:row.merchant_trade_no,TradeNo:"2511220000123456",TradeAmt:"99",PaymentType:"Credit_CreditCard",TradeStatus:"1"};
   return new Response(new URLSearchParams({...v,CheckMacValue:await ecpayCheckMac(v)}).toString());
  };
@@ -216,5 +216,22 @@ test("sandbox query never treats unsigned or simulated results as paid",async()=
   const v={MerchantID:"3002607",MerchantTradeNo:row.merchant_trade_no,TradeNo:"2511220000123456",TradeAmt:"99",PaymentType:"Credit_CreditCard",TradeStatus:scenario==="unpaid"?"0":"1",...(scenario==="simulated"?{SimulatePaid:"1"}:{})};
   const res=await stageQuery({request:request("/api/fortune/ecpay/test-status?id="+row.id,{method:"POST"}),env:s.env},async()=>new Response(new URLSearchParams({...v,CheckMacValue:scenario==="bad-signature"?"0".repeat(64):await ecpayCheckMac(v)}).toString()));
   assert.equal((await res.json()).queryResult,scenario==="bad-signature"?"QUERY_BAD_SIGNATURE":scenario==="simulated"?"QUERY_MISMATCH":"QUERY_PENDING");assert.equal(row.state,"pending");
+ }
+});
+
+test("Cloudflare-compatible query rejects redirects, reports transport and HTTP failures without settlement",async()=>{
+ for(const [scenario,expected] of [["redirect","QUERY_REDIRECT"],["http","QUERY_HTTP_502"],["timeout","QUERY_TIMEOUT"],["transport","QUERY_TRANSPORT"]]){
+  const s=setup(),created=await (await stageOrder({request:request("/api/fortune/ecpay/test-order",{method:"POST",body:JSON.stringify({facts:FACTS})}),env:s.env})).json();
+  const row=s.orders.get(created.orderId);row.created_at-=601;
+  let calls=0;
+  const res=await stageQuery({request:request("/api/fortune/ecpay/test-status?id="+row.id,{method:"POST"}),env:s.env},async(url,opts)=>{
+   calls++;assert.equal(opts.redirect,"manual");
+   if(scenario==="redirect")return new Response(null,{status:302,headers:{Location:"https://example.invalid/"}});
+   if(scenario==="http")return new Response("upstream error",{status:502});
+   if(scenario==="timeout")throw new DOMException("timeout","TimeoutError");
+   throw new TypeError("private upstream error");
+  });
+  const data=await res.json();assert.equal(data.queryResult,expected);assert.equal(row.state,"pending");assert.equal(calls,1);
+  assert.doesNotMatch(JSON.stringify(data),/private upstream error|example.invalid/);
  }
 });

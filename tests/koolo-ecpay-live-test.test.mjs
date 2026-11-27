@@ -86,3 +86,8 @@ test("native HTML forms preserve Origin; reject null, missing and foreign origin
  assert.equal(ok.headers.get("Referrer-Policy"),"strict-origin");
  assert.match(await ok.text(),/action="https:\/\/payment\.ecpay\.com\.tw\/Cashier\/AioCheckOut\/V5"/);
 });
+
+test("live diagnostic query uses supported redirect mode without forwarding signed fields",()=>{
+ const source=readFileSync(new URL("../server/koolo-ecpay-live-test.mjs",import.meta.url),"utf8");
+ assert.match(source,/redirect:"manual"/);assert.doesNotMatch(source,/redirect:"error"/);assert.match(source,/resp.status>=300&&resp.status<400/);
+});

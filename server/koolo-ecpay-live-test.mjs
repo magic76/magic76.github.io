@@ -109,9 +109,10 @@ export async function liveTestPost(ctx){
    if(lease.meta?.changes!==1)return plain("Query cooldown",429);
    let summary="查詢失敗或未通過驗章";
    try{
-    const fields={MerchantID:c.merchant,MerchantTradeNo:row.merchant_trade_no,TimeStamp:String(t)};
-    const resp=await fetch(QUERY,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({...fields,CheckMacValue:await liveMac(fields,c)}),redirect:"error",signal:AbortSignal.timeout(10000)});
-    if(resp.ok){
+    const fields={MerchantID:c.merchant,MerchantTradeNo:row.merchant_trade_no,TimeStamp:String(t),PlatformID:""};
+    const resp=await fetch(QUERY,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({...fields,CheckMacValue:await liveMac(fields,c)}),redirect:"manual",signal:AbortSignal.timeout(15000)});
+    if(resp.status>=300&&resp.status<400)summary="綠界回傳非預期轉址，未跟隨";
+    else if(resp.ok){
      const raw=await resp.text(),v=raw.length<=12000?parseFields(raw):null;
      if(await signed(v,c)){
       const currentRow=await a.db.prepare("SELECT paid_at,trade_no_hash FROM koolo_ecpay_live_test_orders WHERE id=?").bind(row.id).first();
