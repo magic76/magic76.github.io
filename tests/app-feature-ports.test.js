@@ -270,8 +270,8 @@ test("Fortune keeps Live as secondary help instead of a primary product surface"
  const tarot=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/TarotTabs.tsx"),"utf8");
  const vedic=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/VedicTabs.tsx"),"utf8");
  assert.ok(!layout.includes("/fortune/live"),"Fortune primary tabs should be data/history only");
- assert.ok(home.includes("readFortuneHistoryPreviews(30)"),"Latest saved chart is central");
- assert.ok(home.includes("prepareFriendExplanation"),"Friend narration is an explicit optional action");
+ assert.ok(home.includes("readFortuneHistoryPreviews(30)"),"Saved charts remain accessible through history");
+ assert.ok(!home.includes("prepareFriendExplanation"),"Duplicate continuation card no longer launches narration from the hub");
  assert.ok(!home.includes("開始對話"),"Fortune home should not lead with teacher chat");
  assert.ok(reading.includes('t("reading.askMore")'),"Live help should stay collapsed behind a follow-up affordance");
  assert.equal(readUiLocale("fortune").reading.askMore,"想再問清楚一點？");

@@ -7,10 +7,10 @@ const read=p=>fs.readFileSync(path.join(__dirname,"..",p),"utf8");
 test("Fortune landing prioritizes three approved illustrated methods before history and daily reflection",()=>{
  const src=read("web-spa/src/fortune/HomePage.tsx");
  const first=src.indexOf('className="section fortune-journey-create"');
- const latest=src.indexOf('className="section fortune-journey-primary"');
  const history=src.indexOf('className="section fortune-journey-history"');
  const daily=src.indexOf('className="fortune-journey-daily"');
- assert.ok(first>=0&&first<latest&&latest<history&&history<daily);
+ assert.ok(first>=0&&first<history&&history<daily);
+ assert.doesNotMatch(src,/fortune-journey-primary|landing\.continue/);
  for(const mode of ["bazi","tarot","vedic"]){
   assert.match(src,new RegExp('fortune-'+mode+'-cover\\.webp'));
   assert.match(src,new RegExp('to="/fortune/reading\\?mode='+mode+'"'));

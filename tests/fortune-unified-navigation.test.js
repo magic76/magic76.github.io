@@ -14,7 +14,7 @@ test("Explore exposes one Fortune destination including records, rather than a s
  assert.match(legacy,/if\(!nativeHost\)return <Navigate to="\/fortune" replace\/>/);
  assert.match(legacy,/nativeFortuneStartUrl\(kind,excerpt\)/,"native host must remain intact");
 });
-test("Original Fortune now owns newest chart, full history, new reading and Friend narration",()=>{
+test("Original Fortune owns full history and new readings without a duplicate continuation card",()=>{
  const home=read("web-spa/src/fortune/HomePage.tsx");
  assert.match(home,/readFortuneHistoryPreviews\(30\)/);
  assert.match(home,/to="\/fortune\/history"/);
@@ -25,10 +25,10 @@ test("Original Fortune now owns newest chart, full history, new reading and Frie
  const helper=read("web-spa/src/fortune/prepareFriendExplanation.ts");
  assert.match(helper,/saveFortuneSpeakingContext\(reading,"overview",fortuneHandoffPhase\(reading\)\)/);
  assert.match(helper,/fortuneHandoffPhase/);
- assert.match(home,/navigate\("\/fortune\/live\?from=hub"\)/);
+ assert.doesNotMatch(home,/fortune-journey-primary|prepareFriendExplanation/);
  assert.match(helper,/await ensureFortuneServices\(\)/);
  assert.doesNotMatch(home,/ensureFortuneServices|window\.CrewFortuneProfile/);
- assert.match(home,/geminiKey\(\)/);
+ assert.match(home,/className="fortune-history-row" to=\{readingUrl\(x.id\)\}/);
 });
 test("Reading maintains only one contextual Friend explanation action and never generates chart facts",()=>{
  const reading=read("web-spa/src/fortune/ReadingPage.tsx");
