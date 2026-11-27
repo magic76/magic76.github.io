@@ -65,3 +65,8 @@ export function InlineTeacherBoard({board,english,send,canSend}:{board:Board;eng
     onExplain={text=>{if(canSend)send("[LEARNER BOARD QUESTION] Please explain this board item: "+JSON.stringify(text))}}/></div>
  </section>
 }
+
+export function InlineTeacherBoardMenu({board,zh,send,canSend,onRequested}:{board:Board;zh:boolean;send:Send;canSend:boolean;onRequested:()=>void}){
+ if(!board.enabled)return null;
+ return <div className="teacher-live-entry-actions"><button type="button" onClick={()=>{if(board.request(send))onRequested()}} disabled={!canSend}>{zh?"請老師使用白板":"Ask for whiteboard"}</button><button type="button" aria-pressed={board.auto} onClick={board.toggle}>{zh?"自動白板":"Automatic whiteboard"}: {board.auto?(zh?"開":"On"):(zh?"關":"Off")}</button></div>
+}
