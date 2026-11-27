@@ -1099,6 +1099,7 @@
       if(attempt.setupComplete)return;
       attempt.setupComplete=true;
       attempt.setupCompletedAt=this._deps.now();
+      if(this.options.onToolDiagnostics){try{this.options.onToolDiagnostics({event:"setup-ack",model:attempt.model,tools:attempt.toolNames||[]});}catch(_){/* read-only observer */}}
       this._clearAttemptTimers(attempt);
       resolveSetup(attempt);
       return;
@@ -1114,6 +1115,7 @@
       var self=this;
       calls.slice(0,8).forEach(function(call){
         if(!call||typeof call.name!=="string")return;
+        if(self.options.onToolDiagnostics){try{self.options.onToolDiagnostics({event:"tool-received",model:attempt.model,name:call.name});}catch(_){/* read-only observer */}}
         var result;
         try{result=self.options.onToolCall(call)||{ok:true};}
         catch(_){result={ok:false,error:"tool-rejected"};}
@@ -1207,6 +1209,9 @@
           // Older models and ordinary sessions preserve the exact original handshake.
           var inputLanguageCodes=model==="gemini-3.8-live"&&Array.isArray(self.options.inputLanguageCodes)
             ?Array.from(new Set(self.options.inputLanguageCodes.filter(function(code){return typeof code==="string"&&/^[a-z]{2}-[A-Z]{2}$/.test(code);}))).slice(0,2):[];
+          if(self.options.onToolDiagnostics){
+            attempt.toolNames=(self.options.tools||[]).flatMap(function(group){return (group.functionDeclarations||group.function_declarations||[]).map(function(tool){return tool.name;}).filter(function(name){return typeof name==="string";});});
+          }
           socket.send(JSON.stringify({
             setup:{
               model:"models/"+model,
