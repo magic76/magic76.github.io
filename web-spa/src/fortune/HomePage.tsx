@@ -1,8 +1,7 @@
 import {Arrow} from "../components/Arrow";
 import {useEffect,useState} from "react";
 import {useTranslation} from "react-i18next";
-import {Link,useNavigate} from "react-router-dom";
-import {geminiKey} from "../lib/runtime";
+import {Link} from "react-router-dom";
 import {readFortuneHistoryPreviews,type FortuneHistoryPreview} from "./readingHistory";
 import {ProductDiscoverability} from "../components/ProductDiscoverability";
 import "./unifiedHome.css";
@@ -24,40 +23,17 @@ const name=(mode:string,t:(key:string)=>string)=>MODES.includes(mode as typeof M
  */
 export function FortuneHomePage(){
  const {t,i18n}=useTranslation("fortune");
- const navigate=useNavigate();
  const [searchParams]=useSearchParams();
  const invite=parseFortuneInvite(searchParams);
  const [list,setList]=useState<FortuneHistoryPreview[]|null>(null);
  const [hasDaily,setHasDaily]=useState(false);
  const dailyIntent=searchParams.get("daily")==="1";
  const chartHash=/^[a-f0-9]{64}$/.test(searchParams.get("chart")||"")?searchParams.get("chart")!:undefined;
- const [openingId,setOpeningId]=useState<string|null>(null);
- const [error,setError]=useState("");
- const [needsKey,setNeedsKey]=useState(false);
  useEffect(()=>{const refresh=()=>setHasDaily(readDailyProfiles().length>0);setList(readFortuneHistoryPreviews(30));refresh();window.addEventListener(DAILY_PROFILE_EVENT,refresh);window.addEventListener("storage",refresh);return()=>{window.removeEventListener(DAILY_PROFILE_EVENT,refresh);window.removeEventListener("storage",refresh);};},[]);
  const dailySection=hasDaily?<section id="fortune-today" className="section fortune-journey-today">
   <FortuneDailyCard chartHash={chartHash}/>
  </section>:null;
- const latest=list?.[0];
  const readingUrl=(id:string)=>"/fortune/reading?history="+encodeURIComponent(id);
- async function explain(readingId:string){
-  if(openingId)return;
-  setError("");
-  setNeedsKey(false);
-  if(!geminiKey()){
-   setNeedsKey(true);
-   setError(t("landing.missingKey"));
-   return;
-  }
-  setOpeningId(readingId);
-  try{
-   const {prepareFriendExplanation}=await import("./prepareFriendExplanation");
-   await prepareFriendExplanation(readingId);
-   navigate("/fortune/live?from=hub");
-  }catch(e){
-   setError(e instanceof Error?e.message:t("landing.openError"));
-  }finally{setOpeningId(null)}
- }
  return <>
   {invite&&<FortuneInviteLanding invite={invite} locale={i18n.resolvedLanguage||i18n.language}/>}
   {dailyIntent?dailySection:null}
@@ -97,26 +73,6 @@ export function FortuneHomePage(){
    </div>
   </section>
   {!dailyIntent?dailySection:null}
-  {(list===null||Boolean(latest)||Boolean(error))&&<section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
-   {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
-    <div className="fortune-journey-latest">
-     <span className="kicker">{t("landing.continue")}</span>
-     <div className="fortune-journey-latest-head">
-      <span className={"fortune-history-mark "+latest.mode}/>
-      <div><h2>{name(latest.mode,t)}</h2><p>{latest.summary||t("home.reading")}</p>
-       <small>{latest.createdAt?new Date(latest.createdAt).toLocaleDateString(i18n.language):""}</small>
-      </div>
-     </div>
-     <div className="fortune-journey-actions">
-      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")}</Link>
-      <button className="btn secondary" type="button" disabled={Boolean(openingId)} onClick={()=>void explain(latest.id)}>
-       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")}
-      </button>
-     </div>
-    </div>:
-    null}
-   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{t("landing.openSettings")} <Arrow/></Link>}</div>}
-  </section>}
   <section className="section fortune-journey-history" aria-label={t("landing.saved")}>
    <div className="section-head">
     <h2>{t("landing.myCharts")}</h2>

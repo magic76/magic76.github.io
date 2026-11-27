@@ -1,19 +1,5 @@
 /* Primary Crew Fortune home: existing calculator & history, one intent-first entrance. */
 .fortune-journey-hero{max-width:820px}
-.fortune-journey-primary{margin-top:20px}
-.fortune-journey-latest,.fortune-journey-empty{
- border:1px solid #dfdaf1;border-radius:22px;
- background:linear-gradient(135deg,#f1edff 0%,#f9faff 70%,#fff 100%);
- padding:clamp(20px,4vw,30px);display:grid;gap:16px
-}
-.fortune-journey-latest-head{display:flex;align-items:flex-start;gap:13px;min-width:0}
-.fortune-journey-latest-head .fortune-history-mark{flex:none}
-.fortune-journey-latest-head h2,.fortune-journey-empty h2{margin:0 0 7px;font-size:clamp(21px,4vw,27px)}
-.fortune-journey-latest-head p,.fortune-journey-empty p{margin:0;color:var(--muted);line-height:1.6;overflow-wrap:anywhere}
-.fortune-journey-latest-head small{display:block;color:var(--muted);margin-top:8px}
-.fortune-journey-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
-.fortune-journey-actions .btn{display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;min-width:160px;flex:1;white-space:normal;overflow-wrap:anywhere}
-.fortune-journey-empty .btn{width:fit-content;min-height:44px}
 .fortune-journey-all{color:var(--accent);font-size:13px;font-weight:750;text-decoration:none}
 .fortune-journey-history .fortune-history-list{margin-top:12px}
 .fortune-journey-other{border-top:1px solid var(--line);padding-top:18px}
@@ -21,8 +7,7 @@
 .fortune-journey-other-links a{display:flex;align-items:center;min-height:48px;flex:1;min-width:230px;padding:12px 14px;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:14px;font-weight:700;text-decoration:none}
 .fortune-journey-other p{font-size:12px;color:var(--muted);line-height:1.65;margin-top:10px}
 .fortune-journey-home a:focus-visible,.fortune-journey-home button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-@media(max-width:600px){.fortune-journey-latest,.fortune-journey-empty{border-radius:18px;padding:18px}.fortune-journey-actions{flex-direction:column}.fortune-journey-actions .btn{width:100%}.fortune-journey-history .section-head{align-items:center}.fortune-journey-other-links{display:grid;grid-template-columns:minmax(0,1fr)}.fortune-journey-other-links a{min-width:0}}
-@media(prefers-reduced-motion:reduce){.fortune-journey-actions .btn{transition:none}}
+@media(max-width:600px){.fortune-journey-history .section-head{align-items:center}.fortune-journey-other-links{display:grid;grid-template-columns:minmax(0,1fr)}.fortune-journey-other-links a{min-width:0}}
 
 /* Secondary SEO explainers must never mix text and detached circle arrows. */
 .fortune-journey-guides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}

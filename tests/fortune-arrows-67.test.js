@@ -18,18 +18,13 @@ test("Fortune explainer links keep their SEO destinations without orphan arrows"
  assert.match(css,/@media\(max-width:600px\)\{\.fortune-journey-guides\{grid-template-columns:minmax\(0,1fr\)\}\}/);
 });
 
-test("Fortune continuation CTAs center labels without circular arrows",()=>{
+test("Fortune home removes duplicate continuation card while retaining history navigation",()=>{
  const home=read("web-spa/src/fortune/HomePage.tsx");
  const css=read("web-spa/src/fortune/unifiedHome.css");
- const actions=home.match(/<div className="fortune-journey-actions">([\s\S]*?)<\/div>/)?.[1]||"";
- assert.ok(actions.includes('to={readingUrl(latest.id)}'));
- assert.ok(actions.includes('onClick={()=>void explain(latest.id)}'));
- assert.ok(actions.includes('t("landing.readFull")'));
- assert.ok(actions.includes('t(openingId===latest.id?"landing.opening":"landing.hearFriend")'));
- assert.doesNotMatch(actions,/<Arrow\b/);
- assert.match(css,/\.fortune-journey-actions \.btn\{[^}]*justify-content:center;text-align:center;min-height:44px;[^}]*white-space:normal;overflow-wrap:anywhere/);
- assert.match(css,/@media\(max-width:600px\)/);
- assert.match(css,/\.fortune-journey-actions\{flex-direction:column\}\.fortune-journey-actions \.btn\{width:100%\}/);
+ assert.doesNotMatch(home,/fortune-journey-primary|fortune-journey-latest|fortune-journey-actions|landing\.continue/);
+ assert.doesNotMatch(css,/fortune-journey-primary|fortune-journey-latest|fortune-journey-actions/);
+ assert.match(home,/className="fortune-history-row" to=\{readingUrl\(x.id\)\}/);
+ assert.match(home,/to="\/fortune\/history"/);
 });
 
 test("Fortune arrow fixes are local and require no new translated labels",()=>{
