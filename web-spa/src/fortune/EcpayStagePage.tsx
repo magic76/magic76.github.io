@@ -1,20 +1,19 @@
 import {useCallback,useEffect,useState} from "react";
 import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import {dailyProfileHash} from "./dailyCard";
+import {readDailyChartMeta,readDailyPreference,DAILY_PROFILE_EVENT} from "./dailyProfileSelection";
+import {readOrderChartRecords,selectOrderCharts,type OrderChartReading} from "./orderChartSelection";
 import "./ecpayStage.css";
 
 type FactPayload={fourPillars:string;dayMaster:string;element:string;strength:string;currentLuck:string;
  resource:number;output:number;officer:number;directWealth:number;indirectWealth:number;spousePalace:string};
-type ReadingRecord={id:string;mode:string;createdAt?:string;result?:Record<string,any>};
+type ReadingRecord=OrderChartReading;
 type TestOrder={id:string;state:"pending"|"paid";createdAt:number;amountTwd:79|99;sandbox:true;report?:{sections:{title:string;body:string}[]}};
 type TestConfig={enabled:true;sandbox:true;amountTwd:99};
 type Checkout={action:string;fields:Record<string,string>};
 const getHistory=():ReadingRecord[]=>{
- try{const raw=JSON.parse(localStorage.getItem("crew_fortune_readings_v2")||"[]");
-  return Array.isArray(raw)?raw.filter((x:unknown):x is ReadingRecord=>!!x&&typeof x==="object"&&
-   (x as ReadingRecord).mode==="bazi"&&typeof (x as ReadingRecord).id==="string"&&
-   !!(x as ReadingRecord).result).slice(0,20):[];
- }catch{return []}
+ try{return readOrderChartRecords(JSON.parse(localStorage.getItem("crew_fortune_readings_v2")||"[]"))}catch{return []}
 };
 const number=(v:unknown)=>Number.isInteger(Number(v))?Math.max(0,Math.min(20,Number(v))):0;
 const text=(v:unknown,max=75)=>typeof v==="string"?v.trim().slice(0,max):"";
@@ -40,7 +39,24 @@ export function FortuneEcpayStagePage(){
  const[config,setConfig]=useState<"loading"|"ready"|"login"|"denied"|"disabled"|"error">("loading");
  const[orders,setOrders]=useState<TestOrder[]>([]),[order,setOrder]=useState<TestOrder|null>(null);
  const[busy,setBusy]=useState(false),[error,setError]=useState("");
- useEffect(()=>setRecords(getHistory()),[]);
+ useEffect(()=>{
+  const update=()=>setRecords(getHistory());
+  update();window.addEventListener("storage",update);window.addEventListener(DAILY_PROFILE_EVENT,update);
+  return()=>{window.removeEventListener("storage",update);window.removeEventListener(DAILY_PROFILE_EVENT,update)};
+ },[]);
+ const choices=selectOrderCharts(records,readingId);
+ const selfHash=readDailyPreference().selfHash;
+ function chartName(row:ReadingRecord){
+  const p=row.profile;
+  if(!p||typeof p.birthDate!=="string"||!p.birthDate)return copy("未命名命盤","Unnamed chart");
+  const hash=dailyProfileHash(p);
+  return readDailyChartMeta(hash).nickname?.trim()||(hash===selfHash?copy("本人","Myself"):copy("未命名命盤","Unnamed chart"));
+ }
+ function birthLabel(row:ReadingRecord){
+  const p=row.profile;
+  if(!p||typeof p.birthDate!=="string"||!p.birthDate)return copy("出生資料未保存","Birth details not saved");
+  return [copy("出生","Born")+" "+p.birthDate,typeof p.birthTime==="string"?p.birthTime:"",typeof p.city==="string"?p.city:""].filter(Boolean).join(" · ");
+ }
  const refresh=useCallback(async(signal?:AbortSignal)=>{
   const headers={credentials:"same-origin" as const,cache:"no-store" as const,signal};
   const responses=await Promise.all([
@@ -128,13 +144,20 @@ export function FortuneEcpayStagePage(){
     <p><button className="btn secondary small" type="button" onClick={()=>void refresh().catch(()=>setError("STATUS_RETRY_FAILED"))}>{copy("重新檢查狀態","Refresh status")}</button></p>
    </section>}
    <section className="panel section koolo-ecpay-stage-chart">
-    <h2>{copy("選擇命盤，建立測試訂單","Select chart for test order")}</h2>
-    <p>{copy("只傳送命盤摘要（四柱、日主、十神統計），不傳出生姓名、生日、地址或 API Key。","Only calculated chart summary symbols are sent; not names, birth data, addresses or API keys.")}</p>
-    {records.length===0?<p>{copy("目前沒有本機八字命盤，先免費算一次，再回來測試。","No local BaZi chart found. Create a free chart first.")} <Link to="/fortune/reading?mode=bazi">{copy("前往算命","Create chart")}</Link></p>:
-    <div className="koolo-ecpay-stage-choices">{records.map(x=><Link className={x.id===readingId?"selected":""}
+    <h2>{copy("選擇命盤對象","Choose a person")}</h2>
+    <div className="koolo-ecpay-stage-chart-tools">
+     <Link to="/fortune#daily-profiles">{copy("管理命盤／設定姓名","Manage charts / names")}</Link>
+     <Link to="/fortune/reading?mode=bazi">{copy("＋ 新增命盤","＋ Add chart")}</Link>
+    </div>
+    {choices.length===0?<p>{copy("目前沒有本機八字命盤，請先免費排盤。","No local BaZi chart found. Create a free chart first.")}</p>:
+    <div className="koolo-ecpay-stage-choices">{choices.map(x=><Link className={x.id===readingId?"selected":""}
+     aria-current={x.id===readingId?"true":undefined}
      to={"/fortune/ecpay/test?history="+encodeURIComponent(x.id)} key={x.id}>
-      {text(x.result?.fourPillars)||copy("八字命盤","BaZi chart")} <small>{x.createdAt?new Date(x.createdAt).toLocaleDateString():""}</small>
+      <span className="koolo-ecpay-stage-chart-name"><strong>{chartName(x)}</strong>{x.id===readingId&&<span>{copy("✓ 已選擇","✓ Selected")}</span>}</span>
+      <small>{birthLabel(x)}</small>
+      <small>{text(x.result?.fourPillars)||copy("八字命盤","BaZi chart")}{x.createdAt&&!Number.isNaN(Date.parse(x.createdAt))?" · "+copy("排盤","Calculated")+" "+new Date(x.createdAt).toLocaleDateString(zh?"zh-TW":"en-US"):""}</small>
      </Link>)}</div>}
+    <p className="koolo-ecpay-stage-chart-privacy">{copy("姓名與出生資料僅供本機辨識；訂單只傳送命盤摘要，不傳姓名、生日、地址或 API Key。","Names and birth details are local only. Orders send calculated chart facts, never names, birth data, addresses or API keys.")}</p>
     {selected&&(!facts?<p role="alert">{copy("這份命盤缺少必要欄位，請重新計算。","This chart is missing required symbols. Recalculate it.")}</p>:
      <button className="btn" type="button" disabled={busy} onClick={()=>void submit()}>
       {busy?copy("正在前往綠界測試頁…","Opening ECPay sandbox…"):copy("測試付款 NT$99（不會真扣款）","Test NT$99 payment (no charge)")}</button>)}
