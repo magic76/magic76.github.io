@@ -1,4 +1,4 @@
-import {useCallback,useEffect,useState} from "react";
+import {useCallback,useEffect,useRef,useState} from "react";
 import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {dailyProfileHash} from "./dailyCard";
@@ -39,6 +39,30 @@ export function FortuneEcpayStagePage(){
  const[config,setConfig]=useState<"loading"|"ready"|"login"|"denied"|"disabled"|"error">("loading");
  const[orders,setOrders]=useState<TestOrder[]>([]),[order,setOrder]=useState<TestOrder|null>(null);
  const[busy,setBusy]=useState(false),[error,setError]=useState("");
+ const[queryBusy,setQueryBusy]=useState<string|null>(null),[queryResult,setQueryResult]=useState<{id:string;code:string}|null>(null);
+ const activeOrder=useRef(orderId);activeOrder.current=orderId;
+ async function queryPayment(){
+  if(!orderId||queryBusy)return;
+  const id=orderId;setQueryBusy(id);setQueryResult(null);
+  try{
+   const res=await fetch("/api/fortune/ecpay/test-status?id="+encodeURIComponent(id),{method:"POST",credentials:"same-origin",cache:"no-store"});
+   const result=await res.json() as {order?:TestOrder;queryResult?:string;error?:string};
+   if(activeOrder.current===id){if(result.order?.id===id)setOrder(result.order);setQueryResult({id,code:result.queryResult||result.error||"QUERY_FAILED"})}
+  }catch{if(activeOrder.current===id)setQueryResult({id,code:"QUERY_FAILED"})}finally{setQueryBusy(null)}
+ }
+ const queryMessages:Record<string,string>={
+  QUERY_PAID:copy("綠界已確認付款，示範報告已同步。","ECPay confirmed payment; demo report synchronized."),
+  QUERY_PENDING:copy("綠界仍顯示未付款。請隔 10 分鐘再查詢，不要重複付款。","ECPay still reports unpaid. Try again in 10 minutes; do not pay twice."),
+  QUERY_NOT_FOUND:copy("綠界查無已成立的訂單。請核對付款畫面，不要重複付款。","ECPay did not find a completed order. Check the payment screen; do not pay twice."),
+  QUERY_TOO_EARLY:copy("建立訂單後至少 10 分鐘才能向綠界查詢。","Query ECPay at least 10 minutes after order creation."),
+  QUERY_COOLDOWN:copy("查詢過於頻繁，請稍後再試（一般至少 10 分鐘，遭綠界限制時至少 30 分鐘）。","Query cooldown: retry after at least 10 minutes, or 30 minutes if restricted."),
+  QUERY_BLOCKED:copy("綠界暫時限制查詢，請至少 30 分鐘後再試。","ECPay restricted queries. Retry after at least 30 minutes."),
+  QUERY_MISMATCH:copy("綠界回傳交易資料不符，需人工核對。","Transaction data mismatch; manual review required."),
+  QUERY_BAD_SIGNATURE:copy("查詢結果未通過驗章，未更新訂單。","Query signature verification failed; order unchanged."),
+  QUERY_CONFLICT:copy("付款已回報，但訂單同步異常，需人工核對。","Payment reported, but reconciliation needs review."),
+  QUERY_UNAVAILABLE:copy("查單服務尚未就緒或暫時無法使用。","Query service not ready or temporarily unavailable."),
+  QUERY_FAILED:copy("暫時無法向綠界查單，請稍後再試。","Unable to query ECPay. Try again later.")
+ };
  useEffect(()=>{
   const update=()=>setRecords(getHistory());
   update();window.addEventListener("storage",update);window.addEventListener(DAILY_PROFILE_EVENT,update);
@@ -142,6 +166,8 @@ export function FortuneEcpayStagePage(){
       </div>}
      </>}
     <p><button className="btn secondary small" type="button" onClick={()=>void refresh().catch(()=>setError("STATUS_RETRY_FAILED"))}>{copy("重新檢查狀態","Refresh status")}</button></p>
+    {order?.id===orderId&&order.state==="pending"&&<div><button className="btn secondary" type="button" disabled={queryBusy!==null} onClick={()=>void queryPayment()}>{queryBusy===orderId?copy("正在向綠界查詢…","Querying ECPay…"):copy("向綠界查詢付款結果","Query payment at ECPay")}</button><p className="meta">{copy("若刷卡成功但未更新，付款後至少 10 分鐘再查詢。查詢不會再次付款。","If payment succeeded but the status did not update, query after at least 10 minutes. This does not charge again.")}</p></div>}
+    {queryResult&&queryResult.id===orderId&&<p role="status">{queryMessages[queryResult.code]||queryMessages.QUERY_FAILED}</p>}
    </section>}
    <section className="panel section koolo-ecpay-stage-chart">
     <h2>{copy("選擇命盤對象","Choose a person")}</h2>

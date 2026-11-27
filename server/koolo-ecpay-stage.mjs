@@ -4,6 +4,7 @@
  */
 const ORIGINS=new Set(["https://koolo.app","https://www.3sssi.com"]);
 const STAGE_ACTION="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
+const STAGE_QUERY="https://payment-stage.ecpay.com.tw/Cashier/QueryTradeInfo/V5";
 const TEST_MERCHANT="3002607";
 const TEST_KEY="pwFHCqoQZGmho4w6";
 const TEST_IV="EkRm7iFT261dpevs";
@@ -161,6 +162,9 @@ export async function stageNotify({request,env}){
  if(values.MerchantID!==TEST_MERCHANT||!/^[A-Za-z0-9]{1,20}$/.test(values.MerchantTradeNo||"")||
   !["79",String(BOOK_AMOUNT)].includes(values.TradeAmt)||!/^Credit(?:_|$)/.test(values.PaymentType||"")||
   !/^[A-Za-z0-9]{1,40}$/.test(values.TradeNo||""))return nack(422);
+ return settleStagePayment(env,values);
+}
+async function settleStagePayment(env,values){
  try{
   // Legacy callbacks continue to resolve only against the original 79 TWD table.
   const table=values.TradeAmt==="79"?LEGACY_TABLE:BOOK_TABLE;
@@ -189,4 +193,54 @@ export async function stageNotify({request,env}){
   ).bind(row.id).first();
   return updated?.state==="paid"&&updated.trade_no_hash===tradeHash?ack():nack(409);
  }catch{return nack(503)}
+}
+
+/** Manual, authenticated sandbox reconciliation. GET polling is always read-only. */
+export async function stageQuery(context,upstreamFetch=fetch){
+ const a=await owner(context,"POST");if(a.error)return a.error;
+ if(context.request.headers.get("Origin")!==new URL(context.request.url).origin)return respond({error:"BAD_ORIGIN"},403);
+ const id=new URL(context.request.url).searchParams.get("id");
+ if(!ID_RE.test(id||""))return respond({error:"INVALID_ORDER"},400);
+ const now=Math.floor(Date.now()/1000);
+ try{
+  const row=await a.db.prepare("SELECT id,state,merchant_trade_no,created_at,amount_twd,report_json FROM "+ALL_ORDERS+" WHERE id=? AND user_id=? LIMIT 1").bind(id,a.userId).first();
+  if(!row)return respond({error:"NOT_FOUND"},404);
+  if(row.state==="paid")return respond({order:responseOrder(row,true),queryResult:"QUERY_PAID"});
+  if(now-Number(row.created_at)<600)return respond({error:"QUERY_TOO_EARLY",retryAt:Number(row.created_at)+600},429);
+  // Persist cooldown across requests, devices and concurrent clicks.
+  const blocked=await a.db.prepare("SELECT query_after FROM koolo_ecpay_stage_query_limits WHERE order_id=?").bind("*").first();
+  if(Number(blocked?.query_after||0)>now)return respond({error:"QUERY_COOLDOWN",retryAt:Number(blocked.query_after)},429);
+  const lease=await a.db.prepare("INSERT INTO koolo_ecpay_stage_query_limits(order_id,query_after) VALUES(?,?) ON CONFLICT(order_id) DO UPDATE SET query_after=excluded.query_after WHERE koolo_ecpay_stage_query_limits.query_after<=?").bind(id,now+600,now).run();
+  if(lease.meta?.changes!==1)return respond({error:"QUERY_COOLDOWN"},429);
+  let outcome="QUERY_FAILED";
+  try{
+   const fields={MerchantID:TEST_MERCHANT,MerchantTradeNo:row.merchant_trade_no,TimeStamp:String(now)};
+   const result=await upstreamFetch(STAGE_QUERY,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({...fields,CheckMacValue:await ecpayCheckMac(fields)}),redirect:"error",signal:AbortSignal.timeout(10000)});
+   if(result.status===403){
+    await a.db.prepare("INSERT INTO koolo_ecpay_stage_query_limits(order_id,query_after) VALUES(?,?) ON CONFLICT(order_id) DO UPDATE SET query_after=MAX(query_after,excluded.query_after)").bind("*",now+1800).run();
+    outcome="QUERY_BLOCKED";
+   }else if(result.ok){
+    const raw=await result.text();
+    const p=new URLSearchParams(raw);
+    if(raw.length<=12000&&[...p.keys()].length===new Set(p.keys()).size){
+     const v=Object.fromEntries(p);
+     if(/^[A-Fa-f0-9]{64}$/.test(v.CheckMacValue||"")&&secureEqual(v.CheckMacValue.toUpperCase(),await ecpayCheckMac(v))){
+      if(v.MerchantID!==TEST_MERCHANT||v.MerchantTradeNo!==row.merchant_trade_no)outcome="QUERY_MISMATCH";
+      else if(v.TradeStatus==="10200095")outcome="QUERY_NOT_FOUND";
+      else if(v.TradeAmt!==String(row.amount_twd)||!/^Credit(?:_|$)/.test(v.PaymentType||"")||!(/^[A-Za-z0-9]{1,20}$/).test(v.TradeNo||"")||v.SimulatePaid==="1")outcome="QUERY_MISMATCH";
+      else if(v.TradeStatus==="0")outcome="QUERY_PENDING";
+      else if(v.TradeStatus==="1"){
+       // Only the provider's verified query can reach the same idempotent sandbox settlement.
+       // The public test credentials never authorize production entitlements.
+       const settled=await settleStagePayment(context.env,{...v,RtnCode:"1"});
+       outcome=settled.status===200?"QUERY_PAID":"QUERY_CONFLICT";
+      }else outcome="QUERY_MISMATCH";
+     }else outcome="QUERY_BAD_SIGNATURE";
+    }
+   }
+  }catch{/* no raw provider response or secrets in output */}
+  const latest=await a.db.prepare("SELECT id,state,created_at,amount_twd,report_json FROM "+ALL_ORDERS+" WHERE id=? AND user_id=? LIMIT 1").bind(id,a.userId).first();
+  if(!latest)return respond({error:"NOT_FOUND"},404);
+  return respond({order:responseOrder(latest,true),queryResult:latest.state==="paid"?"QUERY_PAID":outcome});
+ }catch{return respond({error:"QUERY_UNAVAILABLE"},503)}
 }

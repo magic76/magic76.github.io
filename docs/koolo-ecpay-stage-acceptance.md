@@ -49,3 +49,7 @@ This PR is a **sandbox harness only**. It cannot take real payments, grant any `
 - Server-side result notification `1|OK`: https://developers.ecpay.com.tw/2878/
 
 New sandbox orders use the 0013 book table, fixed NT$99. Historical 79 TWD rows stay in 0009; amount is displayed in order history, and late callbacks still match only their original stored amount. This is not production checkout. Leave the separate NT$10 live verification unchanged.
+
+## Manual sandbox reconciliation
+
+Apply `0014_ecpay_stage_query_limits.sql` to the existing CREW_AUTH_DB before using the new query button. Existing GET polling remains read-only. For an order that remains pending after successful test checkout, use **向綠界查詢付款結果** at least 10 minutes after payment. The server checks the signed sandbox QueryTradeInfo/V5 result and matches merchant, order, amount and credit payment type before using the same sandbox-only idempotent settlement. Never treat a simulated or unsigned result as paid. Per-order retries are at least 10 minutes apart, and provider HTTP 403 pauses all sandbox queries for 30 minutes. No production payment or entitlement is affected. If queries fail, check the callback endpoint and ECPay stage console; do not create a replacement order.
