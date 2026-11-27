@@ -638,7 +638,7 @@
     "learnDescription": "今天學一句實用的外語。"
   },
   "mobileHero": {
-    "title": "一起玩著學語言",
+    "title": "即時 AI，隨你聊",
     "subtitle": "打個招呼就開始。"
   },
   "quickEntry": {
@@ -679,7 +679,7 @@
     "teacherTitle": "跟 {{name}} 練{{language}}口說",
     "firstPractice": "跟 AI 老師練口說",
     "practiceWith": "和 {{name}} 練一句",
-    "practiceNow": "開始練一句",
+    "practiceNow": "開始即時口說",
     "changeTeacher": "換老師",
     "carousel": "Koolo 特色功能輪播",
     "zoeAria": "和 Zoe 聊天",
@@ -688,7 +688,7 @@
     "voice": "開始聊天",
     "friendsAria": "認識其他 AI 朋友",
     "friendsTitle": "換個朋友聊聊？",
-    "friendsDesc": "三個朋友，三種聊法。",
+    "friendsDesc": "每次對話，依你說的話回應。",
     "chatNoah": "和 Noah 聊聊",
     "allFriends": "認識朋友",
     "gameAria": "今日推薦遊戲",
@@ -697,7 +697,7 @@
     "allGames": "更多遊戲",
     "learnAria": "和 AI 學語言",
     "learnTitle": "一句話，練出自信",
-    "learnDesc": "跟 AI 老師練口說。",
+    "learnDesc": "即時語音，依你的問題教學。",
     "startLearning": "開始學語言",
     "pickTeacher": "找位老師",
     "dots": "選擇輪播項目",
@@ -707,9 +707,9 @@
     "slideGame": "今日推薦",
     "slideLearn": "學語言",
     "heading": "想玩什麼？",
-    "badgeFriend": "AI FRIEND",
-    "badgeFriends": "AI FRIENDS",
-    "badgeLearn": "LEARN",
+    "badgeFriend": "LIVE AI",
+    "badgeFriends": "LIVE AI FRIENDS",
+    "badgeLearn": "LIVE AI",
     "badgePlay": "PLAY",
     "apps": {
       "friends": "AI 朋友",
@@ -726,17 +726,17 @@
       "resumeDesc": "從上次的話題繼續，不用重新認識。",
       "text": "文字聊天",
       "voice": "開始聊天",
-      "friendsDesc": "16 位朋友，找到聊得來的那一位。",
+      "friendsDesc": "16 位 AI 朋友，沒有固定對話劇本。",
       "gameDesc": "玩一局，換個心情。",
       "learnDesc": "和 AI 老師自然練口說。",
       "quick": "快速探索",
       "heading": "想做點什麼？",
       "all": "全部功能",
-      "learnBadge": "LANGUAGE LEARNING"
+      "learnBadge": "LIVE AI LEARNING"
     }
   },
   "chatChoices": {
-    "prompt": "今天有什麼想跟我說的？",
+    "prompt": "不用照劇本，想聊什麼就聊什麼。",
     "returnPrompt": "今天想接著聊，還是有新鮮事？",
     "funny": "有件好笑的事",
     "casual": "我想隨便聊聊",
