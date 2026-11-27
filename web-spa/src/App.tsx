@@ -98,6 +98,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/me/voice-credits" element={<AppChrome product="settings"><VoiceCreditsPage/></AppChrome>}/>
 <Route path="/feedback" element={<AppChrome product="settings"><FeedbackPage/></AppChrome>}/>
 <Route path="/purchase-info" element={<AppChrome product="settings"><PurchaseInfoPage/></AppChrome>}/>
+<Route path="/pricing" element={<Navigate to="/purchase-info" replace/>}/>
 <Route path="/me/orders" element={<AppChrome product="settings"><PurchaseOrdersPage/></AppChrome>}/>
 <Route path="/privacy" element={<AppChrome product="settings"><PrivacyPage/></AppChrome>}/>
 <Route path="/guides/:slug" element={<AppChrome product="teacher"><GuidePage/></AppChrome>}/>
