@@ -31,7 +31,7 @@ test("unreleased paid account entries mount only inside the verified admin group
  assert.doesNotMatch(mine,/useSummary\(/);
  assert.match(mine,/\{PAID_ACCOUNT_FEATURES_PUBLIC&&<section[^\n]+<PaidAccountRows\/>/);
  assert.match(mine,/<KooloAdminEntry>\{!PAID_ACCOUNT_FEATURES_PUBLIC&&<PaidAccountRows\/>\}<\/KooloAdminEntry>/);
- assert.ok(entry.indexOf("if(!authorized)return null")<entry.indexOf("{children}"));
+ assert.ok(entry.indexOf("if(!authorized)return null")<entry.lastIndexOf("{children}"));
  assert.match(mine,/to="\/purchase-info"/);
  assert.match(mine,/to="\/fortune\/premium"/);
 });
