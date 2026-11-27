@@ -1,6 +1,6 @@
 import {fallbackBoard,type BoardCard} from "./boardProtocol";
 import {findLesson} from "./boardLessons";
-import {edTopic} from "./inlineBoardGate";
+import {edTopic,teachingCue} from "./inlineBoardGate";
 
 // Native audio ASR may spell the learner's "ed" incorrectly, but the teacher's
 // actual explanation can identify the topic even when the tool is missing.
@@ -17,7 +17,7 @@ export function backupCard(topic:string,output:string,manual=false,previousOutpu
   return findLesson("ed-sounds")?.cards.find(c=>c.type==="comparison")||null;
  }
  const spoken=usable(output)?output:manual&&usable(previousOutput)?previousOutput:"";
- if(topic.trim()||spoken){
+ if(manual||teachingCue(topic)||edTopic(topic)){
   const patch=fallbackBoard({input:topic,output:spoken},[]);
   const structured=patch?.cards.find(c=>!c.id.startsWith("demo-")&&["comparison","example","vocabulary"].includes(c.type));
   if(structured)return structured;
