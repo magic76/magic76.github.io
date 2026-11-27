@@ -45,6 +45,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>
    <a href="mailto:cs@koolo.app">cs@koolo.app</a>
+   <Link to="/purchase-info">{/^zh(?:-|$)/i.test(i18n.resolvedLanguage||i18n.language)?"服務與收費":"Services & pricing"}</Link>
    <Link className="crew-contact-feedback" to={"/feedback?from="+encodeURIComponent(location.pathname)}>{t("contact.feedback")}</Link>
    <OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallEntry/></Suspense></OptionalWidgetBoundary>
   </footer>
