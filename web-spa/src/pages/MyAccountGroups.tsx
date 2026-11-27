@@ -58,7 +58,11 @@ function MyAiSettingsCard(){
   <small>{t("auth.byokPolicy")}</small>
  </section>;
 }
-export function MyAccountGroups({items}:{items:RowItem[]}){
+// UI rollout only: keep direct account-owned history routes and server authorization unchanged.
+const PAID_ACCOUNT_FEATURES_PUBLIC=false;
+
+// Mounted only after admin authorization, or once the public rollout is enabled.
+function PaidAccountRows(){
  const {t,i18n}=useTranslation("home");
  const label=(key:string)=>t("sectionHubs.me.groups."+key);
  const reports=useSummary("reports"),credits=useSummary("credits");
@@ -75,25 +79,32 @@ export function MyAccountGroups({items}:{items:RowItem[]}){
   const format=(n:number,unit:"minute"|"second")=>new Intl.NumberFormat(i18n.resolvedLanguage||i18n.language,{style:"unit",unit,unitDisplay:"short"}).format(n);
   return [seconds>=60&&format(Math.floor(seconds/60),"minute"),(seconds%60!==0||seconds===0)&&format(seconds%60,"second")].filter(Boolean).join(" ");
  }
+ return <>
+   <AccountRow to="/fortune/purchases" icon="book" title={label("purchased")}>{value(reports.summary,"reports")}</AccountRow>
+   <AccountRow to="/me/voice-credits" icon="mic" title={label("credits")}>{value(credits.summary,"credits")}</AccountRow>
+   <AccountRow to="/me/orders" icon="history" title={label("orders")}/>
+  {(reports.summary.status==="error"||credits.summary.status==="error")&&<button type="button" className="koolo-account-retry" onClick={()=>{
+   if(reports.summary.status==="error")reports.retry();
+   if(credits.summary.status==="error")credits.retry();
+  }}>{label("retry")}</button>}
+ </>;
+}
+export function MyAccountGroups({items}:{items:RowItem[]}){
+ const {t}=useTranslation("home");
+ const label=(key:string)=>t("sectionHubs.me.groups."+key);
  function row(item:RowItem){return <AccountRow key={item.to} {...item}/>}
  return <>
   <MyAiSettingsCard/>
   <section className="koolo-account-group"><h2>{label("content")}</h2><div className="koolo-account-list">
    {items.filter(item=>item.to!=="/settings"&&item.to!=="/teacher/reports").map(row)}
    <AccountRow to="/fortune/premium" icon="fortune" title={label("lifeReadings")}/>
-   <AccountRow to="/fortune/purchases" icon="book" title={label("purchased")}>{value(reports.summary,"reports")}</AccountRow>
   </div></section>
   <section className="koolo-account-group"><h2>{label("support")}</h2><div className="koolo-account-list">
    <AccountRow to="/account" icon="teacher" title={t("common:auth.account")}/>
    {items.filter(item=>item.to==="/settings").map(row)}
-   <AccountRow to="/me/voice-credits" icon="mic" title={label("credits")}>{value(credits.summary,"credits")}</AccountRow>
-   <AccountRow to="/me/orders" icon="history" title={label("orders")}/>
    <AccountRow to="/purchase-info" icon="book" title={label("payments")}/>
   </div></section>
-  {(reports.summary.status==="error"||credits.summary.status==="error")&&<button type="button" className="koolo-account-retry" onClick={()=>{
-   if(reports.summary.status==="error")reports.retry();
-   if(credits.summary.status==="error")credits.retry();
-  }}>{label("retry")}</button>}
-  <KooloAdminEntry/>
+  {PAID_ACCOUNT_FEATURES_PUBLIC&&<section className="koolo-account-group"><h2>{label("payments")}</h2><div className="koolo-account-list"><PaidAccountRows/></div></section>}
+  <KooloAdminEntry>{!PAID_ACCOUNT_FEATURES_PUBLIC&&<PaidAccountRows/>}</KooloAdminEntry>
  </>;
 }
