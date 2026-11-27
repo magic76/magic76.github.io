@@ -12,3 +12,6 @@
 .inline-teacher-board .teaching-board-pager button,.inline-teacher-board .teaching-board-options button{min-height:44px}
 .inline-teacher-board button:focus-visible{outline:2px solid #286848;outline-offset:-2px}
 @media(prefers-reduced-motion:reduce){.inline-teacher-board .teaching-board-card{animation:none}}
+
+.inline-board-delivery{padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;line-height:1.45;overflow-wrap:anywhere;color:#244333;background:#fff}
+.inline-board-delivery button{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid #647f70;background:#eef5f0;color:#244333;cursor:pointer}
