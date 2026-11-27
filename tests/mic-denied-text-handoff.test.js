@@ -11,7 +11,8 @@ const helper=read('web-spa/src/live/guestTextChallenge.ts');
 const panel=read('web-spa/src/live/TextChatPanel.tsx');
 const retrySource=read('web-spa/src/live/guestMicRetry.ts');
 const retryApi={};
-vm.runInNewContext(stripTypeScriptTypes(retrySource,{mode:'strip'}).replace(/^export /gm,'')+'\nthis.rules={canRetryGuestMicrophone,isGuestVoiceVerificationExpired}',retryApi);
+Object.assign(retryApi,{setTimeout,clearTimeout,AbortController,Error});
+vm.runInNewContext(stripTypeScriptTypes(retrySource,{mode:'strip'}).replace(/^export /gm,'')+'\nthis.rules={canRetryGuestMicrophone,isGuestVoiceVerificationExpired,guestStartDeadline,guestStartRequest}',retryApi);
 const locales=['zh-TW','en','de','es','fr','id','ja','ko','pt-BR','th','vi'];
 
 // Execute the real begin() body, not a reimplementation, with mocked browser I/O.
@@ -26,9 +27,9 @@ function trial(errorName,withFallback=true,afterToken=false){
   return {getTracks:()=>[{stop(){}}]};
  };
  const ctx={
-  DOMException,Error,Event,window:{dispatchEvent(){}},
+  DOMException,Error,Event,window:{dispatchEvent(){}},console:{warn(){}},
   navigator:{mediaDevices:microphone?{getUserMedia:microphone}:undefined},
-  busy:{current:false},phase:'ready',challenge:'unused-challenge',micUnavailable:false,role:'friend',friendMemory:false,active:{current:true},
+  busy:{current:false},phase:'ready',challenge:'unused-challenge',micUnavailable:false,role:'friend',friendMemory:false,learningFeedback:false,active:{current:true},
   ...retryApi.rules,
   signinRequired:false,memberSignedIn:false,textFallback:fallback,
   ensureLive:async()=>{},trackUsageEvent:(name)=>events.push(name),
@@ -38,7 +39,7 @@ function trial(errorName,withFallback=true,afterToken=false){
   setMicUnavailable:value=>{ctx.micUnavailable=value;actions.push(['micUnavailable',value])},
   setChallenge:value=>{ctx.challenge=value;actions.push(['challenge',value])},
   setPhase:value=>{ctx.phase=value;actions.push(['phase',value])},
-  setMessage:value=>messages.push(value),
+  setMessage:value=>messages.push(value),setStartStage:value=>actions.push(['stage',value]),
   t:(key)=>key,fetch:async()=>{if(afterToken)throw new DOMException('token failed','NotAllowedError');return {ok:true,status:200,headers:{get:()=> 'application/json'},json:async()=>({token:'token-one',model:'gemini-3.8-live',seconds:300})}},
   GUEST_TOKEN_ENDPOINT:'/guest/token',onGrant:async grant=>actions.push(['grant',grant]),
  };
@@ -160,4 +161,22 @@ test('one-shot accessible message and all 11 localized strings remain within bui
   assert.ok(typeof voice.micFallbackNotice==='string'&&voice.micFallbackNotice.trim());
   assert.match(common.micTextFallback,/\{\{name\}\}/);assert.match(voice.micFallbackNotice,/\{\{name\}\}/);
  }
+});
+
+test('guest startup begins microphone request before runtime and before token POST',async()=>{
+ const h=trial(null);await h.begin();
+ assert.deepEqual(h.actions.filter(x=>x[0]==='stage').map(x=>x[1]),['microphone','runtime','token','session']);
+ assert.ok(starter.indexOf('guestStartDeadline(navigator.mediaDevices.getUserMedia({audio:true})')<starter.indexOf('await guestStartDeadline(ensureLive()'));
+});
+test('startup deadlines reject stuck requests and clean up a microphone resolving late',async()=>{
+ let resolveMic,stops=0;
+ const pending=new Promise(resolve=>{resolveMic=resolve});
+ const wait=retryApi.rules.guestStartDeadline(pending,5,'microphone',stream=>stream.getTracks().forEach(track=>track.stop()));
+ await assert.rejects(wait,{name:'MicrophoneTimeoutError'});
+ resolveMic({getTracks:()=>[{stop(){stops++}}]});
+ await Promise.resolve();
+ assert.equal(stops,1);
+ let aborted=false;
+ await assert.rejects(retryApi.rules.guestStartDeadline(new Promise(()=>{}),5,'token',undefined,()=>{aborted=true}),{name:'GuestStartTimeoutError'});
+ assert.equal(aborted,true);
 });
