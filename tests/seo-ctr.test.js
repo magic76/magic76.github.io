@@ -7,10 +7,10 @@ const ROOT=path.resolve(__dirname,"..");
 const read=(file)=>fs.readFileSync(path.join(ROOT,file),"utf8");
 const decode=(text)=>text.replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'");
 const routes=[
- {locale:"zh-TW",prefix:"",page:"",key:"home",intent:"Koolo 酷囉｜AI 英文口說練習"},
- {locale:"zh-TW",prefix:"",page:"teacher/",key:"teacher",intent:"AI 英文口說練習"},
- {locale:"en",prefix:"en/",page:"",key:"home",intent:"Koolo – AI English Speaking Practice"},
- {locale:"en",prefix:"en/",page:"teacher/",key:"teacher",intent:"AI English Speaking Practice"}
+ {locale:"zh-TW",prefix:"",page:"",key:"home",intent:"Koolo 酷囉｜即時 AI 語音對話"},
+ {locale:"zh-TW",prefix:"",page:"teacher/",key:"teacher",intent:"AI 英文老師｜即時語音口說練習"},
+ {locale:"en",prefix:"en/",page:"",key:"home",intent:"Koolo | Live AI Voice Chat"},
+ {locale:"en",prefix:"en/",page:"teacher/",key:"teacher",intent:"Live AI English Tutor"}
 ];
 
 test("CTR pilot titles remain aligned across SSG, OG, JSON-LD and SPA route metadata",()=>{

@@ -37,7 +37,7 @@ test('all 11 mobile hero headlines fit one line and retain each subtitle',()=>{
   assert.equal(subtitle,originalSubtitles[locale],`${locale} subtitle changed unexpectedly`);
  }
  const zh=JSON.parse(read('web-spa/src/i18n/locales/zh-TW/home.json'));
- assert.equal(zh.mobileHero.title,'一起玩著學語言');
+ assert.equal(zh.mobileHero.title,'即時 AI，隨你聊');
 });
 
 test('mobile hero defines responsive headline styling without pinning exact CSS formatting',()=>{

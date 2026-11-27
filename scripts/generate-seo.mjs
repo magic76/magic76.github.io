@@ -11,11 +11,11 @@ const PAGES = [
   {
     "slug": "",
     "nav": "首頁",
-    "title": "Koolo 酷囉｜AI 英文口說練習與 AI 朋友聊天",
-    "description": "和 AI 老師練英文、與 AI 朋友自然聊天，探索互動遊戲與故事。不用下載，開啟瀏覽器即可免費體驗。",
-    "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
-    "heading": "你的 AI 夥伴，從學習到探索。",
-    "intro": "用 Koolo 老師與朋友練習語言、和故事角色一起閱讀、從不同角度認識自己，再透過每日研發情報發現值得研究的新方向。",
+    "title": "Koolo 酷囉｜即時 AI 語音對話、英文口說練習",
+    "description": "與即時 AI 英文老師自由對話、體驗互動白板教學、和 AI 朋友語音聊天。回應依你當下的問題生成，不用下載即可在瀏覽器體驗。",
+    "eyebrow": "LIVE AI · LEARN, CHAT & PLAY",
+    "heading": "不是照著劇本，而是跟著你互動。",
+    "intro": "和 AI 老師、AI 朋友即時語音對話，依你的問題展開教學或聊天。也能一起創作故事、探索命盤與玩遊戲。",
     "primary": {
       "text": "開啟 Koolo Web",
       "href": "/crew-app/#/"
@@ -33,7 +33,7 @@ const PAGES = [
       {
         "label": "LANGUAGE",
         "title": "Koolo Teacher",
-        "body": "AI 語言老師、Koolo 朋友、口說練習和教材陪讀。",
+        "body": "AI 老師即時口說教學、互動白板與 AI 朋友自由聊天。",
         "href": "/teacher/",
         "link": "認識語言學習"
       },
@@ -88,11 +88,11 @@ const PAGES = [
   {
     "slug": "teacher",
     "nav": "Teacher",
-    "title": "AI 英文口說練習｜和老師、AI 朋友自然對話｜Koolo Teacher",
-    "description": "想練英文卻找不到語伴？和 Koolo Teacher 的 AI 老師練習發音、日常情境，也能和不同個性的 AI 朋友自然聊天。語音提供免費試用。",
+    "title": "AI 英文老師｜即時語音口說練習與互動白板｜Koolo",
+    "description": "和 Koolo AI 英文老師即時語音對話，依你的問題練習口說、文法與發音，透過互動白板呈現教學內容。語音提供免費試用。",
     "eyebrow": "KOOLO LEARN",
-    "heading": "讓語言練習，更像真的在對話。",
-    "intro": "想認真學習時，找 Koolo 老師；想自在聊天時，找有不同個性與背景的 Koolo 朋友。透過語音互動，練習日常與實際情境。",
+    "heading": "跟 AI 老師即時對話，依你的問題學英文。",
+    "intro": "AI 老師會依你當下說的話提供回應，也能在互動白板呈現教材。想自由聊天時，選擇不同個性的 AI 朋友，不必照固定劇本。",
     "primary": {
       "text": "開始語言練習",
       "href": "/crew-app/#/teacher/practice"
@@ -110,12 +110,12 @@ const PAGES = [
       {
         "label": "01 / TUTOR",
         "title": "Koolo 老師",
-        "body": "透過語音進行口說練習、發音與語句回饋，適合有明確學習目標的練習。"
+        "body": "透過即時語音練習口說，取得發音與語句回饋；互動白板可依問題展開教學。"
       },
       {
         "label": "02 / FRIENDS",
         "title": "Koolo 朋友",
-        "body": "挑選不同角色，進行偏自然、沉浸式的目標語言聊天。"
+        "body": "挑選不同角色，進行即時生成的目標語言對話，而非固定問答。"
       },
       {
         "label": "03 / PRACTICE",
@@ -152,8 +152,8 @@ const PAGES = [
   {
     "slug": "story",
     "nav": "Story",
-    "title": "Koolo Story｜AI 故事創作、語音朗讀與親子陪讀",
-    "description": "Koolo Story 讓你和 AI 一起創作故事、聆聽語音朗讀，也能用照片搭配手邊的實體書進行陪讀。探索 Web 故事書架與閱讀體驗。",
+    "title": "Koolo Story｜AI 互動故事創作、語音朗讀與陪讀",
+    "description": "和 AI 一起創作故事、透過語音互動討論內容，也能聆聽朗讀或使用實體書照片陪讀。故事創作依你的想法生成。",
     "eyebrow": "KOOLO STORY",
     "heading": "從一個想法，走進一段故事。",
     "intro": "和阿奇一起創作、閱讀，或拿起手邊的故事書。保留故事閱讀的樂趣，把語音互動融入共讀時間。",
@@ -346,11 +346,11 @@ const EN_PAGES = [
   {
     "slug": "",
     "nav": "Home",
-    "title": "Koolo – AI English Speaking Practice & AI Friends",
-    "description": "Practice English with AI tutors, talk naturally with AI friends, and explore interactive games and stories. Start free in your browser.",
-    "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
-    "heading": "Your AI companions for learning and exploring.",
-    "intro": "Practice speaking with a Koolo teacher or friend, read stories together, explore personal charts, and discover useful AI research—all in one place.",
+    "title": "Koolo | Live AI Voice Chat & English Speaking Practice",
+    "description": "Practice English with live AI tutors, explore interactive whiteboard lessons, and talk with AI friends. Responses adapt to what you say, right in your browser.",
+    "eyebrow": "LIVE AI · LEARN, CHAT & PLAY",
+    "heading": "Not a script. A conversation that follows you.",
+    "intro": "Speak with live AI tutors and friends that respond to your questions as you go. Create stories, explore personal charts, and play games together.",
     "primary": {
       "text": "Open Koolo Web",
       "href": "/crew-app/#/"
@@ -368,7 +368,7 @@ const EN_PAGES = [
       {
         "label": "LANGUAGE",
         "title": "Koolo Teacher",
-        "body": "AI tutors and conversational friends for speaking practice, vocabulary, and guided reading.",
+        "body": "Live AI speaking practice, interactive whiteboard lessons, and free-form conversation with AI friends.",
         "href": "/en/teacher/",
         "link": "Explore language learning"
       },
@@ -423,11 +423,11 @@ const EN_PAGES = [
   {
     "slug": "teacher",
     "nav": "Teacher",
-    "title": "AI English Speaking Practice with Tutors & Friends | Koolo Teacher",
-    "description": "Practice spoken English with an AI tutor or talk naturally with Koolo Friends. Build confidence with real-life scenarios and try a free voice session.",
+    "title": "Live AI English Tutor & Interactive Whiteboard | Koolo",
+    "description": "Practice English with a live AI tutor, get speaking and grammar feedback, and explore interactive whiteboard lessons based on your questions. Try a free voice session.",
     "eyebrow": "KOOLO LEARN",
-    "heading": "Language practice that feels like a real conversation.",
-    "intro": "Choose a Koolo teacher when you want guided learning and feedback. Pick a Koolo Friend when you'd rather chat naturally with a character who has their own personality and background.",
+    "heading": "Speak with a live AI tutor and learn from your own questions.",
+    "intro": "A live AI tutor responds to what you say and can present teaching material on an interactive whiteboard. Choose an AI friend for free-form conversation rather than a fixed script.",
     "primary": {
       "text": "Start language practice",
       "href": "/crew-app/#/teacher/practice"
@@ -445,12 +445,12 @@ const EN_PAGES = [
       {
         "label": "01 / TUTOR",
         "title": "Koolo Teachers",
-        "body": "Practice speaking with an AI tutor, receive pronunciation and phrasing feedback, and follow your learning goals."
+        "body": "Practice speaking in real time, receive pronunciation and phrasing feedback, and explore interactive whiteboard lessons driven by your questions."
       },
       {
         "label": "02 / FRIENDS",
         "title": "Koolo Friends",
-        "body": "Meet characters with different personalities and enjoy more immersive conversations in your target language."
+        "body": "Meet characters with different personalities and enjoy conversations generated in response to what you say."
       },
       {
         "label": "03 / PRACTICE",
@@ -487,8 +487,8 @@ const EN_PAGES = [
   {
     "slug": "story",
     "nav": "Story",
-    "title": "Koolo Story | AI Storytelling, Narration and Family Reading",
-    "description": "Create stories, enjoy AI narration, and read together with Koolo Story. You can also photograph pages from a physical book and explore a guided reading experience.",
+    "title": "Koolo Story | Interactive AI Stories, Narration & Reading",
+    "description": "Create AI stories from your ideas, discuss stories through voice interaction, enjoy narration, or photograph pages from a physical book for guided reading.",
     "eyebrow": "KOOLO STORY",
     "heading": "Turn a simple idea into a story worth sharing.",
     "intro": "Create a new story, browse your reading shelf, or pick up a book you already own. Koolo Story brings voice interaction into reading time.",

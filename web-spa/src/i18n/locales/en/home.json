@@ -638,7 +638,7 @@
     "learnDescription": "Try a fun new phrase in another language."
   },
   "mobileHero": {
-    "title": "Play & learn",
+    "title": "Live AI chat",
     "subtitle": "Say hello to begin."
   },
   "quickEntry": {
@@ -679,7 +679,7 @@
     "teacherTitle": "Speak {{language}} with {{name}}",
     "firstPractice": "Speak with an AI teacher",
     "practiceWith": "Practice with {{name}}",
-    "practiceNow": "Try a sentence",
+    "practiceNow": "Start live practice",
     "changeTeacher": "Change teacher",
     "carousel": "Koolo highlights carousel",
     "zoeAria": "Talk to Zoe",
@@ -688,7 +688,7 @@
     "voice": "Start chatting",
     "friendsAria": "Meet AI friends",
     "friendsTitle": "Meet someone new",
-    "friendsDesc": "Three friends, three vibes.",
+    "friendsDesc": "Every reply follows what you say.",
     "chatNoah": "Chat with Noah",
     "allFriends": "All friends",
     "gameAria": "Today's game",
@@ -697,7 +697,7 @@
     "allGames": "All games",
     "learnAria": "Learn with AI",
     "learnTitle": "Speak with confidence",
-    "learnDesc": "Practice speaking with AI.",
+    "learnDesc": "Live voice lessons shaped by your questions.",
     "startLearning": "Start learning",
     "pickTeacher": "Pick teacher",
     "dots": "Choose carousel slide",
@@ -707,9 +707,9 @@
     "slideGame": "Today's game",
     "slideLearn": "Learn",
     "heading": "What sounds fun?",
-    "badgeFriend": "AI FRIEND",
-    "badgeFriends": "AI FRIENDS",
-    "badgeLearn": "LEARN",
+    "badgeFriend": "LIVE AI",
+    "badgeFriends": "LIVE AI FRIENDS",
+    "badgeLearn": "LIVE AI",
     "badgePlay": "PLAY",
     "apps": {
       "friends": "AI Friends",
@@ -726,17 +726,17 @@
       "resumeDesc": "Pick up right where you left off.",
       "text": "Text chat",
       "voice": "Start chatting",
-      "friendsDesc": "Sixteen friends, countless conversations.",
+      "friendsDesc": "Sixteen AI friends, no fixed conversation script.",
       "gameDesc": "One round. A fresh mood.",
       "learnDesc": "Practice with your AI teacher.",
       "quick": "Quick explore",
       "heading": "What would you like to do?",
       "all": "Explore all",
-      "learnBadge": "LANGUAGE LEARNING"
+      "learnBadge": "LIVE AI LEARNING"
     }
   },
   "chatChoices": {
-    "prompt": "What’s on your mind today?",
+    "prompt": "No script. Talk about whatever is on your mind.",
     "returnPrompt": "Want to pick up where we left off, or talk about something new?",
     "funny": "Something funny happened",
     "casual": "Let’s chat",
