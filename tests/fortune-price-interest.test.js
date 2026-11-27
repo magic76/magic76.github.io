@@ -83,3 +83,15 @@ test("local premium free trial does not unlock other charts or resurrect deleted
   map.set("crew_fortune_readings_v2","invalid");assert.equal(s.unlockPremiumTrial("b"),false);
  }finally{global.localStorage=orig}
 });
+
+
+test("public service pricing is linked from shared chrome and has a stable alias",()=>{
+ const app=read("web-spa/src/App.tsx"),chrome=read("web-spa/src/components/AppChrome.tsx"),support=read("web-spa/src/pages/PurchaseSupportPage.tsx"),deploy=read("scripts/prepare-cloudflare.mjs");
+ assert.match(app,/<Route path="\/pricing" element=\{<Navigate to="\/purchase-info" replace\/>\}/);
+ assert.match(chrome,/<Link to="\/purchase-info">/);
+ assert.match(deploy,/"\/pricing \/purchase-info 301"/);
+ assert.match(deploy,/"\/en\/pricing \/en\/purchase-info 301"/);
+ for(const value of ["服務與收費說明","免費服務","客服聯絡資訊","cs@koolo.app","目前尚未開放正式購買","新台幣","無實體配送","付款異常與退款"])assert.ok(support.includes(value),value);
+ const info=support.split("type Order=")[0];
+ assert.doesNotMatch(info,/fetch\(|method:\s*["']POST/);
+});
