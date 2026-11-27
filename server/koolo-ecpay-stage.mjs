@@ -214,9 +214,11 @@ export async function stageQuery(context,upstreamFetch=fetch){
   if(lease.meta?.changes!==1)return respond({error:"QUERY_COOLDOWN"},429);
   let outcome="QUERY_FAILED";
   try{
-   const fields={MerchantID:TEST_MERCHANT,MerchantTradeNo:row.merchant_trade_no,TimeStamp:String(now)};
-   const result=await upstreamFetch(STAGE_QUERY,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({...fields,CheckMacValue:await ecpayCheckMac(fields)}),redirect:"error",signal:AbortSignal.timeout(10000)});
-   if(result.status===403){
+   const fields={MerchantID:TEST_MERCHANT,MerchantTradeNo:row.merchant_trade_no,TimeStamp:String(now),PlatformID:""};
+   const result=await upstreamFetch(STAGE_QUERY,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({...fields,CheckMacValue:await ecpayCheckMac(fields)}),redirect:"manual",signal:AbortSignal.timeout(15000)});
+   // Workers does not implement redirect:"error". Never follow or forward signed payment data to another URL.
+   if(result.status>=300&&result.status<400)outcome="QUERY_REDIRECT";
+   else if(result.status===403){
     await a.db.prepare("INSERT INTO koolo_ecpay_stage_query_limits(order_id,query_after) VALUES(?,?) ON CONFLICT(order_id) DO UPDATE SET query_after=MAX(query_after,excluded.query_after)").bind("*",now+1800).run();
     outcome="QUERY_BLOCKED";
    }else if(result.ok){
@@ -238,7 +240,11 @@ export async function stageQuery(context,upstreamFetch=fetch){
      }else outcome="QUERY_BAD_SIGNATURE";
     }
    }
-  }catch{/* no raw provider response or secrets in output */}
+   else outcome="QUERY_HTTP_"+result.status;
+  }catch(error){
+   // Only expose a bounded category, never the provider body, URL, keys or exception message.
+   outcome=error?.name==="TimeoutError"||error?.name==="AbortError"?"QUERY_TIMEOUT":"QUERY_TRANSPORT";
+  }
   const latest=await a.db.prepare("SELECT id,state,created_at,amount_twd,report_json FROM "+ALL_ORDERS+" WHERE id=? AND user_id=? LIMIT 1").bind(id,a.userId).first();
   if(!latest)return respond({error:"NOT_FOUND"},404);
   return respond({order:responseOrder(latest,true),queryResult:latest.state==="paid"?"QUERY_PAID":outcome});
