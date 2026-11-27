@@ -148,3 +148,25 @@ test("Koolo social previews are versioned, size-bounded and referenced by both l
   }
  }
 });
+
+
+test("Live AI positioning is consistent across public metadata and UI titles",()=>{
+ for(const [dir,locale,live,board] of [["","zh-TW","即時","互動白板"],["en/","en","live","whiteboard"]]){
+  const ui=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/common.json"));
+  const home=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/home.json"));
+  assert.equal(home.showcase29.badgeLearn,"LIVE AI");
+  assert.equal(home.showcase29.badgeFriend,"LIVE AI");
+  for(const [slug,key] of [["","home"],["teacher/","teacher"],["story/","story"]]){
+   const html=read(dir+slug+"index.html");
+   const graph=JSON.parse(html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)[1])["@graph"];
+   const page=graph.find(x=>x["@type"]==="WebPage");
+   const title=html.match(/<title>([^<]+)<\/title>/)[1].replace(/&amp;/g,"&");
+   assert.equal(page.name,title);
+   if(key!=="story"){
+    assert.equal(ui.seo[key],title);
+    assert.ok(title.toLowerCase().includes(live));
+    assert.ok(page.description.toLowerCase().includes(board));
+   }
+  }
+ }
+});
