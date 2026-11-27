@@ -46,3 +46,17 @@ test("mode cards stay readable at phone width and preserve meaningful accessible
  assert.ok(!home.includes('fortune-tarot-cover.png'));
  assert.ok(!home.includes('fortune-vedic-cover.png'));
 });
+
+test("all mode covers have a small intrinsic fallback and a height cap before route CSS",()=>{
+ const home=read("web-spa/src/fortune/HomePage.tsx");
+ const css=read("web-spa/src/fortune/unifiedHome.css");
+ const covers=home.match(/<img className="fortune-mode-cover-image"[^>]+/g)||[];
+ assert.equal(covers.length,3);
+ for(const cover of covers){
+  assert.match(cover,/width=\{128\} height=\{72\} style=\{MODE_COVER_GUARD\}/);
+ }
+ assert.match(home,/maxWidth:"100%",maxHeight:"var\(--fortune-mode-cover-max-height, 80px\)",objectFit:"cover"/);
+ assert.match(css,/--fortune-mode-cover-max-height:220px;\s*max-height:var\(--fortune-mode-cover-max-height\)/);
+ assert.match(css,/@media\(max-width:800px\)\{[^]*?width:clamp\(108px,34vw,154px\);--fortune-mode-cover-max-height:160px/);
+ assert.match(css,/@media\(max-width:600px\)\{[^]*?width:clamp\(96px,30vw,126px\);--fortune-mode-cover-max-height:80px/);
+});

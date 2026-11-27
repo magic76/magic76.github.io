@@ -12,6 +12,8 @@ import {readDailyProfiles,DAILY_PROFILE_EVENT} from "./dailyProfileSelection";
 import {DailyProfileManager} from "./DailyProfileManager";
 import {FortuneInviteLanding} from "./FortuneInviteLanding";
 
+// Keep covers bounded even before the lazy route stylesheet arrives.
+const MODE_COVER_GUARD={maxWidth:"100%",maxHeight:"var(--fortune-mode-cover-max-height, 80px)",objectFit:"cover"} as const;
 const MODES=["bazi","tarot","vedic"] as const;
 const name=(mode:string,t:(key:string)=>string)=>MODES.includes(mode as typeof MODES[number])
  ?t("home."+mode):t("home.reading");
@@ -49,20 +51,20 @@ export function FortuneHomePage(){
    </div>
    <div className="fortune-home-grid">
     <Link className="fortune-home-mode bazi" to="/fortune/reading?mode=bazi">
-     <span className="fortune-mode-cover fortune-mode-cover-bazi" aria-hidden="true"><span className="fortune-mode-fallback-icon">八</span><img className="fortune-mode-cover-image" src="/fortune/modes/fortune-bazi-cover.webp" alt="" width={1536} height={864} loading="lazy" decoding="async" onError={event=>{event.currentTarget.hidden=true}}/></span>
+     <span className="fortune-mode-cover fortune-mode-cover-bazi" aria-hidden="true"><span className="fortune-mode-fallback-icon">八</span><img className="fortune-mode-cover-image" src="/fortune/modes/fortune-bazi-cover.webp" alt="" width={128} height={72} style={MODE_COVER_GUARD} loading="lazy" decoding="async" onError={event=>{event.currentTarget.hidden=true}}/></span>
      <span className="fortune-mode-copy"><strong>{t("home.bazi")}</strong><span className="fortune-mode-description">{t("home.baziDesc")}</span></span>
     </Link>
     <Link className="fortune-home-mode tarot" to="/fortune/reading?mode=tarot">
      <span className="fortune-mode-cover fortune-mode-cover-tarot" aria-hidden="true">
       <span className="fortune-mode-fallback-icon">✦</span>
-      <img className="fortune-mode-cover-image" src="/fortune/modes/fortune-tarot-cover.webp" alt="" width={1536} height={864} loading="lazy" decoding="async" onError={event=>{event.currentTarget.hidden=true}}/>
+      <img className="fortune-mode-cover-image" src="/fortune/modes/fortune-tarot-cover.webp" alt="" width={128} height={72} style={MODE_COVER_GUARD} loading="lazy" decoding="async" onError={event=>{event.currentTarget.hidden=true}}/>
      </span>
      <span className="fortune-mode-copy"><strong>{t("home.tarot")}</strong><span className="fortune-mode-description">{t("home.tarotDesc")}</span></span>
     </Link>
     <Link className="fortune-home-mode vedic" to="/fortune/reading?mode=vedic">
      <span className="fortune-mode-cover fortune-mode-cover-vedic" aria-hidden="true">
       <span className="fortune-mode-fallback-icon">◎</span>
-      <img className="fortune-mode-cover-image" src="/fortune/modes/fortune-vedic-cover.webp" alt="" width={1536} height={864} loading="lazy" decoding="async" onError={event=>{event.currentTarget.hidden=true}}/>
+      <img className="fortune-mode-cover-image" src="/fortune/modes/fortune-vedic-cover.webp" alt="" width={128} height={72} style={MODE_COVER_GUARD} loading="lazy" decoding="async" onError={event=>{event.currentTarget.hidden=true}}/>
      </span>
      <span className="fortune-mode-copy"><strong>{t("home.vedic")}</strong><span className="fortune-mode-description">{t("home.vedicDesc")}</span></span>
     </Link>
