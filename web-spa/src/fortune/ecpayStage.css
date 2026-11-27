@@ -28,3 +28,11 @@
  .koolo-ecpay-stage .hero{padding-block:8px 10px}
  .koolo-ecpay-stage .hero h1{margin:6px 0 4px}
 }
+
+.koolo-ecpay-stage-chart-tools{display:flex;flex-wrap:wrap;gap:4px 14px}
+.koolo-ecpay-stage-chart-tools a{display:inline-flex;align-items:center;min-height:44px;font-size:14px}
+.koolo-ecpay-stage-choices a{padding:9px 12px;gap:3px;min-height:44px}
+.koolo-ecpay-stage-chart-name{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.koolo-ecpay-stage-chart-name>strong{font-size:16px;min-width:0}
+.koolo-ecpay-stage-chart-name>span{font-size:12px;flex-shrink:0;color:var(--accent,#3277b6)}
+.koolo-ecpay-stage-chart .koolo-ecpay-stage-chart-privacy{font-size:12px;color:var(--text-muted,#627088)}
