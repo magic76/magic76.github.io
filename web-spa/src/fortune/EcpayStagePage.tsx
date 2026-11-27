@@ -61,6 +61,9 @@ export function FortuneEcpayStagePage(){
   QUERY_BAD_SIGNATURE:copy("查詢結果未通過驗章，未更新訂單。","Query signature verification failed; order unchanged."),
   QUERY_CONFLICT:copy("付款已回報，但訂單同步異常，需人工核對。","Payment reported, but reconciliation needs review."),
   QUERY_UNAVAILABLE:copy("查單服務尚未就緒或暫時無法使用。","Query service not ready or temporarily unavailable."),
+  QUERY_REDIRECT:copy("綠界回傳非預期轉址，已安全中止查詢。","Unexpected redirect from ECPay; query safely stopped."),
+  QUERY_TIMEOUT:copy("綠界查單逾時，請隔 10 分鐘再試。","ECPay query timed out. Retry after 10 minutes."),
+  QUERY_TRANSPORT:copy("伺服器無法連線至綠界，請隔 10 分鐘再試。","Server could not reach ECPay. Retry after 10 minutes."),
   QUERY_FAILED:copy("暫時無法向綠界查單，請稍後再試。","Unable to query ECPay. Try again later.")
  };
  useEffect(()=>{
@@ -167,7 +170,7 @@ export function FortuneEcpayStagePage(){
      </>}
     <p><button className="btn secondary small" type="button" onClick={()=>void refresh().catch(()=>setError("STATUS_RETRY_FAILED"))}>{copy("重新檢查狀態","Refresh status")}</button></p>
     {order?.id===orderId&&order.state==="pending"&&<div><button className="btn secondary" type="button" disabled={queryBusy!==null} onClick={()=>void queryPayment()}>{queryBusy===orderId?copy("正在向綠界查詢…","Querying ECPay…"):copy("向綠界查詢付款結果","Query payment at ECPay")}</button><p className="meta">{copy("若刷卡成功但未更新，付款後至少 10 分鐘再查詢。查詢不會再次付款。","If payment succeeded but the status did not update, query after at least 10 minutes. This does not charge again.")}</p></div>}
-    {queryResult&&queryResult.id===orderId&&<p role="status">{queryMessages[queryResult.code]||queryMessages.QUERY_FAILED}</p>}
+    {queryResult&&queryResult.id===orderId&&<p role="status">{queryMessages[queryResult.code]||(/^QUERY_HTTP_[1-5][0-9]{2}$/.test(queryResult.code)?copy("綠界查單失敗（HTTP "+queryResult.code.slice(-3)+"），請隔 10 分鐘再試。","ECPay query failed (HTTP "+queryResult.code.slice(-3)+"). Retry after 10 minutes."):queryMessages.QUERY_FAILED)}</p>}
    </section>}
    <section className="panel section koolo-ecpay-stage-chart">
     <h2>{copy("選擇命盤對象","Choose a person")}</h2>
