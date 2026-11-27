@@ -1,3 +1,4 @@
+import{useInlineTeacherBoard,InlineTeacherBoard}from"./InlineTeacherBoard";
 import{FriendUnifiedComposer}from"../friends/FriendUnifiedComposer";
 import{useFriendTextViewport}from"../friends/useFriendTextViewport";
 import {teacherCallStatusKey,teacherPresenceState} from "./teacherCallStatus";
@@ -77,9 +78,12 @@ export function TeacherLivePage(){
     ?conversationOpening(intent,"teacher")
     :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Use one brief welcome if useful, then offer a simple, level-appropriate speaking opportunity in the learner's selected language mode. Start from a useful everyday topic or verified learning goal, not a fictional personal-life anecdote. Give a short model or native-language support when the selected mode and level require it. Invite the learner to express one idea; adapt to what they actually say.";
  const replyHints=useSuggestedReplies({allowed:true,language:s.targetLanguage,nativeLanguage:s.nativeLanguage});
- const live=useLiveSession({pageKey:"teacher",rememberPlaybackVolume:true,protectOpening:true,recoveryCaptionScope:JSON.stringify([profile.id,s.targetLanguage,scene,p.get("lesson"),fortuneKind]),learningFeedback:!fortuneKind,title:(fortuneKind?"命理聊聊":isReview?t("learnToday.reviewTitle"):mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system:system+(!isRoleplay&&!fortuneKind?"\n[CURRENT FACTS] Do not claim to have live web access. Only use fresh facts when verified context is explicitly provided. Otherwise explain you cannot verify the current news. Preserve teacher language and practice policies.":""),openingPrompt:languageDirective+"\n"+opening+"\n"+languageDirective,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&(intent==="continue"||s.conversationMode==="natural")?"teacher":fortuneKind?"teacher":undefined,
+ const inlineBoard=useInlineTeacherBoard(!textMode&&!isRoleplay&&!fortuneKind&&!course&&Boolean(geminiKey()));
+ const live=useLiveSession({pageKey:"teacher",rememberPlaybackVolume:true,protectOpening:true,recoveryCaptionScope:JSON.stringify([profile.id,s.targetLanguage,scene,p.get("lesson"),fortuneKind]),learningFeedback:!fortuneKind,title:(fortuneKind?"命理聊聊":isReview?t("learnToday.reviewTitle"):mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system:system+inlineBoard.policy+(!isRoleplay&&!fortuneKind?"\n[CURRENT FACTS] Do not claim to have live web access. Only use fresh facts when verified context is explicitly provided. Otherwise explain you cannot verify the current news. Preserve teacher language and practice policies.":""),openingPrompt:languageDirective+"\n"+opening+"\n"+languageDirective,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&(intent==="continue"||s.conversationMode==="natural")?"teacher":fortuneKind?"teacher":undefined,
+  tools:inlineBoard.tools,onToolCall:inlineBoard.onToolCall,onToolsUnavailable:inlineBoard.onToolsUnavailable,
   onInputSpeech:replyHints.onInputSpeech,
   onTurnComplete:(_turn,completedTurns)=>{
+   inlineBoard.finish(_turn);
    if(_turn.hasValidOutput)replyHints.generate(completedTurns);
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("teacher_conversation");
@@ -91,6 +95,7 @@ export function TeacherLivePage(){
    void rememberTeacherConversation(s.targetLanguage,snapshot,geminiKey());
   },
   onSessionFinished:item=>{
+   inlineBoard.reset();
    replyHints.clear();
    if(!item)return;
    if(item.durationMs>0)trackUsageEvent("teacher_session_end",sessionDurationDetail(item.durationMs));
@@ -246,6 +251,7 @@ export function TeacherLivePage(){
    {!textMode&&<FriendCallMenu inCall open={callOptions} onClose={()=>setCallOptions(false)} title={t("voice:callCaptions.more")} closeLabel={t("voice:callCaptions.closeMenu")}>
   <div className="friend-call-settings">
    {missionNotes}{modeSwitch}{teacherOptions}{quickActions}
+   {inlineBoard.enabled&&<div className="teacher-live-entry-actions"><button type="button" onClick={()=>{if(inlineBoard.request(live.sendText))setCallOptions(false)}} disabled={live.state!=="listening"}>{zh?"請老師使用白板":"Ask for whiteboard"}</button><button type="button" aria-pressed={inlineBoard.auto} onClick={inlineBoard.toggle}>{zh?"自動白板":"Automatic whiteboard"}: {inlineBoard.auto?(zh?"開":"On"):(zh?"關":"Off")}</button></div>}
    {!guestStarted&&<TeacherLiveTools live={live} store={s} profile={profile} sessionActive={sessionActive} onPickTeacher={()=>setPicker(true)}/>}
   </div>
   <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
@@ -258,6 +264,7 @@ export function TeacherLivePage(){
   </div>
   {textMode?modeSwitch:null}
   {textMode?<TeacherTextCourseChat course={course} searchEnabled={!isRoleplay&&!fortuneKind} system={system+"\n"+languageDirective} speaker={profile.name} english={english} targetLanguage={s.targetLanguage} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode} hint={course?t("live.textHint"):undefined}/>:<>
+  {sessionActive&&!endingCourse&&<InlineTeacherBoard board={inlineBoard} english={!zh} send={live.sendText} canSend={live.state==="listening"}/>}
   <div className="teacher-call-voice-dock">
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?t("live.endingTitleBusy"):t("live.endingTitle")}</b><p>{evaluating?t("live.endingBodyBusy"):t("live.endingBody")}</p>{!evaluating&&(courseResult||evaluationError)&&<button type="button" className="btn secondary small" onClick={()=>void endAndReturn()}>{t("learnToday.backToLearn")}</button>}</div></div>
