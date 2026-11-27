@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(root+"/web-spa/src/teacher/"+p,"utf8");
 const strip=s=>stripTypeScriptTypes(s,{mode:"strip"}).replace(/^import .*;\s*$/gm,"").replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
 const api={};
-vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,BOARD_FUNCTION});",{api});
+vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,BOARD_FUNCTION,backupCard,explainsEdEnding});",{api});
 const proposal=(gate,title="Past tenses",id="past")=>api.proposeInlineBoard(gate,{name:api.BOARD_FUNCTION,args:{action:"upsert",cards:[{id,type:"comparison",title,pairs:[{source:"went",target:"finished past"},{source:"have gone",target:"present relevance"}]}]}});
 const finish=(g,input,now,auto=true,valid=true)=>api.finishInlineTurn(g,input,valid,auto,now);
 test("opening and casual chat never auto-open a proposed whiteboard",()=>{
@@ -69,5 +69,29 @@ test("explicit failed delivery is reported, no generic card or cooldown bypass f
  assert.equal(api.finishInlineTurn(g,"Good morning",true,true,102,()=>{throw Error("unexpected fallback")}),null);assert.equal(g.outcome,"idle");
 });
 test("fallback uses existing ed lesson and actual delivery status instead of model promises",()=>{
- const ui=read("InlineTeacherBoard.tsx");assert.match(ui,/findLesson\("ed-sounds"\)/);assert.match(ui,/gate\.current\.outcome==="missing"/);assert.match(ui,/role="status"/);assert.match(ui,/board\.request\(send\)/);
+ const ui=read("InlineTeacherBoard.tsx");assert.match(read("inlineBoardFallback.ts"),/findLesson\("ed-sounds"\)/);assert.match(ui,/gate\.current\.outcome==="missing"/);assert.match(ui,/role="status"/);assert.match(ui,/board\.request\(send\)/);
+});
+
+const screenshotSpeech=`The "-ed" ending has three sounds. It sounds like a "t" after unvoiced sounds,like a "d" after voiced sounds,and like an "id"syllable after't' or 'd' sounds.`;
+test("real screenshot transcript restores three pronunciation categories without tool call or exact learner ASR",()=>{
+ const g=api.newInlineGate();
+ g.requested=true;
+ const card=api.finishInlineTurn(g,"",true,true,100,api.backupCard,screenshotSpeech);
+ assert.equal(card.id,"ed-sounds-concept");
+ assert.deepEqual(Array.from(card.pairs,p=>p.source),["/t/","/d/","/ɪd/"]);
+ assert.equal(g.outcome,"shown");
+});
+test("manual retry can recover from a recent substantive teacher explanation; no generic auto card",()=>{
+ const g=api.newInlineGate();
+ assert.equal(api.finishInlineTurn(g,"How are you?",true,true,100,api.backupCard,screenshotSpeech),null);
+ assert.equal(api.finishInlineTurn(g,"我沒有看到",true,true,101,api.backupCard,"Please check your screen.").id,"ed-sounds-concept");
+ const plain="Present simple describes habits and repeated actions. The third person singular usually takes an s.";
+ assert.equal(api.backupCard("一般問題",plain,false,""),null);
+ assert.equal(api.backupCard("請用白板",plain,true,"").body,plain);
+});
+test("accept one valid compact card even if model sends more than one",()=>{
+ const g=api.newInlineGate();
+ const card={id:"x",type:"comparison",title:"Examples",pairs:[{source:"A",target:"First"},{source:"B",target:"Second"}]};
+ assert.equal(api.proposeInlineBoard(g,{name:api.BOARD_FUNCTION,args:{action:"upsert",cards:[card,{...card,id:"y"}]}}).queued,true);
+ assert.equal(api.finishInlineTurn(g,"差別",true,true,100).id,"x");
 });

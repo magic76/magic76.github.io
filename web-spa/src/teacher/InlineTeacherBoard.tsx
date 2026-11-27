@@ -1,22 +1,14 @@
 import {useRef,useState} from "react";
 import {TeachingCard} from "./TeachingCard";
-import {fallbackBoard,type BoardCard} from "./boardProtocol";
-import {findLesson} from "./boardLessons";
-import {INLINE_TEACHER_BOARD_ENABLED,INLINE_BOARD_POLICY,INLINE_BOARD_TOOLS,newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,edTopic} from "./inlineBoardGate";
+import type {BoardCard} from "./boardProtocol";
+import {backupCard} from "./inlineBoardFallback";
+import {INLINE_TEACHER_BOARD_ENABLED,INLINE_BOARD_POLICY,INLINE_BOARD_TOOLS,newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard} from "./inlineBoardGate";
 import "./teachingBoard.css";
 import "./inlineTeacherBoard.css";
 
 const PREF="koolo_teacher_inline_board_auto_v1";
 function readAuto(){try{return localStorage.getItem(PREF)!=="off"}catch{return true}}
 type Send=(text:string)=>boolean;
-function backupCard(topic:string,output:string):BoardCard|null{
- if(!topic.trim())return null;
- // Existing curated English lesson for an explicitly matching topic only.
- if(edTopic(topic))return findLesson("ed-sounds")?.cards.find(c=>c.type==="comparison")||null;
- // Reuse only meaningful, structured spoken examples; never generic notes or demo cards.
- const patch=fallbackBoard({input:topic,output},[]);
- return patch?.cards.find(c=>!c.id.startsWith("demo-")&&["comparison","example","vocabulary"].includes(c.type))||null;
-}
 export function useInlineTeacherBoard(eligible:boolean){
  const enabled=INLINE_TEACHER_BOARD_ENABLED&&eligible;
  const gate=useRef(newInlineGate());

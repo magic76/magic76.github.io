@@ -96,6 +96,9 @@ jobs:
       - name: Validate Kokoro learning speech regression tests
         if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'chatgpt/kokoro-lab-en'
         run: node --test tests/chat-recall.test.js tests/text-chat-learning.test.js tests/learning-speech-phrases.test.js tests/learning-speech-multilingual.test.js tests/learning-speech-cache.test.js
+      - name: Validate inline teacher whiteboard delivery and gating
+        if: github.event_name == 'pull_request'
+        run: node --test tests/teacher-inline-board.test.js
       - name: Typecheck PR
         if: github.event_name == 'pull_request'
         run: npm run check:web
