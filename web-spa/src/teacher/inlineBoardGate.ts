@@ -46,7 +46,7 @@ function blocked(g:InlineGate,manual:boolean,auto:boolean,now:number,input:strin
  if(declinesBoard(input))return "learner-opt-out";
  if(g.shownThisTurn)return "already-shown-this-turn";
  if(!manual&&!auto)return "automatic-disabled";
- if(!manual&&!g.learnerStarted)return "opening";
+ if(!manual&&!g.learnerStarted&&g.completedTurns===0)return "opening";
  if(!manual&&now<g.dismissedUntil)return "dismiss-cooldown";
  if(!manual&&now-g.lastShown<90000)return "cooldown";
  return "";
@@ -80,7 +80,7 @@ export function finishInlineTurn(g:InlineGate,input:string,valid:boolean,auto:bo
  if(actual.trim()&&!retry&&!declinesBoard(actual)){g.topic=actual;g.topicAt=now}
  const topic=retry||g.requested?g.topic:actual;
  if(valid&&output.trim()&&(g.learnerStarted||manual)){g.lastOutput=output;g.lastOutputAt=now}
- g.completedTurns++;recordInlineEvent(g,"turn-complete",undefined,now);
+ recordInlineEvent(g,"turn-complete",undefined,now);
  g.outcome=g.shownThisTurn?"shown":"idle";
  try{
   if(declinesBoard(actual)){dismissInlineBoard(g,now);return null}
@@ -96,7 +96,7 @@ export function finishInlineTurn(g:InlineGate,input:string,valid:boolean,auto:bo
   const rejection=accept(g,card,manual,"fallback",now);
   if(rejection){recordInlineEvent(g,"fallback-rejected",rejection,now);return null}
   return card;
- }finally{g.requested=false;g.input="";g.shownThisTurn=false;g.turn++}
+ }finally{g.requested=false;g.input="";g.shownThisTurn=false;g.turn++;g.completedTurns++}
 }
 export function dismissInlineBoard(g:InlineGate,now=Date.now()){
  g.requested=false;g.dismissedUntil=now+180000;g.outcome="dismissed";recordInlineEvent(g,"dismiss",undefined,now);
