@@ -1,8 +1,9 @@
-import {useRef,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import {TeachingCard} from "./TeachingCard";
 import type {BoardCard} from "./boardProtocol";
+import {currentBuild} from "../runtime/buildUpdates";
 import {backupCard} from "./inlineBoardFallback";
-import {INLINE_TEACHER_BOARD_ENABLED,INLINE_BOARD_POLICY,INLINE_BOARD_TOOLS,newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard} from "./inlineBoardGate";
+import {INLINE_TEACHER_BOARD_ENABLED,INLINE_BOARD_POLICY,INLINE_BOARD_TOOLS,newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,recordInlineEvent} from "./inlineBoardGate";
 import "./teachingBoard.css";
 import "./inlineTeacherBoard.css";
 
@@ -13,6 +14,7 @@ export function useInlineTeacherBoard(eligible:boolean){
  const enabled=INLINE_TEACHER_BOARD_ENABLED&&eligible;
  const gate=useRef(newInlineGate());
  const [auto,setAuto]=useState(readAuto);
+ const autoRef=useRef(auto);
  const [card,setCard]=useState<BoardCard|null>(null);
  const [available,setAvailable]=useState(true);
  const [delivery,setDelivery]=useState<"idle"|"pending"|"missing">("idle");
@@ -21,11 +23,22 @@ export function useInlineTeacherBoard(eligible:boolean){
  const answerRef=useRef<Record<string,number>>({});
  const cardRef=useRef<BoardCard|null>(null);
  const quizRef=useRef(0);
+ const rendered=useRef(0);
+ useEffect(()=>{if(card){rendered.current++;recordInlineEvent(gate.current,"card-react-committed")}},[card]);
  function clearCard(){cardRef.current=null;setCard(null);answerRef.current={};setAnswers({});quizRef.current=0;setQuizIndex(0)}
- function reset(){gate.current=newInlineGate();clearCard();setAvailable(true);setDelivery("idle")}
+ function reset(){gate.current=newInlineGate();rendered.current=0;clearCard();setAvailable(true);setDelivery("idle")}
  function close(){dismissInlineBoard(gate.current);clearCard();setDelivery("idle")}
- function toggle(){const next=!auto;setAuto(next);try{localStorage.setItem(PREF,next?"on":"off")}catch{}if(!next)close()}
- function unavailable(){gate.current.pending=null;setAvailable(false)}
+ function toggle(){const next=!autoRef.current;autoRef.current=next;setAuto(next);try{localStorage.setItem(PREF,next?"on":"off")}catch{}if(!next)close()}
+ function unavailable(){recordInlineEvent(gate.current,"tools-unavailable","model-tools-unavailable");setAvailable(false)}
+ function observe(input:string){if(enabled)observeInlineInput(gate.current,input)}
+ function show(next:BoardCard){clearCard();cardRef.current=next;setCard(next);setDelivery("idle")}
+ function tool(call:{name:string;args?:unknown}){
+  if(!enabled)return {ok:false,error:"disabled"};
+  const result=proposeInlineBoard(gate.current,call,autoRef.current);
+  if(result.card){show(result.card);return {ok:true,accepted:true,displayRequested:true}}
+  return {ok:false,error:result.error||"rejected"};
+ }
+ function report(){const g=gate.current;return {schema:1,build:currentBuild.buildId,commit:currentBuild.commit,enabled,auto:autoRef.current,toolConfigured:enabled,toolsUnavailable:!available,toolCalls:g.toolCalls,validCards:g.validCards,accepted:g.accepted,reactCommits:rendered.current,fallbacks:g.fallbacks,completedTurns:g.completedTurns,lastReason:g.lastReason,reasons:g.reasons,events:g.events,cardPresent:Boolean(cardRef.current),delivery};}
  function answer(c:BoardCard,index:number,selected:number){
   const q=c.questions[index],key=c.id+":"+index;
   if(c!==cardRef.current||!q||!Number.isInteger(selected)||selected<0||selected>=q.options.length||answerRef.current[key]!==undefined)return false;
@@ -36,25 +49,25 @@ export function useInlineTeacherBoard(eligible:boolean){
   const input=turn.input||"",current=cardRef.current;
   const spoken=input.trim().match(/^(?:(?:option|answer|選項|答案)[ :：]*)?([a-d])[。.!！]?$/i);
   if(current?.type==="quiz"&&spoken)answer(current,quizRef.current,spoken[1].toUpperCase().charCodeAt(0)-65);
-  const next=finishInlineTurn(gate.current,input,turn.hasValidOutput===true,auto,Date.now(),backupCard,turn.output||"");
+  const next=finishInlineTurn(gate.current,input,turn.hasValidOutput===true,autoRef.current,Date.now(),backupCard,turn.output||"");
   setDelivery(gate.current.outcome==="missing"?"missing":"idle");
   if(gate.current.outcome==="dismissed")clearCard();
-  if(next){clearCard();cardRef.current=next;setCard(next)}
+  if(next)show(next)
  }
  function request(send:Send){
   if(!enabled)return false;
-  gate.current.requested=true;
+  gate.current.requested=true;recordInlineEvent(gate.current,"manual-request");
   const sent=send("[LEARNER WHITEBOARD REQUEST] Explain our current learning topic aloud, giving concrete examples. If the optional tool is available, propose one useful card; never say a card has been displayed. If there is no learning topic yet, ask what I want to learn.");
-  if(!sent)gate.current.requested=false;
+  if(!sent){gate.current.requested=false;recordInlineEvent(gate.current,"manual-send-failed","send-failed")}
   setDelivery(sent?"pending":"missing");
   return sent
  }
  function navigate(index:number){quizRef.current=index;setQuizIndex(index)}
  return {
-  enabled,available,delivery,auto,toggle,card,answers,quizIndex,navigate,close,reset,request,answer,finish,
+  enabled,available,delivery,auto,toggle,card,answers,quizIndex,navigate,close,reset,request,answer,finish,observe,report,
   policy:enabled?INLINE_BOARD_POLICY:"",
   tools:enabled?INLINE_BOARD_TOOLS:undefined,
-  onToolCall:(call:{name:string;args?:unknown})=>enabled?proposeInlineBoard(gate.current,call):{ok:false,error:"disabled"},
+  onToolCall:tool,
   onToolsUnavailable:unavailable
  };
 }
@@ -73,6 +86,9 @@ export function InlineTeacherBoard({board,english,send,canSend}:{board:Board;eng
 }
 
 export function InlineTeacherBoardMenu({board,zh,send,canSend,onRequested}:{board:Board;zh:boolean;send:Send;canSend:boolean;onRequested:()=>void}){
- if(!board.enabled)return null;
- return <div className="teacher-live-entry-actions">{!board.available&&<small>{zh?"此連線未支援即時白板工具，部分教材仍可備援。":"Live whiteboard tool unavailable; some lesson cards remain available."}</small>}<button type="button" onClick={()=>{if(board.request(send))onRequested()}} disabled={!canSend}>{zh?"請老師使用白板":"Ask for whiteboard"}</button><button type="button" aria-pressed={board.auto} onClick={board.toggle}>{zh?"自動白板":"Automatic whiteboard"}: {board.auto?(zh?"開":"On"):(zh?"關":"Off")}</button></div>
+ const [admin,setAdmin]=useState(false),[copyStatus,setCopyStatus]=useState("");
+ useEffect(()=>{const controller=new AbortController();void fetch("/api/usage/admin",{credentials:"same-origin",cache:"no-store",signal:controller.signal}).then(async r=>r.ok?await r.json():null).then(v=>{if(!controller.signal.aborted)setAdmin(v?.admin===true)}).catch(()=>{});return()=>controller.abort()},[]);
+ async function copyReport(){try{await navigator.clipboard.writeText(JSON.stringify(board.report(),null,2));setCopyStatus(zh?"已複製":"Copied")}catch{setCopyStatus(zh?"複製失敗":"Copy failed")}}
+ if(!board.enabled&&!admin)return null;
+ return <div className="teacher-live-entry-actions">{board.enabled&&<>{!board.available&&<small>{zh?"此連線未支援即時白板工具，部分教材仍可備援。":"Live whiteboard tool unavailable; some lesson cards remain available."}</small>}<button type="button" onClick={()=>{if(board.request(send))onRequested()}} disabled={!canSend}>{zh?"請老師使用白板":"Ask for whiteboard"}</button><button type="button" aria-pressed={board.auto} onClick={board.toggle}>{zh?"自動白板":"Automatic whiteboard"}: {board.auto?(zh?"開":"On"):(zh?"關":"Off")}</button></>}{admin&&<><button type="button" onClick={()=>void copyReport()}>{zh?"複製白板診斷報告":"Copy whiteboard diagnostics"}</button>{copyStatus&&<small role="status">{copyStatus}</small>}</>}</div>
 }
