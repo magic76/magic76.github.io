@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {ecpayCheckMac,compactFacts,buildTestReport,stageConfig,stageOrder,stageOrders,
- stageOrderStatus,stageNotify} from "../server/koolo-ecpay-stage.mjs";
+ stageOrderStatus,stageNotify,stageQuery} from "../server/koolo-ecpay-stage.mjs";
 
 const ROOT=new URL("../",import.meta.url),read=x=>readFileSync(new URL(x,ROOT),"utf8");
 const TOKEN="a".repeat(43),ORIGIN="https://koolo.app";
@@ -16,13 +16,14 @@ function request(path,opts={}){
  },...(opts.body!==undefined?{body:opts.body}:{})});
 }
 function setup({userId="u1",missing=false,allowed="u1",enabled="1"}={}){
- const orders=new Map();
+ const orders=new Map(),queryLimits=new Map();
  const db={prepare(sql){
   if(missing)throw Error("no such table");
   let args=[];
   const stmt={bind(...v){args=v;return stmt},
    async first(){
     if(sql.includes("FROM crew_auth_sessions"))return userId?{user_id:userId}:null;
+    if(sql.includes("FROM koolo_ecpay_stage_query_limits"))return queryLimits.has(args[0])?{query_after:queryLimits.get(args[0])}:null;
     if(sql.includes("FROM koolo_fortune_stage_orders")||sql.includes("FROM koolo_fortune_stage_book_orders")){
      if(sql.includes("COUNT(1)"))return {n:orders.size};
      if(sql.includes("WHERE trade_no_hash=?"))return [...orders.values()].find(x=>x.trade_no_hash===args[0]&&x.amount_twd===(sql.includes("FROM koolo_fortune_stage_book_orders")?99:79))||null;
@@ -40,6 +41,11 @@ function setup({userId="u1",missing=false,allowed="u1",enabled="1"}={}){
     throw Error("Unknown all: "+sql);
    },
    async run(){
+    if(sql.startsWith("INSERT INTO koolo_ecpay_stage_query_limits")){
+     const[id,until,now]=args,existing=queryLimits.get(id)||0;
+     if(now!==undefined&&existing>now)return {meta:{changes:0}};
+     queryLimits.set(id,Math.max(existing,until));return {meta:{changes:1}};
+    }
     if(sql.startsWith("INSERT INTO koolo_fortune_stage_book_orders")){
      const[id,user_id,merchant_trade_no,amount_twd,facts_json,created_at]=args;
      orders.set(id,{id,user_id,merchant_trade_no,facts_json,created_at,state:"pending",
@@ -171,4 +177,44 @@ test("legacy 79 callback remains isolated and order history preserves both price
  const list=await stageOrders({request:request("/api/fortune/ecpay/test-orders"),env:s.env});
  assert.deepEqual((await list.json()).orders.map(x=>x.amountTwd).sort(),[79,99]);
  const migration=read("migrations/crew-auth/0013_ecpay_stage_book_99.sql");assert.match(migration,/CHECK\(amount_twd=99\)/);assert.doesNotMatch(migration,/DROP TABLE|UPDATE koolo_fortune_stage_orders/);
+});
+
+test("authenticated sandbox query recovers paid orders without callback; never repeats a charge",async()=>{
+ const s=setup(),created=await (await stageOrder({request:request("/api/fortune/ecpay/test-order",{method:"POST",body:JSON.stringify({facts:FACTS})}),env:s.env})).json();
+ const id=created.orderId,row=s.orders.get(id),path="/api/fortune/ecpay/test-status?id="+id;
+ let calls=0;
+ const upstream=async(url,options)=>{
+  calls++;assert.equal(url,"https://payment-stage.ecpay.com.tw/Cashier/QueryTradeInfo/V5");assert.equal(options.method,"POST");
+  const f=Object.fromEntries(options.body);assert.equal(f.MerchantTradeNo,row.merchant_trade_no);assert.equal(f.CheckMacValue,await ecpayCheckMac(f));
+  const v={MerchantID:"3002607",MerchantTradeNo:row.merchant_trade_no,TradeNo:"2511220000123456",TradeAmt:"99",PaymentType:"Credit_CreditCard",TradeStatus:"1"};
+  return new Response(new URLSearchParams({...v,CheckMacValue:await ecpayCheckMac(v)}).toString());
+ };
+ const query=(opts={})=>stageQuery({request:request(path,{method:"POST",...opts}),env:s.env},upstream);
+ assert.equal((await query()).status,429);assert.equal(calls,0);
+ row.created_at-=601;
+ assert.equal((await query({origin:"https://evil.invalid"})).status,403);assert.equal(calls,0);
+ const response=await query();assert.equal(response.status,200);const data=await response.json();
+ assert.equal(data.queryResult,"QUERY_PAID");assert.equal(data.order.state,"paid");assert.equal(data.order.report.sections.length,8);assert.equal(calls,1);
+ assert.equal((await query()).status,200);assert.equal(calls,1);
+});
+test("query rejects mismatches and rate-limits attempts across requests",async()=>{
+ const s=setup(),created=await (await stageOrder({request:request("/api/fortune/ecpay/test-order",{method:"POST",body:JSON.stringify({facts:FACTS})}),env:s.env})).json();
+ const row=s.orders.get(created.orderId);row.created_at-=601;
+ const path="/api/fortune/ecpay/test-status?id="+row.id;
+ let calls=0;
+ const query=()=>stageQuery({request:request(path,{method:"POST"}),env:s.env},async()=>{
+  calls++;const v={MerchantID:"3002607",MerchantTradeNo:row.merchant_trade_no,TradeNo:"2511220000123456",TradeAmt:"79",PaymentType:"Credit_CreditCard",TradeStatus:"1"};
+  return new Response(new URLSearchParams({...v,CheckMacValue:await ecpayCheckMac(v)}).toString());
+ });
+ const data=await (await query()).json();assert.equal(data.queryResult,"QUERY_MISMATCH");assert.equal(row.state,"pending");
+ assert.equal((await query()).status,429);assert.equal(calls,1);
+});
+test("sandbox query never treats unsigned or simulated results as paid",async()=>{
+ for(const scenario of ["bad-signature","simulated","unpaid"]){
+  const s=setup(),created=await (await stageOrder({request:request("/api/fortune/ecpay/test-order",{method:"POST",body:JSON.stringify({facts:FACTS})}),env:s.env})).json();
+  const row=s.orders.get(created.orderId);row.created_at-=601;
+  const v={MerchantID:"3002607",MerchantTradeNo:row.merchant_trade_no,TradeNo:"2511220000123456",TradeAmt:"99",PaymentType:"Credit_CreditCard",TradeStatus:scenario==="unpaid"?"0":"1",...(scenario==="simulated"?{SimulatePaid:"1"}:{})};
+  const res=await stageQuery({request:request("/api/fortune/ecpay/test-status?id="+row.id,{method:"POST"}),env:s.env},async()=>new Response(new URLSearchParams({...v,CheckMacValue:scenario==="bad-signature"?"0".repeat(64):await ecpayCheckMac(v)}).toString()));
+  assert.equal((await res.json()).queryResult,scenario==="bad-signature"?"QUERY_BAD_SIGNATURE":scenario==="simulated"?"QUERY_MISMATCH":"QUERY_PENDING");assert.equal(row.state,"pending");
+ }
 });
