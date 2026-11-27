@@ -48,3 +48,10 @@ test("integration is optional and does not alter standalone board or Live transp
  assert.match(ui,/localStorage\.setItem\(PREF/);
  assert.match(live,/navigate\("\/teacher\/board"\)/);
 });
+
+test("spoken opt-outs reject even a proposed board and begin a dismissal cooldown",()=>{
+ const g=api.newInlineGate();proposal(g);assert.equal(finish(g,"不要使用白板",1),null);
+ proposal(g);assert.equal(finish(g,"文法規則",2),null);
+ proposal(g);assert.equal(finish(g,"Don't use the whiteboard",3),null);
+ proposal(g);assert.ok(finish(g,"請打開白板",4));
+});
