@@ -55,3 +55,19 @@ test("spoken opt-outs reject even a proposed board and begin a dismissal cooldow
  proposal(g);assert.equal(finish(g,"Don't use the whiteboard",3),null);
  proposal(g);assert.ok(finish(g,"請打開白板",4));
 });
+
+test("known teaching topic can use a vetted fallback without a tool proposal",()=>{
+ const g=api.newInlineGate();let calls=0;
+ const fallback=topic=>{calls++;assert.match(topic,/ed/);return {id:"ed",type:"comparison",title:"-ed endings",body:"",pairs:[{source:"/t/",target:"walked"},{source:"/d/",target:"played"},{source:"/ɪd/",target:"wanted"}],points:[],questions:[]}};
+ assert.equal(api.finishInlineTurn(g,"How are you?",true,true,100,fallback),null);assert.equal(calls,0);
+ assert.equal(api.finishInlineTurn(g,"請教我 ed 結尾的發音",true,true,101,fallback).id,"ed");assert.equal(g.outcome,"shown");
+ assert.equal(api.finishInlineTurn(g,"我 normally 沒看到",true,true,102,fallback).id,"ed");assert.equal(calls,2);
+});
+test("explicit failed delivery is reported, no generic card or cooldown bypass for casual turns",()=>{
+ const g=api.newInlineGate();assert.equal(api.finishInlineTurn(g,"請打開白板",true,true,100,()=>null),null);assert.equal(g.outcome,"missing");
+ assert.equal(api.finishInlineTurn(g,"請打開白板",false,true,101),null);assert.equal(g.outcome,"missing");
+ assert.equal(api.finishInlineTurn(g,"Good morning",true,true,102,()=>{throw Error("unexpected fallback")}),null);assert.equal(g.outcome,"idle");
+});
+test("fallback uses existing ed lesson and actual delivery status instead of model promises",()=>{
+ const ui=read("InlineTeacherBoard.tsx");assert.match(ui,/findLesson\("ed-sounds"\)/);assert.match(ui,/gate\.current\.outcome==="missing"/);assert.match(ui,/role="status"/);assert.match(ui,/board\.request\(send\)/);
+});
