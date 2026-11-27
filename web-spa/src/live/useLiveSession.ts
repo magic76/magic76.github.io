@@ -28,6 +28,7 @@ type Config={
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
  onInputSpeech?:()=>void;
+ onLearnerTranscript?:(text:string)=>void;
  onConfirmedTranscript?:(turn:LiveTurn)=>void; // optional board observer, read-only; no transport changes
  // Opt-in observer for a completed two-sided exchange, including guest trials.
  onObservedExchange?:(turn:LiveTurn)=>void;
@@ -376,6 +377,7 @@ export function useLiveSession(config:Config){
       if(!isActive())return;
      if(v.trim()){
       configRef.current.onInputSpeech?.();
+      configRef.current.onLearnerTranscript?.(v);
       const firstFragment=!awaitingTutorRef.current;
       cancelRescue();cancelUnrecognizedSpeechTimer();
       rescueCountRef.current=0;languageRepairRef.current=false;awaitingTutorRef.current=true;
