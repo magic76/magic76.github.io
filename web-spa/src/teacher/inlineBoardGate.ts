@@ -5,16 +5,16 @@ import {BOARD_FUNCTION,validateBoardPatch,type BoardCard} from "./boardProtocol"
 export const INLINE_TEACHER_BOARD_ENABLED=true;
 export const INLINE_BOARD_POLICY="\n[OPTIONAL WHITEBOARD] Conversation comes first. Never propose a board for greetings, ordinary chat, simple corrections or the opening. Only propose a single concise comparison, pronunciation vocabulary, sentence example/correction, or quiz when the learner explicitly asks for visual teaching, a substantive comparison/explanation, or a quiz. Use the optional tool at most once per learner turn. A queued proposal is not visible until the app validates the completed learner turn. Do not mention the whiteboard, screen, visual display, or successful rendering in your spoken answer under ANY circumstances, even if the learner asks whether it appeared. The UI alone reports delivery. Give the actual educational explanation aloud. A tool result is a proposal receipt, never a display confirmation. Do not retry automatically.";
 // Keep the Live declaration small: no director, speaking-task or timeline fields.
-const str={type:"STRING"};
+const inlineString={type:"STRING"};
 export const INLINE_BOARD_TOOLS=[{functionDeclarations:[{
  name:BOARD_FUNCTION,
  description:"Propose one concise teaching card for a substantive learner question. Supply comparison, example, vocabulary or correction with pairs (source and target), or quiz with questions. A proposal is not display confirmation. Continue speaking.",
  parameters:{type:"OBJECT",properties:{
   action:{type:"STRING",enum:["upsert","replace"]},
   cards:{type:"ARRAY",items:{type:"OBJECT",properties:{
-   id:str,title:str,type:{type:"STRING",enum:["comparison","example","vocabulary","correction","quiz"]},body:str,
-   pairs:{type:"ARRAY",items:{type:"OBJECT",properties:{source:str,target:str,pronunciation:str},required:["source","target"]}},
-   questions:{type:"ARRAY",items:{type:"OBJECT",properties:{question:str,options:{type:"ARRAY",items:str},answerIndex:{type:"INTEGER"},explanation:str},required:["question","options","answerIndex"]}}
+   id:inlineString,title:inlineString,type:{type:"STRING",enum:["comparison","example","vocabulary","correction","quiz"]},body:inlineString,
+   pairs:{type:"ARRAY",items:{type:"OBJECT",properties:{source:inlineString,target:inlineString,pronunciation:inlineString},required:["source","target"]}},
+   questions:{type:"ARRAY",items:{type:"OBJECT",properties:{question:inlineString,options:{type:"ARRAY",items:inlineString},answerIndex:{type:"INTEGER"},explanation:inlineString},required:["question","options","answerIndex"]}}
   },required:["id","title","type"]}}
  },required:["action","cards"]}
 }]}];
