@@ -50,7 +50,14 @@ export function loadScript(src:string){
  if(loaded.has(src))return loaded.get(src)!;
  const p=new Promise<void>((resolve,reject)=>{
   const s=document.createElement("script");s.src=src;s.async=false;
-  s.onload=()=>resolve();s.onerror=()=>reject(new Error("無法載入 "+src));document.head.appendChild(s);
+  // A hung PWA/service-worker request must not poison the shared promise cache.
+  const finish=(error?:Error)=>{
+   clearTimeout(timer);s.onload=null;s.onerror=null;
+   if(error){s.remove();reject(error)}else resolve();
+  };
+  const timer=setTimeout(()=>finish(new Error("Script load timeout: "+src)),15_000);
+  s.onload=()=>finish();s.onerror=()=>finish(new Error("無法載入 "+src));
+  try{document.head.appendChild(s)}catch(error){finish(error instanceof Error?error:new Error("Script load failed"))}
  });
  loaded.set(src,p);
  // A failed warm-up should not poison every future retry in this tab.
