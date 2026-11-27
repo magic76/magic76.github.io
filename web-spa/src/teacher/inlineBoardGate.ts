@@ -32,14 +32,15 @@ export const edTopic=(input:string)=>/(?:\b-?ed\b.{0,35}(?:發音|念法|讀音|
 export function finishInlineTurn(gate:InlineGate,input:string,valid:boolean,auto:boolean,now=Date.now(),backup?:(topic:string,output:string)=>BoardCard|null,output=""):BoardCard|null{
  const retry=now-gate.topicAt<120000&&Boolean(gate.topic)&&/(?:沒看到|沒有看到|看不到|沒有出現|沒出現|didn.t see|can.t see|not showing|did not appear)/i.test(input);
  const manual=gate.requested||explicitBoardRequest(input)||retry;
- if(!declinesBoard(input)&&(teachingCue(input)||edTopic(input)||explicitBoardRequest(input))&&!retry){gate.topic=input;gate.topicAt=now}
- const topic=retry||gate.requested?gate.topic:input;
+ if(!declinesBoard(input)&&(teachingCue(input)||edTopic(input)||(explicitBoardRequest(input)&&!gate.topic))&&!retry){gate.topic=input;gate.topicAt=now}
+ const topic=retry||gate.requested||(manual&&!teachingCue(input)&&!edTopic(input)&&now-gate.topicAt<120000)?gate.topic:input;
  let card=gate.pending;
  gate.outcome="idle";
  gate.pending=null;gate.requested=false;
  if(input.trim()||manual)gate.turn++;
  if(declinesBoard(input)){dismissInlineBoard(gate,now);return null}
- if(!valid||(!manual&&(!input.trim()||!auto||!(teachingCue(input)||edTopic(input)))))return null;
+ if(!valid){if(manual)gate.outcome="missing";return null}
+ if(!manual&&(!input.trim()||!auto||!(teachingCue(input)||edTopic(input))))return null;
  if(!manual&&(now<gate.dismissedUntil||now-gate.lastShown<90000||gate.turn-gate.lastTurn<3))return null;
  // Only use a vetted, context-matched fallback. Never create a generic card for chat.
  if(!card&&backup)card=backup(topic,output);
