@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from "react";
 import {Link,useLocation} from "react-router-dom";
-import {canRetryGuestMicrophone,isGuestVoiceVerificationExpired} from "./guestMicRetry";
+import {canRetryGuestMicrophone,isGuestVoiceVerificationExpired,guestStartDeadline,guestStartRequest} from "./guestMicRetry";
 import {clearGuestChallengeHandoff,offerGuestChallengeToken} from "./guestTextChallenge";
 import {useTranslation} from "react-i18next";
 import {ensureLive} from "../lib/runtime";
@@ -20,12 +20,13 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
  const linkTarget=linksInNewTab?{target:"_blank",rel:"noopener noreferrer"}:{};
  const [micUnavailable,setMicUnavailable]=useState(false);
  const [micPermissionDenied,setMicPermissionDenied]=useState(false);
- const microphoneHelp=()=>t("guestTrial.micSitePermission");
+ const microphoneHelp=()=>t(window.matchMedia?.("(display-mode: standalone)").matches?"guestTrial.micHelpGeneric":"guestTrial.micSitePermission");
  const [siteKey,setSiteKey]=useState("");
  const [signinRequired,setSigninRequired]=useState(false);
  const [dailyQuota,setDailyQuota]=useState(false);
  const [memberSignedIn,setMemberSignedIn]=useState(false);
  const [phase,setPhase]=useState<"checking"|"ready"|"login"|"exhausted"|"full"|"unavailable"|"starting"|"error">("checking");
+ const [startStage,setStartStage]=useState<"microphone"|"runtime"|"ticket"|"token"|"session">("microphone");
  const [challenge,setChallenge]=useState("");
  const [message,setMessage]=useState("");
  const [remaining,setRemaining]=useState<number|null>(null);
@@ -125,20 +126,33 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
   busy.current=true;setMicPermissionDenied(false);setMicUnavailable(false);setPhase("starting");setMessage("");
   trackUsageEvent("guest_trial_start_click",role);
   let tokenRequested=false;
+  let stage:"microphone"|"runtime"|"ticket"|"token"|"session"=textOnly?"runtime":"microphone";
+  setStartStage(stage);
   try{
-   await ensureLive();
+   // Request permission within the actual Start click, before any awaited work.
+   // Never consume a trial grant until microphone and runtime are ready.
    if(!textOnly){
     if(!navigator.mediaDevices?.getUserMedia)throw new Error("microphone unavailable");
-    const mic=await navigator.mediaDevices.getUserMedia({audio:true});
-    mic.getTracks().forEach(track=>track.stop());
+    const stopMic=(mic:MediaStream)=>mic.getTracks().forEach(track=>track.stop());
+    const mic=await guestStartDeadline(navigator.mediaDevices.getUserMedia({audio:true}),30_000,"microphone",stopMic);
+    stopMic(mic);
    }
+   if(!active.current)return;
+   stage="runtime";setStartStage(stage);
+   await guestStartDeadline(ensureLive(),45_000,stage);
    if(!active.current)return;
    let authTicket="";
    if(signinRequired||memberSignedIn){
-    const ticketResponse=await fetch("/api/auth/guest-ticket",{
-     method:"POST",credentials:"same-origin",cache:"no-store",
-     headers:{"content-type":"application/json"},body:"{}"
-    });
+    stage="ticket";setStartStage(stage);
+    const {ticketResponse,proof}=await guestStartRequest(async signal=>{
+     const ticketResponse=await fetch("/api/auth/guest-ticket",{
+      method:"POST",credentials:"same-origin",cache:"no-store",signal,
+      headers:{"content-type":"application/json"},body:"{}"
+     });
+     const proof=ticketResponse.ok?await ticketResponse.json() as {ticket?:string}:{};
+     return {ticketResponse,proof};
+    },stage);
+    if(!active.current)return;
     if(!ticketResponse.ok){
      trackUsageEvent("guest_trial_token_failed",role);
      if(active.current){
@@ -147,15 +161,18 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
      }
      return;
     }
-    const proof=await ticketResponse.json() as {ticket?:string};
     if(typeof proof.ticket!=="string"||!proof.ticket)throw Error("Ticket unavailable");
     authTicket=proof.ticket;
    }
-   tokenRequested=true;
-   const res=await fetch(GUEST_TOKEN_ENDPOINT,{method:"POST",cache:"no-store",
-    headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge,...(role==="friend"&&friendMemory?{role:"friend",friendMemory:true}:{}),...(learningFeedback?{role,learningFeedback:true}:{}),...(authTicket?{authTicket}:{})})});
-   if(!res.headers.get("content-type")?.includes("application/json"))throw Error("invalid response");
-   const data=await res.json() as GuestTrialGrant&{code?:string;error?:string};
+   stage="token";setStartStage(stage);tokenRequested=true;
+   const {res,data}=await guestStartRequest(async signal=>{
+    const res=await fetch(GUEST_TOKEN_ENDPOINT,{method:"POST",cache:"no-store",signal,
+     headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge,...(role==="friend"&&friendMemory?{role:"friend",friendMemory:true}:{}),...(learningFeedback?{role,learningFeedback:true}:{}),...(authTicket?{authTicket}:{})})});
+    if(!res.headers.get("content-type")?.includes("application/json"))throw Error("invalid response");
+    const data=await res.json() as GuestTrialGrant&{code?:string;error?:string};
+    return {res,data};
+   },stage);
+   if(!active.current)return;
    if(!res.ok||!data.token||!data.model||data.seconds!==300){
     trackUsageEvent("guest_trial_token_failed",role);
     if(active.current){
@@ -167,13 +184,17 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
     }
     return;
    }
-   if(active.current){trackUsageEvent("guest_trial_token_issued",role);window.dispatchEvent(new Event("crew:guest-trial-used"));await (textOnly&&onTextGrant?onTextGrant:onGrant)(data)}
+   if(active.current){stage="session";setStartStage(stage);trackUsageEvent("guest_trial_token_issued",role);window.dispatchEvent(new Event("crew:guest-trial-used"));await (textOnly&&onTextGrant?onTextGrant:onGrant)(data)}
   }catch(error){
-   const denied=error instanceof DOMException&&error.name==="NotAllowedError";
-   const blocked=denied||(error instanceof DOMException&&error.name==="SecurityError");
-   const noMicrophone=(error instanceof DOMException&&error.name==="NotFoundError")
-    ||(error instanceof Error&&error.name==="Error"&&error.message==="microphone unavailable");
-   const micFailed=blocked||noMicrophone;
+   if(!active.current)return;
+   // Diagnostic metadata only; never log the challenge, token, or raw errors.
+   console.warn("[Koolo guest voice startup]",{stage,standalone:window.matchMedia?.("(display-mode: standalone)").matches===true});
+   const micTimeout=stage==="microphone"&&error instanceof Error&&error.name==="MicrophoneTimeoutError";
+   const denied=stage==="microphone"&&error instanceof DOMException&&error.name==="NotAllowedError";
+   const blocked=denied||(stage==="microphone"&&error instanceof DOMException&&error.name==="SecurityError");
+   const noMicrophone=stage==="microphone"&&((error instanceof DOMException&&error.name==="NotFoundError")
+    ||(error instanceof Error&&error.name==="Error"&&error.message==="microphone unavailable"));
+   const micFailed=blocked||noMicrophone||micTimeout;
    if(!tokenRequested&&denied)trackUsageEvent("guest_trial_mic_denied",role);
    else trackUsageEvent(tokenRequested?"guest_trial_token_failed":"guest_trial_setup_failed",role);
    if(micFailed)setMicUnavailable(true);
@@ -181,8 +202,8 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
     setMicPermissionDenied(true);
     if(active.current){setMessage(t("guestTrial.micDenied"));if(textFallback)setMessage(t("guestTrial.micTextFallback",{name:textFallback.name}));setPhase("error")}
    }else if(active.current){
-    if(blocked)setMicPermissionDenied(true);
-    setMessage(micFailed?(textFallback?t("guestTrial.micTextFallback",{name:textFallback.name}):t(noMicrophone?"guestTrial.micNotFound":"guestTrial.micDenied")):t("guestTrial.serviceUnavailable"));
+    if(blocked||micTimeout)setMicPermissionDenied(true);
+    setMessage(micTimeout?t("guestTrial.micHelpGeneric"):micFailed?(textFallback?t("guestTrial.micTextFallback",{name:textFallback.name}):t(noMicrophone?"guestTrial.micNotFound":"guestTrial.micDenied")):t("guestTrial.serviceUnavailable"));
     setPhase("error");
    }
   }finally{busy.current=false}
@@ -199,7 +220,7 @@ export function GuestLiveStarter({onGrant,onTextGrant,role,precall=false,focusSt
     {!textEntry&&<p style={{fontSize:13,lineHeight:1.5,margin:0}}>{t("guestTrial.microphoneNotice")}</p>}
     {!textEntry&&<button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{precall?t("voice:friendLive.preCallStart"):t("guestTrial.start")}</button>}{role==="friend"&&onTextGrant&&!textEntry&&<button type="button" className="btn secondary" disabled={!challenge} onClick={()=>void begin(true)}>{t("voice:friendLive.useText")}</button>}</>}
    {precall&&role==="friend"&&!onTextGrant&&textFallback&&(phase==="checking"||phase==="ready"||phase==="unavailable")&&<Link className="btn secondary friend-precall-text-fallback" to={textFallback.href} {...linkTarget}>{t("voice:friendLive.preCallTextFallback",{name:textFallback.name})}</Link>}
-   {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
+   {phase==="starting"&&<p role="status">{t(startStage==="microphone"?"guestTrial.startingMic":startStage==="runtime"?"loading":startStage==="ticket"||startStage==="token"?"guestTrial.checking":"guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
     <Link className="btn" to="/account" {...linkTarget}>{t("guestTrial.signInAction")}</Link></>}
    {phase==="exhausted"&&<><strong>{t("guestTrial.usedUpTitle")}</strong><p role="status">{(memberSignedIn||dailyQuota)?(quotaLimit!==null?t("guestTrial.usedMember",{limit:quotaLimit}):t("guestTrial.usedMemberNoCount")):t("guestTrial.used")}</p></>}
