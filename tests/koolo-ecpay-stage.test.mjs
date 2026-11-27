@@ -25,6 +25,7 @@ function setup({userId="u1",missing=false,allowed="u1",enabled="1"}={}){
     if(sql.includes("FROM crew_auth_sessions"))return userId?{user_id:userId}:null;
     if(sql.includes("FROM koolo_fortune_stage_orders")||sql.includes("FROM koolo_fortune_stage_book_orders")){
      if(sql.includes("COUNT(1)"))return {n:orders.size};
+     if(sql.includes("WHERE o.user_id=? AND o.facts_json=?"))return [...orders.values()].find(x=>x.user_id===args[0]&&x.facts_json===args[1]&&x.state==="pending"&&x.amount_twd===99&&x.provider_state!=="failed")||null;
      if(sql.includes("WHERE trade_no_hash=?"))return [...orders.values()].find(x=>x.trade_no_hash===args[0]&&x.amount_twd===(sql.includes("FROM koolo_fortune_stage_book_orders")?99:79))||null;
      if(sql.includes("WHERE merchant_trade_no=?"))return [...orders.values()].find(x=>x.merchant_trade_no===args[0]&&x.amount_twd===args[1])||null;
      if(sql.includes("WHERE id=? AND user_id=?"))return [...orders.values()].find(x=>x.id===args[0]&&x.user_id===args[1])||null;
@@ -42,6 +43,7 @@ function setup({userId="u1",missing=false,allowed="u1",enabled="1"}={}){
    async run(){
     if(sql.startsWith("INSERT INTO koolo_fortune_stage_book_orders")){
      const[id,user_id,merchant_trade_no,amount_twd,facts_json,created_at]=args;
+     if([...orders.values()].some(x=>x.user_id===user_id&&x.facts_json===facts_json&&x.state==="pending"&&x.amount_twd===99&&x.provider_state!=="failed"))return {meta:{changes:0}};
      orders.set(id,{id,user_id,merchant_trade_no,facts_json,created_at,state:"pending",
        report_json:null,trade_no_hash:null,paid_at:null,amount_twd});
      return {success:true,meta:{changes:1}};
@@ -171,4 +173,10 @@ test("legacy 79 callback remains isolated and order history preserves both price
  const list=await stageOrders({request:request("/api/fortune/ecpay/test-orders"),env:s.env});
  assert.deepEqual((await list.json()).orders.map(x=>x.amountTwd).sort(),[79,99]);
  const migration=read("migrations/crew-auth/0013_ecpay_stage_book_99.sql");assert.match(migration,/CHECK\(amount_twd=99\)/);assert.doesNotMatch(migration,/DROP TABLE|UPDATE koolo_fortune_stage_orders/);
+});
+
+test("same unresolved snapshot cannot create a second sandbox transaction",async()=>{
+ const s=setup(),post=()=>stageOrder({request:request("/api/fortune/ecpay/test-order",{method:"POST",body:JSON.stringify({facts:FACTS})}),env:s.env});
+ const first=await post(),data=await first.json();assert.equal(first.status,201);
+ const again=await post();assert.equal(again.status,409);assert.equal((await again.json()).orderId,data.orderId);assert.equal(s.orders.size,1);
 });

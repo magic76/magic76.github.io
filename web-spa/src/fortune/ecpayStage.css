@@ -36,3 +36,8 @@
 .koolo-ecpay-stage-chart-name>strong{font-size:16px;min-width:0}
 .koolo-ecpay-stage-chart-name>span{font-size:12px;flex-shrink:0;color:var(--accent,#3277b6)}
 .koolo-ecpay-stage-chart .koolo-ecpay-stage-chart-privacy{font-size:12px;color:var(--text-muted,#627088)}
+
+.koolo-ecpay-stage-order-actions{display:grid;gap:8px;margin:14px 0;justify-items:start}
+.koolo-ecpay-stage-order-actions p{margin:0;font-size:14px}
+.koolo-ecpay-stage-order-actions button{min-height:44px;max-width:100%;white-space:normal}
+.koolo-ecpay-stage-history>.btn{margin-top:10px;min-height:44px}
