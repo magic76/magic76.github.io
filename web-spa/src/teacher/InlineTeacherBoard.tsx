@@ -2,6 +2,7 @@ import {useEffect,useRef,useState} from "react";
 import {TeachingCard} from "./TeachingCard";
 import type {BoardCard} from "./boardProtocol";
 import {currentBuild} from "../runtime/buildUpdates";
+import type {LiveToolDiagnostic} from "../lib/runtime";
 import {backupCard} from "./inlineBoardFallback";
 import {INLINE_TEACHER_BOARD_ENABLED,INLINE_BOARD_POLICY,INLINE_BOARD_TOOLS,newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,recordInlineEvent} from "./inlineBoardGate";
 import "./teachingBoard.css";
@@ -24,9 +25,16 @@ export function useInlineTeacherBoard(eligible:boolean){
  const cardRef=useRef<BoardCard|null>(null);
  const quizRef=useRef(0);
  const rendered=useRef(0);
+ const wire=useRef({model:"",setupAcknowledged:0,setupTools:[] as string[],received:{whiteboard:0,learningFeedback:0,other:0}});
+ function diagnostics(event:LiveToolDiagnostic){
+  if(!enabled)return;
+  const w=wire.current;w.model=event.model;
+  if(event.event==="setup-ack"){w.setupAcknowledged++;w.setupTools=event.tools.filter(name=>name==="update_teaching_board"||name==="show_learning_feedback");recordInlineEvent(gate.current,"setup-ack");}
+  else{const kind=event.name==="update_teaching_board"?"whiteboard":event.name==="show_learning_feedback"?"learningFeedback":"other";w.received[kind]++;recordInlineEvent(gate.current,"received-"+kind)}
+ }
  useEffect(()=>{if(card){rendered.current++;recordInlineEvent(gate.current,"card-react-committed")}},[card]);
  function clearCard(){cardRef.current=null;setCard(null);answerRef.current={};setAnswers({});quizRef.current=0;setQuizIndex(0)}
- function reset(){gate.current=newInlineGate();rendered.current=0;clearCard();setAvailable(true);setDelivery("idle")}
+ function reset(){gate.current=newInlineGate();rendered.current=0;wire.current={model:"",setupAcknowledged:0,setupTools:[],received:{whiteboard:0,learningFeedback:0,other:0}};clearCard();setAvailable(true);setDelivery("idle")}
  function close(){dismissInlineBoard(gate.current);clearCard();setDelivery("idle")}
  function toggle(){const next=!autoRef.current;autoRef.current=next;setAuto(next);try{localStorage.setItem(PREF,next?"on":"off")}catch{}if(!next)close()}
  function unavailable(){recordInlineEvent(gate.current,"tools-unavailable","model-tools-unavailable");setAvailable(false)}
@@ -38,7 +46,7 @@ export function useInlineTeacherBoard(eligible:boolean){
   if(result.card){show(result.card);return {ok:true,accepted:true,displayRequested:true}}
   return {ok:false,error:result.error||"rejected"};
  }
- function report(){const g=gate.current;return {schema:1,build:currentBuild.buildId,commit:currentBuild.commit,enabled,auto:autoRef.current,toolConfigured:enabled,toolsUnavailable:!available,toolCalls:g.toolCalls,validCards:g.validCards,accepted:g.accepted,reactCommits:rendered.current,fallbacks:g.fallbacks,completedTurns:g.completedTurns,lastReason:g.lastReason,reasons:g.reasons,events:g.events,cardPresent:Boolean(cardRef.current),delivery};}
+ function report(){const g=gate.current;return {schema:2,model:wire.current.model,setupAcknowledged:wire.current.setupAcknowledged,setupTools:wire.current.setupTools,receivedTools:wire.current.received,build:currentBuild.buildId,commit:currentBuild.commit,enabled,auto:autoRef.current,toolConfigured:enabled,toolsUnavailable:!available,toolCalls:g.toolCalls,validCards:g.validCards,accepted:g.accepted,reactCommits:rendered.current,fallbacks:g.fallbacks,completedTurns:g.completedTurns,lastReason:g.lastReason,reasons:g.reasons,events:g.events,cardPresent:Boolean(cardRef.current),delivery};}
  function answer(c:BoardCard,index:number,selected:number){
   const q=c.questions[index],key=c.id+":"+index;
   if(c!==cardRef.current||!q||!Number.isInteger(selected)||selected<0||selected>=q.options.length||answerRef.current[key]!==undefined)return false;
@@ -57,14 +65,14 @@ export function useInlineTeacherBoard(eligible:boolean){
  function request(send:Send){
   if(!enabled)return false;
   gate.current.requested=true;recordInlineEvent(gate.current,"manual-request");
-  const sent=send("[LEARNER WHITEBOARD REQUEST] Explain our current learning topic aloud, giving concrete examples. If the optional tool is available, propose one useful card; never say a card has been displayed. If there is no learning topic yet, ask what I want to learn.");
+  const sent=send("[LEARNER WHITEBOARD REQUEST] Explain our current learning topic aloud, giving concrete examples. If there is a learning topic, CALL update_teaching_board now with one useful card before or during your spoken explanation. Do not merely describe the card; never say it has been displayed. If there is no learning topic yet, ask what I want to learn.");
   if(!sent){gate.current.requested=false;recordInlineEvent(gate.current,"manual-send-failed","send-failed")}
   setDelivery(sent?"pending":"missing");
   return sent
  }
  function navigate(index:number){quizRef.current=index;setQuizIndex(index)}
  return {
-  enabled,available,delivery,auto,toggle,card,answers,quizIndex,navigate,close,reset,request,answer,finish,observe,report,
+  enabled,available,delivery,auto,toggle,card,answers,quizIndex,navigate,close,reset,request,answer,finish,observe,report,diagnostics,
   policy:enabled?INLINE_BOARD_POLICY:"",
   tools:enabled?INLINE_BOARD_TOOLS:undefined,
   onToolCall:tool,
