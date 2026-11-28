@@ -5,6 +5,7 @@ import type {BoardCard} from "./boardProtocol";
 import {currentBuild} from "../runtime/buildUpdates";
 import type {LiveToolDiagnostic} from "../lib/runtime";
 import {backupCard} from "./inlineBoardFallback";
+import {teacherReplyTemplates,type TeacherReplyTemplate} from "./teacherReplyTemplates";
 import {inlineLessonLanguage,inlineLessonsFor,findInlineLesson} from "./inlineLessonCatalog";
 import {startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,GUIDED_END_PROMPT,type GuidedSession} from "./inlineLessonEngine";
 import {INLINE_TEACHER_BOARD_ENABLED,INLINE_BOARD_POLICY,INLINE_BOARD_TOOLS,newInlineGate,proposeInlineBoard,finishInlineTurn,observeInlineInput,recordInlineEvent,INLINE_FOCUS_FUNCTION,inlineFocusIndex} from "./inlineBoardGate";
@@ -129,13 +130,14 @@ function VisualReplyCard({entryId,board,current,children}:{entryId:number;board:
  useEffect(()=>{board.markRendered(entryId)},[entryId]);
  return <div className="teacher-visual-reply" data-visual-current={current?"true":undefined}>{children}</div>;
 }
-export function VisualReplyContent({board,english,send,canSend,turn}:{board:Board;english:boolean;send:Send;canSend:boolean;turn:number|"stream"}){
+export function VisualReplyContent({board,english,send,canSend,turn,template}:{board:Board;english:boolean;send:Send;canSend:boolean;turn:number|"stream";template?:TeacherReplyTemplate}){
  if(!board.enabled)return null;
  const entries=visualRepliesAt(board.journal,turn);
  const active=(entry:VisualReply)=>entry.id===board.activeEntry;
  const activeCard=board.journal.find(active);
  const controlTurn=activeCard?.turn===null?"stream":board.latestReplyTurn??activeCard?.turn;
  return <>
+  {!entries.length&&template?.kind==="material"&&template.source==="caption"&&<div className="teacher-visual-reply" data-visual-source="caption"><TeachingCard card={template.card} answers={{}} english={english} onAnswer={()=>{}} onExplain={text=>{if(canSend)send("[LEARNER MATERIAL QUESTION] Please explain this item: "+JSON.stringify(text))}} readOnly disabled/></div>}
   {entries.map(entry=>{
    const current=active(entry),card=entry.card,interactive=current&&canSend;
    return <VisualReplyCard key={entry.id} entryId={entry.id} board={board} current={current}>
@@ -151,17 +153,20 @@ export function VisualReplyContent({board,english,send,canSend,turn}:{board:Boar
    </VisualReplyCard>;
   })}
   {turn===controlTurn&&board.guided&&<div className="inline-lesson-footer"><button className="inline-lesson-end" type="button" disabled={!canSend} onClick={()=>board.endLesson(send)}>{english?"End lesson":"結束課程"}</button><button type="button" disabled={!canSend||!guidedCanAdvance(board.guided)} onClick={()=>board.nextLesson(send)}>{guidedPhase(board.guided)==="recap"?(english?"Finish lesson":"完成課程"):(english?"Next stage":"下一階段")}</button></div>}
-  {turn===(board.delivery==="missing"?board.missingTurn??"stream":"stream")&&board.delivery!=="idle"&&<div className="inline-board-delivery" role="status">{board.delivery==="pending"?(english?"Preparing material…":"正在準備教材…"):(english?"No material was generated.":"這次沒有產生教材。")}{board.delivery==="missing"&&<button type="button" disabled={!canSend} onClick={()=>board.request(send)}>{english?"Try again":"重試"}</button>}</div>}
+  {template?.kind==="missing"&&!(board.delivery==="missing"&&turn===(board.missingTurn??"stream"))&&<div className="inline-board-delivery" role="status">{english?"The teacher did not provide usable material for this reply.":"這則回覆未產生可用教材。"}<button type="button" disabled={!canSend} onClick={()=>board.request(send)}>{english?"Try again":"重試"}</button></div>}
+  {template?.kind!=="material"&&turn===(board.delivery==="missing"?board.missingTurn??"stream":"stream")&&board.delivery!=="idle"&&<div className="inline-board-delivery" role="status">{board.delivery==="pending"?(english?"Preparing material…":"正在準備教材…"):(english?"No material was generated.":"這次沒有產生教材。")}{board.delivery==="missing"&&<button type="button" disabled={!canSend} onClick={()=>board.request(send)}>{english?"Try again":"重試"}</button>}</div>}
  </>;
 }
 
-export function visualReplyProps(board:Board,english:boolean,send:Send,canSend:boolean){
+export function visualReplyProps(board:Board,english:boolean,send:Send,canSend:boolean,turns:ReadonlyArray<{input?:string;output?:string}>,input:string,output:string,target:string){
  if(!board.enabled)return undefined;
- const keys:Array<number|"stream">=board.journal.map(e=>e.turn===null?"stream":e.turn);
+ const templates=teacherReplyTemplates(turns,{input,output},board.journal,inlineLessonLanguage(target),Boolean(board.guided));
+ const keys:Array<number|"stream">=Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key])=>key);
+ for(const entry of board.journal)if(!keys.includes(entry.turn??"stream"))keys.push(entry.turn??"stream");
  if(board.delivery!=="idle")keys.push(board.delivery==="missing"?board.missingTurn??"stream":"stream");
  const activeCard=board.journal.find(e=>e.id===board.activeEntry);
  if(board.guided&&activeCard&&activeCard.turn!==null&&board.latestReplyTurn!==null)keys.push(board.latestReplyTurn);
- return {keys,revision:JSON.stringify([board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),board.delivery,board.missingTurn,board.guided?.index,board.guided?.explained,board.guided?.attempted,board.latestReplyTurn]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=><VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn}/>};
+ return {keys,kind:(turn:number|"stream")=>templates.get(turn)?.kind??"text",revision:JSON.stringify([board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key,v])=>[key,v.kind,v.kind==="material"?v.card:null]),board.delivery,board.missingTurn,board.guided?.index,board.guided?.explained,board.guided?.attempted,board.latestReplyTurn]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=><VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn} template={templates.get(turn)}/>};
 }
 
 export function InlineTeacherBoardMenu({board,zh,send,canSend,onRequested}:{board:Board;zh:boolean;send:Send;canSend:boolean;onRequested:()=>void}){
