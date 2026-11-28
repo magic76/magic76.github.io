@@ -21,7 +21,7 @@ export function SyncTeacherPage(){
  const [replies,setReplies]=useState<Reply[]>([]);
  const repliesRef=useRef<Reply[]>([]),history=useRef<TeachingContext[]>([]),seq=useRef(0),generation=useRef(0);
  const request=useRef<AbortController|null>(null),recognition=useRef<ReturnType<typeof listenOnce>|null>(null),active=useRef<number|null>(null);
- const thread=useRef<HTMLDivElement>(null),follow=useRef(true);
+ const thread=useRef<HTMLDivElement>(null),follow=useRef(true),autoTop=useRef<number|null>(null);
  function publish(next:Reply[]){repliesRef.current=next;setReplies(next)}
  function patch(id:number,fields:Partial<Reply>){publish(repliesRef.current.map(r=>r.id===id?{...r,...fields}:r))}
  function remember(id:number){
@@ -37,7 +37,7 @@ export function SyncTeacherPage(){
  }
  useEffect(()=>()=>cancel(false),[]);
  useEffect(()=>{document.body.classList.add("session-page");return()=>document.body.classList.remove("session-page")},[]);
- useEffect(()=>{const pane=thread.current;if(!pane||!follow.current)return;const focused=pane.querySelector<HTMLElement>("[data-sync-active=true] .is-highlighted,[data-sync-active=true] .teaching-board-step-focus");if(focused){const bounds=pane.getBoundingClientRect(),rect=focused.getBoundingClientRect();if(rect.top<bounds.top||rect.bottom>bounds.bottom)pane.scrollTop+=rect.top-bounds.top-10}else pane.scrollTop=pane.scrollHeight},[replies,phase]);
+ useEffect(()=>{const pane=thread.current;if(!pane||!follow.current)return;const focused=pane.querySelector<HTMLElement>("[data-sync-active=true] .is-highlighted,[data-sync-active=true] .teaching-board-step-focus");if(focused){const bounds=pane.getBoundingClientRect(),rect=focused.getBoundingClientRect();if(rect.top<bounds.top||rect.bottom>bounds.bottom){autoTop.current=Math.max(0,Math.min(pane.scrollHeight-pane.clientHeight,pane.scrollTop+rect.top-bounds.top-10));pane.scrollTop=autoTop.current}}else{autoTop.current=Math.max(0,pane.scrollHeight-pane.clientHeight);pane.scrollTop=autoTop.current}},[replies,phase]);
  async function send(value:string){
   const text=value.trim().slice(0,1200);if(!text)return;
   if(!geminiKey()){setError(t("請先設定 Gemini API Key。","Set a Gemini API key first."));return}
@@ -63,6 +63,7 @@ export function SyncTeacherPage(){
  }
  function startMic(){
   if(phase==="listening"){recognition.current?.stop();return}
+  if(!geminiKey()){setError(t("請先設定 Gemini API Key。","Set a Gemini API key first."));return}
   if(!recognitionConstructor()){setError(t("此瀏覽器不支援語音辨識，請使用文字輸入。","Speech recognition is unavailable. Type instead."));return}
   cancel();setError("");setHeard("");setPhase("listening");const epoch=++generation.current;
   try{recognition.current=listenOnce(syncSpeechLocale(inputMode==="native"?s.nativeLanguage:s.targetLanguage),{
@@ -74,7 +75,7 @@ export function SyncTeacherPage(){
  const busy=phase!=="idle",latest=replies.at(-1)?.id;
  return <main className="sync-teacher">
   <header className="sync-teacher-header"><TeacherAvatar profile={profile} decorative className="sync-teacher-avatar"/><div><strong>{profile.name}</strong><small>{t("同步教學・實驗版","Synchronized teaching · Experimental")}</small></div><Link to="/teacher/live">{t("原版通話","Original call")}</Link></header>
-  <div className="sync-teacher-thread" ref={thread} onScroll={e=>{const p=e.currentTarget;follow.current=p.scrollHeight-p.clientHeight-p.scrollTop<96}}>
+  <div className="sync-teacher-thread" ref={thread} onWheel={()=>{follow.current=false;autoTop.current=null}} onTouchMove={()=>{follow.current=false;autoTop.current=null}} onScroll={e=>{const p=e.currentTarget;if(autoTop.current!==null&&Math.abs(p.scrollTop-autoTop.current)<2){autoTop.current=null;return}follow.current=p.scrollHeight-p.clientHeight-p.scrollTop<96}}>
    {!replies.length&&<section className="sync-teacher-intro"><h1>{t("跟老師一起看教材","Learn with synchronized material")}</h1><p>{t("按麥克風說話，或輸入問題。老師會先準備同一份講稿和教材，開始講解時同步標示重點。","Tap the mic or type a question. Your teacher prepares one shared script and material, then highlights each point as it is spoken.")}</p><p>{t("本實驗使用瀏覽器語音辨識與朗讀，語音可能和原版老師不同。語音辨識可能由瀏覽器服務處理。","This experiment uses browser recognition and speech synthesis. The voice may differ from the original teacher; recognition may use a browser service.")}</p><p>{t("使用你的 Gemini API Key；對話僅保留於本次頁面。","Uses your Gemini API key. Conversation is retained only on this page.")}</p></section>}
    {replies.map(r=><div className="sync-teacher-turn" key={r.id}>
     <div className="sync-teacher-user">{r.learner}</div>
