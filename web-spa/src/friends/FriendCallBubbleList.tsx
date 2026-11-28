@@ -6,7 +6,7 @@ import "./friendCallBubbles.css";
 
 type Turn={input?:string;output?:string};
 type TranslationRow={kind:string;value:string};
-type Props={learningFeedback?:LearningFeedbackByTurn;learningLanguage?:string;name:string;turns:ReadonlyArray<Turn>;input:string;output:string;source:string;nativeLanguage:string;translationRows:TranslationRow[];historicalTranslations:ReadonlyMap<string,string[]>;suggestions:SuggestedReply[];suggestionsEnabled:boolean;translationEnabled:boolean;needTranslation:boolean;speaking:boolean;speakerAvatar?:ReactNode;waitingText:string;youLabel:string;recognizingLabel:string;recognizedLabel:string;translateStatus:(value:string)=>string;headerAccessory?:ReactNode;replyExtra?:ReactNode;visualReply?:{keys:ReadonlyArray<number|"stream">;revision:string;focusKey:string;passive?:boolean;renderCaption?:(text:string,language:string)=>ReactNode;kind?:(key:number|"stream")=>string;render:(key:number|"stream")=>ReactNode}};
+type Props={learningFeedback?:LearningFeedbackByTurn;learningLanguage?:string;name:string;turns:ReadonlyArray<Turn>;input:string;output:string;source:string;nativeLanguage:string;translationRows:TranslationRow[];historicalTranslations:ReadonlyMap<string,string[]>;suggestions:SuggestedReply[];suggestionsEnabled:boolean;translationEnabled:boolean;needTranslation:boolean;speaking:boolean;speakerAvatar?:ReactNode;waitingText:string;youLabel:string;recognizingLabel:string;recognizedLabel:string;translateStatus:(value:string)=>string;headerAccessory?:ReactNode;replyExtra?:ReactNode;visualReply?:{keys:ReadonlyArray<number|"stream">;revision:string;focusKey:string;passive?:boolean;renderCaption?:(text:string,language:string,key?:number|"stream")=>ReactNode;kind?:(key:number|"stream")=>string;render:(key:number|"stream")=>ReactNode}};
 export function FriendCallBubbleList({name,turns,learningFeedback={},learningLanguage,input,output,source,nativeLanguage,translationRows,historicalTranslations,suggestions,suggestionsEnabled,translationEnabled,needTranslation,speaking,speakerAvatar,waitingText,youLabel,recognizingLabel,recognizedLabel,translateStatus,headerAccessory,replyExtra,visualReply}:Props){
  const scrollRef=useRef<HTMLDivElement>(null),followRef=useRef(true);
  const hasVisual=(key:number|"stream")=>visualReply?.keys.includes(key)??false;
@@ -68,7 +68,7 @@ export function FriendCallBubbleList({name,turns,learningFeedback={},learningLan
    {turn.input?.trim()?<section className="friend-bubble friend-bubble-user" aria-label={youLabel}><small>{youLabel}</small><p lang={source}>{turn.input.trim()}</p></section>:null}
    {learningFeedback[turn.index]&&<LearningFeedbackCard feedback={learningFeedback[turn.index]} language={learningLanguage||source}/>}
    {turn.output?.trim()||hasVisual(turn.index)?<section className={"friend-bubble friend-bubble-ai"+(hasVisual(turn.index)?" has-visual-reply":"")} data-reply-key={visualReply?turn.index:undefined} data-reply-template={visualReply?.kind?.(turn.index)} aria-label={name}>
-    <small>{name}</small>{visualReply?.passive&&visualReply.render(turn.index)}{turn.output?.trim()&&(visualReply?.renderCaption?visualReply.renderCaption(turn.output.trim(),source):<p lang={source}>{turn.output.trim()}</p>)}
+    <small>{name}</small>{visualReply?.passive&&visualReply.render(turn.index)}{turn.output?.trim()&&(visualReply?.renderCaption?visualReply.renderCaption(turn.output.trim(),source,turn.index):<p lang={source}>{turn.output.trim()}</p>)}
     {renderTranslation(turn.output?.trim()||"",!showCurrentOutput&&latestAiKey===turn.index)}
     {!visualReply?.passive&&visualReply?.render(turn.index)}
     {renderSuggestions(turn.index)}
@@ -78,7 +78,7 @@ export function FriendCallBubbleList({name,turns,learningFeedback={},learningLan
   {showCurrentOutput||hasVisual("stream")?<section className={"friend-bubble friend-bubble-ai"+(hasVisual("stream")?" has-visual-reply":"")} data-reply-key={visualReply?"stream":undefined} data-reply-template={visualReply?.kind?.("stream")} aria-label={name}>
    {speakerAvatar?<div className="friend-caption-speaker"><span className="friend-caption-avatar teacher-call-caption-avatar">{speakerAvatar}</span><small>{name}{speaking?" · …":""}</small></div>:<small>{name}</small>}
    {visualReply?.passive&&visualReply.render("stream")}
-   {showCurrentOutput&&<>{visualReply?.renderCaption?visualReply.renderCaption(currentOutput,source):<p lang={source}>{currentOutput}</p>}{replyExtra}{renderTranslation(currentOutput,true)}</>}
+   {showCurrentOutput&&<>{visualReply?.renderCaption?visualReply.renderCaption(currentOutput,source,"stream"):<p lang={source}>{currentOutput}</p>}{replyExtra}{renderTranslation(currentOutput,true)}</>}
    {!visualReply?.passive&&visualReply?.render("stream")}
    {renderSuggestions("stream")}
   </section>:null}

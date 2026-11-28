@@ -38,8 +38,6 @@
 /* Passive material stays within the speaking reply. No buttons or quiz state. */
 .teacher-call-page .teacher-live-caption{display:grid;gap:6px;min-width:0;overflow-wrap:anywhere}
 .teacher-call-page .teacher-live-caption p{margin:0;line-height:1.55;white-space:normal}
-.teacher-call-page .teacher-live-caption .teacher-live-caption-point{border-left:3px solid #79ba99;padding:3px 0 3px 9px}
-.teacher-call-page .teacher-live-caption .teacher-live-caption-example{background:#e9f4ed;color:#264536;border-radius:8px;padding:7px 9px;font-weight:400}
 .teacher-passive-material{padding:12px;display:grid;gap:9px;overflow-wrap:anywhere;color:#244333}
 .teacher-passive-material header{display:grid;gap:3px}
 .teacher-passive-material header small{color:#4b6b58;font-size:12px}
@@ -57,8 +55,17 @@
 .teacher-call-page .teacher-visual-reply:has(.teacher-passive-material){margin:4px 0 10px}
 @media(max-width:360px){.teacher-passive-row{grid-template-columns:1fr;gap:3px}}
 
-/* Actual spoken term/definition pairs, not a second generated card. */
-.teacher-call-page .friend-chat-bubbles .friend-bubble-ai .teacher-live-caption-term{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);align-items:start;gap:10px;margin:0;padding:9px 10px;border:1px solid #d7e5dc;background:#eff6f2;border-radius:9px;color:#254b36;font-weight:400}
-.teacher-live-caption-term strong{font-size:16px;font-weight:700;overflow-wrap:anywhere}
-.teacher-live-caption-term span{min-width:0;overflow-wrap:anywhere}
-@media(max-width:360px){.teacher-call-page .friend-chat-bubbles .friend-bubble-ai .teacher-live-caption-term{grid-template-columns:minmax(0,1fr);gap:3px}}
+
+/* Generic semantic layout; no content-specific styles or nested scroll areas. */
+.teacher-call-page .friend-chat-bubbles .friend-bubble-ai .teacher-live-caption p{font-weight:400;white-space:pre-wrap;line-height:1.55}
+.teacher-live-caption h4{font-size:16px;line-height:1.4;margin:4px 0 0;font-weight:700}
+.teacher-live-caption ul,.teacher-live-caption ol{margin:2px 0;padding-inline-start:1.4em;display:grid;gap:6px;font-size:15px;line-height:1.55}
+.teacher-live-caption blockquote,.teacher-semantic-formula{margin:0;padding:9px 11px;border-inline-start:3px solid #79ba99;background:#e9f4ed;color:#264536;border-radius:6px;line-height:1.55;white-space:pre-wrap;font-size:15px}
+.teacher-semantic-table-wrap{min-width:0}
+.teacher-semantic-table-wrap table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:14px;line-height:1.45}
+.teacher-semantic-table-wrap td{border:1px solid #d7e2da;padding:7px;vertical-align:top;overflow-wrap:anywhere}
+.teacher-semantic-table-wrap tr:nth-child(odd){background:#edf4ef}
+.teacher-semantic-dialogue{margin:0;display:grid;gap:7px;font-size:14px}
+.teacher-semantic-dialogue div{padding:8px 10px;background:#edf4ef;border-radius:8px}
+.teacher-semantic-dialogue dt{font-weight:700}
+.teacher-semantic-dialogue dd{margin:3px 0 0;line-height:1.5}
