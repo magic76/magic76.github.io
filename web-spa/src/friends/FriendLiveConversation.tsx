@@ -1,9 +1,10 @@
+import {ConversationSummary,LanguageModePicker,LivePacePicker,liveSettingLocked} from "../components/ConversationPreferences";
 import {Arrow} from "../components/Arrow";
 import {useAuxiliaryLiveSession} from "../live/useAuxiliaryLiveSession";
 import {useSuggestedReplies,replyHintsLocked} from "../live/useSuggestedReplies";
 import {GroundingSources} from "../live/GroundingSources";
 import {LiveSearchAction} from "../live/LiveSearchAction";
-import {buildAccentPrompt} from "../teacher/teacherAccent";
+import {buildAccentPrompt,buildPacePrompt} from "../teacher/teacherAccent";
 import {trackUsageEvent,sessionDurationDetail} from "../analytics/usage";
 import {advanceHomeFriendJourney} from "../analytics/homeFriendJourney";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
@@ -111,14 +112,15 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const friendNativeLanguage=dailyEntry?detectNativeLanguage(locale.language):nativeLanguage;
  const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>{const saved=useTeacherStore.getState().friendChatMode;return dailyEntry?"natural":(intent==="speak"&&saved==="natural"?"bilingual":saved)});
  const [modeNote,setModeNote]=useState("");
- const region=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
+ const pace=useTeacherStore(s=>s.friendSpeakingPace);
+ const region=useTeacherStore(s=>s.friendLanguageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
  const sessionId=friend.id;
  const liveMemory=useMemo(()=>createFriendLiveMemory(sessionId,language),[sessionId,language]);
  const [lifeOpening]=useState(()=>!shortsPost&&!intent?nextFriendLifeOpening(friend.id):"");
- const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode),[language,friendNativeLanguage,friendChatMode]);
+ const languageDirective=useMemo(()=>friendLanguageReminder(language,friendNativeLanguage,friendChatMode)+"\n"+buildPacePrompt(pace),[language,friendNativeLanguage,friendChatMode,pace]);
  const resolveSessionContext=()=>{
   const openingRecall=friendVoiceOpeningRecall(friend.id,language);
-  const system=buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost)
+  const system=buildFriendSystem(friend,language,friendNativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+"\n"+buildPacePrompt(pace)+buildShortsFriendContext(shortsPost)
    +(replyPrompt?"\nThe friend asked the learner this app-provided question about the post: "+replyPrompt+" Respond to their answer in the context of this story.":"");
   const scopedSystem=gameRoundContext(system,"friend:"+friend.id);
   return {
@@ -236,7 +238,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
       <div ref={portraitRef} className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState} data-voice-connected={voiceConnected||undefined} data-output-muted={(voiceConnected&&live.volume===0)||undefined}><FriendAvatar friend={friend}/></div>
       {voiceMuteProps&&<FriendVoiceMute {...voiceMuteProps}/>}
      </div>
-     <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
+     <h1>{friend.name}</h1><ConversationSummary role="friend" language={language} mode={friendChatMode} pace={pace} onOpen={()=>setShowCallOptions(true)}/><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
     {textFirst&&!active?<div className="friend-text-first-intro"><h1>{t("friendLive.textChat")}</h1><Link to={"/friend/live?"+voiceParams.toString()}>{t("friendLive.useVoice")}</Link></div>:null}
     {homeFirstAction?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
@@ -251,16 +253,8 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
     {postUnavailable?<p className="friend-live-post-unavailable" role="status">{t("friendLive.postUnavailable")}</p>:null}
     {shortsPost?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
     <FriendCallMenu inCall={true} open={showCallOptions} onClose={()=>setShowCallOptions(false)} title={t("callCaptions.more")} closeLabel={t("callCaptions.closeMenu")}><div className="friend-call-settings">
-    <div className="friend-language-switch" role="group" aria-label={t("chatModeTitle")}>
-     <span className="friend-language-switch-title">{t("chatModeTitle")}</span>
-     <div className="friend-language-options">
-      {([["natural","自然聊天"],["bilingual","輕鬆雙語"],["immersion","完全沉浸"]] as const).map(([value,label])=>
-       <button key={value} type="button" className={friendChatMode===value?"selected":""}
-        aria-pressed={friendChatMode===value} onClick={()=>changeFriendChatMode(value)}>{t(value==="natural"?"chatModeNatural":value==="bilingual"?"chatModeBilingual":"chatModeImmersion")}</button>)}
-     </div>
-     <small className="friend-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</small>
-     {modeNote&&<small role="status">{modeNote}</small>}
-    </div>
+    <LanguageModePicker role="friend" mode={friendChatMode} onChange={changeFriendChatMode} disabled={liveSettingLocked(live)} note={modeNote}/>
+    <LivePacePicker role="friend" live={live}/>
     <FriendCallMenuPreferences hintsEnabled={replyHints.enabled} hintsLocked={replyHintsLocked(live.state)} onHintsToggle={replyHints.toggle} translationEnabled={translationEnabled} onTranslationToggle={toggleTranslation}/>
     </div>
     <div className="live-presets">

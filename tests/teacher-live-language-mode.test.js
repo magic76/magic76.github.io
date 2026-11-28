@@ -2,13 +2,13 @@ const test=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path");
 const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
 test("teacher live mode sends explicit control before persisting and locks roleplay",()=>{
- const page=read("web-spa/src/teacher/LivePage.tsx");
- assert.match(page,/if\(isRoleplay\|\|fortuneKind\|\|modeLocked/);
+ const page=read("web-spa/src/teacher/TeacherConversationSettings.tsx");
+ assert.match(page,/if\(roleplay\|\|locked/);
  assert.match(page,/if\(connected&&!live\.sendControl\(teacherLanguageTransition/);
- assert.match(page,/setModeNote\("failed"\);return;\}/);
+ assert.match(page,/setNote\("failed"\);return;\}/);
  assert.ok(page.indexOf("live.sendControl(teacherLanguageTransition")<page.indexOf("s.setTeachingMode(chosen)"));
- assert.match(page,/selectedLanguageMode=isRoleplay\?"immersion":s\.teachingMode/);
- assert.match(page,/\{languageModeSelector\}/);
+ assert.match(page,/mode=roleplay\?"immersion":s\.teachingMode/);
+ assert.match(read("web-spa/src/teacher/LivePage.tsx"),/<TeacherConversationSettings/);
  const policy=read("web-spa/src/teacher/teacherLanguage.ts");
  assert.match(policy,/latest UI selection supersedes ALL earlier teaching-language rules/);
  assert.match(policy,/teacherLanguageRule\(target,native,mode,level\)\+teacherLanguageReminder/);

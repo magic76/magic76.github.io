@@ -156,7 +156,16 @@
     "memoryHeading": "Memory & data",
     "memoryIntro": "Review memory use and records stored in this browser or WebView.",
     "keyInAccount": "Gemini key setup is now under Account. Microphone, voice testing, and playback volume stay here.",
-    "manageAi": "Manage Gemini key"
+    "manageAi": "Manage Gemini key",
+    "sharedTargetHint": "Shared by teachers, friends and learning activities; does not change the interface.",
+    "sharedNativeHint": "Shared support language for teachers and friends.",
+    "friendRolePreferences": "Friend preferences",
+    "teacherRolePreferences": "Teacher preferences",
+    "roleSharedHint": "Learning language is shared; language mode, pace and regional accent are saved separately for each role.",
+    "nextReplyHint": "Setting sent for the next reply; speech behavior depends on the model.",
+    "modeFailed": "Setting was not sent. Try again.",
+    "savedPreference": "Preference saved.",
+    "roleSummary": "Conversation preferences"
   },
   "deviceApp": {
     "title": "Device & App",

@@ -156,7 +156,16 @@
     "memoryHeading": "記憶與資料",
     "memoryIntro": "管理此瀏覽器／WebView 內的記憶與學習資料。",
     "keyInAccount": "Gemini Key 現在從帳號頁設定；語音連線、麥克風和播放音量繼續在這裡調整。",
-    "manageAi": "管理 Gemini Key"
+    "manageAi": "管理 Gemini Key",
+    "sharedTargetHint": "朋友、老師與學習活動共用，不會改變介面語言。",
+    "sharedNativeHint": "朋友與老師共用的母語輔助語言。",
+    "friendRolePreferences": "朋友對話偏好",
+    "teacherRolePreferences": "老師對話偏好",
+    "roleSharedHint": "學習語言全站共用；語言模式、語速與地區口音依角色記憶。",
+    "nextReplyHint": "已送出設定，下一句起套用；實際表現依語音模型。",
+    "modeFailed": "設定未送出，請再試一次。",
+    "savedPreference": "已儲存偏好。",
+    "roleSummary": "對話偏好"
   },
   "deviceApp": {
     "title": "裝置與 App",
