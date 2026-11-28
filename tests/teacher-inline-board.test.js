@@ -287,7 +287,13 @@ test("actual React reply markup includes caption-derived teaching card before su
   assert.equal(realSpeech.action,"seal");assert.equal(realSpeech.index,1);
   assert.equal(directReplyAt(sealDirectReply(direct,realSpeech.index),1).id,1);
   assert.equal(directReplyAt(closeDeferredReply(direct,inputOnly.wait),0).id,1);
-  assert.equal(closeDeferredReply(direct,toolOnly.wait).length,0);
+  const archived=closeDeferredReply(direct,toolOnly.wait,0);
+  assert.equal(archived.length,1);assert.equal(archived[0].standaloneBefore,0);
+  assert.equal(directReplyAt(archived,"stream"),undefined);
+  assert.equal(discardDirectReply(archived).length,1);
+  assert.equal(sealDirectReply(archived,7)[0].turn,null);
+  const later=appendDirectReply(archived,2,blocks);assert.ok(later);assert.equal(later.length,2);
+  assert.equal(directReplyAt(later,"stream").id,2);
   assert.equal(resolveDirectReplyCompletion(direct,{hasValidOutput:true,output:""},null,inputOnly.wait).index,0);
   assert.equal(resolveDirectReplyCompletion(directSealed,{hasValidOutput:true,output:actual},2,null).action,"none");
   assert.match(read("InlineTeacherBoard.tsx"),/if\(!turn\.hasValidOutput&&!turn\.output\?\.trim\(\)\)return/);
@@ -303,6 +309,19 @@ test("actual React reply markup includes caption-derived teaching card before su
   assert.deepEqual(Array.from(completedCaption.keys),[0]);
   assert.match(renderToStaticMarkup(completedCaption.render(0)),/<table>/);
   assert.match(renderToStaticMarkup(completedCaption.renderCaption(actual,"en",0)),/<details/);
+  // Actual bubble rendering: an acknowledged tool-only reply survives delayed
+  // learner transcription and remains before subsequent speech, without being
+  // attached to that speech or preventing another tool call.
+  const laterTurns=[{input:"New learner question",output:"Later spoken response"}];
+  const archivedVisual=visualReplyProps({...board,directReplies:archived,markRendered:()=>{}},true,()=>false,true,laterTurns,"","","英文",undefined,true);
+  assert.equal(archivedVisual.keys.length,0);assert.equal(archivedVisual.standalone.length,1);
+  const archivedHtml=renderToStaticMarkup(React.createElement(FriendCallBubbleList,{name:"Lina",turns:laterTurns,input:"",output:"",source:"en",nativeLanguage:"zh-TW",translationRows:[],historicalTranslations:new Map(),suggestions:[],suggestionsEnabled:false,translationEnabled:false,needTranslation:false,speaking:false,waitingText:"Waiting",youLabel:"You",recognizingLabel:"Recognizing",recognizedLabel:"Recognized",translateStatus:x=>x,visualReply:archivedVisual}));
+  assert.match(archivedHtml,/data-reply-key="visual-1"/);
+  assert.ok(archivedHtml.indexOf("Boarding pass")<archivedHtml.indexOf("New learner question"));
+  assert.equal((archivedHtml.match(/data-visual-source="live-tool"/g)||[]).length,1);
+  const emptyHtml=renderToStaticMarkup(React.createElement(FriendCallBubbleList,{name:"Lina",turns:[],input:"",output:"",source:"en",nativeLanguage:"zh-TW",translationRows:[],historicalTranslations:new Map(),suggestions:[],suggestionsEnabled:false,translationEnabled:false,needTranslation:false,speaking:false,waitingText:"Waiting",youLabel:"You",recognizingLabel:"Recognizing",recognizedLabel:"Recognized",translateStatus:x=>x,visualReply:archivedVisual}));
+  assert.match(emptyHtml,/Boarding pass/);assert.doesNotMatch(emptyHtml,/>Waiting</);
+  assert.match(read("InlineTeacherBoard.tsx"),/preservePendingReply\("new-learner-transcript"\)/);
   const plain=visualReplyProps(board,true,()=>false,true,[],"Explain prepositions",actual,"英文",undefined,true);
   const captionHtml=renderToStaticMarkup(plain.renderCaption(actual,"en"));
   assert.match(captionHtml,/data-caption-layout="text"/);
