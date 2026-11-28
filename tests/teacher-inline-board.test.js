@@ -267,6 +267,27 @@ test("actual React reply markup includes caption-derived teaching card before su
   assert.deepEqual(Array.from(liveCaptionBlocks(actual),row=>row.kind),["point","example","point"]);
   assert.equal(Array.from(liveCaptionBlocks(actual),row=>row.text).join(" "),actual);
   assert.equal(liveCaptionBlocks("Hello!")[0].kind,"text");
+  // Actual user screenshot 15:29: no tool or composer result at all.
+  const screenshot='Can表示現在的能力或允許，而 Could則用於過去的能力或禮貌的請求。For example,you can say:"I can speak English now."或請求協助："Could you help me, please?" 你想用哪個詞練習呢？';
+  const blocks=liveCaptionBlocks(screenshot);
+  assert.equal(blocks.filter(b=>b.kind==="term").length,2);
+  assert.match(blocks[0].label,/Can/);
+  assert.match(blocks[1].label,/Could/);
+  assert.ok(blocks.some(b=>b.kind==="example"&&b.text==='"I can speak English now."'));
+  assert.ok(blocks.some(b=>b.kind==="example"&&b.text==='"Could you help me, please?"'));
+  assert.equal(blocks.at(-1).kind,"text");
+  assert.equal(blocks.at(-1).text,"你想用哪個詞練習呢？");
+  assert.equal(Array.from(blocks,b=>b.text).join("").replace(/\s/g,""),screenshot.replace(/\s/g,""));
+  const generic=liveCaptionBlocks("Reservation means a booking. Boarding pass means a ticket to board.");
+  assert.equal(generic.filter(b=>b.kind==="term").length,2);
+  assert.equal(liveCaptionBlocks("I mean it. We are going out.").every(b=>b.kind==="text"),true);
+  const streaming=visualReplyProps(board,true,()=>false,true,[],"Can and could",screenshot,"英文",undefined,true);
+  const completedCaption=visualReplyProps(board,true,()=>false,true,[{input:"Can and could",output:screenshot}],"","","英文",undefined,true);
+  const screenshotHtml=renderToStaticMarkup(streaming.renderCaption(screenshot,"en"));
+  assert.equal((screenshotHtml.match(/teacher-live-caption-term/g)||[]).length,2);
+  assert.equal(screenshotHtml,renderToStaticMarkup(completedCaption.renderCaption(screenshot,"en")));
+  assert.doesNotMatch(screenshotHtml,/<button|<input|<form/);
+
   assert.deepEqual(Array.from(liveCaptionBlocks("首先，注意語序。 例如，我正在學日文。"),row=>row.kind),["point","example"]);
   const plain=visualReplyProps(board,true,()=>false,true,[],"Explain prepositions",actual,"英文",undefined,true);
   const captionHtml=renderToStaticMarkup(plain.renderCaption(actual,"en"));
