@@ -5,14 +5,14 @@ import {edTopic,teachingCue,visualClaim} from "./inlineBoardGate";
 // Native audio ASR may spell the learner's "ed" incorrectly, but the teacher's
 // actual explanation can identify the topic even when the tool is missing.
 export function explainsEdEnding(output:string){
- const text=output.normalize("NFKC").replace(/[“”‘’"'「」『』]/g,"").replace(/\s+/g," ");
+ const text=output.normalize("NFKC").replace(/[“”‘’"'「」『』]/g," ").replace(/\s+/g," ");
  const suffix=edTopic(text)||/(?:-?ed\s*(?:ending|suffix)|(?:字尾|結尾)\s*-?ed)/i.test(text);
- const categories=/(?:three (?:different )?(?:sounds|pronunciations)|三種(?:不同的)?(?:發音|讀音)|voiceless|unvoiced|voiced|清音|濁音|無聲音|有聲音)/i.test(text);
+ const categories=/(?:three (?:different )?(?:sounds|pronunciations|ways (?:we |to )pronounce)|三種(?:不同的)?(?:發音|讀音)|voiceless|unvoiced|voiced|清音|濁音|無聲音|有聲音)/i.test(text);
  return suffix&&categories;
 }
 const compactScript=(text:string)=>/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Thai}]/u.test(text);
 const usable=(output:string)=>output.trim().length>=(compactScript(output)?28:60)&&!visualClaim(output);
-const edReference=(text:string)=>/\b-?ed\s+(?:endings?|suffix)\b|(?:字尾|結尾|结尾)\s*-?ed\b/i.test(text)||edTopic(text);
+const edReference=(text:string)=>/\b-?ed[\s"'’”]*?(?:endings?|suffix)\b|(?:字尾|結尾|结尾)\s*-?ed\b/i.test(text)||edTopic(text);
 export function backupCard(topic:string,output:string,manual=false,previousOutput="",language="en"):BoardCard|null{
  const claim=visualClaim(output);
  // English-only pronunciation material must not leak into a different target language.
