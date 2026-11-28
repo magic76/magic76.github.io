@@ -28,6 +28,7 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  function syncGuided(next:GuidedSession|null){guidedRef.current=next;setGuided(next)}
  const [card,setCard]=useState<BoardCard|null>(null);
  const [journal,setJournal]=useState<VisualReply[]>([]);
+ const [latestReplyTurn,setLatestReplyTurn]=useState<number|null>(null);
  const entryRef=useRef(0),activeEntry=useRef<number|null>(null);
  const journalRef=useRef<VisualReply[]>([]);
  function publish(entries:VisualReply[]){journalRef.current=entries;setJournal(entries)}
@@ -48,7 +49,7 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  }
  useEffect(()=>{if(card&&mode){rendered.current++;recordInlineEvent(gate.current,"card-react-committed")}},[card,mode]);
  function clearCard(){activeEntry.current=null;setFocus(-1);cardRef.current=null;setCard(null);answerRef.current={};setAnswers({});quizRef.current=0;setQuizIndex(0)}
- function reset(){publish([]);entryRef.current=0;modeRef.current=false;modePending.current=false;modeTouched.current=false;setModeState(false);syncGuided(null);gate.current=newInlineGate();rendered.current=0;wire.current={model:"",setupAcknowledged:0,setupTools:[],received:{whiteboard:0,learningFeedback:0,other:0}};clearCard();setAvailable(true);setDelivery("idle")}
+ function reset(){publish([]);setLatestReplyTurn(null);entryRef.current=0;modeRef.current=false;modePending.current=false;modeTouched.current=false;setModeState(false);syncGuided(null);gate.current=newInlineGate();rendered.current=0;wire.current={model:"",setupAcknowledged:0,setupTools:[],received:{whiteboard:0,learningFeedback:0,other:0}};clearCard();setAvailable(true);setDelivery("idle")}
  function setMode(next:boolean){
   if(!enabled||modeRef.current===next)return;
   modeRef.current=next;setModeState(next);modePending.current=true;modeTouched.current=true;
@@ -64,11 +65,11 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
   if(send(prompt)){modePending.current=false;recordInlineEvent(gate.current,"mode-control-sent")}
  }
  function recover(){discardInterrupted();if(modeTouched.current)modePending.current=true}
- function discardInterrupted(){const keep=guidedRef.current?activeEntry.current:null;const entries=discardPendingVisualReplies(journalRef.current,keep);if(entries.length===journalRef.current.length)return;publish(entries);if(!entries.some(e=>e.id===activeEntry.current))clearCard()}
+ function discardInterrupted(){const keep=guidedRef.current?activeEntry.current:null;const entries=discardPendingVisualReplies(journalRef.current,keep);if(entries.length===journalRef.current.length)return;gate.current.shownThisTurn=false;publish(entries);if(!entries.some(e=>e.id===activeEntry.current))clearCard()}
  useEffect(()=>{window.addEventListener("crew-friend-call-interrupt",discardInterrupted);return()=>window.removeEventListener("crew-friend-call-interrupt",discardInterrupted)},[]);
  function close(){setMode(false)}
  function unavailable(){recordInlineEvent(gate.current,"tools-unavailable","model-tools-unavailable");setAvailable(false)}
- function observe(input:string){if(enabled&&modeRef.current&&!modePending.current)observeInlineInput(gate.current,input)}
+ function observe(input:string){if(enabled&&modeRef.current&&!modePending.current){if(input.trim()&&!gate.current.input)setFocus(-1);observeInlineInput(gate.current,input)}}
  function show(next:BoardCard){clearCard();const id=++entryRef.current;activeEntry.current=id;publish(appendVisualReply(journalRef.current,id,next));cardRef.current=next;setCard(next);setDelivery("idle")}
  function tool(call:{name:string;args?:unknown}){
   if(!enabled)return {ok:false,error:"disabled"};
@@ -122,7 +123,8 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  }
  function finish(turn:{input?:string;output?:string;hasValidOutput?:boolean},captionIndex:number|null){
   finishTurn(turn);
-  if(captionIndex!==null&&turn.output?.trim())publish(sealVisualReplies(journalRef.current,captionIndex));
+  gate.current.input="";
+  if(captionIndex!==null&&turn.output?.trim()){setLatestReplyTurn(captionIndex);if(journalRef.current.some(e=>e.turn===null))publish(sealVisualReplies(journalRef.current,captionIndex))}
   else discardInterrupted();
  }
  function request(send:Send){
@@ -135,7 +137,7 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  }
  function navigate(index:number){quizRef.current=index;setQuizIndex(index);if(activeEntry.current!==null)publish(updateVisualReply(journalRef.current,activeEntry.current,{quizIndex:index}));if(cardRef.current?.type==="steps")setFocus(index)}
  return {
-  enabled,available,delivery,mode,setMode,syncMode,recover,focus,card,journal,activeEntry:activeEntry.current,answers,quizIndex,navigate,close,reset,request,answer,finish,observe,report,diagnostics,guided,lessons,beginLesson,endLesson,nextLesson,submitPractice,
+  enabled,available,delivery,mode,setMode,syncMode,recover,focus,card,journal,latestReplyTurn,activeEntry:activeEntry.current,answers,quizIndex,navigate,close,reset,request,answer,finish,observe,report,diagnostics,guided,lessons,beginLesson,endLesson,nextLesson,submitPractice,
   policy:enabled?INLINE_BOARD_POLICY+"\nTeach "+target+"; use examples in this target language, not English unless English is the target. A guided lesson control from the app supersedes automatic board generation; focus calls remain available while the board is ON.":"",
   tools:enabled?INLINE_BOARD_TOOLS:undefined,
   onToolCall:tool,
@@ -148,6 +150,8 @@ export function VisualReplyContent({board,english,send,canSend,turn}:{board:Boar
  if(!board.enabled||!board.mode)return null;
  const entries=visualRepliesAt(board.journal,turn);
  const active=(entry:VisualReply)=>entry.id===board.activeEntry;
+ const activeCard=board.journal.find(active);
+ const controlTurn=activeCard?.turn===null?"stream":board.latestReplyTurn??activeCard?.turn;
  return <>
   {entries.map(entry=>{
    const current=active(entry),card=entry.card,interactive=current&&canSend;
@@ -160,9 +164,10 @@ export function VisualReplyContent({board,english,send,canSend,turn}:{board:Boar
      onAnswer={(c,i,selected)=>{if(!interactive)return;const q=c.questions[i];if(!q)return;if(board.guided){if(send("[GUIDED QUIZ ANSWER] "+JSON.stringify({question:q.question,selected:q.options[selected]})+". Give brief feedback, then wait."))board.answer(c,i,selected)}else if(board.answer(c,i,selected))send("[LEARNER QUIZ ANSWER] "+JSON.stringify({question:q.question,selected:q.options[selected]})+". Give brief feedback.")}}
      onExplain={text=>{if(canSend)send("[LEARNER MATERIAL QUESTION] Please explain this item: "+JSON.stringify(text))}}
      readOnly={!current} disabled={!interactive}/>
-    {current&&board.guided&&<div className="inline-lesson-footer"><button className="inline-lesson-end" type="button" disabled={!canSend} onClick={()=>board.endLesson(send)}>{english?"End lesson":"結束課程"}</button><button type="button" disabled={!canSend||!guidedCanAdvance(board.guided)} onClick={()=>board.nextLesson(send)}>{guidedPhase(board.guided)==="recap"?(english?"Finish lesson":"完成課程"):(english?"Next stage":"下一階段")}</button></div>}
+
    </div>;
   })}
+  {turn===controlTurn&&board.guided&&<div className="inline-lesson-footer"><button className="inline-lesson-end" type="button" disabled={!canSend} onClick={()=>board.endLesson(send)}>{english?"End lesson":"結束課程"}</button><button type="button" disabled={!canSend||!guidedCanAdvance(board.guided)} onClick={()=>board.nextLesson(send)}>{guidedPhase(board.guided)==="recap"?(english?"Finish lesson":"完成課程"):(english?"Next stage":"下一階段")}</button></div>}
   {turn==="stream"&&board.delivery!=="idle"&&<div className="inline-board-delivery" role="status">{board.delivery==="pending"?(english?"Preparing material…":"正在準備教材…"):(english?"No material was generated.":"這次沒有產生教材。")}{board.delivery==="missing"&&<button type="button" disabled={!canSend} onClick={()=>board.request(send)}>{english?"Try again":"重試"}</button>}</div>}
  </>;
 }
@@ -171,7 +176,9 @@ export function visualReplyProps(board:Board,english:boolean,send:Send,canSend:b
  if(!board.enabled||!board.mode)return undefined;
  const keys:Array<number|"stream">=board.journal.map(e=>e.turn===null?"stream":e.turn);
  if(board.delivery!=="idle")keys.push("stream");
- return {keys,revision:JSON.stringify([board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),board.delivery,board.guided?.index,board.guided?.explained,board.guided?.attempted]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=><VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn}/>};
+ const activeCard=board.journal.find(e=>e.id===board.activeEntry);
+ if(board.guided&&activeCard&&activeCard.turn!==null&&board.latestReplyTurn!==null)keys.push(board.latestReplyTurn);
+ return {keys,revision:JSON.stringify([board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),board.delivery,board.guided?.index,board.guided?.explained,board.guided?.attempted,board.latestReplyTurn]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=><VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn}/>};
 }
 
 export function InlineTeacherBoardMenu({board,zh,send,canSend,onRequested}:{board:Board;zh:boolean;send:Send;canSend:boolean;onRequested:()=>void}){
