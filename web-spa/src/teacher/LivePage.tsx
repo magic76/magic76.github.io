@@ -1,5 +1,5 @@
 import{DEFAULT_TEACHER_OPENING,REVIEW_TEACHER_OPENING,REVIEW_TEACHER_POLICY}from"./teacherOpeningPrompts";
-import{useInlineTeacherBoard,InlineTeacherBoard,InlineTeacherBoardMenu}from"./InlineTeacherBoard";
+import{useInlineTeacherBoard,InlineTeacherBoard,InlineTeacherBoardMenu,BoardCallControls}from"./InlineTeacherBoard";
 import{FriendUnifiedComposer}from"../friends/FriendUnifiedComposer";
 import{useFriendTextViewport}from"../friends/useFriendTextViewport";
 import {teacherCallStatusKey,teacherPresenceState} from "./teacherCallStatus";
@@ -30,7 +30,6 @@ import{TeacherLiveTools}from"./TeacherLiveTools";
 import{TeacherLiveResults}from"./TeacherLiveResults";
 import{legacyMissionsJa,legacyMissions}from"./legacyMissions";
 import{FriendCallMenu,FriendCallMenuTrigger}from"../friends/FriendCallMenu";
-import{FriendCallControls}from"../friends/FriendCallControls";
 import{FriendCallCaptions}from"../friends/FriendCallCaptions";
 import{FriendVoiceMute}from"../friends/FriendVoiceMute";
 import{FriendChatHistory}from"../friends/FriendChatHistory";
@@ -269,7 +268,7 @@ export function TeacherLivePage(){
    ?<div className="notice" role="status"><div><b>{evaluating?t("live.endingTitleBusy"):t("live.endingTitle")}</b><p>{evaluating?t("live.endingBodyBusy"):t("live.endingBody")}</p>{!evaluating&&(courseResult||evaluationError)&&<button type="button" className="btn secondary small" onClick={()=>void endAndReturn()}>{t("learnToday.backToLearn")}</button>}</div></div>
    :!geminiKey()&&!guestStarted?<GuestLiveStarter role="teacher" learningFeedback={!fortuneKind} textFallback={p.has("fortune")?undefined:{href:alternateHref,name:profile.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
     :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"} name={profile.name} onRetry={()=>setGuestStarted(false)} textFallback={fortuneKind?undefined:alternateHref} onUseText={()=>setGuestStarted(false)}/>
-    :sessionActive?<FriendCallControls live={live} onEnd={endAndReturn}/>:<LiveControls live={live} textFallback={fortuneKind?undefined:alternateHref} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
+    :sessionActive?<BoardCallControls board={inlineBoard} live={live} zh={zh} onEnd={endAndReturn}/>:<LiveControls live={live} textFallback={fortuneKind?undefined:alternateHref} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
    {guestStarted&&!sessionActive&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
   </div>
   {sessionActive||interruptedCaptions?<FriendCallCaptions name={profile.name} turns={live.captionTurns} learningFeedback={live.learningFeedback} input={live.input} output={live.output} learningLanguage={s.targetLanguage} nativeLanguage={s.nativeLanguage} speaking={live.state==="speaking"} speakerAvatar={<TeacherAvatar profile={profile} decorative/>} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled} waitingText={t("voice:callCaptions.waitingForTeacher")} headerAccessory={guestStarted&&live.state!=="ended"&&live.state!=="error"?<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>:null} replyExtra={<PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/>}/>:null}

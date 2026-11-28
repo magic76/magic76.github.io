@@ -24,3 +24,14 @@
 .inline-lesson-footer button:disabled{border-color:#ccd8d0;background:#e8ede9;color:#55665c;cursor:default}
 .inline-lesson-picker{display:grid;gap:4px;min-width:0;width:100%;font-size:13px}
 .inline-lesson-picker select{min-width:0;width:100%;min-height:44px;border:1px solid currentColor;border-radius:8px;padding:0 8px;font:inherit;background:var(--surface,#fff);color:#244333}
+
+/* The user controls visibility; hiding preserves the mounted card and scroll position. */
+.teacher-live-stage.friend-phone-stage>.inline-teacher-board[hidden]{display:none!important}
+.teacher-live-stage .friend-phone-buttons:has(.inline-board-mode-button){gap:4px}
+.teacher-live-stage .friend-phone-buttons:has(.inline-board-mode-button)>.friend-phone-button{min-width:0;flex:1 1 0}
+.teacher-call-page .friend-phone-stage .inline-board-mode-button[aria-pressed="true"] svg{background:#287b54;color:#fff;box-shadow:0 0 0 2px #9cdeb5}
+.teacher-call-page .friend-phone-stage .inline-board-mode-button[aria-pressed="true"] small{color:#9cdeb5}
+.inline-teacher-board .inline-board-follow{align-self:flex-end;flex:none;margin:3px 10px;min-height:44px;padding:4px 10px;background:#eef5f0;color:#244333;border:1px solid #647f70;border-radius:8px}
+.inline-teacher-board .teaching-board-pair.is-highlighted,.inline-teacher-board .teaching-board-bubble.is-highlighted,.inline-teacher-board .teaching-board-timeline.is-highlighted{outline:2px solid #287b54;outline-offset:-2px;background:#e4f3e8}
+.inline-lesson-footer{justify-content:space-between;gap:6px}
+.inline-lesson-footer .inline-lesson-end{background:#fff;color:#286848}

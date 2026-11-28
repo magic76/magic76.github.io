@@ -3,19 +3,30 @@ import {BOARD_FUNCTION,validateBoardPatch,type BoardCard} from "./boardProtocol"
 // Rollback switch: disabling removes the optional tool and all inline UI.
 // The standalone board and Live transport remain unchanged.
 export const INLINE_TEACHER_BOARD_ENABLED=true;
-// Positive, explicit teaching triggers; ordinary conversation remains voice-first.
+// The user owns the mode; tools remain registered for the lifetime of the socket.
 export const INLINE_BOARD_POLICY="\n"+[
- "[WHITEBOARD TEACHING TOOL — use update_teaching_board]",
- "For a learner's substantive question about a grammar rule, pronunciation pattern, differences between expressions, or a request for an exercise, CALL update_teaching_board once before or during your spoken explanation. Do not merely describe the card. This is the normal teaching workflow for these questions, even when the learner did not say whiteboard.",
- "For example: a question about a sound contrast => comparison with sound categories and examples; a question about contrasting grammar forms => comparison with examples; quiz me => quiz. Use the actual target language, not a fixed English lesson. When the learner asks to see a board or a comparison, call update_teaching_board explicitly.",
- "Choose a concise card with real teaching content, not a transcript of the conversation. For other topics use it when a visual aid materially helps. Skip the tool for greetings, ordinary small talk, opening, and simple unsolicited corrections. Do not use it if the learner declines a board.",
- "The application controls frequency, deduplication and the user's automatic-board preference. If the tool rejects a card, continue the spoken explanation normally; do not retry in the same turn. Never promise or claim the screen rendered. Keep speaking naturally after a tool response."
+ "[WHITEBOARD TEACHING MODE — initially OFF. The app sends explicit mode controls.]",
+ "OFF: converse naturally and teach aloud when asked. Never call update_teaching_board or focus_teaching_board, even if the learner asks a grammar question. The user controls the whiteboard button.",
+ "ON: act as a visual tutor. CALL update_teaching_board for substantive rules, pronunciation, comparisons, examples or quizzes, even when the learner did not say whiteboard. Use one concise card per turn. Keep speaking and use the actual learning language. Skip the tool for greetings or ordinary small talk.",
+ "When discussing a particular visible row, call focus_teaching_board with its cardId and zero-based item index. Do not change quiz answers, course stage or learner navigation. In a guided lesson, explain the app's card instead of generating replacements.",
+ "Respect the latest app mode instruction. If rejected, continue speaking, never retry in the same turn or claim the screen rendered."
 ].join("\n");
+export const INLINE_FOCUS_FUNCTION="focus_teaching_board";
+export const INLINE_BOARD_COOLDOWN_MS=10000;
+export function inlineModePrompt(on:boolean){return on
+ ?"[APP WHITEBOARD MODE ON] Teach visually from now on. For the current learning topic, call update_teaching_board once with a concise useful card before or during the explanation; if no topic exists, ask what the learner wants to study. Use focus_teaching_board to point at visible items. Do not merely describe the tool."
+ :"[APP WHITEBOARD MODE OFF] Pause any guided lesson. Continue ordinary natural voice conversation. Do not call whiteboard tools or refer to the hidden card. Wait until the app explicitly enables whiteboard mode again."}
+export function inlineFocusIndex(card:BoardCard|null,args:unknown):number|null{
+ if(!card||!args||typeof args!=="object")return null;
+ const value=args as {cardId?:unknown;index?:unknown};
+ const count=["comparison","example","vocabulary","correction","dialogue","explanation"].includes(card.type)?card.pairs.length:["steps","timeline"].includes(card.type)?card.points.length:0;
+ return value.cardId===card.id&&typeof value.index==="number"&&Number.isInteger(value.index)&&value.index>=0&&value.index<count?value.index:null;
+}
 // Keep the Live declaration small: no director, speaking-task or timeline fields.
 const inlineString={type:"STRING"};
 export const INLINE_BOARD_TOOLS=[{functionDeclarations:[{
  name:BOARD_FUNCTION,
- description:"Call for substantive grammar rules, pronunciation patterns, differences between expressions, quizzes, and explicit board requests. Give one concise teaching card: comparison, example, vocabulary or correction with pairs (source and target), or quiz with questions. The app decides whether to display it; continue speaking.",
+ description:"Only in user-enabled whiteboard mode, call for substantive grammar rules, pronunciation patterns, differences between expressions, quizzes, and explicit board requests. Give one concise teaching card: comparison, example, vocabulary or correction with pairs (source and target), or quiz with questions. The app decides whether to display it; continue speaking.",
  parameters:{type:"OBJECT",properties:{
   action:{type:"STRING",enum:["upsert","replace"]},
   cards:{type:"ARRAY",items:{type:"OBJECT",properties:{
@@ -24,7 +35,7 @@ export const INLINE_BOARD_TOOLS=[{functionDeclarations:[{
    questions:{type:"ARRAY",items:{type:"OBJECT",properties:{question:inlineString,options:{type:"ARRAY",items:inlineString},answerIndex:{type:"INTEGER"},explanation:inlineString},required:["question","options","answerIndex"]}}
   },required:["id","title","type"]}}
  },required:["action","cards"]}
-}]}];
+},{name:INLINE_FOCUS_FUNCTION,description:"Point at an existing visible teaching card item while explaining. Only in whiteboard mode. Index starts at zero. Never change the lesson stage or quiz.",parameters:{type:"OBJECT",properties:{cardId:inlineString,index:{type:"INTEGER"}},required:["cardId","index"]}}]}];
 export type InlineGate={turn:number;lastShown:number;dismissedUntil:number;seen:Set<string>;requested:boolean;topic:string;topicAt:number;outcome:"idle"|"shown"|"missing"|"dismissed";lastOutput:string;lastOutputAt:number;input:string;learnerStarted:boolean;shownThisTurn:boolean;toolCalls:number;validCards:number;accepted:number;fallbacks:number;completedTurns:number;reasons:Record<string,number>;lastReason:string;events:{event:string;at:number;reason?:string}[]};
 export const newInlineGate=():InlineGate=>({turn:0,lastShown:-Infinity,dismissedUntil:0,seen:new Set(),requested:false,topic:"",topicAt:0,outcome:"idle",lastOutput:"",lastOutputAt:0,input:"",learnerStarted:false,shownThisTurn:false,toolCalls:0,validCards:0,accepted:0,fallbacks:0,completedTurns:0,reasons:{},lastReason:"",events:[]});
 export function recordInlineEvent(g:InlineGate,event:string,reason?:string,now=Date.now()){
@@ -50,20 +61,18 @@ export function observeInlineInput(g:InlineGate,input:string){
 }
 function manualRequest(g:InlineGate,input:string,now:number){return g.requested||explicitBoardRequest(input)||retryRequest(g,input,now)}
 function blocked(g:InlineGate,manual:boolean,auto:boolean,now:number,input:string){
+ if(!auto)return "mode-off";
  if(declinesBoard(input))return "learner-opt-out";
  if(g.shownThisTurn)return "already-shown-this-turn";
- if(!manual&&!auto)return "automatic-disabled";
  if(!manual&&!g.learnerStarted&&g.completedTurns===0)return "opening";
- if(!manual&&now<g.dismissedUntil)return "dismiss-cooldown";
- if(!manual&&now-g.lastShown<90000)return "cooldown";
+ if(!manual&&now-g.lastShown<INLINE_BOARD_COOLDOWN_MS)return "cooldown";
  return "";
 }
 function accept(g:InlineGate,card:BoardCard,manual:boolean,source:"tool"|"fallback",now:number){
  const signature=JSON.stringify([card.type,card.title.toLowerCase(),card.body,card.pairs,card.questions]);
- const topicKey=card.type+":"+card.title.toLowerCase().replace(/\s+/g," ").trim();
- if(!manual&&(g.seen.has(signature)||g.seen.has(topicKey)))return "duplicate";
+ if(!manual&&g.seen.has(signature))return "duplicate";
  if(g.seen.size>=100)g.seen.clear();
- g.seen.add(signature);g.seen.add(topicKey);g.lastShown=now;g.shownThisTurn=true;g.outcome="shown";g.accepted++;if(source==="fallback")g.fallbacks++;
+ g.seen.add(signature);g.lastShown=now;g.shownThisTurn=true;g.outcome="shown";g.accepted++;if(source==="fallback")g.fallbacks++;
  recordInlineEvent(g,source+"-accepted",undefined,now);return "";
 }
 export function proposeInlineBoard(g:InlineGate,call:{name:string;args?:unknown},auto=true,now=Date.now()):{ok:boolean;error?:string;card?:BoardCard}{
@@ -106,5 +115,5 @@ export function finishInlineTurn(g:InlineGate,input:string,valid:boolean,auto:bo
  }finally{g.requested=false;g.input="";g.shownThisTurn=false;g.turn++;g.completedTurns++}
 }
 export function dismissInlineBoard(g:InlineGate,now=Date.now()){
- g.requested=false;g.dismissedUntil=now+180000;g.outcome="dismissed";recordInlineEvent(g,"dismiss",undefined,now);
+ g.requested=false;g.dismissedUntil=now;g.outcome="dismissed";recordInlineEvent(g,"dismiss",undefined,now);
 }
