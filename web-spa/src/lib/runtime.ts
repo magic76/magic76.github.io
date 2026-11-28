@@ -1,6 +1,7 @@
 import {currentBuild} from "../runtime/buildUpdates";
 import type {PlaybackRoute} from "../live/createElementPlayback";
 export type LiveTurn={id?:string;input?:string;output?:string};
+export type LiveToolDiagnostic={event:"setup-ack";model:string;tools:string[]}|{event:"tool-received";model:string;name:string};
 export type LiveSessionOptions={
  createPlaybackRoute?:(context:AudioContext,onLost:()=>void)=>PlaybackRoute;
  separateCaptureContext?:boolean;
@@ -18,6 +19,7 @@ export type LiveSessionOptions={
   onSearchUnavailable?:()=>void;
  onToolCall?:(call:{id?:string;name:string;args?:unknown})=>Record<string,unknown>;
  onToolsUnavailable?:()=>void;
+ onToolDiagnostics?:(event:LiveToolDiagnostic)=>void;
  onStatus?:(value:string)=>void;onState?:(value:string)=>void;onSpeaking?:(value:boolean)=>void;
  onListeningPhase?:(phase:"speaking"|"waiting")=>void;onLocalUtteranceEnd?:()=>void;
  onMicHealth?:(status:{captureMode:string;trackState:string;muted:boolean;rms:number;dbfs:number;lastFrameAt:number;lastVoiceAt:number;setupBufferedMs:number})=>void;
