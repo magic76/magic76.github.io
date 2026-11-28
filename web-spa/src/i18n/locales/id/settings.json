@@ -156,7 +156,16 @@
     "memoryHeading": "Memori dan data",
     "memoryIntro": "Kelola memori dan catatan belajar di browser atau WebView ini.",
     "keyInAccount": "Kunci Gemini kini diatur di Akun. Mikrofon, tes suara, dan volume tetap di sini.",
-    "manageAi": "Kelola kunci Gemini"
+    "manageAi": "Kelola kunci Gemini",
+    "sharedTargetHint": "Digunakan bersama oleh guru, teman, dan aktivitas belajar; tidak mengubah antarmuka.",
+    "sharedNativeHint": "Bahasa bantuan bersama untuk guru dan teman.",
+    "friendRolePreferences": "Preferensi teman",
+    "teacherRolePreferences": "Preferensi guru",
+    "roleSharedHint": "Bahasa belajar digunakan bersama; mode, kecepatan bicara, dan aksen disimpan terpisah untuk tiap peran.",
+    "nextReplyHint": "Pengaturan dikirim untuk jawaban berikutnya; cara berbicara bergantung pada model.",
+    "modeFailed": "Pengaturan gagal dikirim. Coba lagi.",
+    "savedPreference": "Preferensi disimpan.",
+    "roleSummary": "Preferensi percakapan"
   },
   "deviceApp": {
     "title": "Perangkat & Aplikasi",

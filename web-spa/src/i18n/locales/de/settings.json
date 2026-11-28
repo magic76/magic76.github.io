@@ -156,7 +156,16 @@
     "memoryHeading": "Erinnerungen und Daten",
     "memoryIntro": "Verwalte Erinnerungen und Lernaufzeichnungen in diesem Browser oder WebView.",
     "keyInAccount": "Den Gemini-Schlüssel verwaltest du jetzt im Konto. Mikrofon, Sprachtest und Lautstärke bleiben hier.",
-    "manageAi": "Gemini-Schlüssel verwalten"
+    "manageAi": "Gemini-Schlüssel verwalten",
+    "sharedTargetHint": "Gilt für Lehrkräfte, Freunde und Lernaktivitäten; ändert nicht die Benutzeroberfläche.",
+    "sharedNativeHint": "Gemeinsame Hilfssprache für Lehrkräfte und Freunde.",
+    "friendRolePreferences": "Freundespräferenzen",
+    "teacherRolePreferences": "Lehrkraftpräferenzen",
+    "roleSharedHint": "Die Lernsprache ist gemeinsam; Modus, Sprechtempo und Akzent werden je Rolle gespeichert.",
+    "nextReplyHint": "Einstellung für die nächste Antwort gesendet; die Sprechweise hängt vom Modell ab.",
+    "modeFailed": "Einstellung konnte nicht gesendet werden. Bitte erneut versuchen.",
+    "savedPreference": "Einstellung gespeichert.",
+    "roleSummary": "Gesprächseinstellungen"
   },
   "deviceApp": {
     "title": "Gerät & App",
