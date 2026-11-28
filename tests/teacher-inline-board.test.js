@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(root+"/web-spa/src/teacher/"+p,"utf8");
 const strip=s=>stripTypeScriptTypes(s,{mode:"strip"}).replace(/^import .*;\s*$/gm,"").replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
 const api={};
-vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt});",{api});
+vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,inlineModePrompt,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt});",{api});
 const card=(title="Past tenses",id="past")=>({id,type:"comparison",title,pairs:[{source:"went",target:"finished past"},{source:"have gone",target:"present relevance"}]});
 const proposal=(g,now=100,auto=true,c=card())=>api.proposeInlineBoard(g,{name:api.BOARD_FUNCTION,args:{action:"upsert",cards:[c]}},auto,now);
 const finish=(g,input="",now=100,auto=true,valid=true,output="")=>api.finishInlineTurn(g,input,valid,auto,now,api.backupCard,output);
@@ -25,24 +25,28 @@ test("semantic decision is the model's, not the learner keyword regex",()=>{
  assert.equal(proposal(g).card.id,"past");assert.equal(g.validCards,1);
  assert.equal(proposal(g,101).error,"already-shown-this-turn");
 });
-test("90 second cooldown without 3-turn restriction; same material deduplicated",()=>{
+test("10 second cooldown, exact duplicate rejected but updated material allowed",()=>{
  const g=api.newInlineGate();begin(g);assert.ok(proposal(g,100).card);finish(g,"",101);
- begin(g);assert.equal(proposal(g,90099,true,card("New","new")).error,"cooldown");finish(g,"",90099);
- begin(g);assert.ok(proposal(g,90100,true,card("New","new")).card);finish(g,"",90101);
- begin(g);assert.equal(proposal(g,200000,true,card("New","different-id")).error,"duplicate");
+ begin(g);assert.equal(proposal(g,10099,true,card("New","new")).error,"cooldown");finish(g,"",10099);
+ begin(g);assert.ok(proposal(g,10100,true,card("New","new")).card);finish(g,"",10101);
+ begin(g);assert.equal(proposal(g,20100,true,card("New","different-id")).error,"duplicate");
+ const revised=card("New","new");revised.pairs[0].target="new explanation";
+ assert.ok(proposal(g,20101,true,revised).card);
 });
-test("manual request bypasses cooldown, auto off and dismissal; explicit opt-out never bypasses",()=>{
+test("OFF never accepts a manual or late tool call, opt-out respected, reopening has no dismissal cooldown",()=>{
  const g=api.newInlineGate();begin(g);assert.ok(proposal(g,1).card);finish(g,"",2);
- api.dismissInlineBoard(g,10);begin(g);assert.equal(proposal(g,100000,true,card("New","new")).error,"dismiss-cooldown");
- begin(g,"請打開白板");assert.ok(proposal(g,100001,false,card("New","new")).card);finish(g,"",100002);
- begin(g,"不要使用白板");assert.equal(proposal(g,100003,false).error,"learner-opt-out");finish(g,"",100004);
+ api.dismissInlineBoard(g,10);begin(g,"請打開白板");g.requested=true;
+ assert.equal(proposal(g,11,false,card("New","new")).error,"mode-off");finish(g,"",12,false);
+ begin(g,"請打開白板");assert.ok(proposal(g,13,true,card("New","new")).card);finish(g,"",14);
+ begin(g,"不要使用白板");assert.equal(proposal(g,15,true).error,"learner-opt-out");finish(g,"",16);
  assert.equal(g.outcome,"dismissed");
 });
-test("invalid cards, auto disabled, and manual menu request",()=>{
+test("invalid cards, OFF rejects even manual requests; ON permits explicit request",()=>{
  const g=api.newInlineGate();begin(g);
  assert.equal(proposal(g,1,true,{id:"empty",type:"comparison",title:"Empty"}).error,"invalid-or-low-value-card");
- assert.equal(proposal(g,2,false).error,"automatic-disabled");
- g.requested=true;assert.ok(proposal(g,3,false).card);assert.equal(finish(g,"",4,false),null);assert.equal(g.outcome,"shown");
+ assert.equal(proposal(g,2,false).error,"mode-off");
+ g.requested=true;assert.equal(proposal(g,3,false).error,"mode-off");
+ assert.ok(proposal(g,4,true).card);assert.equal(finish(g,"",5,true),null);assert.equal(g.outcome,"shown");
 });
 const screenshotSpeech='The "-ed" ending has three sounds. It sounds like a "t" after unvoiced sounds,like a "d" after voiced sounds,and like an "id"syllable after\'t\' or \'d\' sounds.';
 test("exact screenshot transcript restores actual curated card even with ASR mismatch, without manual request",()=>{
@@ -53,7 +57,7 @@ test("exact screenshot transcript restores actual curated card even with ASR mis
 test("no generic note automatically, manual explicit notes grounded in actual spoken text",()=>{
  const g=api.newInlineGate();const plain="Present simple describes habits and repeated actions. The third person singular usually takes an s.";
  assert.equal(finish(g,"Good morning",100,true,true,plain),null);
- g.requested=true;assert.equal(finish(g,"",101,false,true,plain).body,plain);
+ g.requested=true;assert.equal(finish(g,"",101,true,true,plain).body,plain);
 });
 test("failed explicit request is observable and no fake card appears",()=>{
  const g=api.newInlineGate();g.requested=true;assert.equal(finish(g,"",100),null);assert.equal(g.outcome,"missing");assert.equal(g.lastReason,"no-matching-card");
@@ -61,7 +65,7 @@ test("failed explicit request is observable and no fake card appears",()=>{
 });
 test("diagnostics are bounded, record rejection reason and never include transcript or card payload",()=>{
  const g=api.newInlineGate();begin(g,"PRIVATE learner text");for(let i=0;i<60;i++)proposal(g,i,false);
- assert.ok(g.events.length<=40);assert.equal(g.reasons["automatic-disabled"],60);
+ assert.ok(g.events.length<=40);assert.equal(g.reasons["mode-off"],60);
  assert.doesNotMatch(JSON.stringify(g.events),/PRIVATE|Past tenses|went/);
 });
 test("integration renders from tool callback, keeps rollback and existing standalone board, admin diagnostic gate",()=>{
@@ -71,7 +75,7 @@ test("integration renders from tool callback, keeps rollback and existing standa
  assert.match(live,/onLearnerTranscript:inlineBoard\.observe/);
  assert.match(ui,/if\(result\.card\)\{show\(result\.card\)/);
  assert.match(ui,/enabled\?INLINE_BOARD_TOOLS:undefined/);
- assert.match(ui,/localStorage\.setItem\(PREF/);
+ assert.match(ui,/\[mode,setModeState\]=useState\(false\)/);
  assert.match(live,/navigate\("\/teacher\/board"\)/);
  assert.match(ui,/fetch\("\/api\/usage\/admin"/);assert.match(ui,/v\?\.admin===true/);assert.match(ui,/admin&&/);
  assert.ok(Buffer.byteLength(live)<26000);
@@ -125,4 +129,27 @@ test("guided lesson launch uses local card independent of tool result and tools 
  assert.match(live,/Boolean\(geminiKey\(\)\),s\.targetLanguage/);
  assert.match(ui,/schema:2,model:wire\.current\.model/);
  assert.match(live,/onToolDiagnostics:inlineBoard\.diagnostics/);
+});
+
+test("mode prompt is explicit, focus accepts only current valid item, not quiz answers",()=>{
+ assert.match(api.inlineModePrompt(false),/MODE OFF/);
+ assert.match(api.inlineModePrompt(true),/call update_teaching_board/);
+ const c={...card(),points:[],questions:[],body:""};
+ assert.equal(api.inlineFocusIndex(c,{cardId:c.id,index:1}),1);
+ assert.equal(api.inlineFocusIndex(c,{cardId:"old",index:1}),null);
+ assert.equal(api.inlineFocusIndex(c,{cardId:c.id,index:-1}),null);
+ assert.equal(api.inlineFocusIndex(c,{cardId:c.id,index:2}),null);
+ assert.equal(api.inlineFocusIndex({...c,type:"quiz"},{cardId:c.id,index:0}),null);
+});
+test("whiteboard mode control stays on same connection, hide preserves card and guided state",()=>{
+ const ui=read("InlineTeacherBoard.tsx"),live=read("LivePage.tsx"),css=read("inlineTeacherBoard.css");
+ assert.match(live,/<BoardCallControls board=\{inlineBoard\}/);
+ assert.match(ui,/board\.syncMode\(live\.sendControl\)/);
+ assert.match(ui,/if\(!modeRef\.current\|\|modePending\.current\)/);
+ assert.match(ui,/function close\(\)\{setMode\(false\)\}/);
+ assert.match(ui,/hidden=\{!board\.mode\}/);
+ assert.match(ui,/onWheel=\{\(\)=>follow\(false\)\}/);
+ assert.match(ui,/if\(board\.mode&&followingRef\.current\)position\(\)/);
+ assert.match(css,/inline-teacher-board\[hidden\]\{display:none!important\}/);
+ assert.match(ui,/RESUME PAUSED LESSON/);
 });
