@@ -19,6 +19,7 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  const [mode,setModeState]=useState(false);
  const [focus,setFocus]=useState(-1);
  const modePending=useRef(false);
+ const modeTouched=useRef(false);
  const modeRef=useRef(false);
  const [guided,setGuided]=useState<GuidedSession|null>(null);
  const guidedRef=useRef<GuidedSession|null>(null);
@@ -42,10 +43,10 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  }
  useEffect(()=>{if(card&&mode){rendered.current++;recordInlineEvent(gate.current,"card-react-committed")}},[card,mode]);
  function clearCard(){setFocus(-1);cardRef.current=null;setCard(null);answerRef.current={};setAnswers({});quizRef.current=0;setQuizIndex(0)}
- function reset(){modeRef.current=false;modePending.current=false;setModeState(false);syncGuided(null);gate.current=newInlineGate();rendered.current=0;wire.current={model:"",setupAcknowledged:0,setupTools:[],received:{whiteboard:0,learningFeedback:0,other:0}};clearCard();setAvailable(true);setDelivery("idle")}
+ function reset(){modeRef.current=false;modePending.current=false;modeTouched.current=false;setModeState(false);syncGuided(null);gate.current=newInlineGate();rendered.current=0;wire.current={model:"",setupAcknowledged:0,setupTools:[],received:{whiteboard:0,learningFeedback:0,other:0}};clearCard();setAvailable(true);setDelivery("idle")}
  function setMode(next:boolean){
   if(!enabled||modeRef.current===next)return;
-  modeRef.current=next;setModeState(next);modePending.current=true;
+  modeRef.current=next;setModeState(next);modePending.current=true;modeTouched.current=true;
   gate.current.requested=false;gate.current.input="";gate.current.shownThisTurn=false;
   setDelivery("idle");recordInlineEvent(gate.current,next?"mode-on":"mode-off");
  }
@@ -57,10 +58,10 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
    :inlineModePrompt(modeRef.current);
   if(send(prompt)){modePending.current=false;recordInlineEvent(gate.current,"mode-control-sent")}
  }
- function recover(){if(modeRef.current)modePending.current=true}
+ function recover(){if(modeTouched.current)modePending.current=true}
  function close(){setMode(false)}
  function unavailable(){recordInlineEvent(gate.current,"tools-unavailable","model-tools-unavailable");setAvailable(false)}
- function observe(input:string){if(enabled)observeInlineInput(gate.current,input)}
+ function observe(input:string){if(enabled&&modeRef.current&&!modePending.current)observeInlineInput(gate.current,input)}
  function show(next:BoardCard){clearCard();cardRef.current=next;setCard(next);setDelivery("idle")}
  function tool(call:{name:string;args?:unknown}){
   if(!enabled)return {ok:false,error:"disabled"};
@@ -75,13 +76,13 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
   if(result.card){show(result.card);return {ok:true,accepted:true,displayRequested:true,cardId:result.card.id}}
   return {ok:false,error:result.error||"rejected"};
  }
- function report(){const g=gate.current;return {schema:2,model:wire.current.model,setupAcknowledged:wire.current.setupAcknowledged,setupTools:wire.current.setupTools,receivedTools:wire.current.received,build:currentBuild.buildId,commit:currentBuild.commit,enabled,mode:modeRef.current,modePending:modePending.current,toolConfigured:enabled,toolsUnavailable:!available,toolCalls:g.toolCalls,validCards:g.validCards,accepted:g.accepted,reactCommits:rendered.current,fallbacks:g.fallbacks,completedTurns:g.completedTurns,lastReason:g.lastReason,reasons:g.reasons,events:g.events,cardPresent:Boolean(cardRef.current),delivery};}
+ function report(){const g=gate.current;return {schema:2,model:wire.current.model,setupAcknowledged:wire.current.setupAcknowledged,setupTools:wire.current.setupTools,receivedTools:wire.current.received,build:currentBuild.buildId,commit:currentBuild.commit,enabled,mode:modeRef.current,modePending:modePending.current,guidedStage:guidedRef.current?.index??null,toolConfigured:enabled,toolsUnavailable:!available,toolCalls:g.toolCalls,validCards:g.validCards,accepted:g.accepted,reactCommits:rendered.current,fallbacks:g.fallbacks,completedTurns:g.completedTurns,lastReason:g.lastReason,reasons:g.reasons,events:g.events,cardPresent:Boolean(cardRef.current),delivery};}
  function beginLesson(id:string,send:Send){
   const lesson=findInlineLesson(target,id);if(!enabled||!lesson||guidedRef.current)return false;
-  const next=startGuidedLesson(lesson);if(!send(guidedPrompt(next,target)))return false;
-  modeRef.current=true;setModeState(true);modePending.current=false;syncGuided(next);show(guidedCard(next));recordInlineEvent(gate.current,"guided-start");return true;
+  const next=startGuidedLesson(lesson);if(!send("[APP WHITEBOARD MODE ON — GUIDED LESSON] "+guidedPrompt(next,target)))return false;
+  modeTouched.current=true;modeRef.current=true;setModeState(true);modePending.current=false;syncGuided(next);show(guidedCard(next));recordInlineEvent(gate.current,"guided-start");return true;
  }
- function endLesson(send:Send){if(!guidedRef.current||!send(GUIDED_END_PROMPT+" "+inlineModePrompt(modeRef.current)))return false;syncGuided(null);clearCard();setDelivery("idle");recordInlineEvent(gate.current,"guided-end");return true}
+ function endLesson(send:Send){if(!guidedRef.current||!send(GUIDED_END_PROMPT+" Whiteboard mode remains ON; use it for future substantive teaching questions, not for this ending."))return false;syncGuided(null);clearCard();setDelivery("idle");recordInlineEvent(gate.current,"guided-end");return true}
  function nextLesson(send:Send){const current=guidedRef.current;if(!current||!modeRef.current||modePending.current)return false;if(guidedPhase(current)==="recap"&&guidedCanAdvance(current))return endLesson(send);
   const next=advanceGuidedLesson(current);if(!next||!send(guidedPrompt(next,target)))return false;
   syncGuided(next);show(guidedCard(next));recordInlineEvent(gate.current,"guided-next");return true;
