@@ -39,3 +39,14 @@ test("teacher picker close button stays circular and touch-sized in the flex hea
   assert.ok(rule.split(";").includes(declaration),declaration);
  }
 });
+
+test("teacher gallery uses the header close button without a duplicate footer action",()=>{
+ const picker=read("web-spa/src/teacher/TeacherProfilePicker.tsx");
+ const footer=picker.match(/<div className="teacher-gallery-footer">([\s\S]*?)<\/div>/)?.[1];
+ assert.ok(footer);
+ assert.match(footer,/picker\.footer/);
+ assert.doesNotMatch(footer,/<button/);
+ assert.match(picker,/<button ref=\{closeButton\}[^>]*className="teacher-picker-close"/);
+ assert.equal((picker.match(/t\("picker\.close"\)/g)||[]).length,1);
+ assert.match(picker,/event\.key==="Escape"/);
+});
