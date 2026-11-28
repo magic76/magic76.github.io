@@ -1,4 +1,4 @@
-import {RolePreferenceSummaryLink} from "../components/ConversationPreferences";
+import {RolePreferenceSummary} from "../components/ConversationPreferences";
 import {learningRouteAvailable} from "../teacher/learningLanguages";
 import {Arrow} from "../components/Arrow";
 import {Fragment,useRef,useState} from "react";
@@ -23,7 +23,6 @@ import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {threeMinuteSpeakingPath} from "../teacher/threeMinuteSpeaking";
 import {useClientReady} from "../lib/useClientReady";
 import {useTeacherStore} from "../store/teacherStore";
-import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {localizedNativeName} from "../teacher/teacherLocale";
 import {friendSpokenLanguage} from "../friends/friendLanguage";
 import "./crewExplore.css";
@@ -172,7 +171,6 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const teachingMode=useTeacherStore(s=>s.teachingMode);
- const setTargetLanguage=useTeacherStore(s=>s.setTargetLanguage);
  // Keep the first hydration render aligned with the SSG default values.
  const shownTarget=clientReady?targetLanguage:"英文",shownNative=clientReady?nativeLanguage:"zh-TW";
  const uiLanguage=i18n.resolvedLanguage||i18n.language;
@@ -218,19 +216,11 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   <header className={"crew-section-heading"+(section==="learn"?" crew-learn-heading":"")}>
    {section==="learn"?
     <>
-    <div className="crew-learn-heading-row">
-     <div className="crew-learn-heading-copy"><h1>{tTeacher("learn.title")}</h1></div>
-     <label className="crew-learn-language"><span>{tTeacher("learn.targetLabel")}</span>
-      <select aria-label={tTeacher("learn.targetLabel")} value={shownTarget} onChange={event=>setTargetLanguage(event.target.value)}>
-       {TARGET_LANGUAGES.map(({value})=><option key={value} value={value}>{t("friends:languages."+value,{defaultValue:value})}</option>)}
-      </select>
-     </label>
-    </div>
-     <p className="meta crew-learn-native-help" role="note">{shownHint}</p>
+    <div className="crew-learn-heading-copy"><h1>{tTeacher("learn.title")}</h1></div>
     </>
     :section==="chat"?<><h1>{x.title}</h1><Link className="crew-chat-heading-all" to="/teacher/roles?mode=friends">{t("sectionHubs.chat.allFriends")} <Arrow/></Link></>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
+   {(section==="chat"||section==="learn")&&<RolePreferenceSummary role={section==="chat"?"friend":"teacher"}/>}
   </header>
-  {(section==="chat"||section==="learn")&&<RolePreferenceSummaryLink role={section==="chat"?"friend":"teacher"}/>}
   {section==="explore"?
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
     {[x.hero,...x.items].map((item,i)=>({item,kind:exploreKinds[i]})).filter(({kind})=>kind!=="timeline"&&kind!=="story").map(({item,kind})=><Fragment key={item.to}>

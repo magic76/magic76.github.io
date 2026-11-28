@@ -1,17 +1,13 @@
-import {accentOptions,normalizedAccent} from "../teacher/teacherAccent";
-import {PreferenceScopeHint} from "../components/ConversationPreferences";
 import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState} from "react";
 import {createPortal} from "react-dom";
 import {useTranslation} from "react-i18next";
 import i18n from "../i18n";
 import {Link,useNavigate} from "react-router-dom";
-import {useTeacherStore,type FriendChatLanguageMode} from "../store/teacherStore";
+import {useTeacherStore} from "../store/teacherStore";
 import {CREW_FRIENDS,FRIEND_CATEGORIES,FRIEND_CATEGORY_LABELS,type FriendProfile} from "./friendProfiles";
 import {characterLifeView,lifeBookLabels} from "../characters/lifeBookLocale";
 import {FriendAvatar} from "./FriendAvatar";
-import {Icon} from "../components/Icon";
-import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {clearFriendRecent,clearFriendTopics,deleteFriendTopic,editFriendTopic,friendMemoryEnabled,getFriendLastChat,
  getFriendTopics,getFriendCaptureStatus,getFriendCaptureSource,pinFriendTopic,allowFriendTopicAutoUpdate,recentFriends,saveFriendTopic} from "./friendMemory";
 import "./friends.css";
@@ -28,10 +24,7 @@ export function FriendsPage(){
  const {t,i18n:locale}=useTranslation("friends");
  const english=locale.language==="en";
  const navigate=useNavigate();
- const pace=useTeacherStore(s=>s.friendSpeakingPace),setPace=useTeacherStore(s=>s.setFriendSpeakingPace),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const language=useTeacherStore(s=>s.targetLanguage);
- const accent=useTeacherStore(s=>s.friendLanguageStyle),setAccent=useTeacherStore(s=>s.setFriendLanguageStyle);
- const friendChatMode=useTeacherStore(s=>s.friendChatMode),setFriendChatMode=useTeacherStore(s=>s.setFriendChatMode);
  const [query,setQuery]=useState("");
  const [category,setCategory]=useState<string>("all");
  const [selected,setSelected]=useState<FriendProfile|null>(null);
@@ -71,20 +64,16 @@ export function FriendsPage(){
  const captureSource=selected?getFriendCaptureSource(selected.id,language):"";
  return <div className="crew-friends-page" data-revision={revision}>
   <header className="hero friends-intro">
-   <h1>{t("title")}</h1>
-   <p>{t("intro")}</p>
+   <Link className="crew-friends-back" to="/chat"><Arrow direction="left"/> {t("common:nav.chat")}</Link>
+   <h1>{t("all")}</h1>
   </header>
-  <section className="section teacher-precall-settings panel"><label>{t("language")}<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(v=><option key={v} value={v}>{t("languages."+v)}</option>)}</select></label><label>{t("pace")}<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">{t("slow")}</option><option value="normal">{t("normal")}</option><option value="fast">{t("fast")}</option></select></label><label>{t("chatModeTitle")}<select className="field" value={friendChatMode} onChange={e=>setFriendChatMode(e.target.value as FriendChatLanguageMode)}><option value="natural">{t("chatModeNatural")}</option><option value="bilingual">{t("chatModeBilingual")}</option><option value="immersion">{t("chatModeImmersion")}</option></select></label><label>{t("teacher:tutor.accent")}<select className="field" value={normalizedAccent(language,accent)} onChange={e=>setAccent(e.target.value as typeof accent)}>{accentOptions(language).filter(x=>x.value!=="custom"||accent==="custom").map(x=><option key={x.value} value={x.value}>{x.value==="auto"?t("settings:group.automatic"):locale.language==="zh-TW"?x.label:x.instruction||x.label}</option>)}</select></label></section>
-  <PreferenceScopeHint role="friend"/>
-  <p className="friends-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</p>
-  <Link className="friends-game-entry" to="/games"><span aria-hidden="true"><Icon name="play"/></span><span><strong>{t("gameEntryTitle")}</strong><small>{t("gameEntryDescription")}</small></span><Arrow/></Link>
   <div className="friends-top-actions"><span>{t("count",{count:CREW_FRIENDS.length})}</span><Link to="/settings#memory-settings">{t("memorySettings")} <Arrow/></Link></div>
   {recent.length?<section className="section friends-recent">
    <div className="section-head"><h2>{t("recent")}</h2><button type="button" className="friends-subtle" onClick={()=>{if(window.confirm(t("clearRecentConfirm"))){clearFriendRecent(language);refresh()}}}>{t("clearRecent")}</button></div>
    <div className="friends-recent-list">{recent.slice(0,8).map(friend=><button type="button" key={friend.id} className="friends-recent-card" onClick={()=>begin(friend)}>
      <FriendAvatar friend={friend}/><strong>{friend.name}</strong><small>{relativeDate(getFriendLastChat(friend.id,language))}</small><span>{t("resume")} <Arrow/></span>
    </button>)}</div>
-  </section>:<div className="friends-recent-empty">{t("recentEmpty")}</div>}
+  </section>:null}
   <section className="section friends-directory">
    <div className="section-head"><h2>{t("all")}</h2><small>{t("people",{count:CREW_FRIENDS.length})}</small></div>
    <label className="friends-search"><span className="sr-only">{t("search")}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t("searchPlaceholder")}/></label>

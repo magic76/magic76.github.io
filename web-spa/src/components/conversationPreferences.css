@@ -5,3 +5,33 @@
 .crew-preference-scope{font-size:12px;line-height:1.5;margin:4px 0 12px;color:inherit;opacity:.84}
 .friend-phone-stage .crew-conversation-summary,.friend-precall-stage .crew-conversation-summary{color:#f5f5f5;border-color:#666;background:#181818}
 .friend-call-menu-panel .friend-language-options button:disabled{opacity:.6;cursor:not-allowed}
+
+.crew-conversation-summary-trigger{border:0;border-radius:8px;padding:4px 6px;justify-self:start;justify-content:flex-start;min-height:44px;color:var(--muted,#525252);font-size:13px;font-weight:600;background:transparent;width:fit-content;min-width:0}
+.crew-conversation-summary svg{width:16px;height:16px;flex:0 0 16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.crew-conversation-summary-trigger:hover{color:var(--accent,#5142bc)}
+.crew-section-hub>.crew-section-heading:has(.crew-conversation-summary-trigger){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:0 8px;padding-bottom:0}
+.crew-section-hub>.crew-section-heading .crew-conversation-summary-trigger{grid-column:1/-1;margin:0;max-width:100%;justify-self:start}
+.crew-section-hub>.crew-section-heading .crew-learn-heading-copy{grid-column:1/-1}
+.crew-role-preferences-dialog{box-sizing:border-box;width:min(100% - 32px,520px);max-width:100%;max-height:min(86dvh,740px);border:1px solid var(--line,#d9d9d9);border-radius:22px;padding:0;margin:auto;background:var(--surface,#fff);color:var(--text,#171717);box-shadow:0 20px 64px #0003;overflow:hidden}
+.crew-role-preferences-dialog[open]{display:flex;flex-direction:column}
+.crew-role-preferences-dialog::backdrop{background:rgba(0,0,0,.48)}
+.crew-role-preferences-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line,#ddd);flex:none}
+.crew-role-preferences-header h2{font-size:19px;margin:0}
+.crew-role-preferences-header button{width:44px;height:44px;flex:0 0 44px;border:1px solid var(--line,#ddd);border-radius:50%;background:transparent;color:inherit;font-size:24px}
+.crew-role-preferences-body{overflow:auto;overscroll-behavior:contain;padding:16px 18px;display:grid;gap:16px;min-height:0}
+.crew-role-preferences-body label,.crew-role-setting{display:grid;gap:6px;font-size:14px;font-weight:600;min-width:0}
+.crew-role-preferences-body select,.crew-role-preferences-body input{box-sizing:border-box;width:100%;min-width:0;min-height:44px;background:var(--surface,#fff);color:var(--text,#171717);border:1px solid var(--line,#ccc);border-radius:10px;padding:8px 10px;font:inherit}
+.crew-role-preferences-body small,.crew-role-preferences-note{font-size:12px;line-height:1.5;color:var(--muted,#555);font-weight:400;margin:0;overflow-wrap:anywhere}
+.crew-role-segmented{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.crew-role-segmented button{min-width:0;min-height:44px;padding:6px 4px;border:1px solid var(--line,#ccc);border-radius:10px;background:var(--surface,#fff);color:inherit;white-space:normal;overflow-wrap:anywhere;font-size:13px}
+.crew-role-segmented button[aria-pressed=true]{background:var(--accent,#5142bc);border-color:var(--accent,#5142bc);color:#fff}
+.crew-role-advanced{border-top:1px solid var(--line,#ddd)}
+.crew-role-advanced summary{min-height:44px;display:list-item;align-content:center;cursor:pointer;font-size:14px;font-weight:650}
+.crew-role-advanced label{margin:12px 0}
+.crew-role-preferences-footer{padding:10px 18px max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--line,#ddd);flex:none}
+.crew-role-preferences-footer button{width:100%;min-height:44px}
+.crew-role-preferences-dialog :is(button,select,input,summary):focus-visible{outline:2px solid var(--accent,#5142bc);outline-offset:2px}
+.crew-learn-teacher-pick{background:transparent;border:0;cursor:pointer}
+@media(max-width:640px){.crew-role-preferences-dialog{margin:auto 0 0;width:100%;max-height:88dvh;border-radius:22px 22px 0 0}}
+
+.crew-friends-back{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--accent,#5142bc);font-size:14px;font-weight:650;text-decoration:none;align-self:flex-start}

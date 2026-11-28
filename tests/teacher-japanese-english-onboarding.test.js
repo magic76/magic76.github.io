@@ -105,7 +105,7 @@ test("teacher selection and study entry disclose Japanese native help without re
  assert.match(tutor,/t\("tutor\.speakingLevel"\)/);
  assert.match(hub,/crew-learn-native-help/);
  assert.match(hub,/localizedNativeName\(shownNative/);
- assert.match(hub,/setTargetLanguage\(event\.target\.value\)/);
+ assert.match(read("web-spa/src/components/RolePreferencesDialog.tsx"),/s\.setTargetLanguage\(event\.target\.value\)/);
  assert.doesNotMatch(hub,/setNativeLanguage\(targetLanguage\)/);
  const ux=stripTypeScriptTypes(fromTeacher("teacherLanguageUx.ts"),{mode:"strip"}).replace(/\bexport\s+(?=function|const)/g,"");
  const context={};vm.runInNewContext(ux+"\nthis.home=teacherLanguageHomeHint;",context);

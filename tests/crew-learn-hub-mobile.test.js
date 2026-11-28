@@ -16,9 +16,10 @@ test("Learn tab has exactly one primary recommendation and compact progress",()=
 test("Learning language changes the same teacher preference used by live",()=>{
  const source=read("web-spa/src/pages/CrewSectionPage.tsx");
  assert.match(source,/useTeacherStore\(s=>s\.targetLanguage\)/);
- assert.match(source,/useTeacherStore\(s=>s\.setTargetLanguage\)/);
- assert.match(source,/TARGET_LANGUAGES\.map/);
- assert.match(source,/onChange=\{event=>setTargetLanguage\(event\.target\.value\)\}/);
+ const dialog=read("web-spa/src/components/RolePreferencesDialog.tsx");
+ assert.match(source,/<RolePreferenceSummary/);
+ assert.match(dialog,/TARGET_LANGUAGES\.map/);
+ assert.match(dialog,/onChange=\{event=>s\.setTargetLanguage\(event\.target\.value\)\}/);
  assert.match(read("web-spa/src/teacher/LearningFocusCard.tsx"),/learningMaterialAvailable\("vocabulary",targetLanguage\)/);
 });
 
@@ -74,8 +75,10 @@ test("Learn prioritizes teacher speaking and keeps the daily dashboard collapsed
  assert.ok(hub.indexOf("<LearningFocusCard/>")<hub.indexOf("<LearningSnapshot compact/>"));
  assert.match(hub,/<details className="crew-learn-progress-details">/);
  assert.match(hub,/<summary>\{tTeacher\("my\.kicker"\)\}<\/summary>/);
- assert.ok(picker.includes('to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}}'));
- assert.ok(picker.includes('className="crew-learn-teacher-start" to="/teacher/live"'));
+ assert.match(picker,/<button[^>]+className="crew-learn-teacher-pick"[^>]+onClick=\{\(\)=>setPicker\(true\)\}/);
+ assert.match(picker,/<TeacherProfilePicker onClose=\{closePicker\}/);
+ assert.ok(picker.includes('className="crew-learn-teacher-start" to={startPath}'));
+ assert.match(picker,/const startPath="\/teacher\/live"/);
  assert.ok(picker.includes('t("tutor.start",{name:teacher.name})'));
  assert.match(picker,/<div className="crew-learn-teacher-identity">[\s\S]*?teacher\.name[\s\S]*?crew-learn-teacher-pick[\s\S]*?<\/div>\s*<Link className="crew-learn-teacher-start"/);
  assert.match(picker,/crew-learn-teacher-identity/);

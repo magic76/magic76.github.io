@@ -1,24 +1,12 @@
-import{useSearchParams}from"react-router-dom";
-import{useTranslation}from"react-i18next";
-import{TutorPage}from"./TutorPage";
+import{Navigate,useLocation,useSearchParams}from"react-router-dom";
 import{FriendsPage}from"../friends/FriendsPage";
 
-/** One Crew relationship destination; teachers and friends keep separate identities. */
+/** Legacy role URLs stay valid; global Learn and Chat own the two journeys. */
 export function RolesPage(){
- const {t}=useTranslation("teacher");
- const[params,setParams]=useSearchParams();
+ const [params]=useSearchParams(),location=useLocation();
  const requested=params.get("mode");
  const mode=requested==="teacher"||requested==="friends"?requested:
-   localStorage.getItem("crew_teacher_last_role_v1")==="friends"?"friends":"teacher";
- function change(next:"teacher"|"friends"){
-  localStorage.setItem("crew_teacher_last_role_v1",next);
-  setParams({mode:next});
- }
- return <>
-  <nav className="crew-role-switcher" aria-label={t("tabs.roles")}>
-   <button type="button" className={mode==="teacher"?"active":""} aria-pressed={mode==="teacher"} onClick={()=>change("teacher")}>{t("practice.teacher")}</button>
-   <button type="button" className={mode==="friends"?"active":""} aria-pressed={mode==="friends"} onClick={()=>change("friends")}>{t("practice.friend")}</button>
-  </nav>
-  <div className="crew-role-content" key={mode}>{mode==="friends"?<FriendsPage/>:<TutorPage/>}</div>
- </>;
+   typeof window!=="undefined"&&localStorage.getItem("crew_teacher_last_role_v1")==="friends"?"friends":"teacher";
+ if(mode==="teacher")return <Navigate to="/learn" replace state={location.state}/>;
+ return <div className="crew-role-content"><FriendsPage/></div>;
 }

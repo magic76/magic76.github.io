@@ -1,5 +1,6 @@
 import {useState} from "react";
-import {Link} from "react-router-dom";
+import {Icon} from "./Icon";
+import {RolePreferencesDialog} from "./RolePreferencesDialog";
 import {useTranslation} from "react-i18next";
 import {useClientReady} from "../lib/useClientReady";
 import {useTeacherStore,type SpeakingPace,type FriendChatLanguageMode,type TeachingMode} from "../store/teacherStore";
@@ -24,12 +25,12 @@ function useSummary(role:Role,language:string,mode:Mode,pace:SpeakingPace){
 }
 export function ConversationSummary({role,language,mode,pace,onOpen}:{role:Role;language:string;mode:Mode;pace:SpeakingPace;onOpen:()=>void}){
  const {label,summary}=useSummary(role,language,mode,pace);
- return <button type="button" className="crew-conversation-summary" onClick={onOpen} aria-haspopup="dialog" aria-label={label+": "+summary}><span>{summary}</span><span aria-hidden="true">⚙</span></button>;
+ return <button type="button" className="crew-conversation-summary" onClick={onOpen} aria-haspopup="dialog" aria-label={label+": "+summary}><span>{summary}</span><Icon name="settings"/></button>;
 }
-export function RolePreferenceSummaryLink({role}:{role:Role}){
- const ready=useClientReady(),s=useTeacherStore();
+export function RolePreferenceSummary({role,buttonLabel}:{role:Role;buttonLabel?:string}){
+ const ready=useClientReady(),s=useTeacherStore(),[open,setOpen]=useState(false);
  const {label,summary}=useSummary(role,ready?s.targetLanguage:"英文",ready?(role==="teacher"?s.teachingMode:s.friendChatMode):"bilingual",ready?(role==="teacher"?s.speakingPace:s.friendSpeakingPace):"normal");
- return <Link className="crew-conversation-summary crew-conversation-summary-link" to={"/teacher/roles?mode="+(role==="teacher"?"teacher":"friends")} aria-label={label+": "+summary}><span>{summary}</span><span aria-hidden="true">⚙</span></Link>;
+ return <><button type="button" className={"crew-conversation-summary crew-conversation-summary-trigger"+(buttonLabel?" crew-conversation-summary-named":"")} onClick={()=>setOpen(true)} aria-haspopup="dialog" aria-expanded={open} aria-label={buttonLabel||label+": "+summary}><span>{buttonLabel||summary}</span><Icon name="settings"/></button>{open&&<RolePreferencesDialog role={role} onClose={()=>setOpen(false)}/>}</>;
 }
 export function LanguageModePicker<M extends Mode>({role,mode,onChange,disabled=false,hint,note,labels}:{role:Role;mode:M;onChange:(mode:M)=>void;disabled?:boolean;hint?:string;note?:string;labels?:Partial<Record<Mode,string>>}){
  const {t}=useTranslation(["friends","teacher"]);
