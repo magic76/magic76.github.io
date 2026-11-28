@@ -262,7 +262,7 @@ test("actual React reply markup includes caption-derived teaching card before su
   assert.match(aiHtml,/data-visual-source="composer"/);
   assert.match(aiHtml,/Semantic material/);
   assert.match(aiHtml,/data-kind="vocabulary"/);
-  const {parseLiveReply,appendDirectReply,sealDirectReply,discardDirectReply,directReplyAt,RENDER_REPLY_DECLARATION,LIVE_RENDER_POLICY}=await server.ssrLoadModule("/src/teacher/liveReplyLayout.ts");
+  const {parseLiveReply,appendDirectReply,sealDirectReply,discardDirectReply,directReplyAt,resolveDirectReplyCompletion,closeDeferredReply,RENDER_REPLY_DECLARATION,LIVE_RENDER_POLICY}=await server.ssrLoadModule("/src/teacher/liveReplyLayout.ts");
   const actual="First, use in for a space. For example, in the room. Next, use on for a surface.";
   const blocks=parseLiveReply({blocks:[{kind:"heading",parts:["Airport vocabulary"]},{kind:"table",columns:2,parts:["Boarding pass","登機證","Immigration","入境審查"]},{kind:"quote",parts:["Please show your boarding pass."]}]});
   assert.ok(blocks);assert.equal(RENDER_REPLY_DECLARATION.name,"render_reply");assert.match(LIVE_RENDER_POLICY,/CALL render_reply once early/);
@@ -276,6 +276,23 @@ test("actual React reply markup includes caption-derived teaching card before su
   assert.equal(directReplyAt(directSealed,0).id,1);
   assert.equal(discardDirectReply(directSealed).length,1);
   assert.ok(appendDirectReply(directSealed,2,blocks));
+  // Regression: Gemini Live acknowledged render_reply, React committed, and
+  // a tool-only turn completion arrived before the actual spoken reply.
+  const toolOnly=resolveDirectReplyCompletion(direct,{hasValidOutput:false,output:""},null,null);
+  assert.equal(toolOnly.action,"defer");assert.equal(toolOnly.wait.anchor,null);
+  assert.equal(directReplyAt(direct,"stream").id,1);
+  const inputOnly=resolveDirectReplyCompletion(direct,{hasValidOutput:false,output:""},0,toolOnly.wait);
+  assert.equal(inputOnly.action,"defer");assert.equal(inputOnly.wait.anchor,0);
+  const realSpeech=resolveDirectReplyCompletion(direct,{hasValidOutput:true,output:actual},1,inputOnly.wait);
+  assert.equal(realSpeech.action,"seal");assert.equal(realSpeech.index,1);
+  assert.equal(directReplyAt(sealDirectReply(direct,realSpeech.index),1).id,1);
+  assert.equal(directReplyAt(closeDeferredReply(direct,inputOnly.wait),0).id,1);
+  assert.equal(closeDeferredReply(direct,toolOnly.wait).length,0);
+  assert.equal(resolveDirectReplyCompletion(direct,{hasValidOutput:true,output:""},null,inputOnly.wait).index,0);
+  assert.equal(resolveDirectReplyCompletion(directSealed,{hasValidOutput:true,output:actual},2,null).action,"none");
+  assert.match(read("InlineTeacherBoard.tsx"),/if\(!turn\.hasValidOutput&&!turn\.output\?\.trim\(\)\)return/);
+  assert.match(read("InlineTeacherBoard.tsx"),/render-reply-sealed-visual-only/);
+
   const streaming=visualReplyProps({...board,directReplies:direct,markRendered:()=>{}},true,()=>false,true,[],"Airport","","英文",undefined,true);
   assert.deepEqual(Array.from(streaming.keys),["stream"]);
   const structured=renderToStaticMarkup(streaming.render("stream"));

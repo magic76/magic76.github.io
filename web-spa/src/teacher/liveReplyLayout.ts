@@ -60,3 +60,25 @@ export function sealDirectReply(entries:ReadonlyArray<LiveRenderedReply>,turn:nu
 export function discardDirectReply(entries:ReadonlyArray<LiveRenderedReply>){
  return entries.filter(e=>e.turn!==null);
 }
+
+/** Live can emit a completion for the tool exchange before the spoken answer.
+ * Retain the pending display until the real reply is assigned a caption index.
+ * Never attach a new answer to an unrelated historical turn. */
+export type DirectReplyWait={anchor:number|null};
+export function resolveDirectReplyCompletion(
+ entries:ReadonlyArray<LiveRenderedReply>,
+ turn:{output?:string;hasValidOutput?:boolean},
+ captionIndex:number|null,
+ waiting:DirectReplyWait|null
+):{action:"none"|"defer"|"seal";wait:DirectReplyWait|null;index:number|null}{
+ if(!directReplyAt(entries,"stream"))return {action:"none",wait:null,index:null};
+ const spoken=Boolean(turn.output?.trim()||turn.hasValidOutput);
+ const anchor=captionIndex??waiting?.anchor??null;
+ if(spoken&&anchor!==null)return {action:"seal",wait:null,index:anchor};
+ return {action:"defer",wait:{anchor},index:null};
+}
+export function closeDeferredReply(entries:ReadonlyArray<LiveRenderedReply>,waiting:DirectReplyWait){
+ // A new learner turn must never inherit the previous answer. If its own
+ // input-only caption exists, preserve the previous tool there as visual-only.
+ return waiting.anchor!==null?sealDirectReply(entries,waiting.anchor):discardDirectReply(entries);
+}
