@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(root+"/web-spa/src/teacher/"+p,"utf8");
 const strip=s=>stripTypeScriptTypes(s,{mode:"strip"}).replace(/^import .*;\s*$/gm,"").replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
 const api={};
-vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\n"+strip(read("visualReplyJournal.ts"))+"\n"+strip(read("teacherReplyTemplates.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,visualClaim,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt,teacherReplyTemplates});",{api});
+vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\n"+strip(read("visualReplyJournal.ts"))+"\n"+strip(read("teacherReplyComposer.ts"))+"\n"+strip(read("teacherReplyTemplates.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,visualClaim,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt,teacherReplyTemplates,parseComposerChoice,replyFingerprint,composerPrompt});",{api});
 const card=(title="Past tenses",id="past")=>({id,type:"comparison",title,pairs:[{source:"went",target:"finished past"},{source:"have gone",target:"present relevance"}]});
 const proposal=(g,now=100,auto=true,c=card())=>api.proposeInlineBoard(g,{name:api.BOARD_FUNCTION,args:{action:"upsert",cards:[c]}},auto,now);
 const finish=(g,input="",now=100,auto=true,valid=true,output="")=>api.finishInlineTurn(g,input,valid,auto,now,api.backupCard,output);
@@ -254,5 +254,48 @@ test("actual React reply markup includes caption-derived teaching card before su
   assert.match(html,/data-kind="comparison"/);
   assert.match(html,/\/ɪd\//);
   assert.ok(html.indexOf('data-kind="comparison"')<html.indexOf("A suggestion"));
+ }finally{await server.close()}
+});
+
+test("composer accepts semantic template or plain text, rejects invalid cards and markup",()=>{
+ assert.equal(api.parseComposerChoice({kind:"text"}).kind,"text");
+ assert.equal(api.parseComposerChoice({kind:"material",card:{type:"comparison",title:"Japanese particles",pairs:[{source:"は",target:"Topic"},{source:"が",target:"Subject"}]}}).card.type,"comparison");
+ assert.equal(api.parseComposerChoice({kind:"material",card:{type:"quiz",title:"Bad quiz",questions:[{question:"Q",options:["A","A"],answerIndex:0}]}}),null);
+ assert.equal(api.parseComposerChoice({kind:"material",card:{type:"comparison",title:"Empty"}}),null);
+ assert.equal(api.parseComposerChoice({kind:"material",card:{type:"html",title:"<script>"}}),null);
+ const prompt=JSON.parse(api.composerPrompt({input:"は and が",output:"A distinction."},[{input:"old"},{input:"recent"},{input:"latest"}],"日文","zh-TW"));
+ assert.equal(prompt.targetLanguage,"日文");assert.equal(prompt.recent.length,2);assert.equal(prompt.current.learner,"は and が");
+});
+test("AI choice is authoritative: pending text, arbitrary semantic template, failed rule fallback; journal wins",()=>{
+ const turns=[{input:"Hello",output:"Hi."},{input:"Explain particles",output:"There are differences."},{input:"比較發音",output:latestClaim}];
+ const fp=i=>api.replyFingerprint(turns[i]);
+ const choices={0:{fingerprint:fp(0),status:"ready",choice:{kind:"text"}},1:{fingerprint:fp(1),status:"pending"},2:{fingerprint:fp(2),status:"pending"}};
+ assert.equal(api.teacherReplyTemplates(turns,{},[],"en",false,choices).get(2).kind,"text");
+ choices[1]={fingerprint:fp(1),status:"ready",choice:api.parseComposerChoice({kind:"material",card:{type:"comparison",title:"Particles",pairs:[{source:"は",target:"Topic"},{source:"が",target:"Subject"}]}})};
+ choices[2]={fingerprint:fp(2),status:"failed"};
+ const projected=api.teacherReplyTemplates(turns,{},[],"en",false,choices);
+ assert.equal(projected.get(0).kind,"text");assert.equal(projected.get(1).source,"composer");assert.equal(projected.get(2).source,"caption");
+ choices[2]={fingerprint:fp(2),status:"ready",choice:{kind:"text"}};
+ assert.equal(api.teacherReplyTemplates(turns,{},[],"en",false,choices).get(2).kind,"text");
+ const journal=api.sealVisualReplies(api.appendVisualReply([],1,{...card(),points:[],questions:[],body:""}),1);
+ assert.equal(api.teacherReplyTemplates(turns,{},journal,"en",false,choices).get(1).source,"journal");
+ assert.equal(api.teacherReplyTemplates([{...turns[1],output:"Changed"}],{},[],"en",false,{0:choices[1]}).get(0).kind,"text");
+});
+test("composer queue is bounded, deduplicated, cancelable and cannot deliver stale caption results",async()=>{
+ const {createServer}=await import("vite");
+ const server=await createServer({configFile:path.join(root,"vite.web.config.ts"),server:{middlewareMode:true,watch:null},appType:"custom",logLevel:"silent"});
+ try{
+  const {ReplyComposerQueue}=await server.ssrLoadModule("/src/teacher/useTeacherReplyComposer.ts");
+  const jobs=[];let decisions={};
+  const queue=new ReplyComposerQueue((turn,recent,signal)=>new Promise(resolve=>jobs.push({turn,signal,resolve})),v=>{decisions=v});
+  const turns=Array.from({length:8},(_,i)=>({input:"Question "+i,output:"Reply "+i}));
+  queue.scan(turns,new Set());queue.scan(turns,new Set());await Promise.resolve();
+  assert.equal(jobs.length,2);assert.equal(decisions[7].status,"failed");
+  const original=jobs[0];queue.scan([{input:"Changed",output:"New reply"}],new Set());await Promise.resolve();
+  assert.equal(original.signal.aborted,true);original.resolve({kind:"text"});await Promise.resolve();
+  assert.equal(decisions[0].status,"pending");
+  jobs.at(-1).resolve({kind:"text"});await Promise.resolve();await Promise.resolve();
+  assert.equal(decisions[0].status,"ready");
+  queue.close();
  }finally{await server.close()}
 });
