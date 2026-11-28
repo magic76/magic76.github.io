@@ -5,35 +5,21 @@ const path=require("node:path");
 const root=path.resolve(__dirname,"..");
 const read=file=>fs.readFileSync(path.join(root,file),"utf8");
 
-test("interactive whiteboard appears as a discoverable learning hub feature card",()=>{
+test("standalone board hidden from learning and live entry, legacy route retained for rollback",()=>{
  const page=read("web-spa/src/pages/CrewSectionPage.tsx");
- const route=read("web-spa/src/App.tsx");
- assert.match(page,/to:"\/teacher\/board"/);
- assert.match(page,/crew-learn-tool-grid/);
- assert.match(page,/tTeacher\("board.entryTitle"\)/);
- assert.match(page,/tTeacher\("board.entryDesc"\)/);
- assert.match(route,/path="\/teacher\/board" element=\{<TeacherBoardPage\/>\}/);
+ const learn=read("web-spa/src/teacher/LearnPage.tsx");
+ const live=read("web-spa/src/teacher/LivePage.tsx");
+ assert.doesNotMatch(page,/to:"\/teacher\/board"/);
+ assert.doesNotMatch(learn,/to:"\/teacher\/board"/);
+ assert.doesNotMatch(live,/navigate\("\/teacher\/board"\)/);
+ assert.match(read("web-spa/src/App.tsx"),/path="\/teacher\/board" element=\{<TeacherBoardPage\/>\}/);
+ assert.match(live,/visualReply=\{visualReplyProps/);
 });
 
-test("teacher live exposes whiteboard action outside course and fortune contexts",()=>{
- const source=read("web-spa/src/teacher/LivePage.tsx");
- assert.match(source,/!course&&!fortuneKind&&!guestStarted&&<button type="button" className="teacher-live-change-action teacher-live-board-entry"/);
- assert.match(source,/onClick=\{\(\)=>void openBoard\(\)\}/);
- assert.match(source,/disabled=\{changingTeacher\|\|openingBoard\|\|endingCourse\}/);
- assert.match(source,/const openBoard=async\(\)=>/);
-});
-
-test("opening board ends the active voice session before navigation and never runs two microphones",()=>{
- const source=read("web-spa/src/teacher/LivePage.tsx");
- const start=source.indexOf("const openBoard=async()=>");
- const end=source.indexOf("const changeTeacher=async()=>",start);
- assert.ok(start!==-1&&end>start);
- const fn=source.slice(start,end);
- assert.match(fn,/if\(sessionActive&&!window.confirm\(t\("board.entryConfirm"\)\)\)return/);
- assert.match(fn,/if\(!textMode&&sessionActive\)await live.stop\(true\)/);
- assert.ok(fn.indexOf("await live.stop(true)")<fn.indexOf('navigate("/teacher/board")'));
- assert.match(fn,/setOpeningBoard\(false\)/);
- assert.match(fn,/setTeacherSwitchError\(t\("board.entryError"\)\)/);
+test("visual teaching reuses the same active voice session",()=>{
+ const live=read("web-spa/src/teacher/InlineTeacherBoard.tsx");
+ assert.match(live,/board\.syncMode\(live\.sendControl\)/);
+ assert.doesNotMatch(live,/live\.stop\(|live\.start\(/);
 });
 
 test("whiteboard discoverability and warnings have localized labels for all teacher UI locales",()=>{

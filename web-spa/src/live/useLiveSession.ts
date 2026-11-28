@@ -27,6 +27,7 @@ type Config={
  protectOpening?:boolean;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
+ onVisualTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},captionIndex:number|null)=>void;
  onInputSpeech?:()=>void;
  onLearnerTranscript?:(text:string)=>void;
  onConfirmedTranscript?:(turn:LiveTurn)=>void; // optional board observer, read-only; no transport changes
@@ -466,6 +467,7 @@ export function useLiveSession(config:Config){
       if(guestMemoryAllowed&&turn.hasValidOutput&&turn.input?.trim()&&turn.output?.trim()){
         try{memoryConfig.onGuestMemoryTurn?.(turnsRef.current.slice())}catch{/* Keep guest conversation alive on local storage failure. */}
        }
+       if(!guestModeRef.current)configRef.current.onVisualTurnComplete?.(turn,(turn.input||turn.output)&&turnsRef.current.length?attempt.captionOffset+turnsRef.current.length-1:null);
        if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
      },
      onError:e=>{if(!isActive())return;recordGuestFailure();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setStatus(uiMessage(e.message))},
