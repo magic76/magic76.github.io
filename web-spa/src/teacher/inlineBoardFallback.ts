@@ -10,10 +10,13 @@ export function explainsEdEnding(output:string){
  const categories=/(?:three (?:different )?(?:sounds|pronunciations)|三種(?:不同的)?(?:發音|讀音)|voiceless|unvoiced|voiced|清音|濁音|無聲音|有聲音)/i.test(text);
  return suffix&&categories;
 }
-const usable=(output:string)=>output.trim().length>=60&&!visualClaim(output);
+const compactScript=(text:string)=>/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Thai}]/u.test(text);
+const usable=(output:string)=>output.trim().length>=(compactScript(output)?28:60)&&!visualClaim(output);
 const edReference=(text:string)=>/\b-?ed\s+(?:endings?|suffix)\b|(?:字尾|結尾|结尾)\s*-?ed\b/i.test(text)||edTopic(text);
 export function backupCard(topic:string,output:string,manual=false,previousOutput="",language="en"):BoardCard|null{
  const claim=visualClaim(output);
+ // English-only pronunciation material must not leak into a different target language.
+ if(language!=="en"&&(edTopic(topic)||explainsEdEnding(output)||edReference(output)))return null;
  // Ground curated examples in an actual topic, not merely the word "board".
  if(language==="en"&&(edTopic(topic)||explainsEdEnding(output)||(manual&&(edReference(output)||explainsEdEnding(previousOutput))))){
   return findLesson("ed-sounds")?.cards.find(c=>c.type==="comparison")||null;
@@ -30,7 +33,7 @@ export function backupCard(topic:string,output:string,manual=false,previousOutpu
  const pairs=spoken.split(/\n+/).map(line=>line.match(/^\s*([^:：]{2,80})[:：]\s*(.{3,180})$/)).filter((m):m is RegExpMatchArray=>!!m).slice(0,4).map(m=>({source:m[1].trim(),target:m[2].trim()}));
  if(pairs.length>=2)return {id:"inline-spoken-pairs",type:"example",title:"Examples",body:"",pairs,points:[],questions:[]};
  if(!manual){
-  const sentences=(spoken.match(/[^.!?。！？\n]+[.!?。！？]?/gu)||[]).map(s=>s.trim()).filter(s=>s.length>=14).slice(0,4);
+  const sentences=(spoken.match(/[^.!?。！？\n]+[.!?。！？]?/gu)||[]).map(s=>s.trim()).filter(s=>s.length>=(compactScript(s)?10:14)).slice(0,4);
   if(sentences.length>=2)return {id:"inline-spoken-steps",type:"steps",title:"Key points",body:"",pairs:[],points:sentences.map((note,i)=>({label:String(i+1),note:note.slice(0,180)})),questions:[]};
   return null;
  }
