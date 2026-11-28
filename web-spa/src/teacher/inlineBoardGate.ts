@@ -6,13 +6,13 @@ export const INLINE_TEACHER_BOARD_ENABLED=true;
 // Always available in eligible teacher sessions; no user mode negotiation.
 export const INLINE_BOARD_POLICY="\n"+[
  "[VISUAL TEACHING — always available in this teacher conversation]",
- "For substantive teaching (grammar, pronunciation, vocabulary explanations, comparisons, examples and exercises), CALL update_teaching_board before or during the spoken explanation. Do not wait for the learner to request a board. A direct request for visual material MUST use the tool. Skip the tool for greetings and ordinary small talk.",
- "The card appears inside the current reply. Explain the actual rule and examples aloud in the chosen teaching language. Never say you displayed, updated or are using a board, or ask the learner to look at the screen. Even after tool success, teach the content directly; delivery is controlled by the app. Never answer a visual request with only a promise or a description of your capabilities.",
+ "Plain text is the default template for ordinary conversation. For substantive teaching (grammar, pronunciation, vocabulary explanations, comparisons, examples and exercises), CALL update_teaching_board before or during the spoken explanation. Do not wait for the learner to request a board. A direct request for visual material MUST use the tool. Skip the tool for greetings and ordinary small talk.",
+ "The application supports a normal text reply and optional structured teaching templates inside that reply. Explain the actual rule and examples aloud in the chosen teaching language. Never say you displayed, updated or are using a board, or ask the learner to look at the screen. Even after tool success, teach the content directly; delivery is controlled by the app. Never answer a visual request with only a promise or a description of your capabilities.",
  "Use one concise card per reply. Focus a specific row with focus_teaching_board when useful. Respect a learner's request for voice-only explanation for that turn. In guided lessons, explain the existing app-controlled card and never advance the lesson yourself.",
  "If the tool is rejected or unavailable, continue the actual spoken explanation with concrete examples. Do not retry in the same turn. The app may independently format grounded material."
 ].join("\n");
 export const INLINE_FOCUS_FUNCTION="focus_teaching_board";
-export const visualClaim=(output:string)=>/(?:teaching board|whiteboard|screen|visual (?:aid|material)|教學板|教学板|白板|螢幕|屏幕|視覺教材|视觉教材)/i.test(output)&&/(?:show|display|using|see|look|updat|appear|展示|顯示|显示|使用|看到|出現|出现|看一下)/i.test(output);
+export const visualClaim=(output:string)=>/(?:\b(?:teaching\s+)?board\b|whiteboard|screen|visual (?:aid|material|breakdown)|教學板|教学板|白板|螢幕|屏幕|視覺教材|视觉教材)/i.test(output)&&/(?:show|display|using|see|look|updat|appear|展示|顯示|显示|使用|看到|出現|出现|看一下)/i.test(output);
 export function inlineFocusIndex(card:BoardCard|null,args:unknown):number|null{
  if(!card||!args||typeof args!=="object")return null;
  const value=args as {cardId?:unknown;index?:unknown};
@@ -41,8 +41,8 @@ export function recordInlineEvent(g:InlineGate,event:string,reason?:string,now=D
  if(reason){g.lastReason=reason;g.reasons[reason]=(g.reasons[reason]||0)+1}
 }
 const declinesBoard=(input:string)=>/(?:不要|不用|別|停止|關閉|收起|不需要).{0,12}(?:白板|比較表|對照表|圖|測驗|視覺教學|视觉教学)|(?:no|without|stop|close|hide|don[’\x27]t|do not).{0,24}(?:whiteboard|chart|diagram|quiz)/i.test(input);
-export const explicitBoardRequest=(input:string)=>!declinesBoard(input)&&/(?:請|可以|幫我|我要|想看|能不能|打開|使用|顯示|拿出).{0,12}白板|白板[?？]?$|視覺(?:化)?教學|视觉(?:化)?教学|視覺(?:化)?教材|视觉(?:化)?教材|visual (?:teaching|material|aid|explanation)|比較表|對照表|用圖|畫出|視覺化|考我|測驗我|(?:show|open|use|bring up).{0,24}whiteboard|show me (?:a |the )?(?:chart|table|diagram|board)|(?:quiz|test) me/i.test(input);
-export const teachingCue=(input:string)=>/差別|差異|區別|怎麼區分|文法|句型|句子結構|發音規則|幾種發音|結尾.{0,8}(?:發音|念法)|(?:還是|仍然|真的)不懂|difference between|compare .{1,80}(?: and | with | vs)|grammar (?:rule|pattern)|sentence structure|pronunciation (?:rule|pattern)|(?:ed|s) ending|still (?:do not|don't) understand/i.test(input);
+export const explicitBoardRequest=(input:string)=>!declinesBoard(input)&&/(?:請|可以|幫我|我要|想看|能不能|打開|使用|顯示|拿出).{0,12}白板|白板[?？]?$|視覺(?:化)?教學|视觉(?:化)?教学|視覺(?:化)?教材|视觉(?:化)?教材|visual (?:teaching|material|aid|explanation)|比較表|對照表|用圖|畫出|視覺化|(?:比較|更)?友[善好]的\s*UI|(?:視覺|视觉).{0,10}UI|考我|測驗我|(?:show|open|use|bring up).{0,24}whiteboard|show me (?:a |the )?(?:chart|table|diagram|board)|(?:quiz|test) me/i.test(input);
+export const teachingCue=(input:string)=>/差別|差異|區別|怎麼區分|文法|句型|句子結構|發音規則|发音规则|幾種發音|几种发音|三種.{0,8}發音|三种.{0,8}发音|結尾.{0,8}(?:發音|念法)|(?:還是|仍然|真的)不懂|difference between|compare .{1,80}(?: and | with | vs)|grammar (?:rule|pattern)|sentence structure|pronunciation (?:rule|pattern)|how (?:do|to) (?:you )?pronounce|ways (?:we |to )pronounce|(?:ed|s) ending|still (?:do not|don't) understand/i.test(input);
 export const edTopic=(input:string)=>/(?:\b-?ed\b.{0,35}(?:發音|念法|讀音|字尾|結尾|ending|pronunci|sound)|(?:發音|念法|字尾|結尾|pronunci\w*|sound\w*).{0,35}\b-?ed\b)/i.test(input);
 function meaningful(card:BoardCard){
  const pairs=card.pairs.filter(p=>p.source&&p.target&&p.source.toLowerCase()!==p.target.toLowerCase());
