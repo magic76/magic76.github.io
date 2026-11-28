@@ -31,12 +31,12 @@ export function RolePreferenceSummaryLink({role}:{role:Role}){
  const {label,summary}=useSummary(role,ready?s.targetLanguage:"英文",ready?(role==="teacher"?s.teachingMode:s.friendChatMode):"bilingual",ready?(role==="teacher"?s.speakingPace:s.friendSpeakingPace):"normal");
  return <Link className="crew-conversation-summary crew-conversation-summary-link" to={"/teacher/roles?mode="+(role==="teacher"?"teacher":"friends")} aria-label={label+": "+summary}><span>{summary}</span><span aria-hidden="true">⚙</span></Link>;
 }
-export function LanguageModePicker<M extends Mode>({role,mode,onChange,disabled=false,hint,note}:{role:Role;mode:M;onChange:(mode:M)=>void;disabled?:boolean;hint?:string;note?:string}){
+export function LanguageModePicker<M extends Mode>({role,mode,onChange,disabled=false,hint,note,labels}:{role:Role;mode:M;onChange:(mode:M)=>void;disabled?:boolean;hint?:string;note?:string;labels?:Partial<Record<Mode,string>>}){
  const {t}=useTranslation(["friends","teacher"]);
  const title=t(role==="friend"?"friends:chatModeTitle":"teacher:tutor.guidance");
  return <div className="friend-language-switch" role="group" aria-label={title}>
   <span className="friend-language-switch-title">{title}</span>
-  <div className="friend-language-options">{modes[role].map(value=><button key={value} type="button" disabled={disabled} className={mode===value?"selected":""} aria-pressed={mode===value} onClick={()=>onChange(value as M)}>{t(modeKey(role,value))}</button>)}</div>
+  <div className="friend-language-options">{modes[role].map(value=><button key={value} type="button" disabled={disabled} className={mode===value?"selected":""} aria-pressed={mode===value} onClick={()=>onChange(value as M)}>{labels?.[value]??t(modeKey(role,value))}</button>)}</div>
   <small className="friend-language-mode-hint" role="note">{hint??t(mode==="natural"?"friends:chatModeHintNatural":mode==="immersion"?"friends:chatModeHintImmersion":"friends:chatModeHintBilingual")}</small>
   {note&&<small role="status">{note}</small>}
  </div>;

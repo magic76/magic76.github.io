@@ -253,7 +253,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
     {postUnavailable?<p className="friend-live-post-unavailable" role="status">{t("friendLive.postUnavailable")}</p>:null}
     {shortsPost?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
     <FriendCallMenu inCall={true} open={showCallOptions} onClose={()=>setShowCallOptions(false)} title={t("callCaptions.more")} closeLabel={t("callCaptions.closeMenu")}><div className="friend-call-settings">
-    <LanguageModePicker role="friend" mode={friendChatMode} onChange={changeFriendChatMode} disabled={liveSettingLocked(live)} note={modeNote}/>
+    <LanguageModePicker role="friend" mode={friendChatMode} labels={{natural:t("chatModeNatural"),bilingual:t("chatModeBilingual"),immersion:t("chatModeImmersion")}} onChange={changeFriendChatMode} disabled={liveSettingLocked(live)} note={modeNote}/>
     <LivePacePicker role="friend" live={live}/>
     <FriendCallMenuPreferences hintsEnabled={replyHints.enabled} hintsLocked={replyHintsLocked(live.state)} onHintsToggle={replyHints.toggle} translationEnabled={translationEnabled} onTranslationToggle={toggleTranslation}/>
     </div>
