@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState,type ReactNode} from "react";
 import {TeachingCard} from "./TeachingCard";
+import {LiveCaptionText,PassiveTeachingMaterial} from "./PassiveTeacherReply";
 import {appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt,type VisualReply} from "./visualReplyJournal";
 import type {BoardCard} from "./boardProtocol";
 import {currentBuild} from "../runtime/buildUpdates";
@@ -162,15 +163,17 @@ export function VisualReplyContent({board,english,send,canSend,turn,template,lat
  </>;
 }
 
-export function visualReplyProps(board:Board,english:boolean,send:Send,canSend:boolean,turns:ReadonlyArray<{input?:string;output?:string}>,input:string,output:string,target:string,decisions?:Readonly<Record<number,ComposerDecision>>){
+export function visualReplyProps(board:Board,english:boolean,send:Send,canSend:boolean,turns:ReadonlyArray<{input?:string;output?:string}>,input:string,output:string,target:string,decisions?:Readonly<Record<number,ComposerDecision>>,passive=false){
  if(!board.enabled)return undefined;
- const templates=teacherReplyTemplates(turns,{input,output},board.journal,inlineLessonLanguage(target),Boolean(board.guided),decisions);
+ const displayOnly=passive&&!board.guided;
+ // No completed-turn composer or late heuristic cards in passive mode. Live tool material is optional.
+ const templates=teacherReplyTemplates(turns,{input,output},board.journal,inlineLessonLanguage(target),Boolean(board.guided),displayOnly?{}:decisions);
  const keys:Array<number|"stream">=Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key])=>key);
  for(const entry of board.journal)if(!keys.includes(entry.turn??"stream"))keys.push(entry.turn??"stream");
- if(board.delivery!=="idle")keys.push(board.delivery==="missing"?board.missingTurn??"stream":"stream");
+ if(!displayOnly&&board.delivery!=="idle")keys.push(board.delivery==="missing"?board.missingTurn??"stream":"stream");
  const activeCard=board.journal.find(e=>e.id===board.activeEntry);
  if(board.guided&&activeCard&&activeCard.turn!==null&&board.latestReplyTurn!==null)keys.push(board.latestReplyTurn);
- return {keys,kind:(turn:number|"stream")=>templates.get(turn)?.kind??"text",revision:JSON.stringify([board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key,v])=>[key,v.kind,v.kind==="material"?v.card:null]),board.delivery,board.missingTurn,board.guided?.index,board.guided?.explained,board.guided?.attempted,board.latestReplyTurn]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=><VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn} template={templates.get(turn)} latest={turn===turns.length-1&&!board.guided&&!input.trim()&&!output.trim()||turn===turns.length-1&&!board.guided&&output.trim()===(turns[turns.length-1]?.output||"").trim()}/>};
+ return {keys,passive:displayOnly,renderCaption:passive?(text:string,language:string)=><LiveCaptionText text={text} language={language}/>:undefined,kind:(turn:number|"stream")=>templates.get(turn)?.kind??"text",revision:JSON.stringify([board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key,v])=>[key,v.kind,v.kind==="material"?v.card:null]),board.delivery,board.missingTurn,board.guided?.index,board.guided?.explained,board.guided?.attempted,board.latestReplyTurn]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=>displayOnly?<>{visualRepliesAt(board.journal,turn).map(entry=><VisualReplyCard key={entry.id} entryId={entry.id} board={board} current={entry.id===board.activeEntry}><PassiveTeachingMaterial card={entry.card} english={english} focus={entry.id===board.activeEntry?board.focus:-1}/></VisualReplyCard>)}</>:<VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn} template={templates.get(turn)} latest={turn===turns.length-1&&!board.guided&&!input.trim()&&!output.trim()||turn===turns.length-1&&!board.guided&&output.trim()===(turns[turns.length-1]?.output||"").trim()}/>};
 }
 
 export function InlineTeacherBoardMenu({board,zh,send,canSend,onRequested}:{board:Board;zh:boolean;send:Send;canSend:boolean;onRequested:()=>void}){
