@@ -521,13 +521,13 @@ writeEditorialPages(root,out);
 const fullSitemap=sitemap.replace("</urlset>",guideSitemapEntries+newline+baziSitemapEntries(seoLastmod)+newline+numerologySitemapEntries(seoLastmod)+newline+intentSitemapEntries(seoLastmod)+newline+editorialSitemapEntries(editorialItems)+newline+sitemapEntries+newline+"</urlset>");
 writeFileSync(join(out,"sitemap.xml"),publishInternationalPages({out,pages:internationalPages,rendered:prerendered,sitemap:fullSitemap,makeHtml:(entry,body,htmlLinks)=>{
  const path=entry.path,ssgPath=normalizePath(publicPath(entry.locale,path));
- const page=body.replace(/\\/@fs\\/[^"\'\\s<>)]*?\\/assets\\/([A-Za-z0-9_.\\/-]+)/g,(_match,asset)=>"/assets/"+asset);
+ const page=body.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
  const theme=path.startsWith("/teacher")||path==="/learn"?"teacher-theme":path==="/story"?"story-theme":path==="/fortune"?"fortune-theme":"";
  const head=viteHtml.slice(0,viteHtml.indexOf("</head>"))
-  .replace(/<html lang="[^"]*">/,\'<html lang="\'+htmlLanguage(entry.locale)+\'">\')
-  .replace(/<meta name="robots" content="noindex,follow"\\s*\\/?\s*>/,\'<meta name="robots" content="index,follow">\')
-  .replace(/<title>[^<]*<\\/title>/,"<title>"+escapeHtml(entry.title)+"</title>");
- return head+routeCssLinks(path)+newline+localizedSeoHead(entry,htmlLinks)+newline+dynamicGuard+\'</head><body\'+(theme?\' class="\'+theme+\'"\':"")+\'><div id="root" data-crew-ssg-path="\'+ssgPath+\'">\'+page+\'</div>\'+bootMarkup+\'</body></html>\';
+  .replace(/<html lang="[^"]*">/,'<html lang="'+htmlLanguage(entry.locale)+'">')
+  .replace(/<meta name="robots" content="noindex,follow"\s*\/?\s*>/,'<meta name="robots" content="index,follow">')
+  .replace(/<title>[^<]*<\/title>/,"<title>"+escapeHtml(entry.title)+"</title>");
+ return head+routeCssLinks(path)+newline+localizedSeoHead(entry,htmlLinks)+newline+dynamicGuard+'</head><body'+(theme?' class="'+theme+'"':"")+'><div id="root" data-crew-ssg-path="'+ssgPath+'">'+page+'</div>'+bootMarkup+'</body></html>';
 }}));
 
 // Preserve bookmarks shared from GitHub Pages, including HashRouter query string.
