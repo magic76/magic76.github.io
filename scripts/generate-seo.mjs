@@ -100,7 +100,7 @@ const PAGES = [
     },
     "secondary": {
       "text": "探索 Koolo 朋友",
-      "href": "/crew-app/#/teacher/roles?mode=friends"
+      "href": "/crew-app/#/chat"
     },
     "visualLabel": "SPEAK & LEARN",
     "visualTitle": "老師教學 × 朋友聊天",
@@ -435,7 +435,7 @@ const EN_PAGES = [
     },
     "secondary": {
       "text": "Meet Koolo Friends",
-      "href": "/crew-app/#/teacher/roles?mode=friends"
+      "href": "/crew-app/#/chat"
     },
     "visualLabel": "SPEAK & LEARN",
     "visualTitle": "Learn with teachers. Talk with friends.",

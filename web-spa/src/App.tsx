@@ -25,7 +25,7 @@ const PrivacyPage=lazy(()=>import("./pages/PrivacyPage").then(m=>({default:m.Pri
 const TeacherFortunePage=lazy(()=>import("./teacher/TeacherFortunePage").then(m=>({default:m.TeacherFortunePage})));const TeacherLayout=lazy(()=>import("./teacher/TeacherLayout").then(m=>({default:m.TeacherLayout})));const PracticePage=lazy(()=>withNamespace("lesson",import("./teacher/PracticePage")).then(m=>({default:m.PracticePage})));const TutorPage=lazy(()=>import("./teacher/TutorPage").then(m=>({default:m.TutorPage})));const MyPage=lazy(()=>import("./teacher/MyPage").then(m=>({default:m.MyPage})));const VocabularyPage=lazy(()=>import("./teacher/VocabularyPage").then(m=>({default:m.VocabularyPage})));const CoursePage=lazy(()=>withNamespace("lesson",import("./teacher/CoursePage")).then(m=>({default:m.CoursePage})));const PronunciationPage=lazy(()=>withNamespace(["lesson","voice"],import("./teacher/PronunciationPage")).then(m=>({default:m.PronunciationPage})));const TextbookPage=lazy(()=>withNamespace(["lesson","voice"],import("./teacher/TextbookPage")).then(m=>({default:m.TextbookPage})));const PhrasebookPage=lazy(()=>import("./teacher/PhrasebookPage").then(m=>({default:m.PhrasebookPage})));const ReportsPage=lazy(()=>import("./teacher/ReportsPage").then(m=>({default:m.ReportsPage})));const ReadingLibraryPage=lazy(()=>import("./teacher/ReadingLibraryPage").then(m=>({default:m.ReadingLibraryPage})));const TeacherLivePage=lazy(()=>withNamespace(["lesson","voice"],import("./teacher/LivePage")).then(m=>({default:m.TeacherLivePage})));
 const SyncTeacherPage=lazy(()=>withNamespace("voice",import("./teacher/SyncTeacherPage")).then(m=>({default:m.SyncTeacherPage})));
 const TeacherBoardPage=lazy(()=>withNamespace("voice",import("./teacher/TeacherBoardPage")).then(m=>({default:m.TeacherBoardPage})));
-const StudentMemoryPage=lazy(()=>import("./teacher/StudentMemoryPage").then(m=>({default:m.StudentMemoryPage})));const RolesPage=lazy(()=>import("./teacher/RolesPage").then(m=>({default:m.RolesPage})));
+const StudentMemoryPage=lazy(()=>import("./teacher/StudentMemoryPage").then(m=>({default:m.StudentMemoryPage})));
 const StoryLayout=lazy(()=>import("./story/StoryLayout").then(m=>({default:m.StoryLayout})));const StoryShelfPage=lazy(()=>import("./story/ShelfPage").then(m=>({default:m.StoryShelfPage})));const StoryMyPage=lazy(()=>import("./story/MyPage").then(m=>({default:m.StoryMyPage})));const StoryCreatePage=lazy(()=>import("./story/CreatePage").then(m=>({default:m.StoryCreatePage})));const StoryReaderPage=lazy(()=>import("./story/ReaderPage").then(m=>({default:m.StoryReaderPage})));const StoryEditorPage=lazy(()=>import("./story/EditorPage").then(m=>({default:m.StoryEditorPage})));const PhysicalBookPage=lazy(()=>import("./story/PhysicalBookPage").then(m=>({default:m.PhysicalBookPage})));const StoryLivePage=lazy(()=>withNamespace("voice",import("./story/LivePage")).then(m=>({default:m.StoryLivePage})));
 const FortuneLayout=lazy(()=>import("./fortune/FortuneLayout").then(m=>({default:m.FortuneLayout})));const FortuneHomePage=lazy(()=>import("./fortune/HomePage").then(m=>({default:m.FortuneHomePage})));const FortuneHistoryPage=lazy(()=>import("./fortune/HistoryPage").then(m=>({default:m.FortuneHistoryPage})));const FortunePurchasedReportsPage=lazy(()=>import("./fortune/PurchasedReportsPage").then(m=>({default:m.FortunePurchasedReportsPage})));const FortuneEcpayStagePage=lazy(()=>import("./fortune/EcpayStagePage").then(m=>({default:m.FortuneEcpayStagePage})));const FortunePurchasedReportDetailPage=lazy(()=>import("./fortune/PurchasedReportsPage").then(m=>({default:m.FortunePurchasedReportDetailPage})));const FortunePremiumPage=lazy(()=>import("./fortune/FortunePremiumPage").then(m=>({default:m.FortunePremiumPage})));const FortuneReadingPage=lazy(()=>import("./fortune/ReadingPage").then(m=>({default:m.FortuneReadingPage})));const FortuneLivePage=lazy(()=>withNamespace("voice",import("./fortune/LivePage")).then(m=>({default:m.FortuneLivePage})));
 const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(m=>({default:m.UsageDashboardPage})));
@@ -62,9 +62,15 @@ const CrewSectionPage=lazy(()=>withNamespace("lesson",import("./pages/CrewSectio
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
 // zh-TW is the canonical *unprefixed* locale; old prefixed bookmarks still work.
 function ZhTwCanonicalRedirect(){
- const {pathname,search,hash}=useLocation();
+ const {pathname,search,hash,state}=useLocation();
  const canonical=pathname.replace(/^\/zh-TW(?=\/|$)/,"")||"/";
- return <Navigate to={{pathname:canonical==="/play"?"/games":canonical,search,hash}} replace/>;
+ return <Navigate to={{pathname:canonical==="/play"?"/games":canonical,search,hash}} replace state={state}/>;
+}
+// Keep old bookmarks working without mounting the retired role page.
+function LegacyRoleRedirect({destination}:{destination?:"/learn"|"/chat"}){
+ const location=useLocation();
+ const target=destination??(new URLSearchParams(location.search).get("mode")==="friends"?"/chat":"/learn");
+ return <Navigate to={target} replace state={location.state}/>;
 }
 function ChatPage(){
  const location=useLocation();
@@ -99,7 +105,8 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/briefing/board" element={<Navigate to="/research/board" replace/>}/>
 <Route path="/briefing/:date/:id" element={<BriefingLegacyRedirect/>}/>
 <Route path="/orb" element={<AppChrome product="home"><CyberOrbPage/></AppChrome>}/>
-<Route path="/try" element={<Navigate to="/learn" replace/>}/>
+<Route path="/try" element={<LegacyRoleRedirect destination="/learn"/>}/>
+<Route path="/teacher/roles" element={<LegacyRoleRedirect/>}/>
 <Route path="/settings" element={<AppChrome product="settings"><SettingsPage/></AppChrome>}/>
 <Route path="/account" element={<AppChrome product="settings"><AccountPage/></AppChrome>}/>
 <Route path="/me/voice-credits" element={<AppChrome product="settings"><VoiceCreditsPage/></AppChrome>}/>
@@ -112,7 +119,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/sandbox-lab" element={<AppChrome product="briefing"><SandboxLab/></AppChrome>}/>
 <Route path="/usage" element={<AppChrome product="briefing"><UsageDashboardPage/></AppChrome>}/>
 <Route path="/usage/feedback" element={<AppChrome product="briefing"><FeedbackInboxPage/></AppChrome>}/>
-<Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="fortune" element={<TeacherFortunePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="shorts/:friendId" element={<ShortsProfilePage/>}/><Route path="friends" element={<Navigate to="/chat" replace/>}/><Route path="roles" element={<RolesPage/>}/><Route path="learn" element={<Navigate to="/learn" replace/>}/><Route path="tutor" element={<Navigate to="/learn" replace/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<LearningMaterialGate material="vocabulary"><VocabularyPage/></LearningMaterialGate>}/><Route path="course" element={<CoursePage/>}/><Route path="course/:slug" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<LearningMaterialGate material="phrasebook"><PhrasebookPage/></LearningMaterialGate>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
+<Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="fortune" element={<TeacherFortunePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="shorts/:friendId" element={<ShortsProfilePage/>}/><Route path="friends" element={<LegacyRoleRedirect destination="/chat"/>}/><Route path="learn" element={<Navigate to="/learn" replace/>}/><Route path="tutor" element={<LegacyRoleRedirect destination="/learn"/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<LearningMaterialGate material="vocabulary"><VocabularyPage/></LearningMaterialGate>}/><Route path="course" element={<CoursePage/>}/><Route path="course/:slug" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<LearningMaterialGate material="phrasebook"><PhrasebookPage/></LearningMaterialGate>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
 <Route path="/circle" element={<BooksPage/>}/>
 <Route path="/play" element={<Navigate to="/games" replace/>}/>
 <Route path="/games" element={<AppChrome product="home"><GameRouteReady/><CrewPlayHubPage/></AppChrome>}/>

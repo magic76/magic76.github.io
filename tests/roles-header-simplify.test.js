@@ -1,29 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,existsSync} from "node:fs";
 const read=path=>readFileSync(path,"utf8");
-test("only roles landing hides teacher chrome labels, preserving other teacher pages",()=>{
+test("canonical Learn and Chat use normal chrome without retired role landing exception",()=>{
  const chrome=read("web-spa/src/components/AppChrome.tsx");
- assert.match(chrome,/rolesLanding=location\.pathname==="\/teacher\/roles"\|\|location\.pathname==="\/teacher\/roles\/"/);
- assert.match(chrome,/\{!rolesLanding&&<span className="app-title">/);
- assert.match(chrome,/!rolesLanding&&productName/);
+ assert.doesNotMatch(chrome,/rolesLanding|\/teacher\/roles/);
+ assert.match(chrome,/<span className="app-title">/);
  assert.match(chrome,/<LanguageSwitcher\/>/);
  assert.match(chrome,/koolo-wordmark-koo-v2\.svg/);
 });
-test("roles keep titles and role controls but remove duplicated kickers",()=>{
- const friends=read("web-spa/src/friends/FriendsPage.tsx");
- const tutor=read("web-spa/src/teacher/TutorPage.tsx");
- const roles=read("web-spa/src/teacher/RolesPage.tsx");
- const css=read("web-spa/src/teacher/parity.css");
+test("retired role page and tabs are absent, while the friend directory remains available",()=>{
+ const app=read("web-spa/src/App.tsx"),friends=read("web-spa/src/friends/FriendsPage.tsx"),tutor=read("web-spa/src/teacher/TutorPage.tsx");
+ assert.equal(existsSync("web-spa/src/teacher/RolesPage.tsx"),false);
+ assert.doesNotMatch(app,/RolesPage|crew-role-switcher/);
  assert.doesNotMatch(friends,/<span className="kicker">\{t\("kicker"\)\}<\/span>/);
  assert.doesNotMatch(tutor,/CREW TEACHER/);
  assert.match(friends,/t\("all"\)/);
- assert.match(tutor,/t\("tutor\.title"\)/);
- assert.match(tutor,/t\("tutor\.intro"\)/);
- assert.match(roles,/crew_teacher_last_role_v1/);
- assert.doesNotMatch(roles,/crew-role-switcher|practice\.teacher|practice\.friend/);
- assert.match(roles,/<Navigate to="\/learn" replace/);
- assert.match(roles,/<FriendsPage\/>/);
- assert.match(css,/margin:3px 0 8px/);
+ assert.match(app,/return directory\?<FriendsPage\/>:<CrewSectionPage section="chat"\/>/);
  for(const page of [friends,tutor])assert.ok(Buffer.byteLength(page)<26000);
 });

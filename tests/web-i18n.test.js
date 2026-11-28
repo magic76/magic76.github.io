@@ -70,12 +70,12 @@ test("English switches the shell, dashboard and settings without changing the Ha
 
 test("product pages translate visible UI without rewriting conversation language",()=>{
  const teacher=read("web-spa/src/teacher/PracticePage.tsx");
- const roles=read("web-spa/src/teacher/RolesPage.tsx");
+ const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  const friends=read("web-spa/src/friends/FriendsPage.tsx");
  const story=read("web-spa/src/story/ShelfPage.tsx");
  const create=read("web-spa/src/story/CreatePage.tsx");
  const fortune=read("web-spa/src/fortune/HomePage.tsx");
- for(const page of [teacher,roles,friends,story,create,fortune])
+ for(const page of [teacher,hub,friends,story,create,fortune])
   assert.ok(page.includes("useTranslation"),"product entry page must use i18n");
  assert.ok(teacher.includes('target==="英文"'),"learning language rule must not change");
  assert.ok(friends.includes('value={v}'),"option value must stay in original learning language");

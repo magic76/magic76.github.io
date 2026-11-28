@@ -4,7 +4,7 @@ import {test} from "node:test";
 
 const read=path=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 const page=read("web-spa/src/teacher/LivePage.tsx");
-const tutor=read("web-spa/src/teacher/TutorPage.tsx");
+const tutor=read("web-spa/src/teacher/CurrentTeacherCard.tsx");
 const controls=read("web-spa/src/live/LiveControls.tsx");
 const css=read("web-spa/src/teacher/parity.css");
 const voiceZh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/voice.json"));
@@ -13,9 +13,10 @@ test("Live session offers a direct teacher-change entry with an explicit session
  assert.match(page,/className="teacher-live-change-action"/);
  assert.match(page,/window\.confirm\(confirmation\)/);
  assert.match(page,/await live\.stop\(true\)/);
- assert.match(page,/navigate\("\/teacher\/roles\?mode=teacher",\{state:\{openTeacherPicker:true\}\}\)/);
+ assert.match(page,/navigate\("\/learn",\{state:\{openTeacherPicker:true\}\}\)/);
  assert.match(tutor,/useLocation\(\)/);
  assert.match(tutor,/openTeacherPicker\?:boolean/);
+ assert.match(tutor,/useEffect\(\(\)=>\{if\(openTeacherPicker\)setPicker\(true\)\}/);
 });
 
 test("Mobile live controls keep only conversation actions visible until options are expanded",()=>{
