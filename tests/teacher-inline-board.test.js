@@ -254,6 +254,13 @@ test("actual React reply markup includes caption-derived teaching card before su
   assert.match(html,/data-kind="comparison"/);
   assert.match(html,/\/ɪd\//);
   assert.ok(html.indexOf('data-kind="comparison"')<html.indexOf("A suggestion"));
+  const choice=api.parseComposerChoice({kind:"material",card:{type:"vocabulary",title:"Semantic material",pairs:[{source:"walked",target:"走路",pronunciation:"/wɔːkt/"},{source:"played",target:"玩",pronunciation:"/pleɪd/"}]}});
+  const decisions={1:{fingerprint:api.replyFingerprint(turns[1]),status:"ready",choice}};
+  const composed=visualReplyProps(board,true,()=>false,true,turns,"","","英文",decisions);
+  const aiHtml=renderToStaticMarkup(composed.render(1));
+  assert.match(aiHtml,/data-visual-source="composer"/);
+  assert.match(aiHtml,/Semantic material/);
+  assert.match(aiHtml,/data-kind="vocabulary"/);
  }finally{await server.close()}
 });
 
@@ -292,9 +299,9 @@ test("composer queue is bounded, deduplicated, cancelable and cannot deliver sta
   queue.scan(turns,new Set());queue.scan(turns,new Set());await Promise.resolve();
   assert.equal(jobs.length,2);assert.equal(decisions[7].status,"failed");
   const original=jobs[0];queue.scan([{input:"Changed",output:"New reply"}],new Set());await Promise.resolve();
-  assert.equal(original.signal.aborted,true);original.resolve({kind:"text"});await Promise.resolve();
+  assert.equal(original.signal.aborted,true);original.resolve({kind:"text"});await new Promise(resolve=>setImmediate(resolve));
   assert.equal(decisions[0].status,"pending");
-  jobs.at(-1).resolve({kind:"text"});await Promise.resolve();await Promise.resolve();
+  jobs.at(-1).resolve({kind:"text"});await new Promise(resolve=>setImmediate(resolve));
   assert.equal(decisions[0].status,"ready");
   queue.close();
  }finally{await server.close()}
