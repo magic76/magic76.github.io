@@ -664,3 +664,18 @@ check("Fortune challenge URL is readable by link preview crawlers without runnin
   assert.ok(head.includes('name="robots" content="noindex,follow"'),"Private reading must not become indexable");
  }
 });
+
+check("every generated sitemap URL has indexable content and reciprocal HTML alternates",async()=>{
+ const {sitemapUrls,inspectPublicPage,alternateLinks,checkReciprocalAlternates}=await import("../scripts/check-live-seo.mjs");
+ const urls=sitemapUrls(read("sitemap.xml"));
+ const pages=new Map();
+ for(const url of urls){
+  const relative=new URL(url).pathname.slice(1)+"index.html";
+  const html=read(relative);
+  try{
+   inspectPublicPage(html,url);
+   pages.set(url,alternateLinks(html));
+  }catch(error){throw new Error(url+": "+error.message);}
+ }
+ checkReciprocalAlternates(pages,urls);
+});

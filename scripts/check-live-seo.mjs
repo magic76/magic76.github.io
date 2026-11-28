@@ -1,19 +1,21 @@
-import {appendFileSync} from 'node:fs';
+import {appendFileSync,readFileSync} from 'node:fs';
+import {INTENT_SEO_SLUGS} from './intent-seo.mjs';
+const internationalPages=JSON.parse(readFileSync(new URL('../config/seo-international.json',import.meta.url),'utf8')).pages;
 import {pathToFileURL} from 'node:url';
 
 // Production HTTP audit, not an index-coverage claim: only Google Search Console
 // can report Google's actual crawl/index state.
 export const ORIGIN='https://koolo.app';
-const games=['friend-gomoku','connect4','twenty-questions','reversi','mystery','1a2b','taboo'];
+const games=['friend-gomoku','connect4','twenty-questions','reversi','mystery','1a2b','taboo','number-bomb','memory','crazy-court','werewolf','truth-news','nonsense'];
 const guides=['ai-english-speaking','ai-conversation-partner','travel-english-dialogues','english-pronunciation','gemini-key-for-ai-practice'];
 const hubs=['','teacher','story','fortune','research','games'];
-const privatePaths=['/magic','/chat','/teacher/live','/games/nonsense','/en/teacher/roles','/en/magic'];
-const previewPaths=['/ja/','/fr/'];
+const privatePaths=['/magic','/chat','/teacher/live','/en/teacher/roles','/en/magic'];
+const previewPaths=['/fr/'];
 const requiredPaths=['','en/'].flatMap(prefix=>[
  ...hubs.map(slug=>'/'+prefix+slug+(slug?'/':'')),
  ...games.map(slug=>'/'+prefix+'games/'+slug+'/'),
  ...guides.map(slug=>'/'+prefix+'guides/'+slug+'/')
-]);
+]).concat(internationalPages.map(({locale,path})=>'/'+locale+(path==='/'?'':path)+'/'));
 export function assertThat(ok,message){if(!ok)throw Error(message);}
 export function canonicalOf(html){return html.split('</head>')[0].match(/<link\b[^>]*rel="canonical"[^>]*href="([^"]+)"/i)?.[1]??null;}
 export function robotsOf(html){return html.split('</head>')[0].match(/<meta\b[^>]*name="robots"[^>]*content="([^"]+)"/i)?.[1]?.toLowerCase()??null;}
@@ -37,17 +39,50 @@ export function inspectPublicPage(html,url,headers={}){
  assertThat(!robots.includes('noindex'),'Public page contains noindex');
  assertThat(!String(headers['x-robots-tag']||'').toLowerCase().includes('noindex'),'Public page has noindex HTTP header');
  assertThat(/<h1(?:\s[^>]*)?>/i.test(html),'No server-rendered h1');
- const editorialPath=/^\/(?:en\/)?articles\//.test(new URL(url).pathname);
- assertThat(html.includes(editorialPath?'data-editorial-ssg-path="':'data-crew-ssg-path="'),editorialPath?'Missing static article content':'Missing React SSR/SSG markup');
+ const pathname=new URL(url).pathname;
+ const editorialPath=/^\/(?:en\/)?articles\//.test(pathname);
+ const bare=pathname.replace(/^\/en\//,'/');
+ const staticGuide=/^\/fortune\/(?:bazi|numerology)(?:\/|$)/.test(bare)||INTENT_SEO_SLUGS.some(slug=>bare==='/guides/'+slug+'/');
+ assertThat(editorialPath?html.includes('data-editorial-ssg-path="'):staticGuide?/<main>\s*<article>/i.test(html):html.includes('data-crew-ssg-path="'),editorialPath?'Missing static article content':'Missing SSR/SSG markup');
  const json=html.match(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/i);
  assertThat(json,'Missing structured data');
  try{JSON.parse(json[1]);}catch(e){throw Error('Malformed JSON-LD: '+e.message);}
  const current=new URL(url),path=current.pathname;
  if(!path.startsWith('/research/')&&!path.startsWith('/en/research/')){
-  const base=path.startsWith('/en/')?path.slice(3):path;
-  assertThat(html.includes('hreflang="zh-Hant" href="'+current.origin+base+'"'),'Missing Chinese hreflang');
-  assertThat(html.includes('hreflang="en" href="'+current.origin+'/en'+base+'"'),'Missing English hreflang');
+  const published=internationalPages.find(({locale,path:route})=>path==='/'+locale+(route==='/'?'':route)+'/');
+  const base=published?(published.path==='/'?'/':published.path+'/'):path.startsWith('/en/')?path.slice(3):path;
+  const alternates=alternateLinks(html);
+  if(!published){
+   assertThat(alternates.get('zh-Hant')===current.origin+base,'Missing Chinese hreflang');
+   assertThat(alternates.get('en')===current.origin+'/en'+base,'Missing English hreflang');
+  }
+  if(published)assertThat(alternates.get(published.locale)===url,'Missing localized self hreflang');
  }
+}
+export function alternateLinks(html){
+ const links=new Map();
+ for(const [tag] of html.split('</head>')[0].matchAll(/<link\b[^>]*>/gi)){
+  const attrs=Object.fromEntries([...tag.matchAll(/([\w-]+)\s*=\s*["']([^"']*)["']/g)].map(m=>[m[1].toLowerCase(),m[2]]));
+  if(attrs.rel!=='alternate'||!attrs.hreflang)continue;
+  assertThat(!links.has(attrs.hreflang),'Duplicate hreflang '+attrs.hreflang);
+  assertThat(attrs.href,'Missing hreflang href');
+  links.set(attrs.hreflang,attrs.href);
+ }
+ return links;
+}
+export function checkReciprocalAlternates(pages,urls){
+ const eligible=new Set(urls);
+ for(const [url,links] of pages){
+  for(const [locale,target] of links){
+   assertThat(eligible.has(target),'Hreflang target not in sitemap: '+url+' -> '+target);
+   const other=pages.get(target);
+   if(!other)continue; // the HTTP/content failure is recorded independently
+   for(const [language,href] of links){
+    assertThat(other.get(language)===href,'Non-reciprocal hreflang: '+url+' -> '+target+' ('+language+')');
+   }
+  }
+ }
+
 }
 export function inspectNoindexPage(html){
  assertThat(robotsOf(html)?.includes('noindex'),'Private/preview route is missing noindex');
@@ -69,6 +104,7 @@ export async function auditSite({origin=ORIGIN,fetchImpl=fetch,log=console.log}=
   catch(e){errors.push(label+': '+e.message);log('FAIL '+label+': '+e.message);}
  }
  let urls=[];
+ const pages=new Map();
  await check('robots.txt and sitemap discovery',async()=>{
   const robots=(await retrieve('/robots.txt',{origin,fetchImpl})).text;
   assertThat(/User-agent:\s*\*/i.test(robots),'robots.txt missing wildcard user-agent');
@@ -86,10 +122,12 @@ export async function auditSite({origin=ORIGIN,fetchImpl=fetch,log=console.log}=
     await check('indexable '+new URL(url).pathname,async()=>{
      const {text,headers}=await retrieve(new URL(url).pathname,{origin,fetchImpl});
      inspectPublicPage(text,url,headers);
+     pages.set(url,alternateLinks(text));
     });
    }
   }));
  }
+ await check('reciprocal hreflang across sitemap',async()=>checkReciprocalAlternates(pages,urls));
  for(const path of [...privatePaths,...previewPaths]){
   await check('noindex '+path,async()=>{
    inspectNoindexPage((await retrieve(path,{origin,fetchImpl})).text);

@@ -31,3 +31,25 @@ test('private pages must be noindex without homepage canonical',async()=>{
  assert.throws(()=>inspectNoindexPage(html(ORIGIN+'/magic',{noindex:false,canonical:null})),/noindex/);
  assert.throws(()=>inspectNoindexPage(html(ORIGIN+'/magic',{noindex:true,canonical:ORIGIN+'/'})),/canonical/);
 });
+
+test('published localized pages and standalone guides are valid public content',async()=>{
+ const {inspectPublicPage}=await load();
+ const url=ORIGIN+'/ja/';
+ const localized=html(url,{alternate:false}).replace('</head>','<link rel="alternate" hreflang="ja" href="'+url+'"></head>');
+ assert.doesNotThrow(()=>inspectPublicPage(localized,url));
+ assert.throws(()=>inspectPublicPage(html(url,{alternate:false}),url),/localized self hreflang/);
+ const guide=ORIGIN+'/fortune/bazi/';
+ const standalone=html(guide,{ssg:false}).replace('<div ><h1>Test</h1></div>','<main><article><h1>Test</h1></article></main>');
+ assert.doesNotThrow(()=>inspectPublicPage(standalone,guide));
+ assert.throws(()=>inspectPublicPage(html(guide,{ssg:false}),guide),/SSR/);
+});
+test('alternate links must resolve to sitemap URLs with reciprocal language mappings',async()=>{
+ const {alternateLinks,checkReciprocalAlternates}=await load();
+ const zh=ORIGIN+'/', en=ORIGIN+'/en/';
+ const links=alternateLinks(html(zh));
+ const pages=new Map([[zh,links],[en,new Map(links)]]);
+ assert.doesNotThrow(()=>checkReciprocalAlternates(pages,[zh,en]));
+ assert.throws(()=>checkReciprocalAlternates(pages,[zh]),/not in sitemap/);
+ pages.set(en,new Map([['en',en]]));
+ assert.throws(()=>checkReciprocalAlternates(pages,[zh,en]),/Non-reciprocal/);
+});
