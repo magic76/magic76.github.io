@@ -127,7 +127,7 @@ test("guided lesson launch uses local card independent of tool result and tools 
  assert.match(ui,/if\(guidedRef\.current\).*guided-curriculum/);
  assert.match(ui,/guidedCanAdvance\(board\.guided\)/);
  assert.match(live,/Boolean\(geminiKey\(\)\),s\.targetLanguage/);
- assert.match(ui,/schema:3,model:wire\.current\.model/);
+ assert.match(ui,/schema:4,renderReply:\{\.\.\.directStats\.current,entries:directRef\.current\.length\},model:wire\.current\.model/);
  assert.match(live,/onToolDiagnostics:inlineBoard\.diagnostics/);
 });
 
