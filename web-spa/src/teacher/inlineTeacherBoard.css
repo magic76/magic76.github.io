@@ -57,3 +57,9 @@
 .teacher-passive-question{display:grid;gap:6px;padding:8px;background:#f2f7f3;border-radius:8px}
 .teacher-call-page .teacher-visual-reply:has(.teacher-passive-material){margin:4px 0 10px}
 @media(max-width:360px){.teacher-passive-row{grid-template-columns:1fr;gap:3px}}
+
+/* Actual spoken term/definition pairs, not a second generated card. */
+.teacher-call-page .friend-chat-bubbles .friend-bubble-ai .teacher-live-caption-term{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);align-items:start;gap:10px;margin:0;padding:9px 10px;border:1px solid #d7e5dc;background:#eff6f2;border-radius:9px;color:#254b36;font-weight:400}
+.teacher-live-caption-term strong{font-size:16px;font-weight:700;overflow-wrap:anywhere}
+.teacher-live-caption-term span{min-width:0;overflow-wrap:anywhere}
+@media(max-width:360px){.teacher-call-page .friend-chat-bubbles .friend-bubble-ai .teacher-live-caption-term{grid-template-columns:minmax(0,1fr);gap:3px}}
