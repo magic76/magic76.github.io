@@ -1,4 +1,5 @@
-type MarketCopy=typeof import("./internationalLearningData.json").default;
+import type marketData from "./internationalLearningData.json";
+type MarketCopy=typeof marketData;
 let copy:MarketCopy|undefined;
 let pending:Promise<void>|undefined;
 const marketKey=(locale:string|undefined)=>{const key=locale?.split("-")[0];return key==="ja"||key==="vi"||key==="ko"?key:undefined};
