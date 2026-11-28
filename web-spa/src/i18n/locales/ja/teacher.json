@@ -102,11 +102,11 @@
     "advanced": "先生と言語の設定",
     "accent": "地域のアクセント",
     "accentSelect": "地域のアクセントを選ぶ",
-    "guidance": "指導方法",
+    "guidance": "言語モード",
     "guidanceChoices": {
-      "beginner": "初心者向け指導",
-      "bilingual": "バイリンガルサポート",
-      "immersion": "完全イマージョン"
+      "beginner": "母語モード（指導）",
+      "bilingual": "バイリンガルモード",
+      "immersion": "イマージョンモード"
     },
     "customAccent": "カスタムアクセント",
     "customPlaceholder": "例：明瞭で自然なカナダ英語",
@@ -138,7 +138,9 @@
       "A2": "基礎",
       "B1": "中級",
       "B2": "中上級"
-    }
+    },
+    "roleplayLanguageLocked": "場面練習ではイマージョンモードを使用します。",
+    "modeChangeFailed": "切り替えできませんでした。もう一度お試しください。"
   },
   "picker": {
     "choose": "先生を選ぶ",

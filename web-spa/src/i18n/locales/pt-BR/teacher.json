@@ -102,11 +102,11 @@
     "advanced": "Preferências do professor e do idioma",
     "accent": "Sotaque regional",
     "accentSelect": "Escolha um sotaque regional",
-    "guidance": "Abordagem de ensino",
+    "guidance": "Modo de idioma",
     "guidanceChoices": {
-      "beginner": "Orientação para iniciantes",
-      "bilingual": "Apoio bilíngue",
-      "immersion": "Imersão total"
+      "beginner": "Modo nativo (guiado)",
+      "bilingual": "Modo bilíngue",
+      "immersion": "Modo imersão"
     },
     "customAccent": "Sotaque personalizado",
     "customPlaceholder": "Por exemplo: inglês canadense claro e natural",
@@ -138,7 +138,9 @@
       "A2": "Elementary",
       "B1": "Intermediate",
       "B2": "Upper intermediate"
-    }
+    },
+    "roleplayLanguageLocked": "A prática de situações usa imersão.",
+    "modeChangeFailed": "Não foi possível alterar. Tente novamente."
   },
   "picker": {
     "choose": "Escolha seu professor",

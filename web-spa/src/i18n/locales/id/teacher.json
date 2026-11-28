@@ -102,11 +102,11 @@
     "advanced": "Preferensi guru dan bahasa",
     "accent": "Aksen daerah",
     "accentSelect": "Pilih aksen daerah",
-    "guidance": "Pendekatan mengajar",
+    "guidance": "Mode bahasa",
     "guidanceChoices": {
-      "beginner": "Panduan pemula",
-      "bilingual": "Bantuan dwibahasa",
-      "immersion": "Imersi penuh"
+      "beginner": "Mode bahasa ibu (terpandu)",
+      "bilingual": "Mode dwibahasa",
+      "immersion": "Mode imersi"
     },
     "customAccent": "Aksen khusus",
     "customPlaceholder": "Contoh: bahasa Inggris Kanada yang jelas dan alami",
@@ -138,7 +138,9 @@
       "A2": "Elementary",
       "B1": "Intermediate",
       "B2": "Upper intermediate"
-    }
+    },
+    "roleplayLanguageLocked": "Latihan situasi menggunakan mode imersi.",
+    "modeChangeFailed": "Tidak dapat beralih. Coba lagi."
   },
   "picker": {
     "choose": "Pilih guru Anda",

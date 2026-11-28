@@ -102,11 +102,11 @@
     "advanced": "ตั้งค่าครูและภาษา",
     "accent": "สำเนียงภูมิภาค",
     "accentSelect": "เลือกสำเนียงภูมิภาค",
-    "guidance": "แนวทางการสอน",
+    "guidance": "โหมดภาษา",
     "guidanceChoices": {
-      "beginner": "คำแนะนำสำหรับผู้เริ่มต้น",
-      "bilingual": "ความช่วยเหลือสองภาษา",
-      "immersion": "ใช้ภาษาเป้าหมายเต็มรูปแบบ"
+      "beginner": "โหมดภาษาแม่ (มีคำแนะนำ)",
+      "bilingual": "โหมดสองภาษา",
+      "immersion": "โหมดภาษาเป้าหมายเท่านั้น"
     },
     "customAccent": "สำเนียงกำหนดเอง",
     "customPlaceholder": "เช่น ภาษาอังกฤษแคนาดาที่ชัดเจนและเป็นธรรมชาติ",
@@ -138,7 +138,9 @@
       "A2": "Elementary",
       "B1": "Intermediate",
       "B2": "Upper intermediate"
-    }
+    },
+    "roleplayLanguageLocked": "การฝึกตามสถานการณ์ใช้โหมดภาษาเป้าหมายเท่านั้น",
+    "modeChangeFailed": "เปลี่ยนโหมดไม่สำเร็จ โปรดลองอีกครั้ง"
   },
   "picker": {
     "choose": "เลือกครู",

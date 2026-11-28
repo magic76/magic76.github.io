@@ -102,11 +102,11 @@
     "advanced": "Tùy chọn giáo viên và ngôn ngữ",
     "accent": "Giọng địa phương",
     "accentSelect": "Chọn giọng địa phương",
-    "guidance": "Phương pháp giảng dạy",
+    "guidance": "Chế độ ngôn ngữ",
     "guidanceChoices": {
-      "beginner": "Hướng dẫn cho người mới",
-      "bilingual": "Hỗ trợ song ngữ",
-      "immersion": "Đắm mình hoàn toàn"
+      "beginner": "Chế độ tiếng mẹ đẻ (có hướng dẫn)",
+      "bilingual": "Chế độ song ngữ",
+      "immersion": "Chế độ chỉ dùng ngôn ngữ đích"
     },
     "customAccent": "Giọng tùy chỉnh",
     "customPlaceholder": "Ví dụ: tiếng Anh Canada rõ ràng, tự nhiên",
@@ -138,7 +138,9 @@
       "A2": "Elementary",
       "B1": "Intermediate",
       "B2": "Upper intermediate"
-    }
+    },
+    "roleplayLanguageLocked": "Luyện tập tình huống dùng chế độ chỉ sử dụng ngôn ngữ đích.",
+    "modeChangeFailed": "Không thể chuyển chế độ. Vui lòng thử lại."
   },
   "picker": {
     "choose": "Chọn giáo viên",

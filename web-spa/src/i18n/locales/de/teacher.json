@@ -102,11 +102,11 @@
     "advanced": "Lehrkraft- und Spracheinstellungen",
     "accent": "Regionaler Akzent",
     "accentSelect": "Regionalen Akzent wählen",
-    "guidance": "Unterrichtsansatz",
+    "guidance": "Sprachmodus",
     "guidanceChoices": {
-      "beginner": "Hilfe für Anfänger",
-      "bilingual": "Zweisprachige Unterstützung",
-      "immersion": "Volles Eintauchen"
+      "beginner": "Muttersprachmodus (geführt)",
+      "bilingual": "Zweisprachiger Modus",
+      "immersion": "Immersionsmodus"
     },
     "customAccent": "Eigener Akzent",
     "customPlaceholder": "Zum Beispiel: klares, natürliches kanadisches Englisch",
@@ -138,7 +138,9 @@
       "A2": "Elementary",
       "B1": "Intermediate",
       "B2": "Upper intermediate"
-    }
+    },
+    "roleplayLanguageLocked": "Situationsübungen verwenden den Immersionsmodus.",
+    "modeChangeFailed": "Wechsel fehlgeschlagen. Bitte erneut versuchen."
   },
   "picker": {
     "choose": "Lehrkraft wählen",
