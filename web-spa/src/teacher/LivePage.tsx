@@ -239,7 +239,7 @@ export function TeacherLivePage(){
    {!textMode&&<FriendCallMenu inCall open={callOptions} onClose={()=>setCallOptions(false)} title={t("voice:callCaptions.more")} closeLabel={t("voice:callCaptions.closeMenu")}>
   <div className="friend-call-settings">
    {missionNotes}{modeSwitch}{teacherOptions}{quickActions}
-   <InlineTeacherBoardMenu board={inlineBoard} zh={zh} send={live.sendText} canSend={live.state==="listening"} onRequested={()=>setCallOptions(false)}/>
+   <InlineTeacherBoardMenu board={inlineBoard} captionLayout={captionLayout} zh={zh} send={live.sendText} canSend={live.state==="listening"} onRequested={()=>setCallOptions(false)}/>
    {!guestStarted&&<TeacherLiveTools live={live} store={s} profile={profile} sessionActive={sessionActive} onPickTeacher={()=>setPicker(true)}/>}
   </div>
   <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
