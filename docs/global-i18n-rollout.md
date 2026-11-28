@@ -24,3 +24,9 @@ Canonical locale registry: `config/ui-locales.json`. Do not change `stage` from 
 5. Track search impressions → starts → Gemini setup → return visits by locale.
 
 Verification: `npm test`, `npm run check:web`, `npm run build:cloudflare`, `npm run test:cloudflare`. Do not trigger Android AAB.
+
+## Route-level international publication
+The legacy zh-TW/en SSG clusters remain unchanged. `config/seo-international.json` is the explicit, per-page release gate for additional interface locales. Do not promote an entire UI locale merely because some pages are ready.
+Each entry requires `locale`, normalized app `path` (no trailing slash except root), localized `title` and `description`, content `lastmod` (YYYY-MM-DD), and `reviewed: true` after content and UX QA. The supported app routes are defined in `scripts/seo-publication.mjs`; other routes, including user-specific/live views, are not eligible.
+The Cloudflare build renders the actual locale with its namespaces, creates canonical metadata and reciprocal hreflang only for actual sitemap counterparts, and leaves non-published routes noindex. When adding the first entries, verify both slash and slashless routes and private/unpublished deep links on a Pages preview before merging. Do not treat the unit-tested rewrite policy as production HTTP verification.
+The registry starts empty deliberately; market-specific page review and publication are separate PRs.

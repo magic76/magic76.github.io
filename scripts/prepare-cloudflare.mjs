@@ -1,5 +1,6 @@
 import {COURSE_SEO} from "./course-seo.mjs";
 import {prerenderPublicRoutes} from "./ssg-renderer.mjs";
+import {CORE_SEO_ROUTES,BASE_SEO_LOCALES,internationalRedirectRules,publishInternationalPages,localizedSeoHead,htmlLanguage,publicPath} from "./seo-publication.mjs";
 import {articleHead,articlePath,escapeHtml,safeJson,indexableArticle,decodeHtmlText} from "./research-seo.mjs";
 import {GAME_SEO_PAGES,GAME_SEO_SLUGS} from "./game-seo.mjs";
 import {writeBaziSeoPages,baziSitemapEntries} from "./bazi-seo.mjs";
@@ -137,7 +138,7 @@ cpSync(briefing,join(out,"briefings"),{recursive:true});
 // The actual React App is rendered at build time for public routes. Vite handles
 // TSX/assets; we reuse the old SEO files ONLY for their head metadata (title,
 // canonical, hreflang, social images and JSON-LD). No marketing HTML is shipped.
-const {pages:prerendered,articles,research,related,guides}=await prerenderPublicRoutes(root);
+const {pages:prerendered,articles,research,related,guides,internationalPages}=await prerenderPublicRoutes(root);
 // Static 1200x630 OG PNGs, emitted at build time only.
 writeStaticPreviews(out,{
  courseSlugs:COURSE_SEO.map(c=>c.slug),
@@ -149,7 +150,7 @@ writeFileSync(join(out,"briefings","discovery.json"),JSON.stringify(related));
 // Head fragments must be separated by real whitespace. A literal backslash-n
 // between tags makes the browser close <head> early and visibly render "\\n".
 const newline=String.fromCharCode(10);
-const routes=["","teacher","story","fortune","research","games"];
+const routes=CORE_SEO_ROUTES.map(path=>path.slice(1));
 const normalizePath=path=>path.replace(/\/+$/,"")||"/";
 // Fallback deep routes receive /index.html from Pages. If its SSG route differs
 // from the real URL, hide the wrong screen before first paint until React mounts.
@@ -310,7 +311,7 @@ const rules=[
  "/crew-app/crew-creature-lab/* /explore 301",
  "/en/research/:date/:article/ /research/:date/:article/ 301",
  "/en/research/:date/:article /research/:date/:article/ 301",
- ...previewLocales.map(({code})=>"/"+code+"/* /"+code+"/ 200")
+ ...internationalRedirectRules(previewLocales,internationalPages)
 ];
 for(const prefix of ["","/en"]){
  for(const path of privatePatterns)rules.push(prefix+path+" /_app-noindex 200");
@@ -374,7 +375,7 @@ for(const locale of ["zh","en"])for(const slug of GAME_SEO_SLUGS){
 }
 
 
-for(const locale of ["zh-TW","en"])for(const course of COURSE_SEO){
+for(const locale of BASE_SEO_LOCALES)for(const course of COURSE_SEO){
  const slug=course.slug,meta=locale==="en"?course.en:course.zh;
  const route="/teacher/course/"+slug,canonical="https://koolo.app"+(locale==="en"?"/en":"")+route+"/";
  const zhHref="https://koolo.app"+route+"/",enHref="https://koolo.app/en"+route+"/";
@@ -517,7 +518,17 @@ writeNumerologySeoPages(out);
 writeIntentSeoPages(out);
 const editorialItems=readEditorial(root);
 writeEditorialPages(root,out);
-writeFileSync(join(out,"sitemap.xml"),sitemap.replace("</urlset>",guideSitemapEntries+newline+baziSitemapEntries(seoLastmod)+newline+numerologySitemapEntries(seoLastmod)+newline+intentSitemapEntries(seoLastmod)+newline+editorialSitemapEntries(editorialItems)+newline+sitemapEntries+newline+"</urlset>"));
+const fullSitemap=sitemap.replace("</urlset>",guideSitemapEntries+newline+baziSitemapEntries(seoLastmod)+newline+numerologySitemapEntries(seoLastmod)+newline+intentSitemapEntries(seoLastmod)+newline+editorialSitemapEntries(editorialItems)+newline+sitemapEntries+newline+"</urlset>");
+writeFileSync(join(out,"sitemap.xml"),publishInternationalPages({out,pages:internationalPages,rendered:prerendered,sitemap:fullSitemap,makeHtml:(entry,body,htmlLinks)=>{
+ const path=entry.path,ssgPath=normalizePath(publicPath(entry.locale,path));
+ const page=body.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
+ const theme=path.startsWith("/teacher")||path==="/learn"?"teacher-theme":path==="/story"?"story-theme":path==="/fortune"?"fortune-theme":"";
+ const head=viteHtml.slice(0,viteHtml.indexOf("</head>"))
+  .replace(/<html lang="[^"]*">/,'<html lang="'+htmlLanguage(entry.locale)+'">')
+  .replace(/<meta name="robots" content="noindex,follow"\s*\/?\s*>/,'<meta name="robots" content="index,follow">')
+  .replace(/<title>[^<]*<\/title>/,"<title>"+escapeHtml(entry.title)+"</title>");
+ return head+routeCssLinks(path)+newline+localizedSeoHead(entry,htmlLinks)+newline+dynamicGuard+'</head><body'+(theme?' class="'+theme+'"':"")+'><div id="root" data-crew-ssg-path="'+ssgPath+'">'+page+'</div>'+bootMarkup+'</body></html>';
+}}));
 
 // Preserve bookmarks shared from GitHub Pages, including HashRouter query string.
 // Cloudflare deploys a redirect-only compatibility document, not a second app.
