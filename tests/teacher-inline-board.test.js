@@ -149,7 +149,8 @@ test("visual replies stay in caption thread and mode off hides without clearing 
  assert.match(ui,/if\(!modeRef\.current\|\|modePending\.current\)/);
  assert.match(ui,/if\(!board\.enabled\|\|!board\.mode\)return undefined/);
  assert.doesNotMatch(live,/<InlineTeacherBoard board=/);
- assert.match(live,/inlineBoard\.finish\(_turn,captionIndex\)/);
+ assert.match(live,/onVisualTurnComplete:inlineBoard\.finish/);
+ assert.match(hook,/if\(!guestModeRef\.current\)configRef\.current\.onVisualTurnComplete\?\.\(turn,/);
  assert.match(live,/visualReply=\{visualReplyProps/);
  assert.match(hook,/attempt\.captionOffset\+turnsRef\.current\.length-1/);
  assert.match(bubble,/visualReply\?\.render\(turn\.index\)/);
