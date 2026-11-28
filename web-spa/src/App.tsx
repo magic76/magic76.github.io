@@ -66,6 +66,12 @@ function ZhTwCanonicalRedirect(){
  const canonical=pathname.replace(/^\/zh-TW(?=\/|$)/,"")||"/";
  return <Navigate to={{pathname:canonical==="/play"?"/games":canonical,search,hash}} replace/>;
 }
+function ChatPage(){
+ const location=useLocation();
+ const directory=Boolean((location.state as {openFriendDirectory?:boolean}|null)?.openFriendDirectory);
+ useEffect(()=>{if(directory)window.scrollTo(0,0)},[directory]);
+ return directory?<FriendsPage/>:<CrewSectionPage section="chat"/>;
+}
 function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navigate to={"/research/"+encodeURIComponent(date)+"/"+encodeURIComponent(id)} replace/>}
 export function App(){const {t}=useTranslation("common");useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);
  useEffect(()=>{
@@ -76,7 +82,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
  },[pathname,search]);const active=sectionForRoute(pathname,search);return <>{uiLocaleFailedToLoad&&<div className="crew-locale-error" role="alert">{t("language.loadError")}</div>}<RouteErrorBoundary key={pathname}><GameRouteMonitor pathname={pathname}><Suspense fallback={<KooloLoader label={t("loading")}/>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
-<Route path="/chat" element={<AppChrome product="home"><CrewSectionPage section="chat"/></AppChrome>}/>
+<Route path="/chat" element={<AppChrome product="home"><ChatPage/></AppChrome>}/>
 <Route path="/explore" element={<AppChrome product="home"><CrewSectionPage section="explore"/></AppChrome>}/>
 <Route path="/discover" element={<Navigate to="/explore" replace/>}/>
  <Route path="/mate" element={<AppChrome product="home"><MatePage/></AppChrome>}/>
@@ -93,7 +99,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/briefing/board" element={<Navigate to="/research/board" replace/>}/>
 <Route path="/briefing/:date/:id" element={<BriefingLegacyRedirect/>}/>
 <Route path="/orb" element={<AppChrome product="home"><CyberOrbPage/></AppChrome>}/>
-<Route path="/try" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/>
+<Route path="/try" element={<Navigate to="/learn" replace/>}/>
 <Route path="/settings" element={<AppChrome product="settings"><SettingsPage/></AppChrome>}/>
 <Route path="/account" element={<AppChrome product="settings"><AccountPage/></AppChrome>}/>
 <Route path="/me/voice-credits" element={<AppChrome product="settings"><VoiceCreditsPage/></AppChrome>}/>
@@ -106,7 +112,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/sandbox-lab" element={<AppChrome product="briefing"><SandboxLab/></AppChrome>}/>
 <Route path="/usage" element={<AppChrome product="briefing"><UsageDashboardPage/></AppChrome>}/>
 <Route path="/usage/feedback" element={<AppChrome product="briefing"><FeedbackInboxPage/></AppChrome>}/>
-<Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="fortune" element={<TeacherFortunePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="shorts/:friendId" element={<ShortsProfilePage/>}/><Route path="friends" element={<Navigate to="/teacher/roles?mode=friends" replace/>}/><Route path="roles" element={<RolesPage/>}/><Route path="learn" element={<Navigate to="/learn" replace/>}/><Route path="tutor" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<LearningMaterialGate material="vocabulary"><VocabularyPage/></LearningMaterialGate>}/><Route path="course" element={<CoursePage/>}/><Route path="course/:slug" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<LearningMaterialGate material="phrasebook"><PhrasebookPage/></LearningMaterialGate>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
+<Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="fortune" element={<TeacherFortunePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="shorts/:friendId" element={<ShortsProfilePage/>}/><Route path="friends" element={<Navigate to="/chat" replace/>}/><Route path="roles" element={<RolesPage/>}/><Route path="learn" element={<Navigate to="/learn" replace/>}/><Route path="tutor" element={<Navigate to="/learn" replace/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<LearningMaterialGate material="vocabulary"><VocabularyPage/></LearningMaterialGate>}/><Route path="course" element={<CoursePage/>}/><Route path="course/:slug" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<LearningMaterialGate material="phrasebook"><PhrasebookPage/></LearningMaterialGate>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
 <Route path="/circle" element={<BooksPage/>}/>
 <Route path="/play" element={<Navigate to="/games" replace/>}/>
 <Route path="/games" element={<AppChrome product="home"><GameRouteReady/><CrewPlayHubPage/></AppChrome>}/>

@@ -44,7 +44,7 @@ export function PracticePage(){
  <section className="hero crew-practice-heading"><span className="kicker">Koolo Teacher</span><h1>{target==="英文"&&market?market.teacherHeading:tToday("learnToday.teachersCourses")}</h1><p>{target==="英文"&&market?market.teacherIntro:tToday("learnToday.teacherIntro")}</p></section>
  <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{t("friends:languages."+target,{defaultValue:target})}</strong><Link to="/settings#settings-learning">{t("practice.targetChange")}</Link></section>
  <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")} style={!showContinue?{gridTemplateColumns:"minmax(0,1fr)"}:undefined}>
-  <Link className="crew-role-entry teacher" to="/teacher/roles?mode=teacher">
+  <Link className="crew-role-entry teacher" to="/learn">
    <span className="crew-role-symbol crew-role-portrait"><TeacherAvatar profile={profile}/></span>
    <strong>{t("practice.teacher")} <span className="crew-role-name">· {profile.name}</span></strong><span>{t("practice.teacherDesc")}</span>
    <small>{t("practice.teacherAction")} <Arrow direction="right"/></small>

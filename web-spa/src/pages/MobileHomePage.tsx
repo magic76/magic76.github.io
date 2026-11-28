@@ -28,7 +28,7 @@ const SLIDES=["learn","zoe","friends","game"] as const;
 const CAROUSEL_INTERVAL_MS=11000;
 type App={id:string;zh:string;en:string;icon:IconName;to:string;event:"friend"|"learn"|"play"|"story"|"fortune"|"shorts"|"timeline"};
 const APPS:readonly App[]=[
- {id:"friends",zh:"AI 朋友",en:"AI Friends",icon:"chat",to:"/teacher/roles?mode=friends",event:"friend"},
+ {id:"friends",zh:"AI 朋友",en:"AI Friends",icon:"chat",to:"/chat",event:"friend"},
  {id:"teacher",zh:"學語言",en:"Learn",icon:"teacher",to:"/learn",event:"learn"},
  {id:"games",zh:"玩遊戲",en:"Games",icon:"play",to:"/games",event:"play"},
  {id:"fortune",zh:"命理",en:"Fortune",icon:"fortune",to:"/fortune",event:"fortune"},
@@ -130,7 +130,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       </div>
       <div className="cmh-zoe-actions">
        <Link to="/teacher/live" tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","learn")}><Icon name="teacher"/>{startPractice}</Link>
-       <Link to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","learn")}>{t("showcase29.changeTeacher")}</Link>
+       <Link to="/learn" state={{openTeacherPicker:true}} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","learn")}>{t("showcase29.changeTeacher")}</Link>
       </div>
      </section>
      <section className={"cmh-slide cmh-zoe"+(friendResume?" cmh-zoe-return":"")} data-active={activeSlide===1} aria-hidden={activeSlide!==1}
@@ -172,7 +172,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       </div>
       <div className="cmh-zoe-actions">
        <Link to="/friend/live?id=noah&from=home&chat=text" tabIndex={activeSlide===2?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{t("showcase29.chatNoah")}</Link>
-       <Link to="/teacher/roles?mode=friends" tabIndex={activeSlide===2?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","friend")}>{t("showcase29.allFriends")}</Link>
+       <Link to="/chat" tabIndex={activeSlide===2?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","friend")}>{t("showcase29.allFriends")}</Link>
       </div>
      </section>
      <section className="cmh-slide cmh-slide-game" data-active={activeSlide===3} aria-hidden={activeSlide!==3}

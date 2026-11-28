@@ -19,7 +19,7 @@ const content={
  }
 } as const;
 const links:Record<Product,[string,string]>={
- teacher:["/teacher/roles?mode=teacher","/teacher/roles?mode=friends"],
+ teacher:["/learn","/chat"],
  story:["/story/create","/story/physical"],
  fortune:["/fortune/reading?mode=bazi","/fortune/reading?mode=vedic"]
 };

@@ -22,7 +22,7 @@ export function GuideHub({hideGeminiKey=false}:{hideGeminiKey?:boolean}={}){
   return <section className="crew-guide-hub" aria-label={guide.heading}>
    <h2>{guide.heading}</h2><p>{guide.intro}</p>
    <div className="grid two-col">{guide.examples.map(example=><div className="notice" key={example.label}><strong>{example.label}</strong><p lang="en">{example.english}</p><p>{example.meaning}</p></div>)}</div>
-   <div className="crew-guide-hub-links">{marketLinks.map((to,index)=><Link key={to} to={to==="/teacher"&&hideGeminiKey?"/teacher/roles?mode=teacher":to}><span className="crew-guide-hub-label">{guide.links[index]}</span><Arrow direction="right" className="crew-guide-hub-arrow"/></Link>)}</div>
+   <div className="crew-guide-hub-links">{marketLinks.map((to,index)=><Link key={to} to={to==="/teacher"&&hideGeminiKey?"/learn":to}><span className="crew-guide-hub-label">{guide.links[index]}</span><Arrow direction="right" className="crew-guide-hub-arrow"/></Link>)}</div>
    <p className="meta">{guide.note}</p>
   </section>;
  }

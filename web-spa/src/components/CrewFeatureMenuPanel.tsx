@@ -14,12 +14,12 @@ type MenuGroup={id:string;icon:string;items:readonly MenuItem[]};
 /** Lazy-loaded catalog: every destination goes directly to a real Crew page. */
 export const FEATURE_MENU_GROUPS:readonly MenuGroup[]=[
  {id:"chat",icon:"💬",items:[
-  {id:"friends",to:"/teacher/roles?mode=friends",icon:"💬",detail:"friend"},
+  {id:"friends",to:"/chat",icon:"💬",detail:"friend"},
   {id:"shorts",to:"/teacher/shorts",icon:"📸",detail:"shorts"},
   {id:"friendMemory",to:"/settings#memory-settings",icon:"🧠",detail:"settings"}
  ]},
  {id:"learn",icon:"🎓",items:[
-  {id:"teacher",to:"/teacher/roles?mode=teacher",icon:"🎤",detail:"learn"},
+  {id:"teacher",to:"/learn",icon:"🎤",detail:"learn"},
   {id:"courses",to:"/teacher/course",icon:"🗣️",detail:"learn"},
   {id:"vocabulary",to:"/teacher/vocabulary",icon:"📝",detail:"learn"},
   {id:"pronunciation",to:"/teacher/pronunciation",icon:"🔊",detail:"learn"},

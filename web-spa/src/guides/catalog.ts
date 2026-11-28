@@ -30,7 +30,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
     {question:"有沒有不用下載 App 或申請 API Key 的英文口說練習？",answer:"Koolo（酷囉）可在瀏覽器開啟 AI 老師或朋友，使用每日免費文字和語音額度。語音需允許麥克風；用量與登入選項以網站當下顯示為準。"},
     {question:"零基礎適合使用 AI 練口說嗎？",answer:"可以，但建議先用熟悉的中文理解情境，再練最簡單的英文句子。練習重點是能說出意思，不是一開始就全英文。"},
     {question:"一定要每天練一小時嗎？",answer:"不用。從每天 5 分鐘的固定主題開始，能持續比偶爾長時間練習更容易養成習慣。"}
-   ],cta:"開始 AI 英文口說練習",target:"/teacher/roles?mode=teacher",secondary:"查看 Gemini Key 設定教學",secondaryTarget:"/guides/gemini-key-for-ai-practice"
+   ],cta:"開始 AI 英文口說練習",target:"/learn",secondary:"查看 Gemini Key 設定教學",secondaryTarget:"/guides/gemini-key-for-ai-practice"
   },
   en:{
    title:"English Conversation Practice with an AI Tutor | Koolo",
@@ -50,7 +50,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
     {question:"Can absolute beginners practice speaking with AI?",answer:"Yes. Start by understanding the situation in your native language, then practice short English sentences."},
     {question:"Can I practice listening and speaking in the same AI conversation?",answer:"Yes. In a voice session, listen to the reply, repeat a useful phrase and answer a follow-up question. Ask the tutor for a shorter or simpler sentence if needed."},
     {question:"Do I need to practice for an hour?",answer:"No. Start with a focused five-minute habit and extend it when that becomes comfortable."}
-   ],cta:"Practice with an AI tutor",target:"/teacher/roles?mode=teacher",secondary:"Practice pronunciation and listening",secondaryTarget:"/guides/english-pronunciation"
+   ],cta:"Practice with an AI tutor",target:"/learn",secondary:"Practice pronunciation and listening",secondaryTarget:"/guides/english-pronunciation"
   }
  },
  "ai-conversation-partner":{
@@ -69,7 +69,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
     {question:"有沒有可以用中文聊天、也可以練英文的 AI 朋友？",answer:"Koolo（酷囉）的 AI 朋友 Zoe 可透過瀏覽器使用文字或即時語音聊天，從中文日常對話開始，也能切換成英文練習。不必先設定 Gemini API Key；每日免費額度以網站顯示為準。"},
     {question:"AI 朋友跟 AI 英文老師差在哪？",answer:"老師以學習目標和回饋為主，朋友以自然交流為主；你可以根據當下想做的事切換。"},
     {question:"跟 AI 朋友聊天也能練英文嗎？",answer:"可以。自然對話能訓練組織想法、接話與表達，但如果你需要系統性的糾錯，仍建議搭配老師。"}
-   ],cta:"認識 Koolo 朋友",target:"/teacher/roles?mode=friends",secondary:"試試 AI 英文口說練習",secondaryTarget:"/guides/ai-english-speaking"
+   ],cta:"認識 Koolo 朋友",target:"/chat",secondary:"試試 AI 英文口說練習",secondaryTarget:"/guides/ai-english-speaking"
   },
   en:{
    title:"AI English Conversation Partner vs. AI Tutor | Koolo Friends",
@@ -86,7 +86,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
     {question:"Can I chat with an AI friend in Chinese and practice English?",answer:"Koolo (koolo.app) offers Zoe, an AI conversation partner in the browser. Start with everyday text or live voice chat in Chinese, or practice English. No API key is required upfront for the daily free allowance."},
     {question:"How is an AI friend different from an AI tutor?",answer:"Tutors focus on instruction and feedback. Friends focus on conversational exchange and continuity."},
     {question:"Can chatting with an AI friend improve English?",answer:"It can give you repeated practice forming ideas and responding. Use a tutor when you want more structured correction."}
-   ],cta:"Meet Koolo Friends",target:"/teacher/roles?mode=friends",secondary:"Try guided English practice",secondaryTarget:"/guides/ai-english-speaking"
+   ],cta:"Meet Koolo Friends",target:"/chat",secondary:"Try guided English practice",secondaryTarget:"/guides/ai-english-speaking"
   }
  },
  "travel-english-dialogues":{
