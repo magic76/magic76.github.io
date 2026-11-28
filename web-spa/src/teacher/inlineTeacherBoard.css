@@ -15,3 +15,12 @@
 
 .inline-board-delivery{padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;line-height:1.45;overflow-wrap:anywhere;color:#244333;background:#fff}
 .inline-board-delivery button{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid #647f70;background:#eef5f0;color:#244333;cursor:pointer}
+
+/* Curriculum navigation remains reachable outside the scrolling teaching card. */
+.inline-lesson-progress{display:flex;align-items:center;gap:10px;padding:5px 12px;flex:0 0 auto;font-size:12px;background:#eef5f0;color:#244333}
+.inline-lesson-progress progress{flex:1;min-width:0;accent-color:#286848;height:7px}
+.inline-lesson-footer{flex:0 0 auto;display:flex;justify-content:flex-end;padding:4px 10px;border-top:1px solid #dce6df;background:#fff}
+.inline-lesson-footer button{min-height:44px;padding:0 14px;border:1px solid #286848;border-radius:9px;background:#286848;color:#fff;font:inherit;cursor:pointer}
+.inline-lesson-footer button:disabled{border-color:#ccd8d0;background:#e8ede9;color:#55665c;cursor:default}
+.inline-lesson-picker{display:grid;gap:4px;min-width:0;width:100%;font-size:13px}
+.inline-lesson-picker select{min-width:0;width:100%;min-height:44px;border:1px solid currentColor;border-radius:8px;padding:0 8px;font:inherit;background:var(--surface,#fff);color:#244333}
