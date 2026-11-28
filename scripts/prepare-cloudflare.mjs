@@ -530,8 +530,7 @@ writeFileSync(join(oldPath,"index.html"),`<!doctype html>
  var old=(location.hash||"").replace(/^#/,"")||"/";
  if(!/^\\/(?!\\/)/.test(old)||old.includes(".."))old="/";
  var parsed;try{parsed=new URL(old,location.origin)}catch(e){parsed=new URL("/",location.origin)}
- var preferred="";try{preferred=localStorage.getItem("crew_ui_locale_v1")==="en"?"/en":""}catch(e){}
- location.replace(preferred+parsed.pathname+parsed.search+parsed.hash)
+ location.replace(parsed.pathname+parsed.search+parsed.hash)
 })();
 </script></body></html>`);
 if(existsSync(join(out,"404.html")))rmSync(join(out,"404.html"));

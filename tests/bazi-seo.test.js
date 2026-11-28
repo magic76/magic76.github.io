@@ -23,7 +23,7 @@ test("BaZi SEO generator emits 14 bilingual public pages and reciprocal language
    assert.ok(html.includes('<link rel="canonical" href="'+canonical+'">'),part);
    assert.ok(html.includes('hreflang="zh-Hant" href="https://koolo.app/fortune/'+slug+'/">'),part);
    assert.ok(html.includes('hreflang="en" href="https://koolo.app/en/fortune/'+slug+'/">'),part);
-   assert.ok(html.includes('href="/fortune/reading?mode=bazi"'),part);
+   assert.ok(html.includes('href="'+(locale==="en"?"/en":"")+'/fortune/reading?mode=bazi"'),part);
    assert.ok(html.includes('name="robots" content="index,follow"'),part);
    assert.ok(!html.includes("birthDate")&&!html.includes("birthTime")&&!html.includes("chartHash"),part);
    assert.ok(html.includes('application/ld+json'),part);
@@ -46,7 +46,7 @@ test("BaZi SEO generator emits 14 bilingual public pages and reciprocal language
    assert.equal((html.match(/data-seo-cta="/g)||[]).length,2,"top and bottom CTAs "+rel);
    assert.ok((html.match(/<details>/g)||[]).length>=3,"FAQ is substantive "+rel);
    assert.ok(html.includes('href="/fortune/reading?mode=bazi"'),"real SPA route "+rel);
-   if(locale==="en")assert.ok(html.includes("crew_ui_locale_v1"),"English UI handoff "+rel);
+   assert.ok(!html.includes("crew_ui_locale_v1"),"URL-only UI handoff "+rel);
    const related=(html.match(/<li><a href=/g)||[]).length;
    assert.ok(related>=3&&related<=4,"focused related reading "+rel);
    assert.ok(html.includes('fortune_seo_chart_click'),"CTA analytics "+rel);

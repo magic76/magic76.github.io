@@ -22,13 +22,13 @@ function courseLocale(){
  return context.course;
 }
 
-test("Japanese-first visitor keeps Japanese UI, Japanese mother tongue and English learning target independent",()=>{
+test("Explicit Japanese URL keeps Japanese UI, Japanese mother tongue and English learning target independent",()=>{
  const ui=read("web-spa/src/i18n/localeCatalog.ts");
  const uiTests=read("tests/ui-language-detection.test.js");
  const store=fromTeacher("../store/teacherStore.ts");
  const native=fromTeacher("teacherLocale.ts");
  assert.match(ui,/resolveInitialUiLocale/);
- assert.match(uiTests,/visit\("\/",\["ja-JP"\]\),"ja"/);
+ assert.match(uiTests,/visit\("\/ja\/chat",\["fr-FR"\],"en"\),"ja"/);
  assert.match(store,/nativeLanguage:nativePreference\(\)/);
  assert.match(store,/targetLanguage:read\("lang","英文"\)/);
  assert.match(native,/\["ja","日本語"\]/);

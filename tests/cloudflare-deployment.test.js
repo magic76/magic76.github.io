@@ -532,7 +532,7 @@ check("old HashRouter links resolve to clean URLs with query strings",()=>{
  assert.ok(html.includes("location.hash"));
  assert.ok(html.includes("location.replace("));
  assert.ok(html.includes("parsed.search"));
- assert.ok(html.includes("crew_ui_locale_v1"));
+ assert.ok(!html.includes("crew_ui_locale_v1"));
 });
 
 

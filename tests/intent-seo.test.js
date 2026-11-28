@@ -23,12 +23,13 @@ test("six distinct bilingual SEO intent guides are crawlable and functional",asy
    assert.ok(html.indexOf('data-seo-cta="top"')<html.indexOf('<img class="hero"'),rel);
    assert.ok(!html.includes("chartHash")&&!html.includes("birthTime"),rel);
    assert.ok(html.includes("seo_intent_cta_click"),rel);
-   assert.ok(/href="\/(?:fortune\/reading\?mode=(?:bazi|tarot)|teacher\/roles\?mode=teacher|friend\/live\?id=zoe)/.test(html),rel);
+   assert.ok(/href="\/(?:en\/)?(?:fortune\/reading\?mode=(?:bazi|tarot)|teacher\/roles\?mode=teacher|friend\/live\?id=zoe)/.test(html),rel);
    const json=html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/);
    assert.ok(json,rel);
    const structured=JSON.parse(json[1]);
    assert.equal(structured["@graph"].find(x=>x["@type"]==="BreadcrumbList").itemListElement.at(-1).item,url);
-   if(en)assert.ok(html.includes("crew_ui_locale_v1"),rel);
+   assert.ok(!html.includes("crew_ui_locale_v1"),rel);
+   for(const match of html.matchAll(/data-seo-cta="[^"]+" class="cta" href="([^"]+)"/g))assert.equal(match[1].startsWith("/en/"),en,rel);
    const embedded=html.match(/<script>([\s\S]*?)<\/script><\/body>/);
    assert.ok(embedded,rel);
    new vm.Script(embedded[1],{filename:rel});

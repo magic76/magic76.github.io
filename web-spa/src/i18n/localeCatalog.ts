@@ -29,44 +29,16 @@ export function localePrefix(locale:UiLocale):string {
  return locale==="zh-TW"?"":"/"+locale;
 }
 
-/** Keep search-engine SSG snapshots at their canonical language. */
-export function isAutomatedLocaleVisitor(userAgent:string):boolean {
- return /bot|crawl|spider|slurp|facebookexternalhit|twitterbot|whatsapp|telegrambot|discordbot|linkedinbot|googleother|bingpreview|lighthouse|headlesschrome|prerender/i.test(userAgent);
-}
-
-/** URL language > existing preference > device languages > English.
- * Existing stored preferences are preserved even though older releases also
- * wrote automatic defaults; there is no reliable way to distinguish those.
- * The legacy HashRouter still has no public language-prefix URLs.
+/** Public URLs are authoritative; unprefixed URLs always use Traditional Chinese.
+ * Only the legacy HashRouter retains a manually stored UI preference.
  */
 export function resolveInitialUiLocale(options:{
  pathname:string;
  storedLocale:string|null;
- browserLanguages:readonly string[];
- userAgent?:string;
  isBrowser?:boolean;
 }):UiLocale {
- const {pathname,storedLocale,browserLanguages,userAgent="",isBrowser=true}=options;
- if(!isBrowser)return "zh-TW"; // Deterministic SSG output.
- if(!pathname.startsWith("/crew-app/")){
-  const fromPath=localeFromPublicPath(pathname);
-  if(fromPath)return fromPath;
-  if(isAutomatedLocaleVisitor(userAgent))return "zh-TW";
- }
- const saved=normalizeUiLocale(storedLocale);
- if(saved)return saved;
- for(const tag of browserLanguages){
-  const language=normalizeUiLocale(tag);
-  if(language)return language;
- }
- return "en";
-}
-
-/** Replace only implicit public routes, never explicit language URLs or legacy links. */
-export function preferredPublicLocaleDestination(
- pathname:string,locale:UiLocale,search="",hash="",userAgent=""
-):string|null {
- if(!pathname.startsWith("/")||pathname.startsWith("/crew-app/")||
-    localeFromPublicPath(pathname)||locale==="zh-TW"||isAutomatedLocaleVisitor(userAgent))return null;
- return localePrefix(locale)+pathname+search+hash;
+ const {pathname,storedLocale,isBrowser=true}=options;
+ if(!isBrowser)return "zh-TW";
+ if(pathname.startsWith("/crew-app/"))return normalizeUiLocale(storedLocale)||"zh-TW";
+ return localeFromPublicPath(pathname)||"zh-TW";
 }

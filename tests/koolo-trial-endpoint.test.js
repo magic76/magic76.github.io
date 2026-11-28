@@ -48,5 +48,5 @@ test("www.koolo.app redirects to the canonical site before SPA hydration",()=>{
  }
  assert.equal(canonical({location:new URL("https://koolo.app/friend/live")}),null);
  assert.equal(canonical({location:new URL("https://www.3sssi.com/friend/live")}),null);
- assert.match(source,/const destination=kooloCanonicalDestination\|\|\(!legacy\?preferredPublicLocaleDestination\(/);
+ assert.match(source,/const destination=kooloCanonicalDestination;/);
 });

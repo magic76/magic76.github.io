@@ -10,7 +10,7 @@ The interface offers **18 language choices**. This is a progressive localization
 Canonical locale registry: `config/ui-locales.json`. Do not change `stage` from `priority` to `published` without publishing equivalent localized content.
 
 ## Route behavior
-- Unprefixed paths stay Traditional Chinese: `/`, `/teacher`, `/story`, `/fortune`.
+- Unprefixed paths always stay Traditional Chinese (no automatic browser-language, cookie or saved-preference redirects): `/`, `/teacher`, `/story`, `/fortune`.
 - Other languages use a route prefix: `/ja/teacher`, `/es/story`, `/pt-BR/fortune`, `/id/teacher`.
 - `/en/*` remains unchanged. Navigation uses React Router basename, not a second SPA or a redirect after rendering.
 - The legacy `/crew-app/#/...` still uses HashRouter and saved locale.

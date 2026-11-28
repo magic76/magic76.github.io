@@ -101,8 +101,7 @@ function head(slug,en,d){
 }
 function render(slug,en){
  const d=data(slug,en),ctaLabel=en?"Calculate my birth numbers":"計算我的出生數字";
- const track=en?' onclick="try{localStorage.setItem(\'crew_ui_locale_v1\',\'en\')}catch(e){}"':"";
- const cta=place=>'<a class="cta" data-seo-cta="'+place+'" href="/fortune/reading?mode=tarot"'+track+'>'+ctaLabel+' →</a>';
+ const cta=place=>'<a class="cta" data-seo-cta="'+place+'" href="'+(en?"/en":"")+'/fortune/reading?mode=tarot">'+ctaLabel+' →</a>';
  const paragraphs=d.paragraphs.map(t=>'<p>'+esc(t)+'</p>').join("");
  const qa=faq(slug,en).map(([q,a])=>'<details><summary>'+esc(q)+'</summary><p>'+esc(a)+'</p></details>').join("");
  const n=slug.split("/").at(-1);

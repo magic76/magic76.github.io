@@ -24,11 +24,11 @@ test("numerology public cluster generates 10 bilingual topics with correct cards
    assert.ok(html.includes('property="og:image" content="https://koolo.app/fortune/'),rel);
    assert.ok(html.includes('<img class="hero"'),rel);
    assert.ok(html.includes('alt="'),rel);
-   assert.ok(html.includes('href="/fortune/reading?mode=tarot"'),rel);
-   assert.ok(!html.includes('/en/fortune/reading?mode=tarot'),rel);
+   assert.ok(html.includes('href="'+(lang==="en"?"/en":"")+'/fortune/reading?mode=tarot"'),rel);
+   assert.equal(html.includes('/en/fortune/reading?mode=tarot'),lang==='en',rel);
    assert.equal((html.match(/data-seo-cta="/g)||[]).length,2,rel);
    assert.equal((html.match(/<details>/g)||[]).length,3,rel);
-   if(lang==="en")assert.ok(html.includes("crew_ui_locale_v1"),rel);
+   assert.ok(!html.includes("crew_ui_locale_v1"),rel);
    assert.ok(html.includes('11')&&html.includes('22')&&html.includes('33'),"master numbers explained "+rel);
    assert.ok(!html.includes("birthTime")&&!html.includes("chartHash"),rel);
    const ld=html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/);
