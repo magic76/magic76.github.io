@@ -41,13 +41,13 @@ export function speakSyncSegment(segment:SpokenSegment,locale:string,rate:number
  const synth=window.speechSynthesis,utterance=new SpeechSynthesisUtterance(segment.text);utterance.lang=locale;utterance.rate=rate;
  const voice=selectLearningVoice(synth.getVoices(),locale);if(voice)utterance.voice=voice;
  return new Promise((resolve,reject)=>{
-  let done=false;
+  let done=false,started=false;
   const finish=(error?:Error)=>{if(done)return;done=true;clearTimeout(timer);signal.removeEventListener("abort",abort);utterance.onstart=null;utterance.onend=null;utterance.onerror=null;if(error)reject(error);else resolve()};
   const abort=()=>{finish();synth.cancel()};
   const timer=setTimeout(()=>{finish(new Error("speech timeout"));synth.cancel()},45000);
   signal.addEventListener("abort",abort,{once:true});
-  utterance.onstart=()=>{if(!signal.aborted)onStart()};
-  utterance.onend=()=>finish();
+  utterance.onstart=()=>{if(!signal.aborted){started=true;onStart()}};
+  utterance.onend=()=>finish(started?undefined:new Error("speech never started"));
   utterance.onerror=e=>finish(new Error("speech "+e.error));
   try{synth.speak(utterance)}catch(e){finish(e instanceof Error?e:new Error("speech failed"))}
  });
