@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(root+"/web-spa/src/teacher/"+p,"utf8");
 const strip=s=>stripTypeScriptTypes(s,{mode:"strip"}).replace(/^import .*;\s*$/gm,"").replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
 const api={};
-vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\n"+strip(read("visualReplyJournal.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,visualClaim,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt});",{api});
+vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\n"+strip(read("visualReplyJournal.ts"))+"\n"+strip(read("teacherReplyTemplates.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,visualClaim,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt,teacherReplyTemplates});",{api});
 const card=(title="Past tenses",id="past")=>({id,type:"comparison",title,pairs:[{source:"went",target:"finished past"},{source:"have gone",target:"present relevance"}]});
 const proposal=(g,now=100,auto=true,c=card())=>api.proposeInlineBoard(g,{name:api.BOARD_FUNCTION,args:{action:"upsert",cards:[c]}},auto,now);
 const finish=(g,input="",now=100,auto=true,valid=true,output="")=>api.finishInlineTurn(g,input,valid,auto,now,api.backupCard,output);
@@ -213,4 +213,46 @@ test("language-specific fallback only uses spoken material outside English",()=>
  const result=api.backupCard("文法規則","日本語の助詞は文の中で役割を示します。は話題を示し、が主語を示すことがあります。これは使い分けるときに重要です。",false,"","ja");
  assert.equal(result?.type,"steps");
  assert.match(result.points[0].note,/日本語/);
+});
+
+const latestClaim="I have updated the board to show the three different ways we pronounce the '-ed'ending, along with examples for each rule.";
+test("exact 13:44 screenshot: plain board and joined ASR suffix recover real material",()=>{
+ const g=api.newInlineGate();
+ const result=finish(g,"讓我有一個比較友善的 UI。",100,true,true,latestClaim);
+ assert.equal(result?.id,"ed-sounds-concept");
+ assert.deepEqual(Array.from(result.pairs,p=>p.source),["/t/","/d/","/ɪd/"]);
+});
+test("each visible reply has a template; render fallback works without any tool or completion callback",()=>{
+ const turns=[{input:"Hello",output:"Hi, how are you?"},{input:"讓我有一個比較友善的 UI。",output:latestClaim}];
+ const result=api.teacherReplyTemplates(turns,{},[],"en");
+ assert.equal(result.get(0).kind,"text");
+ assert.equal(result.get(1).kind,"material");assert.equal(result.get(1).source,"caption");
+ assert.equal(result.get(1).card.id,"ed-sounds-concept");
+ const pending=api.teacherReplyTemplates(turns.slice(0,1),turns[1],[],"en");
+ assert.equal(pending.get("stream").card.id,"ed-sounds-concept");
+ assert.equal(api.teacherReplyTemplates(turns,turns[1],[],"en").has("stream"),false);
+ const actual=api.appendVisualReply([],1,{...card(),points:[],questions:[],body:""});
+ const journal=api.sealVisualReplies(actual,1);
+ assert.equal(api.teacherReplyTemplates(turns,{},journal,"en").get(1).source,"journal");
+ assert.equal(api.teacherReplyTemplates(turns,{},[],"ja").get(1).kind,"missing");
+ assert.equal(api.teacherReplyTemplates([{input:"不要使用白板",output:latestClaim}],{},[],"en").get(0).kind,"text");
+});
+test("actual React reply markup includes caption-derived teaching card before suggestions without any tool result",async()=>{
+ const {createServer}=await import("vite");
+ const React=require("react"),{renderToStaticMarkup}=require("react-dom/server");
+ const server=await createServer({configFile:path.join(root,"vite.web.config.ts"),server:{middlewareMode:true,watch:null},appType:"custom",logLevel:"silent"});
+ try{
+  const {visualReplyProps}=await server.ssrLoadModule("/src/teacher/InlineTeacherBoard.tsx");
+  const {FriendCallBubbleList}=await server.ssrLoadModule("/src/friends/FriendCallBubbleList.tsx");
+  const turns=[{input:"Hello",output:"Hi, how are you?"},{input:"讓我有一個比較友善的 UI。",output:latestClaim}];
+  const board={enabled:true,journal:[],delivery:"idle",missingTurn:null,latestReplyTurn:null,activeEntry:null,guided:null,focus:-1,request:()=>false};
+  const visualReply=visualReplyProps(board,true,()=>false,true,turns,"","","英文");
+  const html=renderToStaticMarkup(React.createElement(FriendCallBubbleList,{name:"Lina",turns,input:"",output:"",source:"en",nativeLanguage:"zh-TW",translationRows:[],historicalTranslations:new Map(),suggestions:[{text:"A suggestion",translation:""}],suggestionsEnabled:true,translationEnabled:false,needTranslation:false,speaking:false,waitingText:"Waiting",youLabel:"You",recognizingLabel:"Recognizing",recognizedLabel:"Recognized",translateStatus:x=>x,visualReply}));
+  assert.match(html,/data-reply-template="text"/);
+  assert.match(html,/data-reply-template="material"/);
+  assert.match(html,/data-visual-source="caption"/);
+  assert.match(html,/data-kind="comparison"/);
+  assert.match(html,/\/ɪd\//);
+  assert.ok(html.indexOf('data-kind="comparison"')<html.indexOf("A suggestion"));
+ }finally{await server.close()}
 });
