@@ -3,7 +3,7 @@ export const RENDER_REPLY_FUNCTION="render_reply";
 export const REPLY_KINDS=["paragraph","heading","list","table","quote","steps","dialogue","formula"] as const;
 export type ReplyKind=typeof REPLY_KINDS[number];
 export type ReplyBlock={kind:ReplyKind;parts:string[];columns?:number};
-export type LiveRenderedReply={id:number;turn:number|null;blocks:ReplyBlock[]};
+export type LiveRenderedReply={id:number;turn:number|null;blocks:ReplyBlock[];standaloneBefore?:number};
 export const LIVE_RENDER_POLICY="\n"+[
  "[REPLY DISPLAY — spoken and visual answers belong to the same response]",
  "For substantive explanations, comparisons, examples, procedures, or demonstrations, CALL render_reply once early, preferably before speaking, or during the explanation if already speaking. It is your own visual answer, not a separate teacher or extra lesson. Use it proactively without waiting for a request to display a board.",
@@ -48,17 +48,17 @@ export function parseLiveReply(args:unknown):ReplyBlock[]|null{
  return blocks;
 }
 export function directReplyAt(entries:ReadonlyArray<LiveRenderedReply>,key:number|"stream"){
- return entries.find(e=>e.turn===(key==="stream"?null:key));
+ return entries.find(e=>e.standaloneBefore===undefined&&e.turn===(key==="stream"?null:key));
 }
 export function appendDirectReply(entries:ReadonlyArray<LiveRenderedReply>,id:number,blocks:ReplyBlock[]){
  if(directReplyAt(entries,"stream"))return null;
  return [...entries,{id,turn:null,blocks}].slice(-80);
 }
 export function sealDirectReply(entries:ReadonlyArray<LiveRenderedReply>,turn:number){
- return entries.map(e=>e.turn===null?{...e,turn}:e);
+ return entries.map(e=>e.turn===null&&e.standaloneBefore===undefined?{...e,turn}:e);
 }
 export function discardDirectReply(entries:ReadonlyArray<LiveRenderedReply>){
- return entries.filter(e=>e.turn!==null);
+ return entries.filter(e=>e.turn!==null||e.standaloneBefore!==undefined);
 }
 
 /** Live can emit a completion for the tool exchange before the spoken answer.
@@ -77,8 +77,11 @@ export function resolveDirectReplyCompletion(
  if(spoken&&anchor!==null)return {action:"seal",wait:null,index:anchor};
  return {action:"defer",wait:{anchor},index:null};
 }
-export function closeDeferredReply(entries:ReadonlyArray<LiveRenderedReply>,waiting:DirectReplyWait){
- // A new learner turn must never inherit the previous answer. If its own
- // input-only caption exists, preserve the previous tool there as visual-only.
- return waiting.anchor!==null?sealDirectReply(entries,waiting.anchor):discardDirectReply(entries);
+/** A delivered layout is history even if Live never emits a caption for it.
+ * Freeze it at the next caption slot rather than attach it to an unknown turn. */
+export function archiveDirectReply(entries:ReadonlyArray<LiveRenderedReply>,before:number){
+ return entries.map(e=>e.turn===null&&e.standaloneBefore===undefined?{...e,standaloneBefore:Math.max(0,before)}:e);
+}
+export function closeDeferredReply(entries:ReadonlyArray<LiveRenderedReply>,waiting:DirectReplyWait,before=0){
+ return waiting.anchor!==null?sealDirectReply(entries,waiting.anchor):archiveDirectReply(entries,before);
 }

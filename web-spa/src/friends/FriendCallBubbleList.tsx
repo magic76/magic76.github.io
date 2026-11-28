@@ -1,12 +1,12 @@
 import {LearningFeedbackCard} from "../live/LearningFeedbackCard";
 import type {LearningFeedbackByTurn} from "../live/learningFeedback.mjs";
-import {useEffect,useRef,type ReactNode} from "react";
+import {Fragment,useEffect,useRef,type ReactNode} from "react";
 import type {SuggestedReply} from "../live/suggestReplies";
 import "./friendCallBubbles.css";
 
 type Turn={input?:string;output?:string};
 type TranslationRow={kind:string;value:string};
-type Props={learningFeedback?:LearningFeedbackByTurn;learningLanguage?:string;name:string;turns:ReadonlyArray<Turn>;input:string;output:string;source:string;nativeLanguage:string;translationRows:TranslationRow[];historicalTranslations:ReadonlyMap<string,string[]>;suggestions:SuggestedReply[];suggestionsEnabled:boolean;translationEnabled:boolean;needTranslation:boolean;speaking:boolean;speakerAvatar?:ReactNode;waitingText:string;youLabel:string;recognizingLabel:string;recognizedLabel:string;translateStatus:(value:string)=>string;headerAccessory?:ReactNode;replyExtra?:ReactNode;visualReply?:{keys:ReadonlyArray<number|"stream">;revision:string;focusKey:string;passive?:boolean;renderCaption?:(text:string,language:string,key?:number|"stream")=>ReactNode;kind?:(key:number|"stream")=>string;render:(key:number|"stream")=>ReactNode}};
+type Props={learningFeedback?:LearningFeedbackByTurn;learningLanguage?:string;name:string;turns:ReadonlyArray<Turn>;input:string;output:string;source:string;nativeLanguage:string;translationRows:TranslationRow[];historicalTranslations:ReadonlyMap<string,string[]>;suggestions:SuggestedReply[];suggestionsEnabled:boolean;translationEnabled:boolean;needTranslation:boolean;speaking:boolean;speakerAvatar?:ReactNode;waitingText:string;youLabel:string;recognizingLabel:string;recognizedLabel:string;translateStatus:(value:string)=>string;headerAccessory?:ReactNode;replyExtra?:ReactNode;visualReply?:{keys:ReadonlyArray<number|"stream">;standalone?:ReadonlyArray<{id:number;before:number;content:ReactNode}>;revision:string;focusKey:string;passive?:boolean;renderCaption?:(text:string,language:string,key?:number|"stream")=>ReactNode;kind?:(key:number|"stream")=>string;render:(key:number|"stream")=>ReactNode}};
 export function FriendCallBubbleList({name,turns,learningFeedback={},learningLanguage,input,output,source,nativeLanguage,translationRows,historicalTranslations,suggestions,suggestionsEnabled,translationEnabled,needTranslation,speaking,speakerAvatar,waitingText,youLabel,recognizingLabel,recognizedLabel,translateStatus,headerAccessory,replyExtra,visualReply}:Props){
  const scrollRef=useRef<HTMLDivElement>(null),followRef=useRef(true);
  const hasVisual=(key:number|"stream")=>visualReply?.keys.includes(key)??false;
@@ -14,6 +14,8 @@ export function FriendCallBubbleList({name,turns,learningFeedback={},learningLan
  const lastInput=[...turns].reverse().find(turn=>turn.input?.trim())?.input?.trim()||"";
  const lastOutput=[...turns].reverse().find(turn=>turn.output?.trim())?.output?.trim()||"";
  const completed=turns.map((turn,index)=>({...turn,index})).filter(turn=>turn.input?.trim()||turn.output?.trim());
+ const standalone=visualReply?.standalone||[];
+ const renderStandalone=(after:number,through:number)=>standalone.filter(entry=>entry.before>after&&entry.before<=through).map(entry=><section className="friend-bubble friend-bubble-ai has-visual-reply" key={"visual-"+entry.id} data-reply-key={"visual-"+entry.id} data-reply-template="material" aria-label={name}><small>{name}</small>{entry.content}</section>);
  const currentOutput=output.trim();
  const currentInput=input.trim();
  const lastCompletedOutput=completed.filter(turn=>turn.output?.trim()).at(-1)?.output?.trim()||"";
@@ -64,7 +66,7 @@ export function FriendCallBubbleList({name,turns,learningFeedback={},learningLan
   touchStart.current=y??touchStart.current;
  }} onTouchEnd={finishTouch} onTouchCancel={finishTouch} onScroll={event=>onScroll(event.currentTarget)} className="friend-phone-captions friend-chat-bubbles" aria-label={name}>
   {headerAccessory}
-  {completed.map(turn=><div className="friend-bubble-turn" key={turn.index}>
+  {completed.map((turn,index)=><Fragment key={turn.index}>{renderStandalone(completed[index-1]?.index??-1,turn.index)}<div className="friend-bubble-turn">
    {turn.input?.trim()?<section className="friend-bubble friend-bubble-user" aria-label={youLabel}><small>{youLabel}</small><p lang={source}>{turn.input.trim()}</p></section>:null}
    {learningFeedback[turn.index]&&<LearningFeedbackCard feedback={learningFeedback[turn.index]} language={learningLanguage||source}/>}
    {turn.output?.trim()||hasVisual(turn.index)?<section className={"friend-bubble friend-bubble-ai"+(hasVisual(turn.index)?" has-visual-reply":"")} data-reply-key={visualReply?turn.index:undefined} data-reply-template={visualReply?.kind?.(turn.index)} aria-label={name}>
@@ -73,7 +75,8 @@ export function FriendCallBubbleList({name,turns,learningFeedback={},learningLan
     {!visualReply?.passive&&visualReply?.render(turn.index)}
     {renderSuggestions(turn.index)}
    </section>:null}
-  </div>)}
+  </div></Fragment>)}
+  {renderStandalone(completed.at(-1)?.index??-1,Infinity)}
   {showCurrentInput?<section className="friend-bubble friend-bubble-user" aria-label={youLabel}><small>{youLabel} · {recognizingLabel}</small><p lang={source}>{currentInput}</p></section>:null}
   {showCurrentOutput||hasVisual("stream")?<section className={"friend-bubble friend-bubble-ai"+(hasVisual("stream")?" has-visual-reply":"")} data-reply-key={visualReply?"stream":undefined} data-reply-template={visualReply?.kind?.("stream")} aria-label={name}>
    {speakerAvatar?<div className="friend-caption-speaker"><span className="friend-caption-avatar teacher-call-caption-avatar">{speakerAvatar}</span><small>{name}{speaking?" · …":""}</small></div>:<small>{name}</small>}
@@ -82,6 +85,6 @@ export function FriendCallBubbleList({name,turns,learningFeedback={},learningLan
    {!visualReply?.passive&&visualReply?.render("stream")}
    {renderSuggestions("stream")}
   </section>:null}
-  {!completed.length&&!showCurrentOutput&&!showCurrentInput&&!hasVisual("stream")?<section className="friend-bubble friend-bubble-ai" aria-label={name}><small>{name}</small><p>{waitingText}</p></section>:null}
+  {!completed.length&&!showCurrentOutput&&!showCurrentInput&&!hasVisual("stream")&&!standalone.length?<section className="friend-bubble friend-bubble-ai" aria-label={name}><small>{name}</small><p>{waitingText}</p></section>:null}
  </div>;
 }
