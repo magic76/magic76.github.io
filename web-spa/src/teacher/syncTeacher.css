@@ -1,0 +1,38 @@
+.sync-teacher{position:fixed;inset:0;z-index:25;display:flex;flex-direction:column;background:#101515;color:#edf5f0;min-width:0;min-height:0;font-size:15px}
+.sync-teacher-header{display:flex;align-items:center;gap:12px;padding:calc(8px + env(safe-area-inset-top)) 16px 10px;background:#161e1b;border-bottom:1px solid #34453b;flex-shrink:0}
+.sync-teacher-avatar{display:block;width:48px;height:48px;border-radius:50%;flex:none;overflow:hidden}
+.sync-teacher-header div{display:grid;gap:3px;flex:1;min-width:0}
+.sync-teacher-header small{color:#b9cdc0;font-size:12px}
+.sync-teacher-header a,.sync-teacher-exit{color:#b9e4cc;min-height:44px;display:inline-flex;align-items:center;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.sync-teacher-thread{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;width:100%;max-width:720px;margin:auto;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px}
+.sync-teacher-intro{background:#1c2822;border:1px solid #3c5243;border-radius:16px;padding:20px;line-height:1.55}
+.sync-teacher-intro h1{font-size:21px;margin:0 0 10px}
+.sync-teacher-intro p{margin:10px 0;font-size:14px}
+.sync-teacher-turn{display:flex;flex-direction:column;gap:8px;min-width:0}
+.sync-teacher-user{align-self:flex-end;max-width:88%;border-radius:15px 15px 4px 15px;background:#284b38;padding:10px 14px;overflow-wrap:anywhere}
+.sync-teacher-reply{background:#233028;border-radius:15px 15px 15px 4px;padding:12px;min-width:0;line-height:1.55}
+.sync-teacher-reply>small{color:#b7ccbc;font-size:12px}
+.sync-teacher-caption{margin:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.sync-teacher .teacher-visual-reply{margin-top:8px;border-radius:12px;background:#fff;color:#244333;overflow:hidden}
+.sync-teacher .teaching-board-card{min-height:0;overflow-wrap:anywhere}
+.sync-teacher .teaching-board-card-head h2{font-size:18px}
+.sync-teacher .teaching-board-card-content{padding:10px}
+.sync-teacher .teaching-board-pairs{grid-template-columns:1fr}
+.sync-teacher .teaching-board-pair.is-highlighted,.sync-teacher .teaching-board-bubble.is-highlighted,.sync-teacher .teaching-board-timeline.is-highlighted{background:#e4f3e8;outline:2px solid #287b54;outline-offset:-2px}
+.sync-teacher .teaching-board-pair,.sync-teacher .teaching-board-pager button,.sync-teacher .teaching-board-options button{min-height:44px}
+.sync-teacher-progress{display:flex;align-items:center;gap:8px;margin-top:8px}
+.sync-teacher-progress progress{flex:1;accent-color:#81c49a;height:7px}
+.sync-teacher-controls{width:100%;max-width:720px;box-sizing:border-box;margin:auto;padding:8px 16px calc(4px + env(safe-area-inset-bottom));background:#161e1b;flex-shrink:0;border-top:1px solid #34453b}
+.sync-teacher-microw,.sync-teacher-controls form{display:flex;align-items:center;gap:8px;margin:4px 0}
+.sync-teacher-microw label{flex:1;min-width:0;color:#b9cdc0;font-size:12px}
+.sync-teacher-controls select,.sync-teacher-controls input{background:#26362d;border:1px solid #536b5b;color:#f2f9f4;border-radius:9px;padding:8px;min-height:44px;box-sizing:border-box;font:inherit}
+.sync-teacher-controls input{flex:1;min-width:0;font-size:16px}
+.sync-teacher-controls select{width:100%;font-size:14px}
+.sync-teacher-controls button,.sync-teacher-retry{min-height:44px;flex:none;padding:8px 13px;border:1px solid #6b947a;border-radius:10px;background:#2b6746;color:#fff;font:inherit;cursor:pointer}
+.sync-teacher-controls button:disabled,.sync-teacher-retry:disabled{opacity:.5;cursor:default}
+.sync-teacher-error,.sync-teacher-heard{font-size:13px;line-height:1.4;margin:4px 0;overflow-wrap:anywhere}
+.sync-teacher-error{color:#ffd1ba}
+.sync-teacher-exit{min-height:44px}
+.sync-teacher button:focus-visible,.sync-teacher a:focus-visible,.sync-teacher input:focus-visible,.sync-teacher select:focus-visible{outline:2px solid #80cfa0;outline-offset:2px}
+@media(max-width:380px){.sync-teacher-thread,.sync-teacher-controls{padding-left:10px;padding-right:10px}.sync-teacher-controls button{padding:8px 10px}.sync-teacher-header{padding-left:10px;padding-right:10px}}
+@media(prefers-reduced-motion:reduce){.sync-teacher *{animation:none!important;scroll-behavior:auto!important}}
