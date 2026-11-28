@@ -7,7 +7,7 @@ export const INLINE_TEACHER_BOARD_ENABLED=true;
 export const INLINE_BOARD_POLICY="\n"+[
  "[WHITEBOARD TEACHING TOOL — use update_teaching_board]",
  "For a learner's substantive question about a grammar rule, pronunciation pattern, differences between expressions, or a request for an exercise, CALL update_teaching_board once before or during your spoken explanation. Do not merely describe the card. This is the normal teaching workflow for these questions, even when the learner did not say whiteboard.",
- "For example: how to pronounce -ed endings => comparison with sound categories and examples; when to use have been vs had been => comparison with examples; quiz me => quiz. When the learner asks to see a board or a comparison, call update_teaching_board explicitly.",
+ "For example: a question about a sound contrast => comparison with sound categories and examples; a question about contrasting grammar forms => comparison with examples; quiz me => quiz. Use the actual target language, not a fixed English lesson. When the learner asks to see a board or a comparison, call update_teaching_board explicitly.",
  "Choose a concise card with real teaching content, not a transcript of the conversation. For other topics use it when a visual aid materially helps. Skip the tool for greetings, ordinary small talk, opening, and simple unsolicited corrections. Do not use it if the learner declines a board.",
  "The application controls frequency, deduplication and the user's automatic-board preference. If the tool rejects a card, continue the spoken explanation normally; do not retry in the same turn. Never promise or claim the screen rendered. Keep speaking naturally after a tool response."
 ].join("\n");
