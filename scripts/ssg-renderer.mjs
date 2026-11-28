@@ -4,6 +4,7 @@ import {readPublishedResearch,hasArticleHeading,articleHeadingText,decodeHtmlTex
 import {recommendPublishedResearch} from "./research-discovery.mjs";
 import {GAME_SEO_SLUGS} from "./game-seo.mjs";
 import {COURSE_SEO} from "./course-seo.mjs";
+import {BASE_SEO_LOCALES,CORE_SEO_ROUTES,readInternationalPages} from "./seo-publication.mjs";
 
 /**
  * Build-time only. No Cloudflare Worker, Node server or user data is deployed.
@@ -39,8 +40,8 @@ export async function prerenderPublicRoutes(root){
   const research=readPublishedResearch(root);
   const related= recommendPublishedResearch(research.days);
   const latest=research.days.get(research.index.days[0]);
-  for(const locale of ["zh-TW","en"]){
-   for(const path of ["/","/teacher","/story","/fortune","/research","/games"]){
+  for(const locale of BASE_SEO_LOCALES){
+   for(const path of CORE_SEO_ROUTES){
     const seed=path==="/research"&&latest?{index:research.index,day:latest}:null;
     const html=await renderStaticRoute(path,locale,seed);
     if(!html.includes("class=\"app-header\"")||!html.includes("class=\"global-nav\"")){
@@ -51,7 +52,7 @@ export async function prerenderPublicRoutes(root){
    }
   }
   // A sitemap URL must have real, route-specific HTML, not the homepage SPA fallback.
-  for(const locale of ["zh-TW","en"]){
+  for(const locale of BASE_SEO_LOCALES){
    for(const slug of GAME_SEO_SLUGS){
     const path="/games/"+slug;
     const html=await renderStaticRoute(path,locale);
@@ -59,7 +60,7 @@ export async function prerenderPublicRoutes(root){
     result.set(locale+":"+path,html);
    }
   }
-  for(const locale of ["zh-TW","en"]){
+  for(const locale of BASE_SEO_LOCALES){
    for(const course of COURSE_SEO){
     const path="/teacher/course/"+course.slug;
     const html=await renderStaticRoute(path,locale);
@@ -70,7 +71,7 @@ export async function prerenderPublicRoutes(root){
    }
   }
   const guides=new Map();
-  for(const locale of ["zh-TW","en"]){
+  for(const locale of BASE_SEO_LOCALES){
    for(const slug of guideSlugs){
     const path="/guides/"+slug,guide=getGuide(slug,locale==="en"?"en":"zh");
     if(!guide)throw Error("Guide missing content: "+locale+" "+slug);
@@ -80,6 +81,12 @@ export async function prerenderPublicRoutes(root){
     result.set(locale+":"+path,html);
     guides.set(locale+":"+path,{slug,locale,content:guide});
    }
+  }
+  const internationalPages=readInternationalPages(root);
+  for(const {locale,path} of internationalPages){
+   const html=await renderStaticRoute(path,locale);
+   if(!html.includes('class="app-header"')||!html.includes("<h1"))throw Error("International SSG missing UI: "+locale+" "+path);
+   result.set(locale+":"+path,html);
   }
   const articles=new Map();
   for(const [date,day] of research.days){
@@ -92,7 +99,7 @@ export async function prerenderPublicRoutes(root){
     articles.set(path,{day,item,seed});
    }
   }
-  return {pages:result,articles,research,related,guides};
+  return {pages:result,articles,research,related,guides,internationalPages};
  }finally{
   if(vite)await vite.close();
   for(const [key,value] of Object.entries(saved)){
