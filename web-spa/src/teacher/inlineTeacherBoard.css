@@ -69,3 +69,11 @@
 .teacher-semantic-dialogue div{padding:8px 10px;background:#edf4ef;border-radius:8px}
 .teacher-semantic-dialogue dt{font-weight:700}
 .teacher-semantic-dialogue dd{margin:3px 0 0;line-height:1.5}
+
+/* A Live tool reply is the primary content; spoken text remains available. */
+.teacher-call-page .teacher-native-reply{gap:9px;padding:2px 0}
+.teacher-call-page .teacher-live-spoken{margin-top:8px;border-top:1px solid #d7e2da;padding-top:7px;color:#43564c}
+.teacher-call-page .friend-chat-bubbles .friend-bubble-ai .teacher-live-spoken p{font-size:14px;font-weight:400}
+.teacher-reply-transcript{margin-top:7px;border-top:1px solid #d7e2da;padding-top:5px;font-size:13px;color:#43564c}
+.teacher-reply-transcript summary{cursor:pointer;min-height:32px;display:list-item;padding:6px 0}
+.teacher-call-page .friend-chat-bubbles .friend-bubble-ai .teacher-reply-transcript p{font-size:14px;font-weight:400;line-height:1.55;white-space:pre-wrap}

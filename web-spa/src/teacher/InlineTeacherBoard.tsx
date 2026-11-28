@@ -1,7 +1,7 @@
 import {useEffect,useRef,useState,type ReactNode} from "react";
 import {TeachingCard} from "./TeachingCard";
-import {LiveCaptionText,PassiveTeachingMaterial} from "./PassiveTeacherReply";
-import type {SemanticCaptionState} from "./useSemanticCaption";
+import {LiveCaptionText,LiveReplyLayout,PassiveTeachingMaterial} from "./PassiveTeacherReply";
+import {LIVE_RENDER_POLICY,RENDER_REPLY_FUNCTION,RENDER_REPLY_DECLARATION,parseLiveReply,directReplyAt,appendDirectReply,sealDirectReply,discardDirectReply,type LiveRenderedReply} from "./liveReplyLayout";
 import {appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt,type VisualReply} from "./visualReplyJournal";
 import type {BoardCard} from "./boardProtocol";
 import {currentBuild} from "../runtime/buildUpdates";
@@ -10,7 +10,7 @@ import type {ComposerDecision} from "./teacherReplyComposer";
 import {teacherReplyTemplates,type TeacherReplyTemplate} from "./teacherReplyTemplates";
 import {inlineLessonLanguage,inlineLessonsFor,findInlineLesson} from "./inlineLessonCatalog";
 import {startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,GUIDED_END_PROMPT,type GuidedSession} from "./inlineLessonEngine";
-import {INLINE_TEACHER_BOARD_ENABLED,INLINE_BOARD_POLICY,INLINE_BOARD_TOOLS,newInlineGate,proposeInlineBoard,finishInlineTurn,observeInlineInput,recordInlineEvent,INLINE_FOCUS_FUNCTION,inlineFocusIndex} from "./inlineBoardGate";
+import {INLINE_TEACHER_BOARD_ENABLED,INLINE_BOARD_TOOLS,declinesBoard,newInlineGate,proposeInlineBoard,finishInlineTurn,observeInlineInput,recordInlineEvent,INLINE_FOCUS_FUNCTION,inlineFocusIndex} from "./inlineBoardGate";
 import "./teachingBoard.css";
 import "./inlineTeacherBoard.css";
 
@@ -25,6 +25,10 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  function syncGuided(next:GuidedSession|null){guidedRef.current=next;setGuided(next)}
  const [card,setCard]=useState<BoardCard|null>(null);
  const [journal,setJournal]=useState<VisualReply[]>([]);
+ const [directReplies,setDirectReplies]=useState<LiveRenderedReply[]>([]);
+ const directRef=useRef<LiveRenderedReply[]>([]);
+ function publishDirect(entries:LiveRenderedReply[]){directRef.current=entries;setDirectReplies(entries)}
+ const directStats=useRef({received:0,accepted:0,rejected:0,completedWithoutReply:0,lastReason:""});
  const [latestReplyTurn,setLatestReplyTurn]=useState<number|null>(null);
  const entryRef=useRef(0),activeEntry=useRef<number|null>(null);
  const journalRef=useRef<VisualReply[]>([]);
@@ -38,25 +42,38 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  const cardRef=useRef<BoardCard|null>(null);
  const quizRef=useRef(0);
  const rendered=useRef(0);
- const wire=useRef({model:"",setupAcknowledged:0,setupTools:[] as string[],received:{whiteboard:0,learningFeedback:0,other:0}});
+ const wire=useRef({model:"",setupAcknowledged:0,setupTools:[] as string[],received:{renderReply:0,whiteboard:0,learningFeedback:0,other:0}});
  function diagnostics(event:LiveToolDiagnostic){
   if(!enabled)return;
   const w=wire.current;w.model=event.model;
-  if(event.event==="setup-ack"){w.setupAcknowledged++;w.setupTools=event.tools.filter(name=>name==="update_teaching_board"||name==="show_learning_feedback"||name===INLINE_FOCUS_FUNCTION);recordInlineEvent(gate.current,"setup-ack");}
-  else{const kind=event.name==="update_teaching_board"?"whiteboard":event.name==="show_learning_feedback"?"learningFeedback":"other";w.received[kind]++;recordInlineEvent(gate.current,"received-"+kind)}
+  if(event.event==="setup-ack"){w.setupAcknowledged++;w.setupTools=event.tools.filter(name=>name===RENDER_REPLY_FUNCTION||name==="update_teaching_board"||name==="show_learning_feedback"||name===INLINE_FOCUS_FUNCTION);recordInlineEvent(gate.current,"setup-ack");}
+  else{const kind=event.name===RENDER_REPLY_FUNCTION?"renderReply":event.name==="update_teaching_board"?"whiteboard":event.name==="show_learning_feedback"?"learningFeedback":"other";w.received[kind]++;recordInlineEvent(gate.current,"received-"+kind)}
  }
  const committed=useRef(new Set<number>());
  function markRendered(id:number){if(committed.current.has(id))return;committed.current.add(id);rendered.current++;recordInlineEvent(gate.current,"card-react-committed")}
  function clearCard(){activeEntry.current=null;setFocus(-1);cardRef.current=null;setCard(null);answerRef.current={};setAnswers({});quizRef.current=0;setQuizIndex(0)}
- function reset(){publish([]);setLatestReplyTurn(null);entryRef.current=0;committed.current.clear();setMissingTurn(null);syncGuided(null);gate.current=newInlineGate();rendered.current=0;wire.current={model:"",setupAcknowledged:0,setupTools:[],received:{whiteboard:0,learningFeedback:0,other:0}};clearCard();setAvailable(true);setDelivery("idle")}
+ function reset(){publishDirect([]);directStats.current={received:0,accepted:0,rejected:0,completedWithoutReply:0,lastReason:""};publish([]);setLatestReplyTurn(null);entryRef.current=0;committed.current.clear();setMissingTurn(null);syncGuided(null);gate.current=newInlineGate();rendered.current=0;wire.current={model:"",setupAcknowledged:0,setupTools:[],received:{renderReply:0,whiteboard:0,learningFeedback:0,other:0}};clearCard();setAvailable(true);setDelivery("idle")}
  function recover(){discardInterrupted()}
- function discardInterrupted(){const keep=guidedRef.current?activeEntry.current:null;const entries=discardPendingVisualReplies(journalRef.current,keep);if(entries.length===journalRef.current.length)return;gate.current.shownThisTurn=false;publish(entries);if(!entries.some(e=>e.id===activeEntry.current))clearCard()}
+ function discardInterrupted(){if(directReplyAt(directRef.current,"stream")){publishDirect(discardDirectReply(directRef.current));gate.current.shownThisTurn=false;recordInlineEvent(gate.current,"render-reply-interrupted")}const keep=guidedRef.current?activeEntry.current:null;const entries=discardPendingVisualReplies(journalRef.current,keep);if(entries.length===journalRef.current.length)return;gate.current.shownThisTurn=false;publish(entries);if(!entries.some(e=>e.id===activeEntry.current))clearCard()}
  useEffect(()=>{window.addEventListener("crew-friend-call-interrupt",discardInterrupted);return()=>window.removeEventListener("crew-friend-call-interrupt",discardInterrupted)},[]);
  function unavailable(){recordInlineEvent(gate.current,"tools-unavailable","model-tools-unavailable");setAvailable(false)}
  function observe(input:string){if(enabled){if(input.trim()&&!gate.current.input)setFocus(-1);observeInlineInput(gate.current,input)}}
  function show(next:BoardCard){clearCard();const id=++entryRef.current;activeEntry.current=id;publish(appendVisualReply(journalRef.current,id,next));cardRef.current=next;setCard(next);setDelivery("idle")}
  function tool(call:{name:string;args?:unknown}){
   if(!enabled)return {ok:false,error:"disabled"};
+  if(call.name===RENDER_REPLY_FUNCTION){
+   const stats=directStats.current;stats.received++;
+   const reject=(reason:string)=>{stats.rejected++;stats.lastReason=reason;recordInlineEvent(gate.current,"render-reply-rejected",reason);return {ok:false,error:reason}};
+   if(guidedRef.current)return reject("guided-curriculum");
+   if(declinesBoard(gate.current.input))return reject("learner-opt-out");
+   const blocks=parseLiveReply(call.args);
+   if(!blocks)return reject("invalid-layout");
+   const next=appendDirectReply(directRef.current,entryRef.current+1,blocks);
+   if(!next)return reject("already-rendered-this-turn");
+   entryRef.current++;publishDirect(next);stats.accepted++;stats.lastReason="accepted";
+   gate.current.shownThisTurn=true;recordInlineEvent(gate.current,"render-reply-accepted");
+   return {ok:true,displayed:true};
+  }
   if(call.name===INLINE_FOCUS_FUNCTION){
    const index=inlineFocusIndex(cardRef.current,call.args);
    if(index===null)return {ok:false,error:"invalid-focus"};
@@ -67,7 +84,7 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
   if(result.card){show(result.card);return {ok:true,accepted:true,displayRequested:true,cardId:result.card.id}}
   return {ok:false,error:result.error||"rejected"};
  }
- function report(){const g=gate.current;return {schema:3,model:wire.current.model,setupAcknowledged:wire.current.setupAcknowledged,setupTools:wire.current.setupTools,receivedTools:wire.current.received,build:currentBuild.buildId,commit:currentBuild.commit,enabled,mode:enabled,guidedStage:guidedRef.current?.index??null,toolConfigured:enabled,toolsUnavailable:!available,toolCalls:g.toolCalls,validCards:g.validCards,accepted:g.accepted,reactCommits:rendered.current,fallbacks:g.fallbacks,completedTurns:g.completedTurns,lastReason:g.lastReason,reasons:g.reasons,events:g.events,cardPresent:Boolean(cardRef.current),visualReplies:journalRef.current.length,delivery};}
+ function report(){const g=gate.current;return {schema:4,renderReply:{...directStats.current,entries:directRef.current.length},model:wire.current.model,setupAcknowledged:wire.current.setupAcknowledged,setupTools:wire.current.setupTools,receivedTools:wire.current.received,build:currentBuild.buildId,commit:currentBuild.commit,enabled,mode:enabled,guidedStage:guidedRef.current?.index??null,toolConfigured:enabled,toolsUnavailable:!available,toolCalls:g.toolCalls,validCards:g.validCards,accepted:g.accepted,reactCommits:rendered.current,fallbacks:g.fallbacks,completedTurns:g.completedTurns,lastReason:g.lastReason,reasons:g.reasons,events:g.events,cardPresent:Boolean(cardRef.current),visualReplies:journalRef.current.length,delivery};}
  function beginLesson(id:string,send:Send){
   const lesson=findInlineLesson(target,id);if(!enabled||!lesson||guidedRef.current)return false;
   const next=startGuidedLesson(lesson);if(!send(guidedPrompt(next,target)))return false;
@@ -102,6 +119,9 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
   setDelivery("idle"); // The composer owns free-form fallback decisions.
  }
  function finish(turn:{input?:string;output?:string;hasValidOutput?:boolean},captionIndex:number|null){
+  if(enabled&&!guidedRef.current&&turn.hasValidOutput&&!directReplyAt(directRef.current,"stream"))directStats.current.completedWithoutReply++;
+  if(captionIndex!==null&&(turn.output?.trim()||turn.hasValidOutput)){if(directReplyAt(directRef.current,"stream"))publishDirect(sealDirectReply(directRef.current,captionIndex))}
+  else if(directReplyAt(directRef.current,"stream"))publishDirect(discardDirectReply(directRef.current));
   finishTurn(turn);
   gate.current.input="";
   if(captionIndex!==null&&(turn.output?.trim()||turn.hasValidOutput)){setLatestReplyTurn(captionIndex);if(journalRef.current.some(e=>e.turn===null))publish(sealVisualReplies(journalRef.current,captionIndex))}
@@ -111,16 +131,16 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  function request(send:Send){
   if(!enabled||guidedRef.current)return false;
   gate.current.requested=true;setMissingTurn(null);recordInlineEvent(gate.current,"manual-request");
-  const sent=send("[LEARNER WHITEBOARD REQUEST] Explain our current learning topic aloud, giving concrete examples. If there is a learning topic, CALL update_teaching_board now with one useful card before or during your spoken explanation. Do not merely describe the card; never say it has been displayed. If there is no learning topic yet, ask what I want to learn.");
+  const sent=send("[LEARNER WHITEBOARD REQUEST] Explain our current learning topic aloud, giving concrete examples. If there is a learning topic, CALL render_reply now with one useful structured answer before or during your spoken explanation. Do not merely describe the card; never say it has been displayed. If there is no learning topic yet, ask what I want to learn.");
   if(!sent){gate.current.requested=false;recordInlineEvent(gate.current,"manual-send-failed","send-failed")}
   setDelivery(sent?"pending":"missing");
   return sent
  }
  function navigate(index:number){quizRef.current=index;setQuizIndex(index);if(activeEntry.current!==null)publish(updateVisualReply(journalRef.current,activeEntry.current,{quizIndex:index}));if(cardRef.current?.type==="steps")setFocus(index)}
  return {
-  enabled,available,delivery,missingTurn,recover,focus,card,journal,latestReplyTurn,activeEntry:activeEntry.current,answers,quizIndex,navigate,reset,markRendered,request,answer,finish,observe,report,diagnostics,guided,lessons,beginLesson,endLesson,nextLesson,submitPractice,
-  policy:enabled?INLINE_BOARD_POLICY+"\nTeach "+target+"; use examples in this target language, not English unless English is the target. A guided lesson control from the app supersedes automatic board generation; focus calls remain available.":"",
-  tools:enabled?INLINE_BOARD_TOOLS:undefined,
+  enabled,available,delivery,missingTurn,recover,focus,card,journal,directReplies,latestReplyTurn,activeEntry:activeEntry.current,answers,quizIndex,navigate,reset,markRendered,request,answer,finish,observe,report,diagnostics,guided,lessons,beginLesson,endLesson,nextLesson,submitPractice,
+  policy:enabled?LIVE_RENDER_POLICY+"\nTeach "+target+"; use examples in this target language, not English unless English is the target. A guided lesson control from the app supersedes automatic board generation; focus calls remain available.":"",
+  tools:enabled?[{functionDeclarations:[RENDER_REPLY_DECLARATION,...INLINE_BOARD_TOOLS[0].functionDeclarations.filter(tool=>tool.name===INLINE_FOCUS_FUNCTION)]}]:undefined,
   onToolCall:tool,
   onToolsUnavailable:unavailable
  };
@@ -164,23 +184,25 @@ export function VisualReplyContent({board,english,send,canSend,turn,template,lat
  </>;
 }
 
-export function visualReplyProps(board:Board,english:boolean,send:Send,canSend:boolean,turns:ReadonlyArray<{input?:string;output?:string}>,input:string,output:string,target:string,decisions?:Readonly<Record<number,ComposerDecision>>,passive=false,captionLayout?:SemanticCaptionState){
+export function visualReplyProps(board:Board,english:boolean,send:Send,canSend:boolean,turns:ReadonlyArray<{input?:string;output?:string}>,input:string,output:string,target:string,decisions?:Readonly<Record<number,ComposerDecision>>,passive=false){
  if(!board.enabled)return undefined;
  const displayOnly=passive&&!board.guided;
  // No completed-turn composer or late heuristic cards in passive mode. Live tool material is optional.
  const templates=teacherReplyTemplates(turns,{input,output},board.journal,inlineLessonLanguage(target),Boolean(board.guided),displayOnly?{}:decisions);
  const keys:Array<number|"stream">=Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key])=>key);
  for(const entry of board.journal)if(!keys.includes(entry.turn??"stream"))keys.push(entry.turn??"stream");
+ for(const entry of board.directReplies||[])if(!keys.includes(entry.turn??"stream"))keys.push(entry.turn??"stream");
+ const direct=(key:number|"stream")=>directReplyAt(board.directReplies||[],key);
  if(!displayOnly&&board.delivery!=="idle")keys.push(board.delivery==="missing"?board.missingTurn??"stream":"stream");
  const activeCard=board.journal.find(e=>e.id===board.activeEntry);
  if(board.guided&&activeCard&&activeCard.turn!==null&&board.latestReplyTurn!==null)keys.push(board.latestReplyTurn);
- return {keys,passive:displayOnly,renderCaption:passive?(text:string,language:string,key:number|"stream"="stream")=><LiveCaptionText text={text} language={language} segments={captionLayout?.segments(key)}/>:undefined,kind:(turn:number|"stream")=>templates.get(turn)?.kind??"text",revision:JSON.stringify([captionLayout?.revision,board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key,v])=>[key,v.kind,v.kind==="material"?v.card:null]),board.delivery,board.missingTurn,board.guided?.index,board.guided?.explained,board.guided?.attempted,board.latestReplyTurn]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=>displayOnly?<>{visualRepliesAt(board.journal,turn).map(entry=><VisualReplyCard key={entry.id} entryId={entry.id} board={board} current={entry.id===board.activeEntry}><PassiveTeachingMaterial card={entry.card} english={english} focus={entry.id===board.activeEntry?board.focus:-1}/></VisualReplyCard>)}</>:<VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn} template={templates.get(turn)} latest={turn===turns.length-1&&!board.guided&&!input.trim()&&!output.trim()||turn===turns.length-1&&!board.guided&&output.trim()===(turns[turns.length-1]?.output||"").trim()}/>};
+ return {keys,passive:displayOnly,renderCaption:passive?(text:string,language:string,key:number|"stream"="stream")=><LiveCaptionText text={text} language={language} structured={Boolean(direct(key))} completed={key!=="stream"} english={english}/>:undefined,kind:(turn:number|"stream")=>direct(turn)?"material":templates.get(turn)?.kind??"text",revision:JSON.stringify([(board.directReplies||[]).map(e=>[e.id,e.turn,e.blocks]),board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key,v])=>[key,v.kind,v.kind==="material"?v.card:null]),board.delivery,board.missingTurn,board.guided?.index,board.guided?.explained,board.guided?.attempted,board.latestReplyTurn]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=>direct(turn)?<VisualReplyCard entryId={direct(turn)!.id} board={board} current={turn==="stream"}><LiveReplyLayout blocks={direct(turn)!.blocks}/></VisualReplyCard>:displayOnly?<>{visualRepliesAt(board.journal,turn).map(entry=><VisualReplyCard key={entry.id} entryId={entry.id} board={board} current={entry.id===board.activeEntry}><PassiveTeachingMaterial card={entry.card} english={english} focus={entry.id===board.activeEntry?board.focus:-1}/></VisualReplyCard>)}</>:<VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn} template={templates.get(turn)} latest={turn===turns.length-1&&!board.guided&&!input.trim()&&!output.trim()||turn===turns.length-1&&!board.guided&&output.trim()===(turns[turns.length-1]?.output||"").trim()}/>};
 }
 
-export function InlineTeacherBoardMenu({board,zh,send,canSend,onRequested,captionLayout}:{board:Board;zh:boolean;send:Send;canSend:boolean;onRequested:()=>void;captionLayout?:SemanticCaptionState}){
+export function InlineTeacherBoardMenu({board,zh,send,canSend,onRequested}:{board:Board;zh:boolean;send:Send;canSend:boolean;onRequested:()=>void}){
  const [admin,setAdmin]=useState(false),[copyStatus,setCopyStatus]=useState("");
  useEffect(()=>{const controller=new AbortController();void fetch("/api/usage/admin",{credentials:"same-origin",cache:"no-store",signal:controller.signal}).then(async r=>r.ok?await r.json():null).then(v=>{if(!controller.signal.aborted)setAdmin(v?.admin===true)}).catch(()=>{});return()=>controller.abort()},[]);
- async function copyReport(){try{await navigator.clipboard.writeText(JSON.stringify({...board.report(),semanticCaption:captionLayout?.report?.()},null,2));setCopyStatus(zh?"已複製":"Copied")}catch{setCopyStatus(zh?"複製失敗":"Copy failed")}}
+ async function copyReport(){try{await navigator.clipboard.writeText(JSON.stringify(board.report(),null,2));setCopyStatus(zh?"已複製":"Copied")}catch{setCopyStatus(zh?"複製失敗":"Copy failed")}}
  if(!board.enabled&&!admin)return null;
  return <div className="teacher-live-entry-actions">{board.enabled&&<>{!board.guided&&board.lessons.length>0&&<label className="inline-lesson-picker"><span>{zh?"開始主題課程":"Start a guided lesson"}</span><select value="" disabled={!canSend} onChange={e=>{if(board.beginLesson(e.target.value,send))onRequested()}}><option value="" disabled>{zh?"選擇教材":"Choose a lesson"}</option>{board.lessons.map(l=><option key={l.id} value={l.id}>{zh?l.zhTitle||l.title:l.title}</option>)}</select></label>}{!board.available&&<small>{zh?"此連線未支援即時白板工具，部分教材仍可備援。":"Live whiteboard tool unavailable; some lesson cards remain available."}</small>}</>}{admin&&<><button type="button" onClick={()=>void copyReport()}>{zh?"複製白板診斷報告":"Copy whiteboard diagnostics"}</button>{copyStatus&&<small role="status">{copyStatus}</small>}</>}</div>
 }

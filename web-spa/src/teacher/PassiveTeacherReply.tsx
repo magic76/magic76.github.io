@@ -1,8 +1,8 @@
 import type {BoardCard} from "./boardProtocol";
 import {cardKindName} from "./TeachingCard";
 
-import {captionView,type CaptionSegment,type SemanticBlock} from "./semanticCaptionLayout";
-function SemanticCaptionBlock({block}:{block:SemanticBlock}){
+import type {ReplyBlock} from "./liveReplyLayout";
+function SemanticCaptionBlock({block}:{block:ReplyBlock}){
  const {kind,parts}=block;
  if(kind==="heading")return <h4>{parts[0]}</h4>;
  if(kind==="quote")return <blockquote>{parts[0]}</blockquote>;
@@ -17,9 +17,12 @@ function SemanticCaptionBlock({block}:{block:SemanticBlock}){
  }
  return <p>{parts[0]}</p>;
 }
-export function LiveCaptionText({text,language,segments=[]}:{text:string;language:string;segments?:ReadonlyArray<CaptionSegment>}){
- const {blocks,tail}=captionView(text,segments);
- return <div className="teacher-live-caption" lang={language} data-caption-layout={blocks.some(b=>b.kind!=="paragraph")?"structured":"text"}>{blocks.map((block,i)=><SemanticCaptionBlock key={i} block={block}/>)}{tail.trim()&&<p className="teacher-semantic-tail">{tail.trim()}</p>}</div>;
+export function LiveReplyLayout({blocks}:{blocks:ReadonlyArray<ReplyBlock>}){
+ return <div className="teacher-live-caption teacher-native-reply" data-caption-layout="structured" data-visual-source="live-tool">{blocks.map((block,i)=><SemanticCaptionBlock key={i} block={block}/>)}</div>;
+}
+export function LiveCaptionText({text,language,structured=false,completed=false,english=true}:{text:string;language:string;structured?:boolean;completed?:boolean;english?:boolean}){
+ if(structured&&completed)return <details className="teacher-reply-transcript"><summary>{english?"Spoken transcript":"語音原文"}</summary><p lang={language}>{text}</p></details>;
+ return <div className={"teacher-live-caption"+(structured?" teacher-live-spoken":"")} lang={language} data-caption-layout="text"><p>{text}</p></div>;
 }
 /** Display-only content. No clickable cards, quiz answers, lesson controls or
  * audio requests; the existing Live voice session owns conversation. */
