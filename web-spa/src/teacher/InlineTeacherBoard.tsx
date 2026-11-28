@@ -167,6 +167,13 @@ export function VisualReplyContent({board,english,send,canSend,turn}:{board:Boar
  </>;
 }
 
+export function visualReplyProps(board:Board,english:boolean,send:Send,canSend:boolean){
+ if(!board.enabled||!board.mode)return undefined;
+ const keys:Array<number|"stream">=board.journal.map(e=>e.turn===null?"stream":e.turn);
+ if(board.delivery!=="idle")keys.push("stream");
+ return {keys,revision:JSON.stringify([board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),board.delivery,board.guided?.index,board.guided?.explained,board.guided?.attempted]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=><VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn}/>};
+}
+
 export function InlineTeacherBoardMenu({board,zh,send,canSend,onRequested}:{board:Board;zh:boolean;send:Send;canSend:boolean;onRequested:()=>void}){
  const [admin,setAdmin]=useState(false),[copyStatus,setCopyStatus]=useState("");
  useEffect(()=>{const controller=new AbortController();void fetch("/api/usage/admin",{credentials:"same-origin",cache:"no-store",signal:controller.signal}).then(async r=>r.ok?await r.json():null).then(v=>{if(!controller.signal.aborted)setAdmin(v?.admin===true)}).catch(()=>{});return()=>controller.abort()},[]);
