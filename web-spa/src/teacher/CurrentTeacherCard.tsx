@@ -14,9 +14,11 @@ export function CurrentTeacherCard(){
  const {t,i18n}=useTranslation("teacher");
  const ready=useClientReady();
  const location=useLocation(),navigate=useNavigate();
- const [picker,setPicker]=useState(()=>Boolean((location.state as {openTeacherPicker?:boolean}|null)?.openTeacherPicker));
+ const openTeacherPicker=Boolean((location.state as {openTeacherPicker?:boolean}|null)?.openTeacherPicker);
+ const [picker,setPicker]=useState(openTeacherPicker);
+ useEffect(()=>{if(openTeacherPicker)setPicker(true)},[location.key,openTeacherPicker]);
  const conversationMode=useTeacherStore(s=>s.conversationMode);
- const closePicker=()=>{setPicker(false);if((location.state as {openTeacherPicker?:boolean}|null)?.openTeacherPicker)navigate(location.pathname+location.search,{replace:true,state:null})};
+ const closePicker=()=>{setPicker(false);if(openTeacherPicker){const state={...location.state};delete state.openTeacherPicker;navigate(location.pathname+location.search+location.hash,{replace:true,state:Object.keys(state).length?state:null})}};
  const [scene,setScene]=useState("hotel_checkin");
  useEffect(()=>{const sync=()=>setScene(localStorage.getItem("crew_teacher_scenario")||"hotel_checkin");sync();window.addEventListener("crew-teacher-scene-changed",sync);return()=>window.removeEventListener("crew-teacher-scene-changed",sync)},[]);
  const startPath="/teacher/live"+(ready&&conversationMode==="scenario"?"?mission="+encodeURIComponent(scene):"");

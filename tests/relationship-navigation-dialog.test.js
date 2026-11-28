@@ -15,13 +15,15 @@ test("Learn and Chat preferences open a local dialog, not the legacy role URL",(
  assert.match(dialog,/s\.setSpeakingPace/);
 });
 test("Friend directory is people-first; legacy teacher links reach canonical Learn",()=>{
- const directory=read("web-spa/src/friends/FriendsPage.tsx"),roles=read("web-spa/src/teacher/RolesPage.tsx"),card=read("web-spa/src/teacher/CurrentTeacherCard.tsx");
+ const directory=read("web-spa/src/friends/FriendsPage.tsx"),app=read("web-spa/src/App.tsx"),hub=read("web-spa/src/pages/CrewSectionPage.tsx"),card=read("web-spa/src/teacher/CurrentTeacherCard.tsx");
  assert.doesNotMatch(directory,/teacher-precall-settings|friends-game-entry|PreferenceScopeHint/);
  assert.match(directory,/friends-directory/);
  assert.match(directory,/friends-search/);
  assert.match(directory,/friends-recent/);
- assert.doesNotMatch(roles,/crew-role-switcher/);
- assert.match(roles,/<Navigate to="\/learn" replace/);
+ assert.doesNotMatch(app,/RolesPage|crew-role-switcher/);
+ assert.match(app,/return <Navigate to=\{target\} replace state=\{location.state\}/);
+ assert.match(hub,/to="\/chat" state=\{\{openFriendDirectory:true\}\}/);
+ assert.match(app,/return directory\?<FriendsPage\/>:<CrewSectionPage section="chat"\/>/);
  assert.match(card,/<TeacherProfilePicker onClose=\{closePicker\}/);
  assert.match(card,/\?mission=/);
 });

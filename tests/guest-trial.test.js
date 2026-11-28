@@ -719,7 +719,7 @@ test("optional member metering checks exhausted quota before Turnstile or ticket
  assert.match(starter,/phase==="exhausted"/);
  assert.match(starter,/phase==="login"/);
  assert.match(account,/state\.trial\.used<state\.trial\.limit/);
- assert.match(account,/\/teacher\/roles\?mode=teacher/);
+ assert.match(account,/to="\/learn"/);
 });
 
 

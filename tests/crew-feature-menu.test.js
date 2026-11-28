@@ -19,7 +19,13 @@ test("all 27 visible feature destinations are direct, existing Crew routes",()=>
  for(const route of ["/games","/souls","/mate","/story","/fortune","/timeline","/town","/magic","/research","/me","/settings","/feedback"]){
   assert.ok(app.includes('path="'+route+'"'),route+" must have a routed page");
  }
- assert.ok(app.includes('path="roles"'),"teacher/friend picker exists");
+ assert.ok(app.includes('path="/learn"')&&app.includes('path="/chat"'),"canonical teacher and friend hubs exist");
+ assert.ok(app.includes('path="/teacher/roles" element={<LegacyRoleRedirect/>}'),"legacy roles bookmarks redirect");
+ assert.match(app,/new URLSearchParams\(location\.search\)\.get\("mode"\)==="friends"\?"\/chat":"\/learn"/,"legacy mode selects the canonical hub");
+ assert.match(app,/<Navigate to=\{target\} replace state=\{location\.state\}\/>/,"legacy redirect preserves navigation state");
+ assert.ok(!app.includes('path="roles"'),"retired role page is not routed");
+ assert.equal(targets.find(([,id])=>id==="teacher")?.[2],"/learn","teacher menu links directly to Learn");
+ assert.equal(targets.find(([,id])=>id==="friends")?.[2],"/chat","friend menu links directly to Chat");
  assert.ok(app.includes('path="shorts"'),"shorts feed exists");
  const teacherRoutes=["course","vocabulary","pronunciation","textbook","phrasebook","reading-library","reports","memory"];
  for(const route of teacherRoutes)assert.ok(app.includes('path="'+route+'"'),"teacher deep link "+route+" must exist");

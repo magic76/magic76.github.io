@@ -182,7 +182,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const endAndReturn=async()=>{
   if(closingRef.current)return;
   closingRef.current=true;
-  try{await live.stop(true)}finally{navigate(shortsReturnTo|| (intent==="speak"?"/learn":"/teacher/roles?mode=friends"))}
+  try{await live.stop(true)}finally{navigate(shortsReturnTo|| (intent==="speak"?"/learn":"/chat"))}
  };
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry){trackUsageEvent("home_live_bubble_connected");advanceHomeFriendJourney(sessionId,"verify")}}},[live.state]);
  useEffect(()=>{if(textFirst||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textFirst,shortsPost]);
@@ -226,7 +226,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  </>;
  return <>
   <header className="app-header"><div className="shell inner">
-   <div className="app-brand"><Link className="back-btn" to={shortsReturnTo||(intent==="speak"?"/learn":"/teacher/roles?mode=friends")} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}><Arrow direction="left" className="crew-arrow--plain"/></Link>
+   <div className="app-brand"><Link className="back-btn" to={shortsReturnTo||(intent==="speak"?"/learn":"/chat")} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}><Arrow direction="left" className="crew-arrow--plain"/></Link>
     <div className="app-title"><strong>{friend.name}</strong><small>{t("friendLive.brand",{language:t("languages."+language,{defaultValue:language})})}</small></div>
    </div>
    <div className="friend-call-header-actions"><span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>{shortsPost&&voiceMuteProps&&<FriendVoiceMute {...voiceMuteProps} compact/>}<FriendCallMenuTrigger active={true} open={showCallOptions} label={t("callCaptions.more")} onToggle={()=>setShowCallOptions(v=>!v)}/></div>
@@ -262,7 +262,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
     query="Find one recent, lighthearted, verifiable news or culture story with a publication date and credible source."
     instruction={"As "+friend.name+", discuss this verified story naturally, in our selected language. No tutoring, no generic greeting, no role change. "+languageDirective}/>}
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
-</>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
+</>:<Link className="live-mode-shortcut" to="/chat">{t("friendLive.otherFriends")}</Link>}
     </div>
     {live.captionTurns.length?<FriendChatHistory turns={live.captionTurns} friendName={friend.name} youLabel={t("friendLive.youLabel")} summary={t("friendLive.historySummary")}/>:null}
     </FriendCallMenu>

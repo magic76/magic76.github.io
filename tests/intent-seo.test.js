@@ -23,7 +23,7 @@ test("six distinct bilingual SEO intent guides are crawlable and functional",asy
    assert.ok(html.indexOf('data-seo-cta="top"')<html.indexOf('<img class="hero"'),rel);
    assert.ok(!html.includes("chartHash")&&!html.includes("birthTime"),rel);
    assert.ok(html.includes("seo_intent_cta_click"),rel);
-   assert.ok(/href="\/(?:en\/)?(?:fortune\/reading\?mode=(?:bazi|tarot)|teacher\/roles\?mode=teacher|friend\/live\?id=zoe)/.test(html),rel);
+   assert.ok(/href="\/(?:en\/)?(?:fortune\/reading\?mode=(?:bazi|tarot)|learn|friend\/live\?id=zoe)/.test(html),rel);
    const json=html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/);
    assert.ok(json,rel);
    const structured=JSON.parse(json[1]);

@@ -24,7 +24,7 @@ const ZOE_VOICE="/friend/live?id=zoe&from=home&entry=bubble";
 type Recent={key:string;kind:"teacher"|"story"|"fortune"|"play"|"friend";title:string;description:string;to:string;cover?:string};
 type Shortcut={id:string;zh:string;en:string;icon:IconName;to:string;event:"friend"|"learn"|"play"|"story"|"fortune"|"shorts"|"timeline"};
 const SHORTCUTS:readonly Shortcut[]=[
- {id:"friends",zh:"AI 朋友",en:"AI Friends",icon:"chat",to:"/teacher/roles?mode=friends",event:"friend"},
+ {id:"friends",zh:"AI 朋友",en:"AI Friends",icon:"chat",to:"/chat",event:"friend"},
  {id:"teacher",zh:"學語言",en:"Learn",icon:"teacher",to:"/learn",event:"learn"},
  {id:"games",zh:"玩遊戲",en:"Games",icon:"play",to:"/games",event:"play"},
  {id:"fortune",zh:"命理",en:"Fortune",icon:"fortune",to:"/fortune",event:"fortune"},

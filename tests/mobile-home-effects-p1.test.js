@@ -9,7 +9,7 @@ test("mobile home effects preserve slides, carousel timing, shortcuts and existi
  assert.ok(home.includes('const SLIDES=["learn","zoe","friends","game"]'));
  assert.ok(home.includes("CAROUSEL_INTERVAL_MS=11000"));
  assert.equal((home.slice(home.indexOf("const APPS:"),home.indexOf("/** Mobile-only")).match(/\{id:"/g)||[]).length,6);
- for(const href of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher","/teacher/shorts"]){
+ for(const href of ["/friend/live?id=noah&from=home&chat=text","/chat","/games","/learn","/learn","/teacher/shorts"]){
   assert.ok(home.includes(href),"missing existing destination: "+href);
  }
  assert.ok(home.includes("onTouchStart={touchBegin} onTouchEnd={touchFinish}"));

@@ -198,7 +198,7 @@ export function TeacherLivePage(){
   setChangingTeacher(true);setTeacherSwitchError("");
   try{
    if(!textMode)await live.stop(true);
-   navigate("/teacher/roles?mode=teacher",{state:{openTeacherPicker:true}});
+   navigate("/learn",{state:{openTeacherPicker:true}});
   }catch{
    setChangingTeacher(false);
    setTeacherSwitchError(t("live.endSessionFailed"));
@@ -218,7 +218,7 @@ export function TeacherLivePage(){
  {isReview&&<div className="notice live-mission"><div><b>{t("learnToday.reviewTitle")}</b><p>{reviewFocus||t("learnToday.reviewFallback")}</p></div></div>}
  </>;
  const modeSwitch=<div className="crew-chat-mode-switch"><span>{textMode?t("live.textChat"):t("live.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("live.useVoice"):t("live.useText")}</Link></div>;
- const quickActions=<details className="teacher-live-quick-actions"><summary>{t("live.shortcuts")}</summary><div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">{t("live.setMode")}</Link>}{!isRoleplay&&!guestStarted&&<><LiveSearchAction live={live} english={english} label={english?"Learn from news":"新聞學習"}
+ const quickActions=<details className="teacher-live-quick-actions"><summary>{t("live.shortcuts")}</summary><div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/learn">{t("live.setMode")}</Link>}{!isRoleplay&&!guestStarted&&<><LiveSearchAction live={live} english={english} label={english?"Learn from news":"新聞學習"}
    query={"Find one interesting and verifiable recent news event relevant to "+s.targetLanguage+" language learners. Include the published date, event date, and credible source."}
    instruction={"Teach this verified news to the student in the configured target language: "+s.targetLanguage+". Choose 2-3 suitable vocabulary words and ask one practice question. Stay in the same conversation. "+languageDirective}/><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>{t("live.newTopic")}</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>{t("live.correctMe")}</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>{t("live.slower")}</button></div></details>;
  const teacherOptions=<>

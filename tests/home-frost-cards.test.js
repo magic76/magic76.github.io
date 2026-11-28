@@ -85,7 +85,7 @@ test("the six visible APPS preserve routes, order, icons, tracking and markup",(
  const source=page.slice(page.indexOf("const APPS:"),page.indexOf("/** Mobile-only"));
  const actual=[...source.matchAll(/\{id:"([^"]+)",zh:"([^"]+)",en:"([^"]+)",icon:"([^"]+)",to:"([^"]+)",event:"([^"]+)"\}/g)];
  const expected=[
-  ["friends","AI 朋友","AI Friends","chat","/teacher/roles?mode=friends","friend"],
+  ["friends","AI 朋友","AI Friends","chat","/chat","friend"],
   ["teacher","學語言","Learn","teacher","/learn","learn"],
   ["games","玩遊戲","Games","play","/games","play"],
   ["fortune","命理","Fortune","fortune","/fortune","fortune"],

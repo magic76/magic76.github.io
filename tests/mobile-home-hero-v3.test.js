@@ -21,7 +21,7 @@ test("four illustrated slides put the teacher first and real destinations",()=>{
  assert.match(jsx,/teacher-olivia\.jpg/);
  assert.doesNotMatch(jsx,/teacher-(?:alex|emma|james|mia|sophie)\.webp/);
  assert.match(jsx,/crew_friend_zoe\.webp/);
- for(const href of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher"]){
+ for(const href of ["/friend/live?id=noah&from=home&chat=text","/chat","/games","/learn","/learn"]){
   assert.ok(jsx.includes(href),"missing genuine destination "+href);
  }
  assert.match(jsx,/const todayLink="\/games\/"\+featured/);

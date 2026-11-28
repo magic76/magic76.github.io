@@ -65,9 +65,9 @@ test("unified React router owns all Crew product surfaces",()=>{
 test("Teacher React mirrors native app feature names",()=>{
  const practice=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
  const learn=fs.readFileSync(path.join(root,"web-spa/src/teacher/LearnPage.tsx"),"utf8");
- const roles=fs.readFileSync(path.join(root,"web-spa/src/teacher/RolesPage.tsx"),"utf8");
+ const hub=fs.readFileSync(path.join(root,"web-spa/src/pages/CrewSectionPage.tsx"),"utf8");
  const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
- const combined=practice+"\n"+learn+"\n"+roles+"\n"+tutor;
+ const combined=practice+"\n"+learn+"\n"+hub+"\n"+tutor;
  const zh=readUiLocale("teacher");
  for(const label of ["practice.teacher","practice.friend","practice.textbook","practice.vocab","practice.course","practice.pronunciation"]){
   const [section,key]=label.split(".");

@@ -695,7 +695,7 @@ async function run(){
           if(section==="learn"){
            assert.equal((await root.locator(".crew-section-focus-card h2").textContent())?.trim(),strings.firstTopic,locale+" new learner focus");
            assert.equal((await root.locator(".crew-section-focus-card .kicker").textContent())?.trim(),strings.newLabel,locale+" first-run label");
-           assert.ok((await root.locator(".crew-section-focus-card .crew-action-primary").getAttribute("href")||"").includes("/teacher/roles?mode=teacher"),locale+" teacher CTA");
+           assert.ok((await root.locator(".crew-section-focus-card .crew-action-primary").getAttribute("href")||"").includes("/learn"),locale+" teacher CTA");
           }
           const keys=section==="chat"?["games","memory"]:section==="learn"?["center","scenarios","textbook","pronunciation","reports"]:["readings","stories","memory","settings","reports"];
           const cards=root.locator(".crew-section-grid .crew-section-card");
@@ -1092,10 +1092,18 @@ async function run(){
   const deep=await context.newPage();
   const deepErrors=[];
   checkConsole(deep,deepErrors);
-  await deep.goto(origin+"/teacher/roles?mode=friends",{waitUntil:"domcontentloaded"});
-  await deep.waitForFunction(()=>!document.documentElement.classList.contains("crew-dynamic-route"),null,{timeout:15000});
-  await deep.locator("header.app-header").waitFor({state:"visible",timeout:15000});
-  assert.equal(new URL(deep.url()).pathname,"/teacher/roles");
+  await deep.setViewportSize({width:390,height:844});
+  for(const [legacy,target] of [["/teacher/roles?mode=friends","/chat"],["/teacher/roles?mode=teacher","/learn"],["/teacher/roles","/learn"]]){
+   await deep.goto(origin+legacy,{waitUntil:"domcontentloaded"});
+   await deep.waitForURL(url=>url.pathname.replace(/\/$/,"")===target,{timeout:15000});
+   await deep.locator("header.app-header").waitFor({state:"visible",timeout:15000});
+  }
+  await deep.goto(origin+"/chat",{waitUntil:"domcontentloaded"});
+  await deep.locator(".crew-section-chat .crew-chat-heading-all").click();
+  await deep.locator(".friends-search").waitFor({state:"visible",timeout:15000});
+  assert.equal(new URL(deep.url()).pathname.replace(/\/$/,""),"/chat");
+  await deep.locator(".crew-friends-back").click();
+  await deep.locator(".crew-section-chat .crew-chat-heading-all").waitFor({state:"visible",timeout:15000});
   await deep.reload({waitUntil:"domcontentloaded"});
   await deep.waitForFunction(()=>!document.documentElement.classList.contains("crew-dynamic-route"),null,{timeout:15000});
   assert.deepEqual(deepErrors,[],"Deep route should render without hydration mismatch");

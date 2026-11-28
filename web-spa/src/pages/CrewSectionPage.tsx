@@ -50,7 +50,7 @@ const copy:{
 }={
  chat:{
   eyebrow:"Koolo FRIENDS",title:"和朋友聊聊",intro:"不是上課，而是從朋友的生活、你的好奇心開始對話。",
-  hero:{title:"找一位 Koolo Friend",desc:"認識 16 位不同個性的朋友，選擇你想說的語言。",to:"/teacher/roles?mode=friends",icon:"chat",tag:"自然聊天"},
+  hero:{title:"找一位 Koolo Friend",desc:"認識 16 位不同個性的朋友，選擇你想說的語言。",to:"/chat",icon:"chat",tag:"自然聊天"},
   items:[
    {title:"朋友動態 Shorts",desc:"先看看今天發生什麼，再決定要不要聊天。",to:"/teacher/shorts",icon:"image"},
    {title:"和朋友玩遊戲",desc:"用互動遊戲找話題，不必先想好要說什麼。",to:"/games",icon:"play"},
@@ -70,7 +70,7 @@ const copy:{
  },
  learn:{
   eyebrow:"Koolo TEACHER",title:"想練外語，找老師",intro:"有明確的學習目標時，再由老師帶你練習、回顧和進步。",
-  hero:{title:"開始口說練習",desc:"選擇你的 Koolo Teacher，直接進入自然語音練習。",to:"/teacher/roles?mode=teacher",icon:"mic",tag:"語音學習"},
+  hero:{title:"開始口說練習",desc:"選擇你的 Koolo Teacher，直接進入自然語音練習。",to:"/learn",icon:"mic",tag:"語音學習"},
   items:[
    {title:"學習中心",desc:"接續進度、單字、課程與發音練習。",to:"/teacher/learn",icon:"teacher"},
    {title:"情境課程",desc:"依照生活場景完成外語對話。",to:"/teacher/course",icon:"scene"},
@@ -96,7 +96,7 @@ const copy:{
 const englishCopy:typeof copy={
  chat:{
   eyebrow:"Koolo FRIENDS",title:"Chat with friends",intro:"This is not a class. Start with a friend's life or something you're curious about.",
-  hero:{title:"Meet your Koolo Friends",desc:"Sixteen personalities. Pick a friend and the language you want to speak.",to:"/teacher/roles?mode=friends",icon:"chat",tag:"Just talk"},
+  hero:{title:"Meet your Koolo Friends",desc:"Sixteen personalities. Pick a friend and the language you want to speak.",to:"/chat",icon:"chat",tag:"Just talk"},
   items:[
    {title:"Friends' Shorts",desc:"See what happened today before you decide whether to chat.",to:"/teacher/shorts",icon:"image"},
    {title:"Play together",desc:"Find conversation starters through interactive games.",to:"/games",icon:"play"},
@@ -116,7 +116,7 @@ const englishCopy:typeof copy={
  },
  learn:{
   eyebrow:"Koolo TEACHER",title:"Practice with a teacher",intro:"When you have a learning goal, your Koolo Teacher can help you practice and improve.",
-  hero:{title:"Start speaking practice",desc:"Choose your Koolo Teacher and start a live speaking session.",to:"/teacher/roles?mode=teacher",icon:"mic",tag:"Speaking"},
+  hero:{title:"Start speaking practice",desc:"Choose your Koolo Teacher and start a live speaking session.",to:"/learn",icon:"mic",tag:"Speaking"},
   items:[
    {title:"Learning center",desc:"Continue lessons, vocabulary and pronunciation.",to:"/teacher/learn",icon:"teacher"},
    {title:"Real-life scenarios",desc:"Speak your way through everyday situations.",to:"/teacher/course",icon:"scene"},
@@ -218,7 +218,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     <>
     <div className="crew-learn-heading-copy"><h1>{tTeacher("learn.title")}</h1></div>
     </>
-    :section==="chat"?<><h1>{x.title}</h1><Link className="crew-chat-heading-all" to="/teacher/roles?mode=friends">{t("sectionHubs.chat.allFriends")} <Arrow/></Link></>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
+    :section==="chat"?<><h1>{x.title}</h1><Link className="crew-chat-heading-all" to="/chat" state={{openFriendDirectory:true}}>{t("sectionHubs.chat.allFriends")} <Arrow/></Link></>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
    {(section==="chat"||section==="learn")&&<RolePreferenceSummary role={section==="chat"?"friend":"teacher"}/>}
   </header>
   {section==="explore"?
@@ -247,7 +247,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       <section className="crew-section-people" aria-label={t("sectionHubs.chat.meetFriends")}>
        <div className="crew-section-row-title"><h2>{t("sectionHubs.chat.meetFriends")}</h2>
         <div className="crew-section-people-toolbar">
-         <Link to="/teacher/roles?mode=friends">{t("sectionHubs.chat.allFriends")} <Arrow/></Link>
+         <Link to="/chat" state={{openFriendDirectory:true}}>{t("sectionHubs.chat.allFriends")} <Arrow/></Link>
          <div className="crew-section-carousel-actions">
           <button type="button" onClick={()=>browseFriends(-1)} disabled={friendsPosition.start} aria-label={t("sectionHubs.chat.previous",{defaultValue:"Previous friends"})}><Arrow direction="left" disabled={friendsPosition.start}/></button>
           <button type="button" onClick={()=>browseFriends(1)} disabled={friendsPosition.end} aria-label={t("sectionHubs.chat.next",{defaultValue:"Next friends"})}><Arrow disabled={friendsPosition.end}/></button>
@@ -286,7 +286,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
         </div>
        </details>
       </>:
-      <>{section==="me"&&<section className="section panel crew-me-summary" aria-label={en?"My learning snapshot":"我的學習摘要"}><div className="teacher-stats"><div><strong>{meStats?.sessions??"—"}</strong><span>{en?"Practices":"練習次數"}</span></div><div><strong>{meStats?.lessons??"—"}</strong><span>{en?"Lessons":"完成課程"}</span></div><div><strong>{meStats?.saved??"—"}</strong><span>{en?"Saved phrases":"收藏片語"}</span></div></div><Link className="btn secondary small" to="/teacher/me">{en?"View learning records":"查看完整學習紀錄"} <Arrow/></Link></section>}<Link to={section==="me"?"/teacher/roles?mode=teacher":x.hero.to} className="crew-section-hero">
+      <>{section==="me"&&<section className="section panel crew-me-summary" aria-label={en?"My learning snapshot":"我的學習摘要"}><div className="teacher-stats"><div><strong>{meStats?.sessions??"—"}</strong><span>{en?"Practices":"練習次數"}</span></div><div><strong>{meStats?.lessons??"—"}</strong><span>{en?"Lessons":"完成課程"}</span></div><div><strong>{meStats?.saved??"—"}</strong><span>{en?"Saved phrases":"收藏片語"}</span></div></div><Link className="btn secondary small" to="/teacher/me">{en?"View learning records":"查看完整學習紀錄"} <Arrow/></Link></section>}<Link to={section==="me"?"/learn":x.hero.to} className="crew-section-hero">
        <span className="crew-section-hero-icon"><Icon name={x.hero.icon}/></span>
        <span className="crew-section-hero-copy"><span className="crew-section-eyebrow">{x.hero.tag}</span>
         <strong>{section==="me"?(en?"Continue learning":"繼續學習"):x.hero.title}</strong><small>{section==="me"?(en?"Pick up a lesson or start another practice.":"回到課程或開始下一次練習。"):x.hero.desc}</small></span>

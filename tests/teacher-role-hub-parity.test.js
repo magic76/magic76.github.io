@@ -4,7 +4,7 @@ const root=path.resolve(__dirname,".."),read=p=>fs.readFileSync(path.join(root,p
 test("Crew Teacher home shows the selected people while preserving neutral global app icons",()=>{
  const home=read("web-spa/src/teacher/PracticePage.tsx");
  const layout=read("web-spa/src/teacher/TeacherLayout.tsx");
- const roles=read("web-spa/src/teacher/RolesPage.tsx");
+ const app=read("web-spa/src/App.tsx");
  assert.match(home,/tToday\("learnToday\.teachersCourses"\)/);
  assert.doesNotMatch(home,/crew-role-entry friend/);
  assert.match(home,/if\(!stringsReady\)throw loadUiNamespace\("lesson"\)/);
@@ -20,21 +20,21 @@ test("Crew Teacher home shows the selected people while preserving neutral globa
  const chrome=read("web-spa/src/components/AppChrome.tsx");
  const learn=read("web-spa/src/pages/CrewSectionPage.tsx");
  assert.ok(chrome.includes("GlobalNav"),"Crew keeps its main navigation");
- assert.ok(learn.includes('to:"/teacher/roles?mode=teacher"'),"teacher picker stays directly reachable");
+ assert.ok(learn.includes('to:"/learn"'),"teacher picker stays directly reachable");
  assert.ok(!layout.includes('"/teacher/friends","朋友"'));
- assert.doesNotMatch(roles,/crew-role-switcher/);
- assert.match(roles,/<Navigate to="\/learn" replace/);
- assert.match(roles,/<FriendsPage\/>/);
- assert.ok(roles.includes("crew_teacher_last_role_v1"));
+ assert.doesNotMatch(app,/RolesPage|crew-role-switcher/);
+ assert.match(app,/return directory\?<FriendsPage\/>:<CrewSectionPage section="chat"\/>/);
 });
 test("old tutor/friend urls redirect and relationship starts remain separate",()=>{
  const app=read("web-spa/src/App.tsx");
  const tutor=read("web-spa/src/teacher/TutorPage.tsx");
  const teacher=read("web-spa/src/teacher/LivePage.tsx");
  const friend=read("web-spa/src/friends/FriendLiveConversation.tsx");
- assert.ok(app.includes('path="roles" element={<RolesPage/>}'));
- assert.ok(app.includes('to="/teacher/roles?mode=friends"'));
- assert.ok(app.includes('to="/teacher/roles?mode=teacher"'));
+ assert.ok(app.includes('path="/teacher/roles" element={<LegacyRoleRedirect/>}'));
+ assert.ok(app.includes('path="friends" element={<LegacyRoleRedirect destination="/chat"/>}'));
+ assert.ok(app.includes('path="tutor" element={<LegacyRoleRedirect destination="/learn"/>}'));
+ assert.match(app,/new URLSearchParams\(location.search\).get\("mode"\)==="friends"\?"\/chat":"\/learn"/);
+ assert.match(app,/replace state=\{location.state\}/);
  assert.match(tutor,/teacher-advanced-settings/);
  assert.match(tutor,/teacher-home-start/);
  assert.match(teacher,/setTimeout\(\(\)=>\{void live\.start\(\)\},0\)/);

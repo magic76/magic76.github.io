@@ -30,7 +30,8 @@ test("legacy product routes and contextual bottom-nav selection remain reachable
  }
  assert.match(app,/sectionForRoute\(pathname,search\)/);
  assert.match(model,/pathname\.startsWith\("\/teacher\/shorts"\)/);
- assert.match(model,/new URLSearchParams\(search\)\.get\("mode"\)==="friends"/);
+ assert.doesNotMatch(model,/\/teacher\/roles/);
+ assert.match(model,/\["chat","explore","learn","me"\]\.includes\(root\)/);
  assert.match(model,/\["fortune","timeline","games","story","research"/);
  assert.match(model,/\["settings","account","privacy","usage"\]/);
 });
@@ -38,9 +39,9 @@ test("legacy product routes and contextual bottom-nav selection remain reachable
 test("new sections link to existing real screens and preserve the main Shorts feed",()=>{
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  const home=read("web-spa/src/pages/HomePage.tsx");
- for(const url of ["/teacher/shorts","/teacher/roles?mode=friends","/friend/live?id=",
+ for(const url of ["/teacher/shorts","/chat","/friend/live?id=",
                    "/fortune","/timeline","/games","/story",
-                   "/teacher/roles?mode=teacher","/teacher/learn","/teacher/textbook",
+                   "/learn","/teacher/learn","/teacher/textbook",
                    "/teacher/me","/fortune/history","/story/me","/settings"]){
   assert.ok(hub.includes(url),"Missing existing route "+url);
  }
