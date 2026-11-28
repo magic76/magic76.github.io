@@ -18,7 +18,50 @@ export function accentOptions(language:string):Region[]{return[{value:"auto",lab
 export function normalizedAccent(language:string,region:string):LanguageStyle{
  return accentOptions(language).some(x=>x.value===region)?region as LanguageStyle:"auto";
 }
-export function accentLabel(language:string,region:string){return accentOptions(language).find(x=>x.value===normalizedAccent(language,region))?.label||"自動推薦";}
+// Region display names are independent of model instructions and the selected learning language.
+const regionCodes:Partial<Record<LanguageStyle,string>>={us:"US",gb:"GB",au:"AU",sg:"SG",in:"IN",es:"ES",mx:"MX",ar:"AR",co:"CO",fr:"FR",be:"BE",ch:"CH",tw:"TW",cn:"CN",de:"DE",at:"AT",br:"BR",pt:"PT"};
+const specialLabels:Record<string,Record<string,string>>={
+ en:{standard:"Standard",kansai:"Kansai",seoul:"Seoul",gyeongsang:"Gyeongsang / Busan",qc:"Québec",rome:"Rome",milan:"Milan",north:"Northern",south:"Southern",central:"Central",isan:"Isan / Northeast",jakarta:"Jakarta"},
+ ja:{standard:"標準語",kansai:"関西",seoul:"ソウル",gyeongsang:"慶尚道／釜山",qc:"ケベック",rome:"ローマ",milan:"ミラノ",north:"北部",south:"南部",central:"中部",isan:"イサーン／東北部",jakarta:"ジャカルタ"},
+ ko:{standard:"표준어",kansai:"간사이",seoul:"서울",gyeongsang:"경상도 / 부산",qc:"퀘벡",rome:"로마",milan:"밀라노",north:"북부",south:"남부",central:"중부",isan:"이산 / 북동부",jakarta:"자카르타"},
+ vi:{standard:"Chuẩn",kansai:"Kansai",seoul:"Seoul",gyeongsang:"Gyeongsang / Busan",qc:"Québec",rome:"Roma",milan:"Milano",north:"Miền Bắc",south:"Miền Nam",central:"Miền Trung",isan:"Isan / Đông Bắc",jakarta:"Jakarta"},
+ es:{standard:"Estándar",kansai:"Kansai",seoul:"Seúl",gyeongsang:"Gyeongsang / Busan",qc:"Quebec",rome:"Roma",milan:"Milán",north:"Norte",south:"Sur",central:"Centro",isan:"Isan / Nordeste",jakarta:"Yakarta"},
+ fr:{standard:"Standard",kansai:"Kansai",seoul:"Séoul",gyeongsang:"Gyeongsang / Busan",qc:"Québec",rome:"Rome",milan:"Milan",north:"Nord",south:"Sud",central:"Centre",isan:"Isan / Nord-Est",jakarta:"Jakarta"},
+ de:{standard:"Standard",kansai:"Kansai",seoul:"Seoul",gyeongsang:"Gyeongsang / Busan",qc:"Québec",rome:"Rom",milan:"Mailand",north:"Norden",south:"Süden",central:"Zentral",isan:"Isan / Nordosten",jakarta:"Jakarta"},
+ pt:{standard:"Padrão",kansai:"Kansai",seoul:"Seul",gyeongsang:"Gyeongsang / Busan",qc:"Quebec",rome:"Roma",milan:"Milão",north:"Norte",south:"Sul",central:"Central",isan:"Isan / Nordeste",jakarta:"Jacarta"},
+ id:{standard:"Baku",kansai:"Kansai",seoul:"Seoul",gyeongsang:"Gyeongsang / Busan",qc:"Quebec",rome:"Roma",milan:"Milan",north:"Utara",south:"Selatan",central:"Tengah",isan:"Isan / Timur Laut",jakarta:"Jakarta"},
+ th:{standard:"มาตรฐาน",kansai:"คันไซ",seoul:"โซล",gyeongsang:"คยองซัง / ปูซาน",qc:"ควิเบก",rome:"โรม",milan:"มิลาน",north:"ภาคเหนือ",south:"ภาคใต้",central:"ภาคกลาง",isan:"อีสาน / ตะวันออกเฉียงเหนือ",jakarta:"จาการ์ตา"}
+};
+export function accentLabel(language:string,region:string,locale="zh-TW",automatic="Auto",custom="Custom"){
+ const value=normalizedAccent(language,region),choice=accentOptions(language).find(x=>x.value===value);
+ if(locale.toLowerCase().startsWith("zh"))return choice?.label||"自動推薦";
+ if(value==="auto")return automatic;if(value==="custom")return custom;
+ const code=regionCodes[value];
+ if(code){try{return new Intl.DisplayNames([locale],{type:"region"}).of(code)||specialLabels.en[value]||code}catch{return code}}
+ return specialLabels[locale.split("-")[0]]?.[value]||specialLabels.en[value]||choice?.label||value;
+}
+
+export type RegionalPreference={region:LanguageStyle;strength:AccentStrength;custom:string};
+export type RegionalRole="teacher"|"friend";
+type AccentStorage=Pick<Storage,"getItem"|"setItem">;
+const preferenceKey=(language:string,role:RegionalRole)=>"crew_teacher_regional_v1:"+role+":"+language;
+export function readRegionalPreference(storage:AccentStorage,language:string,role:RegionalRole,legacy=false):RegionalPreference{
+ let data:Partial<RegionalPreference>={};
+ try{
+  const saved=storage.getItem(preferenceKey(language,role));
+  if(saved){const parsed=JSON.parse(saved);if(parsed&&typeof parsed==="object")data=parsed;}
+  else if(legacy){
+   const read=(key:string)=>storage.getItem("crew_teacher_"+key);
+   data={region:(role==="friend"?read("friendLanguageStyle")??read("languageStyle"):read("languageStyle")) as LanguageStyle,
+    strength:(role==="friend"?read("friendAccentStrength")??read("accentStrength"):read("accentStrength")) as AccentStrength,
+    custom:(role==="friend"?read("friendCustomAccent")??read("customAccent"):read("customAccent"))||""};
+  }
+ }catch{/* Invalid or restricted storage falls back to defaults. */}
+ return {region:normalizedAccent(language,typeof data.region==="string"?data.region:"auto"),strength:data.strength==="subtle"||data.strength==="noticeable"?data.strength:"natural",custom:typeof data.custom==="string"?data.custom.slice(0,180):""};
+}
+export function writeRegionalPreference(storage:AccentStorage,language:string,role:RegionalRole,preference:RegionalPreference){
+ storage.setItem(preferenceKey(language,role),JSON.stringify({...preference,region:normalizedAccent(language,preference.region),custom:preference.custom.slice(0,180)}));
+}
 export function buildAccentPrompt(language:string,region:string,strength:AccentStrength="natural",custom=""){
  const normalized=normalizedAccent(language,region);
  if(normalized==="auto")return"";
@@ -26,7 +69,7 @@ export function buildAccentPrompt(language:string,region:string,strength:AccentS
  const description=normalized==="custom"?custom.trim().slice(0,180):choice?.instruction||"";
  if(!description)return"";
  const intensity=strength==="subtle"?"Keep the regional features subtle.":strength==="noticeable"?"Make the region recognizable but never exaggerated.":"Keep the region natural and unforced.";
- return "Speaking style: sound like "+description+". "+intensity+" Do not parody or exaggerate an accent. Accent is a voice-style preference, not a guarantee of the generated model's output.";
+ return "Regional language style: when speaking the selected TARGET language, sound like "+description+". "+intensity+" Use authentic pronunciation, intonation and everyday regional vocabulary and spelling where appropriate. Keep standard-language instruction as the baseline; explain regional variants when useful, never replace the target language or switch into a different dialect/language unless the learner explicitly requests it. In bilingual explanations keep the support language natural. Do not parody or exaggerate an accent. Accent is a voice-style preference, not a guarantee of the generated model's output.";
 }
 export function buildPacePrompt(pace:SpeakingPace="normal"){
  if(pace==="slow")return"Speech pace: speak slightly more slowly, with natural rhythm and clear phrasing; do not stretch syllables unnaturally.";

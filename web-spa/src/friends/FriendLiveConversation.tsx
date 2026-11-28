@@ -113,7 +113,7 @@ export function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:
  const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>{const saved=useTeacherStore.getState().friendChatMode;return dailyEntry?"natural":(intent==="speak"&&saved==="natural"?"bilingual":saved)});
  const [modeNote,setModeNote]=useState("");
  const pace=useTeacherStore(s=>s.friendSpeakingPace);
- const region=useTeacherStore(s=>s.friendLanguageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
+ const region=useTeacherStore(s=>s.friendLanguageStyle),accentStrength=useTeacherStore(s=>s.friendAccentStrength),customAccent=useTeacherStore(s=>s.friendCustomAccent);
  const sessionId=friend.id;
  const liveMemory=useMemo(()=>createFriendLiveMemory(sessionId,language),[sessionId,language]);
  const [lifeOpening]=useState(()=>!shortsPost&&!intent?nextFriendLifeOpening(friend.id):"");

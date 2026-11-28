@@ -13,7 +13,8 @@ import{teacherProfileDisplay}from"./teacherProfileLocale";
 import{TeacherProfilePicker}from"./TeacherProfilePicker";
 import{TeacherAvatar}from"./TeacherAvatar";
 import{previewTeacherVoiceRecorded,type PreviewStatus}from"./teacherVoicePreview";
-import{accentLabel,accentOptions,normalizedAccent}from"./teacherAccent";
+import{accentLabel}from"./teacherAccent";
+import{RegionalStyleSettings}from"../components/RegionalStyleSettings";
 
 const CHAT_OPTIONS:{value:ConversationMode;label:string}[]=[
  {value:"natural",label:"自然聊天"},{value:"practice",label:"口說練習"},{value:"scenario",label:"情境練習"}
@@ -75,14 +76,12 @@ export function TutorPage(){
  </section>
  <section className="section teacher-advanced-section">
   <details className="panel teacher-advanced-settings">
-   <summary><span><strong>{t("tutor.advanced")}</strong><small>{targetName} · {accentLabel(s.targetLanguage,s.languageStyle)} · {t("tutor.speed."+s.speakingPace)}</small></span><Arrow direction="down" className="teacher-advanced-chevron crew-arrow--plain"/></summary>
+   <summary><span><strong>{t("tutor.advanced")}</strong><small>{targetName} · {accentLabel(s.targetLanguage,s.languageStyle,uiLanguage,t("settings:group.automatic"),t("tutor.customAccent"))} · {t("tutor.speed."+s.speakingPace)}</small></span><Arrow direction="down" className="teacher-advanced-chevron crew-arrow--plain"/></summary>
    <div className="teacher-advanced-body">
     <div className="settings-grid">
      <label><span className="label">{t("tutor.nativeLanguage")}</span><select className="field" value={displayNative} onChange={e=>s.setNativeLanguage(e.target.value as typeof s.nativeLanguage)}>{NATIVE_LANGUAGES.map(([value])=><option key={value} value={value}>{localizedNativeName(value,locale.resolvedLanguage||"en")}</option>)}</select></label>
-     <label><span className="label">{t("tutor.accent")}</span><select className="field" aria-label={t("tutor.accentSelect")} value={normalizedAccent(s.targetLanguage,s.languageStyle)} onChange={e=>s.setLanguageStyle(e.target.value as typeof s.languageStyle)}>{accentOptions(s.targetLanguage).map(a=><option value={a.value} key={a.value}>{a.label}</option>)}</select></label>
     </div>
-    {s.languageStyle==="custom"&&<label><span className="label">{t("tutor.customAccent")}</span><input className="field" value={s.customAccent} onChange={e=>s.setCustomAccent(e.target.value)} placeholder={t("tutor.customPlaceholder")}/></label>}
-    <details className="teacher-setting-advanced"><summary>{t("tutor.advancedAccent")}</summary><div className="teacher-segmented" role="group" aria-label={t("tutor.accentStrength")}>{([{value:"subtle",label:"輕微"},{value:"natural",label:"自然"},{value:"noticeable",label:"明顯"}] as const).map(a=><button key={a.value} type="button" aria-pressed={s.accentStrength===a.value} className={s.accentStrength===a.value?"selected":""} onClick={()=>s.setAccentStrength(a.value)}>{t("tutor.strength."+a.value)}</button>)}</div></details>
+    <RegionalStyleSettings role="teacher" beforePreview={stopPreview} otherPreviewActive={preview?.state==="connecting"||preview?.state==="playing"}/>
     <p className="meta">{t("tutor.preferences")}</p>
    </div>
   </details>
