@@ -25,7 +25,7 @@ function previewLine(language:string){
 }
 
 /** One response only, no microphone and no conversation/history side effects. */
-export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string,onStatus:(status:PreviewStatus)=>void,opts?:{voice?:string;languageStyle?:string;accentStrength?:AccentStrength;customAccent?:string;speakingPace?:SpeakingPace}):()=>void{
+export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string,onStatus:(status:PreviewStatus)=>void,opts?:{voice?:string;languageStyle?:string;accentStrength?:AccentStrength;customAccent?:string;speakingPace?:SpeakingPace;regionalSample?:boolean}):()=>void{
  const key=geminiKey();
  if(!key){onStatus({state:"error",message:"請先到設定新增 Gemini Key，再使用試聽。"});return()=>{}}
  const AudioCtor=window.AudioContext;
@@ -94,7 +94,7 @@ export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string
      if(msg.setupComplete||msg.setup_complete){
       if(sent)return;sent=true;
       const sample=previewLine(targetLanguage);
-      socket?.send(JSON.stringify({clientContent:{turns:[{role:"user",parts:[{text:"[ONE-TURN AUDITION] Reply as the tutor to this learner: "+sample+" Correct at most one actual mistake, and ask one brief follow-up. No introduction, under 35 words."}]}],turnComplete:true}}));
+      socket?.send(JSON.stringify({clientContent:{turns:[{role:"user",parts:[{text:opts?.regionalSample?"[REGIONAL PRONUNCIATION SAMPLE] Read this exact sentence in the selected target language and regional style. Do not add, translate or explain anything: "+sample:"[ONE-TURN AUDITION] Reply as the tutor to this learner: "+sample+" Correct at most one actual mistake, and ask one brief follow-up. No introduction, under 35 words."}]}],turnComplete:true}}));
      }
      const content=msg.serverContent||msg.server_content||{};
      for(const part of content.modelTurn?.parts||content.model_turn?.parts||[]){
