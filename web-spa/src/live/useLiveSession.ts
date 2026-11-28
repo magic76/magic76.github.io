@@ -416,6 +416,8 @@ export function useLiveSession(config:Config){
       if(tabooSession)session.sendControl?.(tabooDirectGuess?"[TABOO DIRECT GUESS] Continue in "+tabooTongue+" only. Make one short, natural guess with one candidate per learner description; vary the wording; no preamble, reaction or follow-up.":"[TABOO LANGUAGE] Continue in "+tabooTongue+" only. Wait for verified game prompts before offering guesses or asking follow-up questions.");
       else if(configRef.current.sessionKind==="friend"&&configRef.current.languageDirective)
         session.sendControl?.("[FRIEND RECONNECT MODE — latest user setting wins]\\n"+configRef.current.languageDirective);
+      else if(configRef.current.pageKey==="teacher"&&configRef.current.languageDirective)
+        session.sendControl?.("[TEACHER RECONNECT MODE — latest user setting supersedes earlier language rules; stay on topic, do not greet or restart]\\n"+configRef.current.languageDirective);
       if(!awaitingTutorRef.current)return;
       if(recoveryRequestRef.current){
        if(configRef.current.sessionKind==="friend")scheduleFriendReplyCheck();

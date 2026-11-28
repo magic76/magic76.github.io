@@ -102,11 +102,13 @@
     "advanced": "老師與語言偏好",
     "accent": "地區口音",
     "accentSelect": "選擇地區口音",
-    "guidance": "教學引導",
+    "guidance": "語言模式",
+    "roleplayLanguageLocked": "情境練習固定使用沉浸模式。",
+    "modeChangeFailed": "切換未成功，請再試一次。",
     "guidanceChoices": {
-      "beginner": "零基礎引導",
-      "bilingual": "雙語輔助",
-      "immersion": "全外語沉浸"
+      "beginner": "母語模式（引導）",
+      "bilingual": "雙語模式",
+      "immersion": "沉浸模式"
     },
     "customAccent": "自訂口音",
     "customPlaceholder": "例如：清晰、自然的加拿大英語",

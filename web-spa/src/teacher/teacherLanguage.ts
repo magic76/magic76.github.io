@@ -52,6 +52,10 @@ export function teacherLanguageReminder(target:string,native:NativeLanguage,mode
   " for explanations when helpful or requested, and never change to an unrelated third language. "+
   "Stay with the same topic and persona.";
 }
+/** A mode selection is a control event, not a learner utterance. */
+export function teacherLanguageTransition(target:string,native:NativeLanguage,mode:TeachingMode,level:LearnerSpeakingLevel="auto"){
+ return "[TEACHER LANGUAGE MODE CHANGE — EXPLICIT USER ACTION] The latest UI selection supersedes ALL earlier teaching-language rules, including the original system instruction. Apply it from the next reply, without restarting, greeting, announcing the change or inventing learner speech. Keep the current topic, teacher identity and correction cadence. For an already-started session, any first-turn guidance applies to the next natural opportunity, not a new opening. Wait for the next learner turn.\n"+teacherLanguageRule(target,native,mode,level)+teacherLanguageReminder(target,native,mode,level);
+}
 /** Conservative guard: re-anchor only when the completed AI turn is predominantly Hangul. */
 export function unexpectedTeacherKorean(output:string,target:string,native:NativeLanguage,mode:TeachingMode){
  if(friendSpokenLanguage(target)==="Korean"||(mode!=="immersion"&&native==="ko"))return false;

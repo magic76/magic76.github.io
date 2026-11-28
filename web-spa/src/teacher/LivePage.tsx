@@ -21,7 +21,7 @@ import{useEffect,useMemo,useRef,useState}from"react";import{Link,useNavigate,use
 import{LiveControls}from"../live/LiveControls";import{GuestLiveStarter}from"../live/GuestLiveStarter";import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";import{TeacherTextCourseChat}from"./TeacherTextCourseChat";
 import{PinyinHint}from"./PinyinHint";
 import{DesktopLivePanel}from"../components/DesktopLivePanel";import{useLiveSession}from"../live/useLiveSession";
-import{history,lastLive,vocabularyLevel,geminiKey}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
+import{history,lastLive,vocabularyLevel,geminiKey}from"../lib/runtime";import{useTeacherStore,type TeachingMode}from"../store/teacherStore";
 import{getTeacherProfile}from"./teacherProfiles";
 import{accentOptions,normalizedAccent}from"./teacherAccent";
 import{buildTeacherSessionPolicy}from"./teacherPolicy";
@@ -37,7 +37,7 @@ import{FriendChatHistory}from"../friends/FriendChatHistory";
 import"../friends/friendCall.css";import"./teacherCall.css";
 import{nativeLanguageName}from"./teacherLocale";
 import{friendSpokenLanguage}from"../friends/friendLanguage";
-import{useTranslation}from"react-i18next";import"./boardEntry.css";import{teacherLanguageReminder,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{courseDisplayTitle,courseDisplayMission}from"./courseLocale";
+import{useTranslation}from"react-i18next";import"./boardEntry.css";import{teacherLanguageReminder,teacherLanguageTransition,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{courseDisplayTitle,courseDisplayMission}from"./courseLocale";
 import{teacherProfileDisplay}from"./teacherProfileLocale";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress,nextUnlockedLesson}from"./courseProgress";
 export function TeacherLivePage(){
  const [guestStarted,setGuestStarted]=useState(false);
@@ -45,7 +45,7 @@ export function TeacherLivePage(){
  const navigate=useNavigate(),endRequestedRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),memoryCheckpointRef=useRef(false);
  const[p]=useSearchParams(),s=useTeacherStore(),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const[endingCourse,setEndingCourse]=useState(false),[changingTeacher,setChangingTeacher]=useState(false),[teacherSwitchError,setTeacherSwitchError]=useState("");
- const textMode=p.get("chat")==="text";const [callOptions,setCallOptions]=useState(false);
+ const textMode=p.get("chat")==="text";const [callOptions,setCallOptions]=useState(false);const [modeNote,setModeNote]=useState<"changed"|"saved"|"failed"|"">("");
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=(locale.resolvedLanguage==="ja"?legacyMissionsJa:legacyMissions)[p.get("mission")||""]||null,mission=course?{title:courseDisplayTitle(course,locale.resolvedLanguage||"en"),scene:course.scene,goals:course.missions.map((_,i)=>courseDisplayMission(course,i,locale.resolvedLanguage||"en")),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
  const fortuneKind:FortuneSpeakingKind|null=p.get("fortune")==="reading"?"reading":p.get("fortune")==="daily"?"daily":p.get("fortune")==="culture"?"culture":null;
@@ -184,6 +184,14 @@ export function TeacherLivePage(){
  };
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  useAuxiliaryLiveSession(sessionActive,textMode);
+ const modeLocked=!textMode&&["requesting-mic","connecting","ending","reporting"].includes(live.state);
+ const changeTeacherLanguageMode=(chosen:TeachingMode)=>{
+  if(isRoleplay||fortuneKind||modeLocked||chosen===s.teachingMode)return;
+  const connected=!textMode&&["listening","speaking"].includes(live.state);
+  if(connected&&!live.sendControl(teacherLanguageTransition(s.targetLanguage,s.nativeLanguage,chosen,effectiveLevel))){setModeNote("failed");return;}
+  s.setTeachingMode(chosen);
+  setModeNote(connected?"changed":textMode?"changed":"saved");
+ };
  const interruptedCaptions=live.state==="error"&&Boolean(live.captionTurns.length||live.input||live.output);
  const changeTeacher=async()=>{
   if(changingTeacher)return;
@@ -219,6 +227,13 @@ export function TeacherLivePage(){
  const quickActions=<details className="teacher-live-quick-actions"><summary>{t("live.shortcuts")}</summary><div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">{t("live.setMode")}</Link>}{!isRoleplay&&!guestStarted&&<><LiveSearchAction live={live} english={english} label={english?"Learn from news":"新聞學習"}
    query={"Find one interesting and verifiable recent news event relevant to "+s.targetLanguage+" language learners. Include the published date, event date, and credible source."}
    instruction={"Teach this verified news to the student in the configured target language: "+s.targetLanguage+". Choose 2-3 suitable vocabulary words and ask one practice question. Stay in the same conversation. "+languageDirective}/><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>{t("live.newTopic")}</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>{t("live.correctMe")}</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>{t("live.slower")}</button></div></details>;
+ const selectedLanguageMode=isRoleplay?"immersion":s.teachingMode;
+ const languageModeSelector=!fortuneKind?<div className="friend-language-switch" role="group" aria-label={t("teacher:tutor.guidance")}>
+  <span className="friend-language-switch-title">{t("teacher:tutor.guidance")}</span>
+  <div className="friend-language-options">{(["beginner","bilingual","immersion"] as const).map(value=><button key={value} type="button" disabled={isRoleplay||modeLocked} className={selectedLanguageMode===value?"selected":""} aria-pressed={selectedLanguageMode===value} onClick={()=>changeTeacherLanguageMode(value)}>{t("teacher:tutor.guidanceChoices."+value)}</button>)}</div>
+  <small className="friend-language-mode-hint" role="note">{isRoleplay?t("teacher:tutor.roleplayLanguageLocked",{defaultValue:"Scenario practice uses full immersion."}):teacherLanguageLiveHint(selectedLanguageMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),zh?s.targetLanguage:friendSpokenLanguage(s.targetLanguage),english,locale.resolvedLanguage||"en")}</small>
+  {modeNote&&<small role="status">{modeNote==="failed"?t("teacher:tutor.modeChangeFailed",{defaultValue:"Could not switch. Please try again."}):t(modeNote==="changed"?"friends:chatModeChanged":"friends:chatModeSavedNext")}</small>}
+ </div>:null;
  const teacherOptions=<>
  <div className="teacher-live-entry-actions">
  <button type="button" className="teacher-live-change-action" onClick={()=>void changeTeacher()} disabled={changingTeacher||endingCourse}>{changingTeacher?t("live.switching"):t("live.changeTeacher")}</button>
@@ -229,16 +244,17 @@ export function TeacherLivePage(){
     s.teachingMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),
     zh?s.targetLanguage:friendSpokenLanguage(s.targetLanguage),english,locale.resolvedLanguage||"en")}</p>}
  </>;
- return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={fortuneKind?"/teacher/fortune":"/learn"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("voice:friendLive.backAria")}><Arrow direction="left" className="crew-arrow--plain"/></Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><div className="friend-call-header-actions"><span className="status connected" data-setup={live.state==="error"&&live.errorKind==="key"||undefined} data-state={presenceState} role="status" aria-live="polite"><i className="status-dot"/><span>{voiceStatus}</span></span><FriendCallMenuTrigger active={!textMode} open={callOptions} label={t("voice:callCaptions.more")} onToggle={()=>setCallOptions(v=>!v)}/></div></div></header>
+ return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={fortuneKind?"/teacher/fortune":"/learn"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("voice:friendLive.backAria")}><Arrow direction="left" className="crew-arrow--plain"/></Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><div className="friend-call-header-actions"><span className="status connected" data-setup={live.state==="error"&&live.errorKind==="key"||undefined} data-state={presenceState} role="status" aria-live="polite"><i className="status-dot"/><span>{voiceStatus}</span></span><FriendCallMenuTrigger active={!textMode||!fortuneKind} open={callOptions} label={t("voice:callCaptions.more")} onToggle={()=>setCallOptions(v=>!v)}/></div></div></header>
  <main className="session-shell teacher-call-page friend-live-page">
  {textMode?missionNotes:null}
 
  <div className="desktop-live-workspace teacher-desktop-workspace friend-desktop-workspace"><section ref={stage} className={"live-stage teacher-live-stage"+(!textMode?" friend-phone-stage":"")} data-state={live.state} aria-label={t("live.status.idle")}>
-   {!textMode&&<FriendCallMenu inCall open={callOptions} onClose={()=>setCallOptions(false)} title={t("voice:callCaptions.more")} closeLabel={t("voice:callCaptions.closeMenu")}>
+   {(!textMode||!fortuneKind)&&<FriendCallMenu inCall open={callOptions} onClose={()=>setCallOptions(false)} title={t("voice:callCaptions.more")} closeLabel={t("voice:callCaptions.closeMenu")}>
   <div className="friend-call-settings">
-   {missionNotes}{modeSwitch}{teacherOptions}{quickActions}
+   {languageModeSelector}
+   {!textMode&&<>{missionNotes}{modeSwitch}{teacherOptions}{quickActions}
    <InlineTeacherBoardMenu board={inlineBoard} zh={zh} send={live.sendText} canSend={live.state==="listening"} onRequested={()=>setCallOptions(false)}/>
-   {!guestStarted&&<TeacherLiveTools live={live} store={s} profile={profile} sessionActive={sessionActive} onPickTeacher={()=>setPicker(true)}/>}
+   {!guestStarted&&<TeacherLiveTools live={live} store={s} profile={profile} sessionActive={sessionActive} onPickTeacher={()=>setPicker(true)}/>}</>}
   </div>
   <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
   {live.captionTurns.length?<FriendChatHistory turns={live.captionTurns} friendName={profile.name} youLabel={t("voice:friendLive.youLabel")} summary={t("voice:friendLive.historySummary")}/>:null}

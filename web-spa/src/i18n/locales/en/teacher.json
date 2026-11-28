@@ -102,11 +102,13 @@
     "advanced": "Teacher & language preferences",
     "accent": "Regional accent",
     "accentSelect": "Choose regional accent",
-    "guidance": "Teaching approach",
+    "guidance": "Language mode",
+    "roleplayLanguageLocked": "Scenario practice uses full immersion.",
+    "modeChangeFailed": "Could not switch. Please try again.",
     "guidanceChoices": {
-      "beginner": "Beginner guidance",
-      "bilingual": "Bilingual support",
-      "immersion": "Full immersion"
+      "beginner": "Native mode (guided)",
+      "bilingual": "Bilingual mode",
+      "immersion": "Immersion mode"
     },
     "customAccent": "Custom accent",
     "customPlaceholder": "For example: clear, natural Canadian English",
