@@ -14,7 +14,10 @@ test("strategy #6 labels interface versus practice language without another mobi
  const css=read("web-spa/src/i18n/languageSwitcher.css");
  const target=read("web-spa/src/pages/HomeTargetLanguage.tsx");
  const home=read("web-spa/src/pages/HomePortal.tsx");
- assert.match(chrome,/variant==="header"&&<svg className="crew-language-globe" aria-hidden="true"/);
+ assert.match(chrome,/variant==="header"&&<svg className="crew-language-icon" aria-hidden="true" focusable="false" width="20" height="20"/);
+ assert.match(css,/\.crew-language-icon\{[^}]*width:20px;height:20px;color:inherit/);
+ assert.match(css,/width:82px;min-width:82px;max-width:82px;padding-inline:3px;gap:2px/);
+ assert.match(chrome,/size=\{variant==="header"\?12:20\}/);
  assert.match(chrome,/aria-label=\{t\("language.label"\)\+": "\+currentLabel\}/);
  assert.match(css,/max-width:92px;min-height:44px/);
  assert.match(css,/font-size:12px/);

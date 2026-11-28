@@ -55,9 +55,9 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
   <button type="button" className="crew-language-trigger"
    aria-label={t("language.label")+": "+currentLabel}
    aria-haspopup="dialog" aria-expanded={open} onClick={showPicker}>
-   {variant==="header"&&<svg className="crew-language-globe" aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/></svg>}
+   {variant==="header"&&<svg className="crew-language-icon" aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>}
    <span className="crew-language-trigger-name">{variant==="header"?compactLabel:currentLabel}</span>
-   <Arrow direction="down" className="crew-arrow--small"/>
+   <Arrow direction="down" className="crew-arrow--small" size={variant==="header"?12:20}/>
   </button>
   <dialog ref={dialogRef} className="crew-language-dialog"
    aria-label={t("language.select")} onClose={()=>setOpen(false)}
