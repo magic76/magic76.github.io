@@ -7,11 +7,13 @@ import {readInternationalPages} from "../scripts/seo-publication.mjs";
 const root=fileURLToPath(new URL("../",import.meta.url));
 const read=path=>JSON.parse(readFileSync(join(root,path),"utf8"));
 const copy=read("web-spa/src/i18n/internationalLearningData.json");
-test("first international release is limited to Japanese, Vietnamese and Korean home/Teacher pages",()=>{
+test("international market launch covers localized home and Teacher pages",()=>{
  const pages=readInternationalPages(root);
- for(const locale of ["ja","vi","ko"]){
+ for(const locale of ["ja","vi","ko","es","pt-BR","id"]){
   const entries=pages.filter(entry=>entry.locale===locale);
   assert.ok(entries.some(entry=>entry.path==="/")&&entries.some(entry=>entry.path==="/teacher"));
+  assert.equal(entries.find(entry=>entry.path==="/").description,copy[locale].homeDescription);
+  assert.equal(entries.find(entry=>entry.path==="/teacher").description,copy[locale].teacherDescription);
   const common=read("web-spa/src/i18n/locales/"+locale+"/common.json");
   assert.equal(entries.find(entry=>entry.path==="/").title,common.seo.home);
   assert.equal(entries.find(entry=>entry.path==="/teacher").title,common.seo.teacher);
@@ -29,4 +31,6 @@ test("market copy stays out of the initial bundle and loads before locale render
  assert.ok(!loader.includes('import copy from'));
  assert.ok(loader.includes('if(!marketKey(locale)||copy)return Promise.resolve()'));
  assert.ok(i18n.includes('loadInternationalLearningCopy(locale)'));
+ assert.ok(loader.includes('locale==="pt-BR"?"pt-BR"'));
+ for(const locale of Object.keys(copy))assert.ok(loader.includes('key==="'+locale+'"'));
 });
