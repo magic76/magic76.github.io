@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(root+"/web-spa/src/teacher/"+p,"utf8");
 const strip=s=>stripTypeScriptTypes(s,{mode:"strip"}).replace(/^import .*;\s*$/gm,"").replace(/\bexport\s+(?=(?:const|(?:async\s+)?function)\b)/g,"");
 const api={};
-vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\n"+strip(read("visualReplyJournal.ts"))+"\n"+strip(read("teacherReplyComposer.ts"))+"\n"+strip(read("teacherReplyTemplates.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,visualClaim,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt,teacherReplyTemplates,parseComposerChoice,replyFingerprint,composerPrompt});",{api});
+vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\n"+strip(read("visualReplyJournal.ts"))+"\n"+strip(read("teacherReplyComposer.ts"))+"\n"+strip(read("teacherReplyTemplates.ts"))+"\n"+strip(read("syncTeachingPlan.ts"))+"\n"+strip(read("syncTeachingSpeech.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,visualClaim,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt,teacherReplyTemplates,parseComposerChoice,replyFingerprint,composerPrompt,validateTeachingPlan,planPrompt,playTeachingSegments,focusCount});",{api});
 const card=(title="Past tenses",id="past")=>({id,type:"comparison",title,pairs:[{source:"went",target:"finished past"},{source:"have gone",target:"present relevance"}]});
 const proposal=(g,now=100,auto=true,c=card())=>api.proposeInlineBoard(g,{name:api.BOARD_FUNCTION,args:{action:"upsert",cards:[c]}},auto,now);
 const finish=(g,input="",now=100,auto=true,valid=true,output="")=>api.finishInlineTurn(g,input,valid,auto,now,api.backupCard,output);
@@ -305,4 +305,38 @@ test("composer queue is bounded, deduplicated, cancelable and cannot deliver sta
   assert.equal(decisions[0].status,"ready");
   queue.close();
  }finally{await server.close()}
+});
+
+const syncPlanRaw={kind:"material",card:{type:"comparison",title:"In / on / at",pairs:[{source:"in",target:"Inside a space"},{source:"on",target:"On a surface"},{source:"at",target:"A specific point"}]},segments:[{text:"In means inside a space.",lang:"target",focus:0},{text:"On means on a surface.",lang:"target",focus:1},{text:"At means a specific point.",lang:"target",focus:2}]};
+test("unified teaching plan has one script and matching card row references; rejects invalid focus and voice language",()=>{
+ const plan=api.validateTeachingPlan(syncPlanRaw);
+ assert.equal(plan.choice.card.type,"comparison");
+ assert.deepEqual(Array.from(plan.segments,s=>s.focus),[0,1,2]);
+ assert.equal(api.validateTeachingPlan({...syncPlanRaw,segments:[{text:"Wrong row",lang:"target",focus:3}]}),null);
+ assert.equal(api.validateTeachingPlan({...syncPlanRaw,segments:[{text:"Wrong voice",lang:"fr",focus:0}]}),null);
+ assert.equal(api.validateTeachingPlan({...syncPlanRaw,segments:[{text:"No focus",lang:"target",focus:-1}]}),null);
+ assert.equal(api.validateTeachingPlan({kind:"text",segments:[{text:"How are you?",lang:"target",focus:-1}]}).choice.kind,"text");
+ assert.equal(api.validateTeachingPlan({kind:"text",segments:[{text:"How are you?",lang:"target",focus:0}]}),null);
+ assert.equal(api.validateTeachingPlan({kind:"text",segments:[{text:"<script>bad</script>",lang:"target",focus:-1}]}),null);
+ const prompt=JSON.parse(api.planPrompt("は and が",[],{target:"日文",native:"zh-TW",teacher:"Lina",persona:"Friendly",mode:"bilingual",level:"B1"}));
+ assert.equal(prompt.targetLanguage,"日文");assert.equal(prompt.learner,"は and が");
+});
+test("speech start, not request or generation completion, advances visual focus; cancellation prevents stale cues",async()=>{
+ const plan=api.validateTeachingPlan(syncPlanRaw),controller=new AbortController(),calls=[],focus=[];
+ const play=api.playTeachingSegments(plan.segments,(seg,start,signal)=>new Promise(resolve=>calls.push({seg,start,resolve,signal})),i=>focus.push(i),controller.signal);
+ assert.equal(calls.length,1);assert.deepEqual(focus,[]);
+ calls[0].start();assert.deepEqual(focus,[0]);calls[0].resolve();await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(calls.length,2);assert.deepEqual(focus,[0]);calls[1].start();assert.deepEqual(focus,[0,1]);
+ controller.abort();calls[1].start();calls[1].resolve();await play;
+ assert.equal(calls.length,2);assert.deepEqual(focus,[0,1]);
+});
+test("synchronized experiment is isolated from the original voice route and uses one plan before speech",()=>{
+ const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8"),page=read("SyncTeacherPage.tsx"),live=read("LivePage.tsx");
+ assert.match(app,/path="\/teacher\/sync\/live" element=\{<SyncTeacherPage\/>\}/);
+ assert.match(app,/path="\/teacher\/live" element=\{<TeacherLivePage\/>\}/);
+ assert.match(live,/await live\.stop\(true\);navigate\("\/teacher\/sync\/live"\)/);
+ assert.ok(page.indexOf("await generateTeachingPlan")<page.indexOf("await playTeachingSegments"));
+ assert.match(page,/focusIndex=\{r\.focus\}/);
+ assert.match(page,/generation\.current!==epoch/);
+ assert.doesNotMatch(page,/useLiveSession|composeTeacherReply/);
 });
