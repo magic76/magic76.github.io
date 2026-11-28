@@ -40,7 +40,7 @@ export function recordInlineEvent(g:InlineGate,event:string,reason?:string,now=D
  g.events.push({event,at:now,...(reason?{reason}:{})});if(g.events.length>40)g.events.shift();
  if(reason){g.lastReason=reason;g.reasons[reason]=(g.reasons[reason]||0)+1}
 }
-const declinesBoard=(input:string)=>/(?:不要|不用|別|停止|關閉|收起|不需要).{0,12}(?:白板|比較表|對照表|圖|測驗|視覺教學|视觉教学)|(?:no|without|stop|close|hide|don[’\x27]t|do not).{0,24}(?:whiteboard|chart|diagram|quiz)/i.test(input);
+export const declinesBoard=(input:string)=>/(?:不要|不用|別|停止|關閉|收起|不需要).{0,12}(?:白板|比較表|對照表|圖|測驗|視覺教學|视觉教学)|(?:no|without|stop|close|hide|don[’\x27]t|do not).{0,24}(?:whiteboard|chart|diagram|quiz)/i.test(input);
 export const explicitBoardRequest=(input:string)=>!declinesBoard(input)&&/(?:請|可以|幫我|我要|想看|能不能|打開|使用|顯示|拿出).{0,12}白板|白板[?？]?$|視覺(?:化)?教學|视觉(?:化)?教学|視覺(?:化)?教材|视觉(?:化)?教材|visual (?:teaching|material|aid|explanation)|比較表|對照表|用圖|畫出|視覺化|(?:比較|更)?友[善好]的\s*UI|(?:視覺|视觉).{0,10}UI|考我|測驗我|(?:show|open|use|bring up).{0,24}whiteboard|show me (?:a |the )?(?:chart|table|diagram|board)|(?:quiz|test) me/i.test(input);
 export const teachingCue=(input:string)=>/差別|差異|區別|怎麼區分|文法|句型|句子結構|發音規則|发音规则|幾種發音|几种发音|三種.{0,8}發音|三种.{0,8}发音|結尾.{0,8}(?:發音|念法)|(?:還是|仍然|真的)不懂|difference between|compare .{1,80}(?: and | with | vs)|grammar (?:rule|pattern)|sentence structure|pronunciation (?:rule|pattern)|how (?:do|to) (?:you )?pronounce|ways (?:we |to )pronounce|(?:ed|s) ending|still (?:do not|don't) understand/i.test(input);
 export const edTopic=(input:string)=>/(?:\b-?ed\b.{0,35}(?:發音|念法|讀音|字尾|結尾|ending|pronunci|sound)|(?:發音|念法|字尾|結尾|pronunci\w*|sound\w*).{0,35}\b-?ed\b)/i.test(input);
