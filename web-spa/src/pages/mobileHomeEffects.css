@@ -79,3 +79,40 @@
  35%{opacity:.75}
  100%{opacity:0;transform:translateX(95%)}
 }
+
+/* Mobile home details stay within the existing portrait and shortcut boxes. */
+@media(max-width:767px){
+ .cmh-slide-learn .cmh-learn-portrait{
+  border-color:#eaeaff #d3d9f0 #a9b6e0 #e1e6fb;
+  box-shadow:4px 9px 16px #17234c7a,1px 2px 4px #141e4540;
+ }
+ .cmh-slide-learn .cmh-learn-portrait::before{
+  content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;pointer-events:none;
+  box-shadow:inset 0 1px 0 #fff9,inset 0 -8px 12px -10px #17234cb3;
+ }
+ .cmh-slide-learn .cmh-learn-word-hi{box-shadow:0 4px 9px #19224a52}
+ .cmh-slide-learn .cmh-learn-word-konnichiwa{font-size:11px;padding:5px 8px}
+
+ .cmh-app-grid .cmh-app{
+  position:relative;
+  transition:transform 140ms ease-out;
+ }
+ .cmh-app-grid .cmh-app:active{
+  transform:translateY(1px);
+  box-shadow:none;
+ }
+ /* The icon already carries each shortcut's theme, including its accessible ink color. */
+ .cmh-app-grid .cmh-app-icon::after{
+  content:"";position:absolute;inset:0;border:1px solid currentColor;border-radius:16px;pointer-events:none;
+ opacity:0;transition:opacity 120ms ease-out;
+ }
+ .cmh-app-grid .cmh-app:active .cmh-app-icon{
+  background:var(--cmh-tint-b);
+ }
+ .cmh-app-grid .cmh-app:active .cmh-app-icon::after{opacity:.46}
+}
+
+@media(max-width:767px) and (prefers-reduced-motion:reduce){
+ .cmh-app-grid .cmh-app:active{transform:none}
+ .cmh-app-grid .cmh-app-icon::after{transition:none}
+}
