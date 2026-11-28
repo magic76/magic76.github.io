@@ -91,8 +91,8 @@
   "chatModeImmersion": "沉浸模式",
   "chatModeChanged": "已切換，下一句開始套用。",
   "chatModeSavedNext": "已儲存，下次對話將使用新模式。",
-  "chatModeHintNatural": "主要用你的母語聊；持續改用外語時，朋友才會跟著切換。",
-  "chatModeHintBilingual": "推薦：主要用想學的語言聊天，聽不懂時可以用母語問；每次只說一種語言，朋友會自然調整難度。",
+  "chatModeHintNatural": "母語聊天：主要用你的母語聊；持續改用外語時，朋友才會跟著切換。",
+  "chatModeHintBilingual": "推薦輕鬆外語聊天：主要用想學的語言聊天，聽不懂時可以用母語問；每次只說一種語言，朋友會自然調整難度。",
   "chatModeHintImmersion": "全程只用想學的語言；朋友會配合你的理解程度，但不切回母語。",
   "liveStatus": {
     "micMuted": "麥克風已靜音",
