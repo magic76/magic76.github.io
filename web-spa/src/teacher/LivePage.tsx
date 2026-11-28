@@ -240,6 +240,7 @@ export function TeacherLivePage(){
   <div className="friend-call-settings">
    {missionNotes}{modeSwitch}{teacherOptions}{quickActions}
    <InlineTeacherBoardMenu board={inlineBoard} zh={zh} send={live.sendText} canSend={live.state==="listening"} onRequested={()=>setCallOptions(false)}/>
+   {inlineBoard.enabled&&!guestStarted&&<button type="button" onClick={async()=>{await live.stop(true);navigate("/teacher/sync/live")}}>{zh?"同步教學（實驗）":"Sync teaching (beta)"}</button>}
    {!guestStarted&&<TeacherLiveTools live={live} store={s} profile={profile} sessionActive={sessionActive} onPickTeacher={()=>setPicker(true)}/>}
   </div>
   <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
