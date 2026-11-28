@@ -34,7 +34,6 @@
 .teacher-visual-reply .teaching-board-card small{color:#46654e}
 .teacher-visual-reply .teaching-board-card-head h2{font-size:18px;line-height:1.3}
 .teacher-visual-reply .teaching-board-pairs{grid-template-columns:1fr}
-.teacher-visual-follow{position:sticky;bottom:4px;z-index:2;align-self:center;flex:none;min-height:44px;padding:0 14px;border:1px solid #98b9a3;background:#e6f2e9;color:#234a34;border-radius:20px;box-shadow:0 2px 9px #0004;cursor:pointer}
 
 /* Passive material stays within the speaking reply. No buttons or quiz state. */
 .teacher-call-page .teacher-live-caption{display:grid;gap:6px;min-width:0;overflow-wrap:anywhere}
