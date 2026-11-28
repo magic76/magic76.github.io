@@ -32,7 +32,7 @@ export function validateTeachingPlan(raw:unknown):TeachingPlan|null{
 export function planPrompt(input:string,recent:ReadonlyArray<TeachingContext>,options:{target:string;native:string;teacher:string;persona:string;mode:string;level:string}){
  return JSON.stringify({targetLanguage:options.target,nativeLanguage:options.native,teacher:options.teacher,persona:options.persona,teachingMode:options.mode,level:options.level,recent:recent.slice(-4).map(t=>({learner:t.learner.slice(0,600),teacher:t.teacher.slice(0,1500)})),learner:input.slice(0,1200)});
 }
-const SYSTEM=[
+const SYNC_SYSTEM=[
  "You are a language teacher generating one unified spoken and visual reply BEFORE audio playback. Answer the learner naturally, with the configured teaching style. Never claim to have displayed a board, heard audio, or assessed pronunciation from a transcript.",
  "Return JSON matching the schema. For normal conversation choose kind:text with no card and segments of natural spoken speech. For substantive learning choose kind:material and one card of the most useful type: comparison, example, vocabulary (with optional pronunciation), timeline, steps, correction, dialogue, flashcard or quiz.",
  "The card is the visual counterpart of your own script. Every spoken segment has text, lang ('target' or 'native') and focus: zero-based row index of its card (pairs or points) or -1 for general introduction/conclusion. For text, quiz or flashcard always use -1. For other material, use actual row indices in teaching order, one or more segments per row. Do not invent irrelevant rows. Include at least one focused segment.",
@@ -44,7 +44,7 @@ export async function generateTeachingPlan(input:string,recent:ReadonlyArray<Tea
  const controller=new AbortController(),stop=()=>controller.abort();
  signal.addEventListener("abort",stop,{once:true});const timer=setTimeout(stop,SYNC_PLAN_TIMEOUT);
  try{
-  const response=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+REPLY_COMPOSER_MODEL+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},signal:controller.signal,body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM}]},contents:[{role:"user",parts:[{text:planPrompt(input,recent,options)}]}],generationConfig:{temperature:0.35,maxOutputTokens:2400,responseMimeType:"application/json",responseSchema:SYNC_PLAN_SCHEMA}})});
+  const response=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+REPLY_COMPOSER_MODEL+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},signal:controller.signal,body:JSON.stringify({systemInstruction:{parts:[{text:SYNC_SYSTEM}]},contents:[{role:"user",parts:[{text:planPrompt(input,recent,options)}]}],generationConfig:{temperature:0.35,maxOutputTokens:2400,responseMimeType:"application/json",responseSchema:SYNC_PLAN_SCHEMA}})});
   if(!response.ok)throw new Error("HTTP "+response.status);
   const data=await response.json() as {candidates?:Array<{content?:{parts?:Array<{text?:string;thought?:boolean}>}}>};
   const text=data.candidates?.[0]?.content?.parts?.filter(p=>!p.thought).map(p=>p.text||"").join("")||"";
