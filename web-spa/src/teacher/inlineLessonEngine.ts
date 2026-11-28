@@ -35,8 +35,8 @@ export function guidedPrompt(s:GuidedSession,target:string){
   "[GUIDED LESSON CONTROL — curriculum managed by app, not a learner utterance]",
   "Teach the selected target language "+target+". Follow the session's existing explanation-language policy.",
   "Lesson: "+s.lesson.title+". Goal: "+s.lesson.goal+". Stage "+(s.index+1)+"/"+(s.lesson.cards.length+1)+": "+phase+".",
-  "The application displays the exact stage locally. Do NOT call update_teaching_board or advance the curriculum in guided mode. Wait for the learner or next explicit stage control.",
-  "Visible content: "+JSON.stringify({title:c.title,body:c.body,pairs:c.pairs,points:c.points,questions:c.questions.map(q=>({question:q.question,options:q.options})),speaking:c.speaking?{prompt:c.speaking.prompt,goal:c.speaking.goal}:undefined}),
+  "The application displays the exact stage locally. Do NOT call update_teaching_board or advance the curriculum in guided mode. If focus_teaching_board is available, use it to point at a visible row (cardId and zero-based index). Wait for the learner or next explicit stage control.",
+  "Visible content: "+JSON.stringify({cardId:c.id,title:c.title,body:c.body,pairs:c.pairs,points:c.points,questions:c.questions.map(q=>({question:q.question,options:q.options})),speaking:c.speaking?{prompt:c.speaking.prompt,goal:c.speaking.goal}:undefined}),
   phase==="quiz"?"Ask the first question aloud and wait; do not reveal answers before the learner responds.":phase==="practice"?"Invite an original spoken response and wait. Give brief useful feedback; do not infer pronunciation from text.":phase==="recap"?"Summarize the rule and give one useful follow-up suggestion. The app recorded "+s.correct+" correct out of "+s.total+" submitted quiz answers. Do not claim mastery.": "Explain the visible concept/examples naturally, then wait for the learner to continue."
  ].join("\n");
 }
