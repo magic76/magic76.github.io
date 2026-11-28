@@ -325,7 +325,7 @@ test("speech start, not request or generation completion, advances visual focus;
  const plan=api.validateTeachingPlan(syncPlanRaw),controller=new AbortController(),calls=[],focus=[];
  const play=api.playTeachingSegments(plan.segments,(seg,start,signal)=>new Promise(resolve=>calls.push({seg,start,resolve,signal})),i=>focus.push(i),controller.signal);
  assert.equal(calls.length,1);assert.deepEqual(focus,[]);
- calls[0].start();assert.deepEqual(focus,[0]);calls[0].resolve();await Promise.resolve();
+ calls[0].start();assert.deepEqual(focus,[0]);calls[0].resolve();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(calls.length,2);assert.deepEqual(focus,[0]);calls[1].start();assert.deepEqual(focus,[0,1]);
  controller.abort();calls[1].start();calls[1].resolve();await play;
  assert.equal(calls.length,2);assert.deepEqual(focus,[0,1]);
