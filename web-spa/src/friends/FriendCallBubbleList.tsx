@@ -6,7 +6,7 @@ import "./friendCallBubbles.css";
 
 type Turn={input?:string;output?:string};
 type TranslationRow={kind:string;value:string};
-type Props={learningFeedback?:LearningFeedbackByTurn;learningLanguage?:string;name:string;turns:ReadonlyArray<Turn>;input:string;output:string;source:string;nativeLanguage:string;translationRows:TranslationRow[];historicalTranslations:ReadonlyMap<string,string[]>;suggestions:SuggestedReply[];suggestionsEnabled:boolean;translationEnabled:boolean;needTranslation:boolean;speaking:boolean;speakerAvatar?:ReactNode;waitingText:string;youLabel:string;recognizingLabel:string;recognizedLabel:string;translateStatus:(value:string)=>string;headerAccessory?:ReactNode;replyExtra?:ReactNode;visualReply?:{keys:ReadonlyArray<number|"stream">;revision:string;focusKey:string;render:(key:number|"stream")=>ReactNode}};
+type Props={learningFeedback?:LearningFeedbackByTurn;learningLanguage?:string;name:string;turns:ReadonlyArray<Turn>;input:string;output:string;source:string;nativeLanguage:string;translationRows:TranslationRow[];historicalTranslations:ReadonlyMap<string,string[]>;suggestions:SuggestedReply[];suggestionsEnabled:boolean;translationEnabled:boolean;needTranslation:boolean;speaking:boolean;speakerAvatar?:ReactNode;waitingText:string;youLabel:string;recognizingLabel:string;recognizedLabel:string;translateStatus:(value:string)=>string;headerAccessory?:ReactNode;replyExtra?:ReactNode;visualReply?:{keys:ReadonlyArray<number|"stream">;revision:string;focusKey:string;kind?:(key:number|"stream")=>string;render:(key:number|"stream")=>ReactNode}};
 export function FriendCallBubbleList({name,turns,learningFeedback={},learningLanguage,input,output,source,nativeLanguage,translationRows,historicalTranslations,suggestions,suggestionsEnabled,translationEnabled,needTranslation,speaking,speakerAvatar,waitingText,youLabel,recognizingLabel,recognizedLabel,translateStatus,headerAccessory,replyExtra,visualReply}:Props){
  const scrollRef=useRef<HTMLDivElement>(null),followRef=useRef(true);
  const hasVisual=(key:number|"stream")=>visualReply?.keys.includes(key)??false;
@@ -50,7 +50,7 @@ export function FriendCallBubbleList({name,turns,learningFeedback={},learningLan
   {completed.map(turn=><div className="friend-bubble-turn" key={turn.index}>
    {turn.input?.trim()?<section className="friend-bubble friend-bubble-user" aria-label={youLabel}><small>{youLabel}</small><p lang={source}>{turn.input.trim()}</p></section>:null}
    {learningFeedback[turn.index]&&<LearningFeedbackCard feedback={learningFeedback[turn.index]} language={learningLanguage||source}/>}
-   {turn.output?.trim()||hasVisual(turn.index)?<section className={"friend-bubble friend-bubble-ai"+(hasVisual(turn.index)?" has-visual-reply":"")} aria-label={name}>
+   {turn.output?.trim()||hasVisual(turn.index)?<section className={"friend-bubble friend-bubble-ai"+(hasVisual(turn.index)?" has-visual-reply":"")} data-reply-template={visualReply?.kind?.(turn.index)} aria-label={name}>
     <small>{name}</small>{turn.output?.trim()&&<p lang={source}>{turn.output.trim()}</p>}
     {renderTranslation(turn.output?.trim()||"",!showCurrentOutput&&latestAiKey===turn.index)}
     {visualReply?.render(turn.index)}
@@ -58,7 +58,7 @@ export function FriendCallBubbleList({name,turns,learningFeedback={},learningLan
    </section>:null}
   </div>)}
   {showCurrentInput?<section className="friend-bubble friend-bubble-user" aria-label={youLabel}><small>{youLabel} · {recognizingLabel}</small><p lang={source}>{currentInput}</p></section>:null}
-  {showCurrentOutput||hasVisual("stream")?<section className={"friend-bubble friend-bubble-ai"+(hasVisual("stream")?" has-visual-reply":"")} aria-label={name}>
+  {showCurrentOutput||hasVisual("stream")?<section className={"friend-bubble friend-bubble-ai"+(hasVisual("stream")?" has-visual-reply":"")} data-reply-template={visualReply?.kind?.("stream")} aria-label={name}>
    {speakerAvatar?<div className="friend-caption-speaker"><span className="friend-caption-avatar teacher-call-caption-avatar">{speakerAvatar}</span><small>{name}{speaking?" · …":""}</small></div>:<small>{name}</small>}
    {showCurrentOutput&&<><p lang={source}>{currentOutput}</p>{replyExtra}{renderTranslation(currentOutput,true)}</>}
    {visualReply?.render("stream")}
