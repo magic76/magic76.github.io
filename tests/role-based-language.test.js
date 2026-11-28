@@ -24,7 +24,8 @@ test("friend mode and teacher speaking level are independently saved and used in
  assert.match(page,/friendLanguageReminder\(language,friendNativeLanguage,friendChatMode\)/);
  assert.match(page,/useState<FriendChatLanguageMode>/);
  assert.match(page,/friendLanguageTransition\(language,friendNativeLanguage,chosen\)/);
- assert.match(page,/aria-pressed=\{friendChatMode===value\}/);
+ assert.match(page,/<LanguageModePicker role="friend" mode=\{friendChatMode\}/);
+ assert.match(read("web-spa/src/components/ConversationPreferences.tsx"),/aria-pressed=\{mode===value\}/);
  assert.match(read("web-spa/src/live/useLiveSession.ts"),/sendControl=useCallback/);
  assert.match(teacher,/teacherLanguageGuidance\(input\.learnerSpeakingLevel/);
  assert.match(read("web-spa/src/teacher/teacherLanguageGuidance.ts"),/Do NOT invent or claim a CEFR level/);

@@ -156,7 +156,16 @@
     "memoryHeading": "Memória e dados",
     "memoryIntro": "Gerencie memórias e registros de estudo salvos neste navegador ou WebView.",
     "keyInAccount": "A chave Gemini agora fica em Conta. Microfone, teste de voz e volume continuam aqui.",
-    "manageAi": "Gerenciar chave Gemini"
+    "manageAi": "Gerenciar chave Gemini",
+    "sharedTargetHint": "Compartilhado por professores, amigos e atividades de aprendizagem; não altera a interface.",
+    "sharedNativeHint": "Idioma de apoio compartilhado por professores e amigos.",
+    "friendRolePreferences": "Preferências de amigos",
+    "teacherRolePreferences": "Preferências de professores",
+    "roleSharedHint": "O idioma de aprendizagem é compartilhado; modo, velocidade e sotaque são salvos separadamente para cada papel.",
+    "nextReplyHint": "Configuração enviada para a próxima resposta; a fala depende do modelo.",
+    "modeFailed": "Não foi possível enviar a configuração. Tente novamente.",
+    "savedPreference": "Preferência salva.",
+    "roleSummary": "Preferências de conversa"
   },
   "deviceApp": {
     "title": "Dispositivo e app",

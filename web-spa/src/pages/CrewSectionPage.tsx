@@ -1,3 +1,4 @@
+import {RolePreferenceSummaryLink} from "../components/ConversationPreferences";
 import {learningRouteAvailable} from "../teacher/learningLanguages";
 import {Arrow} from "../components/Arrow";
 import {Fragment,useRef,useState} from "react";
@@ -229,6 +230,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     </>
     :section==="chat"?<><h1>{x.title}</h1><Link className="crew-chat-heading-all" to="/teacher/roles?mode=friends">{t("sectionHubs.chat.allFriends")} <Arrow/></Link></>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>
+  {(section==="chat"||section==="learn")&&<RolePreferenceSummaryLink role={section==="chat"?"friend":"teacher"}/>}
   {section==="explore"?
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
     {[x.hero,...x.items].map((item,i)=>({item,kind:exploreKinds[i]})).filter(({kind})=>kind!=="timeline"&&kind!=="story").map(({item,kind})=><Fragment key={item.to}>

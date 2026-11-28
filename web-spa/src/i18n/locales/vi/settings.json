@@ -156,7 +156,16 @@
     "memoryHeading": "Bộ nhớ và dữ liệu",
     "memoryIntro": "Quản lý bộ nhớ và lịch sử học tập lưu trong trình duyệt hoặc WebView này.",
     "keyInAccount": "Khóa Gemini hiện được quản lý trong Tài khoản. Micrô, thử giọng nói và âm lượng vẫn ở đây.",
-    "manageAi": "Quản lý khóa Gemini"
+    "manageAi": "Quản lý khóa Gemini",
+    "sharedTargetHint": "Dùng chung cho giáo viên, bạn bè và hoạt động học; không đổi ngôn ngữ giao diện.",
+    "sharedNativeHint": "Ngôn ngữ hỗ trợ chung cho giáo viên và bạn bè.",
+    "friendRolePreferences": "Tùy chọn bạn bè",
+    "teacherRolePreferences": "Tùy chọn giáo viên",
+    "roleSharedHint": "Ngôn ngữ học dùng chung; chế độ, tốc độ nói và giọng vùng miền được lưu riêng theo vai trò.",
+    "nextReplyHint": "Đã gửi cài đặt cho câu trả lời tiếp theo; cách nói tùy thuộc mô hình.",
+    "modeFailed": "Không gửi được cài đặt. Vui lòng thử lại.",
+    "savedPreference": "Đã lưu tùy chọn.",
+    "roleSummary": "Tùy chọn hội thoại"
   },
   "deviceApp": {
     "title": "Thiết bị và ứng dụng",

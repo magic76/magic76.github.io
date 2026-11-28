@@ -86,14 +86,14 @@ export function SettingsPage(){
     <select value={target} onChange={e=>setTarget(e.target.value)}>
      {TARGET_LANGUAGES.map(item=><option key={item.value} value={item.value}>{english?item.spoken:item.value}</option>)}
     </select>
-    <small className="crew-settings-field-hint">{english?"Language you want to learn with Koolo Teacher.":"老師教你學習的語言；不會更改 App 介面。"}</small>
+    <small className="crew-settings-field-hint">{t("group.sharedTargetHint",{defaultValue:"Shared by teachers, friends and learning activities; does not change the interface."})}</small>
    </label>
    <TeacherPinyinSetting targetLanguage={target} value={pinyinMode} onChange={setPinyinMode} english={english} showWhenUnavailable/>
    <label>{t("group.nativeLanguage")}
     <select value={native} onChange={e=>setNative(e.target.value as typeof native)}>
      {NATIVE_LANGUAGES.map(([code,label])=><option key={code} value={code}>{label}</option>)}
     </select>
-    <small className="crew-settings-field-hint">{english?"Language used to explain lessons to you.":"老師解說時使用的母語。"}</small>
+    <small className="crew-settings-field-hint">{t("group.sharedNativeHint",{defaultValue:"Shared support language for teachers and friends."})}</small>
    </label>
    <label>{t("group.speakingLevel")}
     <select value={speakingLevel} onChange={e=>setSpeakingLevel(e.target.value as typeof speakingLevel)}>
@@ -107,6 +107,8 @@ export function SettingsPage(){
     </select>
    </label>
   </div>
+  <Link className="crew-settings-quick-link" to="/teacher/roles?mode=friends">{t("group.friendRolePreferences",{defaultValue:"Friend preferences"})} <Arrow/></Link>
+  <Link className="crew-settings-quick-link" to="/teacher/roles?mode=teacher">{t("group.teacherRolePreferences",{defaultValue:"Teacher preferences"})} <Arrow/></Link>
   <Link className="crew-settings-quick-link" to="/learn">{t("group.openLearning")} <Arrow/></Link>
  </section>
  <section id="settings-interface" className="section panel crew-settings-category crew-settings-interface">

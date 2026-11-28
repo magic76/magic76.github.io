@@ -156,7 +156,16 @@
     "memoryHeading": "기억 및 데이터",
     "memoryIntro": "이 브라우저 또는 WebView에 저장된 기억과 학습 기록을 관리합니다.",
     "keyInAccount": "Gemini 키는 이제 계정에서 관리합니다. 마이크, 음성 테스트, 음량은 여기에서 설정합니다.",
-    "manageAi": "Gemini 키 관리"
+    "manageAi": "Gemini 키 관리",
+    "sharedTargetHint": "선생님, 친구, 학습 활동에 공통으로 적용되며 화면 언어는 바뀌지 않습니다.",
+    "sharedNativeHint": "선생님과 친구의 공통 도움 언어입니다.",
+    "friendRolePreferences": "친구 대화 설정",
+    "teacherRolePreferences": "선생님 대화 설정",
+    "roleSharedHint": "학습 언어는 공통이며 언어 모드, 말하기 속도, 지역 억양은 역할별로 저장됩니다.",
+    "nextReplyHint": "다음 답변을 위해 설정을 전송했습니다. 실제 말하기는 모델에 따라 달라집니다.",
+    "modeFailed": "설정을 전송하지 못했습니다. 다시 시도하세요.",
+    "savedPreference": "설정을 저장했습니다.",
+    "roleSummary": "대화 설정"
   },
   "deviceApp": {
     "title": "기기 및 앱",

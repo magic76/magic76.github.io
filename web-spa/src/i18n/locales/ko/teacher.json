@@ -102,11 +102,11 @@
     "advanced": "선생님 및 언어 설정",
     "accent": "지역 억양",
     "accentSelect": "지역 억양 선택",
-    "guidance": "지도 방식",
+    "guidance": "언어 모드",
     "guidanceChoices": {
-      "beginner": "초보자 지도",
-      "bilingual": "이중 언어 도움",
-      "immersion": "완전 몰입"
+      "beginner": "모국어 모드 (지도)",
+      "bilingual": "이중 언어 모드",
+      "immersion": "몰입 모드"
     },
     "customAccent": "사용자 지정 억양",
     "customPlaceholder": "예: 명확하고 자연스러운 캐나다 영어",
@@ -138,7 +138,9 @@
       "A2": "Elementary",
       "B1": "Intermediate",
       "B2": "Upper intermediate"
-    }
+    },
+    "roleplayLanguageLocked": "상황 연습에서는 몰입 모드를 사용합니다.",
+    "modeChangeFailed": "전환하지 못했습니다. 다시 시도하세요."
   },
   "picker": {
     "choose": "선생님 선택",

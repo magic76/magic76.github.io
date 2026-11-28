@@ -1,3 +1,5 @@
+import {accentOptions,normalizedAccent} from "../teacher/teacherAccent";
+import {PreferenceScopeHint} from "../components/ConversationPreferences";
 import {Arrow} from "../components/Arrow";
 import {useEffect,useRef,useState} from "react";
 import {createPortal} from "react-dom";
@@ -26,8 +28,9 @@ export function FriendsPage(){
  const {t,i18n:locale}=useTranslation("friends");
  const english=locale.language==="en";
  const navigate=useNavigate();
- const pace=useTeacherStore(s=>s.speakingPace),setPace=useTeacherStore(s=>s.setSpeakingPace),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
+ const pace=useTeacherStore(s=>s.friendSpeakingPace),setPace=useTeacherStore(s=>s.setFriendSpeakingPace),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const language=useTeacherStore(s=>s.targetLanguage);
+ const accent=useTeacherStore(s=>s.friendLanguageStyle),setAccent=useTeacherStore(s=>s.setFriendLanguageStyle);
  const friendChatMode=useTeacherStore(s=>s.friendChatMode),setFriendChatMode=useTeacherStore(s=>s.setFriendChatMode);
  const [query,setQuery]=useState("");
  const [category,setCategory]=useState<string>("all");
@@ -71,7 +74,8 @@ export function FriendsPage(){
    <h1>{t("title")}</h1>
    <p>{t("intro")}</p>
   </header>
-  <section className="section teacher-precall-settings panel"><label>{t("language")}<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(v=><option key={v} value={v}>{t("languages."+v)}</option>)}</select></label><label>{t("pace")}<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">{t("slow")}</option><option value="normal">{t("normal")}</option><option value="fast">{t("fast")}</option></select></label><label>{t("chatModeTitle")}<select className="field" value={friendChatMode} onChange={e=>setFriendChatMode(e.target.value as FriendChatLanguageMode)}><option value="natural">{t("chatModeNatural")}</option><option value="bilingual">{t("chatModeBilingual")}</option><option value="immersion">{t("chatModeImmersion")}</option></select></label></section>
+  <section className="section teacher-precall-settings panel"><label>{t("language")}<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(v=><option key={v} value={v}>{t("languages."+v)}</option>)}</select></label><label>{t("pace")}<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">{t("slow")}</option><option value="normal">{t("normal")}</option><option value="fast">{t("fast")}</option></select></label><label>{t("chatModeTitle")}<select className="field" value={friendChatMode} onChange={e=>setFriendChatMode(e.target.value as FriendChatLanguageMode)}><option value="natural">{t("chatModeNatural")}</option><option value="bilingual">{t("chatModeBilingual")}</option><option value="immersion">{t("chatModeImmersion")}</option></select></label><label>{t("teacher:tutor.accent")}<select className="field" value={normalizedAccent(language,accent)} onChange={e=>setAccent(e.target.value as typeof accent)}>{accentOptions(language).filter(x=>x.value!=="custom"||accent==="custom").map(x=><option key={x.value} value={x.value}>{x.value==="auto"?t("settings:group.automatic"):locale.language==="zh-TW"?x.label:x.instruction||x.label}</option>)}</select></label></section>
+  <PreferenceScopeHint role="friend"/>
   <p className="friends-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</p>
   <Link className="friends-game-entry" to="/games"><span aria-hidden="true"><Icon name="play"/></span><span><strong>{t("gameEntryTitle")}</strong><small>{t("gameEntryDescription")}</small></span><Arrow/></Link>
   <div className="friends-top-actions"><span>{t("count",{count:CREW_FRIENDS.length})}</span><Link to="/settings#memory-settings">{t("memorySettings")} <Arrow/></Link></div>
