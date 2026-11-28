@@ -283,7 +283,7 @@ test("actual React reply markup includes caption-derived teaching card before su
   assert.ok(validateSemanticLayout({blocks:[{kind:"steps",parts:["Mix flour and water.","Then knead the dough.","Let it rest."]}]},general));
   assert.ok(validateSemanticLayout({blocks:[{kind:"paragraph",parts:["Hello!"]}]},"Hello!"));
   assert.equal(nextCaptionChunk("short","",false),"");
-  assert.ok(nextCaptionChunk("請先確認這是一般的語意排版測試，然後再往下說。","",false));
+  assert.ok(nextCaptionChunk("請先確認這是一個一般的語意排版測試，然後再往下說。","",false));
   assert.ok(nextCaptionChunk("這是一段完全沒有任何標點符號的即時字幕內容我們應該仍然可以適時地進行語意分析不要因為模型沒有標點而永遠等不到排版的結果這是測試","",false));
   assert.ok(nextCaptionChunk("This is useful.","",true));
   assert.ok(validateSemanticLayout({blocks:[{kind:"list",parts:["First, check in.","Next, board."]}]},"First check in Next board"));
