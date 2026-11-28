@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(root+"/web-spa/src/teacher/"+p,"utf8");
 const strip=s=>stripTypeScriptTypes(s,{mode:"strip"}).replace(/^import .*;\s*$/gm,"").replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
 const api={};
-vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\n"+strip(read("visualReplyJournal.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,inlineModePrompt,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt});",{api});
+vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\n"+strip(read("visualReplyJournal.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,visualClaim,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt});",{api});
 const card=(title="Past tenses",id="past")=>({id,type:"comparison",title,pairs:[{source:"went",target:"finished past"},{source:"have gone",target:"present relevance"}]});
 const proposal=(g,now=100,auto=true,c=card())=>api.proposeInlineBoard(g,{name:api.BOARD_FUNCTION,args:{action:"upsert",cards:[c]}},auto,now);
 const finish=(g,input="",now=100,auto=true,valid=true,output="")=>api.finishInlineTurn(g,input,valid,auto,now,api.backupCard,output);
@@ -74,7 +74,7 @@ test("integration renders from tool callback, keeps rollback and existing standa
  assert.match(live,/onLearnerTranscript:inlineBoard\.observe/);
  assert.match(ui,/if\(result\.card\)\{show\(result\.card\)/);
  assert.match(ui,/enabled\?INLINE_BOARD_TOOLS:undefined/);
- assert.match(ui,/\[mode,setModeState\]=useState\(false\)/);
+ assert.doesNotMatch(ui,/modeRef|modePending|setModeState/);
  assert.doesNotMatch(live,/navigate\("\/teacher\/board"\)/);
  assert.match(ui,/fetch\("\/api\/usage\/admin"/);assert.match(ui,/v\?\.admin===true/);assert.match(ui,/admin&&/);
  assert.ok(Buffer.byteLength(live)<26000);
@@ -82,7 +82,7 @@ test("integration renders from tool callback, keeps rollback and existing standa
 
 test("positive proactive instruction explicitly calls tool for educational questions, not all small talk",()=>{
  assert.match(api.INLINE_BOARD_POLICY,/CALL update_teaching_board/);
- assert.match(api.INLINE_BOARD_POLICY,/even when the learner did not say whiteboard/);
+ assert.match(api.INLINE_BOARD_POLICY,/Do not wait for the learner to request a board/);
  assert.match(api.INLINE_BOARD_POLICY,/Skip the tool for greetings/);
 });
 test("each supported learning language has distinct curated lesson content; unknown languages never fall back to English",()=>{
@@ -126,13 +126,13 @@ test("guided lesson launch uses local card independent of tool result and tools 
  assert.match(ui,/if\(guidedRef\.current\).*guided-curriculum/);
  assert.match(ui,/guidedCanAdvance\(board\.guided\)/);
  assert.match(live,/Boolean\(geminiKey\(\)\),s\.targetLanguage/);
- assert.match(ui,/schema:2,model:wire\.current\.model/);
+ assert.match(ui,/schema:3,model:wire\.current\.model/);
  assert.match(live,/onToolDiagnostics:inlineBoard\.diagnostics/);
 });
 
 test("mode prompt is explicit, focus accepts only current valid item, not quiz answers",()=>{
- assert.match(api.inlineModePrompt(false),/MODE OFF/);
- assert.match(api.inlineModePrompt(true),/call update_teaching_board/);
+ assert.match(api.INLINE_BOARD_POLICY,/always available/);
+ assert.match(api.INLINE_BOARD_POLICY,/Never say you displayed/);
  const c={...card(),points:[],questions:[],body:""};
  assert.equal(api.inlineFocusIndex(c,{cardId:c.id,index:1}),1);
  assert.equal(api.inlineFocusIndex(c,{cardId:"old",index:1}),null);
@@ -140,14 +140,13 @@ test("mode prompt is explicit, focus accepts only current valid item, not quiz a
  assert.equal(api.inlineFocusIndex(c,{cardId:c.id,index:2}),null);
  assert.equal(api.inlineFocusIndex({...c,type:"quiz"},{cardId:c.id,index:0}),null);
 });
-test("visual replies stay in caption thread and mode off hides without clearing journal",()=>{
+test("visual replies stay in caption thread, no mode or button is required",()=>{
  const ui=read("InlineTeacherBoard.tsx"),live=read("LivePage.tsx");
  const bubble=fs.readFileSync(root+"/web-spa/src/friends/FriendCallBubbleList.tsx","utf8");
  const hook=fs.readFileSync(root+"/web-spa/src/live/useLiveSession.ts","utf8");
- assert.match(live,/<BoardCallControls board=\{inlineBoard\}/);
- assert.match(ui,/board\.syncMode\(live\.sendControl\)/);
- assert.match(ui,/if\(!modeRef\.current\|\|modePending\.current\)/);
- assert.match(ui,/if\(!board\.enabled\|\|!board\.mode\)return undefined/);
+ assert.match(live,/<FriendCallControls live=\{live\}/);
+ assert.doesNotMatch(ui,/inline-board-mode-button|modeRef|modePending|syncMode/);
+ assert.match(ui,/if\(!board\.enabled\)return undefined/);
  assert.doesNotMatch(live,/<InlineTeacherBoard board=/);
  assert.match(live,/onVisualTurnComplete:inlineBoard\.finish/);
  assert.match(hook,/if\(!guestModeRef\.current\)configRef\.current\.onVisualTurnComplete\?\.\(turn,/);
@@ -156,7 +155,8 @@ test("visual replies stay in caption thread and mode off hides without clearing 
  assert.match(bubble,/visualReply\?\.render\(turn\.index\)/);
  assert.match(bubble,/visualReply\?\.render\("stream"\)/);
  assert.match(bubble,/if\(!followRef\.current\)return/);
- assert.match(ui,/RESUME PAUSED LESSON/);
+ assert.match(ui,/board\.markRendered\(entryId\)/);
+ assert.match(ui,/board\.missingTurn/);
 });
 test("journal attaches a streaming card to the actual completed caption index and retains old answers",()=>{
  let j=api.appendVisualReply([],1,card());
@@ -182,4 +182,35 @@ test("timeline, steps, dialogue and flashcards validated as rich visual replies"
   assert.equal(result.card.type,type);
   if(type==="timeline"||type==="steps")assert.equal(result.card.points.length,2);
  }
+});
+
+test("exact November 28 screenshot display-only claim yields real -ed teaching card",()=>{
+ const g=api.newInlineGate();
+ const claim="Yes, I'm using the teaching board to show you the rules visually. You can see the breakdown of -ed endings right here on the screen.";
+ const result=finish(g,"那你有视觉教学方式让我知道吗?",100,true,true,claim);
+ assert.equal(result?.id,"ed-sounds-concept");
+ assert.deepEqual(Array.from(result.pairs,p=>p.source),["/t/","/d/","/ɪd/"]);
+ assert.equal(g.outcome,"shown");assert.equal(g.toolCalls,0);
+});
+test("display claim without teaching content is not a successful visual reply",()=>{
+ const g=api.newInlineGate();
+ assert.equal(finish(g,"Can you show me a visual aid?",100,true,true,"Yes, you can see the whiteboard on the screen."),null);
+ assert.equal(g.outcome,"missing");assert.equal(g.fallbacks,0);
+});
+test("visual followup preserves earlier explanation, does not copy a claim into material",()=>{
+ const g=api.newInlineGate();
+ const plain="Present simple describes habits and repeated actions. The third person singular usually takes an s.";
+ finish(g,"How does present simple work?",100,true,true,plain);
+ const result=finish(g,"那你有視覺教學嗎?",200,true,true,"Yes, look at the teaching board on the screen.");
+ assert.equal(result?.body,plain);
+ assert.equal(g.lastOutput,plain);
+});
+test("no persistent opt-out; the next eligible teaching turn can produce a card",()=>{
+ const g=api.newInlineGate();finish(g,"不要使用白板",100,true,true,"Okay.");
+ begin(g,"Please explain the grammar rule.");assert.ok(proposal(g,101).card);
+});
+test("language-specific fallback only uses spoken material outside English",()=>{
+ const result=api.backupCard("文法規則","日本語の助詞は文の中で役割を示します。は話題を示し、が主語を示すことがあります。これは使い分けるときに重要です。",false,"","ja");
+ assert.equal(result?.type,"steps");
+ assert.match(result.points[0].note,/日本語/);
 });

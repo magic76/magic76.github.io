@@ -18,7 +18,8 @@ test("standalone board hidden from learning and live entry, legacy route retaine
 
 test("visual teaching reuses the same active voice session",()=>{
  const live=read("web-spa/src/teacher/InlineTeacherBoard.tsx");
- assert.match(live,/board\.syncMode\(live\.sendControl\)/);
+ assert.doesNotMatch(live,/syncMode|inline-board-mode-button/);
+ assert.match(live,/tools:enabled\?INLINE_BOARD_TOOLS:undefined/);
  assert.doesNotMatch(live,/live\.stop\(|live\.start\(/);
 });
 

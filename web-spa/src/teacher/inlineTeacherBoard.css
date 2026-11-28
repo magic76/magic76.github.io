@@ -22,10 +22,6 @@
 .inline-lesson-picker select{min-width:0;width:100%;min-height:44px;border:1px solid currentColor;border-radius:8px;padding:0 8px;font:inherit;background:var(--surface,#fff);color:#244333}
 
 /* The user controls visibility; hiding preserves the mounted card and scroll position. */
-.teacher-live-stage .friend-phone-buttons:has(.inline-board-mode-button){gap:4px}
-.teacher-live-stage .friend-phone-buttons:has(.inline-board-mode-button)>.friend-phone-button{min-width:0;flex:1 1 0}
-.teacher-call-page .friend-phone-stage .inline-board-mode-button[aria-pressed="true"] svg{background:#287b54;color:#fff;box-shadow:0 0 0 2px #9cdeb5}
-.teacher-call-page .friend-phone-stage .inline-board-mode-button[aria-pressed="true"] small{color:#9cdeb5}
 .teacher-visual-reply .teaching-board-pair.is-highlighted,.teacher-visual-reply .teaching-board-bubble.is-highlighted,.teacher-visual-reply .teaching-board-timeline.is-highlighted{outline:2px solid #287b54;outline-offset:-2px;background:#e4f3e8}
 .inline-lesson-footer{justify-content:space-between;gap:6px}
 .inline-lesson-footer .inline-lesson-end{background:#fff;color:#286848}

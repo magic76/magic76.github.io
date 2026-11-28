@@ -3,18 +3,16 @@ import {BOARD_FUNCTION,validateBoardPatch,type BoardCard} from "./boardProtocol"
 // Rollback switch: disabling removes the optional tool and all inline UI.
 // The standalone board and Live transport remain unchanged.
 export const INLINE_TEACHER_BOARD_ENABLED=true;
-// The user owns the mode; tools remain registered for the lifetime of the socket.
+// Always available in eligible teacher sessions; no user mode negotiation.
 export const INLINE_BOARD_POLICY="\n"+[
- "[WHITEBOARD TEACHING MODE — initially OFF. The app sends explicit mode controls.]",
- "OFF: converse naturally and teach aloud when asked. Never call update_teaching_board or focus_teaching_board, even if the learner asks a grammar question. The user controls the whiteboard button.",
- "ON: act as a visual tutor. CALL update_teaching_board for substantive rules, pronunciation, comparisons, examples or quizzes, even when the learner did not say whiteboard. Insert one concise visual card into the current spoken reply; it remains in the conversation for review. Keep speaking and use the actual learning language. Skip the tool for greetings or ordinary small talk.",
- "When discussing a particular visible row, call focus_teaching_board with its cardId and zero-based item index. Do not change quiz answers, course stage or learner navigation. In a guided lesson, explain the app's card instead of generating replacements.",
- "Respect the latest app mode instruction. If rejected, continue speaking, never retry in the same turn or claim the screen rendered."
+ "[VISUAL TEACHING — always available in this teacher conversation]",
+ "For substantive teaching (grammar, pronunciation, vocabulary explanations, comparisons, examples and exercises), CALL update_teaching_board before or during the spoken explanation. Do not wait for the learner to request a board. A direct request for visual material MUST use the tool. Skip the tool for greetings and ordinary small talk.",
+ "The card appears inside the current reply. Explain the actual rule and examples aloud in the chosen teaching language. Never say you displayed, updated or are using a board, or ask the learner to look at the screen. Even after tool success, teach the content directly; delivery is controlled by the app. Never answer a visual request with only a promise or a description of your capabilities.",
+ "Use one concise card per reply. Focus a specific row with focus_teaching_board when useful. Respect a learner's request for voice-only explanation for that turn. In guided lessons, explain the existing app-controlled card and never advance the lesson yourself.",
+ "If the tool is rejected or unavailable, continue the actual spoken explanation with concrete examples. Do not retry in the same turn. The app may independently format grounded material."
 ].join("\n");
 export const INLINE_FOCUS_FUNCTION="focus_teaching_board";
-export function inlineModePrompt(on:boolean){return on
- ?"[APP WHITEBOARD MODE ON] Teach visually from now on. For the current learning topic, call update_teaching_board once with a concise useful card before or during the explanation; if no topic exists, ask what the learner wants to study. Use focus_teaching_board to point at visible items. Do not merely describe the tool."
- :"[APP WHITEBOARD MODE OFF] Pause any guided lesson. Continue ordinary natural voice conversation. Do not call whiteboard tools or refer to the hidden card. Wait until the app explicitly enables whiteboard mode again."}
+export const visualClaim=(output:string)=>/(?:teaching board|whiteboard|screen|visual (?:aid|material)|教學板|教学板|白板|螢幕|屏幕|視覺教材|视觉教材)/i.test(output)&&/(?:show|display|using|see|look|updat|appear|展示|顯示|显示|使用|看到|出現|出现|看一下)/i.test(output);
 export function inlineFocusIndex(card:BoardCard|null,args:unknown):number|null{
  if(!card||!args||typeof args!=="object")return null;
  const value=args as {cardId?:unknown;index?:unknown};
@@ -25,7 +23,7 @@ export function inlineFocusIndex(card:BoardCard|null,args:unknown):number|null{
 const inlineString={type:"STRING"};
 export const INLINE_BOARD_TOOLS=[{functionDeclarations:[{
  name:BOARD_FUNCTION,
- description:"Only in user-enabled whiteboard mode, call for substantive grammar rules, pronunciation patterns, differences between expressions, quizzes, and explicit board requests. Give one concise teaching card: comparison, example, vocabulary, correction, or dialogue with pairs; timeline or steps with points; flashcard with pairs; quiz with questions. The app decides whether to display it; continue speaking.",
+ description:"Call before or during substantive grammar rules, pronunciation patterns, differences between expressions, quizzes, and explicit board requests. Give one concise teaching card: comparison, example, vocabulary, correction, or dialogue with pairs; timeline or steps with points; flashcard with pairs; quiz with questions. The app decides whether to display it; continue speaking.",
  parameters:{type:"OBJECT",properties:{
   action:{type:"STRING",enum:["upsert","replace"]},
   cards:{type:"ARRAY",items:{type:"OBJECT",properties:{
@@ -35,15 +33,15 @@ export const INLINE_BOARD_TOOLS=[{functionDeclarations:[{
    questions:{type:"ARRAY",items:{type:"OBJECT",properties:{question:inlineString,options:{type:"ARRAY",items:inlineString},answerIndex:{type:"INTEGER"},explanation:inlineString},required:["question","options","answerIndex"]}}
   },required:["id","title","type"]}}
  },required:["action","cards"]}
-},{name:INLINE_FOCUS_FUNCTION,description:"Point at an existing visible teaching card item while explaining. Only in whiteboard mode. Index starts at zero. Never change the lesson stage or quiz.",parameters:{type:"OBJECT",properties:{cardId:inlineString,index:{type:"INTEGER"}},required:["cardId","index"]}}]}];
+},{name:INLINE_FOCUS_FUNCTION,description:"Point at an existing visible teaching card item while explaining. Index starts at zero. Never change the lesson stage or quiz.",parameters:{type:"OBJECT",properties:{cardId:inlineString,index:{type:"INTEGER"}},required:["cardId","index"]}}]}];
 export type InlineGate={turn:number;lastShown:number;dismissedUntil:number;seen:Set<string>;requested:boolean;topic:string;topicAt:number;outcome:"idle"|"shown"|"missing"|"dismissed";lastOutput:string;lastOutputAt:number;input:string;learnerStarted:boolean;shownThisTurn:boolean;toolCalls:number;validCards:number;accepted:number;fallbacks:number;completedTurns:number;reasons:Record<string,number>;lastReason:string;events:{event:string;at:number;reason?:string}[]};
 export const newInlineGate=():InlineGate=>({turn:0,lastShown:-Infinity,dismissedUntil:0,seen:new Set(),requested:false,topic:"",topicAt:0,outcome:"idle",lastOutput:"",lastOutputAt:0,input:"",learnerStarted:false,shownThisTurn:false,toolCalls:0,validCards:0,accepted:0,fallbacks:0,completedTurns:0,reasons:{},lastReason:"",events:[]});
 export function recordInlineEvent(g:InlineGate,event:string,reason?:string,now=Date.now()){
  g.events.push({event,at:now,...(reason?{reason}:{})});if(g.events.length>40)g.events.shift();
  if(reason){g.lastReason=reason;g.reasons[reason]=(g.reasons[reason]||0)+1}
 }
-const declinesBoard=(input:string)=>/(?:不要|不用|別|停止|關閉|收起|不需要).{0,12}(?:白板|比較表|對照表|圖|測驗)|(?:no|without|stop|close|hide|don[’\x27]t|do not).{0,24}(?:whiteboard|chart|diagram|quiz)/i.test(input);
-export const explicitBoardRequest=(input:string)=>!declinesBoard(input)&&/(?:請|可以|幫我|我要|想看|能不能|打開|使用|顯示|拿出).{0,12}白板|白板[?？]?$|比較表|對照表|用圖|畫出|視覺化|考我|測驗我|(?:show|open|use|bring up).{0,24}whiteboard|show me (?:a |the )?(?:chart|table|diagram|board)|(?:quiz|test) me/i.test(input);
+const declinesBoard=(input:string)=>/(?:不要|不用|別|停止|關閉|收起|不需要).{0,12}(?:白板|比較表|對照表|圖|測驗|視覺教學|视觉教学)|(?:no|without|stop|close|hide|don[’\x27]t|do not).{0,24}(?:whiteboard|chart|diagram|quiz)/i.test(input);
+export const explicitBoardRequest=(input:string)=>!declinesBoard(input)&&/(?:請|可以|幫我|我要|想看|能不能|打開|使用|顯示|拿出).{0,12}白板|白板[?？]?$|視覺(?:化)?教學|视觉(?:化)?教学|視覺(?:化)?教材|视觉(?:化)?教材|visual (?:teaching|material|aid|explanation)|比較表|對照表|用圖|畫出|視覺化|考我|測驗我|(?:show|open|use|bring up).{0,24}whiteboard|show me (?:a |the )?(?:chart|table|diagram|board)|(?:quiz|test) me/i.test(input);
 export const teachingCue=(input:string)=>/差別|差異|區別|怎麼區分|文法|句型|句子結構|發音規則|幾種發音|結尾.{0,8}(?:發音|念法)|(?:還是|仍然|真的)不懂|difference between|compare .{1,80}(?: and | with | vs)|grammar (?:rule|pattern)|sentence structure|pronunciation (?:rule|pattern)|(?:ed|s) ending|still (?:do not|don't) understand/i.test(input);
 export const edTopic=(input:string)=>/(?:\b-?ed\b.{0,35}(?:發音|念法|讀音|字尾|結尾|ending|pronunci|sound)|(?:發音|念法|字尾|結尾|pronunci\w*|sound\w*).{0,35}\b-?ed\b)/i.test(input);
 function meaningful(card:BoardCard){
@@ -91,11 +89,14 @@ export function proposeInlineBoard(g:InlineGate,call:{name:string;args?:unknown}
 }
 export function finishInlineTurn(g:InlineGate,input:string,valid:boolean,auto:boolean,now=Date.now(),backup?:(topic:string,output:string,manual:boolean,previousOutput:string)=>BoardCard|null,output=""):BoardCard|null{
  observeInlineInput(g,input);const actual=input.trim()?input:g.input;
- const manual=manualRequest(g,actual,now),retry=retryRequest(g,actual,now);
+ const claim=visualClaim(output),manual=manualRequest(g,actual,now)||claim,retry=retryRequest(g,actual,now);
  const previousOutput=now-g.lastOutputAt<120000?g.lastOutput:"";
- if(actual.trim()&&!retry&&!declinesBoard(actual)){g.topic=actual;g.topicAt=now}
- const topic=retry||g.requested?g.topic:actual;
- if(valid&&output.trim()&&(g.learnerStarted||manual)){g.lastOutput=output;g.lastOutputAt=now}
+ const priorTopic=now-g.topicAt<120000?g.topic:"";
+ const followup=retry||g.requested||explicitBoardRequest(actual)||claim;
+ const topic=followup&&priorTopic?priorTopic+" "+actual:actual;
+ if(actual.trim()&&!followup&&!declinesBoard(actual)){g.topic=actual;g.topicAt=now}
+ // A delivery claim is not a teaching explanation: retain last actual content.
+ if(valid&&output.trim()&&!claim&&(g.learnerStarted||manual)){g.lastOutput=output;g.lastOutputAt=now}
  recordInlineEvent(g,"turn-complete",undefined,now);
  g.outcome=g.shownThisTurn?"shown":"idle";
  try{
