@@ -43,7 +43,7 @@ export function SyncTeacherPage(){
   if(!geminiKey()){setError(t("請先設定 Gemini API Key。","Set a Gemini API key first."));return}
   cancel();const epoch=++generation.current,id=++seq.current,controller=new AbortController();
   request.current=controller;active.current=id;follow.current=true;setDraft("");setHeard("");setError("");setPhase("generating");
-  publish([...repliesRef.current,{id,learner:text,spoken:0,focus:-1,status:"generating",answers:{}}].slice(-40));
+  publish([...repliesRef.current,{id,learner:text,spoken:0,focus:-1,status:"generating" as const,answers:{}}].slice(-40));
   try{
    const plan=await generateTeachingPlan(text,history.current,{target:s.targetLanguage,native:s.nativeLanguage,teacher:profile.name,persona:profile.personaPrompt,mode:s.teachingMode,level:s.learnerSpeakingLevel},geminiKey(),controller.signal);
    if(generation.current!==epoch||controller.signal.aborted)return;
