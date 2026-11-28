@@ -1,7 +1,7 @@
 import {useEffect,useRef,useState,type ReactNode} from "react";
 import {TeachingCard} from "./TeachingCard";
 import {LiveCaptionText,LiveReplyLayout,PassiveTeachingMaterial} from "./PassiveTeacherReply";
-import {LIVE_RENDER_POLICY,RENDER_REPLY_FUNCTION,RENDER_REPLY_DECLARATION,parseLiveReply,directReplyAt,appendDirectReply,sealDirectReply,discardDirectReply,type LiveRenderedReply} from "./liveReplyLayout";
+import {LIVE_RENDER_POLICY,RENDER_REPLY_FUNCTION,RENDER_REPLY_DECLARATION,parseLiveReply,directReplyAt,appendDirectReply,sealDirectReply,discardDirectReply,resolveDirectReplyCompletion,closeDeferredReply,type DirectReplyWait,type LiveRenderedReply} from "./liveReplyLayout";
 import {appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt,type VisualReply} from "./visualReplyJournal";
 import type {BoardCard} from "./boardProtocol";
 import {currentBuild} from "../runtime/buildUpdates";
@@ -27,8 +27,9 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  const [journal,setJournal]=useState<VisualReply[]>([]);
  const [directReplies,setDirectReplies]=useState<LiveRenderedReply[]>([]);
  const directRef=useRef<LiveRenderedReply[]>([]);
+ const directWait=useRef<DirectReplyWait|null>(null);
  function publishDirect(entries:LiveRenderedReply[]){directRef.current=entries;setDirectReplies(entries)}
- const directStats=useRef({received:0,accepted:0,rejected:0,completedWithoutReply:0,lastReason:""});
+ const directStats=useRef({received:0,accepted:0,rejected:0,completedWithoutReply:0,deferred:0,sealed:0,discarded:0,lastReason:""});
  const [latestReplyTurn,setLatestReplyTurn]=useState<number|null>(null);
  const entryRef=useRef(0),activeEntry=useRef<number|null>(null);
  const journalRef=useRef<VisualReply[]>([]);
@@ -52,12 +53,26 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  const committed=useRef(new Set<number>());
  function markRendered(id:number){if(committed.current.has(id))return;committed.current.add(id);rendered.current++;recordInlineEvent(gate.current,"card-react-committed")}
  function clearCard(){activeEntry.current=null;setFocus(-1);cardRef.current=null;setCard(null);answerRef.current={};setAnswers({});quizRef.current=0;setQuizIndex(0)}
- function reset(){publishDirect([]);directStats.current={received:0,accepted:0,rejected:0,completedWithoutReply:0,lastReason:""};publish([]);setLatestReplyTurn(null);entryRef.current=0;committed.current.clear();setMissingTurn(null);syncGuided(null);gate.current=newInlineGate();rendered.current=0;wire.current={model:"",setupAcknowledged:0,setupTools:[],received:{renderReply:0,whiteboard:0,learningFeedback:0,other:0}};clearCard();setAvailable(true);setDelivery("idle")}
+ function reset(){directWait.current=null;publishDirect([]);directStats.current={received:0,accepted:0,rejected:0,completedWithoutReply:0,deferred:0,sealed:0,discarded:0,lastReason:""};publish([]);setLatestReplyTurn(null);entryRef.current=0;committed.current.clear();setMissingTurn(null);syncGuided(null);gate.current=newInlineGate();rendered.current=0;wire.current={model:"",setupAcknowledged:0,setupTools:[],received:{renderReply:0,whiteboard:0,learningFeedback:0,other:0}};clearCard();setAvailable(true);setDelivery("idle")}
  function recover(){discardInterrupted()}
- function discardInterrupted(){if(directReplyAt(directRef.current,"stream")){publishDirect(discardDirectReply(directRef.current));gate.current.shownThisTurn=false;recordInlineEvent(gate.current,"render-reply-interrupted")}const keep=guidedRef.current?activeEntry.current:null;const entries=discardPendingVisualReplies(journalRef.current,keep);if(entries.length===journalRef.current.length)return;gate.current.shownThisTurn=false;publish(entries);if(!entries.some(e=>e.id===activeEntry.current))clearCard()}
+ function discardInterrupted(){directWait.current=null;if(directReplyAt(directRef.current,"stream")){directStats.current.discarded++;publishDirect(discardDirectReply(directRef.current));gate.current.shownThisTurn=false;recordInlineEvent(gate.current,"render-reply-interrupted")}const keep=guidedRef.current?activeEntry.current:null;const entries=discardPendingVisualReplies(journalRef.current,keep);if(entries.length===journalRef.current.length)return;gate.current.shownThisTurn=false;publish(entries);if(!entries.some(e=>e.id===activeEntry.current))clearCard()}
  useEffect(()=>{window.addEventListener("crew-friend-call-interrupt",discardInterrupted);return()=>window.removeEventListener("crew-friend-call-interrupt",discardInterrupted)},[]);
  function unavailable(){recordInlineEvent(gate.current,"tools-unavailable","model-tools-unavailable");setAvailable(false)}
- function observe(input:string){if(enabled){if(input.trim()&&!gate.current.input)setFocus(-1);observeInlineInput(gate.current,input)}}
+ function observe(input:string){
+  if(!enabled)return;
+  if(input.trim()&&directWait.current){
+   const wait=directWait.current;directWait.current=null;
+   const pending=directReplyAt(directRef.current,"stream");
+   if(pending){
+    publishDirect(closeDeferredReply(directRef.current,wait));
+    if(wait.anchor!==null){directStats.current.sealed++;recordInlineEvent(gate.current,"render-reply-sealed-visual-only")}
+    else{directStats.current.discarded++;recordInlineEvent(gate.current,"render-reply-discarded","new-learner-turn")}
+    gate.current.shownThisTurn=false;
+   }
+  }
+  if(input.trim()&&!gate.current.input)setFocus(-1);
+  observeInlineInput(gate.current,input);
+ }
  function show(next:BoardCard){clearCard();const id=++entryRef.current;activeEntry.current=id;publish(appendVisualReply(journalRef.current,id,next));cardRef.current=next;setCard(next);setDelivery("idle")}
  function tool(call:{name:string;args?:unknown}){
   if(!enabled)return {ok:false,error:"disabled"};
@@ -70,7 +85,7 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
    if(!blocks)return reject("invalid-layout");
    const next=appendDirectReply(directRef.current,entryRef.current+1,blocks);
    if(!next)return reject("already-rendered-this-turn");
-   entryRef.current++;publishDirect(next);stats.accepted++;stats.lastReason="accepted";
+   entryRef.current++;directWait.current=null;publishDirect(next);stats.accepted++;stats.lastReason="accepted";
    gate.current.shownThisTurn=true;recordInlineEvent(gate.current,"render-reply-accepted");
    return {ok:true,displayed:true};
   }
@@ -120,12 +135,23 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
  }
  function finish(turn:{input?:string;output?:string;hasValidOutput?:boolean},captionIndex:number|null){
   if(enabled&&!guidedRef.current&&turn.hasValidOutput&&!directReplyAt(directRef.current,"stream"))directStats.current.completedWithoutReply++;
-  if(captionIndex!==null&&(turn.output?.trim()||turn.hasValidOutput)){if(directReplyAt(directRef.current,"stream"))publishDirect(sealDirectReply(directRef.current,captionIndex))}
-  else if(directReplyAt(directRef.current,"stream"))publishDirect(discardDirectReply(directRef.current));
+  const resolution=resolveDirectReplyCompletion(directRef.current,turn,captionIndex,directWait.current);
+  directWait.current=resolution.wait;
+  if(resolution.action==="defer"){
+   directStats.current.deferred++;
+   recordInlineEvent(gate.current,"render-reply-deferred");
+   // This is not the end of the visual reply. The same Live request may
+   // continue with speech after the tool acknowledgement.
+   if(!turn.hasValidOutput&&!turn.output?.trim())return;
+  }
+  if(resolution.action==="seal"&&resolution.index!==null){
+   publishDirect(sealDirectReply(directRef.current,resolution.index));
+   directStats.current.sealed++;recordInlineEvent(gate.current,"render-reply-sealed");
+  }
   finishTurn(turn);
   gate.current.input="";
   if(captionIndex!==null&&(turn.output?.trim()||turn.hasValidOutput)){setLatestReplyTurn(captionIndex);if(journalRef.current.some(e=>e.turn===null))publish(sealVisualReplies(journalRef.current,captionIndex))}
-  else if(!turn.hasValidOutput)discardInterrupted();
+  else if(!turn.hasValidOutput&&resolution.action!=="defer")discardInterrupted();
   setMissingTurn(null);
  }
  function request(send:Send){
