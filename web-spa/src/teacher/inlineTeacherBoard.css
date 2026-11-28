@@ -35,3 +35,25 @@
 .teacher-visual-reply .teaching-board-card-head h2{font-size:18px;line-height:1.3}
 .teacher-visual-reply .teaching-board-pairs{grid-template-columns:1fr}
 .teacher-visual-follow{position:sticky;bottom:4px;z-index:2;align-self:center;flex:none;min-height:44px;padding:0 14px;border:1px solid #98b9a3;background:#e6f2e9;color:#234a34;border-radius:20px;box-shadow:0 2px 9px #0004;cursor:pointer}
+
+/* Passive material stays within the speaking reply. No buttons or quiz state. */
+.teacher-call-page .teacher-live-caption{display:grid;gap:6px;min-width:0;overflow-wrap:anywhere}
+.teacher-call-page .teacher-live-caption p{margin:0;line-height:1.55;white-space:normal}
+.teacher-call-page .teacher-live-caption .teacher-live-caption-point{border-left:3px solid #79ba99;padding:3px 0 3px 9px}
+.teacher-call-page .teacher-live-caption .teacher-live-caption-example{background:#e9f4ed;color:#264536;border-radius:8px;padding:7px 9px;font-weight:400}
+.teacher-passive-material{padding:12px;display:grid;gap:9px;overflow-wrap:anywhere;color:#244333}
+.teacher-passive-material header{display:grid;gap:3px}
+.teacher-passive-material header small{color:#4b6b58;font-size:12px}
+.teacher-passive-material h3{font-size:17px;line-height:1.3;margin:0}
+.teacher-passive-material dl,.teacher-passive-material ol,.teacher-passive-material p{margin:0}
+.teacher-passive-material dl{display:grid;gap:6px}
+.teacher-passive-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px;padding:9px;background:#f2f7f3;border-radius:8px}
+.teacher-passive-row dt{font-weight:600;min-width:0}
+.teacher-passive-row dt small{display:block;font-weight:400;margin-top:2px}
+.teacher-passive-row dd{margin:0;min-width:0}
+.teacher-passive-material ol{padding-left:1.35em;display:grid;gap:6px}
+.teacher-passive-point{padding:5px 6px;border-radius:7px}
+.teacher-passive-row.is-highlighted,.teacher-passive-point.is-highlighted{outline:2px solid #347957;outline-offset:-2px;background:#e4f3e8}
+.teacher-passive-question{display:grid;gap:6px;padding:8px;background:#f2f7f3;border-radius:8px}
+.teacher-call-page .teacher-visual-reply:has(.teacher-passive-material){margin:4px 0 10px}
+@media(max-width:360px){.teacher-passive-row{grid-template-columns:1fr;gap:3px}}
