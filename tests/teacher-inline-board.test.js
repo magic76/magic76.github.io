@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(root+"/web-spa/src/teacher/"+p,"utf8");
 const strip=s=>stripTypeScriptTypes(s,{mode:"strip"}).replace(/^import .*;\s*$/gm,"").replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
 const api={};
-vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard});",{api});
+vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt});",{api});
 const card=(title="Past tenses",id="past")=>({id,type:"comparison",title,pairs:[{source:"went",target:"finished past"},{source:"have gone",target:"present relevance"}]});
 const proposal=(g,now=100,auto=true,c=card())=>api.proposeInlineBoard(g,{name:api.BOARD_FUNCTION,args:{action:"upsert",cards:[c]}},auto,now);
 const finish=(g,input="",now=100,auto=true,valid=true,output="")=>api.finishInlineTurn(g,input,valid,auto,now,api.backupCard,output);
@@ -75,4 +75,54 @@ test("integration renders from tool callback, keeps rollback and existing standa
  assert.match(live,/navigate\("\/teacher\/board"\)/);
  assert.match(ui,/fetch\("\/api\/usage\/admin"/);assert.match(ui,/v\?\.admin===true/);assert.match(ui,/admin&&/);
  assert.ok(Buffer.byteLength(live)<26000);
+});
+
+test("positive proactive instruction explicitly calls tool for educational questions, not all small talk",()=>{
+ assert.match(api.INLINE_BOARD_POLICY,/CALL update_teaching_board/);
+ assert.match(api.INLINE_BOARD_POLICY,/even when the learner did not say whiteboard/);
+ assert.match(api.INLINE_BOARD_POLICY,/Skip the tool for greetings/);
+});
+test("each supported learning language has distinct curated lesson content; unknown languages never fall back to English",()=>{
+ assert.ok(api.inlineLessonsFor("英文").length>=20);
+ for(const lang of api.TARGET_LANGUAGES){
+  const items=api.inlineLessonsFor(lang.value);
+  assert.ok(items.length>0,lang.value);
+  assert.ok(items.every(l=>l.language===lang.code&&l.cards.length>0));
+  assert.deepEqual(Array.from(api.inlineLessonsFor(lang.code),l=>l.id),Array.from(items,l=>l.id));
+  for(const l of items)for(const c of l.cards)for(const q of c.questions){
+   assert.ok(q.answerIndex>=0&&q.answerIndex<q.options.length);
+   assert.equal(new Set(q.options).size,q.options.length);
+  }
+ }
+ assert.equal(api.inlineLessonsFor("unknown").length,0);
+ assert.equal(api.findInlineLesson("日文","ed-sounds"),undefined);
+ assert.match(api.findInlineLesson("日文","ja-particles").cards[0].pairs[0].source,/は/);
+ assert.match(api.findInlineLesson("韓文","ko-particles").cards[0].pairs[0].source,/은/);
+ assert.equal(api.backupCard("ed ending",screenshotSpeech,false,"","ja"),null);
+});
+test("guided curriculum progresses deterministically without a tool; quiz and practice require learner actions",()=>{
+ const l=api.findInlineLesson("日文","ja-particles");
+ let s=api.startGuidedLesson(l);
+ assert.equal(api.guidedCard(s).id,"ja-particles-rule");assert.equal(api.advanceGuidedLesson(s),null);
+ s=api.advanceGuidedLesson(api.guidedExplained(s,true));assert.equal(api.guidedPhase(s),"examples");
+ s=api.advanceGuidedLesson(api.guidedExplained(s,true));assert.equal(api.guidedPhase(s),"quiz");
+ s=api.guidedExplained(s,true);assert.equal(api.guidedCanAdvance(s),false);
+ assert.doesNotMatch(api.guidedPrompt(s,"日文"),/answerIndex|marks the questioned subject/);
+ const first=s;s=api.guidedAnswer(s,0,8);assert.equal(s,first);
+ s=api.guidedAnswer(s,0,1);assert.equal(s.correct,1);assert.equal(api.guidedAnswer(s,0,0),s);
+ s=api.advanceGuidedLesson(s);assert.equal(api.guidedPhase(s),"practice");
+ s=api.guidedExplained(s,true);assert.equal(api.guidedCanAdvance(s),false);
+ assert.equal(api.guidedAttempt(s,"再說一次"),s);
+ s=api.guidedAttempt(s,"私は学生です。");assert.equal(api.guidedCanAdvance(s),true);
+ s=api.advanceGuidedLesson(s);assert.equal(api.guidedPhase(s),"recap");assert.match(api.guidedPrompt(s,"日文"),/1 correct out of 1/);
+ assert.equal(api.advanceGuidedLesson(api.guidedExplained(s,true)),null);
+});
+test("guided lesson launch uses local card independent of tool result and tools cannot change curriculum",()=>{
+ const ui=read("InlineTeacherBoard.tsx"),live=read("LivePage.tsx");
+ assert.match(ui,/syncGuided\(next\);show\(guidedCard\(next\)\)/);
+ assert.match(ui,/if\(guidedRef\.current\).*guided-curriculum/);
+ assert.match(ui,/guidedCanAdvance\(board\.guided\)/);
+ assert.match(live,/Boolean\(geminiKey\(\)\),s\.targetLanguage/);
+ assert.match(ui,/schema:2,model:wire\.current\.model/);
+ assert.match(live,/onToolDiagnostics:inlineBoard\.diagnostics/);
 });

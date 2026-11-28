@@ -41,6 +41,7 @@ type Config={
  tools?:Array<{functionDeclarations:Array<Record<string,unknown>>}|{googleSearch:Record<string,never>}>;
  onToolCall?:(call:{id?:string;name:string;args?:unknown})=>Record<string,unknown>;
  onToolsUnavailable?:()=>void;
+ onToolDiagnostics?:LiveSessionOptions["onToolDiagnostics"];
  onRecovered?:()=>void;
  onOutputLevel?:(level:number)=>void;
  persistHistory?:boolean;sessionKind?:"teacher"|"friend"|"timeline";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
@@ -320,6 +321,7 @@ export function useLiveSession(config:Config){
       onSearchUnavailable:()=>{if(isActive())setSearchUnavailable(true)},
       onToolCall:call=>!isActive()?{ok:false,error:"session-ended"}:call.name===LEARNING_FEEDBACK_FUNCTION?(feedbackAllowed?feedbackQueue.current.propose(call):{ok:false,error:"feedback-disabled"}):!grant?configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"}:guestMemoryAllowed&&call.name==="save_friend_memory"?memoryConfig.onToolCall?.(call)||{ok:false,error:"not-handled"}:{ok:false,error:"guest-tools-disabled"},
      onToolsUnavailable:()=>{if(isActive())configRef.current.onToolsUnavailable?.()},
+     onToolDiagnostics:configRef.current.onToolDiagnostics?event=>{if(isActive())configRef.current.onToolDiagnostics?.(event)}:undefined,
     // Crew Teacher/Friends only; other Crew products retain their current VAD.
     turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
     models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,

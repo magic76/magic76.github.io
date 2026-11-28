@@ -77,10 +77,10 @@ export function TeacherLivePage(){
     ?conversationOpening(intent,"teacher")
     :DEFAULT_TEACHER_OPENING;
  const replyHints=useSuggestedReplies({allowed:true,language:s.targetLanguage,nativeLanguage:s.nativeLanguage});
- const inlineBoard=useInlineTeacherBoard(!textMode&&!isRoleplay&&!fortuneKind&&!course&&Boolean(geminiKey()));
+ const inlineBoard=useInlineTeacherBoard(!textMode&&!isRoleplay&&!fortuneKind&&!course&&Boolean(geminiKey()),s.targetLanguage);
  const live=useLiveSession({pageKey:"teacher",rememberPlaybackVolume:true,protectOpening:true,recoveryCaptionScope:JSON.stringify([profile.id,s.targetLanguage,scene,p.get("lesson"),fortuneKind]),learningFeedback:!fortuneKind,title:(fortuneKind?"命理聊聊":isReview?t("learnToday.reviewTitle"):mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system:system+inlineBoard.policy+(!isRoleplay&&!fortuneKind?"\n[CURRENT FACTS] Do not claim to have live web access. Only use fresh facts when verified context is explicitly provided. Otherwise explain you cannot verify the current news. Preserve teacher language and practice policies.":""),openingPrompt:languageDirective+"\n"+opening+"\n"+languageDirective,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&(intent==="continue"||s.conversationMode==="natural")?"teacher":fortuneKind?"teacher":undefined,
   tools:inlineBoard.tools,onToolCall:inlineBoard.onToolCall,onToolsUnavailable:inlineBoard.onToolsUnavailable,
-  onInputSpeech:replyHints.onInputSpeech,onLearnerTranscript:inlineBoard.observe,
+  onInputSpeech:replyHints.onInputSpeech,onLearnerTranscript:inlineBoard.observe,onToolDiagnostics:inlineBoard.diagnostics,
   onTurnComplete:(_turn,completedTurns)=>{
    inlineBoard.finish(_turn);
    if(_turn.hasValidOutput)replyHints.generate(completedTurns);
