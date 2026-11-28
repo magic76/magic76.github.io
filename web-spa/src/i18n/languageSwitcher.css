@@ -15,7 +15,8 @@
 .crew-language-trigger-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .crew-language-picker-header{flex:none}
 .crew-language-picker-header .crew-language-trigger{min-height:44px;flex:none}
-.crew-language-picker-header .crew-language-globe{flex:none;color:var(--muted,#657084)}
+.crew-language-picker-header .crew-language-icon{flex:none;width:20px;height:20px;color:inherit}
+.crew-language-picker-header .crew-arrow--small{width:12px;height:12px}
 .crew-language-picker-header .crew-language-trigger-name{flex:none;overflow:visible;text-overflow:clip}
 .crew-language-trigger svg{flex:none}
 .crew-language-picker-settings .crew-language-trigger{max-width:100%;min-width:180px;min-height:44px;justify-content:space-between;font-size:14px}
@@ -82,5 +83,5 @@
 .crew-locale-error{padding:9px 16px;text-align:center;font-size:12px;background:var(--surface-alt,#f7f5fd);color:var(--text,#253044);overflow-wrap:anywhere}
 
 /* #16: Reserve the same header width before and after locale hydration. */
-.crew-language-picker-header .crew-language-trigger{width:104px;min-width:104px;justify-content:space-between}
-@media(max-width:700px){.crew-language-picker-header .crew-language-trigger{width:82px;min-width:82px;max-width:82px}}
+.crew-language-picker-header .crew-language-trigger{width:104px;min-width:104px;justify-content:space-between;box-sizing:border-box}
+@media(max-width:700px){.crew-language-picker-header .crew-language-trigger{width:82px;min-width:82px;max-width:82px;padding-inline:3px;gap:2px}}
