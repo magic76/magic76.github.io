@@ -185,7 +185,7 @@ export function TeacherLivePage(){
  };
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  useAuxiliaryLiveSession(sessionActive,textMode);
- const replyDecisions=useTeacherReplyComposer(inlineBoard.enabled&&sessionActive&&!guestStarted,live.state==="listening"||live.state==="speaking",profile.id+"|"+s.targetLanguage,live.captionTurns,inlineBoard.journal,Boolean(inlineBoard.guided),s.targetLanguage,s.nativeLanguage);
+ const replyDecisions=useTeacherReplyComposer(inlineBoard.enabled&&sessionActive&&!guestStarted&&live.state!=="ending"&&live.state!=="reporting",live.state==="listening"||live.state==="speaking",profile.id+"|"+s.targetLanguage,live.captionTurns,inlineBoard.journal,Boolean(inlineBoard.guided),s.targetLanguage,s.nativeLanguage);
  const interruptedCaptions=live.state==="error"&&Boolean(live.captionTurns.length||live.input||live.output);
  const changeTeacher=async()=>{
   if(changingTeacher)return;
