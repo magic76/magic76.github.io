@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-28",
+  "generatedAt": "2026-11-28T04:20:10.416Z",
+  "edition": "public",
+  "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 2 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
+  "items": [
+    {
+      "id": "d7e60d62ac910751",
+      "title": "KradleBench: Multi-agent AI evals in Minecraft",
+      "summary": "Hacker News 社群近期討論：KradleBench: Multi-agent AI evals in Minecraft。社群熱度不等於技術已經驗證。",
+      "publishedAt": "2026-11-18T17:46:24Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "KradleBench: Multi-agent AI evals in Minecraft",
+          "url": "https://news.ycombinator.com/item?id=50549500",
+          "publishedAt": "2026-11-18T17:46:24Z",
+          "kind": "社群觀察"
+        }
+      ],
+      "score": 82,
+      "body": "Hacker News 社群近期討論：KradleBench: Multi-agent AI evals in Minecraft。社群熱度不等於技術已經驗證。"
+    },
+    {
+      "id": "13c647f027b4617f",
+      "title": "LiveKit Agents AI agent update: - **AssemblyAI STT 3.7 Realtime Agent**: supported through LiveKit Inference as `assemblyai/assemblyai-stt-3-7-realtime-agent`.",
+      "summary": "- **AssemblyAI STT 3.7 Realtime Agent**: supported through LiveKit Inference as `assemblyai/assemblyai-stt-3-7-realtime-agent`. - **GPT Live**: inference HTTP refusals now raise `APIStatusError` rather than `APIConnectionError`. Update exception handlers accordingly. - **OpenAI decisions**: direct `DecisionModel()` requests now default to `gpt-6-luna`; the inference name remains `openai/gpt-6-luna",
+      "publishedAt": "2026-11-18T21:41:53Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "LiveKit Agents livekit-agents@1.8.13",
+          "url": "https://github.com/livekit/agents/releases/tag/livekit-agents%401.8.13",
+          "publishedAt": "2026-11-18T21:41:53Z",
+          "kind": "官方產品更新"
+        }
+      ],
+      "score": 78,
+      "body": "- **AssemblyAI STT 3.7 Realtime Agent**: supported through LiveKit Inference as `assemblyai/assemblyai-stt-3-7-realtime-agent`. - **GPT Live**: inference HTTP refusals now raise `APIStatusError` rather than `APIConnectionError`. Update exception handlers accordingly. - **OpenAI decisions**: direct `DecisionModel()` requests now default to `gpt-6-luna`; the inference name remains `openai/gpt-6-luna-decisions`. - **Gemini Live**: inference sessions now retain Gemini’s own turn detection to avoid missing replies."
+    }
+  ]
+}
