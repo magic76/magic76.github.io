@@ -262,37 +262,47 @@ test("actual React reply markup includes caption-derived teaching card before su
   assert.match(aiHtml,/data-visual-source="composer"/);
   assert.match(aiHtml,/Semantic material/);
   assert.match(aiHtml,/data-kind="vocabulary"/);
-  const {liveCaptionBlocks}=await server.ssrLoadModule("/src/teacher/PassiveTeacherReply.tsx");
+  const {validateSemanticLayout,nextCaptionChunk,captionView,plainCaption}=await server.ssrLoadModule("/src/teacher/semanticCaptionLayout.ts");
+  const {captionAt}=await server.ssrLoadModule("/src/teacher/useSemanticCaption.ts");
   const actual="First, use in for a space. For example, in the room. Next, use on for a surface.";
-  assert.deepEqual(Array.from(liveCaptionBlocks(actual),row=>row.kind),["point","example","point"]);
-  assert.equal(Array.from(liveCaptionBlocks(actual),row=>row.text).join(" "),actual);
-  assert.equal(liveCaptionBlocks("Hello!")[0].kind,"text");
-  // Actual user screenshot 15:29: no tool or composer result at all.
-  const screenshot='Can表示現在的能力或允許，而 Could則用於過去的能力或禮貌的請求。For example,you can say:"I can speak English now."或請求協助："Could you help me, please?" 你想用哪個詞練習呢？';
-  const blocks=liveCaptionBlocks(screenshot);
-  assert.equal(blocks.filter(b=>b.kind==="term").length,2);
-  assert.match(blocks[0].label,/Can/);
-  assert.match(blocks[1].label,/Could/);
-  assert.ok(blocks.some(b=>b.kind==="example"&&b.text==='"I can speak English now."'));
-  assert.ok(blocks.some(b=>b.kind==="example"&&b.text==='"Could you help me, please?"'));
-  assert.equal(blocks.at(-1).kind,"text");
-  assert.equal(blocks.at(-1).text,"你想用哪個詞練習呢？");
-  assert.equal(Array.from(blocks,b=>b.text).join("").replace(/\s/g,""),screenshot.replace(/\s/g,""));
-  const generic=liveCaptionBlocks("Reservation means a booking. Boarding pass means a ticket to board.");
-  assert.equal(generic.filter(b=>b.kind==="term").length,2);
-  assert.equal(liveCaptionBlocks("I mean it. We are going out.").every(b=>b.kind==="text"),true);
-  const streaming=visualReplyProps(board,true,()=>false,true,[],"Can and could",screenshot,"英文",undefined,true);
-  const completedCaption=visualReplyProps(board,true,()=>false,true,[{input:"Can and could",output:screenshot}],"","","英文",undefined,true);
-  const screenshotHtml=renderToStaticMarkup(streaming.renderCaption(screenshot,"en"));
-  assert.equal((screenshotHtml.match(/teacher-live-caption-term/g)||[]).length,2);
-  assert.equal(screenshotHtml,renderToStaticMarkup(completedCaption.renderCaption(screenshot,"en")));
+  const screenshot='這裡有機場常用的字。First,boarding pass,meaning 登機證. For example,"Please show your boarding pass."Next,immigration,meaning 入境審查.Go through immigration.';
+  const blocks=validateSemanticLayout({blocks:[
+   {kind:"paragraph",parts:["這裡有機場常用的字。"]},
+   {kind:"table",columns:2,parts:["First,boarding pass,","meaning 登機證. For example,\"Please show your boarding pass.\"","Next,immigration,","meaning 入境審查.Go through immigration."]}
+  ]},screenshot);
+  assert.ok(blocks);assert.equal(blocks[1].kind,"table");
+  assert.equal(Array.from(blocks).flatMap(b=>b.parts).join("").replace(/\s/g,""),screenshot.replace(/\s/g,""));
+  for(const invalid of [
+   {blocks:[{kind:"paragraph",parts:["invented"]}]},
+   {blocks:[{kind:"paragraph",parts:["這裡有機場常用的字。"]}]},
+   {blocks:[{kind:"table",columns:3,parts:[screenshot,"a"]}]},
+   {blocks:[{kind:"html",parts:[screenshot]}]}
+  ])assert.equal(validateSemanticLayout(invalid,screenshot),null);
+  assert.equal(validateSemanticLayout({blocks:[{kind:"list",parts:["hel","lo"]}]},"hello"),null);
+  const general="Mix flour and water. Then knead the dough. Let it rest.";
+  assert.ok(validateSemanticLayout({blocks:[{kind:"steps",parts:["Mix flour and water.","Then knead the dough.","Let it rest."]}]},general));
+  assert.ok(validateSemanticLayout({blocks:[{kind:"paragraph",parts:["Hello!"]}]},"Hello!"));
+  assert.equal(nextCaptionChunk("short","",false),"");
+  assert.ok(nextCaptionChunk(screenshot,"",false).length>0);
+  assert.equal(nextCaptionChunk(screenshot,screenshot,false),"");
+  assert.equal(nextCaptionChunk(screenshot,"wrong",true),"");
+  const prefix="這裡有機場常用的字。",segments=[{source:prefix,blocks:plainCaption(prefix)}];
+  assert.equal(captionView(screenshot,segments).tail,screenshot.slice(prefix.length));
+  assert.equal(captionView("revised",segments).tail,"revised");
+  assert.equal(captionAt([],screenshot,0).raw,screenshot);
+  assert.equal(captionAt([{output:screenshot}],screenshot,0).final,true);
+  assert.equal(captionAt([{output:screenshot}],screenshot,1).raw,"");
+  const layout={revision:1,segments:()=>[{source:screenshot,blocks}]};
+  const streaming=visualReplyProps(board,true,()=>false,true,[],"Airport",screenshot,"英文",undefined,true,layout);
+  const completedCaption=visualReplyProps(board,true,()=>false,true,[{input:"Airport",output:screenshot}],"","","英文",undefined,true,layout);
+  const screenshotHtml=renderToStaticMarkup(streaming.renderCaption(screenshot,"en","stream"));
+  assert.match(screenshotHtml,/<table>/);
+  assert.equal(screenshotHtml,renderToStaticMarkup(completedCaption.renderCaption(screenshot,"en",0)));
   assert.doesNotMatch(screenshotHtml,/<button|<input|<form/);
-
-  assert.deepEqual(Array.from(liveCaptionBlocks("首先，注意語序。 例如，我正在學日文。"),row=>row.kind),["point","example"]);
   const plain=visualReplyProps(board,true,()=>false,true,[],"Explain prepositions",actual,"英文",undefined,true);
   const captionHtml=renderToStaticMarkup(plain.renderCaption(actual,"en"));
-  assert.match(captionHtml,/data-caption-layout="structured"/);
-  assert.match(captionHtml,/teacher-live-caption-example/);
+  assert.match(captionHtml,/data-caption-layout="text"/);
+  assert.ok(captionHtml.includes(actual));
   assert.equal(plain.keys.length,0);
   const late=visualReplyProps(board,true,()=>false,true,turns,"","","英文",decisions,true);
   assert.equal(late.keys.length,0);
@@ -390,6 +400,6 @@ test("synchronized experiment is isolated from the original voice route and uses
 test("standard teacher Live page does not start a post-turn composer or navigate to the experimental engine",()=>{
  const live=read("LivePage.tsx");
  assert.doesNotMatch(live,/useTeacherReplyComposer|composeTeacherReply|navigate\("\/teacher\/sync\/live"\)/);
- assert.match(live,/visualReplyProps\(inlineBoard,[^\n]*s\.targetLanguage,undefined,true\)/);
+ assert.match(live,/visualReplyProps\(inlineBoard,[^\n]*s\.targetLanguage,undefined,true,captionLayout\)/);
  assert.match(live,/useLiveSession\(/);
 });
