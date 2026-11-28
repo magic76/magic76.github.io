@@ -1,4 +1,5 @@
 import {Arrow} from "../components/Arrow";
+import {RolePreferenceSummary} from "../components/ConversationPreferences";
 import {useTeacherStore} from "../store/teacherStore";
 import{useEffect,useRef,useState}from"react";
 import{useTranslation}from"react-i18next";
@@ -107,8 +108,8 @@ export function SettingsPage(){
     </select>
    </label>
   </div>
-  <Link className="crew-settings-quick-link" to="/teacher/roles?mode=friends">{t("group.friendRolePreferences",{defaultValue:"Friend preferences"})} <Arrow/></Link>
-  <Link className="crew-settings-quick-link" to="/teacher/roles?mode=teacher">{t("group.teacherRolePreferences",{defaultValue:"Teacher preferences"})} <Arrow/></Link>
+  <RolePreferenceSummary role="friend" buttonLabel={t("group.friendRolePreferences")}/>
+  <RolePreferenceSummary role="teacher" buttonLabel={t("group.teacherRolePreferences")}/>
   <Link className="crew-settings-quick-link" to="/learn">{t("group.openLearning")} <Arrow/></Link>
  </section>
  <section id="settings-interface" className="section panel crew-settings-category crew-settings-interface">

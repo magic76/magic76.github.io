@@ -22,7 +22,9 @@ test("Crew Teacher home shows the selected people while preserving neutral globa
  assert.ok(chrome.includes("GlobalNav"),"Crew keeps its main navigation");
  assert.ok(learn.includes('to:"/teacher/roles?mode=teacher"'),"teacher picker stays directly reachable");
  assert.ok(!layout.includes('"/teacher/friends","朋友"'));
- assert.ok(roles.includes('t("practice.teacher")')&&roles.includes('t("practice.friend")'));
+ assert.doesNotMatch(roles,/crew-role-switcher/);
+ assert.match(roles,/<Navigate to="\/learn" replace/);
+ assert.match(roles,/<FriendsPage\/>/);
  assert.ok(roles.includes("crew_teacher_last_role_v1"));
 });
 test("old tutor/friend urls redirect and relationship starts remain separate",()=>{
