@@ -25,7 +25,7 @@ export function FriendCallBubbleList({name,turns,learningFeedback={},learningLan
  const latestAiKey=showCurrentOutput?"stream":completed.filter(turn=>turn.output?.trim()).at(-1)?.index;
  function latestMaterial(pane:HTMLDivElement){if(!visualReply||showCurrentInput&&!showCurrentOutput||latestAiKey===undefined||visualReply.kind?.(latestAiKey)!=="material")return null;return pane.querySelector<HTMLElement>(`[data-reply-key="${latestAiKey}"] .teacher-visual-reply`)}
  function scrollTo(pane:HTMLDivElement,item:HTMLElement|null){const top=item?pane.scrollTop+item.getBoundingClientRect().top-pane.getBoundingClientRect().top-8:pane.scrollHeight-pane.clientHeight;autoTop.current=Math.max(0,Math.min(pane.scrollHeight-pane.clientHeight,top));pane.scrollTop=autoTop.current;}
- const renderSuggestions=(key:number|"stream")=>suggestionsEnabled&&latestAiKey===key&&suggestions.length>0?
+ const renderSuggestions=(key:number|"stream")=>suggestionsEnabled&&latestAiKey===key&&visualReply?.kind?.(key)!=="missing"&&suggestions.length>0?
   <div className="friend-bubble-suggestions" aria-label="Reply suggestions">{suggestions.slice(0,3).map((item,index)=><div className="friend-bubble-suggestion" key={index}><span>{index+1}.</span><div><strong lang={source}>{item.text}</strong><small lang={nativeLanguage}>{item.translation}</small></div></div>)}</div>:null;
  const renderTranslation=(key:string,latest:boolean)=>!translationEnabled||!needTranslation?null:latest&&translationRows.length?
   <div className="friend-bubble-translation" lang={nativeLanguage}>{translationRows.map((row,index)=><span key={index}>{row.kind==="text"?row.value:translateStatus(row.value)}</span>)}</div>:
