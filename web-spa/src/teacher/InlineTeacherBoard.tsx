@@ -155,7 +155,7 @@ export function VisualReplyContent({board,english,send,canSend,turn}:{board:Boar
     {current&&board.guided&&<div className="inline-lesson-progress"><span>{english?"Stage":"教學階段"} {board.guided.index+1}/{board.guided.lesson.cards.length+1}</span><progress value={board.guided.index+1} max={board.guided.lesson.cards.length+1}/></div>}
     <TeachingCard card={card} answers={entry.answers} english={english}
      quizIndex={entry.quizIndex} focusIndex={current?board.focus:-1}
-     onNavigate={index=>{if(current)board.navigate(index)}}
+     onNavigate={current?board.navigate:undefined}
      onSpeakingSubmit={text=>{if(interactive)board.submitPractice(text,send)}}
      onAnswer={(c,i,selected)=>{if(!interactive)return;const q=c.questions[i];if(!q)return;if(board.guided){if(send("[GUIDED QUIZ ANSWER] "+JSON.stringify({question:q.question,selected:q.options[selected]})+". Give brief feedback, then wait."))board.answer(c,i,selected)}else if(board.answer(c,i,selected))send("[LEARNER QUIZ ANSWER] "+JSON.stringify({question:q.question,selected:q.options[selected]})+". Give brief feedback.")}}
      onExplain={text=>{if(canSend)send("[LEARNER MATERIAL QUESTION] Please explain this item: "+JSON.stringify(text))}}
