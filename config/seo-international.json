@@ -48,6 +48,54 @@
       "description": "AI 영어 선생님과 실시간 음성 대화로 영어를 연습하세요. 한국어로 뜻과 문법을 질문하고 발음, 여행 및 직장 영어를 연습할 수 있습니다.",
       "lastmod": "2026-11-28",
       "reviewed": true
+    },
+    {
+      "locale": "es",
+      "path": "/",
+      "title": "Koolo | Practica inglés con IA en tiempo real",
+      "description": "Practica inglés hablado con profesores y amigos de IA. Haz preguntas en español y ensaya conversaciones cotidianas, de viajes y de trabajo desde tu navegador.",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    },
+    {
+      "locale": "es",
+      "path": "/teacher",
+      "title": "Practicar inglés con IA | Profesor de inglés y conversación | Koolo",
+      "description": "Practica conversación en inglés por voz con un profesor de IA. Pregunta en español sobre vocabulario, gramática y pronunciación, y ensaya situaciones reales.",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    },
+    {
+      "locale": "pt-BR",
+      "path": "/",
+      "title": "Koolo | Pratique inglês com IA em tempo real",
+      "description": "Pratique conversação em inglês com professores e amigos de IA. Faça perguntas em português e treine situações do dia a dia, viagens e trabalho no navegador.",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    },
+    {
+      "locale": "pt-BR",
+      "path": "/teacher",
+      "title": "Praticar inglês com IA | Professor de inglês e conversação | Koolo",
+      "description": "Treine conversação em inglês por voz com um professor de IA. Tire dúvidas em português sobre gramática, vocabulário e pronúncia e pratique situações reais.",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    },
+    {
+      "locale": "id",
+      "path": "/",
+      "title": "Koolo | Latihan berbicara bahasa Inggris dengan AI secara langsung",
+      "description": "Latihan percakapan bahasa Inggris dengan guru AI dan teman AI. Bertanya dalam bahasa Indonesia dan berlatih untuk kehidupan sehari-hari, perjalanan, serta pekerjaan di browser.",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    },
+    {
+      "locale": "id",
+      "path": "/teacher",
+      "title": "Latihan percakapan bahasa Inggris dengan guru AI | Koolo",
+      "description": "Latihan berbicara bahasa Inggris melalui percakapan suara dengan guru AI. Tanyakan kosakata, tata bahasa, dan pelafalan dalam bahasa Indonesia.",
+      "lastmod": "2026-11-28",
+      "reviewed": true
     }
   ]
 }

@@ -178,5 +178,185 @@
     },
     "nextTitle": "여행 영어부터 시작",
     "nextBody": "주문하기, 길 묻기, 일상 대화를 연습하세요."
+  },
+  "es": {
+    "homeTitle": "Koolo | Practica inglés con IA en tiempo real",
+    "homeDescription": "Practica inglés hablado con profesores y amigos de IA. Haz preguntas en español y ensaya conversaciones cotidianas, de viajes y de trabajo desde tu navegador.",
+    "teacherTitle": "Practicar inglés con IA | Profesor de inglés y conversación | Koolo",
+    "teacherDescription": "Practica conversación en inglés por voz con un profesor de IA. Pregunta en español sobre vocabulario, gramática y pronunciación, y ensaya situaciones reales.",
+    "homeHeading": "Practica conversación en inglés con Koolo",
+    "homeBody": "Habla en inglés con un profesor de IA y pregunta en español cuando no entiendas una expresión. También puedes conversar con amigos de IA, jugar y crear historias.",
+    "orb": "Elige un personaje y empieza una conversación por voz con manos libres",
+    "pricing": "Servicios y precios",
+    "teacherHeading": "Practica inglés hablado con un profesor de IA",
+    "teacherIntro": "Pregunta en español por el significado de una palabra o una regla gramatical y practica tu respuesta en inglés. La IA responde en tiempo real según lo que digas.",
+    "about": {
+      "heading": "Gana confianza al hablar inglés en conversaciones reales",
+      "intro": "En Koolo puedes practicar por voz con un profesor de IA o conversar de forma natural con amigos de IA. Si no sabes cómo expresar algo, pregunta en español y vuelve a intentarlo en inglés.",
+      "first": "Practica inglés según tus objetivos",
+      "firstBody": "Pregunta por la pronunciación, el vocabulario o la gramática y ensaya conversaciones para viajar, trabajar o resolver situaciones cotidianas.",
+      "second": "Conversaciones libres con amigos de IA",
+      "secondBody": "Habla de tus aficiones, tus planes para el fin de semana o tu vida diaria y practica cómo expresar tus ideas en inglés.",
+      "action": "Elegir profesor de IA",
+      "action2": "Conocer amigos de IA"
+    },
+    "guides": {
+      "heading": "Tres frases de inglés para practicar hoy",
+      "intro": "Lee estas frases en voz alta. Pide al profesor de IA ayuda con la pronunciación u otra forma de expresarlas y después responde con tus propias palabras.",
+      "examples": [
+        {
+          "label": "Conversación cotidiana",
+          "english": "What do you like to do on weekends?",
+          "meaning": "¿Qué te gusta hacer los fines de semana?"
+        },
+        {
+          "label": "Viajes",
+          "english": "Could you tell me how to get to the station?",
+          "meaning": "¿Podrías decirme cómo llegar a la estación?"
+        },
+        {
+          "label": "Trabajo",
+          "english": "Could you explain that in a different way?",
+          "meaning": "¿Podrías explicarlo de otra manera?"
+        }
+      ],
+      "links": [
+        "Empezar a practicar con IA",
+        "Inglés para viajar",
+        "Inglés para el trabajo",
+        "Practicar pronunciación"
+      ],
+      "note": "La práctica por voz depende de la cuota de prueba disponible o de la configuración de una clave de API. Algunos materiales todavía se muestran en inglés."
+    },
+    "tracks": {
+      "travel": "Inglés para viajes y vida en el extranjero",
+      "business": "Inglés para el trabajo y la carrera profesional",
+      "daily": "Conversaciones cotidianas",
+      "teamwork": "Trabajo en equipo y colaboración",
+      "tickets": "Compra de entradas y salidas",
+      "services": "Trámites y servicios cotidianos"
+    },
+    "nextTitle": "Empieza con inglés para viajar",
+    "nextBody": "Practica cómo pedir comida, preguntar por direcciones y mantener conversaciones cotidianas."
+  },
+  "pt-BR": {
+    "homeTitle": "Koolo | Pratique inglês com IA em tempo real",
+    "homeDescription": "Pratique conversação em inglês com professores e amigos de IA. Faça perguntas em português e treine situações do dia a dia, viagens e trabalho no navegador.",
+    "teacherTitle": "Praticar inglês com IA | Professor de inglês e conversação | Koolo",
+    "teacherDescription": "Treine conversação em inglês por voz com um professor de IA. Tire dúvidas em português sobre gramática, vocabulário e pronúncia e pratique situações reais.",
+    "homeHeading": "Pratique conversação em inglês com o Koolo",
+    "homeBody": "Converse em inglês com um professor de IA e faça perguntas em português quando não entender uma expressão. Você também pode conversar com amigos de IA, jogar e criar histórias.",
+    "orb": "Escolha um personagem e inicie uma conversa por voz sem usar as mãos",
+    "pricing": "Serviços e preços",
+    "teacherHeading": "Pratique inglês falado com um professor de IA",
+    "teacherIntro": "Tire dúvidas sobre palavras e gramática em português e pratique suas respostas em inglês. A IA responde em tempo real de acordo com o que você diz.",
+    "about": {
+      "heading": "Ganhe confiança para falar inglês em conversas reais",
+      "intro": "No Koolo, você pode praticar por voz com um professor de IA ou conversar naturalmente com amigos de IA. Se não souber como dizer algo, pergunte em português e tente novamente em inglês.",
+      "first": "Pratique inglês de acordo com seus objetivos",
+      "firstBody": "Tire dúvidas sobre pronúncia, vocabulário e gramática e pratique conversas para viagens, trabalho e situações do dia a dia.",
+      "second": "Converse livremente com amigos de IA",
+      "secondBody": "Fale sobre seus hobbies, planos para o fim de semana ou experiências do dia a dia e pratique como expressar suas ideias em inglês.",
+      "action": "Escolher professor de IA",
+      "action2": "Conhecer amigos de IA"
+    },
+    "guides": {
+      "heading": "Três frases em inglês para praticar hoje",
+      "intro": "Leia as frases em voz alta. Peça ajuda ao professor de IA com a pronúncia ou outras formas de dizer a mesma coisa e depois responda com suas próprias palavras.",
+      "examples": [
+        {
+          "label": "Dia a dia",
+          "english": "What do you like to do on weekends?",
+          "meaning": "O que você gosta de fazer nos fins de semana?"
+        },
+        {
+          "label": "Viagens",
+          "english": "Could you tell me how to get to the station?",
+          "meaning": "Você poderia me dizer como chegar à estação?"
+        },
+        {
+          "label": "Trabalho",
+          "english": "Could you explain that in a different way?",
+          "meaning": "Você poderia explicar isso de outra forma?"
+        }
+      ],
+      "links": [
+        "Começar a praticar com IA",
+        "Inglês para viagens",
+        "Inglês para o trabalho",
+        "Praticar pronúncia"
+      ],
+      "note": "A prática por voz depende da cota de teste disponível ou da configuração de uma chave de API. Alguns materiais ainda são exibidos em inglês."
+    },
+    "tracks": {
+      "travel": "Inglês para viagens e vida no exterior",
+      "business": "Inglês para trabalho e carreira",
+      "daily": "Conversas do dia a dia",
+      "teamwork": "Trabalho em equipe e colaboração",
+      "tickets": "Compra de ingressos e passeios",
+      "services": "Serviços e tarefas do dia a dia"
+    },
+    "nextTitle": "Comece com inglês para viagens",
+    "nextBody": "Pratique como fazer pedidos, pedir informações e conversar no dia a dia."
+  },
+  "id": {
+    "homeTitle": "Koolo | Latihan berbicara bahasa Inggris dengan AI secara langsung",
+    "homeDescription": "Latihan percakapan bahasa Inggris dengan guru AI dan teman AI. Bertanya dalam bahasa Indonesia dan berlatih untuk kehidupan sehari-hari, perjalanan, serta pekerjaan di browser.",
+    "teacherTitle": "Latihan percakapan bahasa Inggris dengan guru AI | Koolo",
+    "teacherDescription": "Latihan berbicara bahasa Inggris melalui percakapan suara dengan guru AI. Tanyakan kosakata, tata bahasa, dan pelafalan dalam bahasa Indonesia.",
+    "homeHeading": "Mulai latihan percakapan bahasa Inggris dengan Koolo",
+    "homeBody": "Berlatihlah berbicara bahasa Inggris bersama guru AI dan gunakan bahasa Indonesia untuk bertanya saat belum paham. Kamu juga bisa mengobrol dengan teman AI, bermain, dan membuat cerita.",
+    "orb": "Pilih karakter dan mulai percakapan suara tanpa menggunakan tangan",
+    "pricing": "Layanan dan harga",
+    "teacherHeading": "Latihan berbicara bahasa Inggris bersama guru AI",
+    "teacherIntro": "Tanyakan arti kata atau tata bahasa dalam bahasa Indonesia, lalu berlatih menjawab dalam bahasa Inggris. AI merespons secara langsung sesuai percakapanmu.",
+    "about": {
+      "heading": "Bangun kepercayaan diri melalui percakapan bahasa Inggris",
+      "intro": "Koolo menyediakan latihan suara dengan guru AI serta percakapan santai dengan teman AI. Jika belum tahu cara mengungkapkan sesuatu, bertanyalah dalam bahasa Indonesia lalu coba ucapkan kembali dalam bahasa Inggris.",
+      "first": "Latihan sesuai tujuanmu",
+      "firstBody": "Tanyakan pelafalan, kosakata, dan tata bahasa. Berlatihlah melalui situasi perjalanan, pekerjaan, dan kehidupan sehari-hari.",
+      "second": "Percakapan santai dengan teman AI",
+      "secondBody": "Bicarakan hobi, rencana akhir pekan, atau pengalaman sehari-hari agar terbiasa menyampaikan gagasan dalam bahasa Inggris.",
+      "action": "Pilih guru AI",
+      "action2": "Kenali teman AI"
+    },
+    "guides": {
+      "heading": "Tiga kalimat bahasa Inggris untuk latihan hari ini",
+      "intro": "Bacalah ketiga kalimat berikut dengan suara keras. Minta guru AI membantu pelafalan atau memberikan ungkapan lain, lalu jawablah dengan kata-katamu sendiri.",
+      "examples": [
+        {
+          "label": "Percakapan sehari-hari",
+          "english": "What do you like to do on weekends?",
+          "meaning": "Apa yang kamu suka lakukan pada akhir pekan?"
+        },
+        {
+          "label": "Perjalanan",
+          "english": "Could you tell me how to get to the station?",
+          "meaning": "Bisakah kamu memberi tahu saya cara menuju stasiun?"
+        },
+        {
+          "label": "Pekerjaan",
+          "english": "Could you explain that in a different way?",
+          "meaning": "Bisakah kamu menjelaskannya dengan cara lain?"
+        }
+      ],
+      "links": [
+        "Mulai latihan dengan AI",
+        "Bahasa Inggris untuk perjalanan",
+        "Bahasa Inggris untuk pekerjaan",
+        "Latihan pelafalan"
+      ],
+      "note": "Latihan suara bergantung pada kuota uji coba yang tersedia atau pengaturan kunci API. Sebagian materi masih ditampilkan dalam bahasa Inggris."
+    },
+    "tracks": {
+      "travel": "Bahasa Inggris untuk perjalanan dan tinggal di luar negeri",
+      "business": "Bahasa Inggris untuk pekerjaan dan karier",
+      "daily": "Percakapan sehari-hari",
+      "teamwork": "Kerja tim dan kolaborasi",
+      "tickets": "Membeli tiket dan rekreasi",
+      "services": "Layanan dan kebutuhan sehari-hari"
+    },
+    "nextTitle": "Mulai dengan bahasa Inggris untuk perjalanan",
+    "nextBody": "Berlatih memesan makanan, menanyakan arah, dan melakukan percakapan sehari-hari."
   }
 }
