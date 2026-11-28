@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(root+"/web-spa/src/teacher/"+p,"utf8");
 const strip=s=>stripTypeScriptTypes(s,{mode:"strip"}).replace(/^import .*;\s*$/gm,"").replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
 const api={};
-vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,inlineModePrompt,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt});",{api});
+vm.runInNewContext(strip(read("boardProtocol.ts"))+"\n"+strip(read("inlineBoardGate.ts"))+"\n"+strip(read("boardLessons.ts"))+"\n"+strip(read("inlineBoardFallback.ts"))+"\n"+strip(read("targetLanguages.ts"))+"\n"+strip(read("inlineLessonCatalog.ts"))+"\n"+strip(read("inlineLessonEngine.ts"))+"\n"+strip(read("visualReplyJournal.ts"))+"\nObject.assign(api,{newInlineGate,proposeInlineBoard,finishInlineTurn,dismissInlineBoard,observeInlineInput,BOARD_FUNCTION,backupCard,INLINE_BOARD_POLICY,INLINE_FOCUS_FUNCTION,inlineFocusIndex,inlineModePrompt,inlineLessonsFor,findInlineLesson,TARGET_LANGUAGES,startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisualReplies,visualRepliesAt});",{api});
 const card=(title="Past tenses",id="past")=>({id,type:"comparison",title,pairs:[{source:"went",target:"finished past"},{source:"have gone",target:"present relevance"}]});
 const proposal=(g,now=100,auto=true,c=card())=>api.proposeInlineBoard(g,{name:api.BOARD_FUNCTION,args:{action:"upsert",cards:[c]}},auto,now);
 const finish=(g,input="",now=100,auto=true,valid=true,output="")=>api.finishInlineTurn(g,input,valid,auto,now,api.backupCard,output);
@@ -25,13 +25,12 @@ test("semantic decision is the model's, not the learner keyword regex",()=>{
  assert.equal(proposal(g).card.id,"past");assert.equal(g.validCards,1);
  assert.equal(proposal(g,101).error,"already-shown-this-turn");
 });
-test("10 second cooldown, exact duplicate rejected but updated material allowed",()=>{
- const g=api.newInlineGate();begin(g);assert.ok(proposal(g,100).card);finish(g,"",101);
- begin(g);assert.equal(proposal(g,10099,true,card("New","new")).error,"cooldown");finish(g,"",10099);
- begin(g);assert.ok(proposal(g,10100,true,card("New","new")).card);finish(g,"",10101);
- begin(g);assert.equal(proposal(g,20100,true,card("New","different-id")).error,"duplicate");
+test("one card per turn, no time cooldown, exact duplicate rejected",()=>{
+ const g=api.newInlineGate();begin(g);assert.ok(proposal(g,100).card);assert.equal(proposal(g,101,true,card("New","new")).error,"already-shown-this-turn");finish(g,"",102);
+ begin(g);assert.ok(proposal(g,103,true,card("New","new")).card);finish(g,"",104);
+ begin(g);assert.equal(proposal(g,105,true,card("New","different-id")).error,"duplicate");
  const revised=card("New","new");revised.pairs[0].target="new explanation";
- assert.ok(proposal(g,20101,true,revised).card);
+ assert.ok(proposal(g,106,true,revised).card);
 });
 test("OFF never accepts a manual or late tool call, opt-out respected, reopening has no dismissal cooldown",()=>{
  const g=api.newInlineGate();begin(g);assert.ok(proposal(g,1).card);finish(g,"",2);
@@ -76,7 +75,7 @@ test("integration renders from tool callback, keeps rollback and existing standa
  assert.match(ui,/if\(result\.card\)\{show\(result\.card\)/);
  assert.match(ui,/enabled\?INLINE_BOARD_TOOLS:undefined/);
  assert.match(ui,/\[mode,setModeState\]=useState\(false\)/);
- assert.match(live,/navigate\("\/teacher\/board"\)/);
+ assert.doesNotMatch(live,/navigate\("\/teacher\/board"\)/);
  assert.match(ui,/fetch\("\/api\/usage\/admin"/);assert.match(ui,/v\?\.admin===true/);assert.match(ui,/admin&&/);
  assert.ok(Buffer.byteLength(live)<26000);
 });
@@ -141,15 +140,45 @@ test("mode prompt is explicit, focus accepts only current valid item, not quiz a
  assert.equal(api.inlineFocusIndex(c,{cardId:c.id,index:2}),null);
  assert.equal(api.inlineFocusIndex({...c,type:"quiz"},{cardId:c.id,index:0}),null);
 });
-test("whiteboard mode control stays on same connection, hide preserves card and guided state",()=>{
- const ui=read("InlineTeacherBoard.tsx"),live=read("LivePage.tsx"),css=read("inlineTeacherBoard.css");
+test("visual replies stay in caption thread and mode off hides without clearing journal",()=>{
+ const ui=read("InlineTeacherBoard.tsx"),live=read("LivePage.tsx");
+ const bubble=fs.readFileSync(root+"/web-spa/src/friends/FriendCallBubbleList.tsx","utf8");
+ const hook=fs.readFileSync(root+"/web-spa/src/live/useLiveSession.ts","utf8");
  assert.match(live,/<BoardCallControls board=\{inlineBoard\}/);
  assert.match(ui,/board\.syncMode\(live\.sendControl\)/);
  assert.match(ui,/if\(!modeRef\.current\|\|modePending\.current\)/);
- assert.match(ui,/function close\(\)\{setMode\(false\)\}/);
- assert.match(ui,/hidden=\{!board\.mode\}/);
- assert.match(ui,/onWheel=\{\(\)=>follow\(false\)\}/);
- assert.match(ui,/if\(board\.mode&&followingRef\.current\)position\(\)/);
- assert.match(css,/inline-teacher-board\[hidden\]\{display:none!important\}/);
+ assert.match(ui,/if\(!board\.enabled\|\|!board\.mode\)return undefined/);
+ assert.doesNotMatch(live,/<InlineTeacherBoard board=/);
+ assert.match(live,/inlineBoard\.finish\(_turn,captionIndex\)/);
+ assert.match(live,/visualReply=\{visualReplyProps/);
+ assert.match(hook,/attempt\.captionOffset\+turnsRef\.current\.length-1/);
+ assert.match(bubble,/visualReply\?\.render\(turn\.index\)/);
+ assert.match(bubble,/visualReply\?\.render\("stream"\)/);
+ assert.match(bubble,/if\(!followRef\.current\)return/);
  assert.match(ui,/RESUME PAUSED LESSON/);
+});
+test("journal attaches a streaming card to the actual completed caption index and retains old answers",()=>{
+ let j=api.appendVisualReply([],1,card());
+ assert.equal(api.visualRepliesAt(j,"stream").length,1);
+ j=api.sealVisualReplies(j,5);
+ assert.equal(api.visualRepliesAt(j,"stream").length,0);
+ assert.equal(api.visualRepliesAt(j,5)[0].id,1);
+ j=api.updateVisualReply(j,1,{answers:{"past:0":1}});
+ j=api.appendVisualReply(j,2,card("Next","past"));
+ j=api.sealVisualReplies(j,6);
+ assert.equal(api.visualRepliesAt(j,5)[0].answers["past:0"],1);
+ assert.equal(api.visualRepliesAt(j,6)[0].id,2);
+ j=api.appendVisualReply(j,3,card("Interrupted","interrupt"));
+ assert.equal(api.discardPendingVisualReplies(j).length,2);
+ assert.equal(api.discardPendingVisualReplies(j,3).length,3);
+});
+test("timeline, steps, dialogue and flashcards validated as rich visual replies",()=>{
+ for(const type of ["timeline","steps","dialogue","flashcard"]){
+  const g=api.newInlineGate();begin(g);
+  const points=[{label:"Past",note:"Before"},{label:"Now",note:"Present"}];
+  const result=proposal(g,100,true,{...card(),type,points});
+  assert.ok(result.ok,type);
+  assert.equal(result.card.type,type);
+  if(type==="timeline"||type==="steps")assert.equal(result.card.points.length,2);
+ }
 });
