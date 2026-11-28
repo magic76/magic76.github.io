@@ -1,6 +1,9 @@
 import {Arrow} from "../components/Arrow";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import {internationalLearningCopy} from "../i18n/internationalLearningCopy";
+
+const marketLinks=["/teacher","/teacher/course/travel","/teacher/course/business","/teacher/pronunciation"] as const;
 
 const topics=[
  ["ai-english-speaking","AI 英文口說練習","AI English Speaking Practice"],
@@ -13,6 +16,16 @@ const topics=[
 /** Lightweight internal links: guide articles remain a separate lazy-loaded chunk. */
 export function GuideHub({hideGeminiKey=false}:{hideGeminiKey?:boolean}={}){
  const {i18n}=useTranslation();
+ const market=internationalLearningCopy(i18n.resolvedLanguage||i18n.language);
+ if(market){
+  const guide=market.guides;
+  return <section className="crew-guide-hub" aria-label={guide.heading}>
+   <h2>{guide.heading}</h2><p>{guide.intro}</p>
+   <div className="grid two-col">{guide.examples.map(example=><div className="notice" key={example.label}><strong>{example.label}</strong><p lang="en">{example.english}</p><p>{example.meaning}</p></div>)}</div>
+   <div className="crew-guide-hub-links">{marketLinks.map((to,index)=><Link key={to} to={to==="/teacher"&&hideGeminiKey?"/teacher/roles?mode=teacher":to}><span className="crew-guide-hub-label">{guide.links[index]}</span><Arrow direction="right" className="crew-guide-hub-arrow"/></Link>)}</div>
+   <p className="meta">{guide.note}</p>
+  </section>;
+ }
  const english=i18n.language!=="zh-TW";
  return <section className="crew-guide-hub" aria-label={english?"English learning guides":"英文學習指南"}>
   <h2>{english?"Practice guides":"練習指南"}</h2>

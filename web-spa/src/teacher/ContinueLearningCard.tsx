@@ -8,6 +8,7 @@ import{useClientReady}from"../lib/useClientReady";
 import{useRouteNamespace}from"../i18n/useRouteNamespace";
 import{courseLesson}from"./courseCatalog";
 import{localizedNativeName}from"./teacherLocale";
+import {internationalLearningCopy} from "../i18n/internationalLearningCopy";
 
 export function ContinueLearningCard({compact=false}:{compact?:boolean}){
  const {t,i18n}=useTranslation("teacher");
@@ -24,6 +25,7 @@ export function ContinueLearningCard({compact=false}:{compact?:boolean}){
   return()=>{alive=false};
  },[ready,targetLanguage,selectedProfile]);
  const chinese=i18n.resolvedLanguage==="zh-TW";
+ const market=internationalLearningCopy(i18n.resolvedLanguage||i18n.language);
  const course=plan?.nextLessonId?courseLesson(plan.nextLessonId):null;
  const otherLanguage=ready&&targetLanguage!=="英文";
  const materialNote=t("course.materialNotice",{language:t("friends:languages."+targetLanguage,{defaultValue:targetLanguage}),native:localizedNativeName(native,i18n.resolvedLanguage||"en")});
@@ -36,7 +38,7 @@ export function ContinueLearningCard({compact=false}:{compact?:boolean}){
   plan?.action==="vocabulary"?tToday("learnToday.vocabularyNote"):
   plan?.action==="course"?course?.descEn||tToday("learnToday.courseNote"):
   plan?.primaryFocus||tToday("learnToday.conversationNote");
- if(!stringsReady||!plan)return <Link className={"continue-learning-card "+(compact?"compact":"")} to="/teacher/course/travel"><div><span className="kicker">{teacher.name} · {t("continue.next")}</span><h3>{otherLanguage?t("course.nonEnglishNext"):chinese?"從第一堂旅行英語開始":"Start with Travel English"}</h3><p>{otherLanguage?materialNote:chinese?"練習點餐、問路與日常對話":"Practice ordering, directions and everyday conversation"}</p></div><Arrow className="continue-arrow"/></Link>;
+ if(!stringsReady||!plan)return <Link className={"continue-learning-card "+(compact?"compact":"")} to="/teacher/course/travel"><div><span className="kicker">{teacher.name} · {t("continue.next")}</span><h3>{otherLanguage?t("course.nonEnglishNext"):market?.nextTitle??(chinese?"從第一堂旅行英語開始":"Start with Travel English")}</h3><p>{otherLanguage?materialNote:market?.nextBody??(chinese?"練習點餐、問路與日常對話":"Practice ordering, directions and everyday conversation")}</p></div><Arrow className="continue-arrow"/></Link>;
  return <Link className={"continue-learning-card "+plan.action+(compact?" compact":"")} to={plan.to}>
   <div><span className="kicker">{teacher.name} · {t("continue.next")}</span><h3>{title}</h3><p>{note}</p>{plan.primaryFocus&&plan.action!=="conversation"?<small>{t("continue.focus",{focus:plan.primaryFocus})}</small>:null}</div>
   <Arrow className="continue-arrow"/>

@@ -2,6 +2,7 @@ import {readFileSync,writeFileSync,mkdirSync,existsSync} from "node:fs";
 import {join,dirname} from "node:path";
 import {GAME_SEO_SLUGS} from "./game-seo.mjs";
 import {COURSE_SEO} from "./course-seo.mjs";
+import {previewUrl} from "./social-og.mjs";
 
 export const SEO_ORIGIN="https://koolo.app";
 export const BASE_SEO_LOCALES=Object.freeze(["zh-TW","en"]);
@@ -114,6 +115,8 @@ export function publishInternationalPages({out,pages,rendered,makeHtml,sitemap})
 }
 export function localizedSeoHead(entry,htmlLinks){
  const url=canonicalUrl(entry.locale,entry.path),lang=htmlLanguage(entry.locale);
+ const image=entry.path==="/"?previewUrl("home"):entry.path==="/teacher"?previewUrl("feature","teacher"):null;
+ const preview=image?'<meta property="og:image" content="'+image+'">\n<meta property="og:image:secure_url" content="'+image+'">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:image" content="'+image+'">\n':"";
  const json=JSON.stringify({"@context":"https://schema.org","@type":"WebPage","@id":url+"#webpage",url,name:entry.title,description:entry.description,inLanguage:lang}).replaceAll("<","\\u003c");
- return '<link rel="canonical" href="'+url+'">\n'+htmlLinks+'\n<meta name="description" content="'+escape(entry.description)+'">\n<meta property="og:site_name" content="Koolo">\n<meta property="og:type" content="website">\n<meta property="og:title" content="'+escape(entry.title)+'">\n<meta property="og:description" content="'+escape(entry.description)+'">\n<meta property="og:url" content="'+url+'">\n<script type="application/ld+json">'+json+'</script>';
+ return '<link rel="canonical" href="'+url+'">\n'+htmlLinks+'\n<meta name="description" content="'+escape(entry.description)+'">\n<meta property="og:site_name" content="Koolo">\n<meta property="og:type" content="website">\n<meta property="og:title" content="'+escape(entry.title)+'">\n<meta property="og:description" content="'+escape(entry.description)+'">\n<meta property="og:url" content="'+url+'">\n'+preview+'<script type="application/ld+json">'+json+'</script>';
 }
