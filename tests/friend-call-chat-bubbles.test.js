@@ -45,15 +45,32 @@ test("new and modified TSX remain below 26000 bytes",()=>{
  assert.match(style,/scroll-behavior:auto/);
  });
 
- test("identical rerenders leave manual scroll intact; changed content follows only near bottom",()=>{
- const fragment=list.slice(list.indexOf(" const contentKey=JSON.stringify"),list.indexOf(" return <div ref={scrollRef}"));
- const render=Function("completed","showCurrentInput","currentInput","showCurrentOutput","currentOutput","translationEnabled","needTranslation","translationRows","suggestionsEnabled","suggestions","scrollRef","followRef","useEffect",fragment);
- let writes=0,prior;const pane={scrollHeight:900,clientHeight:300,get scrollTop(){return 100},set scrollTop(value){assert.equal(value,900);writes++}};
- const follow={current:true};
- const run=(output,rows=[])=>render([{input:"Hi",output:"Hello"}],false,"",true,output,true,true,rows,true,[],{current:pane},follow,(effect,[key])=>{if(key!==prior){prior=key;effect()}});
+test("identical rerenders leave manual scroll intact; streaming follows only with no active gesture",()=>{
+ const fragment=list.slice(list.indexOf(" const contentKey=JSON.stringify"),list.indexOf(" function onScroll("));
+ const render=Function("completed","showCurrentInput","currentInput","showCurrentOutput","currentOutput","translationEnabled","needTranslation","translationRows","suggestionsEnabled","suggestions","scrollRef","followRef","useEffect","learningFeedback","visualReply","touchStart","autoTop","lastTop",fragment);
+ let writes=0,prior,top=100;const pane={scrollHeight:900,clientHeight:300,get scrollTop(){return top},set scrollTop(value){top=Math.min(value,600);writes++}};
+ const follow={current:true},touch={current:null},auto={current:null},last={current:0};
+ const run=(output,rows=[],revision="")=>render([{input:"Hi",output:"Hello"}],false,"",true,output,true,true,rows,true,[],{current:pane},follow,(effect,[key])=>{if(key!==prior){prior=key;effect()}},{},{revision},touch,auto,last);
  run("First");assert.equal(writes,1);
- follow.current=false;run("First",[]);run("First",[{kind:"pending",value:"translating"}]);assert.equal(writes,1);
- run("Second");assert.equal(writes,1,"do not interrupt a user reading old messages");
- follow.current=true;run("Third");assert.equal(writes,2,"following resumes after the user scrolls back down");
- run("Third",[]);assert.equal(writes,2);
- });
+ run("First");assert.equal(writes,1);
+ top=550;touch.current=100;run("Second");assert.equal(writes,1,"finger owns scroll during streaming");
+ touch.current=null;follow.current=false;run("Third",[],"card-1");assert.equal(writes,1,"new material must not pull the reader");
+ run("Third",[{kind:"pending",value:"translating"}],"card-1");assert.equal(writes,1);
+ follow.current=true;run("Fourth");assert.equal(writes,2,"following resumes after the user scrolls back down");
+ run("Fourth");assert.equal(writes,2);
+});
+
+test("manual upward scroll never resumes follow, even near bottom; downwards return does",()=>{
+ const fragment=list.slice(list.indexOf(" function onScroll("),list.indexOf(" return <div ref={scrollRef}")).replace("pane:HTMLDivElement","pane");
+ const follow={current:true},last={current:600},auto={current:600},touch={current:100};
+ const {onScroll,finishTouch}=Function("followRef","lastTop","autoTop","touchStart",fragment+";return {onScroll,finishTouch}")(follow,last,auto,touch);
+ const pane={scrollHeight:900,clientHeight:300,scrollTop:600};
+ onScroll(pane);assert.equal(follow.current,true,"ignore programmatic scroll");
+ pane.scrollTop=590;onScroll(pane);assert.equal(follow.current,false);
+ pane.scrollTop=400;onScroll(pane);assert.equal(follow.current,false);
+ pane.scrollTop=570;onScroll(pane);assert.equal(follow.current,true);
+ finishTouch();assert.equal(touch.current,null);
+ assert.match(list,/onTouchCancel=\{finishTouch\}/);
+ assert.doesNotMatch(list,/teacher-visual-follow|跟隨老師|Follow teacher|lastFocus|latestMaterial/);
+ assert.doesNotMatch(read("web-spa/src/teacher/inlineTeacherBoard.css"),/teacher-visual-follow/);
+});
