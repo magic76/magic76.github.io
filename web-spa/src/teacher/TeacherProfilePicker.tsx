@@ -65,7 +65,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
       </button>)}
      </div>
     </div>
-    <div className="teacher-gallery-footer"><p className="meta">{t("picker.footer")}</p><button type="button" className="btn secondary" onClick={()=>onCloseRef.current()}>{t("picker.close")}</button></div>
+    <div className="teacher-gallery-footer"><p className="meta">{t("picker.footer")}</p></div>
    </>:<div className="teacher-detail-scroll">
     <div className="teacher-detail-portrait" data-preview={preview?.state||"idle"} style={{viewTransitionName:"crew-teacher-"+detail.id}}><TeacherAvatar profile={detail}/></div>
     <h3>{detail.name} <span>{chinese?detail.title:copy(detail).title}</span></h3>
