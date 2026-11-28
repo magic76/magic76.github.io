@@ -4,7 +4,7 @@ import type {BoardCard,BoardQuestion} from "./boardProtocol";
 import type {SpeakingAssessment} from "./boardLessons";
 import {BoardFlashcards,type FlashReview} from "./BoardFlashcards";
 
-type Props={card:BoardCard;answers:Record<string,number>;onAnswer:(card:BoardCard,index:number,selected:number)=>void;onExplain:(text:string)=>void;english?:boolean;focusIndex?:number;revealCount?:number|null;quizIndex?:number;onNavigate?:(index:number)=>void;onSpeakingSubmit?:(text:string)=>void;speakingAssessment?:SpeakingAssessment|null;onFlashcardPractice?:(card:BoardCard,reviews:FlashReview[],scope:"item"|"weak")=>void;onFlashcardRate?:(card:BoardCard,review:FlashReview)=>void};
+type Props={readOnly?:boolean;disabled?:boolean;card:BoardCard;answers:Record<string,number>;onAnswer:(card:BoardCard,index:number,selected:number)=>void;onExplain:(text:string)=>void;english?:boolean;focusIndex?:number;revealCount?:number|null;quizIndex?:number;onNavigate?:(index:number)=>void;onSpeakingSubmit?:(text:string)=>void;speakingAssessment?:SpeakingAssessment|null;onFlashcardPractice?:(card:BoardCard,reviews:FlashReview[],scope:"item"|"weak")=>void;onFlashcardRate?:(card:BoardCard,review:FlashReview)=>void};
 
 const names:Record<BoardCard["type"],[string,string]>={
  explanation:["概念","Concept"],example:["例句","Examples"],comparison:["比較","Compare"],
@@ -51,8 +51,8 @@ function Dialogue({card,english,focusIndex=-1,revealCount=null}:{card:BoardCard;
   <small>{p.source|| (english?"Speaker":"說話者")}</small><p>{p.target}</p>
  </div>)}</div>;
 }
-function Quiz({card,answers,onAnswer,english,quizIndex=0,onNavigate}:{card:BoardCard;answers:Props["answers"];onAnswer:Props["onAnswer"];english:boolean;quizIndex?:number;onNavigate?:Props["onNavigate"]}){
- const [localStep,setLocalStep]=useState(0);
+function Quiz({card,answers,onAnswer,english,quizIndex=0,onNavigate,readOnly=false,disabled=false}:{readOnly?:boolean;disabled?:boolean;card:BoardCard;answers:Props["answers"];onAnswer:Props["onAnswer"];english:boolean;quizIndex?:number;onNavigate?:Props["onNavigate"]}){
+ const [localStep,setLocalStep]=useState(quizIndex);
  const index=Math.min(onNavigate?quizIndex:localStep,Math.max(0,card.questions.length-1));
  const q:BoardQuestion|undefined=card.questions[index];
  if(!q)return null;
@@ -61,17 +61,17 @@ function Quiz({card,answers,onAnswer,english,quizIndex=0,onNavigate}:{card:Board
  return <div className="teaching-board-questions" key={index}>
   <div className="teaching-board-question-counter">{english?"Question":"題目"} {index+1} / {card.questions.length}</div>
   <div className="teaching-board-question"><strong>{q.question}</strong>
-   <div className="teaching-board-options">{q.options.map((option,i)=><button type="button" key={i} disabled={answered}
+   <div className="teaching-board-options">{q.options.map((option,i)=><button type="button" key={i} disabled={answered||readOnly||disabled}
     className={answered&&i===q.answerIndex?"correct":answered&&i===selected?"incorrect":""}
     onClick={()=>onAnswer(card,index,i)} aria-pressed={selected===i}>{String.fromCharCode(65+i)}. {option}</button>)}</div>
    {answered&&<p className="teaching-board-answer" role="status">{selected===q.answerIndex?"✓":"○"} {q.explanation||(selected===q.answerIndex?(english?"Correct":"答對了"):(english?"Ask your teacher to explain":"問問老師為什麼"))}</p>}
-   {!answered&&<p className="teaching-board-question-wait">{english?"Your turn — choose an answer or say A, B, C or D.":"換你回答：點選選項，或直接說 A、B、C、D。"}</p>}
+   {!answered&&!readOnly&&<p className="teaching-board-question-wait">{english?"Your turn — choose an answer or say A, B, C or D.":"換你回答：點選選項，或直接說 A、B、C、D。"}</p>}
   </div>
   <div className="teaching-board-pager"><button type="button" disabled={index===0} onClick={()=>change(index-1)}><Arrow direction="left" disabled={index===0}/>{english?"Previous":"上一題"}</button>
-   <button type="button" disabled={!answered||index===card.questions.length-1} onClick={()=>change(index+1)}>{english?"Next":"下一題"}<Arrow disabled={!answered||index===card.questions.length-1}/></button></div>
+   <button type="button" disabled={(!answered&&!readOnly)||index===card.questions.length-1} onClick={()=>change(index+1)}>{english?"Next":"下一題"}<Arrow disabled={(!answered&&!readOnly)||index===card.questions.length-1}/></button></div>
  </div>;
 }
-function Speaking({card,onSpeakingSubmit,assessment,english}:{card:BoardCard;onSpeakingSubmit?:Props["onSpeakingSubmit"];assessment?:SpeakingAssessment|null;english:boolean}){
+function Speaking({card,onSpeakingSubmit,assessment,english,readOnly=false,disabled=false}:{readOnly?:boolean;disabled?:boolean;card:BoardCard;onSpeakingSubmit?:Props["onSpeakingSubmit"];assessment?:SpeakingAssessment|null;english:boolean}){
  const [draft,setDraft]=useState("");
  const [exampleOpen,setExampleOpen]=useState(false);
  const goal=card.speaking;
@@ -79,12 +79,12 @@ function Speaking({card,onSpeakingSubmit,assessment,english}:{card:BoardCard;onS
  return <div className="teaching-board-speaking">
   <p className="teaching-board-speaking-prompt">{goal.prompt}</p>
   <p className="teaching-board-speaking-goal">{goal.goal}</p>
-  <p className="teaching-board-speaking-hint">{english?"Say it aloud to your teacher, or type your answer below.":"直接說給老師聽，也可以在下方輸入答案。"}</p>
+  {!readOnly&&<><p className="teaching-board-speaking-hint">{english?"Say it aloud to your teacher, or type your answer below.":"直接說給老師聽，也可以在下方輸入答案。"}</p>
   <form onSubmit={e=>{e.preventDefault();if(draft.trim()){onSpeakingSubmit?.(draft.trim());setDraft("")}}}>
    <label htmlFor={"speaking-draft-"+card.id}>{english?"Your own sentence":"輸入你的句子"}</label>
-   <textarea id={"speaking-draft-"+card.id} value={draft} rows={2} maxLength={640} onChange={e=>setDraft(e.target.value)} placeholder={english?"Try using your own words…":"試著用自己的話說說看…"} />
-   <button type="submit" disabled={!draft.trim()}>{english?"Submit answer":"送出回答"}</button>
-  </form>
+   <textarea disabled={disabled} id={"speaking-draft-"+card.id} value={draft} rows={2} maxLength={640} onChange={e=>setDraft(e.target.value)} placeholder={english?"Try using your own words…":"試著用自己的話說說看…"} />
+   <button type="submit" disabled={disabled||!draft.trim()}>{english?"Submit answer":"送出回答"}</button>
+  </form></>}
   <button type="button" className="teaching-board-speaking-example" onClick={()=>setExampleOpen(v=>!v)} aria-expanded={exampleOpen}>
    {exampleOpen?(english?"Hide reference":"隱藏參考"):(english?"Show reference sentence":"查看參考句")}
   </button>
@@ -97,7 +97,7 @@ function Speaking({card,onSpeakingSubmit,assessment,english}:{card:BoardCard;onS
   </div>}
  </div>;
 }
-export function TeachingCard({card,answers,onAnswer,onExplain,english=false,focusIndex=-1,revealCount=null,quizIndex=0,onNavigate,onSpeakingSubmit,speakingAssessment,onFlashcardPractice,onFlashcardRate}:Props){
+export function TeachingCard({card,answers,onAnswer,onExplain,english=false,focusIndex=-1,revealCount=null,quizIndex=0,onNavigate,onSpeakingSubmit,speakingAssessment,onFlashcardPractice,onFlashcardRate,readOnly=false,disabled=false}:Props){
  return <article className="teaching-board-card" data-kind={card.type}>
   <div className="teaching-board-card-head"><span className="teaching-board-card-kind">{cardKindName(card.type,english)}</span>
    <h2>{card.title}</h2></div>
@@ -109,8 +109,8 @@ export function TeachingCard({card,answers,onAnswer,onExplain,english=false,focu
    {card.type==="steps"&&<Steps card={card} english={english} focusIndex={focusIndex} revealCount={revealCount} onNavigate={onNavigate}/>}
    {card.type==="flashcard"&&<Flashcards card={card} english={english} focusIndex={focusIndex} revealCount={revealCount} onPractice={onFlashcardPractice} onRate={onFlashcardRate}/>}
    {card.type==="dialogue"&&<Dialogue card={card} english={english} focusIndex={focusIndex} revealCount={revealCount}/>}
-   {card.type==="quiz"&&<Quiz card={card} answers={answers} onAnswer={onAnswer} english={english} quizIndex={quizIndex} onNavigate={onNavigate}/>}
-   {card.type==="speaking"&&<Speaking key={card.id} card={card} onSpeakingSubmit={onSpeakingSubmit} assessment={speakingAssessment} english={english}/>}
+   {card.type==="quiz"&&<Quiz card={card} answers={answers} onAnswer={onAnswer} english={english} quizIndex={quizIndex} onNavigate={onNavigate} readOnly={readOnly} disabled={disabled}/>}
+   {card.type==="speaking"&&<Speaking key={card.id} card={card} onSpeakingSubmit={onSpeakingSubmit} assessment={speakingAssessment} english={english} readOnly={readOnly} disabled={disabled}/>}
   </div>
  </article>;
 }
