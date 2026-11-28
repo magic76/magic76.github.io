@@ -60,7 +60,7 @@ jobs:
           echo "Full repository search (including compatibility tests and generated artifacts):"
           git grep -l -I -F '/teacher/roles' -- . || true
           echo "Remaining source references:"
-          git grep -n -I -F '/teacher/roles' -- . ':!crew-app/**' ':!tests/**' ':!docs/**' > "$RUNNER_TEMP/roles-source.txt" || true
+          git grep -n -I -F '/teacher/roles' -- . ':!crew-app/**' ':!tests/**' ':!docs/**' ':!.github/workflows/crew-spa.yml' > "$RUNNER_TEMP/roles-source.txt" || true
           cat "$RUNNER_TEMP/roles-source.txt"
           if grep -vE '^(web-spa/src/App\.tsx|scripts/check-live-seo\.mjs|scripts/prepare-cloudflare\.mjs):' "$RUNNER_TEMP/roles-source.txt"; then
             echo "::error::Unexpected retired role path in tracked source"
