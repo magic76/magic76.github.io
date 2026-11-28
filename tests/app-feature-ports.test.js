@@ -72,7 +72,7 @@ test("Teacher React mirrors native app feature names",()=>{
  for(const label of ["practice.teacher","practice.friend","practice.textbook","practice.vocab","practice.course","practice.pronunciation"]){
   const [section,key]=label.split(".");
   assert.ok(zh[section][key],label+" should be translated");
-  if(!["practice.teacher","practice.friend"].includes(label))assert.ok(combined.includes('t("'+label+'")'),label+" should be used");
+  assert.ok(combined.includes('t("'+label+'")'),label+" should be used");
  }
  assert.ok(!combined.includes("表達教練"));
  assert.ok(!combined.includes("工作情境"));

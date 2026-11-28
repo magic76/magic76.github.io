@@ -32,7 +32,7 @@ test("English speaking guide keeps its existing slug and teacher route, with con
  assert.match(guide,/English Conversation Practice with an AI Tutor/);
  assert.match(guide,/Try a conversation before you open the tutor/);
  assert.match(guide,/Practice listening, pronunciation and speaking together/);
- assert.match(guide,/target:"\/teacher\/roles\?mode=teacher"/);
+ assert.match(guide,/target:"\/learn"/);
  assert.match(guide,/No API key needed to start/);
  assert.match(guide,/not a certified pronunciation assessment/);
 });

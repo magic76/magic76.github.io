@@ -46,7 +46,7 @@ test("Desktop modes and deep links stay intact; mobile slide actions use origina
  assert.match(desktop,/const link=readHomeDeepLink\(window.location.search\)/);
  for(const name of ["shortsPhotoQuestions","shortsChatUrl","HOME_FRIEND_NAMES","shorts_hook_click","shorts_chat_click"])
   assert.ok(desktop.includes(name),name);
- for(const path of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher"])
+ for(const path of ["/friend/live?id=noah&from=home&chat=text","/chat","/games","/learn","/learn"])
   assert.ok(mobile.includes(path),path);
  assert.match(mobile,/onTouchStart=\{touchBegin\} onTouchEnd=\{touchFinish\}/);
  assert.match(mobile,/onKeyDown=\{event=>/);

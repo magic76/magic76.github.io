@@ -36,7 +36,7 @@ test("mobile hero follows last active friend identity without storing any transc
 test("six one-tap app destinations, one Shorts strip and one daily recommendation",()=>{
  const page=read("web-spa/src/pages/MobileHomePage.tsx");
  const css=read("web-spa/src/pages/mobileHome.css");
- for(const route of ["/teacher/roles?mode=friends","/learn","/games","/fortune","/teacher/shorts","/teacher/course"]){
+ for(const route of ["/chat","/learn","/games","/fortune","/teacher/shorts","/teacher/course"]){
   assert.ok(page.includes('to:"'+route+'"'),"missing direct app "+route);
  }
  assert.match(page,/className="cmh-app-grid"\>\{APPS\.map/);
@@ -74,7 +74,7 @@ test("the phone hero is four real one-tap slides with the teacher in the first s
  assert.match(page,/Math.abs\(dx\)>45/);
  assert.match(page,/onClickCapture=\{event=>/);
  assert.match(page,/tabIndex=\{activeSlide===0\?0:-1\}/);
- for(const route of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher"]){
+ for(const route of ["/friend/live?id=noah&from=home&chat=text","/chat","/games","/learn","/learn"]){
   assert.ok(page.includes(route),"slide action missing: "+route);
  }
  assert.match(css,/\.cmh-carousel-track\{display:flex/);

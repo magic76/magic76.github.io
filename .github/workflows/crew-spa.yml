@@ -52,6 +52,21 @@ jobs:
       - run: npm ci
       # This blocking fix needs case-by-case full-suite parity with the exact
       # PR base, before either worktree generates build-version timestamps.
+      - name: Verify retired role links are not active navigation
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'chatgpt/remove-roles-page-20261128'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Full repository search (including compatibility tests and generated artifacts):"
+          git grep -l -I -F '/teacher/roles' -- . || true
+          echo "Remaining source references:"
+          git grep -n -I -F '/teacher/roles' -- . ':!crew-app/**' ':!tests/**' ':!docs/**' > "$RUNNER_TEMP/roles-source.txt" || true
+          cat "$RUNNER_TEMP/roles-source.txt"
+          if grep -vE '^(web-spa/src/App\.tsx|scripts/check-live-seo\.mjs|scripts/prepare-cloudflare\.mjs):' "$RUNNER_TEMP/roles-source.txt"; then
+            echo "::error::Unexpected retired role path in tracked source"
+            exit 1
+          fi
+          test ! -e web-spa/src/teacher/RolesPage.tsx
       - name: Compare npm test failures against master (scoped fixes)
         if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'cloudflare-two-stylesheets') || (contains(github.event.pull_request.head.ref, 'fortune-lab-resumable') || (contains(github.event.pull_request.head.ref, 'fortune-lab-plain') || (contains(github.event.pull_request.head.ref, 'fortune-lab-fast') || (contains(github.event.pull_request.head.ref, 'fortune-report-reader') || contains(github.event.pull_request.head.ref, 'fortune-reader-3d')))))) || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'chatgpt/kokoro-lab-en') || (github.event_name == 'pull_request' && (github.event.pull_request.head.ref == 'chatgpt/live-first-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/live-only-friend-memory' || github.event.pull_request.head.ref == 'chatgpt/friend-memory-recall-scroll')) || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'chatgpt/remove-roles-page-20261128')
         shell: bash
