@@ -209,8 +209,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   {to:"/teacher/vocabulary",icon:"cards" as IconName,title:tTeacher("learn.vocab"),desc:tTeacher("learn.vocabDesc")},
   {to:"/teacher/phrasebook",icon:"chat" as IconName,title:tTeacher("learn.phrases"),desc:tTeacher("learn.phrasesDesc")},
   {to:"/teacher/pronunciation",icon:"mic" as IconName,title:tTeacher("learn.pronunciation"),desc:tTeacher("learn.pronunciationDesc")},
-  {to:"/teacher/textbook",icon:"book" as IconName,title:tTeacher("learn.textbook"),desc:tTeacher("learn.textbookDesc")},
-  {to:"/teacher/board",icon:"scene" as IconName,title:tTeacher("board.entryTitle"),desc:tTeacher("board.entryDesc")}
+  {to:"/teacher/textbook",icon:"book" as IconName,title:tTeacher("learn.textbook"),desc:tTeacher("learn.textbookDesc")}
  ];
  const meStats=section==="me"&&clientReady?{sessions:history("teacher").length,lessons:completedLessons(),saved:learningDeck().length}:null;
  const speakingPath=clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak";
