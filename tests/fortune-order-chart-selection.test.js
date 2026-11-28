@@ -29,6 +29,6 @@ test("picker uses local chart names and sends only existing facts",()=>{
  const page=read("EcpayStagePage.tsx");
  assert.match(page,/readDailyChartMeta\(hash\)\.nickname/);
  assert.match(page,/selectOrderCharts\(records,readingId\)/);
- assert.match(page,/body:JSON\.stringify\(\{facts\}\)/);
+ assert.match(page,/body:retryOrderId\?JSON\.stringify\(\{retryOrderId\}\):JSON\.stringify\(\{facts\}\)/);
  assert.match(page,/aria-current=/);
 });
