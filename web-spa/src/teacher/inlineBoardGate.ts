@@ -3,12 +3,19 @@ import {BOARD_FUNCTION,validateBoardPatch,type BoardCard} from "./boardProtocol"
 // Rollback switch: disabling removes the optional tool and all inline UI.
 // The standalone board and Live transport remain unchanged.
 export const INLINE_TEACHER_BOARD_ENABLED=true;
-export const INLINE_BOARD_POLICY="\n[OPTIONAL WHITEBOARD] Conversation comes first. Never propose a board for greetings, ordinary chat, simple corrections or the opening. Only propose a single concise comparison, pronunciation vocabulary, sentence example/correction, or quiz when the learner explicitly asks for visual teaching, a substantive comparison/explanation, or a quiz. Use the optional tool at most once per learner turn. Call the tool while explaining when a visual comparison or exercise is genuinely useful. A successful tool response means the app accepted the card for display. Do not mention the whiteboard, screen, visual display, or successful rendering in your spoken answer under ANY circumstances, even if the learner asks whether it appeared. The UI alone reports delivery. Give the actual educational explanation aloud. Do not narrate tool mechanics. Do not retry automatically.";
+// Positive, explicit teaching triggers; ordinary conversation remains voice-first.
+export const INLINE_BOARD_POLICY="\n"+[
+ "[WHITEBOARD TEACHING TOOL — use update_teaching_board]",
+ "For a learner's substantive question about a grammar rule, pronunciation pattern, differences between expressions, or a request for an exercise, CALL update_teaching_board once before or during your spoken explanation. Do not merely describe the card. This is the normal teaching workflow for these questions, even when the learner did not say whiteboard.",
+ "For example: how to pronounce -ed endings => comparison with sound categories and examples; when to use have been vs had been => comparison with examples; quiz me => quiz. When the learner asks to see a board or a comparison, call update_teaching_board explicitly.",
+ "Choose a concise card with real teaching content, not a transcript of the conversation. For other topics use it when a visual aid materially helps. Skip the tool for greetings, ordinary small talk, opening, and simple unsolicited corrections. Do not use it if the learner declines a board.",
+ "The application controls frequency, deduplication and the user's automatic-board preference. If the tool rejects a card, continue the spoken explanation normally; do not retry in the same turn. Never promise or claim the screen rendered. Keep speaking naturally after a tool response."
+].join("\n");
 // Keep the Live declaration small: no director, speaking-task or timeline fields.
 const inlineString={type:"STRING"};
 export const INLINE_BOARD_TOOLS=[{functionDeclarations:[{
  name:BOARD_FUNCTION,
- description:"Propose one concise teaching card for a substantive learner question. Supply comparison, example, vocabulary or correction with pairs (source and target), or quiz with questions. The app validates and displays immediately when accepted. Continue speaking.",
+ description:"Call for substantive grammar rules, pronunciation patterns, differences between expressions, quizzes, and explicit board requests. Give one concise teaching card: comparison, example, vocabulary or correction with pairs (source and target), or quiz with questions. The app decides whether to display it; continue speaking.",
  parameters:{type:"OBJECT",properties:{
   action:{type:"STRING",enum:["upsert","replace"]},
   cards:{type:"ARRAY",items:{type:"OBJECT",properties:{
