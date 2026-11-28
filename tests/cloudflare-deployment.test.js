@@ -557,21 +557,44 @@ check("home SSG omits Gemini header status badges and false setup banners",()=>{
  }
 });
 
-check("preview language routes serve noindex HTML and are excluded from the sitemap",()=>{
+check("international locale routes only index explicitly reviewed pages; other paths remain noindex",async()=>{
+ const {readInternationalPages,publicPath,canonicalUrl,htmlLanguage,internationalRedirectRules,alternatesFor,BASE_SEO_LOCALES}=await import("../scripts/seo-publication.mjs");
  const locales=JSON.parse(fs.readFileSync(path.join(ROOT,"config/ui-locales.json"),"utf8")).locales;
+ const approved=readInternationalPages(ROOT);
  const sitemap=read("sitemap.xml");
- const rewrites=read("_redirects");
- for(const {code,stage} of locales){
-  if(stage==="published")continue;
-  const preview=read(code+"/index.html");
-  assert.ok(preview.includes('<html lang="'+(code==="zh-CN"?"zh-Hans":code)+'">'));
-  assert.ok(preview.includes('name="robots" content="noindex,follow"'));
-  assert.ok(preview.includes('name="crew-i18n-stage" content="'+stage+'"'));
-  assert.ok(!preview.includes('rel="canonical"'));
-  assert.ok(!sitemap.includes("https://koolo.app/"+code+"/"));
-  assert.ok(rewrites.includes("/"+code+"/* /"+code+"/ 200"),"preview locale must use its canonical directory URL");;
+ const urls=new Set([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match=>match[1]));
+ const rewrites=read("_redirects").split(/\r?\n/);
+ const previewLocales=locales.filter(locale=>locale.stage!=="published");
+ for(const rule of internationalRedirectRules(previewLocales,approved))assert.ok(rewrites.includes(rule),rule);
+ for(const {code,stage} of previewLocales){
+  const entries=approved.filter(entry=>entry.locale===code);
+  const allowed=new Set(entries.map(entry=>canonicalUrl(code,entry.path)));
+  const actual=[...urls].filter(url=>url.startsWith("https://koolo.app/"+code+"/"));
+  assert.deepEqual(actual.sort(),[...allowed].sort(),code+" only approved routes in sitemap");
+  if(!entries.some(entry=>entry.path==="/")){
+   const preview=read(code+"/index.html");
+   assert.ok(preview.includes('<html lang="'+htmlLanguage(code)+'">'));
+   assert.ok(preview.includes('name="robots" content="noindex,follow"'));
+   assert.ok(preview.includes('name="crew-i18n-stage" content="'+stage+'"'));
+   assert.ok(!preview.includes('rel="canonical"'));
+  }
+  for(const entry of entries){
+   const canonical=canonicalUrl(code,entry.path);
+   const html=read(publicPath(code,entry.path).slice(1)+"index.html");
+   assert.ok(html.includes('<html lang="'+htmlLanguage(code)+'">'));
+   assert.ok(html.includes('name="robots" content="index,follow"'));
+   assert.ok(html.includes('rel="canonical" href="'+canonical+'"'));
+   assert.ok(html.includes("<h1")&&html.includes('class="app-header"'));
+   const counterparts=[...BASE_SEO_LOCALES.filter(locale=>urls.has(canonicalUrl(locale,entry.path))),...approved.filter(other=>other.path===entry.path).map(other=>other.locale)];
+   for(const locale of counterparts){
+    const otherHtml=read(publicPath(locale,entry.path).slice(1)+"index.html");
+    for(const alt of alternatesFor(entry.path,counterparts))assert.ok(otherHtml.includes('hreflang="'+alt.language+'" href="'+alt.href+'"'),locale+" reciprocal "+alt.language);
+   }
+   assert.ok(rewrites.indexOf(publicPath(code,entry.path)+" "+publicPath(code,entry.path)+" 200")<rewrites.indexOf("/"+code+"/* /_app-noindex 200"));
+  }
  }
- assert.ok(!rewrites.includes("/en/*"),"published English routes must retain SSG");
+ assert.ok(!rewrites.some(rule=>rule.startsWith("/en/*")),"published English routes must retain SSG");
+ assert.ok(read("_app-noindex.html").includes('name="robots" content="noindex,follow"'));
 });
 
 
