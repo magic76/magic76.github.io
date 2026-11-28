@@ -11,13 +11,13 @@ export function explainsEdEnding(output:string){
  return suffix&&categories;
 }
 const usable=(output:string)=>output.trim().length>=60&&!/(?:whiteboard|screen|白板|螢幕).{0,45}(?:update|display|appear|show|更新|顯示|出現)|(?:check|look at).{0,25}(?:screen|whiteboard)|(?:請看|查看).{0,15}(?:螢幕|白板)/i.test(output);
-export function backupCard(topic:string,output:string,manual=false,previousOutput=""):BoardCard|null{
+export function backupCard(topic:string,output:string,manual=false,previousOutput="",language="en"):BoardCard|null{
  // The current spoken teaching content outranks ambiguous ASR and older topics.
- if(edTopic(topic)||explainsEdEnding(output)||(!usable(output)&&manual&&explainsEdEnding(previousOutput))){
+ if(language==="en"&&(edTopic(topic)||explainsEdEnding(output)||(!usable(output)&&manual&&explainsEdEnding(previousOutput)))){
   return findLesson("ed-sounds")?.cards.find(c=>c.type==="comparison")||null;
  }
  const spoken=usable(output)?output:manual&&usable(previousOutput)?previousOutput:"";
- if(manual||teachingCue(topic)||edTopic(topic)){
+ if(language==="en"&&(manual||teachingCue(topic)||edTopic(topic))){
   const patch=fallbackBoard({input:topic,output:spoken},[]);
   const structured=patch?.cards.find(c=>!c.id.startsWith("demo-")&&["comparison","example","vocabulary"].includes(c.type));
   if(structured)return structured;
