@@ -7,12 +7,11 @@ export const INLINE_TEACHER_BOARD_ENABLED=true;
 export const INLINE_BOARD_POLICY="\n"+[
  "[WHITEBOARD TEACHING MODE — initially OFF. The app sends explicit mode controls.]",
  "OFF: converse naturally and teach aloud when asked. Never call update_teaching_board or focus_teaching_board, even if the learner asks a grammar question. The user controls the whiteboard button.",
- "ON: act as a visual tutor. CALL update_teaching_board for substantive rules, pronunciation, comparisons, examples or quizzes, even when the learner did not say whiteboard. Use one concise card per turn. Keep speaking and use the actual learning language. Skip the tool for greetings or ordinary small talk.",
+ "ON: act as a visual tutor. CALL update_teaching_board for substantive rules, pronunciation, comparisons, examples or quizzes, even when the learner did not say whiteboard. Insert one concise visual card into the current spoken reply; it remains in the conversation for review. Keep speaking and use the actual learning language. Skip the tool for greetings or ordinary small talk.",
  "When discussing a particular visible row, call focus_teaching_board with its cardId and zero-based item index. Do not change quiz answers, course stage or learner navigation. In a guided lesson, explain the app's card instead of generating replacements.",
  "Respect the latest app mode instruction. If rejected, continue speaking, never retry in the same turn or claim the screen rendered."
 ].join("\n");
 export const INLINE_FOCUS_FUNCTION="focus_teaching_board";
-export const INLINE_BOARD_COOLDOWN_MS=10000;
 export function inlineModePrompt(on:boolean){return on
  ?"[APP WHITEBOARD MODE ON] Teach visually from now on. For the current learning topic, call update_teaching_board once with a concise useful card before or during the explanation; if no topic exists, ask what the learner wants to study. Use focus_teaching_board to point at visible items. Do not merely describe the tool."
  :"[APP WHITEBOARD MODE OFF] Pause any guided lesson. Continue ordinary natural voice conversation. Do not call whiteboard tools or refer to the hidden card. Wait until the app explicitly enables whiteboard mode again."}
@@ -26,12 +25,13 @@ export function inlineFocusIndex(card:BoardCard|null,args:unknown):number|null{
 const inlineString={type:"STRING"};
 export const INLINE_BOARD_TOOLS=[{functionDeclarations:[{
  name:BOARD_FUNCTION,
- description:"Only in user-enabled whiteboard mode, call for substantive grammar rules, pronunciation patterns, differences between expressions, quizzes, and explicit board requests. Give one concise teaching card: comparison, example, vocabulary or correction with pairs (source and target), or quiz with questions. The app decides whether to display it; continue speaking.",
+ description:"Only in user-enabled whiteboard mode, call for substantive grammar rules, pronunciation patterns, differences between expressions, quizzes, and explicit board requests. Give one concise teaching card: comparison, example, vocabulary, correction, or dialogue with pairs; timeline or steps with points; flashcard with pairs; quiz with questions. The app decides whether to display it; continue speaking.",
  parameters:{type:"OBJECT",properties:{
   action:{type:"STRING",enum:["upsert","replace"]},
   cards:{type:"ARRAY",items:{type:"OBJECT",properties:{
-   id:inlineString,title:inlineString,type:{type:"STRING",enum:["comparison","example","vocabulary","correction","quiz"]},body:inlineString,
+   id:inlineString,title:inlineString,type:{type:"STRING",enum:["comparison","example","vocabulary","correction","quiz","timeline","steps","flashcard","dialogue"]},body:inlineString,
    pairs:{type:"ARRAY",items:{type:"OBJECT",properties:{source:inlineString,target:inlineString,pronunciation:inlineString},required:["source","target"]}},
+   points:{type:"ARRAY",items:{type:"OBJECT",properties:{label:inlineString,note:inlineString},required:["label","note"]}},
    questions:{type:"ARRAY",items:{type:"OBJECT",properties:{question:inlineString,options:{type:"ARRAY",items:inlineString},answerIndex:{type:"INTEGER"},explanation:inlineString},required:["question","options","answerIndex"]}}
   },required:["id","title","type"]}}
  },required:["action","cards"]}
@@ -50,7 +50,8 @@ function meaningful(card:BoardCard){
  const pairs=card.pairs.filter(p=>p.source&&p.target&&p.source.toLowerCase()!==p.target.toLowerCase());
  if(card.type==="quiz")return card.questions.length>0&&card.questions.every(q=>new Set(q.options.map(o=>o.toLowerCase())).size===q.options.length);
  if(card.type==="comparison"||card.type==="example")return new Set(pairs.map(p=>p.source.toLowerCase())).size>=2;
- if(card.type==="vocabulary")return pairs.length>=2;
+ if(card.type==="vocabulary"||card.type==="flashcard"||card.type==="dialogue")return pairs.length>=2;
+ if(card.type==="timeline"||card.type==="steps")return card.points.length>=2&&card.points.every(p=>Boolean(p.label&&p.note));
  if(card.type==="correction")return pairs.length>=1;
  if(card.type==="explanation")return card.body.trim().length>=60;
  return false;
@@ -65,11 +66,10 @@ function blocked(g:InlineGate,manual:boolean,auto:boolean,now:number,input:strin
  if(declinesBoard(input))return "learner-opt-out";
  if(g.shownThisTurn)return "already-shown-this-turn";
  if(!manual&&!g.learnerStarted&&g.completedTurns===0)return "opening";
- if(!manual&&now-g.lastShown<INLINE_BOARD_COOLDOWN_MS)return "cooldown";
  return "";
 }
 function accept(g:InlineGate,card:BoardCard,manual:boolean,source:"tool"|"fallback",now:number){
- const signature=JSON.stringify([card.type,card.title.toLowerCase(),card.body,card.pairs,card.questions]);
+ const signature=JSON.stringify([card.type,card.title.toLowerCase(),card.body,card.pairs,card.points,card.questions]);
  if(!manual&&g.seen.has(signature))return "duplicate";
  if(g.seen.size>=100)g.seen.clear();
  g.seen.add(signature);g.lastShown=now;g.shownThisTurn=true;g.outcome="shown";g.accepted++;if(source==="fallback")g.fallbacks++;
@@ -82,7 +82,7 @@ export function proposeInlineBoard(g:InlineGate,call:{name:string;args?:unknown}
  const patch=validateBoardPatch(call.args);
  const raw=patch&&patch.action!=="remove"?patch.cards.find(c=>c.type!=="explanation"&&meaningful(c)):undefined;
  if(!raw)return reject("invalid-or-low-value-card");
- const card={...raw,body:raw.body.slice(0,240),pairs:raw.pairs.slice(0,4),questions:raw.questions.slice(0,3),points:[]};
+ const card={...raw,body:raw.body.slice(0,240),pairs:raw.pairs.slice(0,4),questions:raw.questions.slice(0,3),points:raw.points.slice(0,4)};
  if(!meaningful(card))return reject("invalid-truncated-card");
  g.validCards++;
  const manual=manualRequest(g,g.input,now),reason=blocked(g,manual,auto,now,g.input)||accept(g,card,manual,"tool",now);
