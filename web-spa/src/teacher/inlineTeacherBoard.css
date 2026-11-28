@@ -1,17 +1,13 @@
 /* Optional inline surface; no global call layout or standalone board changes. */
-.teacher-live-stage.friend-phone-stage>.inline-teacher-board{order:2;flex:0 1 auto;min-height:0;max-height:44%;width:100%;min-width:0;display:flex;flex-direction:column;overflow:hidden;border:1px solid #c9ded1;border-radius:14px;background:#fff;color:#244333}
-.inline-teacher-board>header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;padding:0 8px 0 12px;background:#eef5f0;color:#244333}
-.inline-teacher-board>header button{width:44px;height:44px;flex:0 0 44px;border:0;background:transparent;color:#244333;font-size:25px;cursor:pointer}
-.inline-teacher-board-content{min-height:0;overflow:auto;overscroll-behavior:contain}
-.inline-teacher-board .teaching-board-card{min-height:0;color:#244333}
-.inline-teacher-board .teaching-board-card-head{padding:10px 12px 4px;gap:6px}
-.inline-teacher-board .teaching-board-card-head h2{font-size:18px;line-height:1.3}
-.inline-teacher-board .teaching-board-card-content{padding:6px 12px 12px}
-.inline-teacher-board .teaching-board-pairs{grid-template-columns:1fr;gap:6px}
-.inline-teacher-board .teaching-board-pair{padding:8px 10px;gap:4px;min-height:44px}
-.inline-teacher-board .teaching-board-pager button,.inline-teacher-board .teaching-board-options button{min-height:44px}
-.inline-teacher-board button:focus-visible{outline:2px solid #286848;outline-offset:-2px}
-@media(prefers-reduced-motion:reduce){.inline-teacher-board .teaching-board-card{animation:none}}
+.teacher-visual-reply .teaching-board-card{min-height:0;color:#244333}
+.teacher-visual-reply .teaching-board-card-head{padding:10px 12px 4px;gap:6px}
+.teacher-visual-reply .teaching-board-card-head h2{font-size:18px;line-height:1.3}
+.teacher-visual-reply .teaching-board-card-content{padding:6px 12px 12px}
+.teacher-visual-reply .teaching-board-pairs{grid-template-columns:1fr;gap:6px}
+.teacher-visual-reply .teaching-board-pair{padding:8px 10px;gap:4px;min-height:44px}
+.teacher-visual-reply .teaching-board-pager button,.teacher-visual-reply .teaching-board-options button{min-height:44px}
+.teacher-visual-reply button:focus-visible{outline:2px solid #286848;outline-offset:-2px}
+@media(prefers-reduced-motion:reduce){.teacher-visual-reply .teaching-board-card{animation:none}}
 
 .inline-board-delivery{padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;line-height:1.45;overflow-wrap:anywhere;color:#244333;background:#fff}
 .inline-board-delivery button{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid #647f70;background:#eef5f0;color:#244333;cursor:pointer}
@@ -26,12 +22,20 @@
 .inline-lesson-picker select{min-width:0;width:100%;min-height:44px;border:1px solid currentColor;border-radius:8px;padding:0 8px;font:inherit;background:var(--surface,#fff);color:#244333}
 
 /* The user controls visibility; hiding preserves the mounted card and scroll position. */
-.teacher-live-stage.friend-phone-stage>.inline-teacher-board[hidden]{display:none!important}
 .teacher-live-stage .friend-phone-buttons:has(.inline-board-mode-button){gap:4px}
 .teacher-live-stage .friend-phone-buttons:has(.inline-board-mode-button)>.friend-phone-button{min-width:0;flex:1 1 0}
 .teacher-call-page .friend-phone-stage .inline-board-mode-button[aria-pressed="true"] svg{background:#287b54;color:#fff;box-shadow:0 0 0 2px #9cdeb5}
 .teacher-call-page .friend-phone-stage .inline-board-mode-button[aria-pressed="true"] small{color:#9cdeb5}
-.inline-teacher-board .inline-board-follow{align-self:flex-end;flex:none;margin:3px 10px;min-height:44px;padding:4px 10px;background:#eef5f0;color:#244333;border:1px solid #647f70;border-radius:8px}
-.inline-teacher-board .teaching-board-pair.is-highlighted,.inline-teacher-board .teaching-board-bubble.is-highlighted,.inline-teacher-board .teaching-board-timeline.is-highlighted{outline:2px solid #287b54;outline-offset:-2px;background:#e4f3e8}
+.teacher-visual-reply .teaching-board-pair.is-highlighted,.teacher-visual-reply .teaching-board-bubble.is-highlighted,.teacher-visual-reply .teaching-board-timeline.is-highlighted{outline:2px solid #287b54;outline-offset:-2px;background:#e4f3e8}
 .inline-lesson-footer{justify-content:space-between;gap:6px}
 .inline-lesson-footer .inline-lesson-end{background:#fff;color:#286848}
+
+/* Cards belong to the teacher reply, not a second independently scrolling panel. */
+.teacher-call-page .friend-chat-bubbles .friend-bubble-ai.has-visual-reply{width:100%;max-width:100%;padding:10px 9px}
+.teacher-visual-reply{margin-top:9px;border:1px solid #dce7df;border-radius:12px;overflow:hidden;min-width:0;background:#fff;color:#244333;white-space:normal}
+.teacher-visual-reply .teaching-board-card{min-height:0;overflow-wrap:anywhere}
+.teacher-visual-reply .teaching-board-card p{font-weight:400}
+.teacher-visual-reply .teaching-board-card small{color:#46654e}
+.teacher-visual-reply .teaching-board-card-head h2{font-size:18px;line-height:1.3}
+.teacher-visual-reply .teaching-board-pairs{grid-template-columns:1fr}
+.teacher-visual-follow{position:sticky;bottom:4px;z-index:2;align-self:center;flex:none;min-height:44px;padding:0 14px;border:1px solid #98b9a3;background:#e6f2e9;color:#234a34;border-radius:20px;box-shadow:0 2px 9px #0004;cursor:pointer}
