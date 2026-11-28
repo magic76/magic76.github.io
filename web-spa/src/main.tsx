@@ -18,8 +18,8 @@ import "./uxPass2.css";
 // Keep the scrollbar policy last so route and dialog styles cannot bring tracks back.
 import "./scrollbar-policy.css";
 import "./i18n";
-import i18n,{localeResourcesReady} from "./i18n";
-import {localeFromPublicPath,localePrefix,normalizeUiLocale,preferredPublicLocaleDestination} from "./i18n/localeCatalog";
+import {localeResourcesReady} from "./i18n";
+import {localeFromPublicPath,localePrefix} from "./i18n/localeCatalog";
 import { App } from "./App";
 
 import {PublicResearchProvider,type PublicResearchSeed} from "./briefing/PublicResearchContext";
@@ -72,16 +72,11 @@ const prerenderedPath=root.dataset.crewSsgPath;
 // Only hydrate when the delivered SSG HTML belongs to this exact route.
 // The root-index SPA fallback is intentionally NOT hydrated for deep links.
 // Wait only for the active locale, never for all nine languages.
-// Select a localized public URL before hydration, preserving the page and query.
-// Native Android WebView loads the same Crew home URL and follows this path.
 // Canonicalize the www alias before mounting or claiming a guest session.
 // Keep pathname, query and hash intact; do not redirect the old 3sssi.com site here.
 const kooloCanonicalDestination=window.location.origin==="https://www.koolo.app"
  ? "https://koolo.app"+window.location.pathname+window.location.search+window.location.hash:null;
-const destination=kooloCanonicalDestination||(!legacy?preferredPublicLocaleDestination(
- window.location.pathname,normalizeUiLocale(i18n.language)||"en",
- window.location.search,window.location.hash,navigator.userAgent
-):null);
+const destination=kooloCanonicalDestination;
 if(destination){
  window.location.replace(destination);
 } else {

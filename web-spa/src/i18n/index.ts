@@ -23,12 +23,9 @@ function initialLocale(){
  if(typeof window==="undefined")return "zh-TW";
  let saved:string|null=null;
  try{saved=localStorage.getItem(UI_LOCALE_KEY)}catch{/* Restricted storage must not block first paint. */}
- const preferences=navigator.languages?.length?navigator.languages:[navigator.language];
  return resolveInitialUiLocale({
   pathname:window.location.pathname,
-  storedLocale:saved,
-  browserLanguages:preferences,
-  userAgent:navigator.userAgent
+  storedLocale:saved
  });
 }
 // Keep beta base catalogs out of the entry bundle. Vite puts each JSON

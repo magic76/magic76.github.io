@@ -33,12 +33,6 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
  }
  function rememberManualChoice(next:UiLocale){
   try{localStorage.setItem(UI_LOCALE_KEY,next)}catch{/* Restricted storage still allows this-session switching. */}
-  // Edge locale routing cannot see localStorage. Only a manual choice sets
-  // this non-sensitive preference cookie; the learner's target language remains separate.
-  try{
-   const secure=window.location.protocol==="https:"?"; Secure":"";
-   document.cookie=UI_LOCALE_KEY+"="+encodeURIComponent(next)+"; Path=/; Max-Age=31536000; SameSite=Lax"+secure;
-  }catch{/* Blocked cookies should not prevent choosing a UI language. */}
  }
  async function chooseLocale(next:UiLocale){
   if(!UI_LOCALES.includes(next)||changing)return;

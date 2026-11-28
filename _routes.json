@@ -9,8 +9,7 @@
     "/fortune/report-lab",
     "/admin/payment-test",
     "/api/voice/*",
-    "/api/books",
-    "/"
+    "/api/books"
   ],
   "exclude": [
     "/api/guest/*"
