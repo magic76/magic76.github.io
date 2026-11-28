@@ -1,6 +1,5 @@
 import{DEFAULT_TEACHER_OPENING,REVIEW_TEACHER_OPENING,REVIEW_TEACHER_POLICY}from"./teacherOpeningPrompts";
 import{useInlineTeacherBoard,visualReplyProps,InlineTeacherBoardMenu}from"./InlineTeacherBoard";
-import{useTeacherReplyComposer}from"./useTeacherReplyComposer";
 import{FriendUnifiedComposer}from"../friends/FriendUnifiedComposer";
 import{useFriendTextViewport}from"../friends/useFriendTextViewport";
 import {teacherCallStatusKey,teacherPresenceState} from "./teacherCallStatus";
@@ -185,7 +184,6 @@ export function TeacherLivePage(){
  };
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  useAuxiliaryLiveSession(sessionActive,textMode);
- const replyDecisions=useTeacherReplyComposer(inlineBoard.enabled&&sessionActive&&!guestStarted&&live.state!=="ending"&&live.state!=="reporting",live.state==="listening"||live.state==="speaking",profile.id+"|"+s.targetLanguage,live.captionTurns,inlineBoard.journal,Boolean(inlineBoard.guided),s.targetLanguage,s.nativeLanguage);
  const interruptedCaptions=live.state==="error"&&Boolean(live.captionTurns.length||live.input||live.output);
  const changeTeacher=async()=>{
   if(changingTeacher)return;
@@ -240,7 +238,6 @@ export function TeacherLivePage(){
   <div className="friend-call-settings">
    {missionNotes}{modeSwitch}{teacherOptions}{quickActions}
    <InlineTeacherBoardMenu board={inlineBoard} zh={zh} send={live.sendText} canSend={live.state==="listening"} onRequested={()=>setCallOptions(false)}/>
-   {inlineBoard.enabled&&!guestStarted&&<button type="button" onClick={async()=>{await live.stop(true);navigate("/teacher/sync/live")}}>{zh?"同步教學（實驗）":"Sync teaching (beta)"}</button>}
    {!guestStarted&&<TeacherLiveTools live={live} store={s} profile={profile} sessionActive={sessionActive} onPickTeacher={()=>setPicker(true)}/>}
   </div>
   <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/>
@@ -261,7 +258,7 @@ export function TeacherLivePage(){
     :sessionActive?<FriendCallControls live={live} onEnd={endAndReturn}/>:<LiveControls live={live} textFallback={fortuneKind?undefined:alternateHref} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
    {guestStarted&&!sessionActive&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
   </div>
-  {sessionActive||interruptedCaptions?<FriendCallCaptions name={profile.name} turns={live.captionTurns} learningFeedback={live.learningFeedback} input={live.input} output={live.output} learningLanguage={s.targetLanguage} nativeLanguage={s.nativeLanguage} speaking={live.state==="speaking"} speakerAvatar={<TeacherAvatar profile={profile} decorative/>} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled} waitingText={t("voice:callCaptions.waitingForTeacher")} headerAccessory={guestStarted&&live.state!=="ended"&&live.state!=="error"?<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>:null} visualReply={visualReplyProps(inlineBoard,!zh,live.sendText,live.state==="listening",live.captionTurns,live.input,live.output,s.targetLanguage,replyDecisions)} replyExtra={<PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/>}/>:null}
+  {sessionActive||interruptedCaptions?<FriendCallCaptions name={profile.name} turns={live.captionTurns} learningFeedback={live.learningFeedback} input={live.input} output={live.output} learningLanguage={s.targetLanguage} nativeLanguage={s.nativeLanguage} speaking={live.state==="speaking"} speakerAvatar={<TeacherAvatar profile={profile} decorative/>} suggestions={replyHints.groups.at(-1)||[]} suggestionsEnabled={replyHints.enabled} waitingText={t("voice:callCaptions.waitingForTeacher")} headerAccessory={guestStarted&&live.state!=="ended"&&live.state!=="error"?<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>:null} visualReply={visualReplyProps(inlineBoard,!zh,live.sendText,live.state==="listening",live.captionTurns,live.input,live.output,s.targetLanguage,undefined,true)} replyExtra={<PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/>}/>:null}
   {(sessionActive||interruptedCaptions)&&!endingCourse&&<FriendUnifiedComposer live={live} connectedOnly/>}
   </>}
  </section>{!textMode&&<DesktopLivePanel kind="teacher" label={profile.name} language={s.targetLanguage} turns={live.captionTurns} input={live.input} output={live.output} state={live.state} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode}/>}</div>
