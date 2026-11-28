@@ -4,7 +4,7 @@ import {appendVisualReply,sealVisualReplies,updateVisualReply,discardPendingVisu
 import type {BoardCard} from "./boardProtocol";
 import {currentBuild} from "../runtime/buildUpdates";
 import type {LiveToolDiagnostic} from "../lib/runtime";
-import {backupCard} from "./inlineBoardFallback";
+import type {ComposerDecision} from "./teacherReplyComposer";
 import {teacherReplyTemplates,type TeacherReplyTemplate} from "./teacherReplyTemplates";
 import {inlineLessonLanguage,inlineLessonsFor,findInlineLesson} from "./inlineLessonCatalog";
 import {startGuidedLesson,guidedCard,guidedPhase,guidedAnswer,guidedAttempt,guidedExplained,guidedCanAdvance,advanceGuidedLesson,guidedPrompt,GUIDED_END_PROMPT,type GuidedSession} from "./inlineLessonEngine";
@@ -96,16 +96,15 @@ export function useInlineTeacherBoard(eligible:boolean,target="英文"){
    syncGuided(guidedExplained(next,turn.hasValidOutput===true));recordInlineEvent(gate.current,"guided-turn-complete");return;
   }
   if(current?.type==="quiz"&&spoken)answer(current,quizRef.current,spoken[1].toUpperCase().charCodeAt(0)-65);
-  const next=finishInlineTurn(gate.current,input,turn.hasValidOutput===true,enabled,Date.now(),(topic,output,manual,previous)=>backupCard(topic,output,manual,previous,inlineLessonLanguage(target)),turn.output||"");
-  setDelivery(gate.current.outcome==="missing"?"missing":"idle");
-  if(next)show(next)
+  finishInlineTurn(gate.current,input,turn.hasValidOutput===true,enabled,Date.now(),undefined,turn.output||"");
+  setDelivery("idle"); // The composer owns free-form fallback decisions.
  }
  function finish(turn:{input?:string;output?:string;hasValidOutput?:boolean},captionIndex:number|null){
   finishTurn(turn);
   gate.current.input="";
   if(captionIndex!==null&&(turn.output?.trim()||turn.hasValidOutput)){setLatestReplyTurn(captionIndex);if(journalRef.current.some(e=>e.turn===null))publish(sealVisualReplies(journalRef.current,captionIndex))}
   else if(!turn.hasValidOutput)discardInterrupted();
-  setMissingTurn(gate.current.outcome==="missing"?captionIndex:null);
+  setMissingTurn(null);
  }
  function request(send:Send){
   if(!enabled||guidedRef.current)return false;
@@ -130,13 +129,18 @@ function VisualReplyCard({entryId,board,current,children}:{entryId:number;board:
  useEffect(()=>{board.markRendered(entryId)},[entryId]);
  return <div className="teacher-visual-reply" data-visual-current={current?"true":undefined}>{children}</div>;
 }
-export function VisualReplyContent({board,english,send,canSend,turn,template}:{board:Board;english:boolean;send:Send;canSend:boolean;turn:number|"stream";template?:TeacherReplyTemplate}){
+function ComposerMaterial({card,english,send,canSend}:{card:BoardCard;english:boolean;send:Send;canSend:boolean}){
+ const [answers,setAnswers]=useState<Record<string,number>>({});
+ return <div className="teacher-visual-reply" data-visual-source="composer"><TeachingCard card={card} answers={answers} english={english} disabled={!canSend} onAnswer={(c,i,selected)=>{const q=c.questions[i],key=c.id+":"+i;if(!canSend||!q||answers[key]!==undefined||!Number.isInteger(selected)||selected<0||selected>=q.options.length)return;if(send("[LEARNER QUIZ ANSWER] "+JSON.stringify({question:q.question,selected:q.options[selected]})+". Give brief feedback."))setAnswers(old=>({...old,[key]:selected}))}} onExplain={text=>{if(canSend)send("[LEARNER MATERIAL QUESTION] Please explain this item: "+JSON.stringify(text))}}/></div>
+}
+export function VisualReplyContent({board,english,send,canSend,turn,template,latest}:{board:Board;english:boolean;send:Send;canSend:boolean;turn:number|"stream";template?:TeacherReplyTemplate;latest?:boolean}){
  if(!board.enabled)return null;
  const entries=visualRepliesAt(board.journal,turn);
  const active=(entry:VisualReply)=>entry.id===board.activeEntry;
  const activeCard=board.journal.find(active);
  const controlTurn=activeCard?.turn===null?"stream":board.latestReplyTurn??activeCard?.turn;
  return <>
+  {!entries.length&&template?.kind==="material"&&template.source==="composer"&&<ComposerMaterial card={template.card} english={english} send={send} canSend={canSend&&Boolean(latest)}/>}
   {!entries.length&&template?.kind==="material"&&template.source==="caption"&&<div className="teacher-visual-reply" data-visual-source="caption"><TeachingCard card={template.card} answers={{}} english={english} onAnswer={()=>{}} onExplain={text=>{if(canSend)send("[LEARNER MATERIAL QUESTION] Please explain this item: "+JSON.stringify(text))}} readOnly disabled/></div>}
   {entries.map(entry=>{
    const current=active(entry),card=entry.card,interactive=current&&canSend;
@@ -158,15 +162,15 @@ export function VisualReplyContent({board,english,send,canSend,turn,template}:{b
  </>;
 }
 
-export function visualReplyProps(board:Board,english:boolean,send:Send,canSend:boolean,turns:ReadonlyArray<{input?:string;output?:string}>,input:string,output:string,target:string){
+export function visualReplyProps(board:Board,english:boolean,send:Send,canSend:boolean,turns:ReadonlyArray<{input?:string;output?:string}>,input:string,output:string,target:string,decisions?:Readonly<Record<number,ComposerDecision>>){
  if(!board.enabled)return undefined;
- const templates=teacherReplyTemplates(turns,{input,output},board.journal,inlineLessonLanguage(target),Boolean(board.guided));
+ const templates=teacherReplyTemplates(turns,{input,output},board.journal,inlineLessonLanguage(target),Boolean(board.guided),decisions);
  const keys:Array<number|"stream">=Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key])=>key);
  for(const entry of board.journal)if(!keys.includes(entry.turn??"stream"))keys.push(entry.turn??"stream");
  if(board.delivery!=="idle")keys.push(board.delivery==="missing"?board.missingTurn??"stream":"stream");
  const activeCard=board.journal.find(e=>e.id===board.activeEntry);
  if(board.guided&&activeCard&&activeCard.turn!==null&&board.latestReplyTurn!==null)keys.push(board.latestReplyTurn);
- return {keys,kind:(turn:number|"stream")=>templates.get(turn)?.kind??"text",revision:JSON.stringify([board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key,v])=>[key,v.kind,v.kind==="material"?v.card:null]),board.delivery,board.missingTurn,board.guided?.index,board.guided?.explained,board.guided?.attempted,board.latestReplyTurn]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=><VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn} template={templates.get(turn)}/>};
+ return {keys,kind:(turn:number|"stream")=>templates.get(turn)?.kind??"text",revision:JSON.stringify([board.journal.map(e=>[e.id,e.turn,e.quizIndex,e.answers]),Array.from(templates).filter(([,v])=>v.kind!=="text").map(([key,v])=>[key,v.kind,v.kind==="material"?v.card:null]),board.delivery,board.missingTurn,board.guided?.index,board.guided?.explained,board.guided?.attempted,board.latestReplyTurn]),focusKey:board.focus>=0&&board.activeEntry!==null?board.activeEntry+":"+board.focus:"",render:(turn:number|"stream")=><VisualReplyContent board={board} english={english} send={send} canSend={canSend} turn={turn} template={templates.get(turn)} latest={turn===turns.length-1&&!board.guided&&!input.trim()&&!output.trim()||turn===turns.length-1&&!board.guided&&output.trim()===(turns[turns.length-1]?.output||"").trim()}/>};
 }
 
 export function InlineTeacherBoardMenu({board,zh,send,canSend,onRequested}:{board:Board;zh:boolean;send:Send;canSend:boolean;onRequested:()=>void}){
