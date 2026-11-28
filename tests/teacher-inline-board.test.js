@@ -80,9 +80,10 @@ test("integration renders from tool callback, keeps rollback and existing standa
  assert.ok(Buffer.byteLength(live)<26000);
 });
 
-test("positive proactive instruction explicitly calls tool for educational questions, not all small talk",()=>{
+test("spoken teaching is primary; optional display material is early, not interactive",()=>{
  assert.match(api.INLINE_BOARD_POLICY,/CALL update_teaching_board/);
- assert.match(api.INLINE_BOARD_POLICY,/Do not wait for the learner to request a board/);
+ assert.match(api.INLINE_BOARD_POLICY,/optional display-only material/);
+ assert.match(api.INLINE_BOARD_POLICY,/Never delay or repeat your explanation/);
  assert.match(api.INLINE_BOARD_POLICY,/Skip the tool for greetings/);
 });
 test("each supported learning language has distinct curated lesson content; unknown languages never fall back to English",()=>{
@@ -261,6 +262,30 @@ test("actual React reply markup includes caption-derived teaching card before su
   assert.match(aiHtml,/data-visual-source="composer"/);
   assert.match(aiHtml,/Semantic material/);
   assert.match(aiHtml,/data-kind="vocabulary"/);
+  const {liveCaptionBlocks}=await server.ssrLoadModule("/src/teacher/PassiveTeacherReply.tsx");
+  const actual="First, use in for a space. For example, in the room. Next, use on for a surface.";
+  assert.deepEqual(Array.from(liveCaptionBlocks(actual),row=>row.kind),["point","example","point"]);
+  assert.equal(Array.from(liveCaptionBlocks(actual),row=>row.text).join(" "),actual);
+  assert.equal(liveCaptionBlocks("Hello!")[0].kind,"text");
+  assert.deepEqual(Array.from(liveCaptionBlocks("首先，注意語序。 例如，我正在學日文。"),row=>row.kind),["point","example"]);
+  const plain=visualReplyProps(board,true,()=>false,true,[],"Explain prepositions",actual,"英文",undefined,true);
+  const captionHtml=renderToStaticMarkup(plain.renderCaption(actual,"en"));
+  assert.match(captionHtml,/data-caption-layout="structured"/);
+  assert.match(captionHtml,/teacher-live-caption-example/);
+  assert.equal(plain.keys.length,0);
+  const late=visualReplyProps(board,true,()=>false,true,turns,"","","英文",decisions,true);
+  assert.equal(late.keys.length,0);
+  assert.equal(late.kind(1),"text");
+  const streamJournal=api.appendVisualReply([],1,{...card(),body:"",points:[],questions:[]});
+  const passive=visualReplyProps({...board,journal:streamJournal,activeEntry:1,focus:0},true,()=>{throw Error("display must not send")},true,[],"Explain tenses",actual,"英文",undefined,true);
+  const passiveHtml=renderToStaticMarkup(passive.render("stream"));
+  assert.match(passiveHtml,/teacher-passive-material/);
+  assert.match(passiveHtml,/is-highlighted/);
+  assert.doesNotMatch(passiveHtml,/<button|<input|<form/);
+  const sealed=visualReplyProps({...board,journal:api.sealVisualReplies(streamJournal,0)},true,()=>false,true,[{input:"Explain tenses",output:actual}],"","","英文",undefined,true);
+  assert.deepEqual(Array.from(sealed.keys),[0]);
+  assert.match(renderToStaticMarkup(sealed.render(0)),/teacher-passive-material/);
+
  }finally{await server.close()}
 });
 
@@ -334,9 +359,16 @@ test("synchronized experiment is isolated from the original voice route and uses
  const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8"),page=read("SyncTeacherPage.tsx"),live=read("LivePage.tsx");
  assert.match(app,/path="\/teacher\/sync\/live" element=\{<SyncTeacherPage\/>\}/);
  assert.match(app,/path="\/teacher\/live" element=\{<TeacherLivePage\/>\}/);
- assert.match(live,/await live\.stop\(true\);navigate\("\/teacher\/sync\/live"\)/);
+ assert.doesNotMatch(live,/navigate\("\/teacher\/sync\/live"\)/);
  assert.ok(page.indexOf("await generateTeachingPlan")<page.indexOf("await playTeachingSegments"));
  assert.match(page,/focusIndex=\{r\.focus\}/);
  assert.match(page,/generation\.current!==epoch/);
  assert.doesNotMatch(page,/useLiveSession|composeTeacherReply/);
+});
+
+test("standard teacher Live page does not start a post-turn composer or navigate to the experimental engine",()=>{
+ const live=read("LivePage.tsx");
+ assert.doesNotMatch(live,/useTeacherReplyComposer|composeTeacherReply|navigate\("\/teacher\/sync\/live"\)/);
+ assert.match(live,/visualReplyProps\(inlineBoard,[^\n]*s\.targetLanguage,undefined,true\)/);
+ assert.match(live,/useLiveSession\(/);
 });
