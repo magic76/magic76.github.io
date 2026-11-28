@@ -243,7 +243,7 @@ jobs:
         if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'seo-') || contains(github.event.pull_request.head.ref, 'editorial-articles'))
         run: |
           node --check scripts/seo-lastmod.mjs
-          node --test tests/seo-lastmod-source.test.js
+          node --test tests/seo-lastmod-source.test.js tests/seo-international-publication.test.mjs tests/seo-market-launch.test.mjs
           npm run build:cloudflare
           npm run test:cloudflare
           node --test tests/intent-seo.test.js

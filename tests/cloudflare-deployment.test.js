@@ -502,6 +502,8 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
   expected.push(domain+route);
   assert.ok(read(locale+"articles/index.html").includes('data-editorial-ssg-path="'+route+'"'),"editorial index missing: "+route);
  }
+ const {readInternationalPages,canonicalUrl}=await import("../scripts/seo-publication.mjs");
+ for(const entry of readInternationalPages(ROOT))expected.push(canonicalUrl(entry.locale,entry.path));
  assert.equal(urls.length,expected.length,"sitemap should enumerate all public and playable game routes");
  assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
  assert.ok(headers.includes("https://magic76-github-io.pages.dev/*"),"preview host missing noindex");
@@ -585,6 +587,14 @@ check("international locale routes only index explicitly reviewed pages; other p
    assert.ok(html.includes('name="robots" content="index,follow"'));
    assert.ok(html.includes('rel="canonical" href="'+canonical+'"'));
    assert.ok(html.includes("<h1")&&html.includes('class="app-header"'));
+   const marketCopy=JSON.parse(fs.readFileSync(path.join(ROOT,"web-spa/src/i18n/internationalLearningData.json"),"utf8"))[code];
+   if(marketCopy&&(entry.path==="/"||entry.path==="/teacher")){
+    const body=html.slice(html.indexOf("<body"));
+    assert.ok(body.includes(marketCopy.guides.heading),code+" localized practice heading");
+    for(const example of marketCopy.guides.examples)assert.ok(body.includes(example.meaning),code+" localized exercise");
+    if(entry.path==="/teacher")assert.ok(body.includes(marketCopy.teacherHeading),code+" localized teacher heading");
+    assert.ok(html.includes("<title>"+entry.title+"</title>"),code+" localized title");
+   }
    const counterparts=[...BASE_SEO_LOCALES.filter(locale=>urls.has(canonicalUrl(locale,entry.path))),...approved.filter(other=>other.path===entry.path).map(other=>other.locale)];
    for(const locale of counterparts){
     const otherHtml=read(publicPath(locale,entry.path).slice(1)+"index.html");
@@ -610,6 +620,8 @@ check("all published SSG OG images are present, 1200x630 PNG, and route-specific
  const {readPublishedResearch}=await import("../scripts/research-seo.mjs");
  const {days}=readPublishedResearch(ROOT);
  for(const [date,day] of days)for(const item of day.items)push("research/"+date+"/"+item.id+"/");
+ const {readInternationalPages,publicPath}=await import("../scripts/seo-publication.mjs");
+ for(const entry of readInternationalPages(ROOT))if(entry.path==="/"||entry.path==="/teacher")push(publicPath(entry.locale,entry.path).slice(1));
  for(const page of paths){
   const html=read(page);
   const meta=tag=>html.match(new RegExp('<meta '+tag+' content="([^"]+)">'))?.[1];

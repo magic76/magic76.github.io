@@ -6,6 +6,7 @@ import {useTranslation} from "react-i18next";
 import i18n from "../i18n";
 import {Icon} from "../components/Icon";
 import {GuideHub} from "../guides/GuideHub";
+import {internationalLearningCopy} from "../i18n/internationalLearningCopy";
 import {PlayStoreLink} from "../components/PlayStoreLink";
 import {isCrewAndroidShell} from "../lib/platform";
 import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
@@ -123,6 +124,7 @@ function activities(book:Book|null):Recent[]{
 
 export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
+ const market=internationalLearningCopy(locale.resolvedLanguage||locale.language);
  const ready=useClientReady();
  const [orbAvailable,setOrbAvailable]=useState(false);
  const [shortsFeed,setShortsFeed]=useState<ShortFeed|null>(null);
@@ -171,7 +173,7 @@ export function HomePage(){
  return <><DesktopHomePage recents={recents} shortsFeed={shortsFeed} shortsStatus={shortsStatus} featuredGame={featuredGame}/><div className="crew-home-legacy" aria-hidden="true" inert><div className="crew-home">
   {orbAvailable&&<div className="crew-home-content"><Link to="/orb" className="crew-home-orb-quick">
    <span className="crew-home-orb-icon" aria-hidden="true">◉</span>
-   <span className="crew-home-orb-quick-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選角色，開始背景語音聊天":"Choose a character for hands-free chat"}</small></span>
+   <span className="crew-home-orb-quick-copy"><strong>Cyber Orb</strong><small>{market?.orb??(locale.language.startsWith("zh")?"選角色，開始背景語音聊天":"Choose a character for hands-free chat")}</small></span>
    <Arrow className="crew-home-orb-chevron"/>
   </Link></div>}
   <div className="crew-home-world">
@@ -227,10 +229,10 @@ export function HomePage(){
   </div>
   <div className="crew-home-content">
   <section className="crew-home-search-summary" aria-labelledby="crew-home-search-summary-title">
-   <h2 id="crew-home-search-summary-title">{locale.language.startsWith("zh")?"Koolo：AI 朋友聊天、語言學習、互動遊戲與故事創作":"Koolo: AI Friends, Language Practice, Games and Stories"}</h2>
-   <p>{locale.language.startsWith("zh")
+   <h2 id="crew-home-search-summary-title">{market?.homeHeading??(locale.language.startsWith("zh")?"Koolo：AI 朋友聊天、語言學習、互動遊戲與故事創作":"Koolo: AI Friends, Language Practice, Games and Stories")}</h2>
+   <p>{market?.homeBody??(locale.language.startsWith("zh")
     ?"在 Koolo，你可以和不同個性的 AI 朋友自然聊天、透過 Koolo Teacher 練習英文口說、在 Koolo Play 玩棋盤和猜題遊戲，也能和 AI 一起創作、閱讀故事。"
-    :"Talk with AI characters, practice spoken English with Koolo Teacher, play board and guessing games in Koolo Play, and create or read stories together with AI."}</p>
+    :"Talk with AI characters, practice spoken English with Koolo Teacher, play board and guessing games in Koolo Play, and create or read stories together with AI.")}</p>
    <nav aria-label={t("explore")}>
     <Link to="/teacher">{t("product.teacher")}</Link>
     <Link to="/games">{t("product.play")}</Link>

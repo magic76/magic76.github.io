@@ -1,4 +1,53 @@
 {
   "version": 1,
-  "pages": []
+  "pages": [
+    {
+      "locale": "ja",
+      "path": "/",
+      "title": "Koolo | AI英会話・リアルタイムで英語を話す練習",
+      "description": "AIの先生や友だちと英語を話す練習。日本語で質問しながら、日常会話、旅行、仕事の英語をブラウザで学べます。",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    },
+    {
+      "locale": "ja",
+      "path": "/teacher",
+      "title": "AI英会話の練習 | 日本語で質問できるAI英語講師 | Koolo",
+      "description": "AI英語講師とリアルタイムで会話。日本語で質問しながら、発音、日常英会話、旅行や仕事の場面を練習できます。",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    },
+    {
+      "locale": "vi",
+      "path": "/",
+      "title": "Koolo | Luyện nói tiếng Anh với AI theo thời gian thực",
+      "description": "Luyện giao tiếp tiếng Anh với giáo viên AI và bạn AI, hỏi bằng tiếng Việt, thực hành hội thoại hằng ngày, du lịch và công việc ngay trên trình duyệt.",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    },
+    {
+      "locale": "vi",
+      "path": "/teacher",
+      "title": "Luyện nói tiếng Anh với giáo viên AI | Hỏi bằng tiếng Việt | Koolo",
+      "description": "Thực hành hội thoại tiếng Anh bằng giọng nói với giáo viên AI. Hỏi nghĩa và ngữ pháp bằng tiếng Việt, luyện phát âm, du lịch và công việc.",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    },
+    {
+      "locale": "ko",
+      "path": "/",
+      "title": "Koolo | AI 영어회화·실시간 영어 말하기 연습",
+      "description": "AI 선생님과 AI 친구를 만나 영어로 대화하세요. 한국어로 질문하며 일상 영어, 여행 영어, 직장 영어를 브라우저에서 연습할 수 있습니다.",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    },
+    {
+      "locale": "ko",
+      "path": "/teacher",
+      "title": "AI 영어회화 연습 | 한국어로 질문하는 AI 영어 선생님 | Koolo",
+      "description": "AI 영어 선생님과 실시간 음성 대화로 영어를 연습하세요. 한국어로 뜻과 문법을 질문하고 발음, 여행 및 직장 영어를 연습할 수 있습니다.",
+      "lastmod": "2026-11-28",
+      "reviewed": true
+    }
+  ]
 }

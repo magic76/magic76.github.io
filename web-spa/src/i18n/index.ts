@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import {initReactI18next} from "react-i18next";
+import {loadInternationalLearningCopy} from "./internationalLearningCopy";
 import {normalizeUiLocale,resolveInitialUiLocale,UI_LOCALES,UI_LOCALE_KEY} from "./localeCatalog";
 export {normalizeUiLocale,UI_LOCALES,UI_LOCALE_KEY,SEO_PRIORITY_LOCALES,PUBLISHED_SEO_LOCALES} from "./localeCatalog";
 export type {UiLocale} from "./localeCatalog";
@@ -66,7 +67,7 @@ export function loadUiNamespace(namespace:RouteNamespace):Promise<void>{
 }
 export function loadUiLocale(locale:string):Promise<void>{
  if(!UI_LOCALES.includes(locale as (typeof UI_LOCALES)[number]))return Promise.resolve();
- return Promise.all([loadBaseLocale(locale),loadRouteNamespaces(locale,wantedRouteNamespaces)]).then(()=>{});
+ return Promise.all([loadBaseLocale(locale),loadRouteNamespaces(locale,wantedRouteNamespaces),loadInternationalLearningCopy(locale)]).then(()=>{});
 }
 function loadBaseLocale(locale:string):Promise<void>{
  // Base locales are bundled eagerly; only Beta locales need dynamic JSON chunks.

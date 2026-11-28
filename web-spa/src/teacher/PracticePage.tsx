@@ -17,6 +17,7 @@ import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {loadUiNamespace} from "../i18n";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {hasLearningHistory} from "./learningHistory";
+import {internationalLearningCopy,internationalTrackTitle} from "../i18n/internationalLearningCopy";
 
 export function PracticePage(){
  const {t}=useTranslation("teacher");
@@ -28,6 +29,7 @@ export function PracticePage(){
  const storedProfile=useTeacherStore(s=>s.teacherProfile);
  const profile=getTeacherProfile(ready?storedProfile:"emma");
  const chinese=i18n.resolvedLanguage==="zh-TW";
+ const market=internationalLearningCopy(i18n.resolvedLanguage||i18n.language);
  // Keep SSR and the first hydration render identical; after mount, hide empty continuations.
  const showContinue=!ready||hasLearningHistory(target,profile.id);
  // SSG prerenders zh-TW and then en through a cached React.lazy page. A lazy
@@ -39,7 +41,7 @@ export function PracticePage(){
  if(ready)try{friendId=localStorage.getItem("crew_web_selected_friend_v1")}catch{/* Private browser storage may be disabled. */}
  const selectedFriend=encodeURIComponent((CREW_FRIENDS.find(x=>x.id===friendId)||CREW_FRIENDS[0]).id);
  return <>
- <section className="hero crew-practice-heading"><span className="kicker">Koolo Teacher</span><h1>{tToday("learnToday.teachersCourses")}</h1><p>{tToday("learnToday.teacherIntro")}</p></section>
+ <section className="hero crew-practice-heading"><span className="kicker">Koolo Teacher</span><h1>{target==="英文"&&market?market.teacherHeading:tToday("learnToday.teachersCourses")}</h1><p>{target==="英文"&&market?market.teacherIntro:tToday("learnToday.teacherIntro")}</p></section>
  <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{t("friends:languages."+target,{defaultValue:target})}</strong><Link to="/settings#settings-learning">{t("practice.targetChange")}</Link></section>
  <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")} style={!showContinue?{gridTemplateColumns:"minmax(0,1fr)"}:undefined}>
   <Link className="crew-role-entry teacher" to="/teacher/roles?mode=teacher">
@@ -59,7 +61,7 @@ export function PracticePage(){
    const done=ready?completedLessons(track.id):0,total=lessonsForTrack(track.id).length;
    return <Link key={track.id} to={"/teacher/course/"+track.id} className="feature-card crew-course-track-card" onClick={()=>{
     try{localStorage.setItem("crew_teacher_course_track",track.id)}catch{/* Optional preference. */}
-   }}><strong>{track.emoji} {chinese?track.titleZh:track.titleEn}</strong><span>{tToday("learnToday.trackProgress",{done,total})}</span></Link>;
+   }}><strong>{track.emoji} {internationalTrackTitle(i18n.resolvedLanguage||i18n.language,track.id)??(chinese?track.titleZh:track.titleEn)}</strong><span>{tToday("learnToday.trackProgress",{done,total})}</span></Link>;
   })}</div>
  </section>}
  {/* Secondary escape hatch only: /chat owns primary Friend entry and Shorts.

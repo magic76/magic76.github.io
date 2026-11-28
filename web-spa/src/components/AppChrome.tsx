@@ -1,6 +1,7 @@
 import { lazy,Suspense,useEffect,useLayoutEffect,useState } from "react";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
+import {internationalLearningCopy} from "../i18n/internationalLearningCopy";
 import { Link,NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
 import {useHomeAmbientMotion} from "../lib/useHomeAmbientMotion";
@@ -45,7 +46,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>
    <a href="mailto:cs@koolo.app">cs@koolo.app</a>
-   <Link to="/purchase-info">{/^zh(?:-|$)/i.test(i18n.resolvedLanguage||i18n.language)?"服務與收費":"Services & pricing"}</Link>
+   <Link to="/purchase-info">{internationalLearningCopy(i18n.resolvedLanguage||i18n.language)?.pricing??(/^zh(?:-|$)/i.test(i18n.resolvedLanguage||i18n.language)?"服務與收費":"Services & pricing")}</Link>
    <Link className="crew-contact-feedback" to={"/feedback?from="+encodeURIComponent(location.pathname)}>{t("contact.feedback")}</Link>
    <OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallEntry/></Suspense></OptionalWidgetBoundary>
   </footer>

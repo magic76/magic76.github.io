@@ -1,6 +1,7 @@
 import {Arrow} from "./Arrow";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import {internationalLearningCopy} from "../i18n/internationalLearningCopy";
 
 type Product="teacher"|"story"|"fortune";
 const content={
@@ -25,7 +26,8 @@ const links:Record<Product,[string,string]>={
 export function ProductDiscoverability({product}:{product:Product}){
  const {i18n}=useTranslation();
  const locale=i18n.resolvedLanguage==="en"?"en":"zh";
- const text=content[product][locale];
+ const market=internationalLearningCopy(i18n.resolvedLanguage||i18n.language);
+ const text=product==="teacher"&&market?market.about:content[product][locale];
  return <section className="section crew-product-about" aria-label={text.heading}>
   <div className="section-head"><h2>{text.heading}</h2></div>
   <p>{text.intro}</p>
